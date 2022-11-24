@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -59,6 +60,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         List<ModelColumn> modelColumns = new ArrayList<>();
         ShardingKeyChecker checker = new ShardingKeyChecker();
         SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
+        BanyanDBModelExtension banyanDBModelExtension = new BanyanDBModelExtension();
         retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, record);
         // Add extra column for additional entities
         if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
@@ -86,6 +88,17 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
             });
         }
+        //Add Records timestampColumn for BanyanDB
+        if (Record.class.isAssignableFrom(aClass)) {
+            if (aClass.isAnnotationPresent(BanyanDB.TimestampColumn.class)) {
+                String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
+                banyanDBModelExtension.setTimestampColumn(timestampColumn);
+            } else {
+                throw new IllegalStateException(
+                    "Record model [" + storage.getModelName() + "] miss defined @BanyanDB.TimestampColumn");
+            }
+        }
+
         checker.check(storage.getModelName());
 
         Model model = new Model(
@@ -97,7 +110,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             isSuperDatasetModel(aClass),
             aClass,
             storage.isTimeRelativeID(),
-            sqlDBModelExtension
+            sqlDBModelExtension,
+            banyanDBModelExtension
         );
 
         this.followColumnNameRules(model);

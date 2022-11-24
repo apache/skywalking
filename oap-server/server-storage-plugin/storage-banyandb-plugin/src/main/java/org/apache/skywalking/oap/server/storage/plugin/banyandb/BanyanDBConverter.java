@@ -67,9 +67,13 @@ public class BanyanDBConverter {
     public static class StreamToStorage implements Convert2Storage<StreamWrite> {
         private final MetadataRegistry.Schema schema;
         private final StreamWrite streamWrite;
+        private final String timestampColumn;
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(timestampColumn)) {
+                streamWrite.setTimestamp((long) fieldValue);
+            }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
                 throw new IllegalArgumentException("fail to find field[" + fieldName + "]");

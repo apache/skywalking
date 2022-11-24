@@ -119,6 +119,10 @@
 * Support dynamic config the sampling strategy in network profiling.
 * Zipkin module support BanyanDB storage.
 * Zipkin traces query API, sort the result set by start time by default.
+* [**Breaking Change**] Add `@BanyanDB.TimestampColumn` to identify `which column in Record` is providing the timestamp(milliseconds) for BanyanDB, 
+  since BanyanDB stream requires a timestamp in milliseconds.
+  For SQL-Database: add new column `timestamp` for tables `profile_task_log/top_n_database_statement`,
+  requires altering this column or removing these tables before OAP starts, if bump up from previous releases.
 
 #### UI
 

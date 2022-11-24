@@ -22,6 +22,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * BanyanDB annotation is a holder including all annotations for BanyanDB storage
@@ -117,5 +118,16 @@ public @interface BanyanDB {
              */
             TREE;
         }
+    }
+
+    /**
+     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
+     * BanyanDB stream requires a timestamp in milliseconds.
+     * @since 9.3.0
+     */
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface TimestampColumn {
+        String value();
     }
 }

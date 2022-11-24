@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.core.storage.INoneStreamDAO;
@@ -45,11 +44,15 @@ public class BanyanDBNoneStreamDAO extends AbstractDAO<BanyanDBStorageClient> im
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        StreamWrite streamWrite = new StreamWrite(schema.getMetadata().getGroup(), // group name
-                schema.getMetadata().name(), // stream-name
-                noneStream.id(), // identity
-                TimeBucket.getTimestamp(noneStream.getTimeBucket(), model.getDownsampling())); // timestamp
-        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite);
+        StreamWrite streamWrite = new StreamWrite(
+            schema.getMetadata().getGroup(), // group name
+            schema.getMetadata().name(), // stream-name
+            noneStream.id() // identity
+        ); // set timestamp inside `BanyanDBConverter.StreamToStorage`
+        Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite,
+                                                                                             model.getBanyanDBModelExtension()
+                                                                                                  .getTimestampColumn()
+        );
         storageBuilder.entity2Storage(noneStream, convert2Storage);
         getClient().write(streamWrite);
     }

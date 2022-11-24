@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -178,35 +177,33 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
         final int tracesLimit = request.limit();
         int scrollLimit = 1000;
-        int scrollFrom = 0;
+        long scrollEndTime = duration.getEndTimestamp();
         Set<String> traceIds = new HashSet<>();
         while (traceIds.size() < tracesLimit) {
-            Set<String> resp = getTraceIds(request, duration, scrollFrom, scrollLimit);
-            if (resp.size() == 0) {
+            List<ZipkinSpanRecord> spans = getSpans(request, duration, scrollEndTime, scrollLimit);
+            if (spans.size() == 0) {
                 break;
             }
-            for (String traceId : resp) {
-                traceIds.add(traceId);
+            for (ZipkinSpanRecord span : spans) {
+                traceIds.add(span.getTraceId());
                 if (traceIds.size() >= tracesLimit) {
                     break;
                 }
             }
-            scrollFrom = scrollFrom + scrollLimit;
+            scrollEndTime = spans.get(spans.size() - 1).getTimestampMillis();
         }
 
         return getTraces(traceIds);
     }
 
-    private Set<String> getTraceIds(final QueryRequest request,
+    private List<ZipkinSpanRecord> getSpans(final QueryRequest request,
                                     Duration duration,
-                                    int from,
+                                    long scrollEndTime,
                                     int limit) throws IOException {
         final long startTimeMillis = duration.getStartTimestamp();
-        final long endTimeMillis = duration.getEndTimestamp();
-
         TimestampRange tsRange = null;
-        if (startTimeMillis > 0 && endTimeMillis > 0) {
-            tsRange = new TimestampRange(startTimeMillis, endTimeMillis);
+        if (startTimeMillis > 0 && scrollEndTime > 0) {
+            tsRange = new TimestampRange(startTimeMillis, scrollEndTime);
         }
         final QueryBuilder<StreamQuery> queryBuilder = new QueryBuilder<StreamQuery>() {
 
@@ -242,15 +239,16 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
                 }
                 query.setOrderBy(new StreamQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
                 query.setLimit(limit);
-                query.setOffset(from);
             }
         };
         StreamQueryResponse resp = query(ZipkinSpanRecord.INDEX_NAME, TRACE_TAGS, tsRange, queryBuilder);
-        Set<String> traceIds = new LinkedHashSet<>(); //needs to keep order here
+        List<ZipkinSpanRecord> spans = new ArrayList<>(); //needs to keep order here
         for (final RowEntity rowEntity : resp.getElements()) {
-            traceIds.add(rowEntity.getTagValue(ZipkinSpanRecord.TRACE_ID));
+            ZipkinSpanRecord spanRecord = new ZipkinSpanRecord.Builder().storage2Entity(
+                new BanyanDBConverter.StorageToStream(ZipkinSpanRecord.INDEX_NAME, rowEntity));
+            spans.add(spanRecord);
         }
-        return traceIds;
+        return spans;
     }
 
     @Override

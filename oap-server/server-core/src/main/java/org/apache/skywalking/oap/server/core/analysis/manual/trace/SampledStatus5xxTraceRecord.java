@@ -38,6 +38,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SA
 @Getter
 @ScopeDeclaration(id = SAMPLED_STATUS_5XX_TRACE, name = "SampledStatus5xxTraceRecord")
 @Stream(name = SampledStatus5xxTraceRecord.INDEX_NAME, scopeId = SAMPLED_STATUS_5XX_TRACE, builder = SampledStatus5xxTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(SampledStatus5xxTraceRecord.TIMESTAMP)
 public class SampledStatus5xxTraceRecord extends Record {
 
     public static final String INDEX_NAME = "sampled_status_5xx_trace_record";
@@ -47,6 +48,7 @@ public class SampledStatus5xxTraceRecord extends Record {
     public static final String TRACE_ID = TopN.TRACE_ID;
     public static final String URI = TopN.STATEMENT;
     public static final String LATENCY = "latency";
+    public static final String TIMESTAMP = "timestamp";
 
     @Column(columnName = SCOPE)
     private int scope;
@@ -59,6 +61,10 @@ public class SampledStatus5xxTraceRecord extends Record {
     private String uri;
     @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
+    @Setter
+    @Getter
+    @Column(columnName = TIMESTAMP)
+    private long timestamp;
 
     @Override
     public String id() {
@@ -76,6 +82,7 @@ public class SampledStatus5xxTraceRecord extends Record {
             record.setUri((String) converter.get(URI));
             record.setLatency(((Number) converter.get(LATENCY)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             return record;
         }
 
@@ -87,6 +94,7 @@ public class SampledStatus5xxTraceRecord extends Record {
             converter.accept(URI, entity.getUri());
             converter.accept(LATENCY, entity.getLatency());
             converter.accept(TIME_BUCKET, entity.getTimeBucket());
+            converter.accept(TIMESTAMP, entity.getTimestamp());
         }
     }
 }
