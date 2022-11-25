@@ -32,6 +32,7 @@ import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -248,8 +249,7 @@ public class StorageEsInstaller extends ModelInstaller {
             indexRefreshInterval = 5;
         }
         indexSettings.put("refresh_interval", indexRefreshInterval + "s");
-        List<ModelColumn> columns = IndexController.LogicIndicesRegister.getPhysicalTableColumns(model);
-        indexSettings.put("analysis", getAnalyzerSetting(columns));
+        indexSettings.put("analysis", getAnalyzerSetting(model));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
             Map<String, Object> advancedSettings = gson.fromJson(config.getAdvanced(), Map.class);
             setting.putAll(advancedSettings);
@@ -264,8 +264,26 @@ public class StorageEsInstaller extends ModelInstaller {
         return setting;
     }
 
-    private Map getAnalyzerSetting(List<ModelColumn> analyzerTypes) throws StorageException {
+    //In the `No-Sharding Mode`:
+    //https://skywalking.apache.org/docs/main/next/en/faq/new-elasticsearch-storage-option-explanation-in-9.2.0/
+    //Some of models require a analyzer to run match query, some others are not.
+    //They are merged into the one physical index(metrics-all or record-all)
+    //When adding a new model(with an analyzer) into an existed index by update will be failed, if the index is without analyzer settings.
+    //To avoid this, add the analyzer settings to the template before index creation.
+    private Map getAnalyzerSetting(Model model) throws StorageException {
+        if (config.isLogicSharding() || !model.isTimeSeries()) {
+            return getAnalyzerSettingByColumn(model);
+        } else if (IndexController.INSTANCE.isRecordModel(model) && model.isSuperDataset()) {
+            //SuperDataset doesn't merge index, the analyzer follow the column config.
+            return getAnalyzerSettingByColumn(model);
+        } else {
+            return getAnalyzerSetting4MergedIndex(model);
+        }
+    }
+
+    private Map getAnalyzerSettingByColumn(Model model) throws StorageException {
         AnalyzerSetting analyzerSetting = new AnalyzerSetting();
+        List<ModelColumn> analyzerTypes = IndexController.LogicIndicesRegister.getPhysicalTableColumns(model);
         for (final ModelColumn column : analyzerTypes) {
             if (!column.getElasticSearchExtension().needMatchQuery()) {
                 continue;
@@ -277,6 +295,16 @@ public class StorageEsInstaller extends ModelInstaller {
             analyzerSetting.combine(setting);
         }
         return gson.fromJson(gson.toJson(analyzerSetting), Map.class);
+    }
+
+    //Indexes `metrics-all and records-all` are required `OAP_ANALYZER`
+    private Map getAnalyzerSetting4MergedIndex(Model model) throws StorageException {
+        AnalyzerSetting setting = AnalyzerSetting.Generator.getGenerator(
+                                                     ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER)
+                                                           .getGenerateFunc()
+                                                           .generate(config);
+
+        return gson.fromJson(gson.toJson(setting), Map.class);
     }
 
     protected Mappings createMapping(Model model) {

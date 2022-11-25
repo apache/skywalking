@@ -130,6 +130,7 @@
   since BanyanDB stream requires a timestamp in milliseconds.
   For SQL-Database: add new column `timestamp` for tables `profile_task_log/top_n_database_statement`,
   requires altering this column or removing these tables before OAP starts, if bump up from previous releases.
+* Fix Elasticsearch storage: In `No-Sharding Mode`, add specific analyzer to the template before index creation to avoid update index error.
 
 #### UI
 
