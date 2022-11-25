@@ -137,9 +137,11 @@ public enum MetadataRegistry {
         final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
                 downSamplingDuration(model.getDownsampling()));
         if (shardingColumns.isEmpty()) {
-            throw new IllegalStateException("sharding keys of model[measure." + model.getName() + "] must not be empty");
+            // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
+            builder.setEntityRelativeTags(Measure.ID);
+        } else {
+            builder.setEntityRelativeTags(shardingColumns);
         }
-        builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
         // parse and set field
