@@ -125,14 +125,15 @@
     25s period.
   * Fix ID conflicts for all JDBC storage implementations. Due to the insert delay, the JDBC storage implementation would
     still generate another new insert statement.
-* [**Breaking Change**] Remove `core/default/enableDatabaseSession` config. 
-* [**Breaking Change**] Add `@BanyanDB.TimestampColumn` to identify `which column in Record` is providing the timestamp(milliseconds) for BanyanDB, 
+* [**Breaking Change**] Remove `core/default/enableDatabaseSession` config.
+* [**Breaking Change**] Add `@BanyanDB.TimestampColumn` to identify `which column in Record` is providing the timestamp(milliseconds) for BanyanDB,
   since BanyanDB stream requires a timestamp in milliseconds.
   For SQL-Database: add new column `timestamp` for tables `profile_task_log/top_n_database_statement`,
   requires altering this column or removing these tables before OAP starts, if bump up from previous releases.
 * Fix Elasticsearch storage: In `No-Sharding Mode`, add specific analyzer to the template before index creation to avoid update index error.
+* Internal API: remove undocumented ElasticSearch API usage and use documented one.
 * Fix `BanyanDB.ShardingKey` annotation missed in the generated OAL metrics classes.
-* Don't accept no sharding key in the Measure(BanyanDB) definition. 
+* Don't accept no sharding key in the Measure(BanyanDB) definition.
 
 #### UI
 
