@@ -276,7 +276,6 @@ public class OALRuntime implements OALEngine {
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 
-
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
             } catch (CannotCompileException e) {
                 log.error(
