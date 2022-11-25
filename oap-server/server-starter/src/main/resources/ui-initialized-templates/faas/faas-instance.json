@@ -65,7 +65,11 @@
                     {
                       "widgetId": "0-0-3"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 0,
@@ -106,7 +110,11 @@
                     {
                       "widgetId": "0-0-3"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  }
                 },
                 {
                   "x": 0,
@@ -143,7 +151,10 @@
                     {
                       "widgetId": "0-0-0"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true
+                  }
                 }
               ]
             },
@@ -175,7 +186,7 @@
             },
             {
               "name": "Golang",
-              "children":  [
+              "children": [
                 {
                   "x": 0,
                   "y": 0,
@@ -395,7 +406,7 @@
             },
             {
               "name": "PVM",
-              "children":  [
+              "children": [
                 {
                   "x": 0,
                   "y": 0,
@@ -407,10 +418,10 @@
                     "title": "Host CPU Utilization / PVM CPU Utilization (%)"
                   },
                   "graph": {
-                    "type":"Area",
-                    "opacity":0.4,
-                    "showXAxis":true,
-                    "showYAxis":true
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "metrics": [
                     "meter_instance_pvm_total_cpu_utilization",
@@ -433,12 +444,12 @@
                     "title": "PVM Thread Count"
                   },
                   "graph": {
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "metrics": [
                     "meter_instance_pvm_thread_active_count"
@@ -459,8 +470,8 @@
                     "title": "PVM GC Count"
                   },
                   "graph": {
-                    "type":"Bar",
-                    "showBackground":true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metrics": [
                     "meter_instance_pvm_gc_g0",
@@ -485,10 +496,10 @@
                     "title": "Host Mem Utilization / PVM Mem Utilization (%)"
                   },
                   "graph": {
-                    "type":"Area",
-                    "opacity":0.4,
-                    "showXAxis":true,
-                    "showYAxis":true
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "metrics": [
                     "meter_instance_pvm_total_mem_utilization",
@@ -511,12 +522,12 @@
                     "title": "PVM GC Time (ms)"
                   },
                   "graph": {
-                    "type":"Line",
-                    "step":false,
-                    "smooth":false,
-                    "showSymbol":false,
-                    "showXAxis":true,
-                    "showYAxis":true
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "metrics": [
                     "meter_instance_pvm_gc_time"

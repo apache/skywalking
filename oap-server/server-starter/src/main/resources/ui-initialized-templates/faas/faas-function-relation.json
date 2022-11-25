@@ -84,6 +84,9 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true
                   }
                 },
                 {
@@ -140,7 +143,11 @@
                     {
                       "widgetId": "0-0-7"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  }
                 },
                 {
                   "x": 12,
@@ -202,6 +209,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -257,6 +268,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -312,6 +327,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -374,6 +393,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -434,6 +457,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -461,8 +488,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-7",
-                  "label": "Load_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-1"
@@ -489,6 +514,9 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true
                   }
                 }
               ]
