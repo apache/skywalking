@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpRequestBuilder;
 import com.linecorp.armeria.common.MediaType;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -106,11 +105,11 @@ final class V7DocumentFactory implements DocumentFactory {
         final Map<String, Iterable<Map<String, String>>> m = ImmutableMap.of("docs", indexIdList);
         final byte[] content = version.codec().encode(m);
         if (log.isDebugEnabled()) {
-            log.debug("mget indexIds request: {}", new String(content, Charset.defaultCharset()));
+            log.debug("mget indexIds request: {}", new String(content));
         }
 
         return HttpRequest.builder()
-                          .get("/_doc/_mget")
+                          .get("/_mget")
                           .content(MediaType.JSON, content)
                           .build();
     }
