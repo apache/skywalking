@@ -179,6 +179,7 @@
 * Fix topology loading style.
 * Fix update metric processor for the readRecords and remove readSampledRecords from metrics selector.
 * Add trace association for FAAS dashboards.
+* Visualize attached events on the trace widget.
 
 #### Documentation
 
