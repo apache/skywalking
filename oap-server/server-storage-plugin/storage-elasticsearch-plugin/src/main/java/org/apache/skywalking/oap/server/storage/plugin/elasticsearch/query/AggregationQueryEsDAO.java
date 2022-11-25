@@ -120,11 +120,13 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         final List<Map<String, Object>> buckets =
             (List<Map<String, Object>>) idTerms.get("buckets");
         for (Map<String, Object> termsBucket : buckets) {
-            SelectedRecord record = new SelectedRecord();
-            record.setId((String) termsBucket.get("key"));
             Map<String, Object> value = (Map<String, Object>) termsBucket.get(valueColumnName);
-            record.setValue(String.valueOf(((Number) value.get(valueColumnName)).longValue()));
-            topNList.add(record);
+            if (value.get(valueColumnName) != null) {
+                SelectedRecord record = new SelectedRecord();
+                record.setId((String) termsBucket.get("key"));
+                record.setValue(String.valueOf(((Number) value.get(valueColumnName)).longValue()));
+                topNList.add(record);
+            }
         }
 
         return topNList;
