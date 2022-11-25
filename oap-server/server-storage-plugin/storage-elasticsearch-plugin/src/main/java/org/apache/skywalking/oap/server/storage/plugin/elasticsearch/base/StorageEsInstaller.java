@@ -266,9 +266,10 @@ public class StorageEsInstaller extends ModelInstaller {
 
     //In the `No-Sharding Mode`:
     //https://skywalking.apache.org/docs/main/next/en/faq/new-elasticsearch-storage-option-explanation-in-9.2.0/
-    //The merged models required analyzer or not are shared the same index.
+    //Some of models require a analyzer to run match query, some others are not.
+    //They are merged into the one physical index(metrics-all or record-all)
     //When adding a new model(with an analyzer) into an existed index by update will be failed, if the index is without analyzer settings.
-    //To avoid this, we should add the analyzer settings to the template before index creation.
+    //To avoid this, add the analyzer settings to the template before index creation.
     private Map getAnalyzerSetting(Model model) throws StorageException {
         if (config.isLogicSharding() || !model.isTimeSeries()) {
             return getAnalyzerSettingByColumn(model);
