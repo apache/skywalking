@@ -325,7 +325,7 @@ public class ITElasticSearchTest {
                    //test mGet
                    Map<String, List<String>> indexIdsGroup = new HashMap<>();
                    indexIdsGroup.put("test-index", Arrays.asList("id1", "id2"));
-                   Optional<Documents> documents = client.documents().mGet(type, indexIdsGroup);
+                   Optional<Documents> documents = client.documents().mget(type, indexIdsGroup);
                    Map<String, Map<String, Object>> result = new HashMap<>();
                    for (final Document document : documents.get()) {
                        result.put(document.getId(), document.getSource());

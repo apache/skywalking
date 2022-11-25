@@ -314,7 +314,7 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         indexIds.forEach((indexName, ids) -> {
             map.put(indexNameConverter.apply(indexName), ids);
         });
-        return es.get().documents().mGet(TYPE, map);
+        return es.get().documents().mget(TYPE, map);
     }
 
     /**
