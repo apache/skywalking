@@ -75,7 +75,7 @@ public enum MetadataRegistry {
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
-        List<String> entities = parseEntityNames(modelColumnMap);
+        List<String> shardingColumns = parseEntityNames(modelColumnMap);
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
@@ -100,10 +100,10 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.name());
-        if (entities.isEmpty()) {
+        if (shardingColumns.isEmpty()) {
             throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
         }
-        builder.setEntityRelativeTags(entities);
+        builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
         registry.put(schemaMetadata.name(), schemaBuilder.build());
@@ -116,7 +116,7 @@ public enum MetadataRegistry {
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
-        List<String> entities = parseEntityNames(modelColumnMap);
+        List<String> shardingColumns = parseEntityNames(modelColumnMap);
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
@@ -136,11 +136,10 @@ public enum MetadataRegistry {
 
         final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
                 downSamplingDuration(model.getDownsampling()));
-        if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
-            builder.setEntityRelativeTags(Measure.ID);
-        } else {
-            builder.setEntityRelativeTags(entities);
+        if (shardingColumns.isEmpty()) {
+            throw new IllegalStateException("sharding keys of model[measure." + model.getName() + "] must not be empty");
         }
+        builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
         // parse and set field
