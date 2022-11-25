@@ -177,6 +177,7 @@
 * Enhance tags component to search tags with the input value.
 * Fix topology loading style.
 * Fix update metric processor for the readRecords and remove readSampledRecords from metrics selector.
+* Add trace association for FAAS dashboards.
 
 #### Documentation
 
