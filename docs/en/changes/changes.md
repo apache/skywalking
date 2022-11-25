@@ -132,7 +132,7 @@
   requires altering this column or removing these tables before OAP starts, if bump up from previous releases.
 * Fix Elasticsearch storage: In `No-Sharding Mode`, add specific analyzer to the template before index creation to avoid update index error.
 * Fix `BanyanDB.ShardingKey` annotation missed in the generated OAL metrics classes.
-* Accept no sharding key in the Measure(BanyanDB) definition. Did set `Measure.ID` before, which is an inexistent tag.
+* Don't accept no sharding key in the Measure(BanyanDB) definition. 
 
 #### UI
 
