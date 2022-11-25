@@ -20,6 +20,18 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.gson.JsonObject;
 import io.grpc.Status;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,19 +60,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-
-import javax.annotation.Nonnull;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
@@ -75,7 +74,7 @@ public enum MetadataRegistry {
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
-        List<String> entities = parseEntityNames(modelColumnMap);
+        List<String> shardingColumns = parseEntityNames(modelColumnMap);
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
@@ -100,10 +99,10 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.name());
-        if (entities.isEmpty()) {
+        if (shardingColumns.isEmpty()) {
             throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
         }
-        builder.setEntityRelativeTags(entities);
+        builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
         registry.put(schemaMetadata.name(), schemaBuilder.build());
@@ -116,7 +115,7 @@ public enum MetadataRegistry {
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
-        List<String> entities = parseEntityNames(modelColumnMap);
+        List<String> shardingColumns = parseEntityNames(modelColumnMap);
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
@@ -136,10 +135,11 @@ public enum MetadataRegistry {
 
         final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
                 downSamplingDuration(model.getDownsampling()));
-        if (entities.isEmpty()) { // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
+        if (shardingColumns.isEmpty()) {
+            // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
             builder.setEntityRelativeTags(Measure.ID);
         } else {
-            builder.setEntityRelativeTags(entities);
+            builder.setEntityRelativeTags(shardingColumns);
         }
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);

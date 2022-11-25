@@ -132,6 +132,7 @@
   requires altering this column or removing these tables before OAP starts, if bump up from previous releases.
 * Fix Elasticsearch storage: In `No-Sharding Mode`, add specific analyzer to the template before index creation to avoid update index error.
 * Internal API: remove undocumented ElasticSearch API usage and use documented one.
+* Fix `BanyanDB.ShardingKey` annotation missed in the generated OAL metrics classes.
 
 #### UI
 

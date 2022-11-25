@@ -268,12 +268,13 @@ public class OALRuntime implements OALEngine {
                 if (field.getType().equals(String.class)) {
                     columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
                 }
+                annotationsAttribute.addAnnotation(columnAnnotation);
                 if (field.isID()) {
                     // Add shardingKeyIdx = 0 to column annotation.
                     Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.ShardingKey.class.getName(), constPool);
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
+                    annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
-                annotationsAttribute.addAnnotation(columnAnnotation);
 
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
             } catch (CannotCompileException e) {
