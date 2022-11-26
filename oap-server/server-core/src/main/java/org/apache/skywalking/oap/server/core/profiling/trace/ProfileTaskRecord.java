@@ -59,7 +59,7 @@ public class ProfileTaskRecord extends NoneStream {
     }
 
     @Column(columnName = SERVICE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
     @Column(columnName = ENDPOINT_NAME, length = 512)
     private String endpointName;

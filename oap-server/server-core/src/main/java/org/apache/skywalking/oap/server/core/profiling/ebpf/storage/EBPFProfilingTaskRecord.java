@@ -61,7 +61,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     @Column(columnName = LOGICAL_ID)
     private String logicalId;
     @Column(columnName = SERVICE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
     @Column(columnName = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
     private String processLabelsJson;

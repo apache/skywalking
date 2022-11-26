@@ -77,7 +77,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter

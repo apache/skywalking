@@ -56,7 +56,7 @@ public class NetworkAddressAlias extends Metrics {
     @Setter
     @Getter
     @Column(columnName = ADDRESS)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String address;
     @Setter
     @Getter

@@ -46,8 +46,8 @@ public @interface BanyanDB {
     }
 
     /**
-     * Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same
-     * row for column-oriented database).
+     * Series key is used to group time series data per metric of one entity in one place.
+     *
      * For example,
      * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
      * by service ID
@@ -66,12 +66,13 @@ public @interface BanyanDB {
      * Only work with {@link Column}
      *
      * @return non-negative if this column be used for sharding. -1 means not as a sharding key
+     * @since 9.3.0 Rename as SeriesID.
      * @since 9.1.0 created as a new annotation.
      * @since 9.0.0 added in {@link Column}
      */
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface ShardingKey {
+    @interface SeriesID {
         /**
          * Relative entity tag
          *

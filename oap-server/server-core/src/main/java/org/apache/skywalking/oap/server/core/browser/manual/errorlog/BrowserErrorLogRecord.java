@@ -62,7 +62,7 @@ public class BrowserErrorLogRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
     @Setter

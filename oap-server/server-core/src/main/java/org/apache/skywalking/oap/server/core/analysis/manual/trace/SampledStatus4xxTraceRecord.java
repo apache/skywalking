@@ -55,7 +55,7 @@ public class SampledStatus4xxTraceRecord extends Record {
     @Column(columnName = ENTITY_ID)
     private String entityId;
     @Column(columnName = TRACE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String traceId;
     @Column(columnName = URI, storageOnly = true)
     private String uri;

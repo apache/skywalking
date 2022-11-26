@@ -57,7 +57,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     @Column(columnName = SEGMENT_ID)
     @SQLDatabase.QueryUnifiedIndex(withColumns = {SEQUENCE})
     @SQLDatabase.QueryUnifiedIndex(withColumns = {DUMP_TIME})
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String segmentId;
     @Column(columnName = DUMP_TIME)
     private long dumpTime;
