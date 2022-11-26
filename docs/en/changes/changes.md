@@ -133,6 +133,7 @@
 * Fix Elasticsearch storage: In `No-Sharding Mode`, add specific analyzer to the template before index creation to avoid update index error.
 * Internal API: remove undocumented ElasticSearch API usage and use documented one.
 * Fix `BanyanDB.ShardingKey` annotation missed in the generated OAL metrics classes.
+* Fix Elasticsearch storage: Query `sortMetrics` missing transform real index column name.
 
 #### UI
 
