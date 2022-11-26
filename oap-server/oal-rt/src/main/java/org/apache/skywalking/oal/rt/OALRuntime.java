@@ -270,8 +270,8 @@ public class OALRuntime implements OALEngine {
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
                 if (field.isID()) {
-                    // Add shardingKeyIdx = 0 to column annotation.
-                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.ShardingKey.class.getName(), constPool);
+                    // Add SeriesID = 0 annotation to ID field.
+                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }

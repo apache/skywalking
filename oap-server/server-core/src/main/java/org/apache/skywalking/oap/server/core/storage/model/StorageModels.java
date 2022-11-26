@@ -191,8 +191,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 );
 
                 // BanyanDB extension
-                final BanyanDB.ShardingKey banyanDBShardingKey = field.getAnnotation(
-                    BanyanDB.ShardingKey.class);
+                final BanyanDB.SeriesID banyanDBSeriesID = field.getAnnotation(
+                    BanyanDB.SeriesID.class);
                 final BanyanDB.GlobalIndex banyanDBGlobalIndex = field.getAnnotation(
                     BanyanDB.GlobalIndex.class);
                 final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
@@ -200,7 +200,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
                         BanyanDB.IndexRule.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
-                    banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
+                    banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
                     banyanDBGlobalIndex != null,
                     banyanDBNoIndex == null && column.storageOnly(),
                     banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType()

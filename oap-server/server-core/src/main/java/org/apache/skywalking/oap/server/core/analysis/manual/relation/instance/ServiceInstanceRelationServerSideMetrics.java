@@ -76,7 +76,7 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
     @Override

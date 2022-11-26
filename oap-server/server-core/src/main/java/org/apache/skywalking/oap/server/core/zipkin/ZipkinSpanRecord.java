@@ -114,7 +114,7 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = LOCAL_ENDPOINT_SERVICE_NAME)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String localEndpointServiceName;
     @Setter
     @Getter

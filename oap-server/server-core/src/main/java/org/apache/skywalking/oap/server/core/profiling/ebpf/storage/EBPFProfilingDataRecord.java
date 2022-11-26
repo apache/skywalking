@@ -50,7 +50,7 @@ public class EBPFProfilingDataRecord extends Record {
     public static final String UPLOAD_TIME = "upload_time";
 
     @Column(columnName = TASK_ID, length = 600)
-    @BanyanDB.ShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String taskId;
     @Column(columnName = SCHEDULE_ID, length = 600)
     private String scheduleId;
