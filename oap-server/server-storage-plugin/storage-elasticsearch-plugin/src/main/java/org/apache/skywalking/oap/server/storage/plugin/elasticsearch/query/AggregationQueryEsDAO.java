@@ -54,6 +54,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                                             final String valueColumnName,
                                             final Duration duration,
                                             final List<KeyValue> additionalConditions) {
+        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final RangeQueryBuilder basicQuery = Query.range(Metrics.TIME_BUCKET)
                                                   .lte(duration.getEndTimeBucket())
                                                   .gte(duration.getStartTimeBucket());
@@ -102,9 +103,9 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         search.aggregation(
             Aggregation.terms(Metrics.ENTITY_ID)
                        .field(Metrics.ENTITY_ID)
-                       .order(BucketOrder.aggregation(valueColumnName, asc))
+                       .order(BucketOrder.aggregation(realValueColumn, asc))
                        .size(condition.getTopN())
-                       .subAggregation(Aggregation.avg(valueColumnName).field(valueColumnName))
+                       .subAggregation(Aggregation.avg(realValueColumn).field(realValueColumn))
                        .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
@@ -122,7 +123,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
         for (Map<String, Object> termsBucket : buckets) {
             SelectedRecord record = new SelectedRecord();
             record.setId((String) termsBucket.get("key"));
-            Map<String, Object> value = (Map<String, Object>) termsBucket.get(valueColumnName);
+            Map<String, Object> value = (Map<String, Object>) termsBucket.get(realValueColumn);
             record.setValue(String.valueOf(((Number) value.get("value")).longValue()));
             topNList.add(record);
         }

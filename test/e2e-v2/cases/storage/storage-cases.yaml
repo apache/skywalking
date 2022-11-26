@@ -57,8 +57,10 @@ cases:
       )
     expected: expected/trace-users-detail.yml
   # service metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics sorted --name service_apdex 5
+    expected: expected/metrics-top-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics top --name service_sla 5
-    expected: expected/metrics-top-service-sla.yml
+    expected: expected/metrics-top-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=e2e-service-provider |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=e2e-service-provider |yq e 'to_entries' -
