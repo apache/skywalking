@@ -116,7 +116,7 @@ import static org.mockito.Mockito.when;
     "org.w3c.*"
 })
 @PrepareForTest({DefaultScopeDefine.class})
-public class ShardingIntegrationTest {
+public class TCITShardingSphere {
     @BeforeClass
     public static void setup() {
         PowerMockito.mockStatic(DefaultScopeDefine.class);
@@ -172,7 +172,7 @@ public class ShardingIntegrationTest {
     }
 
     private void startEnv(String dockerComposeName, int dsServicePort) {
-        environment = new DockerComposeContainer<>(new File(ShardingIntegrationTest.class
+        environment = new DockerComposeContainer<>(new File(TCITShardingSphere.class
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
             .withExposedService("sharding-proxy", 3307,

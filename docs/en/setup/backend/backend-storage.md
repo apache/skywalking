@@ -41,6 +41,11 @@ OpenSearch is a fork from ElasticSearch 7.11 but licensed in Apache 2.0.
 OpenSearch storage shares the same configurations as ElasticSearch.
 In order to activate OpenSearch as storage, set the storage provider to **elasticsearch**.
 
+We support and tested the following versions of OpenSearch:
+
+- 1.1.0, 1.3.6
+- 2.4.0
+
 ## ElasticSearch
 
 **NOTE:** Elastic announced through their blog that Elasticsearch will be moving over to a Server Side Public
@@ -161,19 +166,19 @@ The following settings control the number of shards and replicas for new and exi
 storage:
   elasticsearch:
     # ......
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} 
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} 
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1}
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1}
     specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
-    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} 
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5}
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0}
 ```
 The following table shows the relationship between those config items and Elasticsearch `index number_of_shards/number_of_replicas`.
-And also you can [specify the settings for each index individually.](#specify-settings-for-each-elasticsearch-index-individually) 
+And also you can [specify the settings for each index individually.](#specify-settings-for-each-elasticsearch-index-individually)
 
-| index                                | number_of_shards | number_of_replicas   | 
+| index                                | number_of_shards | number_of_replicas   |
 |--------------------------------------|------------------|----------------------|
-| sw_ui_template                       | indexShardsNumber | indexReplicasNumber  | 
-| sw_metrics-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  | 
+| sw_ui_template                       | indexShardsNumber | indexReplicasNumber  |
+| sw_metrics-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  |
 | sw_log-`${day-format}`               | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
 | sw_segment-`${day-format}`           | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
 | sw_browser_error_log-`${day-format}` | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
@@ -200,7 +205,7 @@ Supported settings:
 - number_of_shards
 - number_of_replicas
 
-**NOTE:** These settings have the highest priority and will override the existing 
+**NOTE:** These settings have the highest priority and will override the existing
 generic settings mentioned in [index settings doc](#index-settings).
 
 The settings are in `JSON` format. The index name here is logic entity name, which should exclude the `${SW_NAMESPACE}` which is `sw` by default, e.g.
