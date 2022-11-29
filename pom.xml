@@ -310,6 +310,13 @@
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
                         <skip>${skipITs}</skip>
+                        <!--
+                            Exclude time-consuming tests and run those tests separately in skywalking.yaml.
+                            TCIT means Time Consuming Integration Test.
+                        -->
+                        <excludes>
+                            <exclude>**/TCIT*.java</exclude>
+                        </excludes>
                     </configuration>
                     <executions>
                         <execution>

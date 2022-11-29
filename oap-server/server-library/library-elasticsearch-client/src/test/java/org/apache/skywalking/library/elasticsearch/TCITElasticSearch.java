@@ -55,7 +55,7 @@ import static org.junit.Assert.assertTrue;
 
 @RequiredArgsConstructor
 @RunWith(Parameterized.class)
-public class ITElasticSearchTest {
+public class TCITElasticSearch {
 
     @Parameterized.Parameters(name = "version: {0}")
     public static Collection<Object[]> es() {
@@ -100,6 +100,16 @@ public class ITElasticSearchTest {
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
                                    .withTag("1.0.0")
+                                   .asCompatibleSubstituteFor(
+                                       "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                    .withEnv("plugins.security.disabled", "true")
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
+            },
+            {
+                "OpenSearch 2.4.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("opensearchproject/opensearch")
+                                   .withTag("2.4.0")
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")

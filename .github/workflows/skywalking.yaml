@@ -29,7 +29,7 @@ env:
   SW_AGENT_JDK_VERSION: 8
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
-  
+
 jobs:
   license-header:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -271,17 +271,22 @@ jobs:
           ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false || \
           ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
 
-  it-sharding-proxy:
+  # Time consuming integration tests
+  tc-integration-test:
     if: |
       always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: IT Sharding-proxy
+    name: Time Consuming Integration Tests
     needs: [sanity-check, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       matrix:
-        java-version: [8, 11]
+        test:
+          - name: ShardingSphere
+            class: org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.TCITShardingSphere
+          - name: ElasticSearch / OpenSearch
+            class: org.apache.skywalking.library.elasticsearch.TCITElasticSearch
     steps:
       - uses: actions/checkout@v3
         with:
@@ -294,12 +299,12 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       - uses: actions/setup-java@v3
         with:
-          java-version: ${{ matrix.java-version }}
+          java-version: 8
           distribution: adopt
-      - name: IT Sharding-proxy
+      - name: ${{ matrix.test.name }}
         run: |
-          ./mvnw clean  test -Dtest=org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingIntegrationTest -DfailIfNoTests=false || \
-          ./mvnw clean  test -Dtest=org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingIntegrationTest -DfailIfNoTests=false
+          ./mvnw clean test -Dtest=${{ matrix.test.class }} -DfailIfNoTests=false || \
+          ./mvnw clean test -Dtest=${{ matrix.test.class }} -DfailIfNoTests=false
 
   e2e-test:
     if: |
@@ -370,12 +375,12 @@ jobs:
           - name: Storage OpenSearch 1.1.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: Storage OpenSearch 1.2.0
+          - name: Storage OpenSearch 1.3.6
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.2.0
-          - name: Storage OpenSearch 2.3.0
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Storage OpenSearch 2.4.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.3.0
+            env: OPENSEARCH_VERSION=2.4.0
           - name: Storage ES Sharding
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
 
@@ -480,9 +485,12 @@ jobs:
           - name: Trace Profiling OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: Trace Profiling OpenSearch 1.2.0
+          - name: Trace Profiling OpenSearch 1.3.6
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.2.0
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Trace Profiling OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
 
           - name: eBPF Profiling On CPU BanyanDB
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
@@ -501,9 +509,12 @@ jobs:
           - name: eBPF Profiling On CPU OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: eBPF Profiling On CPU OpenSearch 1.2.0
+          - name: eBPF Profiling On CPU OpenSearch 1.3.6
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.2.0
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: eBPF Profiling On CPU OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
           - name: eBPF Profiling Off CPU
             config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
           - name: eBPF Profiling Network
@@ -747,7 +758,7 @@ jobs:
       - dependency-license
       - unit-test
       - integration-test
-      - it-sharding-proxy
+      - tc-integration-test
       - e2e-test
       - e2e-test-istio
       - e2e-test-java-versions
@@ -766,7 +777,7 @@ jobs:
           depLicenseResults=${{ needs.dependency-license.result }}
           unitResults=${{ needs.unit-test.result }};
           integrationResults=${{ needs.integration-test.result }};
-          itShardingResults=${{ needs.it-sharding-proxy.result }};
+          timeConsumingITResults=${{ needs.tc-integration-test.result }};
           e2eResults=${{ needs.e2e-test.result }};
           e2eIstioResults=${{ needs.e2e-test-istio.result }};
           e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
@@ -777,6 +788,6 @@ jobs:
           [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
           [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
           [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
-          [[ ${itShardingResults} == 'success' ]] || [[ ${execute} != 'true' && ${itShardingResults} == 'skipped' ]] || exit -8;
+          [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
 
           exit 0;
