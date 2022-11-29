@@ -184,7 +184,7 @@
 * Fix update metric processor for the readRecords and remove readSampledRecords from metrics selector.
 * Add trace association for FAAS dashboards.
 * Visualize attached events on the trace widget.
-* Adding HTTP/1.x metrics tab on network profiling widget.
+* Add HTTP/1.x metrics and HTTP req/resp body collecting tabs on the network profiling widget.
 
 #### Documentation
 
