@@ -58,6 +58,7 @@ public class SpanAttachedEventRecord extends Record {
     @Column(columnName = START_TIME_NANOS)
     private int startTimeNanos;
     @Column(columnName = EVENT)
+    @BanyanDB.SeriesID(index = 0)
     private String event;
     @Column(columnName = END_TIME_SECOND)
     private long endTimeSecond;
