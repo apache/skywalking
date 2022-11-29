@@ -185,6 +185,8 @@
 * Add trace association for FAAS dashboards.
 * Visualize attached events on the trace widget.
 * Add HTTP/1.x metrics and HTTP req/resp body collecting tabs on the network profiling widget.
+* Implement creating tasks ui for network profiling widget.
+* Fix entity types for ProcessRelation.
 
 #### Documentation
 
