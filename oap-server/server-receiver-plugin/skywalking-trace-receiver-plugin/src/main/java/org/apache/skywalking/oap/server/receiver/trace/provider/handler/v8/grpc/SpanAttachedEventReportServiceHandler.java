@@ -59,7 +59,7 @@ public class SpanAttachedEventReportServiceHandler extends SpanAttachedEventRepo
                 record.setDataBinary(event.toByteArray());
                 long timestamp = TimeUnit.SECONDS.toMillis(record.getStartTimeSecond())
                     + TimeUnit.NANOSECONDS.toMillis(record.getStartTimeNanos());
-                record.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestamp));
+                record.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
                 record.setTimestamp(timestamp);
                 RecordStreamProcessor.getInstance().in(record);
             }
