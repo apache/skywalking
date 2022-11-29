@@ -165,6 +165,7 @@
 * Fix condition logic for trace tree data.
 * Enhance tags component to search tags with the input value.
 * Fix topology loading style.
+* Adding HTTP/1.x metrics tab on network profiling widget.
 
 #### Documentation
 
