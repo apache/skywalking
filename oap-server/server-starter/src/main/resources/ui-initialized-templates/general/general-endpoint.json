@@ -62,8 +62,6 @@
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
                   ],
-                  "value": "0-0-3",
-                  "label": "Endpoint_Response_Percentile",
                   "associate": [
                     {
                       "widgetId": "0-0-5"
@@ -80,7 +78,11 @@
                     {
                       "widgetId": "0-0-8"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 8,
@@ -107,8 +109,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-4",
-                  "label": "Endpoint_Avg_Response",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -125,7 +125,11 @@
                     {
                       "widgetId": "0-0-8"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 8,
@@ -153,8 +157,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-5",
-                  "label": "0-0-5",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -198,8 +200,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-7",
-                  "label": "Endpoint_Success_Rate",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -215,6 +215,15 @@
                     },
                     {
                       "widgetId": "0-0-8"
+                    }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  },
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
                     }
                   ]
                 },
@@ -244,8 +253,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-8",
-                  "label": "Endpoint_Load",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
