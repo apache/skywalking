@@ -135,6 +135,8 @@
 * Fix `BanyanDB.ShardingKey` annotation missed in the generated OAL metrics classes.
 * Fix Elasticsearch storage: Query `sortMetrics` missing transform real index column name.
 * Rename `BanyanDB.ShardingKey` to `BanyanDB.SeriesID`.
+* Self-Observability: Add counters for metrics reading from DB or cached. Dashboard:`Metrics Persistent Cache Count`.
+* Self-Observability: Fix `GC Time` calculation.
 
 #### UI
 
@@ -187,6 +189,7 @@
 * Add HTTP/1.x metrics and HTTP req/resp body collecting tabs on the network profiling widget.
 * Implement creating tasks ui for network profiling widget.
 * Fix entity types for ProcessRelation.
+* Add trace association for general service dashboards.
 
 #### Documentation
 

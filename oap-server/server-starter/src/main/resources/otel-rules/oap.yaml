@@ -41,10 +41,11 @@ metricsRules:
     .sum(['service', 'host_name', 'gc']).increase('PT1M')
     .tag({tags -> if (tags['gc'] == 'PS Scavenge' || tags['gc'] == 'Copy' || tags['gc'] == 'ParNew' || tags['gc'] == 'G1 Young Generation') {tags.gc = 'young_gc_count'} })
     .tag({tags -> if (tags['gc'] == 'PS MarkSweep' || tags['gc'] == 'MarkSweepCompact' || tags['gc'] == 'ConcurrentMarkSweep' || tags['gc'] == 'G1 Old Generation') {tags.gc = 'old_gc_count'} })"
-  - name: instance_jvm_young_gc_time
-    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation').sum(['service', 'host_name']).increase('PT1M') * 1000
-  - name: instance_jvm_old_gc_time
-    exp: jvm_gc_collection_seconds_sum.tagMatch('gc', 'PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation').sum(['service', 'host_name']).increase('PT1M') * 1000
+  - name: instance_jvm_gc_time
+    exp: "(jvm_gc_collection_seconds_sum * 1000).tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation|PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation')
+    .sum(['service', 'host_name', 'gc']).increase('PT1M')
+    .tag({tags -> if (tags['gc'] == 'PS Scavenge' || tags['gc'] == 'Copy' || tags['gc'] == 'ParNew' || tags['gc'] == 'G1 Young Generation') {tags.gc = 'young_gc_time'} })
+    .tag({tags -> if (tags['gc'] == 'PS MarkSweep' || tags['gc'] == 'MarkSweepCompact' || tags['gc'] == 'ConcurrentMarkSweep' || tags['gc'] == 'G1 Old Generation') {tags.gc = 'old_gc_time'} })"
   - name: instance_trace_count
     exp: trace_in_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_trace_latency_percentile
@@ -70,6 +71,8 @@ metricsRules:
     exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_persistence_prepare_count
     exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_metrics_persistent_cache
+    exp: metrics_persistent_cache.sum(['service', 'host_name', 'status']).increase('PT1M')
   - name: jvm_thread_live_count
     exp: jvm_threads_current.sum(['service', 'host_name'])
   - name: jvm_thread_daemon_count
