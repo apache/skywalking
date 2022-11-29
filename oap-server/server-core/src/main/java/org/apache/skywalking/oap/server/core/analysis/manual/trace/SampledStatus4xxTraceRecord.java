@@ -32,11 +32,12 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS_RELATION_CATALOG_NAME;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SAMPLED_STATUS_4XX_TRACE;
 
 @Setter
 @Getter
-@ScopeDeclaration(id = SAMPLED_STATUS_4XX_TRACE, name = "SampledStatus4xxTraceRecord")
+@ScopeDeclaration(id = SAMPLED_STATUS_4XX_TRACE, name = "SampledStatus4xxTraceRecord", catalog = PROCESS_RELATION_CATALOG_NAME)
 @Stream(name = SampledStatus4xxTraceRecord.INDEX_NAME, scopeId = SAMPLED_STATUS_4XX_TRACE, builder = SampledStatus4xxTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
 @BanyanDB.TimestampColumn(SampledStatus4xxTraceRecord.TIMESTAMP)
 public class SampledStatus4xxTraceRecord extends Record {

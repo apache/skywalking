@@ -181,4 +181,22 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
             converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SumPerMinLabeledFunction)) {
+            return false;
+        }
+        SumPerMinLabeledFunction function = (SumPerMinLabeledFunction) o;
+        return Objects.equals(entityId, function.entityId) &&
+            getTimeBucket() == function.getTimeBucket();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityId, getTimeBucket());
+    }
 }
