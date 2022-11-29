@@ -197,5 +197,6 @@
 * Add new docs for `Report Span Attached Events` data collecting protocol.
 * Add new docs for `Record` query protocol
 * Update `Server Agents` and `Compatibility` for PHP agent.
+* Add docs for profiling.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
