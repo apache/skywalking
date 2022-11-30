@@ -53,13 +53,13 @@ public class SpanAttachedEventReportServiceHandler extends SpanAttachedEventRepo
                 record.setEndTimeSecond(event.getEndTime().getSeconds());
                 record.setEndTimeNanos(event.getEndTime().getNanos());
                 record.setTraceRefType(event.getTraceContext().getTypeValue());
-                record.setTraceId(event.getTraceContext().getTraceId());
+                record.setRelatedTraceId(event.getTraceContext().getTraceId());
                 record.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
                 record.setTraceSpanId(event.getTraceContext().getSpanId());
                 record.setDataBinary(event.toByteArray());
                 long timestamp = TimeUnit.SECONDS.toMillis(record.getStartTimeSecond())
                     + TimeUnit.NANOSECONDS.toMillis(record.getStartTimeNanos());
-                record.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestamp));
+                record.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
                 record.setTimestamp(timestamp);
                 RecordStreamProcessor.getInstance().in(record);
             }
