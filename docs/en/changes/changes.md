@@ -137,6 +137,7 @@
 * Rename `BanyanDB.ShardingKey` to `BanyanDB.SeriesID`.
 * Self-Observability: Add counters for metrics reading from DB or cached. Dashboard:`Metrics Persistent Cache Count`.
 * Self-Observability: Fix `GC Time` calculation.
+* Fix Elasticsearch storage: In `No-Sharding Mode`, column's property `indexOnly` not applied and cannot be updated.
 
 #### UI
 
