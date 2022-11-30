@@ -45,7 +45,7 @@ catalog:
           - name: "Analysis Logs"
             path: "/en/concepts-and-designs/lal"
           - name: "Profiling"
-            path: "/en/setup/backend/profiling"
+            path: "/en/setup/backend/concepts-and-designs/profiling"
           - name: "Query in OAP"
             path: "/en/protocols/readme#query-protocol"
       - name: "Event"
