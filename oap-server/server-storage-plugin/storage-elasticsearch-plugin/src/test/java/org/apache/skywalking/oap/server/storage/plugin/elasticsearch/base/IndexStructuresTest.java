@@ -74,6 +74,7 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
+                            .source(new Mappings.Source())
                             .build(), new HashMap<>());
         Mappings mapping = structures.getMapping("test");
         Assert.assertEquals(properties, mapping.getProperties());
@@ -84,6 +85,7 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties2)
+                            .source(new Mappings.Source())
                             .build(), new HashMap<>());
         mapping = structures.getMapping("test");
         HashMap<String, Object> res = new HashMap<>();
