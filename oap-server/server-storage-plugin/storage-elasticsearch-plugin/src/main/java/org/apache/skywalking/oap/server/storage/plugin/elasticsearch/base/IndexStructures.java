@@ -146,11 +146,11 @@ public class IndexStructures {
             }
             Set<String> inputExcludes = fields.source.getExcludes();
             Set<String> excludes = source.getExcludes();
-            //need add excludes
+            //need to add new excludes
             if (!excludes.containsAll(inputExcludes)) {
                 return false;
             }
-            //need delete excludes
+            //need to delete existing excludes
             for (String p : fields.properties.keySet()) {
                 if (!inputExcludes.contains(p) && excludes.contains(p)) {
                     return false;
@@ -162,8 +162,7 @@ public class IndexStructures {
         /**
          * Append new fields and update.
          * Properties combine input and exist, update property's attribute, won't remove old one.
-         * Source excludes combine input and exist, remove an item if the existed excludes contains it
-         * but the corresponding property in the input fields is not excluded.
+         * If the existed `excludes` contains a not existing property, the excluded field would be removed.
          */
         private void appendNewFields(Fields fields) {
             properties.putAll(fields.properties);
