@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
@@ -143,17 +144,36 @@ public class IndexStructures {
             if (!isContains) {
                 return false;
             }
-            return fields.source.getExcludes().containsAll(this.source.getExcludes());
+            Set<String> inputExcludes = fields.source.getExcludes();
+            Set<String> excludes = source.getExcludes();
+            //need to add new excludes
+            if (!excludes.containsAll(inputExcludes)) {
+                return false;
+            }
+            //need to delete existing excludes
+            for (String p : fields.properties.keySet()) {
+                if (!inputExcludes.contains(p) && excludes.contains(p)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /**
          * Append new fields and update.
          * Properties combine input and exist, update property's attribute, won't remove old one.
-         * Source will be updated to the input.
+         * If the existed `excludes` contains a not existing property, the excluded field would be removed.
          */
         private void appendNewFields(Fields fields) {
             properties.putAll(fields.properties);
-            source = fields.source;
+            Set<String> inputExcludes = fields.source.getExcludes();
+            Set<String> excludes = source.getExcludes();
+            excludes.addAll(inputExcludes);
+            fields.properties.keySet().forEach(p -> {
+                if (!inputExcludes.contains(p) && excludes.contains(p)) {
+                    excludes.remove(p);
+                }
+            });
         }
 
         /**
