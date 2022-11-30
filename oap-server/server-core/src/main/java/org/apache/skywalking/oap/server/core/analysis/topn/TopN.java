@@ -41,7 +41,7 @@ public abstract class TopN extends Record implements ComparableStorageData {
     private long latency;
     @Getter
     @Setter
-    @Column(columnName = TRACE_ID)
+    @Column(columnName = TRACE_ID, storageOnly = true)
     private String traceId;
     @Getter
     @Setter

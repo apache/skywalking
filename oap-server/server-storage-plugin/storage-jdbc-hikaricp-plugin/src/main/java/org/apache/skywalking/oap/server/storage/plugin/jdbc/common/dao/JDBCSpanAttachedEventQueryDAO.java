@@ -42,7 +42,7 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
         StringBuilder sql = new StringBuilder("select * from " + SpanAttachedEventRecord.INDEX_NAME + " where ");
         List<Object> parameters = new ArrayList<>(2);
 
-        sql.append(" ").append(SpanAttachedEventRecord.TRACE_ID).append(" = ?");
+        sql.append(" ").append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" = ?");
         parameters.add(traceId);
         sql.append(" and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
         parameters.add(type.value());
@@ -62,7 +62,7 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
                     record.setEndTimeSecond(resultSet.getLong(SpanAttachedEventRecord.END_TIME_SECOND));
                     record.setEndTimeNanos(resultSet.getInt(SpanAttachedEventRecord.END_TIME_NANOS));
                     record.setTraceRefType(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE));
-                    record.setTraceId(resultSet.getString(SpanAttachedEventRecord.TRACE_ID));
+                    record.setRelatedTraceId(resultSet.getString(SpanAttachedEventRecord.RELATED_TRACE_ID));
                     record.setTraceSegmentId(resultSet.getString(SpanAttachedEventRecord.TRACE_SEGMENT_ID));
                     record.setTraceSpanId(resultSet.getString(SpanAttachedEventRecord.TRACE_SPAN_ID));
                     String dataBinaryBase64 = resultSet.getString(SpanAttachedEventRecord.DATA_BINARY);
