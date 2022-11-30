@@ -47,7 +47,7 @@ public class SpanAttachedEventRecord extends Record {
     public static final String END_TIME_SECOND = "end_time_second";
     public static final String END_TIME_NANOS = "end_time_nanos";
     public static final String TRACE_REF_TYPE = "trace_ref_type";
-    public static final String TRACE_ID = "trace_id";
+    public static final String RELATED_TRACE_ID = "related_trace_id";
     public static final String TRACE_SEGMENT_ID = "trace_segment_id";
     public static final String TRACE_SPAN_ID = "trace_span_id";
     public static final String DATA_BINARY = "data_binary";
@@ -58,6 +58,7 @@ public class SpanAttachedEventRecord extends Record {
     @Column(columnName = START_TIME_NANOS)
     private int startTimeNanos;
     @Column(columnName = EVENT)
+    @BanyanDB.SeriesID(index = 0)
     private String event;
     @Column(columnName = END_TIME_SECOND)
     private long endTimeSecond;
@@ -65,9 +66,9 @@ public class SpanAttachedEventRecord extends Record {
     private int endTimeNanos;
     @Column(columnName = TRACE_REF_TYPE)
     private int traceRefType;
-    @Column(columnName = TRACE_ID)
-    @BanyanDB.SeriesID(index = 0)
-    private String traceId;
+    @Column(columnName = RELATED_TRACE_ID)
+    @BanyanDB.GlobalIndex
+    private String relatedTraceId;
     @Column(columnName = TRACE_SEGMENT_ID)
     private String traceSegmentId;
     @Column(columnName = TRACE_SPAN_ID)
@@ -94,7 +95,7 @@ public class SpanAttachedEventRecord extends Record {
             record.setEndTimeSecond(((Number) converter.get(END_TIME_SECOND)).longValue());
             record.setEndTimeNanos(((Number) converter.get(END_TIME_NANOS)).intValue());
             record.setTraceRefType(((Number) converter.get(TRACE_REF_TYPE)).intValue());
-            record.setTraceId((String) converter.get(TRACE_ID));
+            record.setRelatedTraceId((String) converter.get(RELATED_TRACE_ID));
             record.setTraceSegmentId((String) converter.get(TRACE_SEGMENT_ID));
             record.setTraceSpanId((String) converter.get(TRACE_SPAN_ID));
             record.setDataBinary(converter.getBytes(DATA_BINARY));
@@ -110,7 +111,7 @@ public class SpanAttachedEventRecord extends Record {
             converter.accept(END_TIME_SECOND, entity.getEndTimeSecond());
             converter.accept(END_TIME_NANOS, entity.getEndTimeNanos());
             converter.accept(TRACE_REF_TYPE, entity.getTraceRefType());
-            converter.accept(TRACE_ID, entity.getTraceId());
+            converter.accept(RELATED_TRACE_ID, entity.getRelatedTraceId());
             converter.accept(TRACE_SEGMENT_ID, entity.getTraceSegmentId());
             converter.accept(TRACE_SPAN_ID, entity.getTraceSpanId());
             converter.accept(DATA_BINARY, entity.getDataBinary());

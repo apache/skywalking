@@ -53,9 +53,9 @@ public class SampledSlowTraceRecord extends Record {
     @Column(columnName = SCOPE)
     private int scope;
     @Column(columnName = ENTITY_ID)
-    private String entityId;
-    @Column(columnName = TRACE_ID)
     @BanyanDB.SeriesID(index = 0)
+    private String entityId;
+    @Column(columnName = TRACE_ID, storageOnly = true)
     private String traceId;
     @Column(columnName = URI, storageOnly = true)
     private String uri;

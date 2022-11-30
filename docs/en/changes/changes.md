@@ -138,6 +138,7 @@
 * Self-Observability: Add counters for metrics reading from DB or cached. Dashboard:`Metrics Persistent Cache Count`.
 * Self-Observability: Fix `GC Time` calculation.
 * Fix Elasticsearch storage: In `No-Sharding Mode`, column's property `indexOnly` not applied and cannot be updated.
+* Update the `trace_id` field as storage only(cannot be queried) in `top_n_database_statement`, `top_n_cache_read_command`, `top_n_cache_read_command` index.
 
 #### UI
 
