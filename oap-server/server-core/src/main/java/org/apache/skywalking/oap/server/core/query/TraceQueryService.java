@@ -298,7 +298,7 @@ public class TraceQueryService implements Service {
                 // find the matches span
                 final int eventSpanId = Integer.parseInt(record.getTraceSpanId());
                 span = spans.stream().filter(s -> Objects.equals(s.getSegmentId(), record.getTraceSegmentId()) &&
-                    Objects.equals(s.getSpanId(), eventSpanId)).findFirst().orElse(null);
+                    (s.getSpanId() == eventSpanId)).findFirst().orElse(null);
                 if (span == null) {
                     continue;
                 }

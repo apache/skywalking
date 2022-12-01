@@ -312,7 +312,7 @@ public class ZipkinQueryHandler {
         final List<Tuple2<Integer, Span>> spanWithIndex = IntStream.range(0, spans.size()).mapToObj(i -> Tuple.of(i, spans.get(i))).collect(Collectors.toList());
 
         // sort by start time
-        events.stream().sorted((e1, e2) -> {
+        events.sort((e1, e2) -> {
             final int second = Long.compare(e1.getStartTimeSecond(), e2.getStartTimeSecond());
             if (second == 0) {
                 return Long.compare(e1.getStartTimeNanos(), e2.getStartTimeNanos());
