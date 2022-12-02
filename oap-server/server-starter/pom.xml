@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.3.0-SNAPSHOT</version>
+        <version>9.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -368,4 +368,8 @@
             </plugin>
         </plugins>
     </build>
+
+  <scm>
+    <tag>v9.3.0</tag>
+  </scm>
 </project>

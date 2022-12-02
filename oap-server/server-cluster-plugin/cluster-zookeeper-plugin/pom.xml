@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.apache.skywalking</groupId>
         <artifactId>server-cluster-plugin</artifactId>
-        <version>9.3.0-SNAPSHOT</version>
+        <version>9.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -47,4 +47,8 @@
             <artifactId>curator-test</artifactId>
         </dependency>
     </dependencies>
+
+  <scm>
+    <tag>v9.3.0</tag>
+  </scm>
 </project>
