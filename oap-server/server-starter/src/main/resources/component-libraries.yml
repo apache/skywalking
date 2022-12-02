@@ -452,6 +452,9 @@ AWSSNS:
 AWSSQS:
   id: 140
   languages: Java,C#,Node.js,Python
+Micrometer:
+  id: 141
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
