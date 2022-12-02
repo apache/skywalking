@@ -55,6 +55,7 @@ To display one or more metrics in a graph, the following information is required
 |read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
 |read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
 |read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
+|read sampled records in the duration|Records List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customized-dashboard-metrics-20221201-sampled-records.png" />|
 
 #### Calculations
 

@@ -16,6 +16,17 @@ agent-analyzer:
     meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:network-profiling}
 ```
 
+## Sampling config
+
+Before start the network profiling task, the sampling configuration define which request could be sampled. In the sampled request,
+the SkyWalking Rover could be collecting the full request/response raw data and upload to the span attached event. For now, the sampled request must be having trace context.
+
+The sampling config contains multiple rule, each of rule contains the following configuration:
+1. **URI Regex**: The match pattern for HTTP request. This is HTTP URI-oriented. Matches all requests if the URI regex not set.
+2. **Minimal Request Duration (ms)**: The minimal request duration to activate the sampling.
+3. **Sample HTTP requests and responses with tracing when response code between 400 and 499**: Collecting requests when the response code is 400-499.
+4. **Sample HTTP requests and responses with tracing when response code between 500 and 599**: Collecting requests when the response code is 500-599.
+
 ## Supported metrics
 
 After SkyWalking OAP server receives the metrics from the SkyWalking Rover, it supports to analysis the following data:
@@ -33,3 +44,14 @@ After SkyWalking OAP server receives the metrics from the SkyWalking Rover, it s
 3. Local process communicate with peer address exception data, including following types:
    1. **Retransmit**: The count of TCP package is retransmitted.
    2. **Drop**: The count of TCP package is dropped.
+4. HTTP/1.x request/response related metrics, including following types:
+   1. **Request CPM**: The count of request.
+   2. **Response CPM**: The count of response with status code.
+   3. **Request Package Size**: The size(KB) of the request package.
+   4. **Response Package Size**: The size(KB) of the response package.
+   5. **Client Side Response Duration**: The duration(ms) of the client receive the response.
+   6. **Server Side Response Duration**: The duration(ms) of the server send the response.
+5. HTTP sampled request with traces, including following types:
+   1. **Slow traces**: The traces which have slow duration.
+   2. **Traces from HTTP Code in [400, 500) (ms)**: The traces which response status code in [400, 500).
+   3. **Traces from HTTP Code in [500, 600) (ms)**: The traces which response status code in [500, 600).
