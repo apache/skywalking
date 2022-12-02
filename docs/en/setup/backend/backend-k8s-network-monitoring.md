@@ -1,5 +1,8 @@
 # Kubernetes Network monitoring
-SkyWalking leverages [SkyWalking Rover](https://github.com/apache/skywalking-rover) [network profiling feature](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/configuration/profiling/#network) for collecting metrics data from the network. SkyWalking Rover converts data from socket data to metrics using eBPF technology.
+SkyWalking leverages [SkyWalking Rover](https://github.com/apache/skywalking-rover) [network profiling feature](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/configuration/profiling/#network)
+to measure network performance for particular pods on-demand, including metrics of L4(TCP) and L7(HTTP) traffic
+and raw data of HTTP requests and responses.
+Underlying, SkyWalking Rover converts data from socket data to metrics using eBPF technology.
 
 ## Data flow
 1. SkyWalking OAP server observes which specific k8s pod needs to monitor the network.
