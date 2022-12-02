@@ -21,12 +21,12 @@
     <parent>
         <artifactId>profile-exporter</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.3.0</version>
+        <version>9.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>tool-profile-snapshot-exporter</artifactId>
-    <version>9.3.0</version>
+    <version>9.4.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -57,8 +57,4 @@
             </plugin>
         </plugins>
     </build>
-
-  <scm>
-    <tag>v9.3.0</tag>
-  </scm>
 </project>

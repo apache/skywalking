@@ -20,7 +20,7 @@
     <parent>
         <artifactId>server-cluster-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.3.0</version>
+        <version>9.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -68,8 +68,4 @@
             <artifactId>httpcore-nio</artifactId>
         </dependency>
     </dependencies>
-
-  <scm>
-    <tag>v9.3.0</tag>
-  </scm>
 </project>
