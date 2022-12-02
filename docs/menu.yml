@@ -167,11 +167,13 @@ catalog:
                 path: "/en/setup/istio/readme"
               - name: "Observe Data Plane (Envoy)"
                 path: "/en/setup/envoy/metrics_service_setting"
+              - name: "Profile Pod's Network"
+                path: "/en/setup/backend/backend-k8s-network-monitoring"
           - name: "Kubernetes"
             catalog:
               - name: "Observe Kubernetes"
                 path: "/en/setup/backend/backend-k8s-monitoring"
-              - name: "Observe Network"
+              - name: "Profile Pod's Network"
                 path: "/en/setup/backend/backend-k8s-network-monitoring"
           - name: "Infrastructure Monitoring"
             catalog:
