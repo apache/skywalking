@@ -18,14 +18,16 @@ agent-analyzer:
 
 ## Sampling config
 
+**Notice the precondition, the HTTP request must have the trace header in SkyWalking(`sw8` header) or Zipkin(`b3` header(s)) format.**
+
 The sampling configurations define the sampling boundaries for the HTTP traffic. When a HTTP calling is sampled,
-the SkyWalking Rover could collect the HTTP request/response raw data and upload it to the span attached event. Meanwhile, the HTTP request must have the trace header in SkyWalking or Zipkin format.
+the SkyWalking Rover could collect the HTTP request/response raw data and upload it to the span attached event. 
 
 The sampling config contains multiple rules, and each of rules has the following configurations:
-1. **URI Regex**: The match pattern for HTTP requests is HTTP URI-oriented. Match all requests if the URI regex is not set.
-2. **Minimal Request Duration (ms)**: Sample the HTTP requests with slower latency than this threshold.
-3. **Sample HTTP requests and responses with tracing when the response code is between 400 and 499**: This is OFF by default.
-4. **Sample HTTP requests and responses with tracing when the response code is between 500 and 599**: This is ON by default.
+1. `URI Regex`: The match pattern for HTTP requests is HTTP URI-oriented. Match all requests if the URI regex is not set.
+2. `Minimal Request Duration (ms)`: Sample the HTTP requests with slower latency than this threshold.
+3. `Sample HTTP requests and responses with tracing when the response code is between 400 and 499`: This is OFF by default.
+4. `Sample HTTP requests and responses with tracing when the response code is between 500 and 599`: This is ON by default.
 
 ## Supported metrics
 
@@ -45,8 +47,8 @@ After SkyWalking OAP server receives the metrics from the SkyWalking Rover, it s
    1. **Retransmit**: The count of TCP package is retransmitted.
    2. **Drop**: The count of TCP package is dropped.
 4. HTTP/1.x request/response related metrics, including following types:
-   1. **Request CPM**: The count of request.
-   2. **Response CPM**: The count of response with status code.
+   1. **Request CPM**: The calls per minute of requests.
+   2. **Response CPM**: The calls per minute of responses with status code.
    3. **Request Package Size**: The size(KB) of the request package.
    4. **Response Package Size**: The size(KB) of the response package.
    5. **Client Side Response Duration**: The duration(ms) of the client receive the response.
