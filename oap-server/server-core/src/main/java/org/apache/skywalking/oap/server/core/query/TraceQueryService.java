@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -276,29 +277,46 @@ public class TraceQueryService implements Service {
             return;
         }
 
+        // sort by start time
+        events.sort((e1, e2) -> {
+            final int second = Long.compare(e1.getStartTimeSecond(), e2.getStartTimeSecond());
+            if (second == 0) {
+                return Long.compare(e1.getStartTimeNanos(), e2.getStartTimeNanos());
+            }
+            return second;
+        });
+
+        final HashMap<String, Span> spanMatcher = new HashMap<>();
         for (SpanAttachedEventRecord record : events) {
             if (!StringUtils.isNumeric(record.getTraceSpanId())) {
                 continue;
             }
-
-            // find matches span
-            final int eventSpanId = Integer.parseInt(record.getTraceSpanId());
-            Span matchesSpan = spans.stream().filter(s -> Objects.equals(s.getSegmentId(), record.getTraceSegmentId()) &&
-                Objects.equals(s.getSpanId(), eventSpanId)).findFirst().orElse(null);
-            if (matchesSpan == null) {
-                continue;
-            }
-
-            // find the first entry span of upstream if the event from the upstream
             SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
-            final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind to upstream span");
-            if (Objects.equals(bindToTheUpstreamEntrySpan, "true")) {
-                final String parentSpanId = matchesSpan.getSegmentSpanId();
-                matchesSpan = spans.stream().filter(s -> s.getSegmentParentSpanId().equals(parentSpanId)
-                    && Objects.equals(s.getType(), SpanType.Entry.name())).findFirst().orElse(matchesSpan);
+            final String spanMatcherKey = record.getTraceSegmentId() + "_" + record.getTraceSpanId();
+            Span span = spanMatcher.get(spanMatcherKey);
+            if (span == null) {
+                // find the matches span
+                final int eventSpanId = Integer.parseInt(record.getTraceSpanId());
+                span = spans.stream().filter(s -> Objects.equals(s.getSegmentId(), record.getTraceSegmentId()) &&
+                    (s.getSpanId() == eventSpanId)).findFirst().orElse(null);
+                if (span == null) {
+                    continue;
+                }
+
+                // if the event is server side, then needs to change to the upstream span
+                final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
+                final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
+
+                if (("request".equals(type) && "inbound".equals(direction)) || ("response".equals(type) && "outbound".equals(direction))) {
+                    final String parentSpanId = span.getSegmentSpanId();
+                    span = spans.stream().filter(s -> s.getSegmentParentSpanId().equals(parentSpanId)
+                        && Objects.equals(s.getType(), SpanType.Entry.name())).findFirst().orElse(span);
+                }
+
+                spanMatcher.put(spanMatcherKey, span);
             }
 
-            matchesSpan.getAttachedEvents().add(parseEvent(event));
+            span.getAttachedEvents().add(parseEvent(event));
         }
     }
 

@@ -311,34 +311,54 @@ public class ZipkinQueryHandler {
 
         final List<Tuple2<Integer, Span>> spanWithIndex = IntStream.range(0, spans.size()).mapToObj(i -> Tuple.of(i, spans.get(i))).collect(Collectors.toList());
 
-        final Map<String, List<SpanAttachedEventRecord>> namedEvents = events.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getEvent, Collectors.toList()));
-        final Map<Integer, Span.Builder> spanCache = new HashMap<>();
-        for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : namedEvents.entrySet()) {
-            for (int i = 1; i <= entry.getValue().size(); i++) {
-                final SpanAttachedEventRecord record = entry.getValue().get(i - 1);
-                String eventName = record.getEvent() + (entry.getValue().size() == 1 ? "" : "-" + i);
-                Tuple2<Integer, Span> matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.id(), record.getTraceSpanId())).
-                    findFirst().orElse(null);
-                if (matchesSpan == null) {
-                    continue;
-                }
+        // sort by start time
+        events.sort((e1, e2) -> {
+            final int second = Long.compare(e1.getStartTimeSecond(), e2.getStartTimeSecond());
+            if (second == 0) {
+                return Long.compare(e1.getStartTimeNanos(), e2.getStartTimeNanos());
+            }
+            return second;
+        });
 
+        final Map<String, List<SpanAttachedEventRecord>> namedEvents = events.stream()
+            .collect(Collectors.groupingBy(SpanAttachedEventRecord::getEvent, Collectors.toList()));
+
+        final Map<String, Tuple2<Span.Builder, Integer>> spanCache = new HashMap<>();
+        for (Map.Entry<String, List<SpanAttachedEventRecord>> namedEntry : namedEvents.entrySet()) {
+            for (int i = 1; i <= namedEntry.getValue().size(); i++) {
+                final SpanAttachedEventRecord record = namedEntry.getValue().get(i - 1);
+                String eventName = record.getEvent() + (namedEntry.getValue().size() == 1 ? "" : "-" + i);
                 final SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
-                final String bindToTheUpstreamEntrySpan = getSpanAttachedEventTagValue(event.getTagsList(), "bind to upstream span");
-                if (Objects.equals(bindToTheUpstreamEntrySpan, "true")) {
-                    final String parentSpanId = matchesSpan._2.id();
-                    matchesSpan = spanWithIndex.stream().filter(s -> s._2.parentId().equals(parentSpanId)
-                        && Objects.equals(s._2.kind(), Span.Kind.SERVER)).findFirst().orElse(matchesSpan);
+
+                // find matched span
+                Tuple2<Span.Builder, Integer> spanBuilder = spanCache.get(record.getTraceSpanId());
+                if (spanBuilder == null) {
+                    Tuple2<Integer, Span> matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.id(), record.getTraceSpanId())).
+                        findFirst().orElse(null);
+                    if (matchesSpan == null) {
+                        continue;
+                    }
+
+                    // if the event is server side, then needs to change to the upstream span
+                    final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
+                    final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
+                    if (("request".equals(type) && "inbound".equals(direction)) || ("response".equals(type) && "outbound".equals(direction))) {
+                        final String parentSpanId = matchesSpan._2.id();
+                        matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.parentId(), parentSpanId)
+                            && Objects.equals(s._2.kind(), Span.Kind.SERVER)).findFirst().orElse(matchesSpan);
+                    }
+
+                    spanBuilder = Tuple.of(matchesSpan._2.toBuilder(), matchesSpan._1);
+                    spanCache.put(record.getTraceSpanId(), spanBuilder);
                 }
 
-                final Span.Builder builder = spanCache.computeIfAbsent(matchesSpan._1, idx -> spans.get(idx).toBuilder());
-                appendEvent(builder, eventName, event);
+                appendEvent(spanBuilder._1, eventName, event);
             }
         }
 
         // re-build modified spans
-        for (Map.Entry<Integer, Span.Builder> entry : spanCache.entrySet()) {
-            spans.set(entry.getKey(), entry.getValue().build());
+        for (Map.Entry<String, Tuple2<Span.Builder, Integer>> entry : spanCache.entrySet()) {
+            spans.set(entry.getValue()._2, entry.getValue()._1.build());
         }
     }
 

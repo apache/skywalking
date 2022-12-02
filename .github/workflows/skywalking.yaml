@@ -312,7 +312,7 @@ jobs:
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -517,12 +517,15 @@ jobs:
             env: OPENSEARCH_VERSION=2.4.0
           - name: eBPF Profiling Off CPU
             config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
+            runs-on: ubuntu-20.04
           - name: eBPF Profiling Network
             config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
             env: ISTIO_VERSION=1.13.1
+            runs-on: ubuntu-20.04
           - name: eBPF Profiling Network ES Sharding
             config: test/e2e-v2/cases/profiling/ebpf/network/es-sharding/e2e.yaml
             env: ISTIO_VERSION=1.13.1
+            runs-on: ubuntu-20.04
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
@@ -602,6 +605,7 @@ jobs:
           - name: Rover with Istio Process 1.13.1
             config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
             env: ISTIO_VERSION=1.13.1
+            runs-on: ubuntu-20.04
 
           - name: Zipkin ES
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
@@ -668,7 +672,7 @@ jobs:
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
