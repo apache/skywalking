@@ -2,15 +2,13 @@
 
 #### Project
 
-Adds Micrometer as a new component
-
 #### OAP Server
 
+* Add `ServerStatusService` in the core module to provide a new way to expose booting status to other modules.
+* Adds Micrometer as a new component.(ID=141)
 
 #### UI
 
-
 #### Documentation
-
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
