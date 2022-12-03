@@ -2,6 +2,7 @@
 
 #### Project
 
+Adds Micrometer as a new component
 
 #### OAP Server
 
