@@ -16,16 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.status;
 
-import org.junit.Assert;
-import org.junit.Test;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assert.assertEquals(38, coreModule.services().length);
-    }
+/**
+ * Booting status indicate whether the current server starts successfully.
+ */
+@Getter
+@Setter(AccessLevel.PACKAGE)
+public class BootingStatus {
+    /**
+     * The status of OAP is fully booted successfully.
+     */
+    private boolean isBooted = false;
+    /**
+     * The uptime in milliseconds if {@link #isBooted} is true;
+     */
+    private long uptime = 0;
 }

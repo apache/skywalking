@@ -81,6 +81,7 @@ import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.SourceReceiverImpl;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
@@ -240,6 +241,7 @@ public class CoreModuleProvider extends ModuleProvider {
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
+        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
         this.registerServiceImplementation(
             DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 
