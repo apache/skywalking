@@ -67,7 +67,7 @@ public class MetricsSessionCache {
         sessionCache.put(metrics, metrics);
     }
 
-    void removeExpired(){
+    void removeExpired() {
         Iterator<Metrics> iterator = sessionCache.values().iterator();
         long timestamp = System.currentTimeMillis();
         while (iterator.hasNext()) {
