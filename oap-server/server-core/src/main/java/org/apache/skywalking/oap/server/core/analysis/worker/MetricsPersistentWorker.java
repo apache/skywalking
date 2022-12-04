@@ -61,25 +61,13 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     private static long SESSION_TIMEOUT_OFFSITE_COUNTER = 0;
 
     private final Model model;
-    /**
-     * The session cache holds the latest metrics in-memory.
-     * There are two ways to make sure metrics in-cache,
-     * 1. Metrics is read from the Database through {@link #loadFromStorage(List)}
-     * 2. The built {@link InsertRequest} executed successfully.
-     *
-     * There are two cases to remove metrics from the cache.
-     * 1. The metrics expired.
-     * 2. The built {@link UpdateRequest} executed failure, which could be caused
-     * (1) Database error. (2) No data updated, such as the counter of update statement is 0 in JDBC.
-     */
-    private final Map<Metrics, Metrics> sessionCache;
+    private final MetricsSessionCache sessionCache;
     private final IMetricsDAO metricsDAO;
     private final Optional<AbstractWorker<Metrics>> nextAlarmWorker;
     private final Optional<AbstractWorker<ExportEvent>> nextExportWorker;
     private final DataCarrier<Metrics> dataCarrier;
     private final Optional<MetricsTransWorker> transWorker;
     private final boolean supportUpdate;
-    private long sessionTimeout;
     /**
      * The counter of L2 aggregation.
      */
@@ -113,17 +101,12 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                             long storageSessionTimeout, int metricsDataTTL, MetricStreamKind kind) {
         super(moduleDefineHolder, new ReadWriteSafeCache<>(new MergableBufferedData(), new MergableBufferedData()));
         this.model = model;
-        // Due to the cache would be updated depending on final storage implementation,
-        // the map/cache could be updated concurrently.
-        // Set to ConcurrentHashMap in order to avoid HashMap deadlock.
-        // Since 9.3.0
-        this.sessionCache = new ConcurrentHashMap<>(100);
+        this.sessionCache = new MetricsSessionCache(storageSessionTimeout);
         this.metricsDAO = metricsDAO;
         this.nextAlarmWorker = Optional.ofNullable(nextAlarmWorker);
         this.nextExportWorker = Optional.ofNullable(nextExportWorker);
         this.transWorker = Optional.ofNullable(transWorker);
         this.supportUpdate = supportUpdate;
-        this.sessionTimeout = storageSessionTimeout;
         this.persistentCounter = 0;
         this.persistentMod = 1;
         this.metricsDataTTL = metricsDataTTL;
@@ -186,7 +169,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
-        this.sessionTimeout = this.sessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200;
+        sessionCache.setTimeoutThreshold(storageSessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200);
         // The down sampling level worker executes every 4 periods.
         this.persistentMod = 4;
     }
@@ -351,7 +334,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                 return;
             }
 
-            metricsDAO.multiGet(model, notInCacheMetrics).forEach(m -> sessionCache.put(m, m));
+            metricsDAO.multiGet(model, notInCacheMetrics).forEach(m -> sessionCache.put(m));
         } catch (final Exception e) {
             log.error("Failed to load metrics for merging", e);
         }
@@ -359,15 +342,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
 
     @Override
     public void endOfRound() {
-        Iterator<Metrics> iterator = sessionCache.values().iterator();
-        long timestamp = System.currentTimeMillis();
-        while (iterator.hasNext()) {
-            Metrics metrics = iterator.next();
-
-            if (metrics.isExpired(timestamp, sessionTimeout)) {
-                iterator.remove();
-            }
-        }
+        sessionCache.removeExpired();
     }
 
     /**
