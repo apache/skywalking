@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsSessionCache;
