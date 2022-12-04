@@ -6,6 +6,7 @@
 
 * Add `ServerStatusService` in the core module to provide a new way to expose booting status to other modules.
 * Adds Micrometer as a new component.(ID=141)
+* Refactor session cache in MetricsPersistentWorker.
 
 #### UI
 

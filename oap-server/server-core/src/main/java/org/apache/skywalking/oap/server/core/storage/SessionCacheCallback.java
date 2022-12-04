@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsSessionCache;
 
 /**
  * SessionCacheCallback provides a bridge for storage implementations
  */
 @RequiredArgsConstructor
 public class SessionCacheCallback {
-    private final Map<Metrics, Metrics> sessionCache;
+    private final MetricsSessionCache sessionCache;
     private final Metrics metrics;
     /**
      * In some cases, this callback could be shared by multiple executions, such as SQLExecutor#additionalSQLs.
@@ -40,7 +40,7 @@ public class SessionCacheCallback {
         if (isFailed) {
             return;
         }
-        sessionCache.put(metrics, metrics);
+        sessionCache.put(metrics);
     }
 
     public void onUpdateFailure() {
