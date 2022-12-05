@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.exporter.provider.kafka.trace;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -86,11 +85,6 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
     }
 
     @Override
-    public void init(final Properties properties) {
-
-    }
-
-    @Override
     public void consume(final List<SegmentRecord> data) {
         for (SegmentRecord segmentRecord : data) {
             if (segmentRecord != null) {
@@ -120,11 +114,6 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
 
     @Override
     public void onError(final List<SegmentRecord> data, final Throwable t) {
-
-    }
-
-    @Override
-    public void onExit() {
 
     }
 }

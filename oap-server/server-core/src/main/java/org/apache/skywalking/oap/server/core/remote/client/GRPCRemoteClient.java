@@ -24,17 +24,16 @@ import io.grpc.stub.StreamObserver;
 import io.netty.handler.ssl.SslContext;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteMessage;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteServiceGrpc;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -155,10 +154,6 @@ public class GRPCRemoteClient implements RemoteClient {
 
     class RemoteMessageConsumer implements IConsumer<RemoteMessage> {
         @Override
-        public void init(final Properties properties) {
-        }
-
-        @Override
         public void consume(List<RemoteMessage> remoteMessages) {
             try {
                 StreamObserver<RemoteMessage> streamObserver = createStreamObserver();
@@ -176,10 +171,6 @@ public class GRPCRemoteClient implements RemoteClient {
         @Override
         public void onError(List<RemoteMessage> remoteMessages, Throwable t) {
             log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
         }
     }
 

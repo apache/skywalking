@@ -21,16 +21,15 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.analysis.data.LimitedSizeBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
 /**
@@ -98,10 +97,6 @@ public class TopNWorker extends PersistenceWorker<TopN> {
 
     private class TopNConsumer implements IConsumer<TopN> {
         @Override
-        public void init(final Properties properties) {
-        }
-
-        @Override
         public void consume(List<TopN> data) {
             TopNWorker.this.onWork(data);
         }
@@ -109,11 +104,6 @@ public class TopNWorker extends PersistenceWorker<TopN> {
         @Override
         public void onError(List<TopN> data, Throwable t) {
             log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
-
         }
     }
 }

@@ -22,19 +22,18 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -111,11 +110,6 @@ public class JDBCBatchDAO implements IBatchDAO {
         }
 
         @Override
-        public void init(final Properties properties) {
-
-        }
-
-        @Override
         public void consume(List<PrepareRequest> prepareRequests) {
             h2BatchDAO.flush(prepareRequests);
         }
@@ -123,10 +117,6 @@ public class JDBCBatchDAO implements IBatchDAO {
         @Override
         public void onError(List<PrepareRequest> prepareRequests, Throwable t) {
             log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
         }
     }
 }

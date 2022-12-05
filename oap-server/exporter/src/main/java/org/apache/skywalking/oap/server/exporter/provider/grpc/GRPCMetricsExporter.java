@@ -22,7 +22,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -132,11 +131,6 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
     }
 
     @Override
-    public void init(final Properties properties) {
-
-    }
-
-    @Override
     public void consume(List<ExportData> data) {
         GRPCStreamStatus status = new GRPCStreamStatus();
         StreamObserver<ExportMetricValue> streamObserver =
@@ -237,11 +231,6 @@ public class GRPCMetricsExporter extends MetricFormatter implements MetricValues
     @Override
     public void onError(List<ExportData> data, Throwable t) {
         log.error(t.getMessage(), t);
-    }
-
-    @Override
-    public void onExit() {
-
     }
 
     private boolean eventTypeMatch(ExportEvent.EventType eventType,

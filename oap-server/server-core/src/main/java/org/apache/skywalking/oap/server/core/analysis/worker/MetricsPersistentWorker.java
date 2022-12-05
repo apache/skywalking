@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -402,11 +401,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      */
     private class PersistentConsumer implements IConsumer<Metrics> {
         @Override
-        public void init(final Properties properties) {
-
-        }
-
-        @Override
         public void consume(List<Metrics> data) {
             MetricsPersistentWorker.this.onWork(data);
         }
@@ -414,10 +408,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         @Override
         public void onError(List<Metrics> data, Throwable t) {
             log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
         }
     }
 }
