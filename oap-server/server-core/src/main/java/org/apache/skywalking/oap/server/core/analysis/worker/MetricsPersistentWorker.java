@@ -180,7 +180,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
         sessionCache.setTimeoutThreshold(storageSessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200);
-        // Set cache mode in normal mode for high dimensionality metrics, such as hour/day metrics.
         // The down sampling level worker executes every 4 periods.
         this.persistentMod = 4;
     }
