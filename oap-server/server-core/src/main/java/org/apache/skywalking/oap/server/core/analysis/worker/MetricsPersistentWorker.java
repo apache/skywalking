@@ -25,11 +25,15 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -89,6 +93,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
      * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
      */
     private int metricsDataTTL;
+    /**
+     * @since 9.4.0
+     */
+    private final ServerStatusService serverStatusService;
+    /**
+     * The time bucket is 0 or in minute dimensionality of the system in the latest stability status.
+     *
+     * @since 9.4.0
+     */
+    private long timeOfLatestStabilitySts = 0;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
@@ -145,6 +159,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             new MetricsTag.Keys("status"), new MetricsTag.Values("cached")
         );
         SESSION_TIMEOUT_OFFSITE_COUNTER++;
+        serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
     }
 
     /**
@@ -165,6 +180,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // And add offset according to worker creation sequence, to avoid context clear overlap,
         // eventually optimize load of IDs reading.
         sessionCache.setTimeoutThreshold(storageSessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200);
+        // Set cache mode in normal mode for high dimensionality metrics, such as hour/day metrics.
         // The down sampling level worker executes every 4 periods.
         this.persistentMod = 4;
     }
@@ -189,6 +205,11 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
             return Collections.emptyList();
+        }
+
+        if (model.getDownsampling().equals(DownSampling.Minute)) {
+            timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
+                serverStatusService.getBootingStatus().getUptime());
         }
 
         /*
@@ -299,7 +320,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             List<Metrics> notInCacheMetrics =
                 metrics.stream()
                        .filter(m -> {
-                           final Metrics cachedValue = sessionCache.get(m);
+                           final Metrics cachedValue = requireInitialization(m);
                            // the metric is tagged `not in cache`.
                            if (cachedValue == null) {
                                return true;
@@ -338,6 +359,42 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
     @Override
     public void endOfRound() {
         sessionCache.removeExpired();
+    }
+
+    /**
+     * Check the metrics whether in the cache, and whether the worker should go further to load from database.
+     *
+     * @param metrics the metrics in the streaming process.
+     * @return metrics in cache or null if try to read the metrics from the database.
+     */
+    private Metrics requireInitialization(Metrics metrics) {
+        final Metrics cached = sessionCache.get(metrics);
+
+        // All cached metrics, it at least had been written once.
+        if (cached != null) {
+            return cached;
+        }
+
+        // When
+        // (1) the time bucket of the server's latest stability status is provided
+        //     1.1 the OAP has booted successfully
+        //     1.2 the current dimensionality is in minute.
+        // (2) the metrics are from the time after the timeOfLatestStabilitySts
+        // (3) the metrics don't exist in the cache
+        // the kernel should NOT try to load it from the database.
+        //
+        // Notice, about condition (2),
+        // for the specific minute of booted successfully, the metrics are expected to load from database when
+        // it doesn't exist in the cache.
+        if (timeOfLatestStabilitySts > 0 &&
+            metrics.getTimeBucket() > timeOfLatestStabilitySts
+            && cached == null) {
+            // Return metrics as input to avoid reading from database.
+            sessionCache.put(metrics);
+            return metrics;
+        }
+
+        return null;
     }
 
     /**
