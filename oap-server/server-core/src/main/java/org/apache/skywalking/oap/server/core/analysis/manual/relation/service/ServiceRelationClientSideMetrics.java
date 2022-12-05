@@ -77,11 +77,9 @@ public class ServiceRelationClientSideMetrics extends Metrics {
         ServiceRelationClientSideMetrics serviceRelationClientSideMetrics = (ServiceRelationClientSideMetrics) metrics;
         if (this.getComponentId() == 0 && serviceRelationClientSideMetrics.getComponentId() != 0) {
             this.componentId = serviceRelationClientSideMetrics.getComponentId();
+            return true;
         }
-        if (this.getTimeBucket() > metrics.getTimeBucket()) {
-            this.setTimeBucket(metrics.getTimeBucket());
-        }
-        return true;
+        return false;
     }
 
     @Override

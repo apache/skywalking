@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -40,6 +41,7 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.TIM
 
 @Stream(name = ServiceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION,
     builder = ServiceRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = true, supportUpdate = false, timeRelativeID = true)
 @EqualsAndHashCode(of = {
     "entityId"
 }, callSuper = true)
@@ -76,7 +78,7 @@ public class ServiceRelationServerSideMetrics extends Metrics {
 
     @Override
     public boolean combine(Metrics metrics) {
-        return true;
+        return false;
     }
 
     @Override

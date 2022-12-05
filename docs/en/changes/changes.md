@@ -21,6 +21,8 @@
     // for the specific minute of booted successfully, the metrics are expected to load from database when
     // it doesn't exist in the cache.
 ```
+* Remove the offset of metric session timeout according to worker creation sequence.
+* Correct `MetricsExtension` annotations declarations in manual entities.
 
 #### UI
 

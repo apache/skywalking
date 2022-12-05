@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @Stream(name = ProcessRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.PROCESS_RELATION,
         builder = ProcessRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, supportUpdate = true, timeRelativeID = true)
+@MetricsExtension(supportDownSampling = false, supportUpdate = false, timeRelativeID = true)
 @EqualsAndHashCode(of = {
         "entityId"
 }, callSuper = true)
@@ -78,10 +78,7 @@ public class ProcessRelationServerSideMetrics extends Metrics {
 
     @Override
     public boolean combine(Metrics metrics) {
-        if (this.getTimeBucket() > metrics.getTimeBucket()) {
-            this.setTimeBucket(metrics.getTimeBucket());
-        }
-        return true;
+        return false;
     }
 
     @Override

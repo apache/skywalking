@@ -53,11 +53,6 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  */
 @Slf4j
 public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
-    /**
-     * The counter of MetricsPersistentWorker instance, to calculate session timeout offset.
-     */
-    private static long SESSION_TIMEOUT_OFFSITE_COUNTER = 0;
-
     private final Model model;
     private final MetricsSessionCache sessionCache;
     private final IMetricsDAO metricsDAO;
@@ -157,7 +152,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             "metrics_persistent_cache", "The counter of metrics status, new or cached.",
             new MetricsTag.Keys("status"), new MetricsTag.Values("cached")
         );
-        SESSION_TIMEOUT_OFFSITE_COUNTER++;
         serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
     }
 
@@ -176,9 +170,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
              supportUpdate, storageSessionTimeout, metricsDataTTL, kind
         );
         // For a down-sampling metrics, we prolong the session timeout for 4 times, nearly 5 minutes.
-        // And add offset according to worker creation sequence, to avoid context clear overlap,
-        // eventually optimize load of IDs reading.
-        sessionCache.setTimeoutThreshold(storageSessionTimeout * 4 + SESSION_TIMEOUT_OFFSITE_COUNTER * 200);
+        sessionCache.setTimeoutThreshold(storageSessionTimeout * 4);
         // The down sampling level worker executes every 4 periods.
         this.persistentMod = 4;
     }
