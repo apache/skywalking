@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -35,6 +36,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @RequiredArgsConstructor
 public class ServerStatusService implements Service {
     private final ModuleManager manager;
+    @Getter
     private BootingStatus bootingStatus = new BootingStatus();
 
     public void bootedNow(long uptime) {
