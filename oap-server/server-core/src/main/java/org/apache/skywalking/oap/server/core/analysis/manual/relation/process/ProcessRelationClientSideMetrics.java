@@ -39,7 +39,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
         builder = ProcessRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false, timeRelativeID = true)
 @EqualsAndHashCode(of = {
-        "entityId"
+        "entityId",
+        "component_id"
 }, callSuper = true)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class ProcessRelationClientSideMetrics extends Metrics {
@@ -73,7 +74,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
 
     @Override
     protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+        return getTimeBucket() + Const.ID_CONNECTOR + entityId + Const.ID_CONNECTOR + componentId;
     }
 
     @Override

@@ -23,6 +23,7 @@
 ```
 * Remove the offset of metric session timeout according to worker creation sequence.
 * Correct `MetricsExtension` annotations declarations in manual entities.
+* Fix ProcessRelation topology overlap for nodes communication with multiple component IDs.(HTTP and TCP) 
 
 #### UI
 

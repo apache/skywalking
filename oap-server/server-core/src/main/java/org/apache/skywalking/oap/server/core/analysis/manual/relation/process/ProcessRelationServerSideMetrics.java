@@ -73,7 +73,7 @@ public class ProcessRelationServerSideMetrics extends Metrics {
 
     @Override
     protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+        return getTimeBucket() + Const.ID_CONNECTOR + entityId + Const.ID_CONNECTOR + componentId;
     }
 
     @Override
