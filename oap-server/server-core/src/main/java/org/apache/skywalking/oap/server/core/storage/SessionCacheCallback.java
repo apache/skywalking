@@ -29,22 +29,12 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsSessionCache
 public class SessionCacheCallback {
     private final MetricsSessionCache sessionCache;
     private final Metrics metrics;
-    /**
-     * In some cases, this callback could be shared by multiple executions, such as SQLExecutor#additionalSQLs.
-     * This flag would make sure, once one of the generated executions is failure, the whole metric would be removed
-     * from the cache, and would not be added back. As those are executed in a batch mode. The sequence is uncertain.
-     */
-    private volatile boolean isFailed = false;
 
     public void onInsertCompleted() {
-        if (isFailed) {
-            return;
-        }
         sessionCache.put(metrics);
     }
 
     public void onUpdateFailure() {
-        isFailed = true;
         sessionCache.remove(metrics);
     }
 }

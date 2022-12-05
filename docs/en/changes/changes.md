@@ -21,6 +21,7 @@
     // for the specific minute of booted successfully, the metrics are expected to load from database when
     // it doesn't exist in the cache.
 ```
+* Remove offset of metrics session threshold. Only keep 4 times of minute dimensionality timeout.
 
 #### UI
 
