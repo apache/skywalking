@@ -19,16 +19,15 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.List;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -131,10 +130,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
         @Override
-        public void init(final Properties properties) {
-        }
-
-        @Override
         public void consume(List<Metrics> data) {
             MetricsAggregateWorker.this.onWork(data);
         }
@@ -142,10 +137,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         @Override
         public void onError(List<Metrics> data, Throwable t) {
             log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
         }
 
         @Override

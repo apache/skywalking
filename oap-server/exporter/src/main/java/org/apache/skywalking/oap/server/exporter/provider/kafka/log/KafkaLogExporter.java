@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.exporter.provider.kafka.log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -95,11 +94,6 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
     }
 
     @Override
-    public void init(final Properties properties) {
-
-    }
-
-    @Override
     public void consume(final List<LogRecord> data) {
         for (LogRecord logRecord : data) {
             if (logRecord != null) {
@@ -128,11 +122,6 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
 
     @Override
     public void onError(final List<LogRecord> data, final Throwable t) {
-
-    }
-
-    @Override
-    public void onExit() {
 
     }
 
