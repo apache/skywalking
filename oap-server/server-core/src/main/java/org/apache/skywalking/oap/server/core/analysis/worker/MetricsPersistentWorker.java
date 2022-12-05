@@ -390,7 +390,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             metrics.getTimeBucket() > timeOfLatestStabilitySts
             && cached == null) {
             // Return metrics as input to avoid reading from database.
-            sessionCache.put(metrics);
             return metrics;
         }
 
