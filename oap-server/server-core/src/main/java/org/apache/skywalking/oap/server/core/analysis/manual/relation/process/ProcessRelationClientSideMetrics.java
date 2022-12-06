@@ -80,7 +80,7 @@ public class ProcessRelationClientSideMetrics extends Metrics {
     @Override
     public boolean combine(Metrics metrics) {
         final ProcessRelationClientSideMetrics processRelationClientSideMetrics = (ProcessRelationClientSideMetrics) metrics;
-        if (ProcessNetworkRelationIDs.compare(this.componentId, processRelationClientSideMetrics.getComponentId())) {
+        if (!ProcessNetworkRelationIDs.compare(this.componentId, processRelationClientSideMetrics.getComponentId())) {
             this.setComponentId(processRelationClientSideMetrics.getComponentId());
             return true;
         }
