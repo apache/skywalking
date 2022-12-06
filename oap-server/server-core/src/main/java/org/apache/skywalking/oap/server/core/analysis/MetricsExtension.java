@@ -44,6 +44,10 @@ public @interface MetricsExtension {
      * @return true means the ID of this metric entity would generate timestamp related ID, such as 20170128-serviceId.
      * If as false, then, ID would be like serviceId directly. This is typically used for metadata level metric, such as
      * {@link org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic}
+     *
+     * @since 9.4.0 `return false` could mean `not completely relevant`. Such as
+     * {@link org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData}
+     * uses 20221108-tag-value as key, but time bucket is still in minute dimensionality, for example 202211081200.
      */
     boolean timeRelativeID() default false;
 }
