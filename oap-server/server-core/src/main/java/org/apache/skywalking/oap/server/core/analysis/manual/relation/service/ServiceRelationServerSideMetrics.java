@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -40,6 +41,7 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.TIM
 
 @Stream(name = ServiceRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_RELATION,
     builder = ServiceRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = true, supportUpdate = true, timeRelativeID = true)
 @EqualsAndHashCode(of = {
     "entityId"
 }, callSuper = true)
@@ -76,7 +78,12 @@ public class ServiceRelationServerSideMetrics extends Metrics {
 
     @Override
     public boolean combine(Metrics metrics) {
-        return true;
+        ServiceRelationServerSideMetrics serviceRelationServerSideMetrics = (ServiceRelationServerSideMetrics) metrics;
+        if (this.getComponentId() == 0 && serviceRelationServerSideMetrics.getComponentId() != 0) {
+            this.componentId = serviceRelationServerSideMetrics.getComponentId();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -150,7 +157,8 @@ public class ServiceRelationServerSideMetrics extends Metrics {
         }
 
         @Override
-        public void entity2Storage(final ServiceRelationServerSideMetrics storageData, final Convert2Storage converter) {
+        public void entity2Storage(final ServiceRelationServerSideMetrics storageData,
+                                   final Convert2Storage converter) {
             converter.accept(ENTITY_ID, storageData.getEntityId());
             converter.accept(SOURCE_SERVICE_ID, storageData.getSourceServiceId());
             converter.accept(DEST_SERVICE_ID, storageData.getDestServiceId());

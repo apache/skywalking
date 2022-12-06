@@ -36,10 +36,10 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @Stream(name = ProcessRelationServerSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.PROCESS_RELATION,
-        builder = ProcessRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+    builder = ProcessRelationServerSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true, timeRelativeID = true)
 @EqualsAndHashCode(of = {
-        "entityId"
+    "entityId"
 }, callSuper = true)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class ProcessRelationServerSideMetrics extends Metrics {
@@ -78,10 +78,12 @@ public class ProcessRelationServerSideMetrics extends Metrics {
 
     @Override
     public boolean combine(Metrics metrics) {
-        if (this.getTimeBucket() > metrics.getTimeBucket()) {
-            this.setTimeBucket(metrics.getTimeBucket());
+        final ProcessRelationServerSideMetrics processRelationServerSideMetrics = (ProcessRelationServerSideMetrics) metrics;
+        if (ProcessNetworkRelationIDs.compare(this.componentId, processRelationServerSideMetrics.getComponentId())) {
+            this.setComponentId(processRelationServerSideMetrics.getComponentId());
+            return true;
         }
-        return true;
+        return false;
     }
 
     @Override
