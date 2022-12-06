@@ -25,6 +25,7 @@
 * Correct `MetricsExtension` annotations declarations in manual entities.
 * Support component IDs' priority in process relation metrics.
 * Remove abandon logic in MergableBufferedData, which caused unexpected no-update.
+* Fix miss set `LastUpdateTimestamp` that caused the metrics session to expire.
 
 #### UI
 
