@@ -22,4 +22,3 @@ oap-server/oal-grammar/**/gen/
 # This serves as a template but will ONLY be updated when building a source release tar,
 # so we don't track future updates of this file.
 oap-server/server-starter/src/main/resources/version.properties
-test/e2e-v2/cases/mariadb/mariadb-slowsql/log/
