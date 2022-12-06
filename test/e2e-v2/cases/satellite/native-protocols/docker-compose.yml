@@ -45,7 +45,7 @@ services:
     environment:
       SW_LOG_LAL_FILES: test
       SW_CLUSTER: etcd
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-micrometer
       SW_CONFIGURATION: etcd
     volumes:
       - ./lal.yaml:/skywalking/config/lal/test.yaml
