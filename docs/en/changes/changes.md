@@ -24,6 +24,7 @@
 * Remove the offset of metric session timeout according to worker creation sequence.
 * Correct `MetricsExtension` annotations declarations in manual entities.
 * Support component IDs' priority in process relation metrics.
+* Remove abandon logic in MergableBufferedData, which caused unexpected no-update.
 
 #### UI
 
