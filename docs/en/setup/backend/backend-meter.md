@@ -29,7 +29,7 @@ The receiver adds labels with `key = service` and `key = instance` to the collec
 and values from service and service instance name defined in SkyWalking Agent,
 for identification of the metric data.
 
-A typical manual meter API set is [Spring Sleuth APIs](spring-sleuth-setup.md)
+A typical manual meter API set is [Spring MicroMeter Observations APIs](micrometer-observations.md)
 
 ### OpenTelemetry Exporter
 
