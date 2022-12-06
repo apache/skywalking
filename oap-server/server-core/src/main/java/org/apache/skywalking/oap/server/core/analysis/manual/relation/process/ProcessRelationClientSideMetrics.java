@@ -36,11 +36,11 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @Stream(name = ProcessRelationClientSideMetrics.INDEX_NAME, scopeId = DefaultScopeDefine.PROCESS_RELATION,
-        builder = ProcessRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, supportUpdate = false, timeRelativeID = true)
+    builder = ProcessRelationClientSideMetrics.Builder.class, processor = MetricsStreamProcessor.class)
+@MetricsExtension(supportDownSampling = false, supportUpdate = true, timeRelativeID = true)
 @EqualsAndHashCode(of = {
-        "entityId",
-        "component_id"
+    "entityId",
+    "component_id"
 }, callSuper = true)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class ProcessRelationClientSideMetrics extends Metrics {
@@ -74,11 +74,16 @@ public class ProcessRelationClientSideMetrics extends Metrics {
 
     @Override
     protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId + Const.ID_CONNECTOR + componentId;
+        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
     }
 
     @Override
     public boolean combine(Metrics metrics) {
+        final ProcessRelationClientSideMetrics processRelationClientSideMetrics = (ProcessRelationClientSideMetrics) metrics;
+        if (ProcessNetworkRelationIDs.compare(this.componentId, processRelationClientSideMetrics.getComponentId())) {
+            this.setComponentId(processRelationClientSideMetrics.getComponentId());
+            return true;
+        }
         return false;
     }
 
