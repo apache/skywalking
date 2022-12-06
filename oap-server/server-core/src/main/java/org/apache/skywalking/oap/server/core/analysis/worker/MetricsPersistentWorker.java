@@ -247,6 +247,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             for (Metrics metrics : metricsList) {
                 Metrics cachedMetrics = sessionCache.get(metrics);
                 if (cachedMetrics != null) {
+                    cachedMetrics.setLastUpdateTimestamp(timestamp);
                     /*
                      * If the metrics is not supportUpdate, defined through MetricsExtension#supportUpdate,
                      * then no merge and further process happens.
@@ -269,7 +270,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                             new SessionCacheCallback(sessionCache, cachedMetrics)
                         ));
                     nextWorker(cachedMetrics);
-                    cachedMetrics.setLastUpdateTimestamp(timestamp);
                 } else {
                     metrics.calculate();
                     prepareRequests.add(
@@ -339,8 +339,10 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             if (notInCacheMetrics.isEmpty()) {
                 return;
             }
-
-            metricsDAO.multiGet(model, notInCacheMetrics).forEach(m -> sessionCache.put(m));
+            metricsDAO.multiGet(model, notInCacheMetrics).forEach(m -> {
+                m.setLastUpdateTimestamp(currentTimeMillis);
+                sessionCache.put(m);
+            });
         } catch (final Exception e) {
             log.error("Failed to load metrics for merging", e);
         }
