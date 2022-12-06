@@ -367,6 +367,13 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             return cached;
         }
 
+        // If the metrics do not have time bucket relative ID
+        // it is treated as high dimensionality metrics.
+        // Policy, always try load from the database when miss in the cache.
+        if (!model.isTimeRelativeID()) {
+            return null;
+        }
+
         // When
         // (1) the time bucket of the server's latest stability status is provided
         //     1.1 the OAP has booted successfully
