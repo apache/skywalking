@@ -8,6 +8,7 @@
 * Adds Micrometer as a new component.(ID=141)
 * Refactor session cache in MetricsPersistentWorker.
 * Cache enhancement - don't read new metrics from database in minute dimensionality.
+
 ```
     // When
     // (1) the time bucket of the server's latest stability status is provided
@@ -21,6 +22,7 @@
     // for the specific minute of booted successfully, the metrics are expected to load from database when
     // it doesn't exist in the cache.
 ```
+
 * Remove the offset of metric session timeout according to worker creation sequence.
 * Correct `MetricsExtension` annotations declarations in manual entities.
 * Support component IDs' priority in process relation metrics.
@@ -29,5 +31,8 @@
 #### UI
 
 #### Documentation
+
+* Remove Spring Sleuth docs, and add `Spring MicroMeter Observations Analysis` with the latest Java agent side
+  enhancement.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
