@@ -90,7 +90,11 @@ services:
      - ./mock.sql:/docker/mock.sql
     command:
       - -c
-      - "mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
+      - "mysql -h mariadb -uroot -pwrong-password && mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
+      
+      # - c 
+      # - "mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
+     
     depends_on:
       mariadb:
         condition: service_healthy
