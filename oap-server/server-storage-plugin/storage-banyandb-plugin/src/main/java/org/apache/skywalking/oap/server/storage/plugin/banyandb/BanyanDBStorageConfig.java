@@ -70,18 +70,4 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * @since 9.3.0
      */
     private int streamSegmentInterval;
-    /**
-     * block interval for Measure group.
-     * Unit is hours.
-     *
-     * @since 9.3.0
-     */
-    private int measureBlockInterval;
-    /**
-     * segment interval for Measure group.
-     * Unit is hours.
-     *
-     * @since 9.3.0
-     */
-    private int measureSegmentInterval;
 }

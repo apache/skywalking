@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.gson.JsonObject;
 import io.grpc.Status;
+
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,6 +33,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -90,7 +92,7 @@ public enum MetadataRegistry {
         String timestampColumn4Stream = model.getBanyanDBModelExtension().getTimestampColumn();
         if (StringUtil.isBlank(timestampColumn4Stream)) {
             throw new IllegalStateException(
-                "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
+                    "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
         }
         schemaBuilder.timestampColumn4Stream(timestampColumn4Stream);
         List<IndexRule> indexRules = tags.stream()
@@ -354,11 +356,24 @@ public enum MetadataRegistry {
                     configService.getRecordDataTTL()
             );
         }
+        // FIX: address issue #10104
+        if (model.getDownsampling() == DownSampling.Minute) {
+            return new SchemaMetadata("measure-sampled", model.getName(), Kind.MEASURE,
+                    model.getDownsampling(),
+                    config.getMetricsShardsNumber(),
+                    4,
+                    24,
+                    configService.getMetricsDataTTL());
+        }
+        // Solution: 2 * TTL < T * (1 + 0.8)
+        // e.g. if TTL=7, T=8: a new block/segment will be created at 14.4 days,
+        // while the first block has been deleted at 2*TTL
+        final int intervalDays = Double.valueOf(Math.ceil(configService.getMetricsDataTTL() * 2.0 / 1.8)).intValue();
         return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
                 model.getDownsampling(),
                 config.getMetricsShardsNumber(),
-                config.getMeasureBlockInterval(),
-                config.getMeasureSegmentInterval(),
+                intervalDays * 24,
+                intervalDays * 24, // use 10-day/240-hour strategy
                 configService.getMetricsDataTTL());
     }
 
