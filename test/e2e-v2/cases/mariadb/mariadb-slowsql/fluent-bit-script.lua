@@ -47,7 +47,6 @@ function rewrite_body(tag, timestamp, record)
 
   f1,_ = string.find(arr[4],"Lock")
   query_time = string.sub(arr[4],15,f1-3)
-  print("query_time= ", query_time)
   local qt,_ = math.modf(query_time*1000)
   re1["query_time"] = qt
   re1["statement"] = ""
