@@ -352,7 +352,7 @@ public enum MetadataRegistry {
                     config.getRecordShardsNumber() *
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
                     config.getStreamBlockInterval(),
-                    config.getStreamSegmentInterval(),
+                    config.getStreamSegmentInterval() * 24,
                     configService.getRecordDataTTL()
             );
         }
