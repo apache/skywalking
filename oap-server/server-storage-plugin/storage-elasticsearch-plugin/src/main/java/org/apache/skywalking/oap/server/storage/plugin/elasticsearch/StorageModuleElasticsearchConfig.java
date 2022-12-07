@@ -90,7 +90,6 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int bulkActions = 5000;
     /**
      * Period of flush, no matter `bulkActions` reached or not.
-     * INT(flushInterval * 2/3) would be used for index refresh period.
      * Unit is second.
      */
     private int flushInterval = 15;
