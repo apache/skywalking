@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
@@ -100,7 +101,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
     protected StorageModuleElasticsearchConfig config;
     protected ElasticSearchClient elasticSearchClient;
-    protected ModelInstaller modelInstaller;
+    protected StorageEsInstaller modelInstaller;
 
     @Override
     public String name() {
@@ -243,6 +244,11 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         elasticSearchClient.registerChecker(healthChecker);
         try {
             elasticSearchClient.connect();
+
+            final ConfigService service = getManager().find(CoreModule.NAME).provider().getService(ConfigService.class);
+            // Add 5s to make sure OAP has at least done persistent once.
+            // By default, the persistent period is 25 seconds and ElasticSearch refreshes in every 30 seconds.
+            modelInstaller.setIndexRefreshInterval(service.getPersistentPeriod() + 5);
             modelInstaller.start();
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);

@@ -29,6 +29,8 @@
 * Remove abandon logic in MergableBufferedData, which caused unexpected no-update.
 * Fix miss set `LastUpdateTimestamp` that caused the metrics session to expire.
 * Rename MAL rule `spring-sleuth.yaml` to `spring-micrometer.yaml`.
+* Remove the dependency of `refresh_interval` of ElasticSearch indices from `elasticsearch/flushInterval` config. Now,
+  it uses `core/persistentPeriod` + 5s as `refresh_interval` for all indices instead.
 
 #### UI
 
