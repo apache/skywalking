@@ -16,15 +16,6 @@
 version: '2.1'
 
 services:
-  ui:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: ui
-    image: apache/skywalking-ui:9.2.0
-    networks:
-      - e2e
-    ports:
-      - "80:8080"
   oap:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
@@ -37,30 +28,8 @@ services:
       - e2e
     environment:
       - TZ=Asia/Shanghai
-      - SW_STORAGE=mysql
-      - SW_DATA_SOURCE_USER=root
-      - SW_DATA_SOURCE_PASSWORD=password
-      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
       - SW_CORE_TOPN_REPORT_PERIOD=1
       - SW_OTEL_RECEIVER=default
-    depends_on:
-      mysql:
-        condition: service_healthy
-
-  mysql:
-    image: mysql:8.0.13
-    networks:
-      - e2e
-    environment:
-      - "MYSQL_ROOT_PASSWORD=password"
-      - "MYSQL_DATABASE=swtest"
-    ports:
-      - 3306
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
       
   mariadb:
     image: mariadb:10.7.3
@@ -94,21 +63,6 @@ services:
       mariadb:
         condition: service_healthy
       
-  mysql-load_2:
-    image: mysql:8.0.13
-    depends_on:
-      oap:
-        condition: service_healthy
-    networks:
-      - e2e
-    entrypoint: bash
-    command:
-      - -c
-      - "mysql -h mariadb -uroot -pwrong-password"
-    depends_on:
-      mariadb:
-        condition: service_healthy   
-
   mysql-load_2:
     image: mysql:8.0.13
     depends_on:
