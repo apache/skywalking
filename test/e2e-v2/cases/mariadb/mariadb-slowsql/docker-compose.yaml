@@ -93,6 +93,21 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
+      
+  mysql-load_2:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    command:
+      - -c
+      - "mysql -h mariadb -uroot -pwrong-password"
+    depends_on:
+      mariadb:
+        condition: service_healthy   
 
   mysql-load_2:
     image: mysql:8.0.13

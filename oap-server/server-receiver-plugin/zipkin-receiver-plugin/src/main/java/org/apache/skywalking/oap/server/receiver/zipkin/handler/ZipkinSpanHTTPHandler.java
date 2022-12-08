@@ -100,10 +100,11 @@ public class ZipkinSpanHTTPHandler {
                                 final HttpRequest req) {
         final HistogramMetrics.Timer timer = histogram.createTimer();
         final HttpResponse response = HttpResponse.from(req.aggregate().thenApply(request -> {
-            final HttpData httpData = UnzippingBytesRequestConverter.convertRequest(ctx, request);
-            final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
-            spanForward.send(spanList);
-            return HttpResponse.of(HttpStatus.OK);
+            try (final HttpData httpData = UnzippingBytesRequestConverter.convertRequest(ctx, request)) {
+                final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
+                spanForward.send(spanList);
+                return HttpResponse.of(HttpStatus.OK);
+            }
         }));
         response.whenComplete().handle((unused, throwable) -> {
             if (nonNull(throwable)) {
