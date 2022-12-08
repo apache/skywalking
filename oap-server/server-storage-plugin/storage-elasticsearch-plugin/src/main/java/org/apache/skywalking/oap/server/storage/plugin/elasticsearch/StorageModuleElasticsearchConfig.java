@@ -92,7 +92,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * Period of flush, no matter `bulkActions` reached or not.
      * Unit is second.
      */
-    private int flushInterval = 15;
+    private int flushInterval = 5;
     private int concurrentRequests = 2;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
