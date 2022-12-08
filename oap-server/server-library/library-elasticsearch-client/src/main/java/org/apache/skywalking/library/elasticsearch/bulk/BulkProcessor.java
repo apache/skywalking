@@ -109,7 +109,7 @@ public final class BulkProcessor {
     private void doPeriodicalFlush() {
         if (System.currentTimeMillis() - lastFlushTS > flushInternalInMillis / 2) {
             // Run periodical flush if there is no `flushIfNeeded` executed in the second half of the flush period.
-            // Otherwise, wait for next round. By default, last 2 seconds of 5s period.
+            // Otherwise, wait for the next round. By default, the last 2 seconds of the 5s period.
             // This could avoid periodical flush running among bulks(controlled by bulkActions).
             flush();
         }
