@@ -32,6 +32,7 @@
 * Fix memory leak in Zipkin API.
 * Remove the dependency of `refresh_interval` of ElasticSearch indices from `elasticsearch/flushInterval` config. Now,
   it uses `core/persistentPeriod` + 5s as `refresh_interval` for all indices instead.
+* Change `elasticsearch/flushInterval` to 5s(was 15s).
 
 #### UI
 
