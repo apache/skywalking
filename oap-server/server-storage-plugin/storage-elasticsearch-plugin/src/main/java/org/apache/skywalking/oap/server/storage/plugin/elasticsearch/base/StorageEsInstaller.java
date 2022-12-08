@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
@@ -49,6 +50,8 @@ public class StorageEsInstaller extends ModelInstaller {
     private final StorageModuleElasticsearchConfig config;
     protected final ColumnTypeEsMapping columnTypeEsMapping;
     private final Map<String, Map<String, Object>> specificIndexesSettings;
+    @Setter
+    private int indexRefreshInterval = 30;
 
     /**
      * The mappings of the template .
@@ -236,18 +239,6 @@ public class StorageEsInstaller extends ModelInstaller {
         indexSettings.put("number_of_shards", model.isSuperDataset()
             ? Integer.toString(config.getIndexShardsNumber() * config.getSuperDatasetIndexShardsFactor())
             : Integer.toString(config.getIndexShardsNumber()));
-        // Set the index refresh period as INT(flushInterval * 2/3). At the edge case,
-        // in low traffic(traffic < bulkActions in the whole period), there is a possible case, 2 period bulks are included in
-        // one index refresh rebuild operation, which could cause version conflicts. And this case can't be fixed
-        // through `core/persistentPeriod` as the bulk fresh is not controlled by the persistent timer anymore.
-        int indexRefreshInterval = config.getFlushInterval() * 2 / 3;
-        if (indexRefreshInterval < 5) {
-            // The refresh interval should not be less than 5 seconds (the recommended default value = 10s),
-            // and the bulk flush interval should not be set less than 8s (the recommended default value = 15s).
-            // This is a precaution case which makes ElasticSearch server has reasonable refresh interval,
-            // even this value is set too small by end user manually.
-            indexRefreshInterval = 5;
-        }
         indexSettings.put("refresh_interval", indexRefreshInterval + "s");
         indexSettings.put("analysis", getAnalyzerSetting(model));
         if (!StringUtil.isEmpty(config.getAdvanced())) {
