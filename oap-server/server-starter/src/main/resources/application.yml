@@ -235,8 +235,9 @@ storage:
     superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
-    streamBlockInterval: ${SW_STORAGE_BANYANDB_STREAM_BLOCK_INTERVAL:24} # Unit is hour
-    streamSegmentInterval: ${SW_STORAGE_BANYANDB_STREAM_SEGMENT_INTERVAL:1} # Unit is day
+    blockIntervalHours: ${SW_STORAGE_BANYANDB_BLOCK_INTERVAL_HOURS:24} # Unit is hour
+    segmentIntervalDays: ${SW_STORAGE_BANYANDB_SEGMENT_INTERVAL_DAYS:1} # Unit is day
+    overrideGroupIntervals: ${SW_STORAGE_BANYANDB_OVERRIDE_GROUP_INTERVALS:""} # For example, group1,4,1;group2,2,2
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}

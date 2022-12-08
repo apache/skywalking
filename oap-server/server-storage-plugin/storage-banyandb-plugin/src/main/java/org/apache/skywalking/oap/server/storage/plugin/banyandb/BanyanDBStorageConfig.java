@@ -57,18 +57,24 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int superDatasetShardsFactor;
     /**
-     * block interval for Stream group.
+     * Default global block interval.
      * Unit is hour.
      *
-     * @since 9.3.0
+     * @since 9.4.0
      */
-    private int streamBlockInterval;
+    private int blockIntervalHours;
     /**
-     * segment interval for Stream group.
+     * Default global segment interval.
      * Unit is day.
      *
-     * @since 9.3.0
-     * @since 9.4.0 the unit is changed to day instead of hour
+     * @since 9.4.0
      */
-    private int streamSegmentInterval;
+    private int segmentIntervalDays;
+    /**
+     * Override the default global configurations.
+     * It works for all groups except `measure-default`.
+     *
+     * @since 9.4.0
+     */
+    private String overrideGroupIntervals;
 }

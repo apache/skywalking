@@ -34,6 +34,10 @@
   it uses `core/persistentPeriod` + 5s as `refresh_interval` for all indices instead.
 * Change `elasticsearch/flushInterval` to 5s(was 15s).
 * Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams. 
+* Remove measure/stream specific interval settings in BanyanDB.
+* Add global interval settings and allow to override settings for each single group in BanyanDB.
+* Use TTL-driven interval settings for the `measure-default` group in BanyanDB.
+* Fix wrong group of non timeRelative metadata in BanyanDB.
 
 #### UI
 

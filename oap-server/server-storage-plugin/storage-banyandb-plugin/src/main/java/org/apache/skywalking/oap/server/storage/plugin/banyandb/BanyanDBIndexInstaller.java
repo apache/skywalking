@@ -40,6 +40,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
         super(client, moduleManager);
         this.config = config;
+        MetadataRegistry.INSTANCE.initializeIntervals(config.getOverrideGroupIntervals());
     }
 
     @Override
@@ -60,9 +61,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             // then check entity schema
             if (metadata.findRemoteSchema(c).isPresent()) {
                 // register models only locally but not remotely
-                if (model.isTimeSeries() && model.isRecord()) { // stream
+                if (model.isRecord()) { // stream
                     MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
-                } else if (model.isTimeSeries() && !model.isRecord()) { // measure
+                } else { // measure
                     MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                 }
                 return true;
@@ -78,20 +79,18 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public void createTable(Model model) throws StorageException {
         try {
             ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
-            if (model.isTimeSeries() && model.isRecord()) { // stream
+            if (model.isRecord()) { // stream
                 Stream stream = MetadataRegistry.INSTANCE.registerStreamModel(model, config, configService);
                 if (stream != null) {
                     log.info("install stream schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(stream);
                 }
-            } else if (model.isTimeSeries() && !model.isRecord()) { // measure
+            } else { // measure
                 Measure measure = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                 if (measure != null) {
                     log.info("install measure schema {}", model.getName());
                     ((BanyanDBStorageClient) client).define(measure);
                 }
-            } else if (!model.isTimeSeries()) {
-                log.info("skip property index {}", model.getName());
             }
         } catch (IOException ex) {
             throw new StorageException("fail to install schema", ex);

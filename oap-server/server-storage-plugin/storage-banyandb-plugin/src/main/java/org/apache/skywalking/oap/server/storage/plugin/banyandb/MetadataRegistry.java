@@ -34,6 +34,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -69,6 +71,8 @@ public enum MetadataRegistry {
     INSTANCE;
 
     private final Map<String, Schema> registry = new HashMap<>();
+
+    private final Map<String, Tuple2<Integer, Integer>> intervalConfig = new HashMap<>();
 
     public Stream registerStreamModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
         final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
@@ -338,42 +342,82 @@ public enum MetadataRegistry {
         return tagSpec;
     }
 
+    public void initializeIntervals(String overrideConfig) {
+        if (StringUtil.isBlank(overrideConfig)) {
+            return;
+        }
+        for (final String singleConfig : overrideConfig.split(";")) {
+            if (StringUtil.isBlank(singleConfig)) {
+                continue;
+            }
+            String[] triple = singleConfig.split(",");
+            if (triple.length != 3 || StringUtil.isBlank(triple[0]) || StringUtil.isBlank(triple[1]) || StringUtil.isBlank(triple[2])) {
+                log.warn("invalid interval config for group {}", triple[0]);
+                continue;
+            }
+
+            try {
+                if (this.intervalConfig.put(triple[0], Tuple.of(Integer.valueOf(triple[1]), Integer.valueOf(triple[2]))) != null) {
+                    log.warn("duplicate interval config for group {}", triple[0]);
+                }
+            } catch (NumberFormatException nfEx) {
+                log.warn("invalid number");
+            }
+        }
+    }
+
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, ConfigService configService) {
-        if (model.isRecord()) {
-            String group = "stream-default";
+        String group = null;
+        if (model.isRecord()) { // stream
+            group = "stream-default";
             if (model.isSuperDataset()) {
                 // for superDataset, we should use separate group
                 group = "stream-" + model.getName();
             }
+        } else if (model.getDownsampling() == DownSampling.Minute && model.isTimeRelativeID()) { // measure
+            group = "measure-sampled";
+        }
+
+        if (!model.isRecord() // measure
+                && (model.getDownsampling() != DownSampling.Minute // DownSampling != Minute
+                || !model.isTimeRelativeID())) { // or has no time-relative ID
+            // Solution: 2 * TTL < T * (1 + 0.8)
+            // e.g. if TTL=7, T=8: a new block/segment will be created at 14.4 days,
+            // while the first block has been deleted at 2*TTL
+            final int intervalDays = Double.valueOf(Math.ceil(configService.getMetricsDataTTL() * 2.0 / 1.8)).intValue();
+            return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
+                    model.getDownsampling(),
+                    config.getMetricsShardsNumber(),
+                    intervalDays * 24,
+                    intervalDays * 24, // use 10-day/240-hour strategy
+                    configService.getMetricsDataTTL());
+        }
+
+        int blockIntervalHrs = config.getBlockIntervalHours();
+        int segmentIntervalDays = config.getSegmentIntervalDays();
+        Tuple2<Integer, Integer> intervals = this.intervalConfig.get(group);
+        if (intervals != null) {
+            blockIntervalHrs = intervals._1();
+            segmentIntervalDays = intervals._2();
+        }
+        if (model.isRecord()) {
             return new SchemaMetadata(group,
                     model.getName(),
                     Kind.STREAM,
                     model.getDownsampling(),
                     config.getRecordShardsNumber() *
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
-                    config.getStreamBlockInterval(),
-                    config.getStreamSegmentInterval() * 24,
+                    blockIntervalHrs,
+                    segmentIntervalDays * 24,
                     configService.getRecordDataTTL()
             );
         }
         // FIX: address issue #10104
-        if (model.getDownsampling() == DownSampling.Minute) {
-            return new SchemaMetadata("measure-sampled", model.getName(), Kind.MEASURE,
-                    model.getDownsampling(),
-                    config.getMetricsShardsNumber(),
-                    4,
-                    24,
-                    configService.getMetricsDataTTL());
-        }
-        // Solution: 2 * TTL < T * (1 + 0.8)
-        // e.g. if TTL=7, T=8: a new block/segment will be created at 14.4 days,
-        // while the first block has been deleted at 2*TTL
-        final int intervalDays = Double.valueOf(Math.ceil(configService.getMetricsDataTTL() * 2.0 / 1.8)).intValue();
-        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
+        return new SchemaMetadata(group, model.getName(), Kind.MEASURE,
                 model.getDownsampling(),
                 config.getMetricsShardsNumber(),
-                intervalDays * 24,
-                intervalDays * 24, // use 10-day/240-hour strategy
+                blockIntervalHrs,
+                segmentIntervalDays * 24,
                 configService.getMetricsDataTTL());
     }
 
