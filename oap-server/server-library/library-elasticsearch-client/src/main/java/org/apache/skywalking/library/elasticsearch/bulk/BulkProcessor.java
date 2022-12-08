@@ -127,14 +127,14 @@ public final class BulkProcessor {
             return;
         }
 
-        lastFlushTS = System.currentTimeMillis();
-
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
 
         final CompletableFuture<Void> flush = doFlush(batch);
         flush.whenComplete((ignored1, ignored2) -> semaphore.release());
         flush.join();
+
+        lastFlushTS = System.currentTimeMillis();
     }
 
     private CompletableFuture<Void> doFlush(final List<Holder> batch) {
