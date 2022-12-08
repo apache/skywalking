@@ -72,7 +72,6 @@ services:
     environment:
       - "MYSQL_ROOT_PASSWORD=password"
     healthcheck:
-      # test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
       test: "/usr/bin/mysql --user=root --password=password --execute \"SHOW DATABASES;\""
       interval: 5s
       timeout: 60s
@@ -90,14 +89,26 @@ services:
      - ./mock.sql:/docker/mock.sql
     command:
       - -c
-      - "mysql -h mariadb -uroot -pwrong-password && mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
-      
-      # - c 
-      # - "mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
-     
+      - "mysql -h mariadb -uroot -ppassword < /docker/mock.sql"
     depends_on:
       mariadb:
         condition: service_healthy
+
+  mysql-load_2:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    command:
+      - -c
+      - "mysql -h mariadb -uroot -pwrong-password"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
 
   fluentbit:
     image: fluent/fluent-bit:1.9
