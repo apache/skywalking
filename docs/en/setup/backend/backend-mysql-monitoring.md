@@ -1,10 +1,10 @@
-# MySQL monitoring
-## MySQL server performance from `prometheus/mysqld_exporter`
+# MySQL/MariaDB monitoring
+## MySQL/MariaDB server performance from `prometheus/mysqld_exporter`
 SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data. It leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
 
 ### Data flow
-1. mysqld_exporter collect metrics data from MySQL.
+1. mysqld_exporter collect metrics data from MySQL/MariaDB.
 2. OpenTelemetry Collector fetches metrics from mysqld_exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
@@ -13,9 +13,9 @@ SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data. It 
 2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/mysql/prometheus-mysql-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
-### MySQL Monitoring
-MySQL monitoring provides monitoring of the status and resources of the MySQL server. MySQL cluster is cataloged as a `Layer: MYSQL` `Service` in OAP.
-Each MySQL server is cataloged as an `Instance` in OAP.
+### MySQL/MariaDB Monitoring
+MySQL/MariaDB monitoring provides monitoring of the status and resources of the MySQL/MariaDB server. MySQL/MariaDB cluster is cataloged as a `Layer: MYSQL` `Service` in OAP.
+Each MySQL/MariaDB server is cataloged as an `Instance` in OAP.
 #### Supported Metrics 
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|

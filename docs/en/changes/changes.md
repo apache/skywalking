@@ -31,11 +31,16 @@
 * Rename MAL rule `spring-sleuth.yaml` to `spring-micrometer.yaml`.
 * Fix memory leak in Zipkin API.
 
+#### OAP-Backend
+
+* Support monitoring MariaDB.
+
 #### UI
 
 #### Documentation
 
 * Remove Spring Sleuth docs, and add `Spring MicroMeter Observations Analysis` with the latest Java agent side
   enhancement.
+* Update [monitoring MySQL document](docs/en/setup/backend/backend-mysql-monitoring.md).
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
