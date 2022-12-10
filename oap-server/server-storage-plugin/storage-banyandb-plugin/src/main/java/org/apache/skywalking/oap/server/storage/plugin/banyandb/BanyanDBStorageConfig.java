@@ -72,7 +72,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private int segmentIntervalDays;
     /**
      * Specify the settings for each group individually.
-     * It works for all groups except `measure-default`.
+     * NOTE: setting intervals works for all groups except `measure-default`.
      *
      * @since 9.4.0
      */
