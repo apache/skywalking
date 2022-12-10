@@ -37,27 +37,27 @@ The metrics definition and expression rules are found in `/config/otel-rules/mys
 The MySQL dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
 
 ## Collect sampled slow SQLs
-SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow SQL statements from MySQL.
+SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow SQL statements from MySQL/MariaDB.
 
 ### Data flow
-1. fluentbit agent collects slow sql logs from MySQL.
+1. fluentbit agent collects slow sql logs from MySQL/MariaDB.
 2. fluentbit agent sends data to SkyWalking OAP Server using native meter APIs via HTTP.
 3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
 1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
-2. Config [fluentbit](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/fluent-bit.conf)
-3. Config MySQL to enable slow log.[example](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/my.cnf).
+2. Config fluentbit from [here](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/fluent-bit.conf) for MySQL or [here](../../../../test/e2e-v2/cases/mariadb/mariadb-slowsql/fluent-bit.conf) for MariaDB.
+3. Enable slow log from [here](../../../../test/e2e-v2/cases/mysql/mysql-slowsql/my.cnf) for MySQL or [here](../../../../test/e2e-v2/cases/mariadb/mariadb-slowsql/my.cnf) for MariaDB.
 
 ### Slow SQL Monitoring
-Slow SQL monitoring provides monitoring of the slow SQL statements of the MySQL server. MySQL server is cataloged as a `Layer: MYSQL` `Service` in OAP.
+Slow SQL monitoring provides monitoring of the slow SQL statements of the MySQL/MariaDB server. MySQL/MariaDB server is cataloged as a `Layer: MYSQL` `Service` in OAP.
 
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
-|Slow Statements |   ms   | top_n_database_statement | The latency and statement of MySQL slow SQLs | fluentbit|
+|Slow Statements |   ms   | top_n_database_statement | The latency and statement of MySQL/MariaDB slow SQLs | fluentbit|
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The slowsql expression rules are found in `/config/lal/mysql-slowsql.yaml`
-The MySQL dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
+The MySQL/MariaDB dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
