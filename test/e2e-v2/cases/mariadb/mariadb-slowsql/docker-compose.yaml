@@ -20,10 +20,8 @@ services:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
-    image: ghcr.io/apache/skywalking/oap:bcd9f7a56b99ca612711ed3a540bdae5f46e9171
     ports:
       - 12800
-    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && chmod 777 /skywalking/docker-entrypoint.sh && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e
     environment:
@@ -45,7 +43,7 @@ services:
       timeout: 60s
       retries: 120
 
-  mysql-load:
+  mariadb-load:
     image: mysql:8.0.13
     depends_on:
       oap:
@@ -62,7 +60,7 @@ services:
       mariadb:
         condition: service_healthy
       
-  mysql-load_2:
+  mariadb-load_2:
     image: mysql:8.0.13
     depends_on:
       oap:
@@ -95,7 +93,7 @@ services:
       oap:
         condition: service_healthy
 
-  mysql-service:
+  mariadb-service:
     image: prom/mysqld-exporter:v0.14.0
     ports:
       - 9104

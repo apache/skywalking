@@ -20,7 +20,7 @@ receivers:
        - job_name: 'mysql-monitoring'
          scrape_interval: 5s
          static_configs:
-           - targets: ['mysql-service:9104']
+           - targets: ['mariadb-service:9104']
              labels:
                host_name: db
 processors:
