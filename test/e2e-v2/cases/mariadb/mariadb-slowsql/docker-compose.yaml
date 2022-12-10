@@ -27,7 +27,6 @@ services:
     networks:
       - e2e
     environment:
-      - TZ=Asia/Shanghai
       - SW_CORE_TOPN_REPORT_PERIOD=1
       - SW_OTEL_RECEIVER=default
       
