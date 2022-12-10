@@ -71,10 +71,10 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int segmentIntervalDays;
     /**
-     * Override the default global configurations.
+     * Specify the settings for each group individually.
      * It works for all groups except `measure-default`.
      *
      * @since 9.4.0
      */
-    private String overrideGroupIntervals;
+    private String specificGroupSettings;
 }

@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import io.grpc.Status;
 
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -34,13 +37,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
@@ -70,9 +73,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 public enum MetadataRegistry {
     INSTANCE;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     private final Map<String, Schema> registry = new HashMap<>();
 
-    private final Map<String, Tuple2<Integer, Integer>> intervalConfig = new HashMap<>();
+    private Map<String, GroupSetting> specificGroupSettings = new HashMap<>();
 
     public Stream registerStreamModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
         final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
@@ -342,27 +346,15 @@ public enum MetadataRegistry {
         return tagSpec;
     }
 
-    public void initializeIntervals(String overrideConfig) {
-        if (StringUtil.isBlank(overrideConfig)) {
+    public void initializeIntervals(String specificGroupSettingsStr) {
+        if (StringUtil.isBlank(specificGroupSettingsStr)) {
             return;
         }
-        for (final String singleConfig : overrideConfig.split(";")) {
-            if (StringUtil.isBlank(singleConfig)) {
-                continue;
-            }
-            String[] triple = singleConfig.split(",");
-            if (triple.length != 3 || StringUtil.isBlank(triple[0]) || StringUtil.isBlank(triple[1]) || StringUtil.isBlank(triple[2])) {
-                log.warn("invalid interval config for group {}", triple[0]);
-                continue;
-            }
-
-            try {
-                if (this.intervalConfig.put(triple[0], Tuple.of(Integer.valueOf(triple[1]), Integer.valueOf(triple[2]))) != null) {
-                    log.warn("duplicate interval config for group {}", triple[0]);
-                }
-            } catch (NumberFormatException nfEx) {
-                log.warn("invalid number");
-            }
+        try {
+            specificGroupSettings = MAPPER.readerFor(new TypeReference<Map<String, GroupSetting>>() {
+            }).readValue(specificGroupSettingsStr);
+        } catch (IOException ioEx) {
+            log.warn("fail to parse specificGroupSettings", ioEx);
         }
     }
 
@@ -391,10 +383,10 @@ public enum MetadataRegistry {
 
         int blockIntervalHrs = config.getBlockIntervalHours();
         int segmentIntervalDays = config.getSegmentIntervalDays();
-        Tuple2<Integer, Integer> intervals = this.intervalConfig.get(group);
-        if (intervals != null) {
-            blockIntervalHrs = intervals._1();
-            segmentIntervalDays = intervals._2();
+        GroupSetting groupSetting = this.specificGroupSettings.get(group);
+        if (groupSetting != null) {
+            blockIntervalHrs = groupSetting.getBlockIntervalHours();
+            segmentIntervalDays = groupSetting.getSegmentIntervalDays();
         }
         if (model.isRecord()) {
             return new SchemaMetadata(group,
@@ -596,5 +588,13 @@ public enum MetadataRegistry {
 
     public enum ColumnType {
         TAG, FIELD;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class GroupSetting {
+        private int blockIntervalHours;
+        private int segmentIntervalDays;
     }
 }

@@ -40,7 +40,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
         super(client, moduleManager);
         this.config = config;
-        MetadataRegistry.INSTANCE.initializeIntervals(config.getOverrideGroupIntervals());
+        MetadataRegistry.INSTANCE.initializeIntervals(config.getSpecificGroupSettings());
     }
 
     @Override
