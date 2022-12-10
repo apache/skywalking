@@ -73,6 +73,8 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     /**
      * Specify the settings for each group individually.
      * NOTE: setting intervals works for all groups except `measure-default`.
+     * NOTE: available groups: `measure-default`, `measure-sampled`, `stream-default`
+     * and `stream-*` with names of the super dataset as the suffix.
      *
      * @since 9.4.0
      */
