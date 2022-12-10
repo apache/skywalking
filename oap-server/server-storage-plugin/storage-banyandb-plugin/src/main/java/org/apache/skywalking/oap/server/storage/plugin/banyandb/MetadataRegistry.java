@@ -367,7 +367,7 @@ public enum MetadataRegistry {
     }
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, ConfigService configService) {
-        String group = null;
+        String group;
         if (model.isRecord()) { // stream
             group = "stream-default";
             if (model.isSuperDataset()) {
@@ -376,11 +376,7 @@ public enum MetadataRegistry {
             }
         } else if (model.getDownsampling() == DownSampling.Minute && model.isTimeRelativeID()) { // measure
             group = "measure-sampled";
-        }
-
-        if (!model.isRecord() // measure
-                && (model.getDownsampling() != DownSampling.Minute // DownSampling != Minute
-                || !model.isTimeRelativeID())) { // or has no time-relative ID
+        } else {
             // Solution: 2 * TTL < T * (1 + 0.8)
             // e.g. if TTL=7, T=8: a new block/segment will be created at 14.4 days,
             // while the first block has been deleted at 2*TTL
