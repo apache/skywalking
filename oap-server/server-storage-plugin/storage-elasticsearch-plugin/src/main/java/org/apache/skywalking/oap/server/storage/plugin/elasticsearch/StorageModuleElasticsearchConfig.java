@@ -90,13 +90,9 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int bulkActions = 5000;
     /**
      * Period of flush, no matter `bulkActions` reached or not.
-     * INT(flushInterval * 2/3) would be used for index refresh period.
      * Unit is second.
-     *
-     * @since 8.7.0 increase to 15s from 10s
-     * @since 8.7.0 use INT(flushInterval * 2/3) as ElasticSearch index refresh interval. Default is 10s.
      */
-    private int flushInterval = 15;
+    private int flushInterval = 5;
     private int concurrentRequests = 2;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
