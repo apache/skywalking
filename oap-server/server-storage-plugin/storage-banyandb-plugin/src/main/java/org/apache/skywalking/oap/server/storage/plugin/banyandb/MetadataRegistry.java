@@ -383,6 +383,10 @@ public enum MetadataRegistry {
 
         int blockIntervalHrs = config.getBlockIntervalHours();
         int segmentIntervalDays = config.getSegmentIntervalDays();
+        if (model.isSuperDataset()) {
+            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
+            segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
+        }
         GroupSetting groupSetting = this.specificGroupSettings.get(group);
         if (groupSetting != null) {
             blockIntervalHrs = groupSetting.getBlockIntervalHours();
