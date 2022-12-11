@@ -35,11 +35,16 @@
 * Change `elasticsearch/flushInterval` to 5s(was 15s).
 * Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams. 
 
+#### OAP-Backend
+
+* Support monitoring MariaDB.
+
 #### UI
 
 #### Documentation
 
 * Remove Spring Sleuth docs, and add `Spring MicroMeter Observations Analysis` with the latest Java agent side
   enhancement.
+* Update `monitoring MySQL document` to add the `MariaDB` part.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)

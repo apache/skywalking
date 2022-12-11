@@ -15,12 +15,13 @@
 -- limitations under the License.
 --
 
--- The following is an example of a simple MySQL slow log
---   # Time: 2022-12-06T15:11:00.449826Z
---   # User@Host: root[root] @  [127.0.0.1]  Id:    29
---   # Query_time: 11.000312  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 0
---   SET timestamp=1670339460;
---   SELECT SLEEP(11);
+-- The following is an example of a simple mariadb slow log
+-- # Time: 200929 15:42:35
+-- # User@Host: root[root] @  [192.168.1.1]
+-- # Thread_id: 2332  Schema: parkcloud_performancetest  QC_hit: No
+-- # Query_time: 10.93443  Lock_time: 0.000091  Rows_sent: 5  Rows_examined: 9022
+-- # Rows_affected: 0
+-- SET timestamp=1670339460;
 function rewrite_body(tag, timestamp, record)
   local log = record.log
   record.log = nil
@@ -37,18 +38,18 @@ function rewrite_body(tag, timestamp, record)
 
   record.layer = "MYSQL"
 
-  -- Here simply set the service name to `root[root]`, you can also get the part you want from the second line of the log as the service name
-  record.service = "mysql::" .. "root[root]"
-  inner_record.service = "mysql::" .. "root[root]"
+  -- Here simply set the service name to `mysql::db`, you can also get the part you want from the second line of the log as the service name
+  record.service = "mysql::db"
+  inner_record.service = "mysql::db"
 
-  local query_time = lines[3]:match("%s(%S+)%s+Lock")
+  local query_time = lines[4]:match("%s(%S+)%s+Lock")
   local qt = math.floor(query_time * 1000)
   inner_record.query_time = qt
   inner_record.statement = ""
 
   inner_record.id = uuid()
 
-  for i = 4, #lines, 1 do
+  for i = 6, #lines, 1 do
     inner_record.statement = inner_record.statement .. lines[i]
   end
 
@@ -83,6 +84,7 @@ function uuid(seed)
   )
   return sid
 end
+
 
 function table2json(t)
   local function serialize(tbl, structure)
