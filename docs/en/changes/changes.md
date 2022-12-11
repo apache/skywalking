@@ -8,6 +8,7 @@
 * Adds Micrometer as a new component.(ID=141)
 * Refactor session cache in MetricsPersistentWorker.
 * Cache enhancement - don't read new metrics from database in minute dimensionality.
+* Fix MAL exp combine error when only contains one segment and expPrefix not blank
 
 ```
     // When

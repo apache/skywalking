@@ -57,25 +57,41 @@ public class MetricConvert {
         if (StringUtils.isNotEmpty(rule.getInitExp())) {
             handleInitExp(rule.getInitExp());
         }
-
         this.analyzers = rule.getMetricsRules().stream().map(
-            r -> {
-                String exp = r.getExp();
-                if (!Strings.isNullOrEmpty(rule.getExpPrefix())) {
-                    exp = String.format("(%s.%s).%s", StringUtils.substringBefore(exp, "."), rule.getExpPrefix(),
-                            StringUtils.substringAfter(exp, "."));
-                }
-                if (!Strings.isNullOrEmpty(rule.getExpSuffix())) {
-                    exp = String.format("(%s).%s", exp, rule.getExpSuffix());
-                }
-                return Analyzer.build(
-                    formatMetricName(rule, r.getName()),
-                    rule.getFilter(),
-                    exp,
-                    service
-                );
-            }
+            r -> buildAnalyzer(
+                formatMetricName(rule, r.getName()),
+                rule.getFilter(),
+                formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
+                service
+            )
         ).collect(toList());
+    }
+
+    Analyzer buildAnalyzer(final String metricsName,
+                           final String filter,
+                           final String exp,
+                           final MeterSystem service) {
+        return Analyzer.build(
+            metricsName,
+            filter,
+            exp,
+            service
+        );
+    }
+
+    private String formatExp(final String expPrefix, String expSuffix, String exp) {
+        String ret = exp;
+        if (!Strings.isNullOrEmpty(expPrefix)) {
+            ret = String.format("(%s.%s)", StringUtils.substringBefore(exp, "."), expPrefix);
+            final String after = StringUtils.substringAfter(exp, ".");
+            if (!Strings.isNullOrEmpty(after)) {
+                ret = String.format("(%s.%s)", ret, after);
+            }
+        }
+        if (!Strings.isNullOrEmpty(expSuffix)) {
+            ret = String.format("(%s).%s", ret, expSuffix);
+        }
+        return ret;
     }
 
     /**
