@@ -601,6 +601,8 @@ jobs:
             config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
           - name: PostgreSQL Prometheus
             config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
+          - name: MariaDB Prometheus and slowsql
+            config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
 
           - name: Rover with Istio Process 1.13.1
             config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
