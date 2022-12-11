@@ -10,4 +10,3 @@
 [submodule "skywalking-ui"]
 	path = skywalking-ui
 	url = https://github.com/mahmoud-anwer/skywalking-booster-ui.git
-	branch = mariadb-ui
