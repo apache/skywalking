@@ -57,7 +57,7 @@ jobs:
 
   dependency-license:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
     name: Dependency licenses
     needs: [changes]
@@ -87,7 +87,7 @@ jobs:
           fi
 
   sanity-check:
-    if: always() && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Sanity check results
     needs: [license-header, code-style, dependency-license]
     runs-on: ubuntu-latest
@@ -144,7 +144,7 @@ jobs:
 
   dist-tar:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Build dist tar
     needs: [sanity-check, changes]
@@ -173,7 +173,7 @@ jobs:
 
   docker:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Docker images
     needs: [dist-tar, changes]
@@ -211,7 +211,7 @@ jobs:
 
   unit-test:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Unit test
     needs: [sanity-check, changes]
@@ -243,7 +243,7 @@ jobs:
 
   integration-test:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Integration test
     needs: [sanity-check, changes]
@@ -274,7 +274,7 @@ jobs:
   # Time consuming integration tests
   tc-integration-test:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Time Consuming Integration Tests
     needs: [sanity-check, changes]
@@ -308,7 +308,7 @@ jobs:
 
   e2e-test:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
@@ -670,7 +670,7 @@ jobs:
 
   e2e-test-istio:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
@@ -722,7 +722,7 @@ jobs:
 
   e2e-test-java-versions:
     if: |
-      always() &&
+      ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
