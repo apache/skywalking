@@ -35,9 +35,6 @@
 * Change `elasticsearch/flushInterval` to 5s(was 15s).
 * Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams. 
 * An unexpected dot is added when exp is a pure metric name and expPrefix != null.
-
-#### OAP-Backend
-
 * Support monitoring MariaDB.
 
 #### UI
