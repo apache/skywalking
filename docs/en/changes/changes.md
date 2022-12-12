@@ -8,7 +8,6 @@
 * Adds Micrometer as a new component.(ID=141)
 * Refactor session cache in MetricsPersistentWorker.
 * Cache enhancement - don't read new metrics from database in minute dimensionality.
-* Fix MAL exp combine error when only contains one segment and expPrefix not blank
 
 ```
     // When
@@ -35,6 +34,7 @@
   it uses `core/persistentPeriod` + 5s as `refresh_interval` for all indices instead.
 * Change `elasticsearch/flushInterval` to 5s(was 15s).
 * Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams. 
+* An unexpected dot is added when exp is a pure metric name and expPrefix != null.
 
 #### OAP-Backend
 
