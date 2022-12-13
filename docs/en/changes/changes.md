@@ -36,6 +36,10 @@
 * Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams. 
 * An unexpected dot is added when exp is a pure metric name and expPrefix != null.
 * Support monitoring MariaDB.
+* Remove measure/stream specific interval settings in BanyanDB.
+* Add global-specific settings used to override global configurations (e.g `segmentIntervalDays`, `blockIntervalHours`) in BanyanDB.
+* Use TTL-driven interval settings for the `measure-default` group in BanyanDB.
+* Fix wrong group of non time-relative metadata in BanyanDB.
 
 #### UI
 

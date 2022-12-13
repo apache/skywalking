@@ -18,8 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import io.grpc.Status;
+
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,11 +36,14 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.Singular;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
@@ -66,7 +73,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 public enum MetadataRegistry {
     INSTANCE;
 
+    private static final ObjectMapper MAPPER = new ObjectMapper();
     private final Map<String, Schema> registry = new HashMap<>();
+
+    private Map<String, GroupSetting> specificGroupSettings = new HashMap<>();
 
     public Stream registerStreamModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
         final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
@@ -90,7 +100,7 @@ public enum MetadataRegistry {
         String timestampColumn4Stream = model.getBanyanDBModelExtension().getTimestampColumn();
         if (StringUtil.isBlank(timestampColumn4Stream)) {
             throw new IllegalStateException(
-                "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
+                    "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
         }
         schemaBuilder.timestampColumn4Stream(timestampColumn4Stream);
         List<IndexRule> indexRules = tags.stream()
@@ -336,29 +346,70 @@ public enum MetadataRegistry {
         return tagSpec;
     }
 
+    public void initializeIntervals(String specificGroupSettingsStr) {
+        if (StringUtil.isBlank(specificGroupSettingsStr)) {
+            return;
+        }
+        try {
+            specificGroupSettings = MAPPER.readerFor(new TypeReference<Map<String, GroupSetting>>() {
+            }).readValue(specificGroupSettingsStr);
+        } catch (IOException ioEx) {
+            log.warn("fail to parse specificGroupSettings", ioEx);
+        }
+    }
+
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, ConfigService configService) {
-        if (model.isRecord()) {
-            String group = "stream-default";
+        String group;
+        if (model.isRecord()) { // stream
+            group = "stream-default";
             if (model.isSuperDataset()) {
                 // for superDataset, we should use separate group
                 group = "stream-" + model.getName();
             }
+        } else if (model.getDownsampling() == DownSampling.Minute && model.isTimeRelativeID()) { // measure
+            group = "measure-sampled";
+        } else {
+            // Solution: 2 * TTL < T * (1 + 0.8)
+            // e.g. if TTL=7, T=8: a new block/segment will be created at 14.4 days,
+            // while the first block has been deleted at 2*TTL
+            final int intervalDays = Double.valueOf(Math.ceil(configService.getMetricsDataTTL() * 2.0 / 1.8)).intValue();
+            return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
+                    model.getDownsampling(),
+                    config.getMetricsShardsNumber(),
+                    intervalDays * 24,
+                    intervalDays * 24, // use 10-day/240-hour strategy
+                    configService.getMetricsDataTTL());
+        }
+
+        int blockIntervalHrs = config.getBlockIntervalHours();
+        int segmentIntervalDays = config.getSegmentIntervalDays();
+        if (model.isSuperDataset()) {
+            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
+            segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
+        }
+        GroupSetting groupSetting = this.specificGroupSettings.get(group);
+        if (groupSetting != null) {
+            blockIntervalHrs = groupSetting.getBlockIntervalHours();
+            segmentIntervalDays = groupSetting.getSegmentIntervalDays();
+        }
+        if (model.isRecord()) {
             return new SchemaMetadata(group,
                     model.getName(),
                     Kind.STREAM,
                     model.getDownsampling(),
                     config.getRecordShardsNumber() *
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
-                    config.getStreamBlockInterval(),
-                    config.getStreamSegmentInterval(),
+                    blockIntervalHrs,
+                    segmentIntervalDays * 24,
                     configService.getRecordDataTTL()
             );
         }
-        return new SchemaMetadata("measure-default", model.getName(), Kind.MEASURE,
+        // FIX: address issue #10104
+        return new SchemaMetadata(group, model.getName(), Kind.MEASURE,
                 model.getDownsampling(),
                 config.getMetricsShardsNumber(),
-                config.getMeasureBlockInterval(),
-                config.getMeasureSegmentInterval(),
+                blockIntervalHrs,
+                segmentIntervalDays * 24,
                 configService.getMetricsDataTTL());
     }
 
@@ -541,5 +592,13 @@ public enum MetadataRegistry {
 
     public enum ColumnType {
         TAG, FIELD;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class GroupSetting {
+        private int blockIntervalHours;
+        private int segmentIntervalDays;
     }
 }
