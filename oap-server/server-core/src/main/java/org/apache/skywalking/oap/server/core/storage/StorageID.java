@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
+import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -108,11 +110,7 @@ public class StorageID {
      */
     public String build() {
         sealed = true;
-        String[] idParts = new String[fragments.size()];
-        for (int i = 0; i < fragments.size(); i++) {
-            idParts[i] = fragments.get(i).toString();
-        }
-        return StringUtil.join('_', idParts);
+        return Joiner.on(Const.ID_CONNECTOR).join(fragments);
     }
 
     /**
@@ -129,7 +127,7 @@ public class StorageID {
         "name",
         "value"
     })
-    public class Fragment {
+    public static class Fragment {
         /**
          * The column name of the value, or the original column name of the mutate value.
          * This could be null if {@link #mutate} is true and no relative column, such as the original value is not in
@@ -147,7 +145,7 @@ public class StorageID {
         private final boolean mutate;
         private final Object value;
 
-        public Optional getName() {
+        public Optional<String> getName() {
             return Optional.ofNullable(name);
         }
 
