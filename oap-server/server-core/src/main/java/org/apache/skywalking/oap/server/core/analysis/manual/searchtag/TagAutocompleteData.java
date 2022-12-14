@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -87,8 +88,12 @@ public class TagAutocompleteData extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return toTimeBucketInDay() + "-" + tagType + "-" + tagKey + "=" + tagValue;
+    protected StorageID id0() {
+        return new StorageID()
+            .appendMutant(TIME_BUCKET, toTimeBucketInDay())
+            .append(TAG_TYPE, tagType)
+            .append(TAG_KEY, tagKey)
+            .append(TAG_VALUE, tagValue);
     }
 
     @Override

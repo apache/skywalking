@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -50,8 +51,8 @@ public class BrowserErrorLogRecord extends Record {
     public static final String DATA_BINARY = "data_binary";
 
     @Override
-    public String id() {
-        return uniqueId;
+    public StorageID id() {
+        return new StorageID().append(UNIQUE_ID, uniqueId);
     }
 
     @Setter

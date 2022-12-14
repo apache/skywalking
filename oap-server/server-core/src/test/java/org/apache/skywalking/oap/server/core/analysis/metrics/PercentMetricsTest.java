@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.StringMatch;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -67,7 +68,7 @@ public class PercentMetricsTest {
     public class PercentMetricsImpl extends PercentMetrics {
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 

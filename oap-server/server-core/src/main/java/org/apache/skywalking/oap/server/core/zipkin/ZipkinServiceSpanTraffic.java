@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -60,8 +61,10 @@ public class ZipkinServiceSpanTraffic extends Metrics {
     private String spanName = Const.EMPTY_STRING;
 
     @Override
-    protected String id0() {
-        return serviceName + Const.ID_CONNECTOR + spanName;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(SERVICE_NAME, serviceName)
+            .append(SPAN_NAME, spanName);
     }
 
     @Override

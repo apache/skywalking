@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -43,12 +44,12 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Setter
 @Getter
 @Stream(name = EBPFProfilingScheduleRecord.INDEX_NAME, scopeId = EBPF_PROFILING_SCHEDULE,
-        builder = EBPFProfilingScheduleRecord.Builder.class, processor = MetricsStreamProcessor.class)
+    builder = EBPFProfilingScheduleRecord.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {
-        "taskId",
-        "processId",
-        "startTime",
+    "taskId",
+    "processId",
+    "startTime",
 })
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class EBPFProfilingScheduleRecord extends Metrics {
@@ -95,8 +96,8 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return scheduleId;
+    protected StorageID id0() {
+        return new StorageID().append(EBPF_PROFILING_SCHEDULE_ID, scheduleId);
     }
 
     @Override

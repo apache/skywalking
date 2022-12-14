@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -167,8 +168,8 @@ public class ZipkinSpanRecord extends Record {
     private List<String> query;
 
     @Override
-    public String id() {
-        return traceId + Const.LINE + spanId;
+    public StorageID id() {
+        return new StorageID().append(TRACE_ID, traceId).append(SPAN_ID, spanId);
     }
 
     public static class Builder implements StorageBuilder<ZipkinSpanRecord> {

@@ -23,7 +23,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -31,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -65,11 +65,12 @@ public class EndpointTraffic extends Metrics {
     private String name = Const.EMPTY_STRING;
 
     @Override
-    protected String id0() {
+    protected StorageID id0() {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
-        return IDManager.EndpointID.buildId(
-            this.getServiceId(), this.getName());
+        return new StorageID()
+            .append(SERVICE_ID, getServiceId())
+            .append(NAME, getName());
     }
 
     @Override

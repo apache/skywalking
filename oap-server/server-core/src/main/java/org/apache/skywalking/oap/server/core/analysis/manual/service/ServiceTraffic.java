@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -38,7 +39,6 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
-import static org.apache.logging.log4j.util.Base64Util.encode;
 import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE,
@@ -98,12 +98,8 @@ public class ServiceTraffic extends Metrics {
      * @return Base64 encode(serviceName) + "." + layer.value
      */
     @Override
-    protected String id0() {
-        if (layer != null) {
-            return encode(name) + Const.POINT + layer.value();
-        } else {
-            return encode(name) + Const.POINT + Layer.UNDEFINED.value();
-        }
+    protected StorageID id0() {
+        return new StorageID().appendMutant(SERVICE_ID, getServiceId());
     }
 
     @Override

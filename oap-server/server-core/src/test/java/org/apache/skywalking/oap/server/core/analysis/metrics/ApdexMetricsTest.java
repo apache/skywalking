@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,7 +105,7 @@ public class ApdexMetricsTest {
     public class ApdexMetricsImpl extends ApdexMetrics {
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 

@@ -18,12 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-/**
- * Any persistent entity should be an implementation of this interface.
- */
-public interface StorageData {
-    /**
-     * @return the unique id used in any storage option.
-     */
-    StorageID id();
+import org.junit.Assert;
+import org.junit.Test;
+
+public class StorageIDTest {
+    @Test
+    public void testRawBuild() {
+        StorageID id = new StorageID();
+        id.append("time_bucket", 202212141438L) //2022-12-14 14:38
+          .append("entity_id", "encoded-service-name");
+
+        Assert.assertEquals("202212141438_encoded-service-name", id.build());
+    }
 }
