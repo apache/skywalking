@@ -95,7 +95,7 @@ public class MultipleChannelsConsumer extends Thread {
     public void addNewTarget(Channels channels, IConsumer consumer) {
         Group group = new Group(channels, consumer);
         // Recreate the new list to avoid change list while the list is used in consuming.
-        ArrayList<Group> newList = new ArrayList<Group>();
+        ArrayList<Group> newList = new ArrayList<>();
         for (Group target : consumeTargets) {
             newList.add(target);
         }

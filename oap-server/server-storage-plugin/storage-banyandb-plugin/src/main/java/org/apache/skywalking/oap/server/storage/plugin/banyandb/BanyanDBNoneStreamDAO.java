@@ -47,7 +47,7 @@ public class BanyanDBNoneStreamDAO extends AbstractDAO<BanyanDBStorageClient> im
         StreamWrite streamWrite = new StreamWrite(
             schema.getMetadata().getGroup(), // group name
             schema.getMetadata().name(), // stream-name
-            noneStream.id() // identity
+            noneStream.id().build() // identity
         ); // set timestamp inside `BanyanDBConverter.StreamToStorage`
         Convert2Storage<StreamWrite> convert2Storage = new BanyanDBConverter.StreamToStorage(schema, streamWrite);
         storageBuilder.entity2Storage(noneStream, convert2Storage);

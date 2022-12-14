@@ -430,7 +430,7 @@ public class RunningRuleTest {
         private int value;
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 
@@ -487,7 +487,7 @@ public class RunningRuleTest {
         }
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 

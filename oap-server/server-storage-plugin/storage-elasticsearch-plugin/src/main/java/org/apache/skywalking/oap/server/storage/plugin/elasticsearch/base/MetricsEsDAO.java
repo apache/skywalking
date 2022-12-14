@@ -65,7 +65,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             Map<String, List<String>> indexIdsGroup = new HashMap<>();
             groupIndices.forEach((tableName, metricList) -> {
                 List<String> ids = metricList.stream()
-                                             .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                             .map(item -> IndexController.INSTANCE.generateDocId(model, item.id().build()))
                                              .collect(Collectors.toList());
                 indexIdsGroup.put(tableName, ids);
             });
@@ -85,7 +85,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             });
             groupIndices.forEach((tableName, metricList) -> {
                 List<String> ids = metricList.stream()
-                                             .map(item -> IndexController.INSTANCE.generateDocId(model, item.id()))
+                                             .map(item -> IndexController.INSTANCE.generateDocId(model, item.id().build()))
                                              .collect(Collectors.toList());
                 final SearchResponse response = getClient().searchIDs(tableName, ids);
                 response.getHits().getHits().forEach(hit -> {
@@ -103,7 +103,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
-        String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
+        String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
         return new MetricIndexRequestWrapper(getClient().prepareInsert(modelName, id, builder), callback);
     }
 
@@ -114,7 +114,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         Map<String, Object> builder =
             IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
-        String id = IndexController.INSTANCE.generateDocId(model, metrics.id());
+        String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
         return new MetricIndexUpdateWrapper(getClient().prepareUpdate(modelName, id, builder), callback);
     }
 

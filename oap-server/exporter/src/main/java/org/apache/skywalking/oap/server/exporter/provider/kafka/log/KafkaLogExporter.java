@@ -101,7 +101,7 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
                     LogData logData = transLogData(logRecord);
                     ProducerRecord<String, Bytes> record = new ProducerRecord<>(
                         setting.getKafkaTopicLog(),
-                        logRecord.id(),
+                        logRecord.id().build(),
                         Bytes.wrap(logData.toByteArray())
                     );
                     super.getProducer().send(record, (metadata, ex) -> {
