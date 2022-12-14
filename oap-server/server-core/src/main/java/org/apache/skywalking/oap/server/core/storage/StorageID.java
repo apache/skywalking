@@ -51,6 +51,10 @@ public class StorageID {
      * this object would switch to the sealed status, no more append is allowed.
      */
     private boolean sealed = false;
+    /**
+     * The string ID would only be built once.
+     */
+    private String builtID;
 
     public StorageID() {
         fragments = new ArrayList<>(2);
@@ -110,7 +114,10 @@ public class StorageID {
      */
     public String build() {
         sealed = true;
-        return Joiner.on(Const.ID_CONNECTOR).join(fragments);
+        if (builtID == null) {
+            builtID = Joiner.on(Const.ID_CONNECTOR).join(fragments);
+        }
+        return builtID;
     }
 
     /**
