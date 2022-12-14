@@ -99,7 +99,7 @@ public class ServiceTraffic extends Metrics {
      */
     @Override
     protected StorageID id0() {
-        return new StorageID().appendMutant(SERVICE_ID, getServiceId());
+        return new StorageID().append(SERVICE_ID, getServiceId());
     }
 
     @Override

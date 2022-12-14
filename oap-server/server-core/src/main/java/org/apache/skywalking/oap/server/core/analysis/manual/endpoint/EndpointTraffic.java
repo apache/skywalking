@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -69,8 +70,11 @@ public class EndpointTraffic extends Metrics {
         // Downgrade the time bucket to day level only.
         // supportDownSampling == false for this entity.
         return new StorageID()
-            .append(SERVICE_ID, getServiceId())
-            .append(NAME, getName());
+            .appendMutant(
+                null,
+                IDManager.EndpointID.buildId(
+                    this.getServiceId(), this.getName())
+            );
     }
 
     @Override
