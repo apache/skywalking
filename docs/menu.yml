@@ -228,7 +228,7 @@ catalog:
               - name: "Meter APIs"
                 path: "/en/api/meter"
               - name: "Browser performance APIs"
-                path: "en/api/browser-protocol"
+                path: "/en/api/browser-protocol"
               - name: "JVM metrics APIs"
                 path: "/en/protocols/jvm-protocol"
           - name: "Logging"
@@ -240,7 +240,7 @@ catalog:
       - name: "Query APIs"
         catalog:
           - name:  "GraphQL APIs"
-            path: "/en/protocols/query-protocol"
+            path: "/en/api/query-protocol"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Academy"
