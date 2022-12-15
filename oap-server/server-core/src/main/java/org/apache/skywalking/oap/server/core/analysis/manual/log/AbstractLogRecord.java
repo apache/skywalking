@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.LongText;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
@@ -106,7 +107,7 @@ public abstract class AbstractLogRecord extends Record {
     private List<String> tagsInString;
 
     @Override
-    public String id() {
+    public StorageID id() {
         throw new UnexpectedException("AbstractLogRecord doesn't provide id()");
     }
 

@@ -116,8 +116,8 @@ public class PersistenceTimerTest {
         private final String id;
 
         @Override
-        public String id() {
-            return id;
+        public StorageID id() {
+            return new StorageID().append("ID", id);
         }
 
     }

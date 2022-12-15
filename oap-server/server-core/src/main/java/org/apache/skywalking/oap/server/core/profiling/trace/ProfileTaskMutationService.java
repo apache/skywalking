@@ -97,7 +97,7 @@ public class ProfileTaskMutationService implements Service {
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(taskStartTime));
         NoneStreamProcessor.getInstance().in(task);
 
-        return ProfileTaskCreationResult.builder().id(task.id()).build();
+        return ProfileTaskCreationResult.builder().id(task.id().build()).build();
     }
 
     private String checkDataSuccess(final String serviceId,

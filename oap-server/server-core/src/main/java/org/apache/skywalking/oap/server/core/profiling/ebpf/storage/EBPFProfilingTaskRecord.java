@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -39,7 +40,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Data
 @ScopeDeclaration(id = EBPF_PROFILING_TASK, name = "EBPFProfilingTask")
 @Stream(name = EBPFProfilingTaskRecord.INDEX_NAME, scopeId = EBPF_PROFILING_TASK,
-        builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
+    builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
 @BanyanDB.TimestampColumn(EBPFProfilingTaskRecord.CREATE_TIME)
 public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String INDEX_NAME = "ebpf_profiling_task";
@@ -83,11 +84,17 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private String extensionConfigJson;
 
     @Override
-    public String id() {
-        return Hashing.sha256().newHasher()
-                .putString(logicalId, Charsets.UTF_8)
-                .putLong(createTime)
-                .hash().toString();
+    public StorageID id() {
+        return new StorageID().appendMutant(
+            new String[] {
+                LOGICAL_ID,
+                CREATE_TIME
+            },
+            Hashing.sha256().newHasher()
+                   .putString(logicalId, Charsets.UTF_8)
+                   .putLong(createTime)
+                   .hash().toString()
+        );
     }
 
     /**
@@ -95,10 +102,10 @@ public class EBPFProfilingTaskRecord extends NoneStream {
      */
     public void generateLogicalId() {
         this.logicalId = Hashing.sha256().newHasher()
-            .putString(serviceId, Charsets.UTF_8)
-            .putString(processLabelsJson, Charsets.UTF_8)
-            .putLong(startTime)
-            .hash().toString();
+                                .putString(serviceId, Charsets.UTF_8)
+                                .putString(processLabelsJson, Charsets.UTF_8)
+                                .putLong(startTime)
+                                .hash().toString();
     }
 
     public static class Builder implements StorageBuilder<EBPFProfilingTaskRecord> {

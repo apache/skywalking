@@ -105,7 +105,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
             final UITemplate.Builder builder = new UITemplate.Builder();
             final UITemplate uiTemplate = setting.toEntity();
 
-            final boolean exist = getClient().existDoc(UITemplate.INDEX_NAME, uiTemplate.id());
+            final boolean exist = getClient().existDoc(UITemplate.INDEX_NAME, uiTemplate.id().build());
             if (exist) {
                 return TemplateChangeStatus.builder().status(false).id(setting.getId()).message("Template exists")
                                            .build();
@@ -113,7 +113,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
 
             final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UITemplate.INDEX_NAME);
             builder.entity2Storage(uiTemplate, toStorage);
-            getClient().forceInsert(UITemplate.INDEX_NAME, uiTemplate.id(), toStorage.obtain());
+            getClient().forceInsert(UITemplate.INDEX_NAME, uiTemplate.id().build(), toStorage.obtain());
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -128,7 +128,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
             final UITemplate.Builder builder = new UITemplate.Builder();
             final UITemplate uiTemplate = setting.toEntity();
 
-            final boolean exist = getClient().existDoc(UITemplate.INDEX_NAME, uiTemplate.id());
+            final boolean exist = getClient().existDoc(UITemplate.INDEX_NAME, uiTemplate.id().build());
             if (!exist) {
                 return TemplateChangeStatus.builder().status(false).id(setting.getId())
                                            .message("Can't find the template").build();
@@ -136,7 +136,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
 
             final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UITemplate.INDEX_NAME);
             builder.entity2Storage(uiTemplate, toStorage);
-            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), toStorage.obtain());
+            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id().build(), toStorage.obtain());
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -156,7 +156,7 @@ public class UITemplateManagementEsDAO extends EsDAO implements UITemplateManage
 
             final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UITemplate.INDEX_NAME);
             builder.entity2Storage(uiTemplate, toStorage);
-            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id(), toStorage.obtain());
+            getClient().forceUpdate(UITemplate.INDEX_NAME, uiTemplate.id().build(), toStorage.obtain());
             return TemplateChangeStatus.builder().status(true).id(id).build();
         } else {
             return TemplateChangeStatus.builder().status(false).id(id).message("Can't find the template")

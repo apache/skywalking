@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -131,8 +132,12 @@ public class InstanceTraffic extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return IDManager.ServiceInstanceID.buildId(serviceId, name);
+    protected StorageID id0() {
+        return new StorageID()
+            .appendMutant(new String[] {
+                SERVICE_ID,
+                NAME
+            }, IDManager.ServiceInstanceID.buildId(serviceId, name));
     }
 
     public static class Builder implements StorageBuilder<InstanceTraffic> {

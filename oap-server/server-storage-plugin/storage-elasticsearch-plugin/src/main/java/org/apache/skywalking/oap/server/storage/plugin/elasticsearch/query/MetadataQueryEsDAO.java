@@ -228,7 +228,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 new EndpointTraffic.Builder().storage2Entity(new ElasticSearchConverter.ToEntity(EndpointTraffic.INDEX_NAME, sourceAsMap));
 
             Endpoint endpoint = new Endpoint();
-            endpoint.setId(endpointTraffic.id());
+            endpoint.setId(endpointTraffic.id().build());
             endpoint.setName(endpointTraffic.getName());
             endpoints.add(endpoint);
         }
@@ -388,7 +388,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 new InstanceTraffic.Builder().storage2Entity(new ElasticSearchConverter.ToEntity(InstanceTraffic.INDEX_NAME, sourceAsMap));
 
             ServiceInstance serviceInstance = new ServiceInstance();
-            serviceInstance.setId(instanceTraffic.id());
+            serviceInstance.setId(instanceTraffic.id().build());
             serviceInstance.setName(instanceTraffic.getName());
             serviceInstance.setInstanceUUID(serviceInstance.getId());
 
@@ -420,7 +420,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 new ProcessTraffic.Builder().storage2Entity(new ElasticSearchConverter.ToEntity(ProcessTraffic.INDEX_NAME, sourceAsMap));
 
             Process process = new Process();
-            process.setId(processTraffic.id());
+            process.setId(processTraffic.id().build());
             process.setName(processTraffic.getName());
             final String serviceId = processTraffic.getServiceId();
             process.setServiceId(serviceId);

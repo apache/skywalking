@@ -40,6 +40,7 @@
 * Add global-specific settings used to override global configurations (e.g `segmentIntervalDays`, `blockIntervalHours`) in BanyanDB.
 * Use TTL-driven interval settings for the `measure-default` group in BanyanDB.
 * Fix wrong group of non time-relative metadata in BanyanDB.
+* Refactor `StorageData#id` to the new StorageID object from a String type.
 
 #### UI
 

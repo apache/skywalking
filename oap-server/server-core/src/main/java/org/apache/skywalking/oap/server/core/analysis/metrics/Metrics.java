@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 
@@ -149,15 +150,15 @@ public abstract class Metrics extends StreamData implements StorageData {
         return TimeBucket.isDayBucket(timeBucket);
     }
 
-    private volatile String id;
+    private volatile StorageID id;
 
     @Override
-    public String id() {
+    public StorageID id() {
         if (id == null) {
             id = id0();
         }
         return id;
     }
 
-    protected abstract String id0();
+    protected abstract StorageID id0();
 }
