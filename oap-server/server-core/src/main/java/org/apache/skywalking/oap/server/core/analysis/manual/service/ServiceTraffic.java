@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import static org.apache.logging.log4j.util.Base64Util.encode;
 import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 
 @Stream(name = ServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE,
@@ -99,7 +100,14 @@ public class ServiceTraffic extends Metrics {
      */
     @Override
     protected StorageID id0() {
-        return new StorageID().append(SERVICE_ID, getServiceId());
+        String id;
+        if (layer != null) {
+            id = encode(name) + Const.POINT + layer.value();
+        } else {
+            id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
+        }
+        return new StorageID().appendMutant(null, id);
+
     }
 
     @Override
