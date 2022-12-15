@@ -134,7 +134,10 @@ public class InstanceTraffic extends Metrics {
     @Override
     protected StorageID id0() {
         return new StorageID()
-            .appendMutant(null, IDManager.ServiceInstanceID.buildId(serviceId, name));
+            .appendMutant(new String[] {
+                SERVICE_ID,
+                NAME
+            }, IDManager.ServiceInstanceID.buildId(serviceId, name));
     }
 
     public static class Builder implements StorageBuilder<InstanceTraffic> {

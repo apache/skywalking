@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.storage;
 
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +68,7 @@ public class StorageID {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=" + name);
         }
-        fragments.add(new Fragment(name, String.class, false, value));
+        fragments.add(new Fragment(new String[] {name}, String.class, false, value));
         return this;
     }
 
@@ -78,7 +79,7 @@ public class StorageID {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=" + name);
         }
-        fragments.add(new Fragment(name, Long.class, false, value));
+        fragments.add(new Fragment(new String[] {name}, Long.class, false, value));
         return this;
     }
 
@@ -89,11 +90,11 @@ public class StorageID {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, name=" + name);
         }
-        fragments.add(new Fragment(name, Integer.class, false, value));
+        fragments.add(new Fragment(new String[] {name}, Integer.class, false, value));
         return this;
     }
 
-    public StorageID appendMutant(String source, long value) {
+    public StorageID appendMutant(String[] source, long value) {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + source);
         }
@@ -101,7 +102,7 @@ public class StorageID {
         return this;
     }
 
-    public StorageID appendMutant(final String source, final String value) {
+    public StorageID appendMutant(final String[] source, final String value) {
         if (sealed) {
             throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + source);
         }
@@ -130,17 +131,17 @@ public class StorageID {
 
     @RequiredArgsConstructor
     @Getter
-    @EqualsAndHashCode(of = {
-        "name",
-        "value"
-    })
     public static class Fragment {
         /**
-         * The column name of the value, or the original column name of the mutate value.
-         * This could be null if {@link #mutate} is true and no relative column, such as the original value is not in
+         * The column name of the value, or the original column names of the mutate value.
+         *
+         * The names could be
+         * 1. Always one column if this is not {@link #mutate} and from a certain persistent column.
+         * 2. Be null if {@link #mutate} is true and no relative column, such as the original value is not in
          * the persistence.
+         * 3. One or multi-values if the value is built through a symmetrical or asymmetrical encoding algorithm.
          */
-        private final String name;
+        private final String[] name;
         /**
          * Represent the class type of the {@link #value}.
          */
@@ -152,13 +153,38 @@ public class StorageID {
         private final boolean mutate;
         private final Object value;
 
-        public Optional<String> getName() {
+        public Optional<String[]> getName() {
             return Optional.ofNullable(name);
         }
 
         @Override
         public String toString() {
             return value.toString();
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+
+            final Fragment fragment = (Fragment) o;
+
+            // Probably incorrect - comparing Object[] arrays with Arrays.equals
+            if (!Arrays.equals(name, fragment.name))
+                return false;
+            if (value != null ? !value.equals(fragment.value) : fragment.value != null)
+                return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Arrays.hashCode(name);
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
         }
     }
 }

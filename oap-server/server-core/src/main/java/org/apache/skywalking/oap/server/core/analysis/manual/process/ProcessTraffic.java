@@ -187,7 +187,10 @@ public class ProcessTraffic extends Metrics {
         if (processId == null) {
             processId = IDManager.ProcessID.buildId(instanceId, name);
         }
-        return new StorageID().appendMutant(null, processId);
+        return new StorageID().appendMutant(new String[] {
+            INSTANCE_ID,
+            NAME
+        }, processId);
     }
 
     public static class Builder implements StorageBuilder<ProcessTraffic> {

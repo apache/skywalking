@@ -89,7 +89,8 @@ public class NetworkAddressAlias extends Metrics {
 
     @Override
     protected StorageID id0() {
-        return new StorageID().appendMutant(ADDRESS, IDManager.NetworkAddressAliasDefine.buildId(address));
+        return new StorageID().appendMutant(
+            new String[] {ADDRESS}, IDManager.NetworkAddressAliasDefine.buildId(address));
     }
 
     @Override

@@ -90,7 +90,7 @@ public class TagAutocompleteData extends Metrics {
     @Override
     protected StorageID id0() {
         return new StorageID()
-            .appendMutant(TIME_BUCKET, toTimeBucketInDay())
+            .appendMutant(new String[] {TIME_BUCKET}, toTimeBucketInDay())
             .append(TAG_TYPE, tagType)
             .append(TAG_KEY, tagKey)
             .append(TAG_VALUE, tagValue);

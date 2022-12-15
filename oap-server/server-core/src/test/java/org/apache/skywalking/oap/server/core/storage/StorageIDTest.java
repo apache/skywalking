@@ -30,4 +30,17 @@ public class StorageIDTest {
 
         Assert.assertEquals("202212141438_encoded-service-name", id.build());
     }
+
+    @Test
+    public void testEqual() {
+        StorageID id = new StorageID();
+        id.append("time_bucket", 202212141438L) //2022-12-14 14:38
+          .append("entity_id", "encoded-service-name");
+
+        StorageID id2 = new StorageID();
+        id2.append("time_bucket", 202212141438L) //2022-12-14 14:38
+           .append("entity_id", "encoded-service-name");
+
+        Assert.assertEquals(true, id.equals(id2));
+    }
 }

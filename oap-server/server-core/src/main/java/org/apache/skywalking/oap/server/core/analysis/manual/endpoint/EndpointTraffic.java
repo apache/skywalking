@@ -71,7 +71,10 @@ public class EndpointTraffic extends Metrics {
         // supportDownSampling == false for this entity.
         return new StorageID()
             .appendMutant(
-                null,
+                new String[] {
+                    SERVICE_ID,
+                    NAME
+                },
                 IDManager.EndpointID.buildId(
                     this.getServiceId(), this.getName())
             );

@@ -106,7 +106,10 @@ public class ServiceTraffic extends Metrics {
         } else {
             id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
-        return new StorageID().appendMutant(null, id);
+        return new StorageID().appendMutant(new String[] {
+            NAME,
+            LAYER
+        }, id);
 
     }
 
