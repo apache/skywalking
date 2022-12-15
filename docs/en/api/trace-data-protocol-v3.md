@@ -1,20 +1,9 @@
-# Trace Data Protocol v3.1
+# Trace Data Protocol
+* Version,  v3.1
+
 Trace Data Protocol describes the data format between SkyWalking agent/sniffer and backend. 
 
-Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol), and implemented in [HTTP 1.1](HTTP-API-Protocol.md).
-
-## Report service instance status
-1. Service Instance Properties 
-Service instance contains more information than just a name. In order for the agent to report service instance status, use `ManagementService#reportInstanceProperties` service to provide a string-key/string-value pair list as the parameter. The `language` of target instance must be provided as the minimum requirement.
-
-2. Service Ping
-Service instance should keep alive with the backend. The agent should set a scheduler using `ManagementService#keepAlive` service every minute.
-
-## Send trace and JVM metrics
-After you have the service ID and service instance ID ready, you could send traces and metrics. Now we
-have 
-1. `TraceSegmentReportService#collect` for the SkyWalking native trace format
-1. `JVMMetricReportService#collect` for the SkyWalking native JVM format
+Trace data protocol is defined and provided in [gRPC format](https://github.com/apache/skywalking-data-collect-protocol), and implemented in HTTP 1.1.
 
 For trace format, note that:
 1. The segment is a unique concept in SkyWalking. It should include all spans for each request in a single OS process, which is usually a single language-based thread.
@@ -35,7 +24,7 @@ For example, accessing DB by JDBC, and reading Redis/Memcached are classified as
 3. Cross-thread/process span parent information is called "reference". Reference carries the trace ID, 
 segment ID, span ID, service name, service instance name, endpoint name, and target address used on the client end (note: this is not required in cross-thread operations) 
 of this request in the parent. 
-See [Cross Process Propagation Headers Protocol v3](Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md) for more details.
+See [Cross Process Propagation Headers Protocol v3](x-process-propagation-headers-v3.md) for more details.
 
 4. `Span#skipAnalysis` may be TRUE, if this span doesn't require backend analysis.
 
@@ -285,4 +274,141 @@ message SpanAttachedEvent {
         ZIPKIN = 1;
     }
 }
+```
+
+## Via HTTP Endpoint
+
+Detailed information about data format can be found in [Instance Management](https://github.com/apache/skywalking-data-collect-protocol/blob/master/language-agent/Tracing.proto).
+There are two ways to report segment data: one segment per request or segment array in bulk mode.
+
+### POST http://localhost:12800/v3/segment
+
+Send a single segment object in JSON format.
+
+Input:
+
+```json
+{
+	"traceId": "a12ff60b-5807-463b-a1f8-fb1c8608219e",
+	"serviceInstance": "User_Service_Instance_Name",
+	"spans": [{
+		"operationName": "/ingress",
+		"startTime": 1588664577013,
+		"endTime": 1588664577028,
+		"spanType": "Exit",
+		"spanId": 1,
+		"isError": false,
+		"parentSpanId": 0,
+		"componentId": 6000,
+		"peer": "upstream service",
+		"spanLayer": "Http"
+	}, {
+		"operationName": "/ingress",
+		"startTime": 1588664577013,
+		"tags": [{
+			"key": "http.method",
+			"value": "GET"
+		}, {
+			"key": "http.params",
+			"value": "http://localhost/ingress"
+		}],
+		"endTime": 1588664577028,
+		"spanType": "Entry",
+		"spanId": 0,
+		"parentSpanId": -1,
+		"isError": false,
+		"spanLayer": "Http",
+		"componentId": 6000
+	}],
+	"service": "User_Service_Name",
+	"traceSegmentId": "a12ff60b-5807-463b-a1f8-fb1c8608219e"
+}
+```
+OutPut:
+
+ ```json
+
+```
+
+### POST http://localhost:12800/v3/segments
+
+Send a segment object list in JSON format.
+
+Input:
+
+```json
+[{
+	"traceId": "a12ff60b-5807-463b-a1f8-fb1c8608219e",
+	"serviceInstance": "User_Service_Instance_Name",
+	"spans": [{
+		"operationName": "/ingress",
+		"startTime": 1588664577013,
+		"endTime": 1588664577028,
+		"spanType": "Exit",
+		"spanId": 1,
+		"isError": false,
+		"parentSpanId": 0,
+		"componentId": 6000,
+		"peer": "upstream service",
+		"spanLayer": "Http"
+	}, {
+		"operationName": "/ingress",
+		"startTime": 1588664577013,
+		"tags": [{
+			"key": "http.method",
+			"value": "GET"
+		}, {
+			"key": "http.params",
+			"value": "http://localhost/ingress"
+		}],
+		"endTime": 1588664577028,
+		"spanType": "Entry",
+		"spanId": 0,
+		"parentSpanId": -1,
+		"isError": false,
+		"spanLayer": "Http",
+		"componentId": 6000
+	}],
+	"service": "User_Service_Name",
+	"traceSegmentId": "a12ff60b-5807-463b-a1f8-fb1c8608219e"
+}, {
+	"traceId": "f956699e-5106-4ea3-95e5-da748c55bac1",
+	"serviceInstance": "User_Service_Instance_Name",
+	"spans": [{
+		"operationName": "/ingress",
+		"startTime": 1588664577250,
+		"endTime": 1588664577250,
+		"spanType": "Exit",
+		"spanId": 1,
+		"isError": false,
+		"parentSpanId": 0,
+		"componentId": 6000,
+		"peer": "upstream service",
+		"spanLayer": "Http"
+	}, {
+		"operationName": "/ingress",
+		"startTime": 1588664577250,
+		"tags": [{
+			"key": "http.method",
+			"value": "GET"
+		}, {
+			"key": "http.params",
+			"value": "http://localhost/ingress"
+		}],
+		"endTime": 1588664577250,
+		"spanType": "Entry",
+		"spanId": 0,
+		"parentSpanId": -1,
+		"isError": false,
+		"spanLayer": "Http",
+		"componentId": 6000
+	}],
+	"service": "User_Service_Name",
+	"traceSegmentId": "f956699e-5106-4ea3-95e5-da748c55bac1"
+}]
+```
+OutPut:
+
+ ```json
+
 ```

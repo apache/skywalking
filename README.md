@@ -56,8 +56,6 @@ and multiple formats, including
 # Documentation
 - [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
 
-NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
-
 SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario
 for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
