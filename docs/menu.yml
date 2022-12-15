@@ -230,7 +230,7 @@ catalog:
               - name: "Browser performance APIs"
                 path: "/en/api/browser-protocol"
               - name: "JVM metrics APIs"
-                path: "/en/protocols/jvm-protocol"
+                path: "/en/api/jvm-protocol"
           - name: "Logging"
             path: "/en/api/log-data-protocol"
           - name: "Service Instance Properties APIs"
