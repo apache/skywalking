@@ -1,7 +1,7 @@
 # HTTP API Protocol
 
 HTTP API Protocol defines the API data format, including API request and response data format.
-They use the HTTP1.1 wrapper of the official [SkyWalking Browser Protocol](Browser-Protocol.md). Read it for more details.
+They use the HTTP1.1 wrapper of the official [SkyWalking Browser Protocol](browser-protocol.md). Read it for more details.
 
 ## Performance Data Report
 
