@@ -23,7 +23,6 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -34,6 +33,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
@@ -157,8 +157,10 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override

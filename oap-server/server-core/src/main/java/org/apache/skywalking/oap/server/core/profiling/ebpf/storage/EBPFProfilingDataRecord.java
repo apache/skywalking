@@ -24,6 +24,7 @@ import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -64,12 +65,19 @@ public class EBPFProfilingDataRecord extends Record {
     private long uploadTime;
 
     @Override
-    public String id() {
-        return Hashing.sha256().newHasher()
-                      .putString(scheduleId, Charsets.UTF_8)
-                      .putString(stackIdList, Charsets.UTF_8)
-                      .putLong(uploadTime)
-                      .hash().toString();
+    public StorageID id() {
+        return new StorageID().appendMutant(
+            new String[] {
+                SCHEDULE_ID,
+                STACK_ID_LIST,
+                UPLOAD_TIME
+            },
+            Hashing.sha256().newHasher()
+                   .putString(scheduleId, Charsets.UTF_8)
+                   .putString(stackIdList, Charsets.UTF_8)
+                   .putLong(uploadTime)
+                   .hash().toString()
+        );
     }
 
     public static class Builder implements StorageBuilder<EBPFProfilingDataRecord> {

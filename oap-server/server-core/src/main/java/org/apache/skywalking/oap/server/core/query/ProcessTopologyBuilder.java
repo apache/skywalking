@@ -18,12 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.query.type.ProcessNode;
@@ -35,16 +43,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class ProcessTopologyBuilder {
@@ -88,7 +86,7 @@ public class ProcessTopologyBuilder {
                     return p;
                 }).collect(Collectors.toList())).stream()
             .map(t -> (ProcessTraffic) t)
-            .collect(Collectors.toMap(Metrics::id, this::buildNode));
+            .collect(Collectors.toMap(m -> m.id().build(), this::buildNode));
 
         for (Call.CallDetail clientCall : clientCalls) {
             if (!callMap.containsKey(clientCall.getId())) {
@@ -128,7 +126,7 @@ public class ProcessTopologyBuilder {
 
     private ProcessNode buildNode(ProcessTraffic traffic) {
         ProcessNode processNode = new ProcessNode();
-        processNode.setId(traffic.id());
+        processNode.setId(traffic.id().build());
         processNode.setServiceId(traffic.getServiceId());
         processNode.setServiceName(IDManager.ServiceID.analysisId(traffic.getServiceId()).getName());
         processNode.setServiceInstanceId(traffic.getInstanceId());

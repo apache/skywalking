@@ -154,7 +154,7 @@ public class JDBCSQLExecutor {
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + tableName + " VALUES");
         List<Object> param = new ArrayList<>();
         sqlBuilder.append("(?,");
-        param.add(metrics.id());
+        param.add(metrics.id().build());
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
             sqlBuilder.append("?");
@@ -185,7 +185,7 @@ public class JDBCSQLExecutor {
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + tableName + " VALUES");
         List<Object> param = new ArrayList<>();
         sqlBuilder.append("(?,");
-        param.add(metrics.id());
+        param.add(metrics.id().build());
         int position = 0;
         List valueList = new ArrayList();
         for (int i = 0; i < columns.size(); i++) {
@@ -257,7 +257,7 @@ public class JDBCSQLExecutor {
         }
         sqlBuilder.replace(sqlBuilder.length() - 1, sqlBuilder.length(), "");
         sqlBuilder.append(" WHERE id = ?");
-        param.add(metrics.id());
+        param.add(metrics.id().build());
 
         return new SQLExecutor(sqlBuilder.toString(), param, callback);
     }

@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.core.analysis.manual.relation.instance;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -80,8 +80,10 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
     private String entityId;
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override

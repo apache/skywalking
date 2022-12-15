@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis.data;
 
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -63,8 +64,8 @@ public class LimitedSizeBufferedDataTest {
         }
 
         @Override
-        public String id() {
-            return "id";
+        public StorageID id() {
+            return new StorageID().append("ID", "id");
         }
 
         @Override

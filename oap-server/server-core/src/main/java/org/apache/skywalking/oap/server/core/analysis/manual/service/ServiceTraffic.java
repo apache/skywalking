@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -98,12 +99,18 @@ public class ServiceTraffic extends Metrics {
      * @return Base64 encode(serviceName) + "." + layer.value
      */
     @Override
-    protected String id0() {
+    protected StorageID id0() {
+        String id;
         if (layer != null) {
-            return encode(name) + Const.POINT + layer.value();
+            id = encode(name) + Const.POINT + layer.value();
         } else {
-            return encode(name) + Const.POINT + Layer.UNDEFINED.value();
+            id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
+        return new StorageID().appendMutant(new String[] {
+            NAME,
+            LAYER
+        }, id);
+
     }
 
     @Override

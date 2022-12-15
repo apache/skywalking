@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -29,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -72,10 +72,10 @@ public class EndpointRelationServerSideMetrics extends Metrics {
     private String entityId;
 
     @Override
-    protected String id0() {
-        String splitJointId = String.valueOf(getTimeBucket());
-        splitJointId += Const.ID_CONNECTOR + entityId;
-        return splitJointId;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override

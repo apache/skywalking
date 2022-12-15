@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 
 /**
  * MergableBufferedData is a thread no safe implementation of {@link BufferedData}. {@link Metrics} in this cache would
@@ -31,7 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
  * Concurrency {@link #accept(Metrics)}s and {@link #read()} while {@link #accept(Metrics)} are both not recommended.
  */
 public class MergableBufferedData<METRICS extends Metrics> implements BufferedData<METRICS> {
-    private Map<String, METRICS> buffer;
+    private Map<StorageID, METRICS> buffer;
 
     public MergableBufferedData() {
         buffer = new HashMap<>();
@@ -46,7 +47,7 @@ public class MergableBufferedData<METRICS extends Metrics> implements BufferedDa
      */
     @Override
     public void accept(final METRICS data) {
-        final String id = data.id();
+        final StorageID id = data.id();
         final METRICS existed = buffer.get(id);
         if (existed == null) {
             buffer.put(id, data);

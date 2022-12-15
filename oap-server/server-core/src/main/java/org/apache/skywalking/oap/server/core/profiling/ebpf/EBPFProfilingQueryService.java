@@ -19,6 +19,16 @@
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
 import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -52,17 +62,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -204,8 +203,8 @@ public class EBPFProfilingQueryService implements Service {
             final List<Metrics> processes = getProcessMetricsDAO().multiGet(processModel, processMetrics);
 
             final Map<String, Process> processMap = processes.stream()
-                    .map(t -> (ProcessTraffic) t)
-                    .collect(Collectors.toMap(Metrics::id, this::convertProcess));
+                                                                .map(t -> (ProcessTraffic) t)
+                                                                .collect(Collectors.toMap(m -> m.id().build(), this::convertProcess));
             schedules.forEach(p -> p.setProcess(processMap.get(p.getProcessId())));
         }
         return schedules;
@@ -219,7 +218,7 @@ public class EBPFProfilingQueryService implements Service {
 
     private Process convertProcess(ProcessTraffic traffic) {
         final Process process = new Process();
-        process.setId(traffic.id());
+        process.setId(traffic.id().build());
         process.setName(traffic.getName());
         final String serviceId = traffic.getServiceId();
         process.setServiceId(serviceId);

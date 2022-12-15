@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.process;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,14 +33,13 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.util.Map;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
 
@@ -183,11 +183,14 @@ public class ProcessTraffic extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        if (processId != null) {
-            return processId;
+    protected StorageID id0() {
+        if (processId == null) {
+            processId = IDManager.ProcessID.buildId(instanceId, name);
         }
-        return IDManager.ProcessID.buildId(instanceId, name);
+        return new StorageID().appendMutant(new String[] {
+            INSTANCE_ID,
+            NAME
+        }, processId);
     }
 
     public static class Builder implements StorageBuilder<ProcessTraffic> {

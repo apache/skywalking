@@ -20,11 +20,11 @@ package org.apache.skywalking.oap.server.core.analysis.manual.spanattach;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -81,8 +81,12 @@ public class SpanAttachedEventRecord extends Record {
     private long timestamp;
 
     @Override
-    public String id() {
-        return traceSegmentId + Const.ID_CONNECTOR + startTimeSecond + Const.ID_CONNECTOR + startTimeNanos + Const.ID_CONNECTOR + event;
+    public StorageID id() {
+        return new StorageID()
+            .append(TRACE_SEGMENT_ID, traceSegmentId)
+            .append(START_TIME_SECOND, startTimeSecond)
+            .append(START_TIME_NANOS, startTimeNanos)
+            .append(EVENT, event);
     }
 
     public static class Builder implements StorageBuilder<SpanAttachedEventRecord> {

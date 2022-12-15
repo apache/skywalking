@@ -101,11 +101,11 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
             this.getClient().define(applyStatus(uiTemplate));
             return TemplateChangeStatus.builder()
                     .status(true)
-                    .id(uiTemplate.id())
+                    .id(uiTemplate.id().build())
                     .build();
         } catch (IOException ioEx) {
             log.error("fail to disable the template", ioEx);
-            return TemplateChangeStatus.builder().status(false).id(uiTemplate.id()).message("Can't disable the template")
+            return TemplateChangeStatus.builder().status(false).id(uiTemplate.id().build()).message("Can't disable the template")
                     .build();
         }
     }
@@ -133,7 +133,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
     }
 
     public Property applyAll(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id())
+        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
                 .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()))
                 .addTag(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()))
                 .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
@@ -147,7 +147,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
      * @return new property (patch) to be applied
      */
     public Property applyStatus(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id())
+        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
                 .addTag(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()))
                 .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
                 .build();
@@ -160,7 +160,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
      * @return new property (patch) to be applied
      */
     public Property applyConfiguration(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id())
+        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
                 .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()))
                 .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
                 .build();

@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -54,8 +55,8 @@ public class ProfileTaskRecord extends NoneStream {
     public static final String MAX_SAMPLING_COUNT = "max_sampling_count";
 
     @Override
-    public String id() {
-        return taskId;
+    public StorageID id() {
+        return new StorageID().append(TASK_ID, taskId);
     }
 
     @Column(columnName = SERVICE_ID)

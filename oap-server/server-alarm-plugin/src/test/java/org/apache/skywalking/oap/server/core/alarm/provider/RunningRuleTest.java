@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -429,7 +430,7 @@ public class RunningRuleTest {
         private int value;
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 
@@ -486,7 +487,7 @@ public class RunningRuleTest {
         }
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 
@@ -538,7 +539,7 @@ public class RunningRuleTest {
         private DataTable value;
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 

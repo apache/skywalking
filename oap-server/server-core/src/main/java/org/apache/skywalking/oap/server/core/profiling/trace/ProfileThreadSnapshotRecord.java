@@ -20,11 +20,11 @@ package org.apache.skywalking.oap.server.core.profiling.trace;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -67,8 +67,11 @@ public class ProfileThreadSnapshotRecord extends Record {
     private byte[] stackBinary;
 
     @Override
-    public String id() {
-        return getTaskId() + Const.ID_CONNECTOR + getSegmentId() + Const.ID_CONNECTOR + getSequence() + Const.ID_CONNECTOR;
+    public StorageID id() {
+        return new StorageID()
+            .append(TASK_ID, getTaskId())
+            .append(SEGMENT_ID, getSegmentId())
+            .append(SEQUENCE, getSequence());
     }
 
     public static class Builder implements StorageBuilder<ProfileThreadSnapshotRecord> {

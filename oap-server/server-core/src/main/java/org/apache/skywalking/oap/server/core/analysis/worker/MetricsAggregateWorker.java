@@ -118,9 +118,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         if (currentTime - lastSendTime > l1FlushPeriod) {
             mergeDataCache.read().forEach(
                 data -> {
-                    if (log.isDebugEnabled()) {
-                        log.debug(data.toString());
-                    }
                     nextWorker.in(data);
                 }
             );

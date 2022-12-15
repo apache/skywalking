@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -47,8 +48,8 @@ public class TopNDatabaseStatement extends TopN {
     private String statement;
 
     @Override
-    public String id() {
-        return id;
+    public StorageID id() {
+        return new StorageID().appendMutant(null, id);
     }
 
     @Override

@@ -40,7 +40,7 @@ public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String[] ids = metrics.stream().map(Metrics::id).collect(Collectors.toList()).toArray(new String[] {});
+        String[] ids = metrics.stream().map(m -> m.id().build()).collect(Collectors.toList()).toArray(new String[] {});
         List<StorageData> storageDataList = getByIDs(jdbcClient, model.getName(), ids, storageBuilder);
         List<Metrics> result = new ArrayList<>(storageDataList.size());
         for (StorageData storageData : storageDataList) {

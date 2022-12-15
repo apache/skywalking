@@ -24,13 +24,14 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 
 /**
  * LimitedSizeBufferedData is a thread no safe implementation of {@link BufferedData}. It collects limited records of
  * each {@link StorageData#id()}.
  */
 public class LimitedSizeBufferedData<STORAGE_DATA extends ComparableStorageData & StorageData> implements BufferedData<STORAGE_DATA> {
-    private final HashMap<String, LinkedList<STORAGE_DATA>> data;
+    private final HashMap<StorageID, LinkedList<STORAGE_DATA>> data;
     private final int limitedSize;
 
     public LimitedSizeBufferedData(int limitedSize) {
@@ -40,7 +41,7 @@ public class LimitedSizeBufferedData<STORAGE_DATA extends ComparableStorageData 
 
     @Override
     public void accept(final STORAGE_DATA data) {
-        final String id = data.id();
+        final StorageID id = data.id();
         LinkedList<STORAGE_DATA> storageDataList = this.data.get(id);
         if (storageDataList == null) {
             storageDataList = new LinkedList<>();
