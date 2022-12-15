@@ -320,7 +320,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
                            // This is a cache-DB inconsistent case:
                            // Metrics keep coming due to traffic, but the entity in the
                            // database has been removed due to TTL.
-                           if (!model.isTimeRelativeID() && supportUpdate) {
+                           if (!model.isTimeRelativeID()) {
                                // Mostly all updatable metadata level metrics are required to do this check.
 
                                if (metricsDAO.isExpiredCache(model, cachedValue, currentTimeMillis, metricsDataTTL)) {
