@@ -96,7 +96,7 @@ public class StorageID {
 
     public StorageID appendMutant(String[] source, long value) {
         if (sealed) {
-            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + source);
+            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + Arrays.toString(source));
         }
         fragments.add(new Fragment(source, Long.class, true, value));
         return this;
@@ -104,7 +104,7 @@ public class StorageID {
 
     public StorageID appendMutant(final String[] source, final String value) {
         if (sealed) {
-            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + source);
+            throw new IllegalStateException("The storage ID is sealed. Can't append a new fragment, source=" + Arrays.toString(source));
         }
         fragments.add(new Fragment(source, String.class, true, value));
         return this;
@@ -131,6 +131,10 @@ public class StorageID {
 
     @RequiredArgsConstructor
     @Getter
+    @EqualsAndHashCode(of = {
+        "name",
+        "value"
+    }, doNotUseGetters = true)
     public static class Fragment {
         /**
          * The column name of the value, or the original column names of the mutate value.
@@ -160,31 +164,6 @@ public class StorageID {
         @Override
         public String toString() {
             return value.toString();
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-
-            final Fragment fragment = (Fragment) o;
-
-            // Probably incorrect - comparing Object[] arrays with Arrays.equals
-            if (!Arrays.equals(name, fragment.name))
-                return false;
-            if (value != null ? !value.equals(fragment.value) : fragment.value != null)
-                return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = Arrays.hashCode(name);
-            result = 31 * result + (value != null ? value.hashCode() : 0);
-            return result;
         }
     }
 }
