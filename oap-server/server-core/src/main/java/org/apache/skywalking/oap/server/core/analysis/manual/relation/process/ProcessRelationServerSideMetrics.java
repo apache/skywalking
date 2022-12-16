@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.relation.process;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.ComponentLibraryCatalogUtil;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -80,7 +81,7 @@ public class ProcessRelationServerSideMetrics extends Metrics {
     @Override
     public boolean combine(Metrics metrics) {
         final ProcessRelationServerSideMetrics processRelationServerSideMetrics = (ProcessRelationServerSideMetrics) metrics;
-        if (!ProcessNetworkRelationIDs.compare(this.componentId, processRelationServerSideMetrics.getComponentId())) {
+        if (!ComponentLibraryCatalogUtil.get().compare(this.componentId, processRelationServerSideMetrics.getComponentId())) {
             this.setComponentId(processRelationServerSideMetrics.getComponentId());
             return true;
         }

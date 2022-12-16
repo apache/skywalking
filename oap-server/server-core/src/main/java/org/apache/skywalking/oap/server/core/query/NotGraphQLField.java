@@ -16,38 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.core.query;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.core.query.NotGraphQLField;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 
-public class Node {
-    @Getter
-    @Setter
-    private String id;
-    @Getter
-    @Setter
-    private String name;
-    @Getter
-    @Setter
-    private String type;
-    @Getter
-    @Setter
-    private boolean isReal;
-
-    /**
-     * A flag indicate whether the {@link #type} has been set from the call detected from service side.
-     */
-    @NotGraphQLField
-    private boolean hasSetOnceAtServerSide = false;
-
-    public boolean hasSetOnceAtServerSide() {
-        return hasSetOnceAtServerSide;
-    }
-
-    public void setTypeFromServerSide(String type) {
-        hasSetOnceAtServerSide = true;
-        this.type = type;
-    }
+/**
+ * NotGraphQLField represents the annotated field is not used by GraphQL protocol.
+ *
+ * Notice, this is a dev-level friendly label, there is no practical use in the runtime.
+ *
+ * @since 9.4.0
+ */
+@Target({ElementType.FIELD})
+public @interface NotGraphQLField {
 }

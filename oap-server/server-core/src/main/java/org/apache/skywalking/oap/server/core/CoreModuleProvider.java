@@ -233,9 +233,9 @@ public class CoreModuleProvider extends ModuleProvider {
                                                             .idleTimeOut(moduleConfig.getRestIdleTimeOut())
                                                             .maxThreads(moduleConfig.getRestMaxThreads())
                                                             .acceptQueueSize(
-                                                                   moduleConfig.getRestAcceptQueueSize())
+                                                                moduleConfig.getRestAcceptQueueSize())
                                                             .maxRequestHeaderSize(
-                                                                   moduleConfig.getHttpMaxRequestHeaderSize())
+                                                                moduleConfig.getHttpMaxRequestHeaderSize())
                                                             .build();
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
@@ -248,7 +248,10 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(GRPCHandlerRegister.class, new GRPCHandlerRegisterImpl(grpcServer));
         this.registerServiceImplementation(HTTPHandlerRegister.class, new HTTPHandlerRegisterImpl(httpServer));
 
-        this.registerServiceImplementation(IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
+        this.registerServiceImplementation(
+            IComponentLibraryCatalogService.class,
+            ComponentLibraryCatalogUtil.hold(new ComponentLibraryCatalogService())
+        );
 
         this.registerServiceImplementation(SourceReceiver.class, receiver);
 
@@ -264,7 +267,8 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             NetworkAddressAliasCache.class, new NetworkAddressAliasCache(moduleConfig));
 
-        this.registerServiceImplementation(TopologyQueryService.class, new TopologyQueryService(getManager(), storageModels));
+        this.registerServiceImplementation(
+            TopologyQueryService.class, new TopologyQueryService(getManager(), storageModels));
         this.registerServiceImplementation(MetricsMetadataQueryService.class, new MetricsMetadataQueryService());
         this.registerServiceImplementation(MetricsQueryService.class, new MetricsQueryService(getManager()));
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
@@ -275,7 +279,8 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
         this.registerServiceImplementation(EventQueryService.class, new EventQueryService(getManager()));
-        this.registerServiceImplementation(TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
+        this.registerServiceImplementation(
+            TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));
 
         // add profile service implementations
@@ -288,7 +293,9 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             EBPFProfilingMutationService.class, new EBPFProfilingMutationService(getManager()));
         this.registerServiceImplementation(
-            EBPFProfilingQueryService.class, new EBPFProfilingQueryService(getManager(), moduleConfig, this.storageModels));
+            EBPFProfilingQueryService.class,
+            new EBPFProfilingQueryService(getManager(), moduleConfig, this.storageModels)
+        );
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
