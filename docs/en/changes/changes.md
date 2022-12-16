@@ -42,8 +42,8 @@
 * Fix wrong group of non time-relative metadata in BanyanDB.
 * Refactor `StorageData#id` to the new StorageID object from a String type.
 * Support multiple component IDs in the service topology level.
-* Add `ElasticSearch.Keyword` annotation to declare the target field  type as `keyword`.
-* [Breaking Change] Field `component_id` of `service_relation_client_side` and `service_relation_server_side` have been replaced by `component_ids`(keyword).
+* Add `ElasticSearch.Keyword` annotation to declare the target field type as `keyword`.
+* [Breaking Change] Column `component_id` of `service_relation_client_side` and `service_relation_server_side` have been replaced by `component_ids`.
 
 #### UI
 

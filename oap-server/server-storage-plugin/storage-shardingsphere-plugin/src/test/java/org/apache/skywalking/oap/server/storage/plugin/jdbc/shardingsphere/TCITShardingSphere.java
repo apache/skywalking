@@ -524,14 +524,14 @@ public class TCITShardingSphere {
         serverSideMetricsA.setDestServiceId(serviceIdA);
         serverSideMetricsA.setEntityId(IDManager.ServiceID.buildRelationId(
             new IDManager.ServiceID.ServiceRelationDefine(clientIdA, serviceIdA)));
-        serverSideMetricsA.setComponentId(0);
+        serverSideMetricsA.getComponentIds().add(0);
         serverSideMetricsA.setTimeBucket(timeBucketMin);
         ServiceRelationClientSideMetrics clientSideMetricsA = new ServiceRelationClientSideMetrics();
         clientSideMetricsA.setSourceServiceId(clientIdA);
         clientSideMetricsA.setDestServiceId(serviceIdA);
         clientSideMetricsA.setEntityId(IDManager.ServiceID.buildRelationId(
             new IDManager.ServiceID.ServiceRelationDefine(clientIdA, serviceIdA)));
-        clientSideMetricsA.setComponentId(0);
+        clientSideMetricsA.getComponentIds().add(0);
         clientSideMetricsA.setTimeBucket(timeBucketMin);
 
         ServiceRelationServerSideMetrics serverSideMetricsB = new ServiceRelationServerSideMetrics();
@@ -539,14 +539,14 @@ public class TCITShardingSphere {
         serverSideMetricsB.setDestServiceId(serviceIdB);
         serverSideMetricsB.setEntityId(IDManager.ServiceID.buildRelationId(
             new IDManager.ServiceID.ServiceRelationDefine(serviceIdA, serviceIdB)));
-        serverSideMetricsB.setComponentId(0);
+        serverSideMetricsB.getComponentIds().add(0);
         serverSideMetricsB.setTimeBucket(timeBucketMin);
         ServiceRelationClientSideMetrics clientSideMetricsB = new ServiceRelationClientSideMetrics();
         clientSideMetricsB.setSourceServiceId(clientIdA);
         clientSideMetricsB.setDestServiceId(serviceIdA);
         clientSideMetricsB.setEntityId(IDManager.ServiceID.buildRelationId(
             new IDManager.ServiceID.ServiceRelationDefine(serviceIdA, serviceIdB)));
-        clientSideMetricsB.setComponentId(0);
+        clientSideMetricsB.getComponentIds().add(0);
         clientSideMetricsB.setTimeBucket(timeBucketMin);
 
         createShardingRuleTest(serverModel);
