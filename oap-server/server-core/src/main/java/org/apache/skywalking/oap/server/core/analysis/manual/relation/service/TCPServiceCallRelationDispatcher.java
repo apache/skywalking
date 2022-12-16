@@ -41,7 +41,7 @@ public class TCPServiceCallRelationDispatcher implements SourceDispatcher<TCPSer
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
-        metrics.setComponentId(source.getComponentId());
+        metrics.getComponentIds().add(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
@@ -51,7 +51,7 @@ public class TCPServiceCallRelationDispatcher implements SourceDispatcher<TCPSer
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
-        metrics.setComponentId(source.getComponentId());
+        metrics.getComponentIds().add(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }

@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -29,6 +30,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -48,7 +50,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     public static final String INDEX_NAME = "service_relation_client_side";
     public static final String SOURCE_SERVICE_ID = "source_service_id";
     public static final String DEST_SERVICE_ID = "dest_service_id";
-    public static final String COMPONENT_ID = "component_id";
+    public static final String COMPONENT_IDS = "component_ids";
 
     @Setter
     @Getter
@@ -60,8 +62,9 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     private String destServiceId;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID, storageOnly = true)
-    private int componentId;
+    @Column(columnName = COMPONENT_IDS, storageOnly = true)
+    @ElasticSearch.Keyword
+    private IntList componentIds = new IntList(3);
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
@@ -76,11 +79,17 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Override
     public boolean combine(Metrics metrics) {
         ServiceRelationClientSideMetrics serviceRelationClientSideMetrics = (ServiceRelationClientSideMetrics) metrics;
-        if (this.getComponentId() == 0 && serviceRelationClientSideMetrics.getComponentId() != 0) {
-            this.componentId = serviceRelationClientSideMetrics.getComponentId();
-            return true;
+        final IntList sourceIDs = this.getComponentIds();
+        final IntList targetIDs = serviceRelationClientSideMetrics.getComponentIds();
+        boolean changed = false;
+        for (int i = 0; i < targetIDs.size(); i++) {
+            final int targetID = targetIDs.get(i);
+            if (!sourceIDs.include(targetID)) {
+                sourceIDs.add(targetID);
+                changed = true;
+            }
         }
-        return false;
+        return changed;
     }
 
     @Override
@@ -95,7 +104,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setSourceServiceId(getSourceServiceId());
         metrics.setDestServiceId(getDestServiceId());
-        metrics.setComponentId(getComponentId());
+        metrics.getComponentIds().copyFrom(getComponentIds());
         return metrics;
     }
 
@@ -106,7 +115,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setSourceServiceId(getSourceServiceId());
         metrics.setDestServiceId(getDestServiceId());
-        metrics.setComponentId(getComponentId());
+        metrics.getComponentIds().copyFrom(getComponentIds());
         return metrics;
     }
 
@@ -122,8 +131,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
         setEntityId(remoteData.getDataStrings(0));
         setSourceServiceId(remoteData.getDataStrings(1));
         setDestServiceId(remoteData.getDataStrings(2));
-
-        setComponentId(remoteData.getDataIntegers(0));
+        setComponentIds(new IntList(remoteData.getDataStrings(3)));
 
         setTimeBucket(remoteData.getDataLongs(0));
     }
@@ -134,8 +142,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
         remoteBuilder.addDataStrings(getEntityId());
         remoteBuilder.addDataStrings(getSourceServiceId());
         remoteBuilder.addDataStrings(getDestServiceId());
-
-        remoteBuilder.addDataIntegers(getComponentId());
+        remoteBuilder.addDataStrings(getComponentIds().toStorageData());
 
         remoteBuilder.addDataLongs(getTimeBucket());
         return remoteBuilder;
@@ -147,7 +154,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
             ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
             metrics.setSourceServiceId((String) converter.get(SOURCE_SERVICE_ID));
             metrics.setDestServiceId((String) converter.get(DEST_SERVICE_ID));
-            metrics.setComponentId(((Number) converter.get(COMPONENT_ID)).intValue());
+            metrics.setComponentIds(new IntList((String) converter.get(COMPONENT_IDS)));
             metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             metrics.setEntityId((String) converter.get(ENTITY_ID));
             return metrics;
@@ -159,7 +166,7 @@ public class ServiceRelationClientSideMetrics extends Metrics {
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(SOURCE_SERVICE_ID, storageData.getSourceServiceId());
             converter.accept(DEST_SERVICE_ID, storageData.getDestServiceId());
-            converter.accept(COMPONENT_ID, storageData.getComponentId());
+            converter.accept(COMPONENT_IDS, storageData.getComponentIds());
             converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }

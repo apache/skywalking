@@ -77,8 +77,8 @@ public class IntList implements StorageDataComplexObject<IntList> {
         this.data.addAll(source.data);
     }
 
-    public void add(final int rank) {
-        this.data.add(rank);
+    public void add(final int value) {
+        this.data.add(value);
     }
 
     public int get(final int idx) {

@@ -36,9 +36,6 @@ public class Call {
     private String id;
     private List<DetectPoint> detectPoints;
 
-    private List<Integer> sourceComponentIDs;
-    private List<Integer> targetComponentIDs;
-
     public Call() {
         sourceComponents = new ArrayList<>();
         targetComponents = new ArrayList<>();

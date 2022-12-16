@@ -153,7 +153,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             if (field.isAnnotationPresent(Column.class)) {
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
                     if (!record) {
-                        throw new IllegalStateException("Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
+                        throw new IllegalStateException(
+                            "Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
                     }
                 }
 
@@ -185,9 +186,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final ElasticSearch.MatchQuery elasticSearchAnalyzer = field.getAnnotation(
                     ElasticSearch.MatchQuery.class);
                 final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
+                final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
-                    elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias()
+                    elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
+                    keywordColumn == null ? false : true
                 );
 
                 // BanyanDB extension
@@ -198,7 +201,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
                     BanyanDB.NoIndexing.class);
                 final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
-                        BanyanDB.IndexRule.class);
+                    BanyanDB.IndexRule.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
                     banyanDBGlobalIndex != null,
@@ -248,13 +251,14 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             }
         }
 
-       // For the annotation need to be declared on the superclass, the other annotation should be declared on the subclass.
+        // For the annotation need to be declared on the superclass, the other annotation should be declared on the subclass.
         if (!sqlDBModelExtension.getSharding().isPresent() && clazz.isAnnotationPresent(SQLDatabase.Sharding.class)) {
             SQLDatabase.Sharding sharding = clazz.getAnnotation(SQLDatabase.Sharding.class);
             sqlDBModelExtension.setSharding(
-                Optional.of(new SQLDatabaseModelExtension.Sharding(sharding.shardingAlgorithm(),
-                                                                   sharding.dataSourceShardingColumn(),
-                                                                   sharding.tableShardingColumn()
+                Optional.of(new SQLDatabaseModelExtension.Sharding(
+                    sharding.shardingAlgorithm(),
+                    sharding.dataSourceShardingColumn(),
+                    sharding.tableShardingColumn()
                 )));
         }
 
