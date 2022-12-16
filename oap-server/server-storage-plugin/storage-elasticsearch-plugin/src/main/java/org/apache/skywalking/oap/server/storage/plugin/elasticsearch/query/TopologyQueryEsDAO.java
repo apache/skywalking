@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.Pr
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
@@ -256,7 +257,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             String entityId = (String) entityBucket.get("key");
             final Map<String, Object> componentTerms =
                 (Map<String, Object>) entityBucket.get(
-                    ServiceRelationServerSideMetrics.COMPONENT_ID);
+                    ProcessRelationServerSideMetrics.COMPONENT_ID);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
             final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
@@ -275,8 +276,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             Aggregation
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
                 .subAggregation(
-                    Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_ID)
-                               .field(ServiceRelationServerSideMetrics.COMPONENT_ID)
+                    Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_IDS)
+                               .field(ServiceRelationServerSideMetrics.COMPONENT_IDS)
                                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
@@ -296,14 +297,16 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             String entityId = (String) entityBucket.get("key");
             final Map<String, Object> componentTerms =
                 (Map<String, Object>) entityBucket.get(
-                    ServiceRelationServerSideMetrics.COMPONENT_ID);
+                    ServiceRelationServerSideMetrics.COMPONENT_IDS);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
-            final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
+            final IntList componentIds = new IntList((String) subAgg.iterator().next().get("key"));
 
             Call.CallDetail call = new Call.CallDetail();
-            call.buildFromServiceRelation(entityId, componentId, detectPoint);
-            calls.add(call);
+            for (int i = 0; i < componentIds.size(); i++) {
+                call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
+                calls.add(call);
+            }
         }
         return calls;
     }

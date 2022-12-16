@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -31,13 +32,13 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.Pr
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
@@ -157,11 +158,11 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = jdbcClient.getConnection()) {
             try (ResultSet resultSet = jdbcClient.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + ", " + ServiceRelationServerSideMetrics.COMPONENT_ID
+                "select " + Metrics.ENTITY_ID + ", " + ServiceRelationServerSideMetrics.COMPONENT_IDS
                     + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and "
                     + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
                     .toString() +
-                    " group by " + Metrics.ENTITY_ID + "," + ServiceRelationServerSideMetrics.COMPONENT_ID, conditions
+                    " group by " + Metrics.ENTITY_ID + "," + ServiceRelationServerSideMetrics.COMPONENT_IDS, conditions
             )) {
                 buildServiceCalls(resultSet, calls, detectPoint);
             }
@@ -272,9 +273,12 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            final int componentId = resultSet.getInt(ServiceRelationServerSideMetrics.COMPONENT_ID);
-            call.buildFromServiceRelation(entityId, componentId, detectPoint);
-            calls.add(call);
+            final IntList componentIds = new IntList(
+                resultSet.getString(ServiceRelationServerSideMetrics.COMPONENT_IDS));
+            for (int i = 0; i < componentIds.size(); i++) {
+                call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
+                calls.add(call);
+            }
         }
     }
 
@@ -283,7 +287,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            final int componentId = resultSet.getInt(ServiceRelationServerSideMetrics.COMPONENT_ID);
+            final int componentId = resultSet.getInt(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID);
             call.buildFromInstanceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }

@@ -108,6 +108,9 @@ class ServiceTopologyBuilder {
                 call.addDetectPoint(DetectPoint.CLIENT);
                 call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
+            } else {
+                Call call = callMap.get(relationId);
+                call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
             }
         }
 

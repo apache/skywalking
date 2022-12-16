@@ -38,6 +38,8 @@ public class ElasticSearchExtension {
 
     private final String columnAlias;
 
+    private final boolean isKeyword;
+
     public boolean needMatchQuery() {
         return analyzer != null;
     }
