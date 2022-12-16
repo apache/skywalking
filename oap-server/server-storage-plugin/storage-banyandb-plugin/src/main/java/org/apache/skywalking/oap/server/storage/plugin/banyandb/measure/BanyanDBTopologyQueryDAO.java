@@ -129,8 +129,6 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             MeasureQueryResponse resp = query(modelName,
                                               ImmutableSet.of(
                                                   ServiceRelationClientSideMetrics.COMPONENT_IDS,
-                                                  ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-                                                  ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
                                                   Metrics.ENTITY_ID
                                               ),
                                               Collections.emptySet(), timestampRange, q
@@ -208,9 +206,6 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
             MeasureQueryResponse resp = query(modelName,
                                               ImmutableSet.of(
-                                                  ServiceInstanceRelationServerSideMetrics.COMPONENT_ID,
-                                                  ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                                                  ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
                                                   Metrics.ENTITY_ID
                                               ),
                                               Collections.emptySet(), timestampRange, q
@@ -220,11 +215,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             }
             final Call.CallDetail call = new Call.CallDetail();
             final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
-            final int componentId = ((Number) resp.getDataPoints()
-                                                  .get(0)
-                                                  .getTagValue(
-                                                      ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)).intValue();
-            call.buildFromInstanceRelation(entityId, componentId, detectPoint);
+            call.buildFromInstanceRelation(entityId, detectPoint);
             callMap.putIfAbsent(entityId, call);
         }
         return new ArrayList<>(callMap.values());
@@ -283,8 +274,6 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
             MeasureQueryResponse resp = query(EndpointRelationServerSideMetrics.INDEX_NAME,
                                               ImmutableSet.of(
-                                                  EndpointRelationServerSideMetrics.DEST_ENDPOINT,
-                                                  EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
                                                   Metrics.ENTITY_ID
                                               ),
                                               Collections.emptySet(), timestampRange, q

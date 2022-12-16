@@ -31,7 +31,19 @@ import org.apache.skywalking.oap.server.core.source.DetectPoint;
 public class Call {
     private String source;
     private String target;
+    /**
+     * Components are detected at the client-side in Service and Process topologies, and no value in instance topology
+     * and endpoint dependency.
+     *
+     * @since 9.4.0
+     */
     private List<String> sourceComponents;
+    /**
+     * Components are detected at the server-side in Service and Process topologies, and no value in instance topology
+     * and endpoint dependency.
+     *
+     * @since 9.4.0
+     */
     private List<String> targetComponents;
     private String id;
     private List<DetectPoint> detectPoints;
@@ -88,14 +100,13 @@ public class Call {
             this.setDetectPoint(detectPoint);
         }
 
-        public void buildFromInstanceRelation(String entityId, int componentId, DetectPoint detectPoint) {
+        public void buildFromInstanceRelation(String entityId, DetectPoint detectPoint) {
             final IDManager.ServiceInstanceID.ServiceInstanceRelationDefine serviceRelationDefine
                 = IDManager.ServiceInstanceID.analysisRelationId(entityId);
 
             this.setId(entityId);
             this.setSource(serviceRelationDefine.getSourceId());
             this.setTarget(serviceRelationDefine.getDestId());
-            this.setComponentId(componentId);
             this.setDetectPoint(detectPoint);
         }
 
@@ -122,7 +133,8 @@ public class Call {
         public void buildProcessRelation(String entityId, int componentId, DetectPoint detectPoint) {
             this.setId(entityId);
 
-            final IDManager.ProcessID.ProcessRelationDefine processRelationDefine = IDManager.ProcessID.analysisRelationId(entityId);
+            final IDManager.ProcessID.ProcessRelationDefine processRelationDefine = IDManager.ProcessID.analysisRelationId(
+                entityId);
             this.setDetectPoint(detectPoint);
             this.setSource(processRelationDefine.getSourceId());
             this.setTarget(processRelationDefine.getDestId());

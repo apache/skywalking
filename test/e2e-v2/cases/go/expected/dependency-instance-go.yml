@@ -25,7 +25,7 @@ nodes:
   name: provider1
   serviceid: {{ b64enc "e2e-service-provider" }}.1
   servicename: e2e-service-provider
-  type: Tomcat
+  type: ""
   isreal: true
 {{- end }}
 calls:
