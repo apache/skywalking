@@ -201,9 +201,9 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         try (Connection connection = jdbcClient.getConnection()) {
             try (ResultSet resultSet = jdbcClient.executeQuery(
                 connection,
-                "select " + Metrics.ENTITY_ID + ", " + ServiceInstanceRelationServerSideMetrics.COMPONENT_ID
+                "select " + Metrics.ENTITY_ID
                     + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
-                    .toString() + " group by " + Metrics.ENTITY_ID + ", " + ServiceInstanceRelationServerSideMetrics.COMPONENT_ID,
+                    .toString() + " group by " + Metrics.ENTITY_ID,
                 conditions
             )) {
                 buildInstanceCalls(resultSet, calls, detectPoint);
@@ -287,8 +287,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            final int componentId = resultSet.getInt(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID);
-            call.buildFromInstanceRelation(entityId, componentId, detectPoint);
+            call.buildFromInstanceRelation(entityId, detectPoint);
             calls.add(call);
         }
     }

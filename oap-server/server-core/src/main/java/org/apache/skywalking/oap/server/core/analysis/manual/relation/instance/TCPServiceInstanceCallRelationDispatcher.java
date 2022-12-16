@@ -43,7 +43,6 @@ public class TCPServiceInstanceCallRelationDispatcher implements SourceDispatche
         metrics.setSourceServiceInstanceId(source.getSourceServiceInstanceId());
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setDestServiceInstanceId(source.getDestServiceInstanceId());
-        metrics.setComponentId(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
@@ -55,7 +54,6 @@ public class TCPServiceInstanceCallRelationDispatcher implements SourceDispatche
         metrics.setSourceServiceInstanceId(source.getSourceServiceInstanceId());
         metrics.setDestServiceId(source.getDestServiceId());
         metrics.setDestServiceInstanceId(source.getDestServiceInstanceId());
-        metrics.setComponentId(source.getComponentId());
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }

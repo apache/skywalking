@@ -19,7 +19,7 @@ nodes:
   name: consumer1
   serviceid: {{ b64enc "e2e-service-consumer" }}.1
   servicename: e2e-service-consumer
-  type: Tomcat
+  type: ""
   isreal: true
 - id: {{ b64enc "consumer-py" }}.1_{{ b64enc "consumer-py-instance" }}
   name: consumer-py-instance

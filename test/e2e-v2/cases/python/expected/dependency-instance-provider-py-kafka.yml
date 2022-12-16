@@ -19,7 +19,7 @@ nodes:
   name: provider-py-kafka-instance
   serviceid: {{ b64enc "provider-py-kafka" }}.1
   servicename: provider-py-kafka
-  type: Python
+  type: ""
   isreal: true
 - id: {{ b64enc "consumer-py" }}.1_{{ b64enc "consumer-py-instance" }}
   name: consumer-py-instance
