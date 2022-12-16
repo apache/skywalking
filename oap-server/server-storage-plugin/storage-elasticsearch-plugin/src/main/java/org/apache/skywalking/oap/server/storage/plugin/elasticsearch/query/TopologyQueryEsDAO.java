@@ -257,7 +257,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             String entityId = (String) entityBucket.get("key");
             final Map<String, Object> componentTerms =
                 (Map<String, Object>) entityBucket.get(
-                    ServiceRelationServerSideMetrics.COMPONENT_IDS);
+                    ProcessRelationServerSideMetrics.COMPONENT_ID);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
             final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
