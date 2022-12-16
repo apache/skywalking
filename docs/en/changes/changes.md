@@ -44,8 +44,8 @@
 * Support multiple component IDs in the service topology level.
 * Add `ElasticSearch.Keyword` annotation to declare the target field type as `keyword`.
 * [Breaking Change] Column `component_id` of `service_relation_client_side` and `service_relation_server_side` have been replaced by `component_ids`.
-* Support `priority` define in the `component-libraries.yml`. 
-* Enhance service topology query. When there are multiple components detected from server side, 
+* Support `priority` definition in the `component-libraries.yml`. 
+* Enhance service topology query. When there are multiple components detected from the server side,
   the component type of the node would be determined by the priority, which was random in the previous release.
 
 #### UI
