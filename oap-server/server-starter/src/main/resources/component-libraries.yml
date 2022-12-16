@@ -28,10 +28,21 @@
 # languages
 # ######
 # Languages declare which languages are using this component. Multi languages should be separated by `,`
+#
+# ######
+# priority
+# ######
+# Component ID priority represents the component is degree of closeness between the library and business codes
+# The higher the atomic number, the higher the priority, which mean it is closer to the business codes,
+# further away from OS kernel or general Computer Science concept.
+# The range of priorities is [0, 100], both sided included. 0 is the highest priority.
+# To keep forward compatibility, the default(when not set) priority is 50.
+# For example, a typical priority sequence is TCP < TLS(TCP) < RPC < HTTP < HTTPS < gRPC/SpringMVC/Dubbo
 
 Unknown:
   id: 0
   language: All
+  priority: 0
 Tomcat:
   id: 1
   languages: Java
@@ -74,9 +85,11 @@ SpringRestTemplate:
 SpringMVC:
   id: 14
   languages: Java
+  priority: 60
 Struts2:
   id: 15
   languages: Java
+  priority: 60
 NutzMVC:
   id: 16
   languages: Java
@@ -179,9 +192,11 @@ transport-client:
 http:
   id: 49
   languages: Java,C#,Node.js
+  priority: 45
 rpc:
   id: 50
   languages: Java,C#,Node.js
+  priority: 20
 RabbitMQ:
   id: 51
   languages: Java
@@ -362,6 +377,7 @@ MyBatis:
 tcp:
   id: 110
   languages: Java
+  priority: 10
 AzureHttpTrigger:
   id: 111
   languages: Java,C#,Node.js,Python
@@ -419,9 +435,11 @@ Hutool:
 https:
   id: 129
   languages: ebpf
+  priority: 46
 tls:
   id: 130
   languages: ebpf
+  priority: 11
 Micronaut:
   id: 131
   languages: Java

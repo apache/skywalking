@@ -30,4 +30,22 @@ public class ComponentLibraryCatalogFileTest {
         Assert.assertEquals(21, service.getServerIdBasedOnComponent(21));
         Assert.assertEquals("Redis", service.getServerNameBasedOnComponent(30));
     }
+
+    /**
+     * Test priority sequence, TCP < TLS(TCP) < RPC < HTTP < HTTPS < SpringMVC
+     */
+    @Test
+    public void testPriority() {
+        ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
+        Assert.assertEquals(false, service.compare(service.getComponentId("Unknown"), service.getComponentId("tcp")));
+        Assert.assertEquals(false, service.compare(service.getComponentId("tcp"), service.getComponentId("tls")));
+        Assert.assertEquals(false, service.compare(service.getComponentId("tls"), service.getComponentId("rpc")));
+        Assert.assertEquals(false, service.compare(service.getComponentId("rpc"), service.getComponentId("http")));
+        Assert.assertEquals(false, service.compare(service.getComponentId("http"), service.getComponentId("https")));
+        Assert.assertEquals(false, service.compare(service.getComponentId("https"), service.getComponentId("SpringMVC")));
+
+        // Equal priority
+        Assert.assertEquals(false, service.compare(service.getComponentId("Dubbo"), service.getComponentId("SpringMVC")));
+        Assert.assertEquals(false, service.compare(service.getComponentId("SpringMVC"), service.getComponentId("Dubbo")));
+    }
 }
