@@ -287,7 +287,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         while (resultSet.next()) {
             Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
-            final int componentId = resultSet.getInt(ServiceRelationServerSideMetrics.COMPONENT_IDS);
+            final int componentId = resultSet.getInt(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID);
             call.buildFromInstanceRelation(entityId, componentId, detectPoint);
             calls.add(call);
         }
