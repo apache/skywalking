@@ -403,9 +403,6 @@ BSD-3-Clause licenses
 The following components are provided under the BSD-3-Clause License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://npmjs.com/package/@intlify/message-compiler/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
--   https://npmjs.com/package/@vue/compiler-core/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
--   https://npmjs.com/package/@vue/compiler-sfc/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
     https://npmjs.com/package/source-map/v/0.6.1 0.6.1 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.21.1 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.21.8 BSD-3-Clause
@@ -483,8 +480,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/d3-zoom/v/3.0.0 3.0.0 ISC
     https://npmjs.com/package/delaunator/v/5.0.0 5.0.0 ISC
     https://npmjs.com/package/internmap/v/2.0.3 2.0.3 ISC
-    https://npmjs.com/package/postcss/node_modules/picocolors/v/1.0.0 1.0.0 ISC
-    ttps://npmjs.com/package/picocolors/v/1.0.0 1.0.0 ISC
+    https://npmjs.com/package/picocolors/v/1.0.0 1.0.0 ISC
 
 ========================================================================
 MIT licenses
@@ -514,8 +510,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@intlify/core-base/v/9.2.2 9.2.2 MIT
     https://npmjs.com/package/@intlify/devtools-if/v/9.2.2 9.2.2 MIT
     https://npmjs.com/package/@intlify/message-compiler/v/9.2.2 9.2.2 MIT
-    https://npmjs.com/package/@intlify/message-resolver/v/9.2.2 9.2.2 MIT
-    https://npmjs.com/package/@intlify/runtime/v/9.2.2 9.2.2 MIT
     https://npmjs.com/package/@intlify/shared/v/9.2.2 9.2.2 MIT
     https://npmjs.com/package/@intlify/vue-devtools/v/9.2.2 9.2.2 MIT
     https://npmjs.com/package/@popperjs/core/v/2.11.6 2.11.6 MIT
@@ -532,10 +526,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@vue/runtime-core/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/@vue/runtime-dom/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/@vue/server-renderer/v/3.2.45 3.2.45 MIT
-    https://npmjs.com/package/@vue/shared/v/3.2.45 3.2.45 MITf
-    https://npmjs.com/package/@vueuse/core/v/7.7.1 7.7.1 MIT
-    https://npmjs.com/package/@vueuse/core/node_modules/@vueuse/shared/v/7.7.1 7.7.1 MIT
-    https://npmjs.com/package/@vueuse/core/node_modules/vue-demi/v/0.12.1 0.12.1 MIT
+    https://npmjs.com/package/@vue/shared/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/async-validator/v/4.2.5 4.2.5 MIT
     https://npmjs.com/package/axios/v/0.24.0 0.24.0 MIT
     https://npmjs.com/package/batch-processor/v/1.0.0 1.0.0 MIT
@@ -546,7 +537,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/cssfilter/v/0.0.10 0.0.10 MIT
     https://npmjs.com/package/csstype/v/2.6.21 2.6.21 MIT
     https://npmjs.com/package/d3-dsv/node_modules/commander/v/7.2.0 7.2.0 MIT
-    https://npmjs.com/package/d3-dsv/node_modules/iconv-lite/v/0.6.3 0.6.3 MIT
     https://npmjs.com/package/d3-tip/v/0.9.1 0.9.1 MIT
     https://npmjs.com/package/dayjs/v/1.11.7 1.11.7 MIT
     https://npmjs.com/package/element-plus/v/2.0.2 2.0.2 MIT
@@ -557,7 +547,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/lodash/v/4.17.21 4.17.21 MIT
     https://npmjs.com/package/lodash-es/v/4.17.21 4.17.21 MIT
     https://npmjs.com/package/lodash-unified/v/1.0.3 1.0.3 MIT
-    https://npmjs.com/package/magic-string/v/0.25.7 0.25.7 MIT
     https://npmjs.com/package/memoize-one/v/6.0.0 6.0.0 MIT
     https://npmjs.com/package/moment/v/2.29.4 2.29.4 MIT
     https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
@@ -577,17 +566,15 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/uuid/v/8.3.2 8.3.2 MIT
     https://npmjs.com/package/vue/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/vue-grid-layout/v/3.0.0-beta1 3.0.0-beta1 MIT
-    https://npmjs.com/package/vue-grid-layout/node_modules/mitt/v/2.1.0 2.1.0 MIT
     https://npmjs.com/package/vue-i18n/v/9.2.2 9.2.2 MIT
     https://npmjs.com/package/vue-router/v/4.1.6 4.1.6 MIT
     https://npmjs.com/package/vue-types/v/4.2.1 4.2.1 MIT
     https://npmjs.com/package/xss/v/1.0.14 1.0.14 MIT
     https://npmjs.com/package/xss/node_modules/commander/v/2.20.3 2.20.3 MIT
-    https://npmjs.com/package/iconv-lite/v/0.6.3 0.6.3 MIT
-    https://npmjs.com/package/mitt/v/2.1.0 2.1.0 MIT
-    https://npmjs.com/package/element-plus/node_modules/@vueuse/core/v/7.7.1 7.7.1 MIT
 +   https://npmjs.com/package/element-plus/node_modules/@vueuse/core/node_modules/@vueuse/shared/v/7.7.1 7.7.1 MIT
 +   https://npmjs.com/package/element-plus/node_modules/@vueuse/core/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
+    https://npmjs.com/package/@vue/compiler-sfc/node_modules/magic-string/v/0.25.9 0.25.9 MIT
+    https://npmjs.com/package/@vue/reactivity-transform/node_modules/magic-string/v/0.25.9 0.25.9 MIT
 
 ========================================================================
 MPL-1.1 and LGPL-2.1 licenses
