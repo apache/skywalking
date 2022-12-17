@@ -20,14 +20,11 @@ package org.apache.skywalking.oap.server.webapp;
 
 import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_FORMAT;
 import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_TAG;
-
 import java.util.Collections;
-
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.env.EnvScalarConstructor;
-
 import com.linecorp.armeria.common.SessionProtocol;
 import com.linecorp.armeria.server.HttpService;
 import com.linecorp.armeria.server.Server;
@@ -55,12 +52,25 @@ public class ApplicationStartUp {
             HttpFile
                 .of(ApplicationStartUp.class.getClassLoader(), "/public/index.html")
                 .asService();
+        final HttpService zipkinIndexPage =
+            HttpFile
+                .of(ApplicationStartUp.class.getClassLoader(), "/zipkin-lens/index.html")
+                .asService();
+
+        final ZipkinProxyService zipkin = new ZipkinProxyService(configuration.zipkinServices());
 
         Server
             .builder()
             .port(port, SessionProtocol.HTTP)
             .service("/graphql", new OapProxyService(oapServices))
             .service("/internal/l7check", HealthCheckService.of())
+            .service("/zipkin/config.json", zipkin)
+            .serviceUnder("/zipkin/api", zipkin)
+            .serviceUnder("/zipkin",
+                FileService.of(
+                    ApplicationStartUp.class.getClassLoader(),
+                    "/zipkin-lens")
+                    .orElse(zipkinIndexPage))
             .serviceUnder("/",
                 FileService.of(
                     ApplicationStartUp.class.getClassLoader(),
