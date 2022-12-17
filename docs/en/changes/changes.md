@@ -44,11 +44,12 @@
 * Support multiple component IDs in the service topology level.
 * Add `ElasticSearch.Keyword` annotation to declare the target field type as `keyword`.
 * [Breaking Change] Column `component_id` of `service_relation_client_side` and `service_relation_server_side` have been replaced by `component_ids`.
-* Support `priority` definition in the `component-libraries.yml`. 
+* Support `priority` definition in the `component-libraries.yml`.
 * Enhance service topology query. When there are multiple components detected from the server side,
   the component type of the node would be determined by the priority, which was random in the previous release.
 * Remove `component_id` from `service_instance_relation_client_side` and `service_instance_relation_server_side`.
 * Make the satellite E2E test more stable.
+* Add Istio 1.16 to test matrix.
 
 #### UI
 
