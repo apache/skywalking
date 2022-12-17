@@ -192,7 +192,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://npmjs.com/package/keycharm/v/0.4.0 0.4.0 (Apache-2.0 OR MIT)
     https://npmjs.com/package/vis-data/v/7.1.4 7.1.4 (Apache-2.0 OR MIT)
-    https://npmjs.com/package/vis-timeline/v/7.5.1 7.5.1 (Apache-2.0 OR MIT)
+    https://npmjs.com/package/vis-timeline/v/7.7.0 7.7.0 (Apache-2.0 OR MIT)
     https://npmjs.com/package/vis-util/v/5.0.3 5.0.3 (Apache-2.0 OR MIT)
 
 ========================================================================
@@ -267,7 +267,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/commons-logging/commons-logging/1.2 Apache-2.0
     https://mvnrepository.com/artifact/commons-validator/commons-validator/1.7 Apache-2.0
     https://npmjs.com/package/d3-flame-graph/v/4.1.3 4.1.3 Apache-2.0
-    https://npmjs.com/package/echarts/v/5.2.2 5.2.2 Apache-2.0
+    https://npmjs.com/package/echarts/v/5.4.1 5.4.1 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-common/0.5.3 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-core/0.5.3 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-resolver/0.5.3 Apache-2.0
@@ -387,7 +387,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.8.1 Apache-2.0
     https://mvnrepository.com/artifact/org.yaml/snakeyaml/1.33 Apache-2.0
-    https://npmjs.com/package/typescript/v/4.4.4 4.4.4 Apache-2.0
+    https://npmjs.com/package/typescript/v/4.7.4 4.7.4 Apache-2.0
 
 ========================================================================
 BSD-2-Clause licenses
@@ -404,20 +404,21 @@ The following components are provided under the BSD-3-Clause License. See projec
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://npmjs.com/package/@intlify/message-compiler/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
-    https://npmjs.com/package/@vue/compiler-core/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
-    https://npmjs.com/package/@vue/compiler-sfc/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
+-   https://npmjs.com/package/@vue/compiler-core/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
+-   https://npmjs.com/package/@vue/compiler-sfc/node_modules/source-map/v/0.6.1 0.6.1 BSD-3-Clause
+    https://npmjs.com/package/source-map/v/0.6.1 0.6.1 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.21.1 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.21.8 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java-util/3.21.8 BSD-3-Clause
     https://npmjs.com/package/d3-collection/v/1.0.7 1.0.7 BSD-3-Clause
     https://npmjs.com/package/d3-ease/v/3.0.1 3.0.1 BSD-3-Clause
     https://npmjs.com/package/d3-tip/node_modules/d3-selection/v/1.4.2 1.4.2 BSD-3-Clause
-    https://npmjs.com/package/normalize-wheel-es/v/1.1.1 1.1.1 BSD-3-Clause
+    https://npmjs.com/package/normalize-wheel-es/v/1.2.0 1.2.0 BSD-3-Clause
     https://mvnrepository.com/artifact/org.antlr/antlr4-runtime/4.9.2 BSD-3-Clause
     https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core/1.3 BSD-3-Clause
     https://npmjs.com/package/rw/v/1.3.3 1.3.3 BSD-3-Clause
     https://npmjs.com/package/source-map-js/v/1.0.2 1.0.2 BSD-3-Clause
-    https://npmjs.com/package/zrender/v/5.2.1 5.2.1 BSD-3-Clause
+    https://npmjs.com/package/zrender/v/5.4.1 5.4.1 BSD-3-Clause
 
 ========================================================================
 CC0-1.0 licenses
@@ -450,13 +451,13 @@ ISC licenses
 The following components are provided under the ISC License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://npmjs.com/package/d3/v/7.3.0 7.3.0 ISC
-    https://npmjs.com/package/d3-array/v/3.1.1 3.1.1 ISC
+    https://npmjs.com/package/d3/v/7.7.0 7.7.0 ISC
+    https://npmjs.com/package/d3-array/v/3.2.1 3.2.1 ISC
     https://npmjs.com/package/d3-axis/v/3.0.0 3.0.0 ISC
     https://npmjs.com/package/d3-brush/v/3.0.0 3.0.0 ISC
     https://npmjs.com/package/d3-chord/v/3.0.1 3.0.1 ISC
     https://npmjs.com/package/d3-color/v/3.1.0 3.1.0 ISC
-    https://npmjs.com/package/d3-contour/v/3.0.1 3.0.1 ISC
+    https://npmjs.com/package/d3-contour/v/4.0.0 4.0.0 ISC
     https://npmjs.com/package/d3-delaunay/v/6.0.2 6.0.2 ISC
     https://npmjs.com/package/d3-dispatch/v/3.0.1 3.0.1 ISC
     https://npmjs.com/package/d3-drag/v/3.0.0 3.0.0 ISC
@@ -465,7 +466,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/d3-force/v/3.0.0 3.0.0 ISC
     https://npmjs.com/package/d3-format/v/3.1.0 3.1.0 ISC
     https://npmjs.com/package/d3-geo/v/3.0.1 3.0.1 ISC
-    https://npmjs.com/package/d3-hierarchy/v/3.1.1 3.1.1 ISC
+    https://npmjs.com/package/d3-hierarchy/v/3.1.2 3.1.2 ISC
     https://npmjs.com/package/d3-interpolate/v/3.0.1 3.0.1 ISC
     https://npmjs.com/package/d3-path/v/3.0.1 3.0.1 ISC
     https://npmjs.com/package/d3-polygon/v/3.0.1 3.0.1 ISC
@@ -475,7 +476,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/d3-scale-chromatic/v/3.0.0 3.0.0 ISC
     https://npmjs.com/package/d3-selection/v/3.0.0 3.0.0 ISC
     https://npmjs.com/package/d3-shape/v/3.1.0 3.1.0 ISC
-    https://npmjs.com/package/d3-time/v/3.0.0 3.0.0 ISC
+    https://npmjs.com/package/d3-time/v/3.1.0 3.1.0 ISC
     https://npmjs.com/package/d3-time-format/v/4.1.0 4.1.0 ISC
     https://npmjs.com/package/d3-timer/v/3.0.1 3.0.1 ISC
     https://npmjs.com/package/d3-transition/v/3.0.1 3.0.1 ISC
@@ -483,6 +484,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/delaunator/v/5.0.0 5.0.0 ISC
     https://npmjs.com/package/internmap/v/2.0.3 2.0.3 ISC
     https://npmjs.com/package/postcss/node_modules/picocolors/v/1.0.0 1.0.0 ISC
+    ttps://npmjs.com/package/picocolors/v/1.0.0 1.0.0 ISC
 
 ========================================================================
 MIT licenses
@@ -490,8 +492,8 @@ MIT licenses
 The following components are provided under the MIT License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://npmjs.com/package/@babel/parser/v/7.19.0 7.19.0 MIT
-    https://npmjs.com/package/@ctrl/tinycolor/v/3.4.0 3.4.0 MIT
+    https://npmjs.com/package/@babel/parser/v/7.20.5 7.20.5 MIT
+    https://npmjs.com/package/@ctrl/tinycolor/v/3.5.0 3.5.0 MIT
     https://npmjs.com/package/@egjs/hammerjs/v/2.0.17 2.0.17 MIT
     https://npmjs.com/package/@element-plus/icons-vue/v/0.2.7 0.2.7 MIT
     https://npmjs.com/package/@interactjs/actions/v/1.10.11 1.10.11 MIT
@@ -518,7 +520,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@intlify/vue-devtools/v/9.1.9 9.1.9 MIT
     https://npmjs.com/package/@popperjs/core/v/2.11.2 2.11.2 MIT
     https://npmjs.com/package/@types/hammerjs/v/2.0.41 2.0.41 MIT
-    https://npmjs.com/package/@types/lodash/v/4.14.179 4.14.179 MIT
+    https://npmjs.com/package/@types/lodash/v/4.14.191 4.14.191 MIT
     https://npmjs.com/package/@types/lodash-es/v/4.17.6 4.17.6 MIT
     https://npmjs.com/package/@vue/compiler-core/v/3.2.26 3.2.26 MIT
     https://npmjs.com/package/@vue/compiler-dom/v/3.2.26 3.2.26 MIT
@@ -531,8 +533,8 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/@vue/runtime-dom/v/3.2.26 3.2.26 MIT
     https://npmjs.com/package/@vue/server-renderer/v/3.2.26 3.2.26 MIT
     https://npmjs.com/package/@vue/shared/v/3.2.26 3.2.26 MIT
-    https://npmjs.com/package/@vueuse/core/v/7.6.1 7.6.1 MIT
-    https://npmjs.com/package/@vueuse/core/node_modules/@vueuse/shared/v/7.6.1 7.6.1 MIT
+    https://npmjs.com/package/@vueuse/core/v/7.7.1 7.7.1 MIT
+    https://npmjs.com/package/@vueuse/core/node_modules/@vueuse/shared/v/7.7.1 7.7.1 MIT
     https://npmjs.com/package/@vueuse/core/node_modules/vue-demi/v/0.12.1 0.12.1 MIT
     https://npmjs.com/package/async-validator/v/4.0.7 4.0.7 MIT
     https://npmjs.com/package/axios/v/0.24.0 0.24.0 MIT
@@ -542,22 +544,22 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/com.graphql-java/graphql-java-extended-scalars/18.1 MIT
     https://npmjs.com/package/component-emitter/v/1.3.0 1.3.0 MIT
     https://npmjs.com/package/cssfilter/v/0.0.10 0.0.10 MIT
-    https://npmjs.com/package/csstype/v/2.6.19 2.6.19 MIT
+    https://npmjs.com/package/csstype/v/2.6.21 2.6.21 MIT
     https://npmjs.com/package/d3-dsv/node_modules/commander/v/7.2.0 7.2.0 MIT
     https://npmjs.com/package/d3-dsv/node_modules/iconv-lite/v/0.6.3 0.6.3 MIT
     https://npmjs.com/package/d3-tip/v/0.9.1 0.9.1 MIT
-    https://npmjs.com/package/dayjs/v/1.10.7 1.10.7 MIT
+    https://npmjs.com/package/dayjs/v/1.11.7 1.11.7 MIT
     https://npmjs.com/package/element-plus/v/2.0.2 2.0.2 MIT
     https://npmjs.com/package/element-resize-detector/v/1.2.4 1.2.4 MIT
     https://npmjs.com/package/estree-walker/v/2.0.2 2.0.2 MIT
-    https://npmjs.com/package/follow-redirects/v/1.14.9 1.14.9 MIT
+    https://npmjs.com/package/follow-redirects/v/1.15.2 1.15.2 MIT
     https://npmjs.com/package/is-plain-object/v/5.0.0 5.0.0 MIT
     https://npmjs.com/package/lodash/v/4.17.21 4.17.21 MIT
     https://npmjs.com/package/lodash-es/v/4.17.21 4.17.21 MIT
-    https://npmjs.com/package/lodash-unified/v/1.0.1 1.0.1 MIT
+    https://npmjs.com/package/lodash-unified/v/1.0.3 1.0.3 MIT
     https://npmjs.com/package/magic-string/v/0.25.7 0.25.7 MIT
     https://npmjs.com/package/memoize-one/v/6.0.0 6.0.0 MIT
-    https://npmjs.com/package/moment/v/2.24.0 2.24.0 MIT
+    https://npmjs.com/package/moment/v/2.29.4 2.29.4 MIT
     https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
     https://npmjs.com/package/nanoid/v/3.3.4 3.3.4 MIT
     https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on/1.71 MIT
@@ -567,8 +569,8 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.5.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
-    https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.12.1 0.12.1 MIT
-    https://npmjs.com/package/postcss/v/8.4.16 8.4.16 MIT
+    https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
+    https://npmjs.com/package/postcss/v/8.4.20 8.4.20 MIT
     https://npmjs.com/package/propagating-hammerjs/v/2.0.1 2.0.1 MIT
     https://npmjs.com/package/safer-buffer/v/2.1.2 2.1.2 MIT
     https://npmjs.com/package/sourcemap-codec/v/1.4.8 1.4.8 MIT
@@ -576,10 +578,10 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/vue/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/vue-grid-layout/v/3.0.0-beta1 3.0.0-beta1 MIT
     https://npmjs.com/package/vue-grid-layout/node_modules/mitt/v/2.1.0 2.1.0 MIT
-    https://npmjs.com/package/vue-i18n/v/9.1.9 9.1.9 MIT
+    https://npmjs.com/package/vue-i18n/v/9.1.9 9.2.2 MIT
     https://npmjs.com/package/vue-router/v/4.1.6 4.1.6 MIT
     https://npmjs.com/package/vue-types/v/4.2.1 4.2.1 MIT
-    https://npmjs.com/package/xss/v/1.0.13 1.0.13 MIT
+    https://npmjs.com/package/xss/v/1.0.14 1.0.14 MIT
     https://npmjs.com/package/xss/node_modules/commander/v/2.20.3 2.20.3 MIT
 
 ========================================================================
