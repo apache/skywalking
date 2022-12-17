@@ -31,6 +31,7 @@ import lombok.NoArgsConstructor;
 public class Configuration {
   private String serverPort;
   private String oapServices;
+  private String zipkinServices;
 
   public int port() {
     return serverPort == null || serverPort.trim().length() == 0
@@ -43,5 +44,12 @@ public class Configuration {
       throw new IllegalArgumentException("oapServices cannot be null or empty");
     }
     return oapServices.split(",");
+  }
+
+  public String[] zipkinServices() {
+    if (zipkinServices == null || zipkinServices.trim().length() == 0) {
+      throw new IllegalArgumentException("zipkinServices cannot be null or empty");
+    }
+    return zipkinServices.split(",");
   }
 }

@@ -340,6 +340,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.vavr/vavr/0.10.3 Apache-2.0
     https://mvnrepository.com/artifact/io.vavr/vavr-match/0.10.3 Apache-2.0
     https://mvnrepository.com/artifact/io.zipkin.zipkin2/zipkin/2.23.16 Apache-2.0
+    https://mvnrepository.com/artifact/io.zipkin/zipkin-lens/2.23.16 Apache-2.0
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
     https://mvnrepository.com/artifact/net.jodah/failsafe/2.3.4 Apache-2.0
@@ -637,3 +638,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://mvnrepository.com/artifact/org.reactivestreams/reactive-streams/1.0.4 https://spdx.org/licenses/MIT-0.html
 
+=======================================================================
+The zipkin-lens.jar dependency has more front-end dependencies in it and the front-end dependencies' licenses
+are listed in zipkin-LICENSE.

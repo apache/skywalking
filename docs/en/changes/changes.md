@@ -33,7 +33,7 @@
 * Remove the dependency of `refresh_interval` of ElasticSearch indices from `elasticsearch/flushInterval` config. Now,
   it uses `core/persistentPeriod` + 5s as `refresh_interval` for all indices instead.
 * Change `elasticsearch/flushInterval` to 5s(was 15s).
-* Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams. 
+* Optimize `flushInterval` of ElasticSearch BulkProcessor to avoid extra periodical flush in the continuous bulk streams.
 * An unexpected dot is added when exp is a pure metric name and expPrefix != null.
 * Support monitoring MariaDB.
 * Remove measure/stream specific interval settings in BanyanDB.
@@ -51,6 +51,8 @@
 * Make the satellite E2E test more stable.
 
 #### UI
+
+* Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
 
 #### Documentation
 
