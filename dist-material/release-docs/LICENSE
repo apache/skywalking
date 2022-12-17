@@ -558,7 +558,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/magic-string/v/0.25.7 0.25.7 MIT
     https://npmjs.com/package/memoize-one/v/6.0.0 6.0.0 MIT
     https://npmjs.com/package/moment/v/2.24.0 2.24.0 MIT
-    https://npmjs.com/package/monaco-editor/v/0.27.0 0.27.0 MIT
+    https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
     https://npmjs.com/package/nanoid/v/3.3.4 3.3.4 MIT
     https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on/1.71 MIT
     https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on/1.71 MIT
@@ -566,19 +566,19 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.12.0 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.5.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
-    https://npmjs.com/package/pinia/v/2.0.9 2.0.9 MIT
+    https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.12.1 0.12.1 MIT
     https://npmjs.com/package/postcss/v/8.4.16 8.4.16 MIT
     https://npmjs.com/package/propagating-hammerjs/v/2.0.1 2.0.1 MIT
     https://npmjs.com/package/safer-buffer/v/2.1.2 2.1.2 MIT
     https://npmjs.com/package/sourcemap-codec/v/1.4.8 1.4.8 MIT
     https://npmjs.com/package/uuid/v/8.3.2 8.3.2 MIT
-    https://npmjs.com/package/vue/v/3.2.26 3.2.26 MIT
+    https://npmjs.com/package/vue/v/3.2.45 3.2.45 MIT
     https://npmjs.com/package/vue-grid-layout/v/3.0.0-beta1 3.0.0-beta1 MIT
     https://npmjs.com/package/vue-grid-layout/node_modules/mitt/v/2.1.0 2.1.0 MIT
     https://npmjs.com/package/vue-i18n/v/9.1.9 9.1.9 MIT
-    https://npmjs.com/package/vue-router/v/4.0.12 4.0.12 MIT
-    https://npmjs.com/package/vue-types/v/4.1.1 4.1.1 MIT
+    https://npmjs.com/package/vue-router/v/4.1.6 4.1.6 MIT
+    https://npmjs.com/package/vue-types/v/4.2.1 4.2.1 MIT
     https://npmjs.com/package/xss/v/1.0.13 1.0.13 MIT
     https://npmjs.com/package/xss/node_modules/commander/v/2.20.3 2.20.3 MIT
 

@@ -52,6 +52,7 @@
 #### UI
 
 * Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
+* Migrate the build tool from vue cli to Vite4.
 
 #### Documentation
 
