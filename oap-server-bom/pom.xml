@@ -304,6 +304,12 @@
                 <artifactId>zipkin</artifactId>
                 <version>${zipkin.version}</version>
             </dependency>
+            <!-- SkyWalking Web UI -->
+            <dependency>
+                <groupId>io.zipkin</groupId>
+                <artifactId>zipkin-lens</artifactId>
+                <version>${zipkin.version}</version>
+            </dependency>
             <!-- -->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
