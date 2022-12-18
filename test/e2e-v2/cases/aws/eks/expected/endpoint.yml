@@ -13,17 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9093
-
-spring:
-  main:
-    banner-mode: 'off'
-
-e2e:
-  oap-host: ${OAP_HOST:127.0.0.1}
-  oap-grpc-port: ${OAP_GRPC_PORT:11800}
-  zipkin-kafka-bootstrapServers: ${ZIPKIN_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
-  zipkin-kafka-groupId: ${ZIPKIN_KAFKA_GROUPID:zipkin}
-  zipkin-kafka-topic: ${ZIPKIN_KAFKA_TOPIC:zipkin}
-  otel-metrics-template: ${OTEL_METRICS_TEMPLATE:null}
+{{- contains .}}
+- id: {{ b64enc "aws-eks-cluster::SkyWalking" }}.1_{{ b64enc "kube-dns" }}
+  name: kube-dns
+{{- end}}

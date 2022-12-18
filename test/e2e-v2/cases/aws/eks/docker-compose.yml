@@ -13,17 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9093
+version: '2.1'
 
-spring:
-  main:
-    banner-mode: 'off'
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    networks:
+      e2e:
 
-e2e:
-  oap-host: ${OAP_HOST:127.0.0.1}
-  oap-grpc-port: ${OAP_GRPC_PORT:11800}
-  zipkin-kafka-bootstrapServers: ${ZIPKIN_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
-  zipkin-kafka-groupId: ${ZIPKIN_KAFKA_GROUPID:zipkin}
-  zipkin-kafka-topic: ${ZIPKIN_KAFKA_TOPIC:zipkin}
-  otel-metrics-template: ${OTEL_METRICS_TEMPLATE:null}
+  sender:
+    image: "eclipse-temurin:8-jre"
+    volumes:
+      - ./../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+    command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap
+      OAP_GRPC_PORT: 11800
+    networks:
+      - e2e
+    ports:
+      - 9093:9093
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9093"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    depends_on:
+      oap:
+        condition: service_healthy
+networks:
+  e2e:

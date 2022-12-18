@@ -136,7 +136,12 @@ public enum Layer {
     /**
      * Apache APISIX is an open source, dynamic, scalable, and high-performance cloud native API gateway.
      */
-    APISIX(21, true);
+    APISIX(21, true),
+
+    /**
+     * Apache APISIX is an open source, dynamic, scalable, and high-performance cloud native API gateway.
+     */
+    AWS_EKS(22, true);
 
     private final int value;
     /**
