@@ -63,6 +63,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -130,7 +131,7 @@ public enum MetadataRegistry {
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder);
+        List<TagMetadata> tags = parseTagAndFieldMetadata(model, schemaBuilder);
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
@@ -283,7 +284,34 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Parse tags' metadata for {@link Stream}
+     * Every field of a class is registered as a {@link org.apache.skywalking.banyandb.model.v1.BanyandbModel.Tag}
+     * regardless of its dataType.
+     */
     List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder) {
+        List<TagMetadata> tagMetadataList = new ArrayList<>();
+        for (final ModelColumn col : model.getColumns()) {
+            final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
+            builder.spec(col.getColumnName().getStorageName(), new ColumnSpec(ColumnType.TAG, col.getType()));
+            if (col.shouldIndex()) {
+                // build indexRule
+                IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);
+                tagMetadataList.add(new TagMetadata(indexRule, tagSpec));
+            } else {
+                tagMetadataList.add(new TagMetadata(null, tagSpec));
+            }
+        }
+
+        return tagMetadataList;
+    }
+
+    /**
+     * Parse tags and fields' metadata for {@link Measure}.
+     * For field whose dataType is not {@link Column.ValueDataType#NOT_VALUE},
+     * it is registered as {@link org.apache.skywalking.banyandb.measure.v1.BanyandbMeasure.DataPoint.Field}
+     */
+    List<TagMetadata> parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder) {
         List<TagMetadata> tagMetadataList = new ArrayList<>();
         // skip metric
         Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
