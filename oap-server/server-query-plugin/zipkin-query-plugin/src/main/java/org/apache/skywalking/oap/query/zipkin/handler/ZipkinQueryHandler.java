@@ -306,13 +306,13 @@ public class ZipkinQueryHandler {
         return buff.array();
     }
 
-    private void appendEventsToTraces(List<List<Span>> spans) throws IOException {
-        for (List<Span> span : spans) {
-            if (CollectionUtils.isEmpty(span)) {
+    private void appendEventsToTraces(List<List<Span>> traces) throws IOException {
+        for (List<Span> spans : traces) {
+            if (CollectionUtils.isEmpty(spans)) {
                 continue;
             }
 
-            appendEvents(span, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, span.get(0).traceId()));
+            appendEvents(spans, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, spans.get(0).traceId()));
         }
     }
 
