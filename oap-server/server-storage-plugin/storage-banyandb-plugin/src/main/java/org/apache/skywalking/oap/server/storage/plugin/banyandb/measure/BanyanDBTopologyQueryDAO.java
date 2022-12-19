@@ -176,7 +176,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                                 eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId))
                         ));
                 instanceRelationsQueryConditions.add(
-                        // source_service_id = clientServiceId AND dest_service_id = serverServiceId
+                        // dest_service_id = clientServiceId AND source_service_id = serverServiceId
                         and(Lists.newArrayList(
                                 eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId),
                                 eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId)
