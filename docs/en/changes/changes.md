@@ -56,6 +56,7 @@
 * Bump up Netty to 4.1.86.
 * Remove unnecessary additional columns when storage is in logical sharding mode.
 * Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
+* Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
 
 #### UI
 
