@@ -75,7 +75,11 @@ public class BanyanDBConverter {
             }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
-                throw new IllegalArgumentException("fail to find field[" + fieldName + "]");
+                throw new IllegalArgumentException("fail to find tag[" + fieldName + "]");
+            }
+            if (columnSpec.getColumnType() != MetadataRegistry.ColumnType.TAG) {
+                throw new IllegalArgumentException("ColumnType other than TAG is not supported for Stream, " +
+                        "it should be an internal error, please submit an issue to the SkyWalking community");
             }
             try {
                 this.streamWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
@@ -123,7 +127,7 @@ public class BanyanDBConverter {
         public void accept(String fieldName, Object fieldValue) {
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
-                throw new IllegalArgumentException("fail to find field[" + fieldName + "]");
+                throw new IllegalArgumentException("fail to find tag/field[" + fieldName + "]");
             }
             try {
                 if (columnSpec.getColumnType() == MetadataRegistry.ColumnType.TAG) {
@@ -132,7 +136,7 @@ public class BanyanDBConverter {
                     this.measureWrite.field(fieldName, buildField(fieldValue, columnSpec.getColumnClass()));
                 }
             } catch (BanyanDBException ex) {
-                log.error("fail to add tag", ex);
+                log.error("fail to add tag/field", ex);
             }
         }
 
