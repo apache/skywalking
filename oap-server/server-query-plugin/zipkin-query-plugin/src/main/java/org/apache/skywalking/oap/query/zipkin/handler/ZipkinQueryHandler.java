@@ -212,6 +212,7 @@ public class ZipkinQueryHandler {
         duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest, duration);
+        appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
 
@@ -231,6 +232,7 @@ public class ZipkinQueryHandler {
         }
 
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(normalizeTraceIds);
+        appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
 
@@ -302,6 +304,16 @@ public class ZipkinQueryHandler {
         }
         buff.put((byte) ']');
         return buff.array();
+    }
+
+    private void appendEventsToTraces(List<List<Span>> spans) throws IOException {
+        for (List<Span> span : spans) {
+            if (CollectionUtils.isEmpty(span)) {
+                continue;
+            }
+
+            appendEvents(span, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, span.get(0).traceId()));
+        }
     }
 
     private void appendEvents(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {

@@ -50,6 +50,7 @@
 * Remove `component_id` from `service_instance_relation_client_side` and `service_instance_relation_server_side`.
 * Make the satellite E2E test more stable.
 * Add Istio 1.16 to test matrix.
+* Fix cannot display attached events when using Zipkin Lens UI query traces.
 
 #### UI
 
