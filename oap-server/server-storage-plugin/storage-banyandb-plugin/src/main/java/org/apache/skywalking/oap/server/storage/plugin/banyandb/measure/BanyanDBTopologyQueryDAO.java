@@ -309,7 +309,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
-                        query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ProcessRelationServerSideMetrics.COMPONENT_ID)));
+                        query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID)));
                     }
                 }
         );
