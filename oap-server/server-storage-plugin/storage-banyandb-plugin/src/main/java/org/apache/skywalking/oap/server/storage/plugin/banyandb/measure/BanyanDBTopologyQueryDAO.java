@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,7 +100,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             protected void apply(MeasureQuery query) {
                 query.or(in(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds))
                         .or(in(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
-                query.groupBy(Sets.newHashSet(Metrics.ENTITY_ID, ServiceRelationServerSideMetrics.COMPONENT_IDS));
+                query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ServiceRelationServerSideMetrics.COMPONENT_IDS)));
             }
         };
     }
@@ -308,7 +309,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
-                        query.groupBy(Sets.newHashSet(Metrics.ENTITY_ID, ProcessRelationServerSideMetrics.COMPONENT_ID));
+                        query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ProcessRelationServerSideMetrics.COMPONENT_ID)));
                     }
                 }
         );
