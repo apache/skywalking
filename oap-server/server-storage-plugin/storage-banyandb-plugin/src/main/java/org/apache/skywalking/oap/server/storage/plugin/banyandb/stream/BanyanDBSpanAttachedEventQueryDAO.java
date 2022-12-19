@@ -51,11 +51,11 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
         final StreamQueryResponse resp = query(SpanAttachedEventRecord.INDEX_NAME, TAGS, new QueryBuilder<StreamQuery>() {
             @Override
             protected void apply(StreamQuery query) {
-                query.and(eq(SpanAttachedEventRecord.RELATED_TRACE_ID, traceId));
+                query.and(having(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
                 query.and(eq(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
                 query.setOrderBy(new StreamQuery.OrderBy(SpanAttachedEventRecord.START_TIME_SECOND, AbstractQuery.Sort.ASC));
             }

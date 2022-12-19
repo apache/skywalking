@@ -27,7 +27,7 @@ import java.util.List;
 
 public class SpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
         return null;
     }
 }
