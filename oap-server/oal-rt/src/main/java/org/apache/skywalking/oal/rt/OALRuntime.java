@@ -50,6 +50,7 @@ import javassist.bytecode.annotation.StringMemberValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.skywalking.oal.rt.output.AllDispatcherContext;
 import org.apache.skywalking.oal.rt.output.DispatcherContext;
@@ -522,6 +523,9 @@ public class OALRuntime implements OALEngine {
                 File folder = new File(workPath.getParentFile(), "oal-rt/" + type);
                 if (!folder.exists()) {
                     folder.mkdirs();
+                }
+                if (StringUtils.equalsIgnoreCase("dispatcher", type)) {
+                    className = metricsClass.getSimpleName();
                 }
                 File file = new File(folder, className + ".class");
                 if (file.exists()) {
