@@ -2,6 +2,8 @@
 
 #### Project
 
+* Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
+
 #### OAP Server
 
 * Add `ServerStatusService` in the core module to provide a new way to expose booting status to other modules.
