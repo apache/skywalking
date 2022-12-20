@@ -53,6 +53,7 @@
 * Make the satellite E2E test more stable.
 * Add Istio 1.16 to test matrix.
 * Register ValueColumn as Tag for Record in BanyanDB storage plugin.
+* fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
 
 #### UI
 
