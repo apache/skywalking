@@ -158,7 +158,7 @@ catalog:
               - name: "Virtual Cache"
                 path: "/en/setup/service-agent/virtual-cache"
               - name: "Virtual MQ"
-                path: "/en/setup/service-agent/virtual-mq"                
+                path: "/en/setup/service-agent/virtual-mq"
           - name: "Service Mesh"
             catalog:
               - name: "Observe Service Mesh"
@@ -190,7 +190,7 @@ catalog:
               - name: "MySQL/MariaDB Server"
                 path: "/en/setup/backend/backend-mysql-monitoring"
               - name: "PostgreSQL Server"
-                path: "/en/setup/backend/backend-postgresql-monitoring"           
+                path: "/en/setup/backend/backend-postgresql-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"
@@ -211,6 +211,8 @@ catalog:
         path: "/en/guides/how-to-release/"
       - name: "Compiling Guide"
         path: "/en/guides/How-to-build"
+      - name: "How to bump up Zipkin dependency"
+        path: "/en/guides/How-to-bump-up-zipkin"
   - name: "APIs"
     catalog:
       - name: "Telemetry APIs/Protocols"
