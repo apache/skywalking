@@ -48,7 +48,7 @@
         <commons-io.version>2.7</commons-io.version>
         <kubernetes.version>16.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
-        <zipkin.version>2.23.16</zipkin.version>
+        <zipkin.version>2.24.0</zipkin.version>
         <jackson.version>2.13.4</jackson.version>
         <jackson-databind.version>2.13.4.1</jackson-databind.version>
         <commons-text.version>1.4</commons-text.version>
