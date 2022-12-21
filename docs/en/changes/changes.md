@@ -54,6 +54,7 @@
 * Add Istio 1.16 to test matrix.
 * Register ValueColumn as Tag for Record in BanyanDB storage plugin.
 * Bump up Netty to 4.1.86.
+* Remove unnecessary additional columns when storage is in logical sharding mode.
 
 #### UI
 
