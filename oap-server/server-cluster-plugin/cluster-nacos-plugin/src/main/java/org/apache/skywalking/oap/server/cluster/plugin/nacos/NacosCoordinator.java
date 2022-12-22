@@ -96,6 +96,7 @@ public class NacosCoordinator extends ClusterCoordinator {
         if (needUsingInternalAddr()) {
             remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
         }
+        this.selfAddress = remoteInstance.getAddress();
         String host = remoteInstance.getAddress().getHost();
         int port = remoteInstance.getAddress().getPort();
         try {
@@ -105,7 +106,6 @@ public class NacosCoordinator extends ClusterCoordinator {
             healthChecker.unHealth(e);
             throw new ServiceRegisterException(e.getMessage());
         }
-        this.selfAddress = remoteInstance.getAddress();
     }
 
     private boolean needUsingInternalAddr() {

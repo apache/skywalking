@@ -107,11 +107,9 @@ public class ConsulCoordinator extends ClusterCoordinator {
             remoteInstance = new RemoteInstance(
                 new Address(config.getInternalComHost(), config.getInternalComPort(), true));
         }
+        this.selfAddress = remoteInstance.getAddress();
         try {
             AgentClient agentClient = client.agentClient();
-
-            this.selfAddress = remoteInstance.getAddress();
-
             Registration registration = ImmutableRegistration.builder()
                                                              .id(remoteInstance.getAddress().toString())
                                                              .name(serviceName)

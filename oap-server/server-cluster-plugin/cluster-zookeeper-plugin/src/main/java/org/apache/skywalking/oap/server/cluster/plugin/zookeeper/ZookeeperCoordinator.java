@@ -65,12 +65,12 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
+    public void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
             if (needUsingInternalAddr()) {
                 remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
             }
-
+            this.selfAddress = remoteInstance.getAddress();
             ServiceInstance<RemoteInstance> thisInstance = ServiceInstance.<RemoteInstance>builder().name(REMOTE_NAME_PATH)
                                                                                                     .id(UUID.randomUUID()
                                                                                                             .toString())
@@ -84,8 +84,6 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
                                                                                                     .build();
 
             serviceDiscovery.registerService(thisInstance);
-
-            this.selfAddress = remoteInstance.getAddress();
             this.healthChecker.health();
         } catch (Throwable e) {
             this.healthChecker.unHealth(e);
