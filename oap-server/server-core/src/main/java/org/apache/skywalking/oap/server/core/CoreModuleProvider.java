@@ -34,8 +34,8 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.CacheUpdateTimer;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.cache.ProfileTaskCache;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.command.CommandService;
@@ -341,7 +341,6 @@ public class CoreModuleProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
-        remoteClientManager.start();
 
         // Disable OAL script has higher priority
         oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
@@ -355,6 +354,12 @@ public class CoreModuleProvider extends ModuleProvider {
 
         Address gRPCServerInstanceAddress = new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
         TelemetryRelatedContext.INSTANCE.setId(gRPCServerInstanceAddress.toString());
+        ClusterCoordinator coordinator = this.getManager()
+                                             .find(ClusterModule.NAME)
+                                             .provider()
+                                             .getService(ClusterCoordinator.class);
+        coordinator.registerWatcher(remoteClientManager);
+        coordinator.start();
         if (CoreModuleConfig.Role.Mixed.name()
                                        .equalsIgnoreCase(
                                            moduleConfig.getRole())
@@ -362,11 +367,7 @@ public class CoreModuleProvider extends ModuleProvider {
                                                .equalsIgnoreCase(
                                                    moduleConfig.getRole())) {
             RemoteInstance gRPCServerInstance = new RemoteInstance(gRPCServerInstanceAddress);
-            this.getManager()
-                .find(ClusterModule.NAME)
-                .provider()
-                .getService(ClusterRegister.class)
-                .registerRemote(gRPCServerInstance);
+            coordinator.registerRemote(gRPCServerInstance);
         }
 
         OAPNodeChecker.setROLE(CoreModuleConfig.Role.fromName(moduleConfig.getRole()));
@@ -391,7 +392,7 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-
+        remoteClientManager.start();
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
         if (moduleConfig.isEnableDataKeeperExecutor()) {
