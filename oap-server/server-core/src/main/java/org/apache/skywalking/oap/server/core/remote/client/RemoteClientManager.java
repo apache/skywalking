@@ -99,6 +99,9 @@ public class RemoteClientManager implements Service, ClusterWatcher {
                      "Scheduled refresh Remote Clients failure.", t)), 1, 10, TimeUnit.SECONDS);
     }
 
+    /**
+     * Refresh the remote clients by query OAP server list from the cluster module.
+     */
     void refresh() {
         if (Objects.isNull(clusterNodesQuery)) {
             this.clusterNodesQuery = moduleDefineHolder.find(ClusterModule.NAME)
@@ -110,8 +113,7 @@ public class RemoteClientManager implements Service, ClusterWatcher {
     }
 
     /**
-     * Query OAP server list from the cluster module and create a new connection for the new node. Make the OAP server
-     * orderly because of each of the server will send stream data to each other by hash code.
+     * Refresh the remote clients according to OAP server list. Make the OAP server orderly because of each of the server will send stream data to each other by hash code.
      */
     synchronized void refresh(List<RemoteInstance> instanceList) {
         if (gauge == null) {

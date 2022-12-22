@@ -139,6 +139,7 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         // Mixed or Aggregator
         Address selfAddress = new Address("127.0.0.3", 1000, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
+        coordinatorA.startCoordinator();
         coordinatorA.registerRemote(instance);
 
         // Receiver
@@ -276,13 +277,27 @@ public class ITClusterModuleNacosProviderFunctionalTest {
         return provider.getService(ClusterNodesQuery.class);
     }
 
-    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals) {
-        return getClusterNodesQuery(provider).queryRemoteNodes();
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals) throws InterruptedException {
+        return queryRemoteNodes(provider, goals, 20);
+    }
+
+    private List<RemoteInstance> queryRemoteNodes(ModuleProvider provider, int goals,
+                                                  int cyclic) throws InterruptedException {
+        do {
+            List<RemoteInstance> instances = getClusterNodesQuery(provider).queryRemoteNodes();
+            if (instances.size() == goals) {
+                return instances;
+            } else {
+                Thread.sleep(1000);
+            }
+        }
+        while (--cyclic > 0);
+        return Collections.emptyList();
     }
 
     private List<RemoteInstance> notifiedRemoteNodes(ClusterMockWatcher watcher, int goals)
         throws InterruptedException {
-        return notifiedRemoteNodes(watcher, goals, 20);
+        return notifiedRemoteNodes(watcher, goals, 30);
     }
 
     private List<RemoteInstance> notifiedRemoteNodes(ClusterMockWatcher watcher, int goals,

@@ -67,7 +67,6 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
     @Override
     public synchronized void registerRemote(RemoteInstance remoteInstance) throws ServiceRegisterException {
         try {
-            initHealthChecker();
             if (needUsingInternalAddr()) {
                 remoteInstance = new RemoteInstance(new Address(config.getInternalComHost(), config.getInternalComPort(), true));
             }
@@ -98,7 +97,6 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>(20);
         try {
-            initHealthChecker();
             List<ServiceInstance<RemoteInstance>> serviceInstances = serviceCache.getInstances();
             serviceInstances.forEach(serviceInstance -> {
                 RemoteInstance instance = serviceInstance.getPayload();

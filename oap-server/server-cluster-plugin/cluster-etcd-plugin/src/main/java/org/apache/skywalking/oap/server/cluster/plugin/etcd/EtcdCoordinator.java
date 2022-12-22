@@ -93,8 +93,6 @@ public class EtcdCoordinator extends ClusterCoordinator {
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
-            initHealthChecker();
-
             final KV kvClient = client.getKVClient();
             final GetResponse response = kvClient.get(
                 serviceNameBS,
@@ -142,8 +140,6 @@ public class EtcdCoordinator extends ClusterCoordinator {
                                                                 .port(selfAddress.getPort())
                                                                 .build();
         try {
-            initHealthChecker();
-
             final Lease leaseClient = client.getLeaseClient();
             final long leaseID = leaseClient.grant(30L).get().getID();
 

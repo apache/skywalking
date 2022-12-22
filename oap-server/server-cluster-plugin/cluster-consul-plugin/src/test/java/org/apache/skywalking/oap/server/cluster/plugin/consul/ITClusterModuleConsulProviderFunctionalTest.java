@@ -142,6 +142,7 @@ public class ITClusterModuleConsulProviderFunctionalTest {
         // Mixed or Aggregator
         Address selfAddress = new Address("127.0.0.3", 1003, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
+        coordinatorA.startCoordinator();
         coordinatorA.registerRemote(instance);
 
         // Receiver

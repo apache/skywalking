@@ -359,8 +359,8 @@ public class CoreModuleProvider extends ModuleProvider {
                                              .find(ClusterModule.NAME)
                                              .provider()
                                              .getService(ClusterCoordinator.class);
-        coordinator.startCoordinator();
         coordinator.registerWatcher(remoteClientManager);
+        coordinator.startCoordinator();
         if (CoreModuleConfig.Role.Mixed.name()
                                        .equalsIgnoreCase(
                                            moduleConfig.getRole())

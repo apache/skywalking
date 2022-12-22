@@ -63,7 +63,6 @@ public class NacosCoordinator extends ClusterCoordinator {
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
-            initHealthChecker();
             List<Instance> instances = namingService.selectInstances(config.getServiceName(), true);
             if (CollectionUtils.isNotEmpty(instances)) {
                 instances.forEach(instance -> {
@@ -100,7 +99,6 @@ public class NacosCoordinator extends ClusterCoordinator {
         String host = remoteInstance.getAddress().getHost();
         int port = remoteInstance.getAddress().getPort();
         try {
-            initHealthChecker();
             namingService.registerInstance(config.getServiceName(), host, port);
             healthChecker.health();
         } catch (Throwable e) {

@@ -33,7 +33,6 @@ public class ClusterModule extends ModuleDefine {
         return new Class[] {
             ClusterRegister.class,
             ClusterNodesQuery.class,
-            ClusterWatcherRegister.class,
             ClusterCoordinator.class
         };
     }

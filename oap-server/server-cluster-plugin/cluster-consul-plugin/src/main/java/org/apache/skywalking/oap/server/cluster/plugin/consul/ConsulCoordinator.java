@@ -71,7 +71,6 @@ public class ConsulCoordinator extends ClusterCoordinator {
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
-            initHealthChecker();
             HealthClient healthClient = client.healthClient();
             // Discover only "passing" nodes
             List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances(serviceName).getResponse();
