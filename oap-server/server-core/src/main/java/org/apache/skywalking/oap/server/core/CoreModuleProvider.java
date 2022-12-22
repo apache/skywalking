@@ -341,7 +341,6 @@ public class CoreModuleProvider extends ModuleProvider {
     public void start() throws ModuleStartException {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
-        remoteClientManager.start();
 
         // Disable OAL script has higher priority
         oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
@@ -393,7 +392,7 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-
+        remoteClientManager.start();
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
         if (moduleConfig.isEnableDataKeeperExecutor()) {

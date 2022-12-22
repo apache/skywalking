@@ -184,18 +184,18 @@ public class ConsulCoordinator extends ClusterCoordinator {
         @Override
         public void notify(final Map<ServiceHealthKey, ServiceHealth> newValues) {
             try {
-            if (newValues.size() > 0) {
-                List<RemoteInstance> remoteInstances = new ArrayList<>(newValues.size());
-                newValues.values().forEach(serviceHealth -> {
-                    if (StringUtil.isNotBlank(serviceHealth.getService().getAddress())) {
-                        RemoteInstance remoteInstance = buildRemoteInstance(
-                            serviceHealth.getService().getAddress(), serviceHealth.getService().getPort());
-                        remoteInstances.add(remoteInstance);
-                    }
-                });
-                checkHealth(remoteInstances);
-                notifyWatchers(remoteInstances);
-            }
+                if (newValues.size() > 0) {
+                    List<RemoteInstance> remoteInstances = new ArrayList<>(newValues.size());
+                    newValues.values().forEach(serviceHealth -> {
+                        if (StringUtil.isNotBlank(serviceHealth.getService().getAddress())) {
+                            RemoteInstance remoteInstance = buildRemoteInstance(
+                                serviceHealth.getService().getAddress(), serviceHealth.getService().getPort());
+                            remoteInstances.add(remoteInstance);
+                        }
+                    });
+                    checkHealth(remoteInstances);
+                    notifyWatchers(remoteInstances);
+                }
             } catch (Throwable e) {
                 healthChecker.unHealth(e);
                 log.error("Failed to notify and update remote instances.", e);
