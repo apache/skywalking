@@ -329,7 +329,7 @@ public class OALRuntime implements OALEngine {
         }
 
         log.debug("Generate metrics class, " + metricsClass.getName());
-        writeGeneratedFile(metricsClass, metricsClass.getSimpleName(), "metrics");
+        writeGeneratedFile(metricsClass, "metrics");
 
         return targetClass;
     }
@@ -386,7 +386,7 @@ public class OALRuntime implements OALEngine {
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        writeGeneratedFile(metricsBuilderClass, className, "metrics/builder");
+        writeGeneratedFile(metricsBuilderClass,  "metrics/builder");
     }
 
     /**
@@ -468,7 +468,7 @@ public class OALRuntime implements OALEngine {
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        writeGeneratedFile(dispatcherClass, className, "dispatcher");
+        writeGeneratedFile(dispatcherClass, "dispatcher");
         return targetClass;
     }
 
@@ -514,8 +514,9 @@ public class OALRuntime implements OALEngine {
         }
     }
 
-    private void writeGeneratedFile(CtClass metricsClass, String className, String type) throws OALCompileException {
+    private void writeGeneratedFile(CtClass metricsClass, String type) throws OALCompileException {
         if (openEngineDebug) {
+            String className = metricsClass.getSimpleName();
             DataOutputStream printWriter = null;
             try {
                 File workPath = WorkPath.getPath();

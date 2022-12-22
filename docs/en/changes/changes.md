@@ -56,6 +56,7 @@
 * Bump up Netty to 4.1.86.
 * Remove unnecessary additional columns when storage is in logical sharding mode.
 * The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
+* Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
 
 #### UI
 
