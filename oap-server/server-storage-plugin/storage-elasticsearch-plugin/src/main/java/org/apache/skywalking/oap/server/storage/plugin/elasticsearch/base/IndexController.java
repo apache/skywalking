@@ -99,7 +99,8 @@ public enum IndexController {
 
     /**
      * There have two cases:
-     * 1. When a model is the metric storage mode, a column named {@link LogicIndicesRegister#METRIC_TABLE_NAME} would be
+     * 1. When a model is the metric storage mode and storage is not sharding, or the model is function metrics and storage is sharding,
+     * a column named {@link LogicIndicesRegister#METRIC_TABLE_NAME} would be
      * appended to the physical index. The value of the column is the original table name in other storages, such as the
      * OAL name.
      *
@@ -108,7 +109,7 @@ public enum IndexController {
      * The value of the column is the original table name in other storages.
      */
     public Map<String, Object> appendTableColumn(Model model, Map<String, Object> columns) {
-        if (isMetricModel(model)) {
+        if ((!isLogicSharding() && isMetricModel(model)) || (isLogicSharding() && isFunctionMetric(model))) {
             columns.put(LogicIndicesRegister.METRIC_TABLE_NAME, model.getName());
         }
         if (!logicSharding && isRecordModel(model) && !model.isSuperDataset()) {

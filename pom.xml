@@ -156,7 +156,7 @@
 
         <!-- core lib dependency -->
         <grpc.version>1.49.0</grpc.version>
-        <netty.version>4.1.81.Final</netty.version>
+        <netty.version>4.1.86.Final</netty.version>
         <netty-tcnative-boringssl-static.version>2.0.52.Final</netty-tcnative-boringssl-static.version>
         <gson.version>2.9.0</gson.version>
         <os-maven-plugin.version>1.6.2</os-maven-plugin.version>
