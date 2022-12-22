@@ -18,23 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import java.util.List;
 
-public class ClusterModule extends ModuleDefine {
-
-    public static final String NAME = "cluster";
-
-    public ClusterModule() {
-        super(NAME);
-    }
-
-    @Override
-    public Class[] services() {
-        return new Class[] {
-            ClusterRegister.class,
-            ClusterNodesQuery.class,
-            ClusterWatcherRegister.class,
-            ClusterCoordinator.class
-        };
-    }
+public interface ClusterWatcher {
+    void onClusterNodesChanged(List<RemoteInstance> remoteInstances);
 }

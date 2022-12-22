@@ -37,7 +37,7 @@
         <dependency>
             <groupId>com.orbitz.consul</groupId>
             <artifactId>consul-client</artifactId>
-            <version>1.4.2</version>
+            <version>1.5.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>

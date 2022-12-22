@@ -16,25 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.cluster;
+package org.apache.skywalking.oap.server.core.status;
 
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
-public class ClusterModule extends ModuleDefine {
-
-    public static final String NAME = "cluster";
-
-    public ClusterModule() {
-        super(NAME);
-    }
-
-    @Override
-    public Class[] services() {
-        return new Class[] {
-            ClusterRegister.class,
-            ClusterNodesQuery.class,
-            ClusterWatcherRegister.class,
-            ClusterCoordinator.class
-        };
-    }
+/**
+ * Booting status indicate whether the current server starts successfully.
+ */
+@Getter
+@Setter(AccessLevel.PACKAGE)
+public class ClusterStatus {
+    private long reBalanceTime = 0;
 }

@@ -18,28 +18,34 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
+import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.api.naming.listener.Event;
+import com.alibaba.nacos.api.naming.listener.EventListener;
+import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Strings;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
+@Slf4j
+public class NacosCoordinator extends ClusterCoordinator {
 
     private final ModuleDefineHolder manager;
     private final NamingService namingService;
@@ -78,6 +84,11 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
             healthChecker.unHealth(e);
             throw new ServiceQueryException(e.getMessage());
         }
+
+        if (log.isDebugEnabled()) {
+            log.debug("Nacos cluster instances:{}", remoteInstances.toString());
+        }
+
         return remoteInstances;
     }
 
@@ -107,6 +118,54 @@ public class NacosCoordinator implements ClusterRegister, ClusterNodesQuery {
         if (healthChecker == null) {
             MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
             healthChecker = metricCreator.createHealthCheckerGauge("cluster_nacos", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
+    }
+
+    private RemoteInstance buildRemoteInstance(Instance instance) {
+        Address address = new Address(instance.getIp(), instance.getPort(), false);
+        if (address.equals(selfAddress)) {
+            address.setSelf(true);
+        }
+        return new RemoteInstance(address);
+    }
+
+    private void checkHealth(List<RemoteInstance> remoteInstances) {
+        ClusterHealthStatus healthStatus = OAPNodeChecker.isHealth(remoteInstances);
+        if (healthStatus.isHealth()) {
+            this.healthChecker.health();
+        } else {
+            this.healthChecker.unHealth(healthStatus.getReason());
+        }
+    }
+
+    @Override
+    protected void start() throws ModuleStartException {
+        initHealthChecker();
+        try {
+            namingService.subscribe(config.getServiceName(), new NacosEventListener());
+        } catch (NacosException e) {
+            throw new ModuleStartException("Failed to start watching remote instances in Nacos coordinator.", e);
+        }
+    }
+
+    class NacosEventListener implements EventListener {
+        @Override
+        public void onEvent(final Event event) {
+            try {
+                List<Instance> instances = ((NamingEvent) event).getInstances();
+                List<RemoteInstance> remoteInstances = new ArrayList<>(instances.size());
+                instances.forEach(instance -> {
+                    RemoteInstance remoteInstance = buildRemoteInstance(instance);
+                    if (instance.isHealthy() && instance.isEnabled()) {
+                        remoteInstances.add(remoteInstance);
+                    }
+                });
+                checkHealth(remoteInstances);
+                notifyWatchers(remoteInstances);
+            } catch (Throwable e) {
+                healthChecker.unHealth(e);
+                log.error("Failed to notify and update remote instances.", e);
+            }
         }
     }
 }

@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.cluster.plugin.etcd;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.ClusterWatcherRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -65,6 +67,8 @@ public class ClusterModuleEtcdProvider extends ModuleProvider {
             EtcdCoordinator coordinator = new EtcdCoordinator(getManager(), config);
             this.registerServiceImplementation(ClusterRegister.class, coordinator);
             this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+            this.registerServiceImplementation(ClusterWatcherRegister.class, coordinator);
+            this.registerServiceImplementation(ClusterCoordinator.class, coordinator);
         } catch (Exception e) {
             throw new ModuleStartException("Failed to start ETCD coordinator.", e);
         }

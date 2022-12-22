@@ -18,25 +18,22 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
+import io.kubernetes.client.informer.ResourceEventHandler;
 import io.kubernetes.client.informer.SharedIndexInformer;
 import io.kubernetes.client.informer.SharedInformerFactory;
 import io.kubernetes.client.informer.cache.Lister;
-import io.kubernetes.client.openapi.ApiClient;
-import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodList;
-import io.kubernetes.client.util.Config;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-
+import org.apache.skywalking.library.kubernetes.KubernetesClient;
 import static java.util.Objects.isNull;
 
 @Slf4j
@@ -65,21 +62,18 @@ public enum NamespacedPodListInformer {
         }));
     }
 
-    public synchronized void init(ClusterModuleKubernetesConfig podConfig) {
+    public synchronized void init(ClusterModuleKubernetesConfig podConfig, ResourceEventHandler<V1Pod> eventHandler) {
 
         try {
-            doStartPodInformer(podConfig);
+            doStartPodInformer(podConfig, eventHandler);
         } catch (IOException e) {
             log.error("cannot connect with api server in kubernetes", e);
         }
     }
 
-    private void doStartPodInformer(ClusterModuleKubernetesConfig podConfig) throws IOException {
-
-        ApiClient apiClient = Config.defaultClient();
-        apiClient.setHttpClient(apiClient.getHttpClient().newBuilder().readTimeout(0, TimeUnit.SECONDS).build());
-        Configuration.setDefaultApiClient(apiClient);
-        CoreV1Api coreV1Api = new CoreV1Api(apiClient);
+    private void doStartPodInformer(ClusterModuleKubernetesConfig podConfig, ResourceEventHandler<V1Pod> eventHandler) throws IOException {
+        KubernetesClient.setDefault();
+        CoreV1Api coreV1Api = new CoreV1Api();
         factory = new SharedInformerFactory(executorService);
 
         SharedIndexInformer<V1Pod> podSharedIndexInformer = factory.sharedIndexInformerFor(
@@ -90,6 +84,8 @@ public enum NamespacedPodListInformer {
             ),
             V1Pod.class, V1PodList.class
         );
+
+        podSharedIndexInformer.addEventHandler(eventHandler);
 
         factory.startAllRegisteredInformers();
         podLister = new Lister<>(podSharedIndexInformer.getIndexer());

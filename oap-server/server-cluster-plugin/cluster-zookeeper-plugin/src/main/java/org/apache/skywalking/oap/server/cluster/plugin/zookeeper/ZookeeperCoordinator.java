@@ -23,12 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.x.discovery.ServiceCache;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceInstance;
+import org.apache.curator.x.discovery.details.ServiceCacheListener;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
@@ -40,7 +43,8 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery {
+@Slf4j
+public class ZookeeperCoordinator extends ClusterCoordinator {
 
     private static final String REMOTE_NAME_PATH = "remote";
 
@@ -115,6 +119,10 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
             this.healthChecker.unHealth(e);
             throw new ServiceQueryException(e.getMessage());
         }
+
+        if (log.isDebugEnabled()) {
+            remoteInstances.forEach(instance -> log.debug("Zookeeper cluster instance: {}", instance.toString()));
+        }
         return remoteInstances;
     }
 
@@ -126,6 +134,32 @@ public class ZookeeperCoordinator implements ClusterRegister, ClusterNodesQuery 
         if (healthChecker == null) {
             MetricsCreator metricCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
             healthChecker = metricCreator.createHealthCheckerGauge("cluster_zookeeper", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
+    }
+
+    @Override
+    protected void start() {
+        initHealthChecker();
+        serviceCache.addListener(new ZookeeperEventListener());
+    }
+
+    class ZookeeperEventListener implements ServiceCacheListener {
+        @Override
+        public void cacheChanged() {
+            try {
+                List<RemoteInstance> remoteInstances = queryRemoteNodes();
+                notifyWatchers(remoteInstances);
+            } catch (Throwable e) {
+                healthChecker.unHealth(e);
+                log.error("Failed to notify and update remote instances", e);
+            }
+        }
+
+        @Override
+        public void stateChanged(final CuratorFramework client, final ConnectionState newState) {
+            if (log.isDebugEnabled()) {
+                log.debug("Zookeeper ConnectionState changed, state: {}", newState.name());
+            }
         }
     }
 }

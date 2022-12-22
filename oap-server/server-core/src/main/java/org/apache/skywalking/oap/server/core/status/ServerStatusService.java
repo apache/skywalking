@@ -38,6 +38,8 @@ public class ServerStatusService implements Service {
     private final ModuleManager manager;
     @Getter
     private BootingStatus bootingStatus = new BootingStatus();
+    @Getter
+    private ClusterStatus clusterStatus = new ClusterStatus();
 
     public void bootedNow(long uptime) {
         bootingStatus.setBooted(true);
@@ -50,4 +52,12 @@ public class ServerStatusService implements Service {
                .setValue(uptime / 1000d);
     }
 
+    public void reBalancedCluster(long uptime) {
+        clusterStatus.setReBalanceTime(uptime);
+        manager.find(TelemetryModule.NAME)
+               .provider()
+               .getService(MetricsCreator.class)
+               .createGauge("cluster_rebalance_time", "oap cluster rebalance time after scale", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
+               .setValue(uptime / 1000d);
+    }
 }

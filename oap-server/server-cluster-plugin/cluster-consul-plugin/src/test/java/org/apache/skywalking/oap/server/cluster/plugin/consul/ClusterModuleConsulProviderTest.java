@@ -138,7 +138,7 @@ public class ClusterModuleConsulProviderTest {
 
         PowerMockito.mockStatic(Consul.class);
         when(Consul.builder()).thenReturn(builder);
-        when(builder.withConnectTimeoutMillis(anyLong())).thenCallRealMethod();
+        when(builder.withConnectTimeoutMillis(anyLong())).thenReturn(builder);
 
         when(builder.withHostAndPort(any())).thenReturn(builder);
 
