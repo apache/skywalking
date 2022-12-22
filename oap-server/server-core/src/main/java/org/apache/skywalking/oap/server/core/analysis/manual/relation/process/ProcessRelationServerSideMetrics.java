@@ -72,6 +72,7 @@ public class ProcessRelationServerSideMetrics extends Metrics {
     @Setter
     @Getter
     @Column(columnName = COMPONENT_ID, storageOnly = true)
+    @BanyanDB.SeriesID(index = 1)
     private int componentId;
 
     @Override
