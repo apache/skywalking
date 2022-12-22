@@ -30,7 +30,7 @@ public abstract class ClusterCoordinator implements ClusterRegister, ClusterNode
     /**
      * Initialize the required resources, such as healthy checker and listener.
      */
-    protected abstract void start() throws ModuleStartException;
+    public abstract void start() throws ModuleStartException;
 
     @Override
     public void registerWatcher(final ClusterWatcher watcher) {

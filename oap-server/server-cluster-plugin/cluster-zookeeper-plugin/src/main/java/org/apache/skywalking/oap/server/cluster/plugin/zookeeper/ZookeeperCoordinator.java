@@ -136,7 +136,7 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() throws ModuleStartException {
+    public void start() throws ModuleStartException {
         try {
             initHealthChecker();
             this.serviceCache.start();

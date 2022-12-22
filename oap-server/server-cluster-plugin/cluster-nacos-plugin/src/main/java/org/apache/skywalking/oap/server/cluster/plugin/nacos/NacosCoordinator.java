@@ -137,7 +137,7 @@ public class NacosCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() throws ModuleStartException {
+    public void start() throws ModuleStartException {
         initHealthChecker();
         try {
             namingService.subscribe(config.getServiceName(), new NacosEventListener());

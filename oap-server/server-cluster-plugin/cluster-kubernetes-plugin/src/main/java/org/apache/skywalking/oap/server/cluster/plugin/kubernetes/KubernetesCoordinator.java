@@ -137,7 +137,7 @@ public class KubernetesCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() {
+    public void start() {
         initHealthChecker();
         NamespacedPodListInformer.INFORMER.init(config, new K8sResourceEventHandler());
     }

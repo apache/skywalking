@@ -52,6 +52,6 @@ public class StandaloneManager extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() {
+    public void start() {
     }
 }

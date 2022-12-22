@@ -201,7 +201,7 @@ public class EtcdCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() {
+    public void start() {
         initHealthChecker();
         this.client.getWatchClient().watch(
             serviceNameBS, WatchOption.newBuilder().withPrefix(serviceNameBS).build(), new EtcdEventListener());

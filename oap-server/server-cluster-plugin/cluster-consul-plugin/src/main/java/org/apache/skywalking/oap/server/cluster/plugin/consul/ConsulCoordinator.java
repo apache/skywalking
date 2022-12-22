@@ -167,7 +167,7 @@ public class ConsulCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() {
+    public void start() {
         initHealthChecker();
         ServiceHealthCache svHealth = ServiceHealthCache.newCache(client.healthClient(), serviceName, true,
                                                                   QueryOptions.BLANK, 5);
