@@ -122,7 +122,7 @@ public class EtcdCoordinator extends ClusterCoordinator {
             throw new RuntimeException(e);
         }
         if (log.isDebugEnabled()) {
-            remoteInstances.forEach(instance -> log.debug("Etcd cluster instance: {}", instance.toString()));
+            remoteInstances.forEach(instance -> log.debug("Etcd cluster instance: {}", instance));
         }
         return remoteInstances;
     }

@@ -85,7 +85,7 @@ public class NacosCoordinator extends ClusterCoordinator {
         }
 
         if (log.isDebugEnabled()) {
-            log.debug("Nacos cluster instances:{}", remoteInstances.toString());
+            log.debug("Nacos cluster instances:{}", remoteInstances);
         }
 
         return remoteInstances;
@@ -142,7 +142,7 @@ public class NacosCoordinator extends ClusterCoordinator {
         try {
             namingService.subscribe(config.getServiceName(), new NacosEventListener());
         } catch (NacosException e) {
-            throw new ModuleStartException("Failed to start watching remote instances in Nacos coordinator.", e);
+            throw new ModuleStartException("Failed to start cluster coordinator.", e);
         }
     }
 

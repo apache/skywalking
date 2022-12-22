@@ -360,7 +360,7 @@ public class CoreModuleProvider extends ModuleProvider {
                                              .provider()
                                              .getService(ClusterCoordinator.class);
         coordinator.registerWatcher(remoteClientManager);
-        coordinator.startCoordinator();
+        coordinator.start();
         if (CoreModuleConfig.Role.Mixed.name()
                                        .equalsIgnoreCase(
                                            moduleConfig.getRole())

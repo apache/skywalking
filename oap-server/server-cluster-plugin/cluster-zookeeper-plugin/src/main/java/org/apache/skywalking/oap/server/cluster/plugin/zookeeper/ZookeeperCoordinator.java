@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
@@ -56,12 +57,11 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
     private HealthCheckMetrics healthChecker;
 
     ZookeeperCoordinator(final ModuleDefineHolder manager, final ClusterModuleZookeeperConfig config,
-                         final ServiceDiscovery<RemoteInstance> serviceDiscovery) throws Exception {
+                         final ServiceDiscovery<RemoteInstance> serviceDiscovery) {
         this.manager = manager;
         this.config = config;
         this.serviceDiscovery = serviceDiscovery;
         this.serviceCache = serviceDiscovery.serviceCacheBuilder().name(REMOTE_NAME_PATH).build();
-        this.serviceCache.start();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
         }
 
         if (log.isDebugEnabled()) {
-            remoteInstances.forEach(instance -> log.debug("Zookeeper cluster instance: {}", instance.toString()));
+            remoteInstances.forEach(instance -> log.debug("Zookeeper cluster instance: {}", instance));
         }
         return remoteInstances;
     }
@@ -136,9 +136,14 @@ public class ZookeeperCoordinator extends ClusterCoordinator {
     }
 
     @Override
-    protected void start() {
-        initHealthChecker();
-        serviceCache.addListener(new ZookeeperEventListener());
+    protected void start() throws ModuleStartException {
+        try {
+            initHealthChecker();
+            this.serviceCache.start();
+            serviceCache.addListener(new ZookeeperEventListener());
+        } catch (Exception e) {
+            throw new ModuleStartException("Failed to start cluster coordinator.", e);
+        }
     }
 
     class ZookeeperEventListener implements ServiceCacheListener {

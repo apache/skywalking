@@ -84,7 +84,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterCoordinator coordinator = getClusterCoordinator(provider);
         ClusterMockWatcher watcher = new ClusterMockWatcher();
         coordinator.registerWatcher(watcher);
-        coordinator.startCoordinator();
+        coordinator.start();
         coordinator.registerRemote(instance);
 
         List<RemoteInstance> remoteInstances = notifiedRemoteNodes(watcher, 1);
@@ -105,7 +105,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterCoordinator coordinator = getClusterCoordinator(provider);
         ClusterMockWatcher watcher = new ClusterMockWatcher();
         coordinator.registerWatcher(watcher);
-        coordinator.startCoordinator();
+        coordinator.start();
         coordinator.registerRemote(instance);
 
         List<RemoteInstance> remoteInstances = notifiedRemoteNodes(watcher, 1);
@@ -128,11 +128,11 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterCoordinator coordinatorB = getClusterCoordinator(providerB);
         ClusterMockWatcher watcherB = new ClusterMockWatcher();
         coordinatorB.registerWatcher(watcherB);
-        coordinatorB.startCoordinator();
+        coordinatorB.start();
         // Mixed or Aggregator
         Address selfAddress = new Address("127.0.0.3", 1000, true);
         RemoteInstance instance = new RemoteInstance(selfAddress);
-        coordinatorA.startCoordinator();
+        coordinatorA.start();
         coordinatorA.registerRemote(instance);
 
         // Receiver
@@ -152,11 +152,11 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterCoordinator coordinatorA = getClusterCoordinator(providerA);
         ClusterMockWatcher watcherA = new ClusterMockWatcher();
         coordinatorA.registerWatcher(watcherA);
-        coordinatorA.startCoordinator();
+        coordinatorA.start();
         ClusterCoordinator coordinatorB = getClusterCoordinator(providerB);
         ClusterMockWatcher watcherB = new ClusterMockWatcher();
         coordinatorB.registerWatcher(watcherB);
-        coordinatorB.startCoordinator();
+        coordinatorB.start();
 
         Address addressA = new Address("127.0.0.4", 1000, true);
         Address addressB = new Address("127.0.0.5", 1000, true);
@@ -184,11 +184,11 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterCoordinator coordinatorA = getClusterCoordinator(providerA);
         ClusterMockWatcher watcherA = new ClusterMockWatcher();
         coordinatorA.registerWatcher(watcherA);
-        coordinatorA.startCoordinator();
+        coordinatorA.start();
         ClusterCoordinator coordinatorB = getClusterCoordinator(providerB);
         ClusterMockWatcher watcherB = new ClusterMockWatcher();
         coordinatorB.registerWatcher(watcherB);
-        coordinatorB.startCoordinator();
+        coordinatorB.start();
         Address addressA = new Address("127.0.0.4", 1000, true);
         Address addressB = new Address("127.0.0.5", 1000, true);
 

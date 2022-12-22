@@ -83,7 +83,7 @@ public class KubernetesCoordinator extends ClusterCoordinator {
                     .stream()
                     .map(item -> item.getMetadata().getUid())
                     .collect(Collectors.toList());
-                log.debug("[kubernetes cluster pods uid list]:{}", uidList.toString());
+                log.debug("[kubernetes cluster pods uid list]:{}", uidList);
             }
             if (port == -1) {
                 port = manager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort();
@@ -96,6 +96,9 @@ public class KubernetesCoordinator extends ClusterCoordinator {
                     .collect(Collectors.toList());
             healthChecker.health();
             this.latestInstances = remoteInstances.stream().map(it -> it.getAddress().toString()).collect(Collectors.toList());
+            if (log.isDebugEnabled()) {
+                remoteInstances.forEach(instance -> log.debug("kubernetes cluster instance: {}", instance));
+            }
             return remoteInstances;
         } catch (Throwable e) {
             healthChecker.unHealth(e);

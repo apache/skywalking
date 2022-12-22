@@ -95,6 +95,9 @@ public class ConsulCoordinator extends ClusterCoordinator {
             healthChecker.unHealth(e);
             throw new ServiceQueryException(e.getMessage());
         }
+        if (log.isDebugEnabled()) {
+            remoteInstances.forEach(instance -> log.debug("Cosule cluster instance: {}", instance));
+        }
         return remoteInstances;
     }
 

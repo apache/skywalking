@@ -25,17 +25,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 @Slf4j
 public abstract class ClusterCoordinator implements ClusterRegister, ClusterNodesQuery, ClusterWatcherRegister {
-    private boolean started = false;
     private final List<ClusterWatcher> clusterWatchers = new ArrayList<>();
-
-    public void startCoordinator() throws ModuleStartException {
-        if (!started) {
-            start();
-            started = true;
-        } else {
-            throw new ModuleStartException("Cluster coordinator has been started, should not start again.");
-        }
-    }
 
     /**
      * Initialize the required resources, such as healthy checker and listener.
