@@ -156,7 +156,9 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
             new MetricsTag.Keys("status"), new MetricsTag.Values("cached")
         );
         serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
-        serverStatusService.registerWatcher(this);
+        if (model.getDownsampling().equals(DownSampling.Minute)) {
+            serverStatusService.registerWatcher(this);
+        }
     }
 
     /**
@@ -397,18 +399,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
 
     @Override
     public void onServerBooted(final BootingStatus bootingStatus) {
-        if (model.getDownsampling().equals(DownSampling.Minute)) {
-            timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
-                bootingStatus.getUptime());
-        }
+        timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
+            bootingStatus.getUptime());
     }
 
     @Override
     public void onClusterRebalanced(final ClusterStatus clusterStatus) {
-        if (model.getDownsampling().equals(DownSampling.Minute)) {
-            timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
-                clusterStatus.getRebalancedTime());
-        }
+        timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
+            clusterStatus.getRebalancedTime());
     }
 
     /**

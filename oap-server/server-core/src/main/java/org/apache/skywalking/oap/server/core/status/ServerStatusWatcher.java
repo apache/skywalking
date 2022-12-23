@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
-
 public interface ServerStatusWatcher {
     void onServerBooted(BootingStatus bootingStatus);
 
