@@ -60,6 +60,7 @@
 * Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
 * Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
 * Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
+* Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 
 #### UI
 
