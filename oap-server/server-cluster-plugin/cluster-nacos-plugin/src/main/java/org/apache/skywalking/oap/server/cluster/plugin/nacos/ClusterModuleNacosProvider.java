@@ -23,6 +23,7 @@ import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import java.util.Properties;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -83,12 +84,13 @@ public class ClusterModuleNacosProvider extends ModuleProvider {
                 properties.put(PropertyKeyConst.SECRET_KEY, config.getSecretKey());
             }
             namingService = NamingFactory.createNamingService(properties);
+            NacosCoordinator coordinator = new NacosCoordinator(getManager(), namingService, config);
+            this.registerServiceImplementation(ClusterRegister.class, coordinator);
+            this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+            this.registerServiceImplementation(ClusterCoordinator.class, coordinator);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        NacosCoordinator coordinator = new NacosCoordinator(getManager(), namingService, config);
-        this.registerServiceImplementation(ClusterRegister.class, coordinator);
-        this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
     }
 
     @Override

@@ -30,6 +30,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -147,6 +148,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+        this.registerServiceImplementation(ClusterCoordinator.class, coordinator);
     }
 
     @Override
