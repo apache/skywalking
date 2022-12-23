@@ -57,6 +57,7 @@
 * Remove unnecessary additional columns when storage is in logical sharding mode.
 * The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
 * Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
+* Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
 
 #### UI
 

@@ -32,7 +32,10 @@ import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
+import org.apache.skywalking.oap.server.core.status.BootingStatus;
+import org.apache.skywalking.oap.server.core.status.ClusterStatus;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
+import org.apache.skywalking.oap.server.core.status.ServerStatusWatcher;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -52,7 +55,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * MetricsPersistentWorker is an extension of {@link PersistenceWorker} and focuses on the Metrics data persistent.
  */
 @Slf4j
-public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
+public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implements ServerStatusWatcher {
     private final Model model;
     private final MetricsSessionCache sessionCache;
     private final IMetricsDAO metricsDAO;
@@ -153,6 +156,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
             new MetricsTag.Keys("status"), new MetricsTag.Values("cached")
         );
         serverStatusService = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ServerStatusService.class);
+        serverStatusService.registerWatcher(this);
     }
 
     /**
@@ -195,11 +199,6 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         long start = System.currentTimeMillis();
         if (lastCollection.size() == 0) {
             return Collections.emptyList();
-        }
-
-        if (model.getDownsampling().equals(DownSampling.Minute)) {
-            timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
-                serverStatusService.getBootingStatus().getUptime());
         }
 
         /*
@@ -377,7 +376,8 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         // When
         // (1) the time bucket of the server's latest stability status is provided
         //     1.1 the OAP has booted successfully
-        //     1.2 the current dimensionality is in minute.
+        //     1.2 the current dimensionality is in minute
+        //     1.3 the OAP cluster is rebalanced due to scaling
         // (2) the metrics are from the time after the timeOfLatestStabilitySts
         // (3) the metrics don't exist in the cache
         // the kernel should NOT try to load it from the database.
@@ -393,6 +393,22 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> {
         }
 
         return null;
+    }
+
+    @Override
+    public void onServerBooted(final BootingStatus bootingStatus) {
+        if (model.getDownsampling().equals(DownSampling.Minute)) {
+            timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
+                bootingStatus.getUptime());
+        }
+    }
+
+    @Override
+    public void onClusterRebalanced(final ClusterStatus clusterStatus) {
+        if (model.getDownsampling().equals(DownSampling.Minute)) {
+            timeOfLatestStabilitySts = TimeBucket.getMinuteTimeBucket(
+                clusterStatus.getRebalancedTime());
+        }
     }
 
     /**
