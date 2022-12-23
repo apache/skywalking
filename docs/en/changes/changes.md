@@ -16,6 +16,7 @@
     // (1) the time bucket of the server's latest stability status is provided
     //     1.1 the OAP has booted successfully
     //     1.2 the current dimensionality is in minute.
+    //     1.3 the OAP cluster is rebalanced due to scaling
     // (2) the metrics are from the time after the timeOfLatestStabilitySts
     // (3) the metrics don't exist in the cache
     // the kernel should NOT try to load it from the database.
