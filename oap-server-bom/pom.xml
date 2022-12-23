@@ -73,7 +73,8 @@
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <banyandb-java-client.version>0.2.1</banyandb-java-client.version>
+        <!-- TODO: use 0.3.0 before OAP 9.4.0 release -->
+        <banyandb-java-client.version>0.3.0-SNAPSHOT</banyandb-java-client.version>
         <kafka-clients.version>2.8.1</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
