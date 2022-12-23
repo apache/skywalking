@@ -58,6 +58,7 @@
 * The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
 * Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
 * Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
+* Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 
 #### UI
 

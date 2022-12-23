@@ -108,7 +108,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setServiceId(getServiceId());
-        metrics.setTotal(getTotal());
+        metrics.getTotal().copyFrom(getTotal());
         return metrics;
     }
 
@@ -118,7 +118,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setServiceId(getServiceId());
-        metrics.setTotal(getTotal());
+        metrics.getTotal().copyFrom(getTotal());
         return metrics;
     }
 
