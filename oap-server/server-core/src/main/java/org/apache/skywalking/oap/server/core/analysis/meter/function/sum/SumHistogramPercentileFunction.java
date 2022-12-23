@@ -233,9 +233,9 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
         SumHistogramPercentileFunction metrics = (SumHistogramPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setSummation(getSummation());
-        metrics.setRanks(getRanks());
-        metrics.setPercentileValues(getPercentileValues());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getRanks().copyFrom(getRanks());
+        metrics.getPercentileValues().copyFrom(getPercentileValues());
         return metrics;
     }
 
@@ -244,9 +244,9 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
         SumHistogramPercentileFunction metrics = (SumHistogramPercentileFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setSummation(getSummation());
-        metrics.setRanks(getRanks());
-        metrics.setPercentileValues(getPercentileValues());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getRanks().copyFrom(getRanks());
+        metrics.getPercentileValues().copyFrom(getPercentileValues());
         return metrics;
     }
 

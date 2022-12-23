@@ -2,6 +2,8 @@
 
 #### Project
 
+* Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
+
 #### OAP Server
 
 * Add `ServerStatusService` in the core module to provide a new way to expose booting status to other modules.
@@ -14,6 +16,7 @@
     // (1) the time bucket of the server's latest stability status is provided
     //     1.1 the OAP has booted successfully
     //     1.2 the current dimensionality is in minute.
+    //     1.3 the OAP cluster is rebalanced due to scaling
     // (2) the metrics are from the time after the timeOfLatestStabilitySts
     // (3) the metrics don't exist in the cache
     // the kernel should NOT try to load it from the database.
@@ -50,6 +53,14 @@
 * Remove `component_id` from `service_instance_relation_client_side` and `service_instance_relation_server_side`.
 * Make the satellite E2E test more stable.
 * Add Istio 1.16 to test matrix.
+* Register ValueColumn as Tag for Record in BanyanDB storage plugin.
+* Bump up Netty to 4.1.86.
+* Remove unnecessary additional columns when storage is in logical sharding mode.
+* The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
+* Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
+* Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
+* Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
+* Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 * Fix cannot display attached events when using Zipkin Lens UI query traces.
 
 #### UI

@@ -44,5 +44,10 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-kubernetes-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

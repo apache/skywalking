@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -64,10 +65,12 @@ public class ServiceRelationClientSideMetrics extends Metrics {
     @Getter
     @Column(columnName = COMPONENT_IDS, storageOnly = true)
     @ElasticSearch.Keyword
+    @BanyanDB.SeriesID(index = 1)
     private IntList componentIds = new IntList(3);
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
     @Override

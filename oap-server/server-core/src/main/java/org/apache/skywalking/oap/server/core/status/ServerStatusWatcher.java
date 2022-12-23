@@ -16,26 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.consul;
+package org.apache.skywalking.oap.server.core.status;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+public interface ServerStatusWatcher {
+    void onServerBooted(BootingStatus bootingStatus);
 
-public class ClusterModuleConsulConfig extends ModuleConfig {
-    @Setter
-    @Getter
-    private String serviceName;
-    @Setter
-    @Getter
-    private String hostPort;
-    @Setter
-    @Getter
-    private String internalComHost;
-    @Getter
-    @Setter
-    private String aclToken;
-    @Setter
-    @Getter
-    private int internalComPort = -1;
+    void onClusterRebalanced(ClusterStatus clusterStatus);
 }

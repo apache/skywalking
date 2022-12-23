@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -38,6 +40,10 @@ public class ServerStatusService implements Service {
     private final ModuleManager manager;
     @Getter
     private BootingStatus bootingStatus = new BootingStatus();
+    @Getter
+    private ClusterStatus clusterStatus = new ClusterStatus();
+
+    private List<ServerStatusWatcher> statusWatchers = new ArrayList<>();
 
     public void bootedNow(long uptime) {
         bootingStatus.setBooted(true);
@@ -48,6 +54,21 @@ public class ServerStatusService implements Service {
                .createGauge("uptime", "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
                // Set uptime to second
                .setValue(uptime / 1000d);
+        this.statusWatchers.forEach(watcher -> watcher.onServerBooted(bootingStatus));
     }
 
+    public void rebalancedCluster(long rebalancedTime) {
+        clusterStatus.setRebalancedTime(rebalancedTime);
+        manager.find(TelemetryModule.NAME)
+               .provider()
+               .getService(MetricsCreator.class)
+               .createGauge("cluster_rebalanced_time", "oap cluster rebalanced time after scale", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
+               .setValue(rebalancedTime / 1000d);
+
+        this.statusWatchers.forEach(watcher -> watcher.onClusterRebalanced(clusterStatus));
+    }
+
+    public void registerWatcher(ServerStatusWatcher watcher) {
+        this.statusWatchers.add(watcher);
+    }
 }
