@@ -57,6 +57,7 @@
 * Remove unnecessary additional columns when storage is in logical sharding mode.
 * The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
 * Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
+* Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
 * Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
 
 #### UI

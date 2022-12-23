@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -66,10 +67,12 @@ public class ProcessRelationServerSideMetrics extends Metrics {
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Setter
     @Getter
     @Column(columnName = COMPONENT_ID, storageOnly = true)
+    @BanyanDB.SeriesID(index = 1)
     private int componentId;
 
     @Override
