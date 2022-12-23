@@ -18,15 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+public interface ServerStatusWatcher {
+    void onServerBooted(BootingStatus bootingStatus);
 
-/**
- * Booting status indicate whether the current server starts successfully.
- */
-@Getter
-@Setter(AccessLevel.PACKAGE)
-public class ClusterStatus {
-    private volatile long rebalancedTime = 0;
+    void onClusterRebalanced(ClusterStatus clusterStatus);
 }
