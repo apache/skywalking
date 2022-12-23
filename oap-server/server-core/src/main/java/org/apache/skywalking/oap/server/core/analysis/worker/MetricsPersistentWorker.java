@@ -99,7 +99,7 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
      *
      * @since 9.4.0
      */
-    private long timeOfLatestStabilitySts = 0;
+    private volatile long timeOfLatestStabilitySts = 0;
 
     MetricsPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IMetricsDAO metricsDAO,
                             AbstractWorker<Metrics> nextAlarmWorker, AbstractWorker<ExportEvent> nextExportWorker,
