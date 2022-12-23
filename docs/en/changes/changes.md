@@ -16,6 +16,7 @@
     // (1) the time bucket of the server's latest stability status is provided
     //     1.1 the OAP has booted successfully
     //     1.2 the current dimensionality is in minute.
+    //     1.3 the OAP cluster is rebalanced due to scaling
     // (2) the metrics are from the time after the timeOfLatestStabilitySts
     // (3) the metrics don't exist in the cache
     // the kernel should NOT try to load it from the database.
@@ -58,6 +59,7 @@
 * The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
 * Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
 * Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
+* Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
 * Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 
 #### UI

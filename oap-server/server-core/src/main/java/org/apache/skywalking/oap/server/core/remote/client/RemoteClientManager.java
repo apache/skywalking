@@ -147,7 +147,7 @@ public class RemoteClientManager implements Service, ClusterWatcher {
                 moduleDefineHolder.find(CoreModule.NAME)
                        .provider()
                        .getService(ServerStatusService.class)
-                       .reBalancedCluster(System.currentTimeMillis());
+                       .rebalancedCluster(System.currentTimeMillis());
             }
 
             printRemoteClientList();
