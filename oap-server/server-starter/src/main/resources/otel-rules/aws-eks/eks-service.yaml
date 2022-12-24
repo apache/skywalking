@@ -30,7 +30,8 @@
 # </pre>
 
 filter: "{ tags -> tags.job_name == 'aws-cloud-eks-monitoring' && tags.Service?.trim() }" # The OpenTelemetry job name
-expSuffix: tag({tags -> tags.cluster = 'aws-eks-cluster::' + tags.ClusterName}).endpoint(['cluster'],['Service'], Layer.AWS_EKS)
+expPrefix: tag({tags -> tags.cluster = 'aws-eks-cluster::' + tags.ClusterName})
+expSuffix: endpoint(['cluster'],['Service'], Layer.AWS_EKS)
 metricPrefix: eks_cluster_service
 metricsRules:
   - name: pod_number
