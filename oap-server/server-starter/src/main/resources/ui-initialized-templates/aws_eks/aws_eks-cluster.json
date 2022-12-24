@@ -238,8 +238,8 @@
           "metrics": [
             "eks_cluster_node_cpu_utilization",
             "eks_cluster_node_memory_utilization",
-            "eks_cluster_node_disk_io_write",
-            "eks_cluster_node_fs_utilization"
+            "eks_cluster_node_network_tx_errors",
+            "eks_cluster_node_network_rx_errors"
           ],
           "metricTypes": [
             "readMetricsValues",
@@ -254,8 +254,18 @@
               "calculation": "average"
             },
             {
-              "label": "memory Usage",
+              "label": "Memory Usage",
               "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Network TX Errors",
+              "unit": "count/s",
+              "calculation": "average"
+            },
+            {
+              "label": "Network RX Errors",
+              "unit": "count/s",
               "calculation": "average"
             }
           ],
@@ -281,9 +291,13 @@
           },
           "metrics": [
             "eks_cluster_service_pod_cpu_utilization",
-            "eks_cluster_service_pod_memory_utilization"
+            "eks_cluster_service_pod_memory_utilization",
+            "eks_cluster_service_pod_net_tx_error",
+            "eks_cluster_service_pod_net_rx_error"
           ],
           "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
           ],
@@ -294,8 +308,18 @@
               "calculation": "average"
             },
             {
-              "label": "memory Usage",
+              "label": "Memory Usage",
               "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Network TX Errors",
+              "unit": "count/s",
+              "calculation": "average"
+            },
+            {
+              "label": "Network RX Errors",
+              "unit": "count/s",
               "calculation": "average"
             }
           ]
