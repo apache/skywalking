@@ -38,9 +38,6 @@ metricsRules:
     exp: pod_number_of_containers.downsampling(SUM)
   - name: cpu_utilization
     exp: node_cpu_utilization
-
-
-
   - name: memory_utilization
     exp: node_memory_utilization
   - name: net_rx_bytes
