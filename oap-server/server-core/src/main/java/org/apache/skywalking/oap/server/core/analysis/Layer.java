@@ -139,7 +139,7 @@ public enum Layer {
     APISIX(21, true),
 
     /**
-     * Apache APISIX is an open source, dynamic, scalable, and high-performance cloud native API gateway.
+     * EKS (Amazon Elastic Kubernetes Service) is k8s service provided by AWS Cloud
      */
     AWS_EKS(22, true);
 
