@@ -11,13 +11,13 @@ SkyWalking leverages OpenTelemetry Collector with [AWS Container Insights Receiv
 2. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ### EKS Monitoring
-[AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) provide multiple dimensions metrics for EKS  cluster, node , service , etc.
-Accordingly, SkyWalking observes the status, payload of EKS cluster, which is cataloged as a `LAYER: AWS_EKS` `Service` in the OAP. Meanwhile, the k8s nodes would be recognized as `LAYER: AWS_EKS` `instance`s. The k8s service would be recognized as `endpoint`s.
+[AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) provides multiple dimensions metrics for EKS  cluster, node, service, etc.
+Accordingly, SkyWalking observes the status, and payload of the EKS cluster, which is cataloged as a `LAYER: AWS_EKS` `Service` in the OAP. Meanwhile, the k8s nodes would be recognized as `LAYER: AWS_EKS` `instance`s. The k8s service would be recognized as `endpoint`s.
 
 #### Specify Job Name
 
 SkyWalking distinguishes AWS Cloud EKS metrics by attributes `job_name`, which value is `aws-cloud-eks-monitoring`.
-You could leverage OTEL Collector processor to add the attribute as following :
+You could leverage OTEL Collector processor to add the attribute as follows:
 
 ```yaml      
 processors:
@@ -28,7 +28,7 @@ processors:
           action: insert     
 ```
 
-Notice , if you don't specify `job_name` attribute, SkyWalking OAP will ignore the metrics
+Notice, if you don't specify `job_name` attribute, SkyWalking OAP will ignore the metrics
 
 #### Supported Metrics
 | Monitoring Panel                      | Unit    | Metric Name                                | Catalog    | Description                                                  | Data Source                                                                                                                                                   |
@@ -60,9 +60,9 @@ Notice , if you don't specify `job_name` attribute, SkyWalking OAP will ignore t
 | CPU Utilization                       | percent | eks_cluster_service_pod_cpu_utilization    | Endpoint   | The CPU Utilization of pod that belong to the service        | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
 | Memory Utilization                    | percent | eks_cluster_service_pod_memory_utilization | Endpoint   | The Memory Utilization of pod that belong to the service     | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
 | Network RX                            | bytes/s | eks_cluster_service_pod_net_rx_bytes       | Endpoint   | Network RX bytes of the pod that belong to the service       | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
-| Network RX Error Count                | count/s | eks_cluster_service_pod_net_rx_error       | Endpoint   | Network TX error count of the pod that belong to the service | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
+| Network RX Error Count                | count/s | eks_cluster_service_pod_net_rx_error       | Endpoint   | Network TX error count of the pod that belongs to the service | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
 | Network TX                            | bytes/s | eks_cluster_service_pod_net_tx_bytes       | Endpoint   | Network TX bytes of the pod that belong to the service       | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
-| Network TX Error Count                | count/s | eks_cluster_node_pod_net_tx_error          | Endpoint   | Network TX error count of the pod that belong to the service | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
+| Network TX Error Count                | count/s | eks_cluster_node_pod_net_tx_error          | Endpoint   | Network TX error count of the pod that belongs to the service | [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) |
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
