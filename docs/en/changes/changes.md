@@ -63,12 +63,16 @@
 * Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 * Fix cannot display attached events when using Zipkin Lens UI query traces.
 * Remove `time_bucket` for both Stream and Measure kinds in BanyanDB plugin.
+* Support monitoring AWS Cloud EKS
 
 #### UI
 
 * Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
 * Migrate the build tool from vue cli to Vite4.
 * Fix Instance Relation and Endpoint Relation dashboards show up.
+* Add Micrometer icon
+* Update MySQL UI to support MariaDB
+* Add AWS menu for supporting AWS monitoring
 
 #### Documentation
 
