@@ -34,8 +34,6 @@ expPrefix: tag({tags -> tags.cluster = 'aws-eks-cluster::' + tags.ClusterName})
 expSuffix: endpoint(['cluster'],['Service'], Layer.AWS_EKS)
 metricPrefix: eks_cluster_service
 metricsRules:
-  - name: pod_number
-    exp: pod_number_of_containers
   - name: pod_cpu_utilization
     exp: pod_cpu_utilization
   - name: pod_memory_utilization
