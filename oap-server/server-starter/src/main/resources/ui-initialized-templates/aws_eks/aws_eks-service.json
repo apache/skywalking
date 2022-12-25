@@ -54,6 +54,26 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
                   ]
                 },
                 {
@@ -79,6 +99,26 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
                   ]
                 },
                 {
@@ -109,6 +149,26 @@
                     {
                       "calculation": "byteToKB"
                     }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
                   ]
                 },
                 {
@@ -134,6 +194,26 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
                   ]
                 },
                 {
@@ -164,6 +244,26 @@
                     {
                       "calculation": "byteToKB"
                     }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
                   ]
                 },
                 {
@@ -189,11 +289,30 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
                   ]
                 }
               ]
             }
-
           ]
         }
 

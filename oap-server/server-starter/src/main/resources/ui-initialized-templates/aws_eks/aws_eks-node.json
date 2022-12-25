@@ -36,7 +36,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "3",
+                  "i": "1",
                   "type": "Widget",
                   "widget": {
                     "title": "Pod Count"
@@ -54,6 +54,38 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -61,7 +93,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "6",
+                  "i": "2",
                   "type": "Widget",
                   "widget": {
                     "title": "CPU Utilization (%)"
@@ -79,6 +111,38 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -86,7 +150,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "7",
+                  "i": "3",
                   "type": "Widget",
                   "widget": {
                     "title": "Memory Utilization (%)"
@@ -104,6 +168,38 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
 
                 },
@@ -112,7 +208,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "8",
+                  "i": "4",
                   "type": "Widget",
                   "widget": {
                     "title": "Network RX (KB per second)"
@@ -135,6 +231,38 @@
                     {
                       "calculation": "byteToKB"
                     }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -142,7 +270,7 @@
                   "y": 13,
                   "w": 6,
                   "h": 13,
-                  "i": "9",
+                  "i": "5",
                   "type": "Widget",
                   "widget": {
                     "title": "Network RX Error Count (per second)"
@@ -160,6 +288,38 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -167,7 +327,7 @@
                   "y": 13,
                   "w": 6,
                   "h": 13,
-                  "i": "10",
+                  "i": "6",
                   "type": "Widget",
                   "widget": {
                     "title": "Network TX (KB per second)"
@@ -190,6 +350,38 @@
                     {
                       "calculation": "byteToKB"
                     }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -197,7 +389,7 @@
                   "y": 13,
                   "w": 6,
                   "h": 13,
-                  "i": "11",
+                  "i": "7",
                   "type": "Widget",
                   "widget": {
                     "title": "Network TX Error Count (per second)"
@@ -215,6 +407,38 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -222,7 +446,7 @@
                   "y": 13,
                   "w": 6,
                   "h": 13,
-                  "i": "12",
+                  "i": "8",
                   "type": "Widget",
                   "widget": {
                     "title": "Disk IO Write (byte per second)"
@@ -240,6 +464,38 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -247,7 +503,7 @@
                   "y": 26,
                   "w": 6,
                   "h": 13,
-                  "i": "13",
+                  "i": "9",
                   "type": "Widget",
                   "widget": {
                     "title": "Disk IO Read (byte per second)"
@@ -265,6 +521,38 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 },
                 {
@@ -272,7 +560,7 @@
                   "y": 26,
                   "w": 6,
                   "h": 13,
-                  "i": "14",
+                  "i": "10",
                   "type": "Widget",
                   "widget": {
                     "title": "FS Utilization (%)"
@@ -290,6 +578,38 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
                   ]
                 }
               ]
@@ -302,7 +622,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "1",
+                  "i": "11",
                   "type": "Widget",
                   "widget": {
                     "title": "CPU Utilization"
@@ -320,6 +640,26 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
                   ]
                 },
                 {
@@ -327,7 +667,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "2",
+                  "i": "12",
                   "type": "Widget",
                   "widget": {
                     "title": "Memory Utilization"
@@ -345,6 +685,26 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
                   ]
                 },
                 {
@@ -352,7 +712,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "3",
+                  "i": "13",
                   "type": "Widget",
                   "widget": {
                     "title": "Network RX (KB per second)"
@@ -375,6 +735,26 @@
                     {
                       "calculation": "byteToKB"
                     }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
                   ]
                 },
                 {
@@ -382,7 +762,7 @@
                   "y": 0,
                   "w": 6,
                   "h": 13,
-                  "i": "4",
+                  "i": "14",
                   "type": "Widget",
                   "widget": {
                     "title": "Network RX Error Count (per second)"
@@ -400,6 +780,26 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
                   ]
                 },
                 {
@@ -407,7 +807,7 @@
                   "y": 13,
                   "w": 6,
                   "h": 13,
-                  "i": "5",
+                  "i": "15",
                   "type": "Widget",
                   "widget": {
                     "title": "Network TX (KB per second)"
@@ -430,6 +830,26 @@
                     {
                       "calculation": "byteToKB"
                     }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
                   ]
                 },
                 {
@@ -437,7 +857,7 @@
                   "y": 13,
                   "w": 6,
                   "h": 13,
-                  "i": "6",
+                  "i": "16",
                   "type": "Widget",
                   "widget": {
                     "title": "Network TX Error Count (per second)"
@@ -455,6 +875,26 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
                   ]
                 }
 

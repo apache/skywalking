@@ -43,6 +43,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -68,6 +94,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -93,6 +145,32 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -118,6 +196,32 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -125,7 +229,7 @@
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "8",
+          "i": "5",
           "type": "Widget",
           "widget": {
             "title": "Network RX Dropped Count (per second)"
@@ -143,6 +247,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -150,7 +280,7 @@
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "9",
+          "i": "6",
           "type": "Widget",
           "widget": {
             "title": "Network RX Error Count (per second)"
@@ -168,6 +298,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -175,7 +331,7 @@
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "10",
+          "i": "7",
           "type": "Widget",
           "widget": {
             "title": "Network TX Dropped Count (per second)"
@@ -193,6 +349,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
@@ -200,7 +382,7 @@
           "y": 13,
           "w": 6,
           "h": 13,
-          "i": "11",
+          "i": "8",
           "type": "Widget",
           "widget": {
             "title": "Network TX Error Count (per second)"
@@ -218,6 +400,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
           ]
         },
         {
