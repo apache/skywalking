@@ -44,18 +44,19 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
         SpanAttachedEventRecord.RELATED_TRACE_ID,
         SpanAttachedEventRecord.TRACE_SEGMENT_ID,
         SpanAttachedEventRecord.TRACE_SPAN_ID,
-        SpanAttachedEventRecord.DATA_BINARY);
+        SpanAttachedEventRecord.DATA_BINARY,
+        SpanAttachedEventRecord.TIMESTAMP);
 
     public BanyanDBSpanAttachedEventQueryDAO(BanyanDBStorageClient client) {
         super(client);
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
         final StreamQueryResponse resp = query(SpanAttachedEventRecord.INDEX_NAME, TAGS, new QueryBuilder<StreamQuery>() {
             @Override
             protected void apply(StreamQuery query) {
-                query.and(eq(SpanAttachedEventRecord.RELATED_TRACE_ID, traceId));
+                query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
                 query.and(eq(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
                 query.setOrderBy(new StreamQuery.OrderBy(SpanAttachedEventRecord.START_TIME_SECOND, AbstractQuery.Sort.ASC));
             }

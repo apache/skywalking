@@ -38,13 +38,20 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
     private final JDBCHikariCPClient jdbcClient;
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
         StringBuilder sql = new StringBuilder("select * from " + SpanAttachedEventRecord.INDEX_NAME + " where ");
-        List<Object> parameters = new ArrayList<>(2);
+        List<Object> parameters = new ArrayList<>(traceIds.size() + 1);
 
-        sql.append(" ").append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" = ?");
-        parameters.add(traceId);
-        sql.append(" and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
+        sql.append(" ").append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" in (");
+        for (int i = 0; i < traceIds.size(); i++) {
+            if (i == 0) {
+                sql.append("?");
+            } else {
+                sql.append(",?");
+            }
+            parameters.add(traceIds.get(i));
+        }
+        sql.append(") and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
         parameters.add(type.value());
 
         sql.append(" order by ").append(SpanAttachedEventRecord.START_TIME_SECOND)

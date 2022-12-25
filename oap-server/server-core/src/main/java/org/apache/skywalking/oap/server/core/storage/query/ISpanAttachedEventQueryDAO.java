@@ -26,5 +26,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface ISpanAttachedEventQueryDAO extends Service {
-    List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException;
+    List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException;
 }

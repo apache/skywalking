@@ -51,7 +51,7 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
     }
 
     @Override
-    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, String traceId) throws IOException {
+    public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SpanAttachedEventRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
@@ -59,7 +59,7 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SpanAttachedEventRecord.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
-        query.must(Query.terms(SpanAttachedEventRecord.RELATED_TRACE_ID, traceId));
+        query.must(Query.terms(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
         query.must(Query.terms(SpanAttachedEventRecord.TRACE_REF_TYPE, type.value()));
         search.sort(SpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
         search.sort(SpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);

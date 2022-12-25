@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -47,6 +48,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -177,7 +179,7 @@ public class ZipkinQueryHandler {
         if (CollectionUtils.isEmpty(trace)) {
             return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
         }
-        appendEvents(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, traceId));
+        appendEvents(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId)));
         return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
     }
 
@@ -212,6 +214,7 @@ public class ZipkinQueryHandler {
         duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest, duration);
+        appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
 
@@ -231,6 +234,7 @@ public class ZipkinQueryHandler {
         }
 
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(normalizeTraceIds);
+        appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
 
@@ -304,8 +308,23 @@ public class ZipkinQueryHandler {
         return buff.array();
     }
 
+    private void appendEventsToTraces(List<List<Span>> traces) throws IOException {
+        final Map<String, List<Span>> traceIdWithSpans = traces.stream().filter(CollectionUtils::isNotEmpty)
+            .collect(Collectors.toMap(s -> s.get(0).traceId(), Function.identity(), (s1, s2) -> s1));
+        if (CollectionUtils.isEmpty(traceIdWithSpans)) {
+            return;
+        }
+
+        final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN,
+            new ArrayList<>(traceIdWithSpans.keySet()));
+        final Map<String, List<SpanAttachedEventRecord>> traceEvents = records.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getRelatedTraceId));
+        for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : traceEvents.entrySet()) {
+            appendEvents(traceIdWithSpans.get(entry.getKey()), entry.getValue());
+        }
+    }
+
     private void appendEvents(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
-        if (CollectionUtils.isEmpty(events)) {
+        if (CollectionUtils.isEmpty(spans) || CollectionUtils.isEmpty(events)) {
             return;
         }
 

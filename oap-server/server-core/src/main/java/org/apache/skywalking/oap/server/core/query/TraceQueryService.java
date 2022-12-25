@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -146,7 +147,7 @@ public class TraceQueryService implements Service {
 
         if (CollectionUtils.isNotEmpty(sortedSpans)) {
             final List<SpanAttachedEventRecord> spanAttachedEvents = getSpanAttachedEventQueryDAO().
-                querySpanAttachedEvents(SpanAttachedEventTraceType.SKYWALKING, traceId);
+                querySpanAttachedEvents(SpanAttachedEventTraceType.SKYWALKING, Arrays.asList(traceId));
             appendAttachedEventsToSpan(sortedSpans, spanAttachedEvents);
         }
 
