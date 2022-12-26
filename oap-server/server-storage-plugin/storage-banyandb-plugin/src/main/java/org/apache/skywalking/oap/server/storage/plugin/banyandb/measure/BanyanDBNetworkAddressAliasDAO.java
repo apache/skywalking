@@ -44,7 +44,7 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
     private MetadataRegistry.Schema schema;
 
     private static final Set<String> TAGS = ImmutableSet.of(NetworkAddressAlias.ADDRESS,
-            NetworkAddressAlias.TIME_BUCKET, NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
+            NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
             NetworkAddressAlias.REPRESENT_SERVICE_ID, NetworkAddressAlias.REPRESENT_SERVICE_INSTANCE_ID);
 
     public BanyanDBNetworkAddressAliasDAO(final BanyanDBStorageClient client) {

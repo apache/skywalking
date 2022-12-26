@@ -29,6 +29,9 @@ import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -48,6 +51,11 @@ public class BanyanDBConverter {
 
         @Override
         public Object get(String fieldName) {
+            if (fieldName.equals(Record.TIME_BUCKET)) {
+                final String timestampColumnName = schema.getTimestampColumn4Stream();
+                long timestampMillis = ((Number) this.get(timestampColumnName)).longValue();
+                return TimeBucket.getTimeBucket(timestampMillis, schema.getMetadata().getDownSampling());
+            }
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
             if (double.class.equals(spec.getColumnClass())) {
                 return ByteUtil.bytes2Double(rowEntity.getTagValue(fieldName));
@@ -70,6 +78,9 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(Record.TIME_BUCKET)) {
+                return;
+            }
             if (fieldName.equals(this.schema.getTimestampColumn4Stream())) {
                 streamWrite.setTimestamp((long) fieldValue);
             }
@@ -125,6 +136,9 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(Metrics.TIME_BUCKET)) {
+                return;
+            }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
                 throw new IllegalArgumentException("fail to find tag/field[" + fieldName + "]");
@@ -229,6 +243,9 @@ public class BanyanDBConverter {
 
         @Override
         public Object get(String fieldName) {
+            if (fieldName.equals(Metrics.TIME_BUCKET)) {
+                return TimeBucket.getTimeBucket(dataPoint.getTimestamp(), schema.getMetadata().getDownSampling());
+            }
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
             switch (spec.getColumnType()) {
                 case TAG:

@@ -60,6 +60,8 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -288,12 +290,18 @@ public enum MetadataRegistry {
      * Parse tags' metadata for {@link Stream}
      * Every field of a class is registered as a {@link org.apache.skywalking.banyandb.model.v1.BanyandbModel.Tag}
      * regardless of its dataType.
+     *
+     * @since 9.4.0 Skip {@link Record#TIME_BUCKET}
      */
     List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder) {
         List<TagMetadata> tagMetadataList = new ArrayList<>();
         for (final ModelColumn col : model.getColumns()) {
+            final String columnStorageName = col.getColumnName().getStorageName();
+            if (columnStorageName.equals(Record.TIME_BUCKET)) {
+                continue;
+            }
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
-            builder.spec(col.getColumnName().getStorageName(), new ColumnSpec(ColumnType.TAG, col.getType()));
+            builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             if (col.shouldIndex()) {
                 // build indexRule
                 IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);
@@ -310,6 +318,8 @@ public enum MetadataRegistry {
      * Parse tags and fields' metadata for {@link Measure}.
      * For field whose dataType is not {@link Column.ValueDataType#NOT_VALUE},
      * it is registered as {@link org.apache.skywalking.banyandb.measure.v1.BanyandbMeasure.DataPoint.Field}
+     *
+     * @since 9.4.0 Skip {@link Metrics#TIME_BUCKET}
      */
     List<TagMetadata> parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder) {
         List<TagMetadata> tagMetadataList = new ArrayList<>();
@@ -317,12 +327,16 @@ public enum MetadataRegistry {
         Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
                 .readValueColumnDefinition(model.getName());
         for (final ModelColumn col : model.getColumns()) {
-            if (valueColumnOpt.isPresent() && valueColumnOpt.get().getValueCName().equals(col.getColumnName().getStorageName())) {
-                builder.spec(col.getColumnName().getStorageName(), new ColumnSpec(ColumnType.FIELD, col.getType()));
+            final String columnStorageName = col.getColumnName().getStorageName();
+            if (columnStorageName.equals(Metrics.TIME_BUCKET)) {
+                continue;
+            }
+            if (valueColumnOpt.isPresent() && valueColumnOpt.get().getValueCName().equals(columnStorageName)) {
+                builder.spec(columnStorageName, new ColumnSpec(ColumnType.FIELD, col.getType()));
                 continue;
             }
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
-            builder.spec(col.getColumnName().getStorageName(), new ColumnSpec(ColumnType.TAG, col.getType()));
+            builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             if (col.shouldIndex()) {
                 // build indexRule
                 IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);

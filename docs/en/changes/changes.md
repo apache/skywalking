@@ -62,6 +62,7 @@
 * Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
 * Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 * Fix cannot display attached events when using Zipkin Lens UI query traces.
+* Remove `time_bucket` for both Stream and Measure kinds in BanyanDB plugin.
 
 #### UI
 
