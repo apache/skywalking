@@ -67,7 +67,6 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             SegmentRecord.ENDPOINT_ID,
             SegmentRecord.LATENCY,
             SegmentRecord.START_TIME,
-            SegmentRecord.TIME_BUCKET,
             SegmentRecord.DATA_BINARY);
 
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {

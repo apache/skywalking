@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Set;
 
 public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRecordsQueryDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(TopN.TIME_BUCKET, TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID);
+    private static final Set<String> TAGS = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID);
 
     public BanyanDBRecordsQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -62,8 +62,6 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
                         } else {
                             query.bottomN(condition.getTopN(), valueColumnName);
                         }
-                        query.and(gte(TopN.TIME_BUCKET, duration.getStartTimeBucketInSec()));
-                        query.and(lte(TopN.TIME_BUCKET, duration.getEndTimeBucketInSec()));
                     }
                 });
 
