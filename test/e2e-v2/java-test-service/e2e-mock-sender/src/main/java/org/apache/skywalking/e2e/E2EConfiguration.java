@@ -31,4 +31,5 @@ public class E2EConfiguration {
     private String zipkinKafkaBootstrapServers;
     private String zipkinKafkaGroupId;
     private String zipkinKafkaTopic;
+    private String otelMetricsDataPath;
 }

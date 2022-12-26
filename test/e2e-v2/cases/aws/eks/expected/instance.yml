@@ -15,7 +15,7 @@
 
   {{- contains . }}
 - id: {{ notEmpty .id }}
-  name:  ip-172-31-23-33.ap-northeast-1.compute.internal
+  name:  ip-172-31-10-158.ap-northeast-1.compute.internal
   instanceuuid: {{ notEmpty .instanceuuid }}
   attributes: []
   language: UNKNOWN

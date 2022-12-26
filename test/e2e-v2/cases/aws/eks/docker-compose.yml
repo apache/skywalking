@@ -29,10 +29,12 @@ services:
     image: "eclipse-temurin:8-jre"
     volumes:
       - ./../../../java-test-service/e2e-mock-sender/target/e2e-mock-sender-2.0.0.jar:/e2e-mock-sender-2.0.0.jar
+      - ./mock-data:/data/otel-metrics
     command: [ "java", "-jar", "/e2e-mock-sender-2.0.0.jar" ]
     environment:
       OAP_HOST: oap
       OAP_GRPC_PORT: 11800
+      OTEL_METRICS_DATA_PATH: /data/otel-metrics
     networks:
       - e2e
     ports:
