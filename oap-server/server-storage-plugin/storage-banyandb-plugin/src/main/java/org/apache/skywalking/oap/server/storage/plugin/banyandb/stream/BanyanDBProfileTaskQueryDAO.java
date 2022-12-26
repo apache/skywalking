@@ -23,6 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
@@ -68,10 +69,10 @@ public class BanyanDBProfileTaskQueryDAO extends AbstractBanyanDBDAO implements 
                             query.and(eq(ProfileTaskRecord.ENDPOINT_NAME, endpointName));
                         }
                         if (startTimeBucket != null) {
-                            query.and(gte(ProfileTaskRecord.START_TIME, startTimeBucket));
+                            query.and(gte(ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(startTimeBucket)));
                         }
                         if (endTimeBucket != null) {
-                            query.and(lte(ProfileTaskRecord.START_TIME, endTimeBucket));
+                            query.and(lte(ProfileTaskRecord.START_TIME, TimeBucket.getTimestamp(endTimeBucket)));
                         }
 
                         if (limit != null) {
