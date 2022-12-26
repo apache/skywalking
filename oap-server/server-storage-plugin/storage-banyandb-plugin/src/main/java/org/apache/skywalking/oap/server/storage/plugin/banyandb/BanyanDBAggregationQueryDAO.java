@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID, Metrics.TIME_BUCKET);
+    private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID);
 
     public BanyanDBAggregationQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -56,8 +56,6 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
-                        query.and(lte(Metrics.TIME_BUCKET, duration.getEndTimeBucket()));
-                        query.and(gte(Metrics.TIME_BUCKET, duration.getStartTimeBucket()));
                         if (condition.getOrder() == Order.DES) {
                             query.topN(condition.getTopN(), valueColumnName);
                         } else {
