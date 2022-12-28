@@ -63,6 +63,7 @@
 * Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 * Fix cannot display attached events when using Zipkin Lens UI query traces.
 * Remove `time_bucket` for both Stream and Measure kinds in BanyanDB plugin.
+* Merge `TIME_BUCKET` of `Metrics` and `Record` into `StorageData`.
 
 #### UI
 
