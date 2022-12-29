@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.util.List;
 
-@Slf4j
 public class BanyanDBConverter {
     public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;
@@ -55,15 +54,6 @@ public class BanyanDBConverter {
             if (fieldName.equals(Record.TIME_BUCKET)) {
                 final String timestampColumnName = schema.getTimestampColumn4Stream();
                 long timestampMillis = ((Number) this.get(timestampColumnName)).longValue();
-                if (timestampMillis == 0) {
-                    log.error("invalid ts: {}-{} downsampling:{} ts:{} tb:{}",
-                            this.schema.getMetadata().getGroup(),
-                            this.schema.getMetadata().getModelName(),
-                            schema.getMetadata().getDownSampling(),
-                            this.get(timestampColumnName),
-                            this.get(Record.TIME_BUCKET));
-                    timestampMillis  = System.currentTimeMillis();
-                }
                 return TimeBucket.getTimeBucket(timestampMillis, schema.getMetadata().getDownSampling());
             }
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
