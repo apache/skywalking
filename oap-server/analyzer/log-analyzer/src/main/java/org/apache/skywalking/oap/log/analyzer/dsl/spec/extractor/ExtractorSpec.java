@@ -22,22 +22,20 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
-
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.List;
-
 import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.AbstractSpec;
-import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql.SlowSqlSpec;
 import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.sampledtrace.SampledTraceSpec;
+import org.apache.skywalking.oap.log.analyzer.dsl.spec.extractor.slowsql.SlowSqlSpec;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Sample;
@@ -53,10 +51,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
-
 import org.apache.skywalking.oap.server.core.source.ISource;
-
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -96,8 +91,8 @@ public class ExtractorSpec extends AbstractSpec {
         sampledTrace = new SampledTraceSpec(moduleManager(), moduleConfig());
 
         namingControl = moduleManager.find(CoreModule.NAME)
-                .provider()
-                .getService(NamingControl.class);
+                                     .provider()
+                                     .getService(NamingControl.class);
 
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
@@ -245,7 +240,7 @@ public class ExtractorSpec extends AbstractSpec {
             possibleMetricsContainer.get().add(sampleFamily);
         } else {
             metricConverts.forEach(it -> it.toMeter(
-                    ImmutableMap.<String, SampleFamily>builder()
+                ImmutableMap.<String, SampleFamily>builder()
                             .put(sample.getName(), sampleFamily)
                             .build()
             ));
@@ -259,30 +254,24 @@ public class ExtractorSpec extends AbstractSpec {
         }
         LogData.Builder log = BINDING.get().log();
         if (log.getLayer() == null
-                || log.getService() == null
-                || log.getTimestamp() < 1) {
+            || log.getService() == null
+            || log.getTimestamp() < 1) {
             LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
             return;
         }
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
 
-        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
         builder.setServiceName(log.getService());
 
-        ServiceMeta serviceMeta = new ServiceMeta();
-        String serviceName = namingControl.formatServiceName(log.getService());
-        serviceMeta.setName(serviceName);
-        serviceMeta.setLayer(builder.getLayer());
-        serviceMeta.setTimeBucket(builder.getTimeBucket());
         BINDING.get().databaseSlowStatement(builder);
 
         cl.setDelegate(slowSql);
         cl.call();
 
         if (builder.getId() == null
-                || builder.getLatency() < 1
-                || builder.getStatement() == null) {
+            || builder.getLatency() < 1
+            || builder.getStatement() == null) {
             LOGGER.warn("SlowSql extracts failed, maybe something is not configured.");
             return;
         }
@@ -291,12 +280,14 @@ public class ExtractorSpec extends AbstractSpec {
         builder.setTimeBucket(timeBucketForDB);
         builder.setTimestamp(log.getTimestamp());
 
-        String entityId = serviceMeta.getEntityId();
         builder.prepare();
-        DatabaseSlowStatement databaseSlowStatement = builder.toDatabaseSlowStatement();
-        databaseSlowStatement.setDatabaseServiceId(entityId);
+        sourceReceiver.receive(builder.toDatabaseSlowStatement());
 
-        sourceReceiver.receive(databaseSlowStatement);
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(builder.getServiceName());
+        serviceMeta.setLayer(builder.getLayer());
+        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
+        serviceMeta.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceMeta);
     }
 
@@ -335,8 +326,10 @@ public class ExtractorSpec extends AbstractSpec {
                       .stream()
                       .filter(it -> isNotBlank(it.getKey()) && nonNull(it.getValue()))
                       .collect(
-                          Collectors.toMap(Map.Entry::getKey,
-                                           it -> Objects.toString(it.getValue()))
+                          Collectors.toMap(
+                              Map.Entry::getKey,
+                              it -> Objects.toString(it.getValue())
+                          )
                       );
             return sampleBuilder.labels(ImmutableMap.copyOf(filtered));
         }
