@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.cache;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -31,6 +30,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.Objects;
 
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.

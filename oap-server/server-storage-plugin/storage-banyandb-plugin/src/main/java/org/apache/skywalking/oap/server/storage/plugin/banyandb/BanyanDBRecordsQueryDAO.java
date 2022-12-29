@@ -19,9 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
+import org.apache.skywalking.banyandb.v1.client.RowEntity;
+import org.apache.skywalking.banyandb.v1.client.StreamQuery;
+import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -40,7 +41,6 @@ import java.util.List;
 import java.util.Set;
 
 public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRecordsQueryDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID);
 
     public BanyanDBRecordsQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -50,18 +50,20 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
     public List<Record> readRecords(RecordCondition condition, String valueColumnName, Duration duration) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        MeasureQueryResponse resp = query(modelName, TAGS,
-                Collections.singleton(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
+        final Set<String> tags = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID, valueColumnName);
+        StreamQueryResponse resp = query(modelName, tags,
+                timestampRange, new QueryBuilder<StreamQuery>() {
                     @Override
-                    protected void apply(MeasureQuery query) {
+                    protected void apply(StreamQuery query) {
                         if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
                             query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
                         }
                         if (condition.getOrder() == Order.DES) {
-                            query.topN(condition.getTopN(), valueColumnName);
+                            query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.DESC));
                         } else {
-                            query.bottomN(condition.getTopN(), valueColumnName);
+                            query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.ASC));
                         }
+                        query.setLimit(condition.getTopN());
                     }
                 });
 
@@ -81,26 +83,26 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
 
         List<Record> results = new ArrayList<>(condition.getTopN());
 
-        for (final DataPoint dataPoint : resp.getDataPoints()) {
+        for (final RowEntity e : resp.getElements()) {
             Record record = new Record();
-            final String refId = dataPoint.getTagValue(TopN.TRACE_ID);
-            record.setName(dataPoint.getTagValue(TopN.STATEMENT));
+            final String refId = e.getTagValue(TopN.TRACE_ID);
+            record.setName(e.getTagValue(TopN.STATEMENT));
             record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
             record.setId(record.getRefId());
-            record.setValue(extractFieldValueAsString(spec, valueColumnName, dataPoint));
+            record.setValue(extractFieldValueAsString(spec, valueColumnName, e));
             results.add(record);
         }
 
         return results;
     }
 
-    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
+    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, RowEntity e) throws IOException {
         if (double.class.equals(spec.getColumnClass())) {
-            return String.valueOf(ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName)).longValue());
+            return String.valueOf(ByteUtil.bytes2Double(e.getTagValue(fieldName)).longValue());
         } else if (String.class.equals(spec.getColumnClass())) {
-            return dataPoint.getFieldValue(fieldName);
+            return e.getTagValue(fieldName);
         } else {
-            return String.valueOf(((Number) dataPoint.getFieldValue(fieldName)).longValue());
+            return String.valueOf(((Number) e.getTagValue(fieldName)).longValue());
         }
     }
 }

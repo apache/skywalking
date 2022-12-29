@@ -237,7 +237,7 @@ storage:
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
     blockIntervalHours: ${SW_STORAGE_BANYANDB_BLOCK_INTERVAL_HOURS:24} # Unit is hour
     segmentIntervalDays: ${SW_STORAGE_BANYANDB_SEGMENT_INTERVAL_DAYS:1} # Unit is day
-    superDatasetBlockIntervalHours: ${SW_STORAGE_BANYANDB_SUPER_DATASET_BLOCK_INTERVAL_HOURS:24} # Unit is hour
+    superDatasetBlockIntervalHours: ${SW_STORAGE_BANYANDB_SUPER_DATASET_BLOCK_INTERVAL_HOURS:4} # Unit is hour
     superDatasetSegmentIntervalDays: ${SW_STORAGE_BANYANDB_SUPER_DATASET_SEGMENT_INTERVAL_DAYS:1} # Unit is day
     specificGroupSettings: ${SW_STORAGE_BANYANDB_SPECIFIC_GROUP_SETTINGS:""} # For example, {"group1": {"blockIntervalHours": 4, "segmentIntervalDays": 1}}
 
