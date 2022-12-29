@@ -267,14 +267,8 @@ public class ExtractorSpec extends AbstractSpec {
         DatabaseSlowStatementBuilder builder = new DatabaseSlowStatementBuilder(namingControl);
         builder.setLayer(Layer.nameOf(log.getLayer()));
 
-        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
         builder.setServiceName(log.getService());
 
-        ServiceMeta serviceMeta = new ServiceMeta();
-        String serviceName = namingControl.formatServiceName(log.getService());
-        serviceMeta.setName(serviceName);
-        serviceMeta.setLayer(builder.getLayer());
-        serviceMeta.setTimeBucket(builder.getTimeBucket());
         BINDING.get().databaseSlowStatement(builder);
 
         cl.setDelegate(slowSql);
@@ -291,12 +285,14 @@ public class ExtractorSpec extends AbstractSpec {
         builder.setTimeBucket(timeBucketForDB);
         builder.setTimestamp(log.getTimestamp());
 
-        String entityId = serviceMeta.getEntityId();
         builder.prepare();
-        DatabaseSlowStatement databaseSlowStatement = builder.toDatabaseSlowStatement();
-        databaseSlowStatement.setDatabaseServiceId(entityId);
+        sourceReceiver.receive(builder.toDatabaseSlowStatement());
 
-        sourceReceiver.receive(databaseSlowStatement);
+        ServiceMeta serviceMeta = new ServiceMeta();
+        serviceMeta.setName(builder.getServiceName());
+        serviceMeta.setLayer(builder.getLayer());
+        long timeBucket = TimeBucket.getTimeBucket(log.getTimestamp(), DownSampling.Minute);
+        serviceMeta.setTimeBucket(timeBucket);
         sourceReceiver.receive(serviceMeta);
     }
 
