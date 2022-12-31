@@ -41,8 +41,6 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 })
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_RELATIVE_ID_SHARDING_ALGORITHM, tableShardingColumn = ID, dataSourceShardingColumn = ENTITY_ID)
 public abstract class Metrics extends StreamData implements StorageData {
-
-    public static final String TIME_BUCKET = "time_bucket";
     public static final String ENTITY_ID = "entity_id";
     public static final String ID = "id";
 
@@ -55,7 +53,8 @@ public abstract class Metrics extends StreamData implements StorageData {
     private long timeBucket;
 
     /**
-     * Time in the cache, only work when MetricsPersistentWorker#enableDatabaseSession == true.
+     * The last update timestamp of the cache.
+     * The `update` means it is combined with the new metrics. This update doesn't mean the database level update ultimately.
      */
     @Getter
     private long lastUpdateTimestamp = 0L;

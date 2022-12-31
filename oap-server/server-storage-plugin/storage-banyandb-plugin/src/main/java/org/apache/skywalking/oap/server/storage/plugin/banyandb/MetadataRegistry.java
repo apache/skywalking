@@ -401,7 +401,14 @@ public enum MetadataRegistry {
     }
 
     public SchemaMetadata parseMetadata(Model model, BanyanDBStorageConfig config, ConfigService configService) {
+        int blockIntervalHrs = config.getBlockIntervalHours();
+        int segmentIntervalDays = config.getSegmentIntervalDays();
+        if (model.isSuperDataset()) {
+            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
+            segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
+        }
         String group;
+        int metricShardNum = config.getMetricsShardsNumber();
         if (model.isRecord()) { // stream
             group = "stream-default";
             if (model.isSuperDataset()) {
@@ -409,7 +416,11 @@ public enum MetadataRegistry {
                 group = "stream-" + model.getName();
             }
         } else if (model.getDownsampling() == DownSampling.Minute && model.isTimeRelativeID()) { // measure
-            group = "measure-sampled";
+            group = "measure-minute";
+            // apply super dataset's settings to measure-minute
+            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
+            segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
+            metricShardNum = metricShardNum * config.getSuperDatasetShardsFactor();
         } else {
             // Solution: 2 * TTL < T * (1 + 0.8)
             // e.g. if TTL=7, T=8: a new block/segment will be created at 14.4 days,
@@ -419,16 +430,10 @@ public enum MetadataRegistry {
                     model.getDownsampling(),
                     config.getMetricsShardsNumber(),
                     intervalDays * 24,
-                    intervalDays * 24, // use 10-day/240-hour strategy
+                    intervalDays, // use 10-day/240-hour strategy
                     configService.getMetricsDataTTL());
         }
 
-        int blockIntervalHrs = config.getBlockIntervalHours();
-        int segmentIntervalDays = config.getSegmentIntervalDays();
-        if (model.isSuperDataset()) {
-            blockIntervalHrs = config.getSuperDatasetBlockIntervalHours();
-            segmentIntervalDays = config.getSuperDatasetSegmentIntervalDays();
-        }
         GroupSetting groupSetting = this.specificGroupSettings.get(group);
         if (groupSetting != null) {
             blockIntervalHrs = groupSetting.getBlockIntervalHours();
@@ -442,16 +447,16 @@ public enum MetadataRegistry {
                     config.getRecordShardsNumber() *
                             (model.isSuperDataset() ? config.getSuperDatasetShardsFactor() : 1),
                     blockIntervalHrs,
-                    segmentIntervalDays * 24,
+                    segmentIntervalDays,
                     configService.getRecordDataTTL()
             );
         }
         // FIX: address issue #10104
         return new SchemaMetadata(group, model.getName(), Kind.MEASURE,
                 model.getDownsampling(),
-                config.getMetricsShardsNumber(),
+                metricShardNum,
                 blockIntervalHrs,
-                segmentIntervalDays * 24,
+                segmentIntervalDays,
                 configService.getMetricsDataTTL());
     }
 
@@ -470,7 +475,7 @@ public enum MetadataRegistry {
         private final DownSampling downSampling;
         private final int shard;
         private final int blockIntervalHrs;
-        private final int segmentIntervalHrs;
+        private final int segmentIntervalDays;
         private final int ttlDays;
 
         /**
@@ -533,7 +538,7 @@ public enum MetadataRegistry {
                     if (!resourceExist.hasGroup()) {
                         Group g = client.define(Group.create(this.group, Catalog.STREAM, this.shard,
                                 IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
-                                IntervalRule.create(IntervalRule.Unit.HOUR, this.segmentIntervalHrs),
+                                IntervalRule.create(IntervalRule.Unit.DAY, this.segmentIntervalDays),
                                 IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
                         if (g != null) {
                             log.info("group {} created", g.name());
@@ -545,7 +550,7 @@ public enum MetadataRegistry {
                     if (!resourceExist.hasGroup()) {
                         Group g = client.define(Group.create(this.group, Catalog.MEASURE, this.shard,
                                 IntervalRule.create(IntervalRule.Unit.HOUR, this.blockIntervalHrs),
-                                IntervalRule.create(IntervalRule.Unit.HOUR, this.segmentIntervalHrs),
+                                IntervalRule.create(IntervalRule.Unit.DAY, this.segmentIntervalDays),
                                 IntervalRule.create(IntervalRule.Unit.DAY, this.ttlDays)));
                         if (g != null) {
                             log.info("group {} created", g.name());

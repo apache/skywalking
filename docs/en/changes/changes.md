@@ -63,7 +63,12 @@
 * Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
 * Fix cannot display attached events when using Zipkin Lens UI query traces.
 * Remove `time_bucket` for both Stream and Measure kinds in BanyanDB plugin.
-* Support monitoring AWS Cloud EKS
+* Merge `TIME_BUCKET` of `Metrics` and `Record` into `StorageData`.
+* Support no `layer` in the `listServices` query.
+* Fix `time_bucket` of `ServiceTraffic` not set correctly in `slowSql` of MAL.
+* Correct the TopN record query DAO of BanyanDB.
+* Tweak interval settings of BanyanDB.
+* Support monitoring AWS Cloud EKS.
 
 #### UI
 
