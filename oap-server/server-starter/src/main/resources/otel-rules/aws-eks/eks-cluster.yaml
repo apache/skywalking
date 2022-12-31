@@ -43,10 +43,10 @@ metricsRules:
   - name: service_count
     exp: service_number_of_running_pods.sum(['Service','cluster'])
   - name: net_rx_dropped
-    exp: node_network_rx_dropped.downsampling(SUM)
+    exp: node_network_rx_dropped
   - name: net_rx_error
-    exp: node_network_rx_errors.downsampling(SUM)
+    exp: node_network_rx_errors
   - name: net_tx_dropped
-    exp: node_network_tx_dropped.downsampling(SUM)
+    exp: node_network_tx_dropped
   - name: net_tx_error
-    exp: node_network_tx_errors.downsampling(SUM)
+    exp: node_network_tx_errors

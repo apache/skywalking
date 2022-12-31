@@ -232,7 +232,7 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "Network RX Dropped Count (per second)"
+            "title": "Network RX Dropped Count (per second, per node)"
           },
           "graph": {
             "type": "Line",
@@ -283,7 +283,7 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Network RX Error Count (per second)"
+            "title": "Network RX Error Count (per second, per node)"
           },
           "graph": {
             "type": "Line",
@@ -334,7 +334,7 @@
           "i": "7",
           "type": "Widget",
           "widget": {
-            "title": "Network TX Dropped Count (per second)"
+            "title": "Network TX Dropped Count (per second, per node)"
           },
           "graph": {
             "type": "Line",
@@ -385,7 +385,7 @@
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "Network TX Error Count (per second)"
+            "title": "Network TX Error Count (per second, per node)"
           },
           "graph": {
             "type": "Line",
