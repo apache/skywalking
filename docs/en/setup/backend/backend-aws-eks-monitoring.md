@@ -21,11 +21,11 @@ You could leverage OTEL Collector processor to add the attribute as follows:
 
 ```yaml      
 processors:
-    resource/job-name:
-        attributes:
-        - key: job_name   
-          value: aws-cloud-eks-monitoring
-          action: insert     
+  resource/job-name:
+    attributes:
+      - key: job_name
+        value: aws-cloud-eks-monitoring
+        action: insert     
 ```
 
 Notice, if you don't specify `job_name` attribute, SkyWalking OAP will ignore the metrics
@@ -69,197 +69,32 @@ You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/aws-eks/`.
 The AWS Cloud EKS dashboard panel configurations are found in `/config/ui-initialized-templates/aws_eks`.
 
-### AWS Container Insights Receiver Deploy Example
+### OTEL Configuration Sample With AWS Container Insights Receiver
 
 ```yaml
-# create service account and role binding
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: aws-otel-sa
-  namespace: aws-otel-eks
----
-kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: aoc-agent-role
-rules:
-  - apiGroups: [""]
-    resources: ["pods", "nodes", "endpoints"]
-    verbs: ["list", "watch"]
-  - apiGroups: ["apps"]
-    resources: ["replicasets"]
-    verbs: ["list", "watch"]
-  - apiGroups: ["batch"]
-    resources: ["jobs"]
-    verbs: ["list", "watch"]
-  - apiGroups: [""]
-    resources: ["nodes/proxy"]
-    verbs: ["get"]
-  - apiGroups: [""]
-    resources: ["nodes/stats", "configmaps", "events"]
-    verbs: ["create", "get"]
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    resourceNames: ["otel-container-insight-clusterleader"]
-    verbs: ["get","update"]
-  - apiGroups: ["coordination.k8s.io"]
-    resources: ["leases"]
-    verbs: ["create","get","update"]    
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: aoc-agent-role-binding
-subjects:
-  - kind: ServiceAccount
-    name: aws-otel-sa
-    namespace: aws-otel-eks
-roleRef:
-  kind: ClusterRole
-  name: aoc-agent-role
-  apiGroup: rbac.authorization.k8s.io
----
-# OTEL configuration that specify OAP address("oap-service:11800") as otlp exporter address
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: otel-agent-conf
-  namespace: aws-otel-eks
-  labels:
-    app: opentelemetry
-    component: otel-agent-conf
-data:
-  otel-agent-config: |
-    extensions:
-      health_check:
-
-    receivers:
-      awscontainerinsightreceiver:
-
-    processors:
-      resource/job-name:
-        attributes:
-        - key: job_name   
-          value: aws-cloud-eks-monitoring
-          action: insert     
-
-    exporters:
-      otlp:
-        endpoint: oap-service:11800
-        tls:
-          insecure: true
-      logging:
-          loglevel: debug          
-
-    service:
-      pipelines:
-        metrics:
-          receivers: [awscontainerinsightreceiver]
-          processors: [resource/job-name]
-          exporters: [otlp,logging]
-      extensions: [health_check]
----
-# AWS OTEL DaemonSet
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: aws-otel-eks-ci
-  namespace: aws-otel-eks
-spec:
-  selector:
-    matchLabels:
-      name: aws-otel-eks-ci
-  template:
-    metadata:
-      labels:
-        name: aws-otel-eks-ci
-    spec:
-      containers:
-        - name: aws-otel-collector
-          image: amazon/aws-otel-collector:v0.23.0
-          env:
-            # Specify aws region
-            - name: AWS_REGION
-              value: "ap-northeast-1"
-            - name: K8S_NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: HOST_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
-            - name: HOST_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: K8S_NAMESPACE
-              valueFrom:
-                 fieldRef:
-                   fieldPath: metadata.namespace
-          imagePullPolicy: Always
-          command:
-            - "/awscollector"
-            - "--config=/conf/otel-agent-config.yaml"
-          volumeMounts:
-            - name: rootfs
-              mountPath: /rootfs
-              readOnly: true
-            - name: dockersock
-              mountPath: /var/run/docker.sock
-              readOnly: true
-            - name: varlibdocker
-              mountPath: /var/lib/docker
-              readOnly: true
-            - name: containerdsock
-              mountPath: /run/containerd/containerd.sock
-              readOnly: true
-            - name: sys
-              mountPath: /sys
-              readOnly: true
-            - name: devdisk
-              mountPath: /dev/disk
-              readOnly: true
-            - name: otel-agent-config-vol
-              mountPath: /conf
-            - name: otel-output-vol  
-              mountPath: /otel-output
-          resources:
-            limits:
-              cpu:  200m
-              memory: 200Mi
-            requests:
-              cpu: 200m
-              memory: 200Mi
-      volumes:
-        - configMap:
-            name: otel-agent-conf
-            items:
-              - key: otel-agent-config
-                path: otel-agent-config.yaml
-          name: otel-agent-config-vol
-        - name: rootfs
-          hostPath:
-            path: /
-        - name: dockersock
-          hostPath:
-            path: /var/run/docker.sock
-        - name: varlibdocker
-          hostPath:
-            path: /var/lib/docker
-        - name: containerdsock
-          hostPath:
-            path: /run/containerd/containerd.sock
-        - name: sys
-          hostPath:
-            path: /sys
-        - name: devdisk
-          hostPath:
-            path: /dev/disk/
-        - name: otel-output-vol  
-          hostPath:
-            path: /otel-output
-      serviceAccountName: aws-otel-sa
+extensions:
+  health_check:
+receivers:
+  awscontainerinsightreceiver:
+processors:
+  resource/job-name:
+    attributes:
+      - key: job_name
+        value: aws-cloud-eks-monitoring
+        action: insert
+exporters:
+  otlp:
+    endpoint: oap-service:11800
+    tls:
+      insecure: true
+  logging:
+    loglevel: debug
+service:
+  pipelines:
+    metrics:
+      receivers: [awscontainerinsightreceiver]
+      processors: [resource/job-name]
+      exporters: [otlp,logging]
+  extensions: [health_check]
 ```
-Refer to [ContainerInsights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html) for more information
+Refer to [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) for more information
