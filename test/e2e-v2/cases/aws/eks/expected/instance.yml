@@ -13,17 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9093
-
-spring:
-  main:
-    banner-mode: 'off'
-
-e2e:
-  oap-host: ${OAP_HOST:127.0.0.1}
-  oap-grpc-port: ${OAP_GRPC_PORT:11800}
-  zipkin-kafka-bootstrapServers: ${ZIPKIN_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
-  zipkin-kafka-groupId: ${ZIPKIN_KAFKA_GROUPID:zipkin}
-  zipkin-kafka-topic: ${ZIPKIN_KAFKA_TOPIC:zipkin}
-  otel-metrics-data-path: ${OTEL_METRICS_DATA_PATH:/data/otel-metrics/}
+  {{- contains . }}
+- id: {{ notEmpty .id }}
+  name:  ip-172-31-10-158.ap-northeast-1.compute.internal
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+  {{- end }}

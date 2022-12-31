@@ -60,6 +60,7 @@ public class UITemplateInitializer {
         Layer.FAAS.name(),
         Layer.APISIX.name(),
         Layer.VIRTUAL_MQ.name(),
+        Layer.AWS_EKS.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
