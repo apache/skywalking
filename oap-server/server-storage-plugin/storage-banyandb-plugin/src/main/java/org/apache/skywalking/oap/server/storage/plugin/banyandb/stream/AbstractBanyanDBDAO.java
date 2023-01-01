@@ -71,10 +71,10 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
-    protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
-                                         QueryBuilder<MeasureQuery> builder) throws IOException {
-        return this.query(measureModelName, tags, fields, null, builder);
-    }
+//    protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
+//                                         QueryBuilder<MeasureQuery> builder) throws IOException {
+//        return this.query(measureModelName, tags, fields, null, builder);
+//    }
 
     protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
                                          TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {

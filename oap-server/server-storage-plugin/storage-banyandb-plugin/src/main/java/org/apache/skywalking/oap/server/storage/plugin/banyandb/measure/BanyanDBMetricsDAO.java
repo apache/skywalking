@@ -18,28 +18,43 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
+import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
+import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBExtension;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
+import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @Slf4j
 public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsDAO {
@@ -57,13 +72,57 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
+        String tc = model.getBanyanDBModelExtension().getTimestampColumn();
+        final String tsCol = Strings.isBlank(tc) ?  TIME_BUCKET : tc;
+        final AtomicLong begin = new AtomicLong(), end = new AtomicLong();
+        final Map<String, List<String>> seriesIDColumns = new HashMap<>();
+        model.getColumns().forEach(c -> {
+            BanyanDBExtension ext = c.getBanyanDBExtension();
+            if (ext == null) {
+                return;
+            }
+            if (ext.isShardingKey()) {
+                seriesIDColumns.put(c.getColumnName().getName(), new ArrayList<>());
+            }
+        });
+        if (seriesIDColumns.isEmpty()) {
+            seriesIDColumns.put(ENTITY_ID, new ArrayList<>());
+        }
+        for (Metrics m:metrics) {
+            StorageID id = m.id();
+            List<StorageID.Fragment> fragments = id.read();
+            for (StorageID.Fragment f:fragments) {
+                Optional<String[]> cols = f.getName();
+                if (cols.isPresent()) {
+                    String col = cols.get()[0];
+                    if (tsCol.equals(col)) {
+                       long timeBucket =  (long) f.getValue();
+                       long epoch = TimeBucket.getTimestamp(timeBucket);
+                       if (epoch < begin.longValue()) {
+                           begin.set(epoch);
+                       }
+                       if (epoch > end.longValue()) {
+                           end.set(epoch);
+                       }
+                    } else if (seriesIDColumns.containsKey(col)) {
+                        Preconditions.checkState(f.getType().equals(String.class));
+                        seriesIDColumns.get(col).add((String) f.getValue());
+                    } else {
+                        throw new InvalidObjectException(String.format("fragment [%s] in id [%s] is unknown", f, id.build()));
+                    }
+                } else {
+                    throw new InvalidObjectException(String.format("fragment [%s] is mutant id [%s] is unknown", f, id.build()));
+                }
+            }
+        }
+
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), new TimestampRange(begin.longValue(), end.longValue()), new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
-                for (final Metrics missCachedMetric : metrics) {
-                    query.or(id(missCachedMetric.id().build()));
-                }
+                seriesIDColumns.entrySet().forEach(entry -> {
+                    query.or(in(entry.getKey(), entry.getValue()));
+                });
             }
         });
 
