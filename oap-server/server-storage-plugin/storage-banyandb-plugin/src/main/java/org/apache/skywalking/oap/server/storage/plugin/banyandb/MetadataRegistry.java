@@ -137,15 +137,15 @@ public enum MetadataRegistry {
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        List<TagMetadata> tags = parseTagAndFieldMetadata(model, schemaBuilder);
-        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
+        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
                 schemaBuilder.tag(tagSpec.getTagName());
             }
         }
-        List<IndexRule> indexRules = tags.stream()
+        List<IndexRule> indexRules = tagsAndFields.tags.stream()
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
@@ -156,10 +156,10 @@ public enum MetadataRegistry {
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
         // parse and set field
-        Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
-                .readValueColumnDefinition(model.getName());
-        valueColumnOpt.ifPresent(valueColumn -> builder.addField(parseFieldSpec(modelColumnMap.get(valueColumn.getValueCName()), valueColumn)));
-        valueColumnOpt.ifPresent(valueColumn -> schemaBuilder.field(valueColumn.getValueCName()));
+        for (Measure.FieldSpec field : tagsAndFields.fields) {
+            builder.addField(field);
+            schemaBuilder.field(field.getName());
+        }
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return builder.build();
     }
@@ -207,24 +207,25 @@ public enum MetadataRegistry {
         return this.registry.get(SchemaMetadata.formatName(modelName, downSampling));
     }
 
-    private Measure.FieldSpec parseFieldSpec(ModelColumn modelColumn, ValueColumnMetadata.ValueColumn valueColumn) {
+    private Measure.FieldSpec parseFieldSpec(ModelColumn modelColumn) {
+        String colName = modelColumn.getColumnName().getStorageName();
         if (String.class.equals(modelColumn.getType())) {
-            return Measure.FieldSpec.newIntField(valueColumn.getValueCName())
+            return Measure.FieldSpec.newIntField(colName)
                     .compressWithZSTD()
                     .build();
         } else if (long.class.equals(modelColumn.getType()) || int.class.equals(modelColumn.getType())) {
-            return Measure.FieldSpec.newIntField(valueColumn.getValueCName())
+            return Measure.FieldSpec.newIntField(colName)
                     .compressWithZSTD()
                     .encodeWithGorilla()
                     .build();
-        } else if (StorageDataComplexObject.class.isAssignableFrom(modelColumn.getType())) {
-            return Measure.FieldSpec.newStringField(valueColumn.getValueCName())
+        } else if (StorageDataComplexObject.class.isAssignableFrom(modelColumn.getType()) || JsonObject.class.equals(modelColumn.getType())) {
+            return Measure.FieldSpec.newStringField(colName)
                     .compressWithZSTD()
                     .build();
         } else if (double.class.equals(modelColumn.getType())) {
             // TODO: natively support double/float in BanyanDB
             log.warn("Double is stored as binary");
-            return Measure.FieldSpec.newBinaryField(valueColumn.getValueCName())
+            return Measure.FieldSpec.newBinaryField(colName)
                     .compressWithZSTD()
                     .build();
         } else {
@@ -313,6 +314,14 @@ public enum MetadataRegistry {
         return tagMetadataList;
     }
 
+    @Builder
+    private static class MeasureMetadata {
+        @Singular
+        private final List<TagMetadata> tags;
+        @Singular
+        private final List<Measure.FieldSpec> fields;
+    }
+
     /**
      * Parse tags and fields' metadata for {@link Measure}.
      * For field whose dataType is not {@link Column.ValueDataType#NOT_VALUE},
@@ -320,32 +329,27 @@ public enum MetadataRegistry {
      *
      * @since 9.4.0 Skip {@link Metrics#TIME_BUCKET}
      */
-    List<TagMetadata> parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder) {
-        List<TagMetadata> tagMetadataList = new ArrayList<>();
+    MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder) {
         // skip metric
         Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
                 .readValueColumnDefinition(model.getName());
+        MeasureMetadata.MeasureMetadataBuilder result = MeasureMetadata.builder();
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
             if (columnStorageName.equals(Metrics.TIME_BUCKET)) {
                 continue;
             }
-            if (valueColumnOpt.isPresent() && valueColumnOpt.get().getValueCName().equals(columnStorageName)) {
+            if (col.isStorageOnly() || valueColumnOpt.isPresent() && valueColumnOpt.get().getValueCName().equals(columnStorageName)) {
                 builder.spec(columnStorageName, new ColumnSpec(ColumnType.FIELD, col.getType()));
+                result.field(parseFieldSpec(col));
                 continue;
             }
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
-            if (col.shouldIndex()) {
-                // build indexRule
-                IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);
-                tagMetadataList.add(new TagMetadata(indexRule, tagSpec));
-            } else {
-                tagMetadataList.add(new TagMetadata(null, tagSpec));
-            }
+            result.tag(new TagMetadata(col.shouldIndex() ? parseIndexRule(tagSpec.getTagName(), col) : null, tagSpec));
         }
 
-        return tagMetadataList;
+        return result.build();
     }
 
     /**
@@ -518,11 +522,6 @@ public enum MetadataRegistry {
             for (final Map.Entry<String, List<TagMetadata>> entry : tagMetadataMap.entrySet()) {
                 final TagFamilySpec.Builder b = TagFamilySpec.create(entry.getKey())
                         .addTagSpecs(entry.getValue().stream().map(TagMetadata::getTagSpec).collect(Collectors.toList()));
-                if (this.getKind() == Kind.MEASURE && entry.getKey().equals(this.indexFamily())) {
-                    // append measure ID, but it should not generate an index in the client side.
-                    // BanyanDB will take care of the ID index registration.
-                    b.addIDTagSpec();
-                }
                 tagFamilySpecs.add(b.build());
             }
 

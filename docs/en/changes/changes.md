@@ -69,6 +69,7 @@
 * Correct the TopN record query DAO of BanyanDB.
 * Tweak interval settings of BanyanDB.
 * Support monitoring AWS Cloud EKS.
+* Remove `id` tag from measures.
 
 #### UI
 
