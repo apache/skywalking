@@ -83,10 +83,12 @@ public class ZipkinSpanRecord extends Record {
     @Getter
     @Column(columnName = TRACE_ID)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE}, reserveOriginalColumns = true)
+    @BanyanDB.SeriesID(index = 0)
     private String traceId;
     @Setter
     @Getter
     @Column(columnName = SPAN_ID)
+    @BanyanDB.SeriesID(index = 1)
     private String spanId;
     @Setter
     @Getter
@@ -115,7 +117,6 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = LOCAL_ENDPOINT_SERVICE_NAME)
-    @BanyanDB.SeriesID(index = 0)
     private String localEndpointServiceName;
     @Setter
     @Getter

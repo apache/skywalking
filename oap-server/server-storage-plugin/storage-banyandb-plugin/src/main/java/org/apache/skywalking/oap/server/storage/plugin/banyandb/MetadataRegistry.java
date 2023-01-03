@@ -64,6 +64,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -122,13 +123,16 @@ public enum MetadataRegistry {
         return builder.build();
     }
 
-    public Measure registerMeasureModel(Model model, BanyanDBStorageConfig config, ConfigService configService) {
+    public Measure registerMeasureModel(Model model, BanyanDBStorageConfig config, ConfigService configService) throws StorageException {
         final SchemaMetadata schemaMetadata = parseMetadata(model, config, configService);
         Schema.SchemaBuilder schemaBuilder = Schema.builder().metadata(schemaMetadata);
         Map<String, ModelColumn> modelColumnMap = model.getColumns().stream()
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
         List<String> shardingColumns = parseEntityNames(modelColumnMap);
+        if (shardingColumns.isEmpty()) {
+           throw new StorageException("model " + model.getName() + " doesn't contain series id");
+        }
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
@@ -148,12 +152,7 @@ public enum MetadataRegistry {
 
         final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
                 downSamplingDuration(model.getDownsampling()));
-        if (shardingColumns.isEmpty()) {
-            // if shardingKeys is empty, for measure, we can use ID as a single sharding key.
-            builder.setEntityRelativeTags(Measure.ID);
-        } else {
-            builder.setEntityRelativeTags(shardingColumns);
-        }
+        builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
         // parse and set field

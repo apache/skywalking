@@ -50,7 +50,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ENTITY_ID;
-import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @Slf4j
@@ -84,15 +83,12 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         });
         if (seriesIDColumns.isEmpty()) {
             seriesIDColumns.put(ENTITY_ID, new ArrayList<>());
-            seriesIDColumns.put(ID, new ArrayList<>());
         }
         StringBuilder idStr = new StringBuilder();
-        List<String> ids = new ArrayList<>();
         for (Metrics m : metrics) {
             AnalyticalResult result = analyze(m, tsCol, seriesIDColumns);
             idStr.append(result.cols()).append("=").append(m.id().build()).append(",");
             if (!result.success) {
-                ids.add(result.id);
                 continue;
             }
             if (begin == 0 || result.begin < begin) {
@@ -110,27 +106,16 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         }
 
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        MeasureQueryResponse resp;
-        if (ids.isEmpty()) {
-            resp = query(model.getName(), schema.getTags(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = query(model.getName(), schema.getTags(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
                 @Override
-                protected void apply(MeasureQuery query) {
-                    seriesIDColumns.entrySet().forEach(entry -> {
-                        if (!entry.getValue().isEmpty()) {
-                            query.or(in(entry.getKey(), entry.getValue()));
-                        }
-                    });
-                }
-            });
-        } else {
-            resp = query(model.getName(), schema.getTags(), schema.getFields(), new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                            query.or(in(ID, ids));
-                }
-            });
-        }
-
+            protected void apply(MeasureQuery query) {
+                seriesIDColumns.entrySet().forEach(entry -> {
+                    if (!entry.getValue().isEmpty()) {
+                        query.or(in(entry.getKey(), entry.getValue()));
+                    }
+                });
+            }
+        });
         if (resp.size() == 0) {
             return Collections.emptyList();
         }
@@ -176,7 +161,6 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     private static class AnalyticalResult {
         private boolean success;
         private List<String[]> cols = new ArrayList<>();
-        private String id;
         private long begin;
         private long end;
 
@@ -214,14 +198,12 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                         Preconditions.checkState(f.getType().equals(String.class));
                         seriesIDColumns.get(col).add((String) f.getValue());
                     } else {
-                        result.id = id.build();
-                        log.info("col [{}] in fragment [{}] in id [{}] is not ts or seriesID", col, f, result.id);
+                        log.error("col [{}] in fragment [{}] in id [{}] is not ts or seriesID", col, f, id.build());
                         return result;
                     }
                 }
             } else {
-                result.id = id.build();
-                log.info("fragment [{}] in id [{}] doesn't contains cols", f, result.id);
+                log.error("fragment [{}] in id [{}] doesn't contains cols", f, id.build());
                 return result;
             }
         }

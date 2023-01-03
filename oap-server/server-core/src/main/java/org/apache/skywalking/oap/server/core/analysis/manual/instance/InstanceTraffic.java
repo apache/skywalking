@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
@@ -62,12 +63,14 @@ public class InstanceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
     @Setter
     @Getter
     @Column(columnName = NAME, storageOnly = true)
     @ElasticSearch.Column(columnAlias = "instance_traffic_name")
+    @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
