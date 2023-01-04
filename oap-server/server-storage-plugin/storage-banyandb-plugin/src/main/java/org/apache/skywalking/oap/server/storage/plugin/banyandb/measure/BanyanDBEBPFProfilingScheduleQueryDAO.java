@@ -62,7 +62,7 @@ public class BanyanDBEBPFProfilingScheduleQueryDAO extends AbstractBanyanDBDAO i
 
     private EBPFProfilingSchedule buildEBPFProfilingSchedule(DataPoint dataPoint) {
         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
-        schedule.setScheduleId(dataPoint.getId());
+        schedule.setScheduleId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.EBPF_PROFILING_SCHEDULE_ID));
         schedule.setTaskId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.TASK_ID));
         schedule.setProcessId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.PROCESS_ID));
         schedule.setStartTime(((Number) dataPoint.getTagValue(EBPFProfilingScheduleRecord.START_TIME)).longValue());
