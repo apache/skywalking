@@ -223,7 +223,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
 
         Map<String, DataPoint> map = new HashMap<>();
-        MeasureQueryResponse resp = query(schema, Collections.emptySet(), ImmutableSet.of(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
+        MeasureQueryResponse resp = query(schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), timestampRange, new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
                 query.and(eq(Metrics.ENTITY_ID, entityID));

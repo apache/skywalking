@@ -60,6 +60,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
+    @BanyanDB.MeasureField
     private long value;
 
     @Entrance

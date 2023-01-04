@@ -339,7 +339,7 @@ public enum MetadataRegistry {
             if (columnStorageName.equals(Metrics.TIME_BUCKET)) {
                 continue;
             }
-            if (col.isStorageOnly() || valueColumnOpt.isPresent() && valueColumnOpt.get().getValueCName().equals(columnStorageName)) {
+            if (col.getBanyanDBExtension().isMeasureField()) {
                 builder.spec(columnStorageName, new ColumnSpec(ColumnType.FIELD, col.getType()));
                 result.field(parseFieldSpec(col));
                 continue;

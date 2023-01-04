@@ -131,4 +131,13 @@ public @interface BanyanDB {
     @interface TimestampColumn {
         String value();
     }
+
+    /**
+     * MeasureField defines a column as a measure's field.
+     * @since 9.4.0
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MeasureField {
+    }
 }
