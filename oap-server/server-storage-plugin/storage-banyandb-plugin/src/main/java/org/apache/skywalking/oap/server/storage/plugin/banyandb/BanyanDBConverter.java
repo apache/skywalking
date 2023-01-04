@@ -40,6 +40,9 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 import java.util.List;
 
 public class BanyanDBConverter {
+
+    public static final String ID = "id";
+
     public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;
         private final RowEntity rowEntity;
@@ -151,6 +154,14 @@ public class BanyanDBConverter {
                 }
             } catch (BanyanDBException ex) {
                 log.error("fail to add tag/field", ex);
+            }
+        }
+
+        public void acceptID(String id) {
+            try {
+                this.measureWrite.tag(ID, TagAndValue.stringTagValue(id));
+            } catch (BanyanDBException ex) {
+                log.error("fail to add ID tag", ex);
             }
         }
 

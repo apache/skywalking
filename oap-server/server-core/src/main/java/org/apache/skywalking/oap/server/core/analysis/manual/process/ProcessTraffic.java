@@ -52,6 +52,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     "name",
 })
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
+@BanyanDB.StoreIDTag
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
     public static final String SERVICE_ID = "service_id";

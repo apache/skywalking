@@ -140,4 +140,13 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface MeasureField {
     }
+
+    /**
+     * StoreIDTag indicates a metric store its ID as a tag for searching.
+     * @Since 9.4.0
+     */
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface StoreIDTag {
+    }
 }

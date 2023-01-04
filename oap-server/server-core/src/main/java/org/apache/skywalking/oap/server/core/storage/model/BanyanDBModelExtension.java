@@ -37,4 +37,12 @@ public class BanyanDBModelExtension {
     @Setter
     private String timestampColumn;
 
+    /**
+     * shouldStoreIDTag indicates whether a metric store its ID as a tag.
+     * The installer will create a virtual string ID tag with a tree index rule.
+     */
+    @Getter
+    @Setter
+    private boolean shouldStoreIDTag;
+
 }

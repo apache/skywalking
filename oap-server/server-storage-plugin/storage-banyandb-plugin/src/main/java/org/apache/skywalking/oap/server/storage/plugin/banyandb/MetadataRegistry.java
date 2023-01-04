@@ -94,7 +94,7 @@ public enum MetadataRegistry {
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
         List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder);
-        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags, false);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
@@ -138,7 +138,7 @@ public enum MetadataRegistry {
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
         MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder);
-        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags);
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags, model.getBanyanDBModelExtension().isShouldStoreIDTag());
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
@@ -149,6 +149,10 @@ public enum MetadataRegistry {
                 .map(TagMetadata::getIndexRule)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        if (model.getBanyanDBModelExtension().isShouldStoreIDTag()) {
+            indexRules.add(IndexRule.create(BanyanDBConverter.ID, IndexRule.IndexType.TREE, IndexRule.IndexLocation.SERIES));
+        }
 
         final Measure.Builder builder = Measure.create(schemaMetadata.getGroup(), schemaMetadata.name(),
                 downSamplingDuration(model.getDownsampling()));
@@ -514,14 +518,19 @@ public enum MetadataRegistry {
             }
         }
 
-        private List<TagFamilySpec> extractTagFamilySpec(List<TagMetadata> tagMetadataList) {
+        private List<TagFamilySpec> extractTagFamilySpec(List<TagMetadata> tagMetadataList, boolean shouldAddID) {
+            final String indexFamily = SchemaMetadata.this.indexFamily();
+            final String nonIndexFamily = SchemaMetadata.this.nonIndexFamily();
             Map<String, List<TagMetadata>> tagMetadataMap = tagMetadataList.stream()
-                    .collect(Collectors.groupingBy(tagMetadata -> tagMetadata.isIndex() ? SchemaMetadata.this.indexFamily() : SchemaMetadata.this.nonIndexFamily()));
+                    .collect(Collectors.groupingBy(tagMetadata -> tagMetadata.isIndex() ? indexFamily : nonIndexFamily));
 
             final List<TagFamilySpec> tagFamilySpecs = new ArrayList<>(tagMetadataMap.size());
             for (final Map.Entry<String, List<TagMetadata>> entry : tagMetadataMap.entrySet()) {
                 final TagFamilySpec.Builder b = TagFamilySpec.create(entry.getKey())
                         .addTagSpecs(entry.getValue().stream().map(TagMetadata::getTagSpec).collect(Collectors.toList()));
+                if (shouldAddID && indexFamily.equals(entry.getKey())) {
+                    b.addTagSpec(TagFamilySpec.TagSpec.newStringTag(BanyanDBConverter.ID));
+                }
                 tagFamilySpecs.add(b.build());
             }
 
