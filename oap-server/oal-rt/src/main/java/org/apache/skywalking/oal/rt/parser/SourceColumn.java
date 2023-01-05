@@ -34,14 +34,16 @@ public class SourceColumn {
     private int length;
     private String fieldSetter;
     private String fieldGetter;
+    private boolean banyandbNoIndexing;
 
-    public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length) {
+    public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean banyandbNoIndexing) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.typeName = type.getName();
         this.isID = isID;
         this.length = length;
+        this.banyandbNoIndexing = banyandbNoIndexing;
 
         this.fieldGetter = ClassMethodUtil.toGetMethod(fieldName);
         this.fieldSetter = ClassMethodUtil.toSetMethod(fieldName);
@@ -79,7 +81,7 @@ public class SourceColumn {
 
     @Override
     public String toString() {
-        return "SourceColumn{" + "fieldName='" + fieldName + '\'' + ", columnName='" + columnName + '\'' + ", type=" + type + ", isID=" + isID + '}';
+        return "SourceColumn{" + "fieldName='" + fieldName + '\'' + ", columnName='" + columnName + '\'' + ", type=" + type + ", isID=" + isID + ", banyandbNoIndexing=" + banyandbNoIndexing + "}";
     }
 
     @Override
@@ -89,13 +91,13 @@ public class SourceColumn {
         if (o == null || getClass() != o.getClass())
             return false;
         SourceColumn column = (SourceColumn) o;
-        return isID == column.isID && Objects.equals(fieldName, column.fieldName) && Objects.equals(columnName, column.columnName) && Objects
-            .equals(type, column.type) && Objects.equals(typeName, column.typeName) && Objects.equals(fieldSetter, column.fieldSetter) && Objects
-            .equals(fieldGetter, column.fieldGetter);
+        return isID == column.isID && banyandbNoIndexing == column.isBanyandbNoIndexing() && Objects.equals(fieldName, column.fieldName) && Objects
+                .equals(columnName, column.columnName) && Objects.equals(type, column.type) && Objects.equals(typeName, column.typeName) && Objects
+                .equals(fieldSetter, column.fieldSetter) && Objects.equals(fieldGetter, column.fieldGetter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fieldName, columnName, type, typeName, isID, fieldSetter, fieldGetter);
+        return Objects.hash(fieldName, columnName, type, typeName, isID, fieldSetter, fieldGetter, banyandbNoIndexing);
     }
 }

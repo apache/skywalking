@@ -60,6 +60,7 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     @Setter
     @Getter
     @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @BanyanDB.NoIndexing
     private String serviceId;
 
     @Getter

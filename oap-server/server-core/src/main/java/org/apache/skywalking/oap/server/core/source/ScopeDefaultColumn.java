@@ -34,14 +34,16 @@ public class ScopeDefaultColumn {
     private String columnName;
     private Class<?> type;
     private boolean isID;
+    private boolean banyandbNoIndexing;
     private int length;
 
-    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length) {
+    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean banyandbNoIndexing) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.isID = isID;
         this.length = length;
+        this.banyandbNoIndexing = banyandbNoIndexing;
     }
 
     @Target({ElementType.FIELD})
@@ -52,7 +54,7 @@ public class ScopeDefaultColumn {
         /**
          * Dynamic active means this column is only activated through core setting explicitly.
          *
-         * @return
+         * @return false: Inactive dynamic column. true: Active dynamic column.
          */
         boolean requireDynamicActive() default false;
 
@@ -60,6 +62,14 @@ public class ScopeDefaultColumn {
          * Define column length, only effective when the type is String.
          */
         int length() default 256;
+
+
+        /**
+         * Active indexing for a column(tag) in BanyanDB.
+         *
+         * @return false: Indexing the column, true: No indexing the column.
+         */
+        boolean requiredNoIndexingForBanyanDB() default false;
     }
 
     @Target({ElementType.TYPE})

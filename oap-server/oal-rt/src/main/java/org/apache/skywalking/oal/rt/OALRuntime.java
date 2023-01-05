@@ -275,6 +275,10 @@ public class OALRuntime implements OALEngine {
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
+                if (field.isBanyandbNoIndexing()) {
+                    Annotation banyandbNoIndexingAnnotation = new Annotation(BanyanDB.NoIndexing.class.getName(), constPool);
+                    annotationsAttribute.addAnnotation(banyandbNoIndexingAnnotation);
+                }
 
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
             } catch (CannotCompileException e) {

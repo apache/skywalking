@@ -89,11 +89,14 @@ public enum MetadataRegistry {
                 .collect(Collectors.toMap(modelColumn -> modelColumn.getColumnName().getStorageName(), Function.identity()));
         // parse and set sharding keys
         List<String> shardingColumns = parseEntityNames(modelColumnMap);
+        if (shardingColumns.isEmpty()) {
+            throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
+        }
         // parse tag metadata
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder);
+        List<TagMetadata> tags = parseTagMetadata(model, schemaBuilder, shardingColumns);
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tags, false);
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
@@ -113,9 +116,6 @@ public enum MetadataRegistry {
                 .collect(Collectors.toList());
 
         final Stream.Builder builder = Stream.create(schemaMetadata.getGroup(), schemaMetadata.name());
-        if (shardingColumns.isEmpty()) {
-            throw new IllegalStateException("sharding keys of model[stream." + model.getName() + "] must not be empty");
-        }
         builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
         builder.addIndexes(indexRules);
@@ -137,7 +137,7 @@ public enum MetadataRegistry {
         // this can be used to build both
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
-        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder);
+        MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder, shardingColumns);
         List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags, model.getBanyanDBModelExtension().isShouldStoreIDTag());
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
@@ -158,7 +158,9 @@ public enum MetadataRegistry {
                 downSamplingDuration(model.getDownsampling()));
         builder.setEntityRelativeTags(shardingColumns);
         builder.addTagFamilies(tagFamilySpecs);
-        builder.addIndexes(indexRules);
+        if (!indexRules.isEmpty()) {
+            builder.addIndexes(indexRules);
+        }
         // parse and set field
         for (Measure.FieldSpec field : tagsAndFields.fields) {
             builder.addField(field);
@@ -297,7 +299,7 @@ public enum MetadataRegistry {
      *
      * @since 9.4.0 Skip {@link Record#TIME_BUCKET}
      */
-    List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder) {
+    List<TagMetadata> parseTagMetadata(Model model, Schema.SchemaBuilder builder, List<String> shardingColumns) {
         List<TagMetadata> tagMetadataList = new ArrayList<>();
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
@@ -306,7 +308,8 @@ public enum MetadataRegistry {
             }
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
-            if (col.shouldIndex()) {
+            String colName = col.getColumnName().getStorageName();
+            if (!shardingColumns.contains(colName) && col.shouldIndex()) {
                 // build indexRule
                 IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);
                 tagMetadataList.add(new TagMetadata(indexRule, tagSpec));
@@ -333,7 +336,7 @@ public enum MetadataRegistry {
      *
      * @since 9.4.0 Skip {@link Metrics#TIME_BUCKET}
      */
-    MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder) {
+    MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder, List<String> shardingColumns) {
         // skip metric
         Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
                 .readValueColumnDefinition(model.getName());
@@ -350,7 +353,8 @@ public enum MetadataRegistry {
             }
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
-            result.tag(new TagMetadata(col.shouldIndex() ? parseIndexRule(tagSpec.getTagName(), col) : null, tagSpec));
+            String colName = col.getColumnName().getStorageName();
+            result.tag(new TagMetadata(!shardingColumns.contains(colName) && col.shouldIndex() ? parseIndexRule(tagSpec.getTagName(), col) : null, tagSpec));
         }
 
         return result.build();

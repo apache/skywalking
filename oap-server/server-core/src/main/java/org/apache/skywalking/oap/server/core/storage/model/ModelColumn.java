@@ -104,6 +104,9 @@ public class ModelColumn {
      * @return true means this column should be indexed, as it would be a query condition.
      */
     public boolean shouldIndex() {
+        if (banyanDBExtension != null) {
+            return banyanDBExtension.shouldIndex();
+        }
         return !storageOnly;
     }
 }
