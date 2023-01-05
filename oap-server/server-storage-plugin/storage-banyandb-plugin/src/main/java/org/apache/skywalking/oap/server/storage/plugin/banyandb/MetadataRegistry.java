@@ -309,7 +309,7 @@ public enum MetadataRegistry {
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
-            if (!shardingColumns.contains(colName) && col.shouldIndex()) {
+            if (!shardingColumns.contains(colName) && col.getBanyanDBExtension().shouldIndex()) {
                 // build indexRule
                 IndexRule indexRule = parseIndexRule(tagSpec.getTagName(), col);
                 tagMetadataList.add(new TagMetadata(indexRule, tagSpec));
@@ -354,7 +354,7 @@ public enum MetadataRegistry {
             final TagFamilySpec.TagSpec tagSpec = parseTagSpec(col);
             builder.spec(columnStorageName, new ColumnSpec(ColumnType.TAG, col.getType()));
             String colName = col.getColumnName().getStorageName();
-            result.tag(new TagMetadata(!shardingColumns.contains(colName) && col.shouldIndex() ? parseIndexRule(tagSpec.getTagName(), col) : null, tagSpec));
+            result.tag(new TagMetadata(!shardingColumns.contains(colName) && col.getBanyanDBExtension().shouldIndex() ? parseIndexRule(tagSpec.getTagName(), col) : null, tagSpec));
         }
 
         return result.build();
