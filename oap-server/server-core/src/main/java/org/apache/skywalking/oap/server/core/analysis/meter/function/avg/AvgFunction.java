@@ -61,6 +61,7 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @Setter
     @Getter
     @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @BanyanDB.NoIndexing
     private String serviceId;
 
     @Getter

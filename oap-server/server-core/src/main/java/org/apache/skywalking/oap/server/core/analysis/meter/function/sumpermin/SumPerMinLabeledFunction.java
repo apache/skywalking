@@ -55,6 +55,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
     @Setter
     @Getter
     @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @BanyanDB.NoIndexing
     private String serviceId;
 
     @Getter
