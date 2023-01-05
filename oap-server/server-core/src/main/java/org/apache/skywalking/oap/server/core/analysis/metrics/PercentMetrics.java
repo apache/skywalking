@@ -45,7 +45,7 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     private int percentage;
     @Getter
     @Setter
-    @Column(columnName = MATCH)
+    @Column(columnName = MATCH, storageOnly = true)
     private long match;
 
     @Entrance
