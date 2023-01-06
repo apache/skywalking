@@ -14,58 +14,21 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "default::details" }}.1
-  name: default::details
-  group: default
-  shortname: details
+- id: {{ b64enc "nginx" }}.1
+  name: nginx
+  group: ""
+  shortname: nginx
   layers:
-    {{- contains .layers }}
-    - MESH_DP
-    - MESH
-    {{- end }}
+    - OS_LINUX
   normal: true
-- id: {{ b64enc "istio-system::istio-ingressgateway" }}.1
-  name: istio-system::istio-ingressgateway
-  group: istio-system
-  shortname: istio-ingressgateway
+- id: {{ b64enc "service" }}.1
+  name: service
+  group: ""
+  shortname: service
   layers:
-    - MESH_DP
-  normal: true
-- id: {{ b64enc "default::productpage" }}.1
-  name: default::productpage
-  group: default
-  shortname: productpage
-  layers:
-    {{- contains .layers }}
-    - MESH_DP
-    - MESH
-    {{- end }}
-  normal: true
-- id: {{ b64enc "default::ratings" }}.1
-  name: default::ratings
-  group: default
-  shortname: ratings
-  layers:
-    {{- contains .layers }}
-    - MESH_DP
-    - MESH
-    {{- end }}
-  normal: true
-- id: {{ b64enc "default::reviews" }}.1
-  name: default::reviews
-  group: default
-  shortname: reviews
-  layers:
-    {{- contains .layers }}
-    - MESH_DP
-    - MESH
-    {{- end }}
-  normal: true
-- id: {{ b64enc "istio-system::istio-egressgateway" }}.1
-  name: istio-system::istio-egressgateway
-  group: istio-system
-  shortname: istio-egressgateway
-  layers:
-    - MESH_DP
+  {{- contains .layers }}
+    - OS_LINUX
+    - GENERAL
+  {{- end }}
   normal: true
 {{- end }}

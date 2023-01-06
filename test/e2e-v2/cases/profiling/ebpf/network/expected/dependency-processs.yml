@@ -15,89 +15,51 @@
 
 {{- define "genProcessId" }}
 {{- with $processName := . }}
-{{- with $serviceId := "default::productpage" | b64enc | printf "%s.1" }}
-{{- with $instanceId := "productpage" | b64enc | printf "%s_%s" $serviceId }}
+{{- with $serviceId := "service" | b64enc | printf "%s.1" }}
+{{- with $instanceId := "test" | b64enc | printf "%s_%s" $serviceId }}
 {{- printf "%s" (sha256enc (printf "%s_%s" $processName $instanceId)) }}
 {{- end }}
 {{- end }}
 {{- end }}
 {{- end}}
 
-# ingress pod name
-{{ $ingressProcessName := "" }}
-{{ range .nodes }}
-{{ if hasPrefix .name "istio-ingressgateway" }}
-{{ $ingressProcessName = .name }}
-{{ end }}
-{{ end }}
-
 nodes:
 {{- contains .nodes }}
-- id: {{template "genProcessId" "/usr/local/bin/python"}}
-  name: /usr/local/bin/python
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  serviceinstancename: productpage
+- id: {{template "genProcessId" "service"}}
+  name: service
+  serviceid: {{ b64enc "service" }}.1
+  servicename: service
+  serviceinstanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
+  serviceinstancename: test
   isreal: true
-- id: {{template "genProcessId" "envoy"}}
-  name: envoy
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  serviceinstancename: productpage
-  isreal: true
-- id: {{template "genProcessId" $ingressProcessName }}
-  name: {{$ingressProcessName}}
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  serviceinstancename: productpage
-  isreal: false
-- id: {{template "genProcessId" "kube-dns.kube-system" }}
-  name: kube-dns.kube-system
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  serviceinstanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  serviceinstancename: productpage
+- id: {{template "genProcessId" "UNKNOWN_REMOTE"}}
+  name: UNKNOWN_REMOTE
+  serviceid: {{ b64enc "service" }}.1
+  servicename: service
+  serviceinstanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
+  serviceinstancename: test
   isreal: false
 {{- end }}
 calls:
 {{- contains .calls }}
-- source: {{template "genProcessId" "/usr/local/bin/python"}}
+- source: {{template "genProcessId" "service"}}
   sourcecomponents:
-    - http
-  target: {{template "genProcessId" "envoy"}}
-  targetcomponents:
-    - http
-  id: {{template "genProcessId" "/usr/local/bin/python"}}-{{template "genProcessId" "envoy"}}
-  detectpoints:
-    - CLIENT
-    - SERVER
-- source: {{template "genProcessId" "envoy"}}
-  sourcecomponents:
-    - http
-  target: {{template "genProcessId" "/usr/local/bin/python"}}
-  targetcomponents:
-    - http
-  id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "/usr/local/bin/python"}}
-  detectpoints:
-    - CLIENT
-    - SERVER
-- source: {{template "genProcessId" $ingressProcessName}}
-  sourcecomponents: []
-  target: {{template "genProcessId" "envoy"}}
-  targetcomponents:
-    - https
-  id: {{template "genProcessId" $ingressProcessName}}-{{template "genProcessId" "envoy"}}
-  detectpoints:
-    - SERVER
-- source: {{template "genProcessId" "envoy"}}
-  sourcecomponents:
-    - tcp
-  target: {{template "genProcessId" "kube-dns.kube-system"}}
+  {{- contains .sourcecomponents }}
+  - http
+  {{- end }}
+  target: {{template "genProcessId" "UNKNOWN_REMOTE"}}
   targetcomponents: []
-  id: {{template "genProcessId" "envoy"}}-{{template "genProcessId" "kube-dns.kube-system"}}
+  id: {{template "genProcessId" "service"}}-{{template "genProcessId" "UNKNOWN_REMOTE"}}
   detectpoints:
     - CLIENT
+- source: {{template "genProcessId" "UNKNOWN_REMOTE"}}
+  sourcecomponents: []
+  target: {{template "genProcessId" "service"}}
+  targetcomponents:
+    {{- contains .targetcomponents }}
+    - http
+    {{- end }}
+  id: {{template "genProcessId" "UNKNOWN_REMOTE"}}-{{template "genProcessId" "service"}}
+  detectpoints:
+    - SERVER
 {{- end }}

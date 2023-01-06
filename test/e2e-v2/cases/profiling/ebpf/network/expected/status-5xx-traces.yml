@@ -13,28 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: trafficgenerator
-  labels:
-    app: trafficgenerator
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: trafficgenerator
-  template:
-    metadata:
-      annotations:
-        sidecar.istio.io/inject: "false"
-      labels:
-        app: trafficgenerator
-    spec:
-      containers:
-        - name: trafficgenerator
-          image: williamyeh/wrk
-          command: ["wrk", "-t1", "-c1", "-d2000m", "http://istio-ingressgateway.istio-system:80/productpage"]
-          resources:
-            requests:
-              cpu: 0.1
+{{- contains . }}
+- name: skywalking-/provider
+  id: {{ notEmpty .id }}
+  value: {{ notEmpty .value }}
+  refid: {{ notEmpty .refid }}
+{{- end }}
