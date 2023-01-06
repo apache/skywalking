@@ -42,7 +42,6 @@
 
 transaction:
   defaultType: LOCAL
-  providerType: Atomikos
 
 sqlParser:
   sqlCommentParseEnabled: true
