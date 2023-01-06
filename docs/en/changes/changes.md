@@ -68,12 +68,18 @@
 * Fix `time_bucket` of `ServiceTraffic` not set correctly in `slowSql` of MAL.
 * Correct the TopN record query DAO of BanyanDB.
 * Tweak interval settings of BanyanDB.
+* Support monitoring AWS Cloud EKS.
+* Bump BanyanDB Java client to 0.3.0-rc0.
 
 #### UI
 
 * Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
 * Migrate the build tool from vue cli to Vite4.
 * Fix Instance Relation and Endpoint Relation dashboards show up.
+* Add Micrometer icon
+* Update MySQL UI to support MariaDB
+* Add AWS menu for supporting AWS monitoring
+* Add Zipkin Lens UI as part of Service Mesh dashboard.
 
 #### Documentation
 

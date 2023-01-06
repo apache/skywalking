@@ -1,0 +1,69 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+filter: "{ tags -> tags.job_name == 'aws-cloud-eks-monitoring' }" # The OpenTelemetry job name
+expPrefix: tag({tags -> tags.cluster = 'aws-eks-cluster::' + tags.ClusterName})
+expSuffix: instance(['cluster'],['NodeName'], Layer.AWS_EKS)
+metricPrefix: eks_cluster_node
+metricsRules:
+  - name: pod_number
+    exp: pod_number_of_containers.downsampling(SUM)
+  - name: cpu_utilization
+    exp: node_cpu_utilization
+  - name: memory_utilization
+    exp: node_memory_utilization
+  - name: net_rx_bytes
+    exp: node_network_rx_bytes
+  - name: net_rx_error
+    exp: node_network_rx_errors
+  - name: net_tx_bytes
+    exp: node_network_tx_bytes
+  - name: net_tx_error
+    exp: node_network_tx_errors
+  - name: disk_io_write
+    exp: node_diskio_io_service_bytes_write.sum(['device','cluster','NodeName'])
+  - name: disk_io_read
+    exp: node_diskio_io_service_bytes_read.sum(['device','cluster','NodeName'])
+  - name: fs_utilization
+    exp: node_filesystem_utilization.sum(['device','cluster','NodeName'])
+  # Pod
+  - name: pod_cpu_utilization
+    exp: pod_cpu_utilization.sum(['PodName','cluster','NodeName'])
+  - name: pod_memory_utilization
+    exp: pod_memory_utilization.sum(['PodName','cluster','NodeName'])
+  - name: pod_net_rx_bytes
+    exp: pod_network_rx_bytes.sum(['PodName','cluster','NodeName'])
+  - name: pod_net_rx_error
+    exp: pod_network_rx_errors.sum(['PodName','cluster','NodeName'])
+  - name: pod_net_tx_bytes
+    exp: pod_network_tx_bytes.sum(['PodName','cluster','NodeName'])
+  - name: pod_net_tx_error
+    exp: pod_network_tx_errors.sum(['PodName','cluster','NodeName'])

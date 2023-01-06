@@ -179,6 +179,10 @@ catalog:
             catalog:
               - name: "Linux Monitoring"
                 path: "/en/setup/backend/backend-vm-monitoring"
+          - name: "AWS Cloud Monitoring"
+            catalog:
+              - name: "EKS Monitoring"
+                path: "/en/setup/backend/backend-aws-eks-monitoring"
           - name: "Browser Monitoring"
             path: "/en/setup/service-agent/browser-agent"
           - name: "Gateway Monitoring"

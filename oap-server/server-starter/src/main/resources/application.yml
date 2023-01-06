@@ -353,7 +353,7 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
-    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap"}
+    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}

@@ -1,0 +1,279 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "AutoScalingGroupName",
+            "value": {
+              "stringValue": "eks-node-2-46c25931-6b80-2e04-5023-cca9e97c589d"
+            }
+          },
+          {
+            "key": "ClusterName",
+            "value": {
+              "stringValue": "SkyWalking"
+            }
+          },
+          {
+            "key": "Type",
+            "value": {
+              "stringValue": "Node"
+            }
+          },
+          {
+            "key": "NodeName",
+            "value": {
+              "stringValue": "ip-172-31-10-158.ap-northeast-1.compute.internal"
+            }
+          },
+          {
+            "key": "InstanceId",
+            "value": {
+              "stringValue": "i-06c02c575d866b59b"
+            }
+          },
+          {
+            "key": "InstanceType",
+            "value": {
+              "stringValue": "t3.medium"
+            }
+          },
+          {
+            "key": "kubernetes",
+            "value": {
+              "stringValue": "{\"host\":\"ip-172-31-10-158.ap-northeast-1.compute.internal\"}"
+            }
+          },
+          {
+            "key": "Sources",
+            "value": {
+              "stringValue": "[\"cadvisor\",\"/proc\",\"pod\",\"calculated\"]"
+            }
+          },
+          {
+            "key": "Timestamp",
+            "value": {
+              "stringValue": "1669442689514"
+            }
+          },
+          {
+            "key": "Version",
+            "value": {
+              "stringValue": "0"
+            }
+          },
+          {
+            "key": "job_name",
+            "value": {
+              "stringValue": "aws-cloud-eks-monitoring"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {},
+          "metrics": [
+            {
+              "name": "node_memory_utilization",
+              "unit": "Percent",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 16.00333280879926
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "NodeName",
+            "value": {
+              "stringValue": "ip-172-31-10-158.ap-northeast-1.compute.internal"
+            }
+          },
+          {
+            "key": "Sources",
+            "value": {
+              "stringValue": "[\"apiserver\"]"
+            }
+          },
+          {
+            "key": "Type",
+            "value": {
+              "stringValue": "Cluster"
+            }
+          },
+          {
+            "key": "Version",
+            "value": {
+              "stringValue": "0"
+            }
+          },
+          {
+            "key": "ClusterName",
+            "value": {
+              "stringValue": "SkyWalking"
+            }
+          },
+          {
+            "key": "Timestamp",
+            "value": {
+              "stringValue": "1669442693795"
+            }
+          },
+          {
+            "key": "job_name",
+            "value": {
+              "stringValue": "aws-cloud-eks-monitoring"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {},
+          "metrics": [
+            {
+              "name": "cluster_node_count",
+              "unit": "Count",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442693795487301",
+                    "asInt": "1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "Version",
+            "value": {
+              "stringValue": "0"
+            }
+          },
+          {
+            "key": "InstanceId",
+            "value": {
+              "stringValue": "i-06c02c575d866b59b"
+            }
+          },
+          {
+            "key": "InstanceType",
+            "value": {
+              "stringValue": "t3.medium"
+            }
+          },
+          {
+            "key": "AutoScalingGroupName",
+            "value": {
+              "stringValue": "eks-node-2-46c25931-6b80-2e04-5023-cca9e97c589d"
+            }
+          },
+          {
+            "key": "PodName",
+            "value": {
+              "stringValue": "eks-sample-linux-deployment"
+            }
+          },
+          {
+            "key": "Type",
+            "value": {
+              "stringValue": "Pod"
+            }
+          },
+          {
+            "key": "NodeName",
+            "value": {
+              "stringValue": "ip-172-31-10-158.ap-northeast-1.compute.internal"
+            }
+          },
+          {
+            "key": "ClusterName",
+            "value": {
+              "stringValue": "SkyWalking"
+            }
+          },
+          {
+            "key": "pod_status",
+            "value": {
+              "stringValue": "Running"
+            }
+          },
+          {
+            "key": "kubernetes",
+            "value": {
+              "stringValue": "{\"host\":\"ip-172-31-10-158.ap-northeast-1.compute.internal\",\"labels\":{\"app\":\"eks-sample-linux-app\",\"pod-template-hash\":\"764959fd66\"},\"namespace_name\":\"default\",\"pod_id\":\"52c5847b-f68c-4d4b-ae9e-e85f95f972bf\",\"pod_name\":\"eks-sample-linux-deployment-764959fd66-fql4v\",\"pod_owners\":[{\"owner_kind\":\"Deployment\",\"owner_name\":\"eks-sample-linux-deployment\"}]}"
+            }
+          },
+          {
+            "key": "Sources",
+            "value": {
+              "stringValue": "[\"cadvisor\",\"pod\",\"calculated\"]"
+            }
+          },
+          {
+            "key": "Namespace",
+            "value": {
+              "stringValue": "default"
+            }
+          },
+          {
+            "key": "Timestamp",
+            "value": {
+              "stringValue": "1669442684150"
+            }
+          },
+          {
+            "key": "Service",
+            "value": {
+              "stringValue": "kube-dns"
+            }
+          },
+          {
+            "key": "job_name",
+            "value": {
+              "stringValue": "aws-cloud-eks-monitoring"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {},
+          "metrics": [
+            {
+              "name": "pod_network_rx_bytes",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442684150753695",
+                    "asDouble": 0
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+  ]
+}
+

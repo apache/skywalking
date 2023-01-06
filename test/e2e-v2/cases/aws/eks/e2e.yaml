@@ -13,17 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-server:
-  port: 9093
+# This file is used to show how to write configuration files and can be used to test.
 
-spring:
-  main:
-    banner-mode: 'off'
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-e2e:
-  oap-host: ${OAP_HOST:127.0.0.1}
-  oap-grpc-port: ${OAP_GRPC_PORT:11800}
-  zipkin-kafka-bootstrapServers: ${ZIPKIN_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
-  zipkin-kafka-groupId: ${ZIPKIN_KAFKA_GROUPID:zipkin}
-  zipkin-kafka-topic: ${ZIPKIN_KAFKA_TOPIC:zipkin}
-  otel-metrics-data-path: ${OTEL_METRICS_DATA_PATH:/data/otel-metrics/}
+trigger:
+  action: http
+  interval: 3s
+  times: 10
+  url: http://localhost:9093/otel-metrics/send
+  method: GET
+
+verify:
+  retry:
+    count: 10
+    interval: 3s
+  cases:
+    - includes:
+        - ./eks-cases.yaml

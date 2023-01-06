@@ -1,0 +1,918 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "AWS_EKS-node",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Node",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Pod Count"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_number"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CPU Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_cpu_utilization"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Memory Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_memory_utilization"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network RX (KB per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_net_rx_bytes"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToKB"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network RX Error Count (per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_net_rx_error"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network TX (KB per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_net_tx_bytes"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToKB"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network TX Error Count (per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_net_tx_error"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Disk IO Write (byte per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_disk_io_write"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Disk IO Read (byte per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_disk_io_read"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "10",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "FS Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_fs_utilization"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    },
+                    {
+                      "widgetId": "7"
+                    },
+                    {
+                      "widgetId": "8"
+                    },
+                    {
+                      "widgetId": "9"
+                    },
+                    {
+                      "widgetId": "10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Pod",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "11",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CPU Utilization"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_cpu_utilization"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "12",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Memory Utilization"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_memory_utilization"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "13",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network RX (KB per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_net_rx_bytes"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToKB"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "14",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network RX Error Count (per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_net_rx_error"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "15",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network TX (KB per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_net_tx_bytes"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToKB"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "16",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network TX Error Count (per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_node_pod_net_tx_error"
+                  ],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "11"
+                    },
+                    {
+                      "widgetId": "12"
+                    },
+                    {
+                      "widgetId": "13"
+                    },
+                    {
+                      "widgetId": "14"
+                    },
+                    {
+                      "widgetId": "15"
+                    },
+                    {
+                      "widgetId": "16"
+                    }
+                  ]
+                }
+
+              ]
+
+            }
+
+
+          ]
+        }
+
+      ],
+
+      "layer": "AWS_EKS",
+      "entity": "ServiceInstance",
+      "name": "AWS_EKS-node",
+      "id": "AWS_EKS-node",
+      "isRoot": false
+    }
+  }
+]

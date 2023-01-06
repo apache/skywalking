@@ -32,6 +32,7 @@
         <module>e2e-service-consumer</module>
         <module>e2e-mock-sender</module>
         <module>e2e-protocol</module>
+        <module>opentelemetry-proto</module>
     </modules>
 
     <properties>
