@@ -79,6 +79,7 @@
 * Add Micrometer icon
 * Update MySQL UI to support MariaDB
 * Add AWS menu for supporting AWS monitoring
+* Add Zipkin Lens UI as part of Service Mesh dashboard.
 
 #### Documentation
 
