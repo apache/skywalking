@@ -147,6 +147,6 @@ public @interface BanyanDB {
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface StoreIDTag {
+    @interface StoreIDAsTag {
     }
 }
