@@ -32,31 +32,26 @@
 #      timeToLiveSeconds: 60
 #      maxRetries: 3
 #      operationTimeoutMilliseconds: 500
-#  overwrite: false
 #
-rules:
- - !AUTHORITY
-   users:
-     - root@:root
-   provider:
-     type: ALL_PERMITTED
- - !TRANSACTION
-   defaultType: XA
-   providerType: Atomikos
-   # When the provider type is Narayana, the following properties can be configured or not
-   props:
-     recoveryStoreUrl: jdbc:mysql://127.0.0.1:3306/jbossts
-     recoveryStoreDataSource: com.mysql.jdbc.jdbc2.optional.MysqlDataSource
-     recoveryStoreUser: root
-     recoveryStorePassword: 12345678
- - !SQL_PARSER
-   sqlCommentParseEnabled: true
-   sqlStatementCache:
-     initialCapacity: 2000
-     maximumSize: 65535
-   parseTreeCache:
-     initialCapacity: 128
-     maximumSize: 1024
+#authority:
+#  users:
+#    - user: root@%
+#      password: root
+#  privilege:
+#    type: ALL_PERMITTED
+
+transaction:
+  defaultType: XA
+  providerType: Atomikos
+
+sqlParser:
+  sqlCommentParseEnabled: true
+  sqlStatementCache:
+    initialCapacity: 2000
+    maximumSize: 65535
+  parseTreeCache:
+    initialCapacity: 128
+    maximumSize: 1024
 
 props:
   max-connections-size-per-query: 1
@@ -78,6 +73,6 @@ props:
   sql-federation-enabled: false
     # Available proxy backend driver type: JDBC (default), ExperimentalVertx
   proxy-backend-driver-type: JDBC
-  proxy-mysql-default-version: 5.7.22 # In the absence of schema name, the default version will be used.
+  proxy-mysql-default-version: 8.0.13 # In the absence of schema name, the default version will be used.
   proxy-default-port: 3307 # Proxy default port.
   proxy-netty-backlog: 1024 # Proxy netty backlog.

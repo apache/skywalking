@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   sharding-proxy:
-    image: apache/shardingsphere-proxy:${SS_VERSION}
+    image: ghcr.io/apache/shardingsphere-proxy:${SS_VERSION}
     volumes:
       - ./download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
       - ./conf-mysql:/opt/shardingsphere-proxy/conf
