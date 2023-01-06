@@ -70,6 +70,7 @@
 * Tweak interval settings of BanyanDB.
 * Support monitoring AWS Cloud EKS.
 * Bump BanyanDB Java client to 0.3.0-rc0.
+* Add the eBPF network profiling E2E Test in the per storage.
 
 #### UI
 

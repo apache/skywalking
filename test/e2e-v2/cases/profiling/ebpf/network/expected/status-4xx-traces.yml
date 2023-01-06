@@ -14,22 +14,8 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ notEmpty .id }}
-  name: service
-  serviceid: {{ b64enc "service" }}.1
-  servicename: service
-  instanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
-  instancename: test
-  agentid: {{ notEmpty .agentid }}
-  detecttype: VM
-  attributes:
-    {{- contains .attributes }}
-    - name: host_ip
-      value: {{ notEmpty .value }}
-    - name: pid
-      value: {{ notEmpty .value }}
-    - name: command_line
-      value: /service/service
-    {{- end }}
-  labels: []
+- name: skywalking-/notfound
+  id: {{ notEmpty .id }}
+  value: {{ notEmpty .value }}
+  refid: {{ notEmpty .refid }}
 {{- end }}

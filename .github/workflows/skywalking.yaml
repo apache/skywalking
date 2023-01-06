@@ -518,14 +518,29 @@ jobs:
           - name: eBPF Profiling Off CPU
             config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
             runs-on: ubuntu-20.04
-          - name: eBPF Profiling Network
-            config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
-            env: ISTIO_VERSION=1.13.1
-            runs-on: ubuntu-20.04
+          - name: eBPF Profiling Network BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/network/banyandb/e2e.yaml
+          - name: eBPF Profiling Network H2
+            config: test/e2e-v2/cases/profiling/ebpf/network/h2/e2e.yaml
+          - name: eBPF Profiling Network ES
+            config: test/e2e-v2/cases/profiling/ebpf/network/es/e2e.yaml
           - name: eBPF Profiling Network ES Sharding
-            config: test/e2e-v2/cases/profiling/ebpf/network/es-sharding/e2e.yaml
-            env: ISTIO_VERSION=1.13.1
-            runs-on: ubuntu-20.04
+            config: test/e2e-v2/cases/profiling/ebpf/network/es/es-sharding/e2e.yaml
+          - name: eBPF Profiling Network MySQL
+            config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
+          - name: eBPF Profiling Network Postgres
+            config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
+          - name: eBPF Profiling Network TiDB
+            config: test/e2e-v2/cases/profiling/ebpf/network/tidb/e2e.yaml
+          - name: eBPF Profiling Network OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: eBPF Profiling Network OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: eBPF Profiling Network OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml

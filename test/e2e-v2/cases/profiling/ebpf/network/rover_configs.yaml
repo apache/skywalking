@@ -1,0 +1,155 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+logger:
+  # The lowest level of printing allowed.
+  level: ${ROVER_LOGGER_LEVEL:DEBUG}
+
+core:
+  backend:
+    # The backend server address
+    addr: ${ROVER_BACKEND_ADDR:localhost:11800}
+    # The TLS switch
+    enable_TLS: ${ROVER_BACKEND_ENABLE_TLS:false}
+    # The file path of client.pem. The config only works when opening the TLS switch.
+    client_pem_path: ${ROVER_BACKEND_PEM_PATH:"client.pem"}
+    # The file path of client.key. The config only works when opening the TLS switch.
+    client_key_path: ${ROVER_BACKEND_KEY_PATH:"client.key"}
+    # InsecureSkipVerify controls whether a client verifies the server's certificate chain and host name.
+    insecure_skip_verify: ${ROVER_BACKEND_INSECURE_SKIP_VERIFY:false}
+    # The file path oca.pem. The config only works when opening the TLS switch.
+    ca_pem_path: ${ROVER_BACKEND_CA_PEM_PATH:"ca.pem"}
+    # How frequently to check the connection(second)
+    check_period: ${ROVER_BACKEND_CHECK_PERIOD:5}
+    # The auth value when send request
+    authentication: ${ROVER_BACKEND_AUTHENTICATION:""}
+
+process_discovery:
+  # The period of report or keep alive process(second)
+  heartbeat_period: ${ROVER_PROCESS_DISCOVERY_HEARTBEAT_PERIOD:20s}
+  # The agent sends the process properties to the backend every: heartbeart period * properties report period
+  properties_report_period: ${ROVER_PROCESS_DISCOVERY_PROPERTIES_REPORT_PERIOD:10}
+  # Scan process from linux
+  scanner:
+    # The period to detect the process
+    period: ${ROVER_PROCESS_DISCOVERY_SCAN_PERIOD:3s}
+    # The process detection modes of the scanner. Support "REGEX", "AGENT_SENSOR"
+    mode: ${ROVER_PROCESS_DISCOVERY_SCAN_MODE:REGEX}
+    agent:
+      # Set the agent refresh period
+      process_status_refresh_period: ${ROVER_PROCESS_DISCOVERY_AGENT_PROCESS_STATUS_REFRESH_PERIOD:1m}
+    regex:
+      # Use regex string to locate the processes
+      # Duplicate entities cannot be reported. If multiple entity are generated, only one process will be report
+      # If the multiple finders could match the same one process, only the first finder could be selected and report
+      - match_cmd: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_MATCH_CMD1:nginx}
+        # The Layer need to relate to the process entity
+        layer: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_LAYER1:OS_LINUX}
+        # The Service Name need to relate to the process entity
+        service_name: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_SERVICE_NAME1:nginx}
+        # The Service Instance Name need to relate to the process entity
+        # By default the instance name is the host IP v4 address from "en0" net interface
+        instance_name: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_INSTANCE_NAME1:test}
+        # The Process Name need to relate to the process entity
+        # By default, the process name is the executable name of the process
+        process_name: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_PROCESS_NAME1:{{.Process.ExeName}}-{{.Process.Pid}}}
+        # The Process Labels, used to aggregate similar process from service entity
+        # Multiple labels split by ","
+        labels: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_LABELS:}
+      - match_cmd: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_MATCH_CMD2:/service$}
+        # The Layer need to relate to the process entity
+        layer: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_LAYER2:OS_LINUX}
+        # The Service Name need to relate to the process entity
+        service_name: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_SERVICE_NAME2:service}
+        # The Service Instance Name need to relate to the process entity
+        # By default the instance name is the host IP v4 address from "en0" net interface
+        instance_name: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_INSTANCE_NAME2:test}
+        # The Process Name need to relate to the process entity
+        # By default, the process name is the executable name of the process
+        process_name: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_PROCESS_NAME2:{{.Process.ExeName}}}
+        # The Process Labels, used to aggregate similar process from service entity
+        # Multiple labels split by ","
+        labels: ${ROVER_PROCESS_DISCOVERY_REGEX_SCANNER_LABELS:}
+  kubernetes:
+    # Is active the kubernetes process detector
+    active: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ACTIVE:false}
+    # Current node name in kubernetes environment
+    node_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_NODE_NAME:}
+    # include namespaces, multiple namespace split by ",", if empty means including all namespaces
+    namespaces: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_NAMESPACES:}
+    analyzers:
+      - active: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_ACTIVE:true}
+        filters:
+          - ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_HAS_ENVOY:.Pod.HasContainer "istio-proxy"}
+          - ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_CONTAINER_IS_ENVOY:eq .Container.Name "istio-proxy"}
+        layer: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_LAYER:MESH_DP}
+        service_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_SERVICE_NAME:{{.Pod.Namespace}}::{{.Pod.LabelValue "service.istio.io/canonical-name,app.kubernetes.io/name,app" }}}
+        instance_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_INSTANCE_NAME:{{.Pod.Name}}}
+        process_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_PROCESS_NAME:{{.Process.ExeName}}}
+        labels: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_ENVOY_LABELS:mesh-envoy}
+      - active: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_ACTIVE:true}
+        filters:
+          - ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_HAS_ENVOY:.Pod.HasContainer "istio-proxy"}
+          - ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_CONTAINER_NOT_ENVOY:ne .Container.Name "istio-proxy"}
+        layer: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_LAYER:MESH}
+        service_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_SERVICE_NAME:{{.Pod.Namespace}}::{{.Pod.LabelValue "service.istio.io/canonical-name,app.kubernetes.io/name,app" }}}
+        instance_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_INSTANCE_NAME:{{.Pod.Name}}}
+        process_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_PROCESS_NAME:{{.Process.ExeName}}}
+        labels: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_ISTIO_APPLICATION_LABELS:mesh-application}
+      - active: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_ACTIVE:true}
+        filters:
+          - ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_HAS_SERVICE:.Pod.HasServiceName}
+        layer: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_LAYER:K8S_SERVICE}
+        service_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_NAME:{{.Pod.Namespace}}::{{.Pod.ServiceName}}}
+        instance_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_INSTANCE_NAME:{{.Pod.Name}}}
+        process_name: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_PROCESS_NAME:{{.Process.ExeName}}}
+        labels: ${ROVER_PROCESS_DISCOVERY_KUBERNETES_ANALYZER_K8S_SERVICE_LABLES:k8s-service}
+
+profiling:
+  # Is active the process profiling
+  active: ${ROVER_PROFILING_ACTIVE:true}
+  # Check the profiling task interval
+  check_interval: ${ROVER_PROFILING_CHECK_INTERVAL:10s}
+  # Combine existing profiling data and report to the backend interval
+  flush_interval: ${ROVER_PROFILING_FLUSH_INTERVAL:5s}
+  # Customize profiling task config
+  task:
+    # The config when executing ON_CPU profiling task
+    on_cpu:
+      # The profiling stack dump period
+      dump_period: ${ROVER_PROFILING_TASK_ON_CPU_DUMP_PERIOD:9ms}
+    network:
+      # The interval of send metrics to the backend
+      report_interval: ${ROVER_PROFILING_TASK_NETWORK_TOPOLOGY_REPORT_INTERVAL:2s}
+      # The prefix of network profiling metrics name
+      meter_prefix: ${ROVER_PROFILING_TASK_NETWORK_TOPOLOGY_METER_PREFIX:rover_net_p}
+      # The protocol analyzer config for 7-Layer
+      protocol_analyze:
+        # The size of socket data buffer on each CPU
+        per_cpu_buffer: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_PER_CPU_BUFFER:400KB}
+        # The count of parallel protocol analyzer
+        parallels: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_PARALLELS:2}
+        # The size of per paralleled analyzer queue
+        queue_size: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_QUEUE_SIZE:5000}
+        # The profiling config of the protocols
+        sampling:
+          # The HTTP/1.x and HTTP/2.x profiling config
+          http:
+            # The default body encoding when sampling the request
+            default_request_encoding: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_SAMPLING_HTTP_DEFAULT_REQUEST_ENCODING:UTF-8}
+            # The default body encoding when sampling the response
+            default_response_encoding: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_SAMPLING_HTTP_DEFAULT_RESPONSE_ENCODING:UTF-8}
