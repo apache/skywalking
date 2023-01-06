@@ -32,31 +32,25 @@
 #      timeToLiveSeconds: 60
 #      maxRetries: 3
 #      operationTimeoutMilliseconds: 500
-#  overwrite: false
 #
-rules:
- - !AUTHORITY
-   users:
-     - root@:root
-   provider:
-     type: ALL_PERMITTED
- - !TRANSACTION
-   defaultType: XA
-   providerType: Atomikos
-   # When the provider type is Narayana, the following properties can be configured or not
-   props:
-     recoveryStoreUrl: jdbc:mysql://127.0.0.1:3306/jbossts
-     recoveryStoreDataSource: com.mysql.jdbc.jdbc2.optional.MysqlDataSource
-     recoveryStoreUser: root
-     recoveryStorePassword: 12345678
- - !SQL_PARSER
-   sqlCommentParseEnabled: true
-   sqlStatementCache:
-     initialCapacity: 2000
-     maximumSize: 65535
-   parseTreeCache:
-     initialCapacity: 128
-     maximumSize: 1024
+#authority:
+#  users:
+#    - user: root@%
+#      password: root
+#  privilege:
+#    type: ALL_PERMITTED
+
+transaction:
+  defaultType: LOCAL
+
+sqlParser:
+  sqlCommentParseEnabled: true
+  sqlStatementCache:
+    initialCapacity: 2000
+    maximumSize: 65535
+  parseTreeCache:
+    initialCapacity: 128
+    maximumSize: 1024
 
 props:
   max-connections-size-per-query: 1
@@ -67,17 +61,17 @@ props:
   check-table-metadata-enabled: false
   show-process-list-enabled: false
     # Proxy backend query fetch size. A larger value may increase the memory usage of ShardingSphere Proxy.
-    # The default value is -1, which means set the minimum value for different JDBC drivers.
+  # The default value is -1, which means set the minimum value for different JDBC drivers.
   proxy-backend-query-fetch-size: -1
   check-duplicate-table-enabled: false
   proxy-frontend-executor-size: 0 # Proxy frontend executor size. The default value is 0, which means let Netty decide.
     # Available options of proxy backend executor suitable: OLAP(default), OLTP. The OLTP option may reduce time cost of writing packets to client, but it may increase the latency of SQL execution
-    # and block other clients if client connections are more than `proxy-frontend-executor-size`, especially executing slow SQL.
+  # and block other clients if client connections are more than `proxy-frontend-executor-size`, especially executing slow SQL.
   proxy-backend-executor-suitable: OLAP
   proxy-frontend-max-connections: 0 # Less than or equal to 0 means no limitation.
   sql-federation-enabled: false
-    # Available proxy backend driver type: JDBC (default), ExperimentalVertx
+  # Available proxy backend driver type: JDBC (default), ExperimentalVertx
   proxy-backend-driver-type: JDBC
-  proxy-mysql-default-version: 5.7.22 # In the absence of schema name, the default version will be used.
+  proxy-mysql-default-version: 8.0.13 # In the absence of schema name, the default version will be used.
   proxy-default-port: 3307 # Proxy default port.
   proxy-netty-backlog: 1024 # Proxy netty backlog.

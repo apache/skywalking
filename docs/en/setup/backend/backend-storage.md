@@ -12,7 +12,7 @@ Natively supported storage:
 - OpenSearch
 - ElasticSearch 6, 7, 8
 - MySQL
-- MySQL-Sharding(Shardingsphere-Proxy 5.1.2)
+- MySQL-Sharding(Shardingsphere-Proxy 5.3.1)
 - TiDB
 - PostgreSQL
 - BanyanDB
@@ -278,7 +278,7 @@ MySQL-Sharding plugin provides the MySQL database sharding and table sharding, t
 leverage [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy)
 to manage the JDBC between OAP and multi-database instances, and according to the sharding rules do routing to the database and table sharding.
 
-Tested Shardingsphere-Proxy 5.1.2 version, and MySQL Client driver 8.0.13 version is currently available.
+Tested Shardingsphere-Proxy 5.3.1 version, and MySQL Client driver 8.0.13 version is currently available.
 Activate MySQL and Shardingsphere-Proxy as storage, and set storage provider to **mysql-sharding**.
 
 **NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes.

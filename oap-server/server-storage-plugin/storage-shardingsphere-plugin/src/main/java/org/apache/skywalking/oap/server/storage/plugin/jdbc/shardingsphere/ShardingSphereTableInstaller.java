@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -30,6 +32,7 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 /**
@@ -55,7 +58,7 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     @Override
     public boolean isExists(Model model) throws StorageException {
         boolean isRuleExecuted = false;
-        boolean isTableExist = delegatee.isExists(model);
+        boolean isTableExist = isTableExists(model);
         JDBCHikariCPClient jdbcClient = (JDBCHikariCPClient) client;
         ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         int ttl = model.isRecord() ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
@@ -63,6 +66,20 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
             isRuleExecuted = ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(jdbcClient, model, this.dataSources, ttl);
         }
         return isTableExist && !isRuleExecuted;
+    }
+
+    private boolean isTableExists(Model model) throws StorageException {
+        TableMetaInfo.addModel(model);
+        JDBCHikariCPClient jdbcClient = (JDBCHikariCPClient) client;
+        try (Connection conn = jdbcClient.getConnection()) {
+            ResultSet resultSet = jdbcClient.executeQuery(conn, String.format("SHOW LOGICAL TABLES LIKE '%s'", model.getName()));
+            if (resultSet.next()) {
+                return true;
+            }
+        } catch (SQLException | JDBCClientException e) {
+            throw new StorageException(e.getMessage(), e);
+        }
+        return false;
     }
 
     @Override
