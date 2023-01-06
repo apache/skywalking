@@ -50,7 +50,7 @@ public class ServiceInstanceJVMCPU extends Source {
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", requiredNoIndexingForBanyanDB = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter

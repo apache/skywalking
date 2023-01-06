@@ -54,7 +54,7 @@ public class Endpoint extends Source {
     @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", requiredNoIndexingForBanyanDB = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter

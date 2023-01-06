@@ -69,8 +69,10 @@
 * Correct the TopN record query DAO of BanyanDB.
 * Tweak interval settings of BanyanDB.
 * Support monitoring AWS Cloud EKS.
-* Bump BanyanDB Java client to 0.3.0-rc0.
+* Bump BanyanDB Java client to 0.3.0-rc1.
 * Remove `id` tag from measures.
+* Add `Banyandb.MeasureField` to mark a column as a BanyanDB Measure field.
+* Add `BanyanDB.StoreIDTag` to store a process's id for searching.
 
 #### UI
 

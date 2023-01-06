@@ -56,7 +56,6 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
     @Setter
     @Getter
     @Column(columnName = InstanceTraffic.SERVICE_ID)
-    @BanyanDB.NoIndexing
     private String serviceId;
 
     @Getter

@@ -31,7 +31,7 @@ public class SourceColumnsFactory {
         for (ScopeDefaultColumn defaultColumn : columns) {
             sourceColumns.add(
                 new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(), defaultColumn
-                    .getType(), defaultColumn.isID(), defaultColumn.getLength(), defaultColumn.isBanyandbNoIndexing()));
+                    .getType(), defaultColumn.isID(), defaultColumn.getLength()));
         }
         return sourceColumns;
     }
