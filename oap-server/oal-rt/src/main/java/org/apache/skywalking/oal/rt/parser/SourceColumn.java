@@ -90,8 +90,8 @@ public class SourceColumn {
             return false;
         SourceColumn column = (SourceColumn) o;
         return isID == column.isID && Objects.equals(fieldName, column.fieldName) && Objects.equals(columnName, column.columnName) && Objects
-                .equals(type, column.type) && Objects.equals(typeName, column.typeName) && Objects.equals(fieldSetter, column.fieldSetter) && Objects
-                .equals(fieldGetter, column.fieldGetter);
+            .equals(type, column.type) && Objects.equals(typeName, column.typeName) && Objects.equals(fieldSetter, column.fieldSetter) && Objects
+            .equals(fieldGetter, column.fieldGetter);
     }
 
     @Override
