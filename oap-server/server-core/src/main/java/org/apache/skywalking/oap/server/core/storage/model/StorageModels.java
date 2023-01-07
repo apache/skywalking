@@ -94,7 +94,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
-            banyanDBModelExtension.setShouldStoreIDTag(true);
+            banyanDBModelExtension.setStoreIDTag(true);
         }
 
         checker.check(storage.getModelName());

@@ -45,6 +45,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.Singular;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
@@ -138,7 +139,7 @@ public enum MetadataRegistry {
         // 1) a list of TagFamilySpec,
         // 2) a list of IndexRule,
         MeasureMetadata tagsAndFields = parseTagAndFieldMetadata(model, schemaBuilder, shardingColumns);
-        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags, model.getBanyanDBModelExtension().isShouldStoreIDTag());
+        List<TagFamilySpec> tagFamilySpecs = schemaMetadata.extractTagFamilySpec(tagsAndFields.tags, model.getBanyanDBModelExtension().isStoreIDTag());
         // iterate over tagFamilySpecs to save tag names
         for (final TagFamilySpec tagFamilySpec : tagFamilySpecs) {
             for (final TagFamilySpec.TagSpec tagSpec : tagFamilySpec.tagSpecs()) {
@@ -150,7 +151,7 @@ public enum MetadataRegistry {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (model.getBanyanDBModelExtension().isShouldStoreIDTag()) {
+        if (model.getBanyanDBModelExtension().isStoreIDTag()) {
             indexRules.add(IndexRule.create(BanyanDBConverter.ID, IndexRule.IndexType.TREE, IndexRule.IndexLocation.SERIES));
         }
 
@@ -473,6 +474,7 @@ public enum MetadataRegistry {
 
     @RequiredArgsConstructor
     @Data
+    @ToString
     public static class SchemaMetadata {
         private final String group;
         /**

@@ -69,7 +69,7 @@ public class ServiceTraffic extends Metrics {
     @Column(columnName = NAME)
     @ElasticSearch.MatchQuery
     @ElasticSearch.Column(columnAlias = "service_traffic_name")
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
 
     @Setter
@@ -92,7 +92,7 @@ public class ServiceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = LAYER)
-    @BanyanDB.SeriesID(index = 1)
+    @BanyanDB.SeriesID(index = 0)
     private Layer layer = Layer.UNDEFINED;
 
     /**
