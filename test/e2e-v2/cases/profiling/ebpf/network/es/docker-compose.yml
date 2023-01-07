@@ -16,45 +16,73 @@
 version: '2.1'
 
 services:
-  sharding-proxy:
-    image: ghcr.io/apache/shardingsphere-proxy:${SS_VERSION}
-    volumes:
-      - ./download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
-      - ./conf-mysql:/opt/shardingsphere-proxy/conf
+  es:
+    image: elastic/elasticsearch:7.15.0
+    expose:
+      - 9200
     networks:
       - e2e
-    expose:
-      - 3307
-    entrypoint: ['sh', '-c', '/opt/shardingsphere-proxy/download-mysql.sh /opt/shardingsphere-proxy/ext-lib && /opt/shardingsphere-proxy/bin/start.sh 3307 && tail -f /opt/shardingsphere-proxy/logs/stdout.log']
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3307"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-    depends_on:
-      data-source-0:
-        condition: service_healthy
-      data-source-1:
-        condition: service_healthy
-
-  data-source-0: &ds
-    image: mysql/mysql-server:8.0.13
-    networks:
-      - e2e
-    expose:
-      - 3306
     environment:
-      MYSQL_ROOT_PASSWORD: "root@1234"
-      MYSQL_DATABASE: "swtest"
-      MYSQL_ROOT_HOST: "%"
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
     healthcheck:
-      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306" ]
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200" ]
       interval: 5s
       timeout: 60s
       retries: 120
 
-  data-source-1:
-    <<: *ds
+  oap:
+    extends:
+      file: ../docker-compose.yml
+      service: oap
+    networks:
+      - e2e
+    environment:
+      SW_STORAGE: elasticsearch
+    depends_on:
+      es:
+        condition: service_healthy
+    ports:
+    - 12800
+
+  rover:
+    extends:
+      file: ../docker-compose.yml
+      service: rover
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  service:
+    extends:
+      file: ../docker-compose.yml
+      service: service
+    networks:
+      - e2e
+    environment:
+      OAP_BACKEND_ADDR: oap:11800
+    ports:
+      - 80
+    depends_on:
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/80" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  proxy:
+    extends:
+      file: ../docker-compose.yml
+      service: proxy
+    networks:
+      - e2e
+    depends_on:
+      service:
+        condition: service_healthy
 
 networks:
   e2e:

@@ -93,7 +93,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
 
-        if (aClass.isAnnotationPresent(BanyanDB.StoreIDTag.class)) {
+        if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
             banyanDBModelExtension.setShouldStoreIDTag(true);
         }
 
@@ -194,7 +194,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
                     elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
-                        keywordColumn != null
+                    keywordColumn != null
                 );
 
                 // BanyanDB extension
@@ -213,7 +213,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     banyanDBGlobalIndex != null,
                     banyanDBNoIndex == null && !column.storageOnly(),
                     banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
-                        banyanDBMeasureField != null
+                    banyanDBMeasureField != null
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(

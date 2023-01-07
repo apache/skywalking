@@ -90,19 +90,16 @@ public class ShardingHistoryDeleteDAO extends JDBCHistoryDeleteDAO {
             }
             List<String> realTables = new ArrayList<>();
             try (Connection connection = client.getConnection()) {
-                ResultSet resultSet = connection.getMetaData()
-                                                .getTables(connection.getCatalog(), null, model.getName() + "_20%", null);
+                ResultSet resultSet = client.executeQuery(connection, String.format("SHOW SINGLE TABLES LIKE '%s'", model.getName() + "_20%"));
                 while (resultSet.next()) {
-                    realTables.add(resultSet.getString("TABLE_NAME"));
+                    realTables.add(resultSet.getString(1));
                 }
 
                 //delete additional tables
                 for (String additionalTable : model.getSqlDBModelExtension().getAdditionalTables().keySet()) {
-                    ResultSet additionalTableRS = connection.getMetaData()
-                                                            .getTables(connection.getCatalog(), null,
-                                                                       additionalTable + "_20%", null);
+                    ResultSet additionalTableRS = client.executeQuery(connection, String.format("SHOW SINGLE TABLES LIKE '%s'", additionalTable + "_20%"));
                     while (additionalTableRS.next()) {
-                        realTables.add(additionalTableRS.getString("TABLE_NAME"));
+                        realTables.add(additionalTableRS.getString(1));
                     }
                 }
             } catch (JDBCClientException | SQLException e) {

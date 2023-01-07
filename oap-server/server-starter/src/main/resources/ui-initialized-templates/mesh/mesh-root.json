@@ -27,18 +27,6 @@
           "h": 52,
           "i": "1",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "standard": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 1,
           "children": [
             {
               "name": "Services",
@@ -50,9 +38,6 @@
                   "h": 48,
                   "i": "0",
                   "type": "Widget",
-                  "widget": {
-                    "title": ""
-                  },
                   "graph": {
                     "type": "ServiceList",
                     "dashboardName": "Mesh-Service",
@@ -61,7 +46,6 @@
                     "showYAxis": false,
                     "showGroup": true
                   },
-                  "standard": {},
                   "metrics": [
                     "service_cpm",
                     "service_sla",
@@ -74,7 +58,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
@@ -109,19 +92,9 @@
                   "h": 48,
                   "i": "0",
                   "type": "Topology",
-                  "widget": {
-                    "title": "Title"
-                  },
                   "graph": {
                     "showDepth": true
                   },
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false,
                   "linkDashboard": "Mesh-Service-Relation",
                   "nodeDashboard": [
                     {
@@ -203,9 +176,24 @@
                   ]
                 }
               ]
+            },
+            {
+              "name": "Zipkin Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 32,
+                  "i": "0",
+                  "type": "ThirdPartyApp",
+                  "widget": {
+                    "url": "/zipkin"
+                  }
+                }
+              ]
             }
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 0,
@@ -214,12 +202,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "blue",
             "backgroundColor": "white",
@@ -227,14 +209,13 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/envoy/als_setting/"
-          },
-          "moved": false
+          }
         }
       ],
+      "id": "Mesh-Root",
       "layer": "MESH",
       "entity": "All",
       "name": "Mesh-Root",
-      "id": "Mesh-Root",
       "isRoot": true
     }
   }
