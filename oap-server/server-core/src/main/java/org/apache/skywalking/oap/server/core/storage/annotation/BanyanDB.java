@@ -137,10 +137,10 @@ public @interface BanyanDB {
      *
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
-     *   storageOnly=true: the column is a measure tag which is not indexed.
-     *   storageOnly=false: the column is a measure tag which is indexed.
-     *     indexOnly=true: the column is a measure tag which is indexed, but not stored.
-     *     indexOnly=false: the column is a measure tag which is indexed and stored.
+     *   storageOnly=true: the column is a measure tag that is not indexed.
+     *   storageOnly=false: the column is a measure tag that is indexed.
+     *   indexOnly=true: the column is a measure tag that is indexed, but not stored.
+     *   indexOnly=false: the column is a measure tag that is indexed and stored.
      * @since 9.4.0
      */
     @Target({ElementType.FIELD})
