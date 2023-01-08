@@ -76,6 +76,14 @@ public @interface BanyanDB {
         /**
          * Relative entity tag
          *
+         * The index number determines the order of the column placed in the SeriesID.
+         * BanyanDB SeriesID searching procedure uses a prefix-scanning strategy.
+         * Searching series against a prefix could improve the performance.
+         * <p>
+         * For example, the ServiceTraffic composite "layer" and "name" as the SeriesID,
+         * considering OAP finds services by "layer", the "layer" 's index should be 0 to
+         * trigger a prefix-scanning.
+         *
          * @return index, from zero.
          */
         int index() default -1;
@@ -130,5 +138,30 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface TimestampColumn {
         String value();
+    }
+
+    /**
+     * MeasureField defines a column as a measure's field.
+     *
+     * Annotated: the column is a measure field.
+     * Unannotated: the column is a measure tag.
+     *   storageOnly=true: the column is a measure tag that is not indexed.
+     *   storageOnly=false: the column is a measure tag that is indexed.
+     *   indexOnly=true: the column is a measure tag that is indexed, but not stored.
+     *   indexOnly=false: the column is a measure tag that is indexed and stored.
+     * @since 9.4.0
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface MeasureField {
+    }
+
+    /**
+     * StoreIDTag indicates a metric store its ID as a tag for searching.
+     * @Since 9.4.0
+     */
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface StoreIDAsTag {
     }
 }

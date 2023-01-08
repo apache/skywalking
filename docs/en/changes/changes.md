@@ -69,7 +69,10 @@
 * Correct the TopN record query DAO of BanyanDB.
 * Tweak interval settings of BanyanDB.
 * Support monitoring AWS Cloud EKS.
-* Bump BanyanDB Java client to 0.3.0-rc0.
+* Bump BanyanDB Java client to 0.3.0-rc1.
+* Remove `id` tag from measures.
+* Add `Banyandb.MeasureField` to mark a column as a BanyanDB Measure field.
+* Add `BanyanDB.StoreIDTag` to store a process's id for searching.
 * [**Breaking Change**] The supported version of ShardingSphere-Proxy is upgraded from 5.1.2 to 5.3.1. Due to the changes of ShardingSphere's API, versions before 5.3.1 are not compatible.
 * Add the eBPF network profiling E2E Test in the per storage.
 
@@ -81,7 +84,6 @@
 * Add Micrometer icon
 * Update MySQL UI to support MariaDB
 * Add AWS menu for supporting AWS monitoring
-* Add Zipkin Lens UI as part of Service Mesh dashboard.
 
 #### Documentation
 

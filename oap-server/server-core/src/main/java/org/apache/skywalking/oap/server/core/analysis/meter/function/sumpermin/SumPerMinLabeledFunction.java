@@ -60,11 +60,13 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 
     @Getter
     @Setter
     @Column(columnName = TOTAL, storageOnly = true)
+    @BanyanDB.MeasureField
     private DataTable total = new DataTable(30);
 
     @Entrance
