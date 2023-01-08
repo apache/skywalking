@@ -76,6 +76,14 @@ public @interface BanyanDB {
         /**
          * Relative entity tag
          *
+         * The index number determines the order of the column placed in the SeriesID.
+         * BanyanDB SeriesID searching procedure uses a prefix-scanning strategy.
+         * Searching series against a prefix could improve the performance.
+         * <p>
+         * For example, the ServiceTraffic composite "layer" and "name" as the SeriesID,
+         * considering OAP finds services by "layer", the "layer" 's index should be 0 to
+         * trigger a prefix-scanning.
+         *
          * @return index, from zero.
          */
         int index() default -1;
