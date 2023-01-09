@@ -75,6 +75,7 @@
 * Add `BanyanDB.StoreIDTag` to store a process's id for searching.
 * [**Breaking Change**] The supported version of ShardingSphere-Proxy is upgraded from 5.1.2 to 5.3.1. Due to the changes of ShardingSphere's API, versions before 5.3.1 are not compatible.
 * Add the eBPF network profiling E2E Test in the per storage.
+* Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
 
 #### UI
 
