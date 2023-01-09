@@ -55,6 +55,7 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
     @Getter
     @Setter
     @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
+    @BanyanDB.MeasureField
     private DataTable dataset = new DataTable(30);
 
     @Override

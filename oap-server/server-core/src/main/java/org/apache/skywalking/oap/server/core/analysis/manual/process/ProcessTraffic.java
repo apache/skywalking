@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -51,6 +52,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     "name",
 })
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
+@BanyanDB.StoreIDAsTag
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
     public static final String SERVICE_ID = "service_id";
@@ -73,6 +75,7 @@ public class ProcessTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = INSTANCE_ID, length = 600)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     @Getter
@@ -82,6 +85,7 @@ public class ProcessTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = NAME, length = 500)
+    @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter

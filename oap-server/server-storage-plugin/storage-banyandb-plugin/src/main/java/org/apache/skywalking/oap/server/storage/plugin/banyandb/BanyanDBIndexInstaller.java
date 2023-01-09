@@ -69,7 +69,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 return true;
             }
 
-            throw new IllegalStateException("inconsistent state");
+            throw new IllegalStateException("inconsistent state:" + metadata);
         } catch (BanyanDBException ex) {
             throw new StorageException("fail to check existence", ex);
         }

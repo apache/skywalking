@@ -66,14 +66,17 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @Getter
     @Setter
     @Column(columnName = SUMMATION, storageOnly = true)
+    @BanyanDB.MeasureField
     protected long summation;
     @Getter
     @Setter
     @Column(columnName = COUNT, storageOnly = true)
+    @BanyanDB.MeasureField
     protected long count;
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @BanyanDB.MeasureField
     private long value;
 
     @Entrance

@@ -93,6 +93,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
 
+        if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
+            banyanDBModelExtension.setStoreIDTag(true);
+        }
+
         checker.check(storage.getModelName());
 
         Model model = new Model(
@@ -190,7 +194,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
                     elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
-                    keywordColumn == null ? false : true
+                    keywordColumn != null
                 );
 
                 // BanyanDB extension
@@ -202,11 +206,14 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     BanyanDB.NoIndexing.class);
                 final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
                     BanyanDB.IndexRule.class);
+                final BanyanDB.MeasureField banyanDBMeasureField = field.getAnnotation(
+                        BanyanDB.MeasureField.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
                     banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
                     banyanDBGlobalIndex != null,
-                    banyanDBNoIndex == null && column.storageOnly(),
-                    banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType()
+                    banyanDBNoIndex == null && !column.storageOnly(),
+                    banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
+                    banyanDBMeasureField != null
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(

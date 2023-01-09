@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -70,6 +71,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     @Column(columnName = END_TIME)
     private long endTime;
     @Column(columnName = EBPF_PROFILING_SCHEDULE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String scheduleId;
 
     @Override

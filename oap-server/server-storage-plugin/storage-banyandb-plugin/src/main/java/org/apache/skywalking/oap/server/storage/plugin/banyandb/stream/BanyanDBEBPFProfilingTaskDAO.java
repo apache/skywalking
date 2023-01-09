@@ -54,7 +54,8 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
             EBPFProfilingTaskRecord.FIXED_TRIGGER_DURATION,
             EBPFProfilingTaskRecord.TARGET_TYPE,
             EBPFProfilingTaskRecord.CREATE_TIME,
-            EBPFProfilingTaskRecord.LAST_UPDATE_TIME);
+            EBPFProfilingTaskRecord.LAST_UPDATE_TIME,
+            EBPFProfilingTaskRecord.EXTENSION_CONFIG_JSON);
 
     private static final Gson GSON = new Gson();
 

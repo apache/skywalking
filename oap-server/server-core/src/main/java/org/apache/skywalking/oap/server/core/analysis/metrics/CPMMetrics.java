@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOn
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MetricsFunction(functionName = "cpm")
@@ -35,10 +36,12 @@ public abstract class CPMMetrics extends Metrics implements LongValueHolder {
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @BanyanDB.MeasureField
     private long value;
     @Getter
     @Setter
     @Column(columnName = TOTAL, storageOnly = true)
+    @BanyanDB.MeasureField
     private long total;
 
     @Entrance
