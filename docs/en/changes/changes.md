@@ -92,5 +92,6 @@
   enhancement.
 * Update `monitoring MySQL document` to add the `MariaDB` part.
 * Reorganize the protocols docs to a more clear API docs.
+* Add documentation about replacing Zipkin server with SkyWalking OAP.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
