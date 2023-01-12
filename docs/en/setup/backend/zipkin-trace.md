@@ -63,3 +63,10 @@ query-zipkin:
     # Default look back for search traces, 15 minutes in millis
     uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
 ```
+
+## Lens UI
+Lens UI is Zipkin native UI. SkyWalking webapp has bundled it in the binary distribution.
+`{webapp IP}:{webapp port}/zipkin` is exposed and accessible for the browser.
+Meanwhile, `Iframe` UI component could be used to host Zipkin Lens UI on the SkyWalking booster UI dashboard.(link=/zipkin) 
+
+Zipkin Lens UI source codes could be found [here](https://github.com/openzipkin/zipkin/tree/master/zipkin-lens).
