@@ -94,5 +94,6 @@
 * Reorganize the protocols docs to a more clear API docs.
 * Add documentation about replacing Zipkin server with SkyWalking OAP.
 * Add Lens UI relative docs in Zipkin trace section.
+* Add Profiling APIs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
