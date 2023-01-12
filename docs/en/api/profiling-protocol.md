@@ -1,10 +1,10 @@
 # Profiling APIs
 
-SkyWalking offers two types of Profiling, Trace and eBPF, each with its own API.
+SkyWalking offers two types of Profiling, in-process and out-process, each with its own API.
 
-## Trace Profiling APIs
+## In-process profiling APIs
 
-[Trace Profiling](../concepts-and-designs/profiling.md#in-process-profiling) commonly interacts with auto-instrument agents. It gathers stack traces of programs and sends the data to the OAP for further analysis.
+[In-process profiling](../concepts-and-designs/profiling.md#in-process-profiling) commonly interacts with auto-instrument agents. It gathers stack traces of programs and sends the data to the OAP for further analysis.
 
 ```protobuf
 syntax = "proto3";
@@ -73,9 +73,9 @@ message ProfileTaskFinishReport {
 }
 ```
 
-## eBPF Profiling
+## Out-process profiling
 
-[eBPF Profiling](../concepts-and-designs/profiling.md#out-of-process-profiling) interacts with eBPF Agent, which receives tasks and captures data, then reports it to the OAP for further analysis.
+[Out-process profiling](../concepts-and-designs/profiling.md#out-of-process-profiling) interacts with eBPF agent, which receives tasks and captures data, then reports it to the OAP for further analysis.
 
 ### Process APIs
 
@@ -192,7 +192,7 @@ message EBPFProcessPingPkg {
 }
 ```
 
-### Profiling APIs
+### Out-process profiling APIs
 
 ```protobuf
 syntax = "proto3";

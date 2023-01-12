@@ -199,9 +199,9 @@ extend type Query {
 Event query fetches the event list based on given sources and time range conditions.
 
 ### Profiling
-SkyWalking offers two types of [Profiling](../concepts-and-designs/profiling.md), Trace and eBPF, allowing users to create tasks and check their execution status.
+SkyWalking offers two types of [profiling](../concepts-and-designs/profiling.md), in-process and out-process, allowing users to create tasks and check their execution status.
 
-#### Trace Profiling
+#### In-process profiling
 
 ```graphql
 extend type Mutation {
@@ -222,7 +222,7 @@ extend type Query {
 }
 ```
 
-#### eBPF Profiling
+#### Out-process profiling
 
 ```graphql
 extend type Mutation {
