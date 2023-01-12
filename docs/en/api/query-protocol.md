@@ -28,6 +28,18 @@ extend type Query {
     searchEndpoint(keyword: String!, serviceId: ID!, limit: Int!): [Endpoint!]!
     getEndpointInfo(endpointId: ID!): EndpointInfo
 
+    # Process query
+    # Read process list.
+    listProcesses(duration: Duration!, instanceId: ID!): [Process!]!
+    # Find process according to given ID. Return null if not existing.
+    getProcess(processId: ID!): Process
+    # Get the number of matched processes through serviceId, labels
+    # Labels: the matched process should contain all labels
+    #
+    # The return is not a precise number, the process has its lifecycle, as it reboots and shutdowns with time.
+    # The return number just gives an abstract of the scale of profiling that would be applied.
+    estimateProcessScale(serviceId: ID!, labels: [String!]!): Long!
+
     # Database related meta info.
     getAllDatabases(duration: Duration!): [Database!]!
     getTimeInfo: TimeInfo
@@ -185,6 +197,55 @@ extend type Query {
 ```
 
 Event query fetches the event list based on given sources and time range conditions.
+
+### Profiling
+SkyWalking offers two types of [Profiling](../concepts-and-designs/profiling.md), Trace and eBPF, allowing users to create tasks and check their execution status.
+
+#### Trace Profiling
+
+```graphql
+extend type Mutation {
+    # crate new profile task
+    createProfileTask(creationRequest: ProfileTaskCreationRequest): ProfileTaskCreationResult!
+}
+extend type Query {
+    # query all task list, order by ProfileTask#startTime descending
+    getProfileTaskList(serviceId: ID, endpointName: String): [ProfileTask!]!
+    # query all task logs
+    getProfileTaskLogs(taskID: String): [ProfileTaskLog!]!
+    # query all task profiled segment list
+    getProfileTaskSegmentList(taskID: String): [BasicTrace!]!
+    # query profiled segment
+    getProfiledSegment(segmentId: String): ProfiledSegment
+    # analyze profiled segment, start and end time use timestamp(millisecond)
+    getProfileAnalyze(segmentId: String!, timeRanges: [ProfileAnalyzeTimeRange!]!): ProfileAnalyzation!
+}
+```
+
+#### eBPF Profiling
+
+```graphql
+extend type Mutation {
+    # create a new eBPF fixed time profiling task
+    createEBPFProfilingFixedTimeTask(request: EBPFProfilingTaskFixedTimeCreationRequest!): EBPFProfilingTaskCreationResult!
+
+    # create a new eBPF network profiling task
+    createEBPFNetworkProfiling(request: EBPFProfilingNetworkTaskRequest!): EBPFProfilingTaskCreationResult!
+    # keep alive the eBPF profiling task
+    keepEBPFNetworkProfiling(taskId: ID!): EBPFNetworkKeepProfilingResult!
+}
+extend type Query {
+    # query eBPF profiling data for prepare create task
+    queryPrepareCreateEBPFProfilingTaskData(serviceId: ID!): EBPFProfilingTaskPrepare!
+    # query eBPF profiling task list
+    queryEBPFProfilingTasks(serviceId: ID, serviceInstanceId: ID, targets: [EBPFProfilingTargetType!]): [EBPFProfilingTask!]!
+    # query schedules from profiling task
+    queryEBPFProfilingSchedules(taskId: ID!): [EBPFProfilingSchedule!]!
+    # analyze the profiling schedule
+    # aggregateType is "EBPFProfilingAnalyzeAggregateType#COUNT" as default. 
+    analysisEBPFProfilingResult(scheduleIdList: [ID!]!, timeRanges: [EBPFProfilingAnalyzeTimeRange!]!, aggregateType: EBPFProfilingAnalyzeAggregateType): EBPFProfilingAnalyzation!
+}
+```
 
 ## Condition
 ### Duration

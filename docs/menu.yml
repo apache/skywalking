@@ -245,6 +245,8 @@ catalog:
             path: "/en/api/instance-properties"
           - name: "Event"
             path: "/en/api/event"
+          - name: "Profiling"
+            path: "/en/api/profiling-protocol"
       - name: "Query APIs"
         catalog:
           - name:  "GraphQL APIs"
