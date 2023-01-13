@@ -328,7 +328,7 @@ spring-annotation:
   languages: Java
 HBase:
   id: 94
-  languages: Java
+  languages: Java,Python
 spring-kafka-consumer:
   id: 95
   languages: Java
