@@ -77,6 +77,7 @@
 * Add the eBPF network profiling E2E Test in the per storage.
 * Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
 * Add Python HBase happybase module component ID(94).
+* Fix gRPC alarm cannot update settings from dynamic configuration source.
 
 #### UI
 
