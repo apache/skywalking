@@ -19,6 +19,8 @@
 
 package org.apache.skywalking.library.elasticsearch.requests.search;
 
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import java.time.Duration;
 import java.util.HashMap;
@@ -31,6 +33,7 @@ public final class SearchParams implements Iterable<Map.Entry<String, Object>> {
     private static final String ALLOW_NO_INDICES = "allow_no_indices";
     private static final String EXPAND_WILDCARDS = "expand_wildcards";
     private static final String SCROLL = "scroll";
+    private static final String ROUTING = "routing";
 
     private final Map<String, Object> params = new HashMap<>();
 
@@ -56,6 +59,13 @@ public final class SearchParams implements Iterable<Map.Entry<String, Object>> {
             "contextRetention must be positive, but was %s",
             contextRetention);
         params.put(SCROLL, contextRetention.getSeconds() + "s");
+        return this;
+    }
+
+    public SearchParams routing(String routing) {
+        checkArgument(StringUtil.isNotBlank(routing),
+                "routing must not blank");
+        params.put(ROUTING, routing);
         return this;
     }
 

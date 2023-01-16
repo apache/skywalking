@@ -15,20 +15,24 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.library.elasticsearch.requests;
+package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
+
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.util.Map;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-@Builder
-public final class IndexRequest {
-    private final String index;
-    private final String type;
-    private final String id;
-    private final String routing;
-    private final Map<String, ?> doc;
+public class RoutingUtils {
+
+    public static String getRouting(Model model, Map<String, Object> builder) {
+        String routingField = model.getElasticSearchModelExtension().getRouting();
+        if (StringUtil.isBlank(routingField)) {
+            return null;
+        }
+        Object value = builder.get(routingField);
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

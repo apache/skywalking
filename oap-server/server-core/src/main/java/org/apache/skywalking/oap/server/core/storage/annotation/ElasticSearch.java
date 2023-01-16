@@ -23,6 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * ElasticSearch annotation is a holder including all annotations for ElasticSearch storage
@@ -96,5 +97,14 @@ public @interface ElasticSearch {
         @Deprecated
         String columnAlias();
 
+    }
+
+    /**
+     * Routing is to identify which field in {@link Record} is providing the routing for ElasticSearch.
+     */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Routing {
+        String value();
     }
 }

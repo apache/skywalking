@@ -29,6 +29,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBui
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -177,7 +178,8 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                   .query(Query.term(SegmentRecord.TRACE_ID, traceId))
                   .size(segmentQueryMaxSize);
 
-        final SearchResponse response = getClient().search(index, search.build());
+        final SearchParams searchParams = new SearchParams().routing(traceId);
+        final SearchResponse response = getClient().search(index, search.build(), searchParams);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {

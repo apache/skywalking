@@ -78,6 +78,7 @@
 * Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
 * Add Python HBase happybase module component ID(94).
 * Fix gRPC alarm cannot update settings from dynamic configuration source.
+* [**Breaking Change**] Optimize single trace query performance by customizing routing in ElasticSearch
 
 #### UI
 

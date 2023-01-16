@@ -60,6 +60,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         ShardingKeyChecker checker = new ShardingKeyChecker();
         SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
         BanyanDBModelExtension banyanDBModelExtension = new BanyanDBModelExtension();
+        ElasticSearchModelExtension elasticSearchModelExtension = new ElasticSearchModelExtension();
         retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, record);
         // Add extra column for additional entities
         if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
@@ -97,6 +98,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setStoreIDTag(true);
         }
 
+        if (aClass.isAnnotationPresent(ElasticSearch.Routing.class)) {
+            String routing = aClass.getAnnotation(ElasticSearch.Routing.class).value();
+            elasticSearchModelExtension.setRouting(routing);
+        }
+
         checker.check(storage.getModelName());
 
         Model model = new Model(
@@ -109,7 +115,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             aClass,
             storage.isTimeRelativeID(),
             sqlDBModelExtension,
-            banyanDBModelExtension
+            banyanDBModelExtension,
+            elasticSearchModelExtension
         );
 
         this.followColumnNameRules(model);

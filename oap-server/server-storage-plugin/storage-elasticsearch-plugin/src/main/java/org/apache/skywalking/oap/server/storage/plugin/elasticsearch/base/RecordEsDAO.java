@@ -43,6 +43,7 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO {
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
         String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, record.id().build());
-        return getClient().prepareInsert(modelName, id, builder);
+        String routing = RoutingUtils.getRouting(model, builder);
+        return getClient().prepareInsert(modelName, id, routing, builder);
     }
 }

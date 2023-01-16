@@ -13,22 +13,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.library.elasticsearch.requests;
+package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.Map;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
-@Getter
-@Setter
-@Builder
-public final class IndexRequest {
-    private final String index;
-    private final String type;
-    private final String id;
-    private final String routing;
-    private final Map<String, ?> doc;
+public class ElasticSearchModelExtension {
+
+    /**
+     * Routing is to identify which field in {@link Record} is providing the routing for ElasticSearch.
+     */
+    @Getter
+    @Setter
+    private String routing;
 }
