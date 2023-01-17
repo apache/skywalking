@@ -87,6 +87,8 @@
 * Add Micrometer icon
 * Update MySQL UI to support MariaDB
 * Add AWS menu for supporting AWS monitoring
+* Add missing FastAPI logo
+* Update the log details page to support the formatted display of JSON content
 
 #### Documentation
 
