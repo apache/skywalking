@@ -240,7 +240,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                                      .size(SCROLLING_BATCH_SIZE); //max span size for 1 scroll
         final SearchParams params = new SearchParams()
                 .scroll(SCROLL_CONTEXT_RETENTION)
-                .routing(String.join(",", traceIds));
+                .routing(traceIds);
 
         SearchResponse response = getClient().search(index, search.build(), params);
         final Set<String> scrollIds = new HashSet<>();

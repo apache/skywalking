@@ -69,6 +69,13 @@ public final class SearchParams implements Iterable<Map.Entry<String, Object>> {
         return this;
     }
 
+    public SearchParams routing(Iterable<String> routings) {
+        checkArgument(routings != null,
+                "routing set must be non-null");
+        routing(String.join(",", routings));
+        return this;
+    }
+
     @Override
     public Iterator<Entry<String, Object>> iterator() {
         return params.entrySet().iterator();
