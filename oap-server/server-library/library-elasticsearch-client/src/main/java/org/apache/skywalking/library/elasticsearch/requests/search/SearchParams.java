@@ -64,7 +64,7 @@ public final class SearchParams implements Iterable<Map.Entry<String, Object>> {
 
     public SearchParams routing(String routing) {
         checkArgument(StringUtil.isNotBlank(routing),
-                "routing must not blank");
+                "routing must be not blank");
         params.put(ROUTING, routing);
         return this;
     }
