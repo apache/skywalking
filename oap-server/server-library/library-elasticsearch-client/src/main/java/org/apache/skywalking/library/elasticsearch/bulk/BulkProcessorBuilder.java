@@ -59,6 +59,6 @@ public final class BulkProcessorBuilder {
 
     public BulkProcessor build(AtomicReference<ElasticSearch> es) {
         return new BulkProcessor(
-            es, bulkActions, flushInterval, concurrentRequests,batchOfBytes);
+            es, bulkActions, flushInterval, concurrentRequests, batchOfBytes);
     }
 }

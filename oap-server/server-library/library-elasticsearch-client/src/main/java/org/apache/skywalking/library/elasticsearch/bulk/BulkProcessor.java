@@ -185,13 +185,12 @@ public final class BulkProcessor {
         return future;
     }
 
-
-    private byte[] toByteArray (Object obj) throws IOException {
-        try(ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+    private byte[] toByteArray(Object obj) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(
+            bos)) {
             oos.writeObject(obj);
             oos.flush();
-            return  bos.toByteArray();
+            return bos.toByteArray();
         }
     }
 
