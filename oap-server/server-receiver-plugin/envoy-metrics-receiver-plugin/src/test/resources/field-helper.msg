@@ -60,7 +60,7 @@
           "service.istio.io/canonical-name": "productpage",
           "version": "v1",
           "security.istio.io/tlsMode": "istio",
-          "app": "productpage",
+          "app": "whatever-differ-from-productpage",
           "service.istio.io/canonical-revision": "v1",
           "pod-template-hash": "65576bb7bf",
           "istio.io/rev": "default"

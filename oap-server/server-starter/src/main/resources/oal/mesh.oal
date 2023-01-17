@@ -1,0 +1,36 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+service_sidecar_internal_req_latency_nanos = from(Service.sideCar.internalRequestLatencyNanos).longAvg();
+service_sidecar_internal_resp_latency_nanos = from(Service.sideCar.internalResponseLatencyNanos).longAvg();
+
+service_instance_sidecar_internal_req_latency_nanos = from(ServiceInstance.sideCar.internalRequestLatencyNanos).longAvg();
+service_instance_sidecar_internal_resp_latency_nanos = from(ServiceInstance.sideCar.internalResponseLatencyNanos).longAvg();
+
+endpoint_sidecar_internal_req_latency_nanos = from(Endpoint.sideCar.internalRequestLatencyNanos).longAvg();
+endpoint_sidecar_internal_resp_latency_nanos = from(Endpoint.sideCar.internalResponseLatencyNanos).longAvg();
+
+service_client_sidecar_internal_req_latency_nanos = from(ServiceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_server_sidecar_internal_req_latency_nanos = from(ServiceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
+service_client_sidecar_internal_resp_latency_nanos = from(ServiceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+service_server_sidecar_internal_resp_latency_nanos = from(ServiceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
+
+instance_client_sidecar_internal_req_latency_nanos = from(ServiceInstanceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+instance_server_sidecar_internal_req_latency_nanos = from(ServiceInstanceRelation.sideCar.internalRequestLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();
+instance_client_sidecar_internal_resp_latency_nanos = from(ServiceInstanceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.CLIENT).longAvg();
+instance_server_sidecar_internal_resp_latency_nanos = from(ServiceInstanceRelation.sideCar.internalResponseLatencyNanos).filter(detectPoint == DetectPoint.SERVER).longAvg();

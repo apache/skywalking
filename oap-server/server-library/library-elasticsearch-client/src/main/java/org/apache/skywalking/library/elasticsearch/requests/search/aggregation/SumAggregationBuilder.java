@@ -37,7 +37,7 @@ public final class SumAggregationBuilder implements AggregationBuilder {
     }
 
     @Override
-    public MaxAggregation build() {
-        return new MaxAggregation(name, field);
+    public SumAggregation build() {
+        return new SumAggregation(name, field);
     }
 }

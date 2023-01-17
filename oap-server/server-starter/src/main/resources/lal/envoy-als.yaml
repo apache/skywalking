@@ -15,6 +15,7 @@
 
 rules:
   - name: envoy-als
+    layer: MESH
     dsl: |
       filter {
         // only collect abnormal logs (http status code >= 300, or commonProperties?.responseFlags is not empty)
@@ -40,6 +41,50 @@ rules:
               // e.g. checkoutservice:500, checkoutservice:404.
               rateLimit("${log.service}:${parsed?.response?.responseCode}") {
                 rpm 6000
+              }
+            }
+          }
+        }
+      }
+  - name: network-profiling-slow-trace
+    layer: MESH
+    dsl: |
+      filter {
+        json{
+        }
+        extractor{
+          if (tag("LOG_KIND") == "NET_PROFILING_SAMPLED_TRACE") {
+            sampledTrace {
+              latency parsed.latency as Long
+              uri parsed.uri as String
+              reason parsed.reason as String
+
+              if (parsed.client_process.process_id as String != "") {
+                processId parsed.client_process.process_id as String
+              } else if (parsed.client_process.local as Boolean) {
+                processId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
+              } else {
+                processId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.client_process.address as String) as String
+              }
+
+              if (parsed.server_process.process_id as String != "") {
+                destProcessId parsed.server_process.process_id as String
+              } else if (parsed.server_process.local as Boolean) {
+                destProcessId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
+              } else {
+                destProcessId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.server_process.address as String) as String
+              }
+
+              detectPoint parsed.detect_point as String
+
+              if (parsed.component as String == "http" && parsed.ssl as Boolean) {
+                componentId 129
+              } else if (parsed.component as String == "http") {
+                componentId 49
+              } else if (parsed.ssl as Boolean) {
+                componentId 130
+              } else {
+                componentId 110
               }
             }
           }

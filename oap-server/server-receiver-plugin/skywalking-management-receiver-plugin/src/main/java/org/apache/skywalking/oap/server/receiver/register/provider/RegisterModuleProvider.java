@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.register.provider;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.receiver.register.module.RegisterModule;
@@ -43,7 +44,7 @@ public class RegisterModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
+    public ConfigCreator newConfigCreator() {
         return null;
     }
 
@@ -63,7 +64,9 @@ public class RegisterModuleProvider extends ModuleProvider {
         HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(HTTPHandlerRegister.class);
-        httpHandlerRegister.addHandler(new ManagementServiceHTTPHandler(getManager()));
+        httpHandlerRegister.addHandler(new ManagementServiceHTTPHandler(getManager()),
+                                       Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override

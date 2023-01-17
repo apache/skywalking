@@ -17,19 +17,36 @@ receivers:
   prometheus:
     config:
       scrape_configs:
-        - job_name: 'vm-monitoring' # make sure to use this in the vm.yaml to filter only VM metrics
+        - job_name: "vm-monitoring" # make sure to use this in the vm.yaml to filter only VM metrics
           scrape_interval: 10s
           static_configs:
-            - targets: [ 'vm-service:9100' ]
+            - targets: ["vm-service:9100"]
 
 processors:
   batch:
 
 exporters:
-  opencensus:
+  ####################################################################################
+  # If you want to use otlp exporter please ensure that your OAP version is >= 9.2.0 #
+  # or you can use oc exporter, The config format should be:                         #
+  # opencensus:                                                                      #
+  #   endpoint: "oap:11800"                                                          #
+  #   tls:                                                                           #
+  #      insecure: true                                                              #
+  ####################################################################################
+  otlp:
     endpoint: "oap:11800" # The OAP Server address
-    insecure: true
-  # Exports data to the console  
+    ###############################################################################
+    # OTEL previous version before 0.34.0 the config format, eg. 0.29.0 should be:#
+    # insecure: true                                                              #
+    # The new version should be:                                                  #
+    # tls:                                                                        #
+    #   insecure: true                                                            #
+    ###############################################################################
+    tls:
+      insecure: true
+    #insecure: true
+  # Exports data to the console
   logging:
     logLevel: debug
 
@@ -38,4 +55,8 @@ service:
     metrics:
       receivers: [prometheus]
       processors: [batch]
-      exporters: [opencensus,logging]
+      #########################################
+      # oc exporter config format:            #
+      # exporters: [opencensus,logging]       #
+      #########################################
+      exporters: [otlp, logging]

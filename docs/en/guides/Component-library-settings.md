@@ -30,6 +30,8 @@ This uses a two-way mapping strategy. The agent or SDK could use the value (ID) 
 - Python reserved: [7000, 8000)
 - PHP reserved: [8000, 9000)
 - C++ reserved: [9000, 10000)
+- Javascript reserved: [10000, 11000)
+- Rust reserved: [11000, 12000)
 
 Example:
 ```yaml

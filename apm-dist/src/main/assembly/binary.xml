@@ -61,14 +61,15 @@
                 <include>trace-sampling-policy-settings.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
-                <include>envoy-metrics-rules/*.yaml</include>
+                <include>envoy-metrics-rules/**</include>
                 <include>meter-analyzer-config/*.yaml</include>
                 <include>zabbix-rules/*.yaml</include>
                 <include>openapi-definitions/*/*.yaml</include>
-                <include>otel-oc-rules/*</include>
+                <include>otel-rules/**</include>
                 <include>ui-initialized-templates/*/*.json</include>
                 <include>lal/*</include>
-                <include>log-mal-rules/*</include>
+                <include>log-mal-rules/**</include>
+                <include>telegraf-rules/*</include>
             </includes>
             <outputDirectory>config</outputDirectory>
         </fileSet>
@@ -81,6 +82,31 @@
             <directory>${project.basedir}/../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs</directory>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
+
+        <!-- data generator -->
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/data-generator/target/</directory>
+            <includes>
+                <include>data-generator-${project.version}.jar</include>
+            </includes>
+            <outputDirectory>oap-libs</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/data-generator/src/main/assembly/bin</directory>
+            <outputDirectory>tools/data-generator/bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}/../oap-server/server-tools/data-generator/src/main/resources</directory>
+            <outputDirectory>tools/data-generator/config</outputDirectory>
+            <includes>
+                <include>application.yml</include>
+            </includes>
+        </fileSet>
+        <!-- data generator -->
 
         <!-- Profile exporter tools -->
         <fileSet>
@@ -100,7 +126,12 @@
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${project.basedir}/../apm-webapp/src/main/assembly/webapp.yml</source>
+            <source>${project.basedir}/../apm-webapp/src/main/resources/application.yml</source>
+            <outputDirectory>webapp</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../apm-webapp/src/main/assembly/log4j2.xml</source>
             <outputDirectory>webapp</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

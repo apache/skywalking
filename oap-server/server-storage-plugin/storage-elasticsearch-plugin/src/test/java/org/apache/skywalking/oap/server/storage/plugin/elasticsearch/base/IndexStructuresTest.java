@@ -38,7 +38,7 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
-                            .build());
+                            .build(), new HashMap<>());
         Mappings mapping = structures.getMapping("test");
         Assert.assertEquals(mapping.getProperties(), properties);
 
@@ -46,7 +46,7 @@ public class IndexStructuresTest {
             "test2", Mappings.builder()
                              .type(ElasticSearchClient.TYPE)
                              .properties(new HashMap<>())
-                             .build());
+                             .build(), new HashMap<>());
         mapping = structures.getMapping("test2");
 
         Assert.assertTrue(mapping.getProperties().isEmpty());
@@ -59,7 +59,7 @@ public class IndexStructuresTest {
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
                             .source(source)
-                            .build());
+                            .build(), new HashMap<>());
         Assert.assertEquals(properties, structuresSource.getMapping("test").getProperties());
         Assert.assertEquals(source.getExcludes(), structuresSource.getMapping("test").getSource().getExcludes());
     }
@@ -74,7 +74,8 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
-                            .build());
+                            .source(new Mappings.Source())
+                            .build(), new HashMap<>());
         Mappings mapping = structures.getMapping("test");
         Assert.assertEquals(properties, mapping.getProperties());
         HashMap<String, Object> properties2 = new HashMap<>();
@@ -84,7 +85,8 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties2)
-                            .build());
+                            .source(new Mappings.Source())
+                            .build(), new HashMap<>());
         mapping = structures.getMapping("test");
         HashMap<String, Object> res = new HashMap<>();
         res.put("a", "b");
@@ -101,7 +103,7 @@ public class IndexStructuresTest {
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
                             .source(source)
-                            .build());
+                            .build(), new HashMap<>());
         Assert.assertEquals(properties, structuresSource.getMapping("test").getProperties());
         Assert.assertEquals(source.getExcludes(), structuresSource.getMapping("test").getSource().getExcludes());
 
@@ -111,14 +113,14 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties2)
-                            .source(source2)
-                            .build());
+                            .source(source)
+                            .build(), new HashMap<>());
         Assert.assertEquals(res, structuresSource.getMapping("test").getProperties());
-        Assert.assertEquals(new HashSet<>(), structuresSource.getMapping("test").getSource().getExcludes());
+        Assert.assertEquals(new HashSet<>(Arrays.asList("a", "b", "c", "d", "e")), structuresSource.getMapping("test").getSource().getExcludes());
     }
 
     @Test
-    public void diffStructure() {
+    public void diffMapping() {
         IndexStructures structures = new IndexStructures();
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("a", "b");
@@ -128,10 +130,10 @@ public class IndexStructuresTest {
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
-                            .build());
+                            .build(), new HashMap<>());
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
-        Mappings diffMappings = structures.diffStructure(
+        Mappings diffMappings = structures.diffMappings(
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties2)
@@ -140,7 +142,7 @@ public class IndexStructuresTest {
         res.put("c", "d");
         res.put("f", "g");
         Assert.assertEquals(res, diffMappings.getProperties());
-        diffMappings = structures.diffStructure(
+        diffMappings = structures.diffMappings(
             "test",
             Mappings.builder()
                     .type(ElasticSearchClient.TYPE)
@@ -158,15 +160,15 @@ public class IndexStructuresTest {
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties)
                             .source(source)
-                            .build());
-        diffMappings = structuresSource.diffStructure(
+                            .build(), new HashMap<>());
+        diffMappings = structuresSource.diffMappings(
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties2)
                             .source(source)
                             .build());
         Assert.assertEquals(res, diffMappings.getProperties());
-        diffMappings = structuresSource.diffStructure(
+        diffMappings = structuresSource.diffMappings(
             "test", Mappings.builder()
                             .type(ElasticSearchClient.TYPE)
                             .properties(properties2)
@@ -174,7 +176,7 @@ public class IndexStructuresTest {
                             .build());
         Assert.assertEquals(res, diffMappings.getProperties());
         Assert.assertNull("Mapping source should not be return by diffStructure()", diffMappings.getSource());
-        diffMappings = structuresSource.diffStructure(
+        diffMappings = structuresSource.diffMappings(
             "test",
             Mappings.builder()
                     .type(ElasticSearchClient.TYPE)
@@ -186,7 +188,7 @@ public class IndexStructuresTest {
     }
 
     @Test
-    public void containsStructure() {
+    public void containsMapping() {
         IndexStructures structures = new IndexStructures();
         HashMap<String, Object> properties = new HashMap<>();
         properties.put("a", "b");
@@ -195,28 +197,61 @@ public class IndexStructuresTest {
         structures.putStructure("test", Mappings.builder()
                                                 .type(ElasticSearchClient.TYPE)
                                                 .properties(properties)
-                                                .build());
+                                                .source(new Mappings.Source())
+                                                .build(), new HashMap<>());
 
         HashMap<String, Object> properties2 = new HashMap<>();
         properties2.put("a", "b");
         properties2.put("c", "d");
-        Assert.assertTrue(structures.containsStructure(
+        Assert.assertTrue(structures.containsMapping(
             "test",
             Mappings.builder()
                     .type(ElasticSearchClient.TYPE)
                     .properties(properties2)
+                    .source(new Mappings.Source())
                     .build()
         ));
 
         HashMap<String, Object> properties3 = new HashMap<>();
         properties3.put("a", "b");
         properties3.put("q", "d");
-        Assert.assertFalse(structures.containsStructure(
+        Assert.assertFalse(structures.containsMapping(
             "test",
             Mappings.builder()
                     .type(ElasticSearchClient.TYPE)
                     .properties(properties3)
                     .build()
+        ));
+    }
+
+    @Test
+    public void compareIndexSetting() {
+        IndexStructures structures = new IndexStructures();
+        HashMap<String, Object> settings = new HashMap<>();
+        HashMap<String, Object> indexSettings = new HashMap<>();
+        settings.put("index", indexSettings);
+        indexSettings.put("number_of_replicas", "1");
+        indexSettings.put("number_of_shards", "1");
+        structures.putStructure("test", new Mappings(), settings);
+
+        HashMap<String, Object> settings2 = new HashMap<>();
+        HashMap<String, Object> indexSettings2 = new HashMap<>();
+        settings2.put("index", indexSettings2);
+        indexSettings2.put("number_of_replicas", "1");
+        indexSettings2.put("number_of_shards", "1");
+        Assert.assertTrue(structures.compareIndexSetting(
+            "test",
+            settings2
+        ));
+
+        HashMap<String, Object> settings3 = new HashMap<>();
+        HashMap<String, Object> indexSettings3 = new HashMap<>();
+        settings3.put("index", indexSettings3);
+        indexSettings3.put("number_of_replicas", "1");
+        indexSettings3.put("number_of_shards", "2");
+        Assert.assertFalse(structures.compareIndexSetting(
+            "test",
+            settings3
         ));
     }
 }

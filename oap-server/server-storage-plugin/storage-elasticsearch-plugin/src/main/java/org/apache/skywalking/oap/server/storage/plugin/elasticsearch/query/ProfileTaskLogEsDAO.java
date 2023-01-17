@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
@@ -48,8 +50,12 @@ public class ProfileTaskLogEsDAO extends EsDAO implements IProfileTaskLogQueryDA
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(
             ProfileTaskLogRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProfileTaskLogRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileTaskLogRecord.INDEX_NAME));
+        }
         final SearchBuilder search =
-            Search.builder().query(Query.bool())
+            Search.builder().query(query)
                   .sort(ProfileTaskLogRecord.OPERATION_TIME, Sort.Order.DESC)
                   .size(queryMaxSize);
 

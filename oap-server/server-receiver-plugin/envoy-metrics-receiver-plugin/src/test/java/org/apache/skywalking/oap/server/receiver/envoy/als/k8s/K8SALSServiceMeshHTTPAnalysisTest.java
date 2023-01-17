@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.MetricServiceGRPCHandlerTestMain;
@@ -86,14 +86,14 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
 
             AccessLogAnalyzer.Result result = this.analysis.analysis(AccessLogAnalyzer.Result.builder().build(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.PROXY);
 
-            Assert.assertEquals(2, result.getMetrics().size());
+            Assert.assertEquals(2, result.getMetrics().getHttpMetrics().getMetricsCount());
 
-            ServiceMeshMetric.Builder incoming = result.getMetrics().get(0);
+            HTTPServiceMeshMetric incoming = result.getMetrics().getHttpMetrics().getMetrics(0);
             Assert.assertEquals("UNKNOWN", incoming.getSourceServiceName());
             Assert.assertEquals("ingress", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
 
-            ServiceMeshMetric.Builder outgoing = result.getMetrics().get(1);
+            HTTPServiceMeshMetric outgoing = result.getMetrics().getHttpMetrics().getMetrics(1);
             Assert.assertEquals("ingress", outgoing.getSourceServiceName());
             Assert.assertEquals("productpage", outgoing.getDestServiceName());
             Assert.assertEquals(DetectPoint.client, outgoing.getDetectPoint());
@@ -108,9 +108,9 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
 
             AccessLogAnalyzer.Result result = this.analysis.analysis(AccessLogAnalyzer.Result.builder().build(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
-            Assert.assertEquals(1, result.getMetrics().size());
+            Assert.assertEquals(1, result.getMetrics().getHttpMetrics().getMetricsCount());
 
-            ServiceMeshMetric.Builder incoming = result.getMetrics().get(0);
+            HTTPServiceMeshMetric incoming = result.getMetrics().getHttpMetrics().getMetrics(0);
             Assert.assertEquals("", incoming.getSourceServiceName());
             Assert.assertEquals("productpage", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
@@ -125,9 +125,9 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
 
             AccessLogAnalyzer.Result result = this.analysis.analysis(AccessLogAnalyzer.Result.builder().build(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
-            Assert.assertEquals(1, result.getMetrics().size());
+            Assert.assertEquals(1, result.getMetrics().getHttpMetrics().getMetricsCount());
 
-            ServiceMeshMetric.Builder incoming = result.getMetrics().get(0);
+            HTTPServiceMeshMetric incoming = result.getMetrics().getHttpMetrics().getMetrics(0);
             Assert.assertEquals("productpage", incoming.getSourceServiceName());
             Assert.assertEquals("review", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.server, incoming.getDetectPoint());
@@ -142,9 +142,9 @@ public class K8SALSServiceMeshHTTPAnalysisTest {
 
             AccessLogAnalyzer.Result result = this.analysis.analysis(AccessLogAnalyzer.Result.builder().build(), requestBuilder.getIdentifier(), requestBuilder.getHttpLogs().getLogEntry(0), Role.SIDECAR);
 
-            Assert.assertEquals(1, result.getMetrics().size());
+            Assert.assertEquals(1, result.getMetrics().getHttpMetrics().getMetricsCount());
 
-            ServiceMeshMetric.Builder incoming = result.getMetrics().get(0);
+            HTTPServiceMeshMetric incoming = result.getMetrics().getHttpMetrics().getMetrics(0);
             Assert.assertEquals("productpage", incoming.getSourceServiceName());
             Assert.assertEquals("detail", incoming.getDestServiceName());
             Assert.assertEquals(DetectPoint.client, incoming.getDetectPoint());

@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.1.0-SNAPSHOT</version>
+        <version>9.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,5 +34,6 @@
         <module>library-client</module>
         <module>library-elasticsearch-client</module>
         <module>library-datacarrier-queue</module>
+        <module>library-kubernetes-support</module>
     </modules>
 </project>

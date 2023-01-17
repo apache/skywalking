@@ -19,16 +19,10 @@
 package org.apache.skywalking.oap.server.library.datacarrier.consumer;
 
 import java.util.List;
-import java.util.Properties;
 import org.apache.skywalking.oap.server.library.datacarrier.SampleData;
 
 public class SampleConsumer implements IConsumer<SampleData> {
     public int i = 1;
-
-    @Override
-    public void init(final Properties properties) {
-
-    }
 
     @Override
     public void consume(List<SampleData> data) {
@@ -40,11 +34,6 @@ public class SampleConsumer implements IConsumer<SampleData> {
 
     @Override
     public void onError(List<SampleData> data, Throwable t) {
-
-    }
-
-    @Override
-    public void onExit() {
 
     }
 }

@@ -32,12 +32,13 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
@@ -51,11 +52,17 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
     @Override
     public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit,
                            final int from,
-                           final long startTB, final long endTB, final List<Tag> tags)
+                           final Duration duration,
+                           final List<Tag> tags)
         throws IOException {
+        long startTB = duration.getStartTimeBucketInSec();
+        long endTB = duration.getEndTimeBucketInSec();
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(AlarmRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AlarmRecord.INDEX_NAME));
+        }
 
         if (startTB != 0 && endTB != 0) {
             query.must(Query.range(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
@@ -82,11 +89,10 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         SearchResponse response = getClient().search(index, search.build());
 
         Alarms alarms = new Alarms();
-        alarms.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
-            AlarmRecord alarmRecord = builder.storage2Entity(new HashMapConverter.ToEntity(searchHit.getSource()));
+            AlarmRecord alarmRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecord.INDEX_NAME, searchHit.getSource()));
 
             AlarmMessage message = new AlarmMessage();
             message.setId(String.valueOf(alarmRecord.getId0()));

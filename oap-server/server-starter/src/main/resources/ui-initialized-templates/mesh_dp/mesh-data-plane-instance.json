@@ -22,18 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 51,
           "i": "10",
           "type": "Tab",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
-          "activedTabIndex": 1,
           "children": [
             {
               "name": "Envoy Proxy",
@@ -61,8 +54,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 6,
@@ -82,7 +74,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "envoy_total_connections_used",
                     "envoy_parent_connections_used"
@@ -90,8 +81,7 @@
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 0,
@@ -116,8 +106,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 12,
@@ -142,8 +131,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 6,
@@ -168,8 +156,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 0,
@@ -205,7 +192,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "byteToMB"
@@ -250,8 +236,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 12,
@@ -278,8 +263,7 @@
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 6,
@@ -304,8 +288,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 0,
@@ -330,8 +313,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 }
               ]
             },
@@ -344,19 +326,34 @@
                   "w": 24,
                   "h": 47,
                   "i": "0",
-                  "type": "Log",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Log"
+                }
+              ]
+            },
+            {
+              "name":"Network Profiling",
+              "children":[
+                {
+                  "x":0,
+                  "y":0,
+                  "w":24,
+                  "h":47,
+                  "i":"0",
+                  "type":"NetworkProfiling",
+                  "linkDashboard":"ServiceMesh-Data-Plane-Process-Relation-Metrics"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "11",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
       "layer": "MESH_DP",

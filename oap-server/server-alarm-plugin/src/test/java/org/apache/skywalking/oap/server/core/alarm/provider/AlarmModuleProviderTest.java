@@ -46,7 +46,7 @@ public class AlarmModuleProviderTest {
 
         moduleProvider = (AlarmModuleProvider) providerIterator.next();
 
-        moduleProvider.createConfigBeanIfAbsent();
+        moduleProvider.newConfigCreator();
 
         moduleProvider.prepare();
     }

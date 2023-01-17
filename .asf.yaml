@@ -32,6 +32,8 @@ github:
     - prometheus
     - open-telemetry
     - zabbix
+    - ebpf
+    - telegraf
   enabled_merge_buttons:
     squash:  true
     merge:   false

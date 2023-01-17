@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Alarm core includes metrics values in certain time windows based on alarm settings. By using its internal timer
- * trigger and the alarm rules to decides whether send the alarm to database and webhook(s)
+ * trigger and the alarm rules to decide whether send the alarm to database and webhook(s)
  */
 public class AlarmCore {
     private static final Logger LOGGER = LoggerFactory.getLogger(AlarmCore.class);
@@ -72,16 +72,16 @@ public class AlarmCore {
                 }));
                 // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
                 if (hasExecute[0]) {
-                    lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
+                    lastExecuteTime = checkTime.withSecondOfMinute(0).withMillisOfSecond(0);
                 }
 
-                if (alarmMessageList.size() > 0) {
-                    if (alarmRulesWatcher.getCompositeRules().size() > 0) {
+                if (!alarmMessageList.isEmpty()) {
+                    if (!alarmRulesWatcher.getCompositeRules().isEmpty()) {
                         List<AlarmMessage> messages = alarmRulesWatcher.getCompositeRuleEvaluator().evaluate(alarmRulesWatcher.getCompositeRules(), alarmMessageList);
                         alarmMessageList.addAll(messages);
                     }
                     List<AlarmMessage> filteredMessages = alarmMessageList.stream().filter(msg -> !msg.isOnlyAsCondition()).collect(Collectors.toList());
-                    if (filteredMessages.size() > 0) {
+                    if (!filteredMessages.isEmpty()) {
                         allCallbacks.forEach(callback -> callback.doAlarm(filteredMessages));
                     }
                 }

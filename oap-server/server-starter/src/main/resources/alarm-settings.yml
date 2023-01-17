@@ -40,19 +40,6 @@ rules:
     count: 1
     tags:
       level: WARNING
-#  unhealthy_event_rule:
-#    metrics-name: Unhealthy
-     # Healthiness check is usually a scheduled task,
-     # they may be unhealthy for the first few times,
-     # and can be unhealthy occasionally due to network jitter,
-     # please adjust the threshold as per your actual situation.
-#    threshold: 5
-#    op: ">"
-#    period: 10
-#    count: 1
-#    message: Service instance has been unhealthy for 10 minutes
-#    tags:
-#      level: ERROR
 
 webhooks:
 #  - http://127.0.0.1/notify/
@@ -123,3 +110,12 @@ welinkHooks:
 #      group_ids: "dummy_group_id"
 #      # make a name you like for the robot, it will display in group
 #      robot_name: robot
+
+pagerDutyHooks:
+  textTemplate: "Apache SkyWalking Alarm: \n %s."
+  integrationKeys:
+#    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
+#    # (you may need to create an Events API V2 integration for your PagerDuty service if you don't have one yet)
+#    # below are dummy keys that should be replaced with your own integration keys.
+#    - dummy_key
+#    - dummy_key2

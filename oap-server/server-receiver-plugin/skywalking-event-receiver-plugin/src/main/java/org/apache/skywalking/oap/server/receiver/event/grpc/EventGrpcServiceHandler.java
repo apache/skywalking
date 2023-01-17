@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.receiver.event.grpc;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.event.v3.Event;
 import org.apache.skywalking.apm.network.event.v3.EventServiceGrpc;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerService;
@@ -66,6 +69,21 @@ public class EventGrpcServiceHandler extends EventServiceGrpc.EventServiceImplBa
             @Override
             public void onNext(final Event event) {
                 try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+                    String errMsg = null;
+                    // Check event's layer
+                    if (event.getLayer().isEmpty()) {
+                        errMsg = "Layer field is required since v9.0.0, please upgrade your event report tools";
+                    }
+                    try {
+                        Layer.nameOf(event.getLayer());
+                    } catch (UnexpectedException e) {
+                        errMsg = e.getMessage();
+                    }
+                    if (errMsg != null) {
+                        responseObserver.onError(Status.INVALID_ARGUMENT.withDescription(errMsg).asException());
+                        return;
+                    }
+
                     eventAnalyzerService.analyze(event);
                 } catch (Exception e) {
                     errorCounter.inc();
@@ -75,8 +93,14 @@ public class EventGrpcServiceHandler extends EventServiceGrpc.EventServiceImplBa
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 log.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override

@@ -27,17 +27,6 @@
           "h": 52,
           "i": "1",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -50,7 +39,8 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Response Time Percentile (ms)"
+                    "title": "Endpoint Response Time Percentile (ms)",
+                    "name": "Endpoint_Response_Percentile"
                   },
                   "graph": {
                     "type": "Line",
@@ -60,24 +50,41 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {
-                    "unit": "ms",
-                    "metricLabels": "P50, P75, P90, P95, P99",
-                    "labelsIndex": "0,1,2,3,4"
-                  },
                   "metrics": [
                     "endpoint_percentile"
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4"
                     }
-                  ]
+                  ],
+                  "value": "1-0-3",
+                  "label": "Endpoint_Response_Percentile",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-10"
+                    },
+                    {
+                      "widgetId": "1-0-4"
+                    },
+                    {
+                      "widgetId": "1-0-7"
+                    },
+                    {
+                      "widgetId": "1-0-8"
+                    },
+                    {
+                      "widgetId": "1-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 13,
+                    "sourceId": "1-0-7"
+                  }
                 },
                 {
                   "x": 11,
@@ -87,7 +94,8 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Avg Response Time (ms)"
+                    "title": "Endpoint Avg Response Time (ms)",
+                    "name": "Endpoint_Avg_Response"
                   },
                   "graph": {
                     "type": "Line",
@@ -103,7 +111,29 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-0-4",
+                  "label": "Endpoint_Avg_Response",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-3"
+                    },
+                    {
+                      "widgetId": "1-0-10"
+                    },
+                    {
+                      "widgetId": "1-0-7"
+                    },
+                    {
+                      "widgetId": "1-0-8"
+                    },
+                    {
+                      "widgetId": "1-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 13,
+                    "sourceId": "1-0-7"
+                  }
                 },
                 {
                   "x": 0,
@@ -113,7 +143,8 @@
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Successful Rate (%)"
+                    "title": "Endpoint Successful Rate (%)",
+                    "name": "Endpoint_Successful_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -129,10 +160,28 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
+                    }
+                  ],
+                  "value": "1-0-7",
+                  "label": "Endpoint_Successful_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-3"
+                    },
+                    {
+                      "widgetId": "1-0-4"
+                    },
+                    {
+                      "widgetId": "1-0-10"
+                    },
+                    {
+                      "widgetId": "1-0-8"
+                    },
+                    {
+                      "widgetId": "1-0-9"
                     }
                   ]
                 },
@@ -144,7 +193,8 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Load  (calls or packets / min)"
+                    "title": "Endpoint Load  (calls or packets / min)",
+                    "name": "Endpoint_Load"
                   },
                   "graph": {
                     "type": "Line",
@@ -160,7 +210,129 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-0-8",
+                  "label": "Endpoint_Load",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-3"
+                    },
+                    {
+                      "widgetId": "1-0-4"
+                    },
+                    {
+                      "widgetId": "1-0-7"
+                    },
+                    {
+                      "widgetId": "1-0-10"
+                    },
+                    {
+                      "widgetId": "1-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 13,
+                    "sourceId": "1-0-7"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 28,
+                  "w": 11,
+                  "h": 14,
+                  "i": "9",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "endpoint_sidecar_internal_req_latency_nanos"
+                  ],
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
+                    "name": "Sidecar_Request_Latency"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "value": "1-0-9",
+                  "label": "Sidecar_Request_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-3"
+                    },
+                    {
+                      "widgetId": "1-0-4"
+                    },
+                    {
+                      "widgetId": "1-0-7"
+                    },
+                    {
+                      "widgetId": "1-0-8"
+                    },
+                    {
+                      "widgetId": "1-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 13,
+                    "sourceId": "1-0-7"
+                  }
+                },
+                {
+                  "x": 11,
+                  "y": 28,
+                  "w": 13,
+                  "h": 14,
+                  "i": "10",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "endpoint_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
+                    "name": "Sidecar_Response_Latency"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "value": "1-0-10",
+                  "label": "1-0-10",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-3"
+                    },
+                    {
+                      "widgetId": "1-0-4"
+                    },
+                    {
+                      "widgetId": "1-0-7"
+                    },
+                    {
+                      "widgetId": "1-0-8"
+                    },
+                    {
+                      "widgetId": "1-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 13,
+                    "sourceId": "1-0-7"
+                  }
                 }
               ]
             },
@@ -173,23 +345,11 @@
                   "w": 24,
                   "h": 49,
                   "i": "0",
-                  "type": "Log",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Log"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
         }
       ],
       "layer": "MESH",

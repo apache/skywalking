@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.tool.profile.core.mock;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 
 /**
@@ -25,6 +27,7 @@ import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
  */
 public class MockHTTPHandlerRegister implements HTTPHandlerRegister {
     @Override
-    public void addHandler(Object httpService) {
+    public void addHandler(final Object httpService, final List<HttpMethod> httpMethods) {
+
     }
 }

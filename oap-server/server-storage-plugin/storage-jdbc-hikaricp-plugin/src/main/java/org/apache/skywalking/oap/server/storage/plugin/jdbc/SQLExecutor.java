@@ -21,36 +21,41 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A SQL executor.
  */
 @EqualsAndHashCode(of = "sql")
+@RequiredArgsConstructor
+@Slf4j
 public class SQLExecutor implements InsertRequest, UpdateRequest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SQLExecutor.class);
-
-    private String sql;
-    private List<Object> param;
-
-    public SQLExecutor(String sql, List<Object> param) {
-        this.sql = sql;
-        this.param = param;
-    }
+    private final String sql;
+    private final List<Object> param;
+    private final SessionCacheCallback callback;
+    @Getter
+    private List<SQLExecutor> additionalSQLs;
 
     public void invoke(Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
         setParameters(preparedStatement);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("execute sql in batch: {}, parameters: {}", sql, param);
+        if (log.isDebugEnabled()) {
+            log.debug("execute sql in batch: {}, parameters: {}", sql, param);
         }
         preparedStatement.execute();
+        if (additionalSQLs != null) {
+            for (SQLExecutor sqlExecutor : additionalSQLs) {
+                sqlExecutor.invoke(connection);
+            }
+        }
     }
 
     public void setParameters(PreparedStatement preparedStatement) throws SQLException {
@@ -62,5 +67,24 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
     @Override
     public String toString() {
         return sql;
+    }
+
+    public void appendAdditionalSQLs(List<SQLExecutor> sqlExecutors) {
+        if (additionalSQLs == null) {
+            additionalSQLs = new ArrayList<>();
+        }
+        additionalSQLs.addAll(sqlExecutors);
+    }
+
+    @Override
+    public void onInsertCompleted() {
+        if (callback != null)
+            callback.onInsertCompleted();
+    }
+
+    @Override
+    public void onUpdateFailure() {
+        if (callback != null)
+            callback.onUpdateFailure();
     }
 }

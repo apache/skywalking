@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence;
 import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -49,8 +48,8 @@ public class AlarmModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new AlarmSettings();
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

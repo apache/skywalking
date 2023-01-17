@@ -22,7 +22,7 @@ at org.apache.skywalking.apm.dependencies.net.bytebuddy.matcher.ElementMatcher$J
 ...
 ```
 
-The exception occured because access grant was required in WebSphere. 
+The exception occurred because access grant was required in WebSphere. 
 Simply follow these steps:
 
 1. Set the agent's owner to the owner of WebSphere.

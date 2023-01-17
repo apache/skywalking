@@ -19,10 +19,9 @@
 package org.apache.skywalking.aop.server.receiver.mesh;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -31,12 +30,6 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class MeshReceiverProvider extends ModuleProvider {
-    private MeshModuleConfig config;
-
-    public MeshReceiverProvider() {
-        config = new MeshModuleConfig();
-    }
-
     @Override
     public String name() {
         return "default";
@@ -48,8 +41,8 @@ public class MeshReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override
@@ -64,13 +57,17 @@ public class MeshReceiverProvider extends ModuleProvider {
                     .getService(OALEngineLoaderService.class)
                     .load(CoreOALDefine.INSTANCE);
 
+        getManager().find(CoreModule.NAME)
+                    .provider()
+                    .getService(OALEngineLoaderService.class)
+                    .load(MeshOALDefine.INSTANCE);
+
         TelemetryDataDispatcher.init(getManager());
         GRPCHandlerRegister service = getManager().find(SharingServerModule.NAME)
                                                   .provider()
                                                   .getService(GRPCHandlerRegister.class);
         MeshGRPCHandler meshGRPCHandler = new MeshGRPCHandler(getManager());
         service.addHandler(meshGRPCHandler);
-        service.addHandler(new MeshGRPCHandlerCompat(meshGRPCHandler));
     }
 
     @Override

@@ -25,5 +25,4 @@
   {{- end}}
   language: PYTHON
   instanceuuid: {{ b64enc "provider-py" }}.1_{{ b64enc "provider-py-instance" }}
-  layer: GENERAL
 {{- end}}

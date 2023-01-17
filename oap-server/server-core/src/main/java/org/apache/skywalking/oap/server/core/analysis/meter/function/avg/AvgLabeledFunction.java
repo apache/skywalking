@@ -23,7 +23,6 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -34,8 +33,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -50,7 +51,7 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
     /**
@@ -64,14 +65,20 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     @Getter
     @Setter
     @Column(columnName = SUMMATION, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "datatable_summation")
+    @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
     @Column(columnName = COUNT, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "datatable_count")
+    @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 
     @Override
@@ -108,8 +115,8 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setServiceId(getServiceId());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
         return metrics;
     }
 
@@ -119,8 +126,8 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setServiceId(getServiceId());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
+        metrics.getSummation().copyFrom(getSummation());
+        metrics.getCount().copyFrom(getCount());
         return metrics;
     }
 
@@ -153,8 +160,10 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override

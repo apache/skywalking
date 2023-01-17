@@ -1,8 +1,9 @@
 # Dynamic Configuration
 SkyWalking Configurations are mostly set through `application.yml` and OS system environment variables.
-At the same time, some of them support dynamic settings from upstream management system.
 
-Currently, SkyWalking supports the 2 types of dynamic configurations: Single and Group.
+At the same time, some of them support dynamic settings from an upstream management system.
+
+Currently, SkyWalking supports two types of dynamic configurations: Single and Group.
 
 This feature depends on upstream service, so it is **DISABLED** by default.
 
@@ -20,7 +21,7 @@ configuration:
 ## Single Configuration
 Single Configuration is a config key that corresponds to a specific config value. The logic structure is:
 ```
-{configKey}:{configVaule}
+{configKey}:{configValue}
 ```
 For example:
 ```
@@ -30,7 +31,7 @@ Supported configurations are as follows:
 
 | Config Key | Value Description | Value Format Example |
 |:----:|:----:|:----:|
-|agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement. Overrides `receiver-trace/default/slowDBAccessThreshold` of `application.yml`. | default:200,mongodb:50|
+|agent-analyzer.default.slowDBAccessThreshold| Thresholds of slow Database statement. Overrides `agent-analyzer/default/slowDBAccessThreshold` of `application.yml`. | default:200,mongodb:50|
 |agent-analyzer.default.uninstrumentedGateways| The uninstrumented gateways. Overrides `gateways.yml`. | Same as [`gateways.yml`](uninstrumented-gateways.md#configuration-format). |
 |alarm.default.alarm-settings| The alarm settings. Overrides `alarm-settings.yml`. | Same as [`alarm-settings.yml`](backend-alarm.md). |
 |core.default.apdexThreshold| The apdex threshold settings. Overrides `service-apdex-threshold.yml`. | Same as [`service-apdex-threshold.yml`](apdex-threshold.md). |
@@ -40,7 +41,7 @@ Supported configurations are as follows:
 |configuration-discovery.default.agentConfigurations| The ConfigurationDiscovery settings. | See [`configuration-discovery.md`](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/configuration-discovery.md). |
 
 ## Group Configuration
-Group Configuration is a config key that corresponds to a group sub config items. A sub config item is a key value pair. The logic structure is:
+Group Configuration is a config key corresponding to a group sub config item. A sub config item is a key-value pair. The logic structure is:
 ```
 {configKey}: |{subItemkey1}:{subItemValue1}
              |{subItemkey2}:{subItemValue2}
@@ -66,6 +67,5 @@ Supported configurations are as follows:
 - [Etcd Implementation](./dynamic-config-etcd.md)
 - [Consul Implementation](./dynamic-config-consul.md)
 - [Apollo Implementation](./dynamic-config-apollo.md)
-- [Kuberbetes Configmap Implementation](./dynamic-config-configmap.md)
+- [Kubernetes Configmap Implementation](./dynamic-config-configmap.md)
 - [Nacos Implementation](./dynamic-config-nacos.md)
-

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 public interface Handler {
     static List<Handler> all() throws HandlerInitializationException {
@@ -53,7 +54,7 @@ public interface Handler {
 
     String type();
 
-    void active(List<String> enabledRules, MeterSystem service,
-        GRPCHandlerRegister grpcHandlerRegister);
-
+    void active(OtelMetricReceiverConfig config,
+                MeterSystem meterSystem,
+                GRPCHandlerRegister grpcHandlerRegister) throws ModuleStartException;
 }

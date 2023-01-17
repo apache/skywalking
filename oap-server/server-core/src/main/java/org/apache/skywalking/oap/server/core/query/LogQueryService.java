@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -61,8 +62,7 @@ public class LogQueryService implements Service {
                           TraceScopeCondition relatedTrace,
                           Pagination paging,
                           Order queryOrder,
-                          final long startTB,
-                          final long endTB,
+                          final Duration duration,
                           final List<Tag> tags,
                           List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
@@ -85,7 +85,7 @@ public class LogQueryService implements Service {
                                                relatedTrace,
                                                queryOrder,
                                                page.getFrom(), page.getLimit(),
-                                               startTB, endTB, tags,
+                                               duration, tags,
                                                keywordsOfContent, excludingKeywordsOfContent
         );
         logs.getLogs().forEach(log -> {

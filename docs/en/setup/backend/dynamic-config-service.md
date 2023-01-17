@@ -1,7 +1,7 @@
 # Dynamic Configuration Service, DCS
 [Dynamic Configuration Service](../../../../oap-server/server-configuration/grpc-configuration-sync/src/main/proto/configuration-service.proto) 
 is a gRPC service which requires implementation of the upstream system.
-The SkyWalking OAP fetches the configuration from the implementation (any system), after you open the implementation like this:
+The SkyWalking OAP fetches the configuration from the implementation (any system) after you open the implementation like this:
 
 ```yaml
 configuration:
@@ -14,7 +14,7 @@ configuration:
 ```
 
 ## Config Server Response
-`uuid`: To identify whether the config data changed, if `uuid` is the same not required to respond the config data.
+`uuid`: To identify whether the config data changed, if `uuid` is the same, it is not required to respond to the config data.
 ### Single Config
 Implement: 
 ```

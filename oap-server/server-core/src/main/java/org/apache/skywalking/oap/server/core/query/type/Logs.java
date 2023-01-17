@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 @Setter
 @Getter
+@Accessors(chain = true)
 public class Logs {
     private final List<Log> logs;
-    private int total;
+    private String errorReason;
 
     public Logs() {
         this.logs = new ArrayList<>();

@@ -34,7 +34,8 @@ public enum Scope {
     Endpoint(DefaultScopeDefine.ENDPOINT),
     ServiceRelation(DefaultScopeDefine.SERVICE_RELATION),
     ServiceInstanceRelation(DefaultScopeDefine.SERVICE_INSTANCE_RELATION),
-    EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION);
+    EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION),
+    ProcessRelation(DefaultScopeDefine.PROCESS_RELATION);
 
     @Getter
     private int scopeId;

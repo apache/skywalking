@@ -23,9 +23,12 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ProcessRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.K8sRetagType;
@@ -36,6 +39,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +47,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,7 +55,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.AtomicDouble;
 import groovy.lang.Closure;
 import io.vavr.Function2;
 import io.vavr.Function3;
@@ -358,7 +360,6 @@ public class SampleFamily {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(newLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(existingLabelName));
         Preconditions.checkArgument(!Strings.isNullOrEmpty(namespaceLabelName));
-        ExpressionParsingContext.get().ifPresent(ctx -> ctx.isRetagByK8sMeta = true);
         if (this == EMPTY) {
             return EMPTY;
         }
@@ -382,8 +383,6 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        AtomicDouble pre = new AtomicDouble();
-        AtomicReference<String> preLe = new AtomicReference<>("0");
         return SampleFamily.build(
             this.context,
             Stream.concat(
@@ -392,21 +391,16 @@ public class SampleFamily {
                       .filter(s -> s.labels.containsKey(le))
                       .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
                       .map(s -> {
-                          double r = this.context.histogramType == HistogramType.ORDINARY ? s.value : s.value - pre.get();
-                          pre.set(s.value);
+                          double r = s.value;
                           ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                                                                         .putAll(Maps.filterKeys(s.labels,
                                                                                                 key -> !Objects.equals(
                                                                                                     key, le)
                                                                         ))
                                                                         .put(
-                                                                            "le", String.valueOf(
-                                                                                (long) ((Double.parseDouble(
-                                                                                    this.context.histogramType == HistogramType.ORDINARY ? s.labels
-                                                                                        .get(
-                                                                                            le) : preLe.get())) * scale)))
+                                                                            "le",
+                                                                            String.valueOf((long) ((Double.parseDouble(s.labels.get(le))) * scale)))
                                                                         .build();
-                          preLe.set(s.labels.get(le));
                           return InternalOps.newSample(s.name, ll, s.timestamp, r);
                       })
             ).toArray(Sample[]::new)
@@ -448,7 +442,9 @@ public class SampleFamily {
         return createMeterSamples(new ServiceEntityDescription(labelKeys, layer, delimiter));
     }
 
-    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
+    public SampleFamily instance(List<String> serviceKeys, String serviceDelimiter,
+                                 List<String> instanceKeys, String instanceDelimiter,
+                                 Layer layer, Closure<Map<String, String>> propertiesExtractor) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(instanceKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -459,7 +455,12 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new InstanceEntityDescription(serviceKeys, instanceKeys, layer, Const.POINT));
+        return createMeterSamples(new InstanceEntityDescription(
+            serviceKeys, instanceKeys, layer, serviceDelimiter, instanceDelimiter, propertiesExtractor));
+    }
+
+    public SampleFamily instance(List<String> serviceKeys, List<String> instanceKeys, Layer layer) {
+        return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, null);
     }
 
     public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
@@ -488,6 +489,39 @@ public class SampleFamily {
             return EMPTY;
         }
         return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, Const.POINT));
+    }
+
+    public SampleFamily forEach(List<String> array, Closure<Void> each) {
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return SampleFamily.build(this.context, Arrays.stream(this.samples).map(sample -> {
+            Map<String, String> labels = Maps.newHashMap(sample.getLabels());
+            for (String element : array) {
+                each.call(element, labels);
+            }
+            return sample.toBuilder().labels(ImmutableMap.copyOf(labels)).build();
+        }).toArray(Sample[]::new));
+    }
+
+    public SampleFamily processRelation(String detectPointKey, List<String> serviceKeys, List<String> instanceKeys, String sourceProcessIdKey, String destProcessIdKey, String componentKey) {
+        Preconditions.checkArgument(serviceKeys.size() > 0);
+        Preconditions.checkArgument(instanceKeys.size() > 0);
+        Preconditions.checkArgument(StringUtil.isNotEmpty(sourceProcessIdKey));
+        Preconditions.checkArgument(StringUtil.isNotEmpty(destProcessIdKey));
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.PROCESS_RELATION;
+            ctx.scopeLabels.addAll(serviceKeys);
+            ctx.scopeLabels.addAll(instanceKeys);
+            ctx.scopeLabels.add(detectPointKey);
+            ctx.scopeLabels.add(sourceProcessIdKey);
+            ctx.scopeLabels.add(destProcessIdKey);
+            ctx.scopeLabels.add(componentKey);
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ProcessRelationEntityDescription(serviceKeys, instanceKeys, sourceProcessIdKey, destProcessIdKey, detectPointKey, componentKey, Const.POINT));
     }
 
     private SampleFamily createMeterSamples(EntityDescription entityDescription) {
@@ -576,14 +610,11 @@ public class SampleFamily {
 
         static RunningContext instance() {
             return RunningContext.builder()
-                                 .histogramType(HistogramType.CUMULATIVE)
                                  .defaultHistogramBucketUnit(TimeUnit.SECONDS)
                                  .build();
         }
 
         private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
-
-        private HistogramType histogramType;
 
         private TimeUnit defaultHistogramBucketUnit;
     }
@@ -620,10 +651,15 @@ public class SampleFamily {
                     );
                 case SERVICE_INSTANCE:
                     InstanceEntityDescription instanceEntityDescription = (InstanceEntityDescription) entityDescription;
+                    Map<String, String> properties = null;
+                    if (instanceEntityDescription.getPropertiesExtractor() != null) {
+                        properties = instanceEntityDescription.getPropertiesExtractor().call(samples.get(0).labels);
+                    }
                     return MeterEntity.newServiceInstance(
-                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys(), instanceEntityDescription.getDelimiter()),
-                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys(), instanceEntityDescription.getDelimiter()),
-                        instanceEntityDescription.getLayer()
+                        InternalOps.dim(samples, instanceEntityDescription.getServiceKeys(), instanceEntityDescription.getServiceDelimiter()),
+                        InternalOps.dim(samples, instanceEntityDescription.getInstanceKeys(), instanceEntityDescription.getInstanceDelimiter()),
+                        instanceEntityDescription.getLayer(),
+                        properties
                     );
                 case ENDPOINT:
                     EndpointEntityDescription endpointEntityDescription = (EndpointEntityDescription) entityDescription;
@@ -638,6 +674,20 @@ public class SampleFamily {
                         InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
                         serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer()
+                    );
+                case PROCESS_RELATION:
+                    final ProcessRelationEntityDescription processRelationEntityDescription = (ProcessRelationEntityDescription) entityDescription;
+                    final String detectPointValue = InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getDetectPointKey()), processRelationEntityDescription.getDelimiter());
+                    DetectPoint point = StringUtils.equalsAnyIgnoreCase(detectPointValue, "server") ? DetectPoint.SERVER : DetectPoint.CLIENT;
+                    final String componentValue = InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getComponentKey()), processRelationEntityDescription.getDelimiter());
+                    final int componentId = StringUtil.isNotEmpty(componentValue) ? Integer.parseInt(componentValue) : 0;
+                    return MeterEntity.newProcessRelation(
+                        InternalOps.dim(samples, processRelationEntityDescription.getServiceKeys(), processRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, processRelationEntityDescription.getInstanceKeys(), processRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getSourceProcessIdKey()), processRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, Collections.singletonList(processRelationEntityDescription.getDestProcessIdKey()), processRelationEntityDescription.getDelimiter()),
+                        componentId,
+                        point
                     );
                 default:
                     throw new UnexpectedException(

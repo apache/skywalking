@@ -20,20 +20,24 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.exception.ResponseException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.IndicesMetadataCache;
 import org.joda.time.DateTime;
 
 @Slf4j
 public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
+    private final Map<String, Long> indexLatestSuccess;
 
     public HistoryDeleteEsDAO(ElasticSearchClient client) {
         super(client);
+        this.indexLatestSuccess = new HashMap<>();
     }
 
     @Override
@@ -52,6 +56,13 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         }
         long deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
         String tableName = IndexController.INSTANCE.getTableName(model);
+        Long latestSuccessDeadline = this.indexLatestSuccess.get(model.getName());
+        if (latestSuccessDeadline != null && deadline <= latestSuccessDeadline) {
+            if (log.isDebugEnabled()) {
+                log.debug("Index = {} already deleted, skip, deadline = {}, ttl = {}", tableName, deadline, ttl);
+            }
+            return;
+        }
         Collection<String> indices = client.retrievalIndexByAliases(tableName);
 
         if (log.isDebugEnabled()) {
@@ -77,34 +88,19 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
         String formattedLatestIndex = client.formatIndexName(latestIndex);
         if (!leftIndices.contains(formattedLatestIndex)) {
-            client.createIndex(latestIndex);
-        }
-    }
-
-    @Override
-    public void inspect(List<Model> models, String timeBucketColumnName) {
-        List<String> indices = new ArrayList<>();
-        models.forEach(model -> {
-            if (!model.isTimeSeries()) {
-                return;
-            }
-
-            ElasticSearchClient client = getClient();
-
-            if (!model.isRecord()) {
-                if (!DownSampling.Minute.equals(model.getDownsampling())) {
-                    /*
-                     * As all metrics data in different down sampling rule of one day are in the same index, the inspection
-                     * operation is only required to run once.
-                     */
-                    return;
+            try {
+                client.createIndex(latestIndex);
+            } catch (ResponseException e) {
+                if (e.getStatusCode() == 400 && client.isExistsIndex(latestIndex)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                            "Failed to create index {}, index is already created.", latestIndex);
+                    }
+                } else {
+                    throw e;
                 }
             }
-            String tableName = IndexController.INSTANCE.getTableName(model);
-            Collection<String> indexes = client.retrievalIndexByAliases(tableName);
-
-            indices.addAll(indexes);
-        });
-        IndicesMetadataCache.INSTANCE.update(indices);
+        }
+        this.indexLatestSuccess.put(tableName, deadline);
     }
 }

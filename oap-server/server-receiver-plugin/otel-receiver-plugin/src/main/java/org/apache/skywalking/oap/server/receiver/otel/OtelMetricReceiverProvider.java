@@ -18,15 +18,17 @@
 
 package org.apache.skywalking.oap.server.receiver.otel;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+
+import static java.util.stream.Collectors.toList;
 
 public class OtelMetricReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
@@ -43,9 +45,18 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        config = new OtelMetricReceiverConfig();
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<OtelMetricReceiverConfig>() {
+            @Override
+            public Class type() {
+                return OtelMetricReceiverConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final OtelMetricReceiverConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -60,10 +71,14 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
             .provider()
             .getService(GRPCHandlerRegister.class);
-        final MeterSystem service = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        Handler.all().stream()
-            .filter(h -> config.getEnabledHandlers().contains(h.type()))
-            .forEach(h -> h.active(config.getEnabledRulesFrom(h.type()), service, grpcHandlerRegister));
+        final MeterSystem meterSystem = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
+        final List<Handler> handlers =
+            Handler.all().stream()
+                .filter(h -> config.getEnabledHandlers().contains(h.type()))
+                .collect(toList());
+        for (Handler h : handlers) {
+            h.active(config, meterSystem, grpcHandlerRegister);
+        }
     }
 
     @Override

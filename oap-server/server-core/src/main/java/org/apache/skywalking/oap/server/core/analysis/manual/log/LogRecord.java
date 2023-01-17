@@ -22,13 +22,23 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 
+import static org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord.SERVICE_ID;
+import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
+
 @SuperDataset
 @Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class)
+@SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AbstractLogRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM, dataSourceShardingColumn = SERVICE_ID, tableShardingColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(AbstractLogRecord.TIMESTAMP)
 public class LogRecord extends AbstractLogRecord {
 
     public static final String INDEX_NAME = "log";
@@ -41,8 +51,8 @@ public class LogRecord extends AbstractLogRecord {
     private String uniqueId;
 
     @Override
-    public String id() {
-        return uniqueId;
+    public StorageID id() {
+        return new StorageID().append(UNIQUE_ID, uniqueId);
     }
 
     public static class Builder extends AbstractLogRecord.Builder<LogRecord> {

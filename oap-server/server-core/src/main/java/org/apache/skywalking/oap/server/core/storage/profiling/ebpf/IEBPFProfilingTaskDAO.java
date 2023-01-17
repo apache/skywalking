@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.profiling.ebpf;
 
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
@@ -31,13 +32,24 @@ import java.util.List;
 public interface IEBPFProfilingTaskDAO extends DAO {
 
     /**
-     * list profiling tasks
-     * @param finder process finder config
-     * @param targetType profiling task target type
-     * @param taskStartTime profiling task start timestamp, bigger than or equals
-     * @param latestUpdateTime  profiling task last update timestamp, bigger than
+     * Query profiling task through service id list
+     * @param serviceIdList cannot be empty
      */
-    List<EBPFProfilingTask> queryTasks(EBPFProfilingProcessFinder finder,
-                                       EBPFProfilingTargetType targetType,
-                                       long taskStartTime, long latestUpdateTime) throws IOException;
+    List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList,
+                                                 long taskStartTime, long latestUpdateTime) throws IOException;
+
+    /**
+     * Query profiling task through target types
+     * @param targetTypes cannot be empty
+     */
+    List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId,
+                                                List<EBPFProfilingTargetType> targetTypes,
+                                                long taskStartTime, long latestUpdateTime) throws IOException;
+
+    /**
+     * Query profiling task
+     * @param id {@link EBPFProfilingTaskRecord#getLogicalId()}
+     * @return use {@link EBPFProfilingTask#combine(EBPFProfilingTask)} to combine all task result
+     */
+    EBPFProfilingTask queryById(String id) throws IOException;
 }

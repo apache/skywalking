@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -141,6 +142,13 @@ public class RemoteServiceHandler extends RemoteServiceGrpc.RemoteServiceImplBas
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 LOGGER.error(throwable.getMessage(), throwable);
             }
 

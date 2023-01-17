@@ -19,19 +19,24 @@
 package org.apache.skywalking.oap.server.core.analysis.manual.process;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -46,16 +51,19 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     "instanceId",
     "name",
 })
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
+@BanyanDB.StoreIDAsTag
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
     public static final String SERVICE_ID = "service_id";
     public static final String INSTANCE_ID = "instance_id";
     public static final String NAME = "name";
-    public static final String LAYER = "layer";
     public static final String AGENT_ID = "agent_id";
     public static final String PROPERTIES = "properties";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String DETECT_TYPE = "detect_type";
+    public static final String LABELS_JSON = "labels_json";
+    public static final String PROFILING_SUPPORT_STATUS = "profiling_support_status";
 
     private static final Gson GSON = new Gson();
 
@@ -67,6 +75,7 @@ public class ProcessTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = INSTANCE_ID, length = 600)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     @Getter
@@ -76,12 +85,8 @@ public class ProcessTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = NAME, length = 500)
+    @BanyanDB.SeriesID(index = 1)
     private String name;
-
-    @Setter
-    @Getter
-    @Column(columnName = LAYER)
-    private int layer = Layer.UNDEFINED.value();
 
     @Setter
     @Getter
@@ -103,6 +108,19 @@ public class ProcessTraffic extends Metrics {
     @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
+    @Setter
+    @Getter
+    @Column(columnName = LABELS_JSON, storageOnly = true, length = 500)
+    private String labelsJson;
+
+    /**
+     * Is Support eBPF Profiling, 1 means support, otherwise means not support
+     */
+    @Setter
+    @Getter
+    @Column(columnName = PROFILING_SUPPORT_STATUS)
+    private int profilingSupportStatus;
+
     @Override
     public boolean combine(Metrics metrics) {
         final ProcessTraffic processTraffic = (ProcessTraffic) metrics;
@@ -110,11 +128,18 @@ public class ProcessTraffic extends Metrics {
         if (StringUtil.isNotBlank(processTraffic.getAgentId())) {
             this.agentId = processTraffic.getAgentId();
         }
-        if (processTraffic.getProperties() != null && processTraffic.getProperties().size() > 0) {
+        if (this.properties == null) {
             this.properties = processTraffic.getProperties();
+        } else if (processTraffic.getProperties() != null) {
+            for (Map.Entry<String, JsonElement> e : processTraffic.getProperties().entrySet()) {
+                this.properties.add(e.getKey(), e.getValue());
+            }
         }
         if (processTraffic.getDetectType() > 0) {
             this.detectType = processTraffic.getDetectType();
+        }
+        if (StringUtil.isNotEmpty(processTraffic.getLabelsJson())) {
+            this.labelsJson = processTraffic.getLabelsJson();
         }
         return true;
     }
@@ -129,14 +154,15 @@ public class ProcessTraffic extends Metrics {
         setServiceId(remoteData.getDataStrings(0));
         setInstanceId(remoteData.getDataStrings(1));
         setName(remoteData.getDataStrings(2));
-        setLayer(remoteData.getDataIntegers(0));
         setAgentId(remoteData.getDataStrings(3));
         final String propString = remoteData.getDataStrings(4);
         if (StringUtil.isNotEmpty(propString)) {
             setProperties(GSON.fromJson(propString, JsonObject.class));
         }
+        setLabelsJson(remoteData.getDataStrings(5));
         setLastPingTimestamp(remoteData.getDataLongs(0));
-        setDetectType(remoteData.getDataIntegers(1));
+        setDetectType(remoteData.getDataIntegers(0));
+        setProfilingSupportStatus(remoteData.getDataIntegers(1));
         setTimeBucket(remoteData.getDataLongs(1));
     }
 
@@ -146,25 +172,29 @@ public class ProcessTraffic extends Metrics {
         builder.addDataStrings(serviceId);
         builder.addDataStrings(instanceId);
         builder.addDataStrings(name);
-        builder.addDataIntegers(layer);
         builder.addDataStrings(agentId);
         if (properties == null) {
             builder.addDataStrings(Const.EMPTY_STRING);
         } else {
             builder.addDataStrings(GSON.toJson(properties));
         }
+        builder.addDataStrings(labelsJson);
         builder.addDataLongs(lastPingTimestamp);
         builder.addDataIntegers(detectType);
+        builder.addDataIntegers(profilingSupportStatus);
         builder.addDataLongs(getTimeBucket());
         return builder;
     }
 
     @Override
-    protected String id0() {
-        if (processId != null) {
-            return processId;
+    protected StorageID id0() {
+        if (processId == null) {
+            processId = IDManager.ProcessID.buildId(instanceId, name);
         }
-        return IDManager.ProcessID.buildId(instanceId, name);
+        return new StorageID().appendMutant(new String[] {
+            INSTANCE_ID,
+            NAME
+        }, processId);
     }
 
     public static class Builder implements StorageBuilder<ProcessTraffic> {
@@ -174,14 +204,15 @@ public class ProcessTraffic extends Metrics {
             processTraffic.setServiceId((String) converter.get(SERVICE_ID));
             processTraffic.setInstanceId((String) converter.get(INSTANCE_ID));
             processTraffic.setName((String) converter.get(NAME));
-            processTraffic.setLayer(((Number) converter.get(LAYER)).intValue());
             processTraffic.setAgentId((String) converter.get(AGENT_ID));
             final String propString = (String) converter.get(PROPERTIES);
             if (StringUtil.isNotEmpty(propString)) {
                 processTraffic.setProperties(GSON.fromJson(propString, JsonObject.class));
             }
+            processTraffic.setLabelsJson((String) converter.get(LABELS_JSON));
             processTraffic.setLastPingTimestamp(((Number) converter.get(LAST_PING_TIME_BUCKET)).longValue());
             processTraffic.setDetectType(((Number) converter.get(DETECT_TYPE)).intValue());
+            processTraffic.setProfilingSupportStatus(((Number) converter.get(PROFILING_SUPPORT_STATUS)).intValue());
             processTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return processTraffic;
         }
@@ -191,15 +222,16 @@ public class ProcessTraffic extends Metrics {
             converter.accept(SERVICE_ID, storageData.getServiceId());
             converter.accept(INSTANCE_ID, storageData.getInstanceId());
             converter.accept(NAME, storageData.getName());
-            converter.accept(LAYER, storageData.getLayer());
             converter.accept(AGENT_ID, storageData.getAgentId());
             if (storageData.getProperties() != null) {
                 converter.accept(PROPERTIES, GSON.toJson(storageData.getProperties()));
             } else {
                 converter.accept(PROPERTIES, Const.EMPTY_STRING);
             }
+            converter.accept(LABELS_JSON, storageData.getLabelsJson());
             converter.accept(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             converter.accept(DETECT_TYPE, storageData.getDetectType());
+            converter.accept(PROFILING_SUPPORT_STATUS, storageData.getProfilingSupportStatus());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }
@@ -218,9 +250,4 @@ public class ProcessTraffic extends Metrics {
         return null;
     }
 
-    public static class PropertyUtil {
-        public static final String HOST_IP = "host_ip";
-        public static final String PID = "pid";
-        public static final String COMMAND_LINE = "command_line";
-    }
 }

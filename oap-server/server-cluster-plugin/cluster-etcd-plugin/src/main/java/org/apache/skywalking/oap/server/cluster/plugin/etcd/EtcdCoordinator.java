@@ -25,19 +25,21 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.ClientBuilder;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.Lease;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.lease.LeaseKeepAliveResponse;
 import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.PutOption;
+import io.etcd.jetcd.options.WatchOption;
+import io.etcd.jetcd.watch.WatchResponse;
 import io.grpc.stub.StreamObserver;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
-import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
-import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
@@ -50,7 +52,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
-public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
+public class EtcdCoordinator extends ClusterCoordinator {
     private static final Gson GSON = new Gson().newBuilder().create();
     private final ModuleDefineHolder manager;
     private final ClusterModuleEtcdConfig config;
@@ -91,8 +93,6 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
     public List<RemoteInstance> queryRemoteNodes() {
         List<RemoteInstance> remoteInstances = new ArrayList<>();
         try {
-            initHealthChecker();
-
             final KV kvClient = client.getKVClient();
             final GetResponse response = kvClient.get(
                 serviceNameBS,
@@ -121,6 +121,9 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
             healthChecker.unHealth(e);
             throw new RuntimeException(e);
         }
+        if (log.isDebugEnabled()) {
+            remoteInstances.forEach(instance -> log.debug("Etcd cluster instance: {}", instance));
+        }
         return remoteInstances;
     }
 
@@ -137,8 +140,6 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
                                                                 .port(selfAddress.getPort())
                                                                 .build();
         try {
-            initHealthChecker();
-
             final Lease leaseClient = client.getLeaseClient();
             final long leaseID = leaseClient.grant(30L).get().getID();
 
@@ -196,6 +197,43 @@ public class EtcdCoordinator implements ClusterRegister, ClusterNodesQuery {
                                                   .getService(MetricsCreator.class);
             healthChecker = metricCreator.createHealthCheckerGauge(
                 "cluster_etcd", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE);
+        }
+    }
+
+    @Override
+    public void start() {
+        initHealthChecker();
+        this.client.getWatchClient().watch(
+            serviceNameBS, WatchOption.newBuilder().withPrefix(serviceNameBS).build(), new EtcdEventListener());
+    }
+
+    class EtcdEventListener implements Watch.Listener {
+        @Override
+        public void onNext(final WatchResponse response) {
+            response.getEvents().forEach(event -> {
+                switch (event.getEventType()) {
+                    case DELETE:
+                    case PUT:
+                        if (log.isDebugEnabled()) {
+                            String key = event.getKeyValue().getKey().toString(Charset.defaultCharset());
+                            log.debug("{}: key = {}}", event.getEventType().name(), key);
+                        }
+                        notifyWatchers(queryRemoteNodes());
+                        break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+        @Override
+        public void onError(final Throwable throwable) {
+            log.error("Failed to notify RemoteInstances update.", throwable);
+            healthChecker.unHealth(throwable);
+        }
+
+        @Override
+        public void onCompleted() {
         }
     }
 }

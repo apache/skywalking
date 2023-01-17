@@ -37,6 +37,7 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.RequestFactory;
+import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 
 import static java.util.Objects.requireNonNull;
 
@@ -47,6 +48,8 @@ public final class BulkProcessor {
     private final AtomicReference<ElasticSearch> es;
     private final int bulkActions;
     private final Semaphore semaphore;
+    private final long flushInternalInMillis;
+    private volatile long lastFlushTS = 0;
 
     public static BulkProcessorBuilder builder() {
         return new BulkProcessorBuilder();
@@ -71,8 +74,12 @@ public final class BulkProcessor {
         scheduler.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         scheduler.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
         scheduler.setRemoveOnCancelPolicy(true);
+        flushInternalInMillis = flushInterval.getSeconds() * 1000;
         scheduler.scheduleWithFixedDelay(
-            this::flush, 0, flushInterval.getSeconds(), TimeUnit.SECONDS);
+            new RunnableWithExceptionProtection(
+                this::doPeriodicalFlush,
+                t -> log.error("flush data to ES failure:", t)
+            ), 0, flushInterval.getSeconds(), TimeUnit.SECONDS);
     }
 
     public CompletableFuture<Void> add(IndexRequest request) {
@@ -99,7 +106,16 @@ public final class BulkProcessor {
         }
     }
 
-    void flush() {
+    private void doPeriodicalFlush() {
+        if (System.currentTimeMillis() - lastFlushTS > flushInternalInMillis / 2) {
+            // Run periodical flush if there is no `flushIfNeeded` executed in the second half of the flush period.
+            // Otherwise, wait for the next round. By default, the last 2 seconds of the 5s period.
+            // This could avoid periodical flush running among bulks(controlled by bulkActions).
+            flush();
+        }
+    }
+
+    public void flush() {
         if (requests.isEmpty()) {
             return;
         }
@@ -117,6 +133,8 @@ public final class BulkProcessor {
         final CompletableFuture<Void> flush = doFlush(batch);
         flush.whenComplete((ignored1, ignored2) -> semaphore.release());
         flush.join();
+
+        lastFlushTS = System.currentTimeMillis();
     }
 
     private CompletableFuture<Void> doFlush(final List<Holder> batch) {

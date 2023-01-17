@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.QueryUnifiedIndex;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -86,12 +86,12 @@ public class StorageModelsTest {
         private String column;
 
         @Column(columnName = "column1")
-        @QueryUnifiedIndex(withColumns = {"column2"})
+        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column2"})
         private String column1;
 
         @Column(columnName = "column2")
-        @QueryUnifiedIndex(withColumns = {"column1"})
-        @QueryUnifiedIndex(withColumns = {"column"})
+        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column1"})
+        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column"})
         private String column2;
 
         @Column(columnName = "column", storageOnly = true)

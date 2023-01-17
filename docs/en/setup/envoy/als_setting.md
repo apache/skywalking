@@ -5,11 +5,11 @@ full logs on routed RPC, including HTTP and TCP.
 
 ## Background
 
-The solution was initialized and first implemented by [Sheng Wu](https://github.com/wu-sheng), [Hongtao Gao](https://github.com/hanahmily), [Lizan Zhou](https://github.com/lizan), 
+The solution was initialized and first implemented by [Sheng Wu](https://github.com/wu-sheng), [Hongtao Gao](https://github.com/hanahmily), [Lizan Zhou](https://github.com/lizan),
 and [Dhi Aurrahman](https://github.com/dio) on May 17, 2019, and was presented at [KubeCon China 2019](https://kccncosschn19eng.sched.com/event/NroB/observability-in-service-mesh-powered-by-envoy-and-apache-skywalking-sheng-wu-lizan-zhou-tetrate).
 Here is a [video recording of the presentation](https://www.youtube.com/watch?v=tERm39ju9ew).
 
-SkyWalking is the first open source project that introduced an ALS-based solution to the world. This solution provides a new take on observability with a lightweight payload on the service mesh.
+SkyWalking is the first open-source project that introduced an ALS-based solution to the world. This solution provides a new take on observability with a lightweight payload on the service mesh.
 
 ## Enable ALS and SkyWalking Receiver
 
@@ -26,7 +26,7 @@ In Istio version 1.6.0+, if Istio is installed with [`demo` profile](https://ist
    ```
 
    Note: Replace `<skywalking-oap.skywalking.svc:11800>` with the real address where SkyWalking OAP is deployed.
-    
+
 - Activate SkyWalking Envoy Receiver. (activated in default)
 
 ```yaml
@@ -43,7 +43,7 @@ envoy-metric:
      selector: ${SW_ENVOY_METRIC:default}
      default:
        acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
-       alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""} # Setting the system env variable would override this. 
+       alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""} # Setting the system env variable would override this.
        alsTCPAnalysis: ${SW_ENVOY_METRIC_ALS_TCP_ANALYSIS:""}
    ```
 
@@ -51,7 +51,7 @@ envoy-metric:
 
 ## Example
 
-Here's an example on installing Istio and deploying SkyWalking by Helm chart.
+Here's an example of installing Istio and deploying SkyWalking by Helm chart.
 
 ```shell
 istioctl install \
@@ -84,9 +84,9 @@ result, it stops the loop.
 
 ### `k8s-mesh`
 
-`k8s-mesh` uses the metadata from Kubernetes cluster, hence in this analyzer OAP needs access roles to `Pod`, `Service`, and `Endpoints`.
+`k8s-mesh` uses the metadata from Kubernetes clusters, hence in this analyzer, OAP needs access roles to `Pod`, `Service`, and `Endpoints`.
 
-The [blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) illustrates the details of how it works, and a step-by-step tutorial to apply it into the `bookinfo` application.
+The [blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) illustrates the details of how it works and a step-by-step tutorial to apply it to the `bookinfo` application.
 
 ### `mx-mesh`
 
@@ -94,7 +94,7 @@ The [blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-s
 This analyzer requires Istio to enable the metadata exchange plugin (you can enable it by `--set values.telemetry.v2.enabled=true`,
 or if you're using Istio 1.7+ and installing it with profile `demo`/`preview`, it should already be enabled).
 
-The [blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-als/) illustrates the details of how it works, and a step-by-step tutorial to apply it into the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo) system.
+The [blog](https://skywalking.apache.org/blog/obs-service-mesh-vm-with-sw-and-als/) illustrates the details of how it works and a step-by-step tutorial on applying it to the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo) system.
 
 ### `persistence`
 

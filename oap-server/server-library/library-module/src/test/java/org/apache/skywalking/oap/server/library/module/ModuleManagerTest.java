@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.library.module;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class ModuleManagerTest {
     }
 
     @Test
-    public void testModuleConfigInit() throws ModuleConfigException, ModuleNotFoundException, ModuleStartException {
+    public void testModuleConfigInit() throws ModuleConfigException, ModuleNotFoundException, ModuleStartException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         ApplicationConfiguration configuration = new ApplicationConfiguration();
         final Properties settings = new Properties();
         settings.put("attr1", "abc");
@@ -55,7 +56,7 @@ public class ModuleManagerTest {
         final ModuleServiceHolder provider = manager.find("BaseA").provider();
         Assert.assertTrue(provider instanceof ModuleAProvider);
         final ModuleAProvider moduleAProvider = (ModuleAProvider) provider;
-        final ModuleAProviderConfig config = (ModuleAProviderConfig) moduleAProvider.createConfigBeanIfAbsent();
+        final ModuleAProviderConfig config = moduleAProvider.getConfig();
         Assert.assertEquals("abc", config.getAttr1());
         Assert.assertEquals(123, config.getAttr2().intValue());
         Assert.assertEquals(123L, config.getAttr3().longValue());

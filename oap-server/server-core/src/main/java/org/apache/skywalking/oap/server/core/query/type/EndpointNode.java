@@ -29,8 +29,9 @@ public class EndpointNode {
     private String serviceId;
     private String serviceName;
     /**
-     * Not type for endpoint for now.
+     * @since 9.4.0 No type for endpoint node dependency
      */
+    @Deprecated
     private String type = "";
     private boolean isReal;
 }

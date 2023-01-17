@@ -18,24 +18,38 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.kubernetes.client.openapi.models.V1LoadBalancerIngress;
+import io.kubernetes.client.openapi.models.V1LoadBalancerStatus;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
+import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceSpec;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
+import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.kubernetes.KubernetesClient;
+import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.Retag;
-import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.powermock.reflect.Whitebox;
 
 import static com.google.common.collect.ImmutableMap.of;
@@ -44,7 +58,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 @Slf4j
-@RunWith(Parameterized.class)
+@PowerMockIgnore({"javax.net.ssl.*", "javax.management.*"})
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(Parameterized.class)
+@PrepareForTest({KubernetesPods.class, KubernetesServices.class, KubernetesClient.class})
 public class K8sTagTest {
 
     @Parameterized.Parameter
@@ -204,47 +221,73 @@ public class K8sTagTest {
                 ).build()),
                 false,
                 },
+            {
+                "IPAddress_to_name",
+                of("rover_network_profiling_process_write_bytes", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(
+                            of("service", "test", "instance", "test-instance", "side", "client",
+                                "client_address", "1.1.1.1", "server_address", "2.2.2.2")
+                        )
+                        .value(2)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build()
+                ).build()),
+                "rover_network_profiling_process_write_bytes.forEach(['client', 'server'] , " +
+                    "{prefix, tags -> tags[prefix + '_process_id'] = ProcessRegistry.generateVirtualRemoteProcess(tags.service, tags.instance, tags[prefix + '_address'])})",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(
+                            of("service", "test", "instance", "test-instance", "side", "client",
+                                "client_address", "1.1.1.1", "client_process_id", IDManager.ProcessID.buildId(
+                                    IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("test", true), "test-instance"),
+                                    "my-nginx-5dc4865748-mbczh.default"),
+                                "server_address", "2.2.2.2", "server_process_id", IDManager.ProcessID.buildId(
+                                    IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId("test", true), "test-instance"),
+                                    "kube-state-metrics.kube-system"))
+                        )
+                        .value(2)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build()
+                ).build()),
+                false,
+            }
             });
     }
 
     @SneakyThrows
     @Before
     public void setup() {
-        Whitebox.setInternalState(K8sInfoRegistry.class, "INSTANCE",
-                                  Mockito.spy(K8sInfoRegistry.getInstance())
+        PowerMockito.mockStatic(KubernetesClient.class);
+
+        Whitebox.setInternalState(KubernetesServices.class, "INSTANCE",
+                                  Mockito.mock(KubernetesServices.class)
+        );
+        Whitebox.setInternalState(KubernetesPods.class, "INSTANCE",
+                                  Mockito.mock(KubernetesPods.class)
         );
 
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService", mockService("nginx-service", "default", of("run", "nginx")))
-                    .thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService",
-            mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"))
-        ).thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"))
-        ).thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
-            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"))
-        ).thenCallRealMethod();
-
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "removeService", mockService("nginx-service", "default", of("run", "nginx")))
-                    .thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "removePod",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"))
-        ).thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addService", mockService("nginx-service", "default", of("run", "nginx")))
-                    .thenCallRealMethod();
-        PowerMockito.when(
-            K8sInfoRegistry.getInstance(), "addPod",
-            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"))
-        ).thenCallRealMethod();
-
+        PowerMockito.when(KubernetesServices.INSTANCE.list()).thenReturn(ImmutableList.of(
+                mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
+                mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")));
+        ImmutableList.of(
+            mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
+            mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2"))
+            .forEach(svc ->
+                PowerMockito
+                .when(KubernetesServices.INSTANCE.findByID(ObjectID.builder().namespace(svc.getMetadata().getNamespace()).name(svc.getMetadata().getName()).build()))
+                .thenReturn(Optional.of(svc))
+            );
+        ImmutableList.of(
+            mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1"),
+            mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2"))
+            .forEach(pod -> {
+                PowerMockito
+                .when(KubernetesPods.INSTANCE.findByIP(pod.getStatus().getPodIP()))
+                .thenReturn(Optional.of(pod));
+                PowerMockito
+                .when(KubernetesPods.INSTANCE.findByObjectID(ObjectID.builder().name(pod.getMetadata().getName()).namespace(pod.getMetadata().getNamespace()).build())).thenReturn(Optional.of(pod));
+        });
     }
 
     @Test
@@ -266,7 +309,7 @@ public class K8sTagTest {
         assertThat(r, is(want));
     }
 
-    private V1Service mockService(String name, String namespace, Map<String, String> selector) {
+    private V1Service mockService(String name, String namespace, Map<String, String> selector, String ipAddress) {
         V1Service service = new V1Service();
         V1ObjectMeta serviceMeta = new V1ObjectMeta();
         V1ServiceSpec v1ServiceSpec = new V1ServiceSpec();
@@ -277,15 +320,26 @@ public class K8sTagTest {
         v1ServiceSpec.setSelector(selector);
         service.setSpec(v1ServiceSpec);
 
+        final V1ServiceStatus v1ServiceStatus = new V1ServiceStatus();
+        final V1LoadBalancerStatus balancerStatus = new V1LoadBalancerStatus();
+        final V1LoadBalancerIngress loadBalancerIngress = new V1LoadBalancerIngress();
+        loadBalancerIngress.setIp(ipAddress);
+        balancerStatus.setIngress(Arrays.asList(loadBalancerIngress));
+        v1ServiceStatus.setLoadBalancer(balancerStatus);
+        service.setStatus(v1ServiceStatus);
+
         return service;
     }
 
-    private V1Pod mockPod(String name, String namespace, Map<String, String> labels) {
+    private V1Pod mockPod(String name, String namespace, Map<String, String> labels, String ipAddress) {
         V1Pod v1Pod = new V1Pod();
         V1ObjectMeta podMeta = new V1ObjectMeta();
         podMeta.setName(name);
         podMeta.setNamespace(namespace);
         podMeta.setLabels(labels);
+        final V1PodStatus status = new V1PodStatus();
+        status.setPodIP(ipAddress);
+        v1Pod.setStatus(status);
         v1Pod.setMetadata(podMeta);
 
         return v1Pod;

@@ -20,10 +20,13 @@ package org.apache.skywalking.oap.server.core.profiling.ebpf.analyze;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFOnCPUProfiling;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingStackMetadata;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingStackType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingStackElement;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTree;
@@ -31,7 +34,6 @@ import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfili
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.junit.Assert;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +57,7 @@ public class EBPFProfilingAnalyzeContext {
      */
     public void analyzeAssert() throws IOException {
         final Analyzer analyzer = new Analyzer();
-        final EBPFProfilingAnalyzation analyze = analyzer.analyze(null, buildTimeRanges());
+        final EBPFProfilingAnalyzation analyze = analyzer.analyze(null, buildTimeRanges(), EBPFProfilingAnalyzeAggregateType.COUNT);
         Assert.assertNotNull(analyze);
         Assert.assertNull(analyze.getTip());
         Assert.assertNotNull(analyze.getTrees());
@@ -109,7 +111,7 @@ public class EBPFProfilingAnalyzeContext {
 
     private class Analyzer extends EBPFProfilingAnalyzer implements IEBPFProfilingDataDAO {
         public Analyzer() {
-            super(null, 100, 100, 5);
+            super(null, 100, 5);
         }
 
         @Override
@@ -118,7 +120,7 @@ public class EBPFProfilingAnalyzeContext {
         }
 
         @Override
-        public List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException {
+        public List<EBPFProfilingDataRecord> queryData(List<String> taskIdList, long beginTime, long endTime) throws IOException {
             final ArrayList<EBPFProfilingDataRecord> records = new ArrayList<>();
             for (; beginTime < endTime; beginTime++) {
                 if (symbols.size() <= (int) beginTime) {
@@ -126,8 +128,8 @@ public class EBPFProfilingAnalyzeContext {
                 }
                 final String symbolData = symbols.get((int) beginTime);
                 final EBPFProfilingDataRecord record = new EBPFProfilingDataRecord();
-                record.setStackDumpCount(Integer.parseInt(StringUtils.substringBefore(symbolData, ":")));
-                final ByteArrayOutputStream output = new ByteArrayOutputStream();
+                record.setTargetType(EBPFProfilingTargetType.ON_CPU.value());
+                final int count = Integer.parseInt(StringUtils.substringBefore(symbolData, ":"));
                 final List<String> symbols = Arrays.asList(StringUtils.substringAfter(symbolData, ":").split("-"));
                 // revert symbol to the real case
                 Collections.reverse(symbols);
@@ -136,8 +138,7 @@ public class EBPFProfilingAnalyzeContext {
                         .setStackId(1)
                         .addAllStackSymbols(symbols)
                         .build();
-                metadata.writeDelimitedTo(output);
-                record.setStacksBinary(output.toByteArray());
+                record.setDataBinary(EBPFOnCPUProfiling.newBuilder().setDumpCount(count).addStacks(metadata).build().toByteArray());
                 records.add(record);
             }
             return records;

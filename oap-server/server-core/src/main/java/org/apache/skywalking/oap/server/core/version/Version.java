@@ -28,7 +28,6 @@ public enum Version {
     CURRENT;
 
     private final String buildVersion;
-    private final String buildTime;
     private final String commitId;
 
     private final Properties properties = new Properties();
@@ -38,7 +37,6 @@ public enum Version {
             properties.load(Version.class.getClassLoader()
                                          .getResourceAsStream("version.properties"));
             buildVersion = properties.getProperty("git.build.version");
-            buildTime = properties.getProperty("git.build.time");
             commitId = properties.getProperty("git.commit.id");
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
@@ -48,10 +46,9 @@ public enum Version {
     @Override
     public String toString() {
         return String.format(
-            "%s-%s (%s)",
+            "%s-%s",
             buildVersion,
-            Strings.left(commitId, 7),
-            buildTime
+            Strings.left(commitId, 7)
         );
     }
 }

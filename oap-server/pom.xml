@@ -21,7 +21,7 @@
     <parent>
         <artifactId>apm</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.1.0-SNAPSHOT</version>
+        <version>9.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -51,9 +51,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <kafka-clients.version>2.4.1</kafka-clients.version>
-        <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
     </properties>
 
     <dependencies>

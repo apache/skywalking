@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheWriteLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
@@ -60,6 +62,23 @@ public class AnalyzerModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
+
+    @Setter
+    @Getter
+    private String slowCacheWriteThreshold = "default:20,redis:10";
+
+    @Setter
+    @Getter
+    private CacheWriteLatencyThresholdsAndWatcher cacheWriteLatencyThresholdsAndWatcher;
+
+    @Setter
+    @Getter
+    private String slowCacheReadThreshold = "default:20,redis:10";
+
+    @Setter
+    @Getter
+    private CacheReadLatencyThresholdsAndWatcher cacheReadLatencyThresholdsAndWatcher;
+
     @Setter
     @Getter
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;

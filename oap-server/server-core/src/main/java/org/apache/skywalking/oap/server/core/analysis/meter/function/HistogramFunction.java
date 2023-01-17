@@ -23,7 +23,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -31,7 +30,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
  * Histogram includes data range buckets and the amount matched/grouped in the buckets. This is for original histogram
  * graph visualization
  */
-@MeterFunction(functionName = "histogram")
+@MeterFunction(functionName = "sumHistogram")
 @Slf4j
 @ToString
 public abstract class HistogramFunction extends Meter implements AcceptableValue<BucketedValues> {
@@ -50,11 +50,12 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter
     @Column(columnName = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
+    @BanyanDB.MeasureField
     private DataTable dataset = new DataTable(30);
 
     @Override
@@ -101,7 +102,7 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
         HistogramFunction metrics = (HistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
-        metrics.setDataset(getDataset());
+        metrics.getDataset().copyFrom(getDataset());
         return metrics;
     }
 
@@ -110,7 +111,7 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
         HistogramFunction metrics = (HistogramFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
-        metrics.setDataset(getDataset());
+        metrics.getDataset().copyFrom(getDataset());
         return metrics;
     }
 
@@ -141,8 +142,10 @@ public abstract class HistogramFunction extends Meter implements AcceptableValue
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override

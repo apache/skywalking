@@ -26,22 +26,80 @@
           "w": 24,
           "h": 52,
           "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": ""
-          },
-          "graph": {
-            "type": "InstanceList",
-            "dashboardName": "Mesh-Data-Plane-Instance",
-            "fontSize": 12
-          },
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "moved": false
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Instances",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 52,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Mesh-Data-Plane-Instance",
+                    "fontSize": 12
+                  },
+                  "metrics": [
+                    "envoy_total_connections_used",
+                    "envoy_worker_threads",
+                    "envoy_bug_failures"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Connections Used",
+                      "calculation": "average"
+                    },
+                    {
+                      "label": "Work Threads",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Bug Failures"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "4",
+                  "type": "Ebpf"
+                }
+              ]
+            }
+          ]
         }
       ],
       "layer": "MESH_DP",

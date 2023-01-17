@@ -205,7 +205,7 @@ public class ScopeTest {
                 }
             },
             {
-                "sum_service_endpiont",
+                "sum_service_endpoint",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -250,7 +250,7 @@ public class ScopeTest {
             },
 
             {
-                "sum_service_endpiont_labels",
+                "sum_service_endpoint_labels",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -317,7 +317,7 @@ public class ScopeTest {
                 }
             },
             {
-                "sum_service_endpiont_labels_m",
+                "sum_service_endpoint_labels_m",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -413,15 +413,15 @@ public class ScopeTest {
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL, null),
                             new Sample[] {Sample.builder().labels(of()).value(150).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL, null),
                             new Sample[] {Sample.builder().labels(of()).value(54).name("http_success_request").build()}
                         );
                         put(
-                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL, null),
                             new Sample[] {Sample.builder().labels(of()).value(50).name("http_success_request").build()}
                         );
                     }
@@ -457,7 +457,7 @@ public class ScopeTest {
                 new HashMap<MeterEntity, Sample[]>() {
                     {
                         put(
-                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "us", Layer.GENERAL, null),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -470,7 +470,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t3", "cn", Layer.GENERAL, null),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -483,7 +483,7 @@ public class ScopeTest {
                             }
                         );
                         put(
-                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL),
+                            MeterEntity.newServiceInstance("t1", "", Layer.GENERAL, null),
                             new Sample[] {
                                 Sample.builder()
                                       .labels(of("instance", ""))
@@ -528,6 +528,46 @@ public class ScopeTest {
                                       .labels(of())
                                       .value(16)
                                       .name("envoy_cluster_metrics_up_cx_active").build()
+                            }
+                        );
+                    }
+                }
+            },
+            {
+                "sum_process_relation",
+                of("rover_network_profiling_process_write_bytes", SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                        .labels(of("service", "test", "instance", "test-instance", "side", "server", "client_process_id", "abc", "server_process_id", "def", "component", "1"))
+                        .value(11)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build(),
+                    Sample.builder()
+                        .labels(of("service", "test", "instance", "test-instance", "side", "client", "client_process_id", "abc", "server_process_id", "def", "component", "2"))
+                        .value(12)
+                        .name("rover_network_profiling_process_write_bytes")
+                        .build()
+                ).build()),
+                "rover_network_profiling_process_write_bytes.sum(['service' ,'instance', 'side', 'client_process_id', 'server_process_id', 'component'])" +
+                    ".processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id', 'component')",
+                false,
+                new HashMap<MeterEntity, Sample[]>() {
+                    {
+                        put(
+                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", 1, DetectPoint.SERVER),
+                            new Sample[] {
+                                Sample.builder()
+                                    .labels(of())
+                                    .value(11)
+                                    .name("rover_network_profiling_process_write_bytes").build()
+                            }
+                        );
+                        put(
+                            MeterEntity.newProcessRelation("test", "test-instance", "abc", "def", 2, DetectPoint.CLIENT),
+                            new Sample[] {
+                                Sample.builder()
+                                    .labels(of())
+                                    .value(12)
+                                    .name("rover_network_profiling_process_write_bytes").build()
                             }
                         );
                     }

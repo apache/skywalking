@@ -23,13 +23,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTree;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,18 +50,15 @@ import java.util.stream.Stream;
 public class EBPFProfilingAnalyzer {
 
     private static final EBPFProfilingAnalyzeCollector ANALYZE_COLLECTOR = new EBPFProfilingAnalyzeCollector();
-    private static final Long FETCH_DATA_DURATION = TimeUnit.MINUTES.toMillis(2);
+    private static final Long FETCH_DATA_DURATION = TimeUnit.SECONDS.toMillis(10);
 
     private final ModuleManager moduleManager;
     protected IEBPFProfilingDataDAO dataDAO;
-    private long maxAnalyzeTimeRangeInMillisecond;
     private long maxQueryTimeoutInSecond;
     private final ExecutorService fetchDataThreadPool;
 
-    public EBPFProfilingAnalyzer(ModuleManager moduleManager, int maxDurationOfAnalysisInMinute,
-                                 int maxDurationOfQuery, int fetchDataThreadPoolSize) {
+    public EBPFProfilingAnalyzer(ModuleManager moduleManager, int maxDurationOfQuery, int fetchDataThreadPoolSize) {
         this.moduleManager = moduleManager;
-        this.maxAnalyzeTimeRangeInMillisecond = TimeUnit.MINUTES.toMillis(maxDurationOfAnalysisInMinute);
         this.maxQueryTimeoutInSecond = maxDurationOfQuery;
         this.fetchDataThreadPool = Executors.newFixedThreadPool(fetchDataThreadPoolSize);
     }
@@ -69,20 +66,16 @@ public class EBPFProfilingAnalyzer {
     /**
      * search data and analyze
      */
-    public EBPFProfilingAnalyzation analyze(String taskId, List<EBPFProfilingAnalyzeTimeRange> ranges) throws IOException {
+    public EBPFProfilingAnalyzation analyze(List<String> scheduleIdList,
+                                            List<EBPFProfilingAnalyzeTimeRange> ranges,
+                                            EBPFProfilingAnalyzeAggregateType aggregateType) throws IOException {
         EBPFProfilingAnalyzation analyzation = new EBPFProfilingAnalyzation();
-
-        String timeRangeValidate = validateIsOutOfTimeRangeLimit(ranges);
-        if (StringUtil.isNotEmpty(timeRangeValidate)) {
-            analyzation.setTip(timeRangeValidate);
-            return analyzation;
-        }
 
         // query data
         long queryDataMaxTimestamp = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(maxQueryTimeoutInSecond);
         final Stream<EBPFProfilingStack> stackStream = buildTimeRanges(ranges).parallelStream().map(r -> {
             try {
-                return fetchDataThreadPool.submit(() -> getDataDAO().queryData(taskId, r.getMinTime(), r.getMaxTime()))
+                return fetchDataThreadPool.submit(() -> getDataDAO().queryData(scheduleIdList, r.getMinTime(), r.getMaxTime()))
                         .get(queryDataMaxTimestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
@@ -90,7 +83,7 @@ public class EBPFProfilingAnalyzer {
             }
         }).flatMap(Collection::stream).map(e -> {
             try {
-                return EBPFProfilingStack.deserialize(e);
+                return EBPFProfilingStack.deserialize(e, aggregateType);
             } catch (Exception ex) {
                 log.warn("could not deserialize the stack", ex);
                 return null;
@@ -101,27 +94,6 @@ public class EBPFProfilingAnalyzer {
         generateTrees(analyzation, stackStream);
 
         return analyzation;
-    }
-
-    private String validateIsOutOfTimeRangeLimit(List<EBPFProfilingAnalyzeTimeRange> timeRanges) {
-        if (CollectionUtils.isEmpty(timeRanges)) {
-            return "please provide time ranges";
-        }
-
-        long totalDuration = 0;
-        for (EBPFProfilingAnalyzeTimeRange timeRange : timeRanges) {
-            final long duration = timeRange.getEnd() - timeRange.getStart();
-            if (duration <= 0) {
-                return "please validate the time duration data";
-            }
-            totalDuration += duration;
-        }
-
-        if (totalDuration > maxAnalyzeTimeRangeInMillisecond) {
-            return "time range is out of " +
-                    TimeUnit.MILLISECONDS.toMinutes(this.maxAnalyzeTimeRangeInMillisecond) + " minute";
-        }
-        return null;
     }
 
     public void generateTrees(EBPFProfilingAnalyzation analyzation, Stream<EBPFProfilingStack> stackStream) {

@@ -28,7 +28,8 @@
           "i": "0",
           "type": "Widget",
           "widget": {
-            "title": "Service Response Time Percentile (ms)"
+            "title": "Service Response Time Percentile (ms)",
+            "name": "Service_Response_Percentile"
           },
           "graph": {
             "type": "Line",
@@ -44,13 +45,31 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "P50, P75, P90, P95, P99",
               "labelsIndex": "0,1,2,3,4"
             }
-          ]
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            }
+          ],
+          "filters": {
+            "dataIndex": 15,
+            "sourceId": "3"
+          },
+          "relatedTrace": {
+            "enableRelate": true,
+            "latency": true
+          }
         },
         {
           "x": 0,
@@ -60,7 +79,8 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Success Rate (%)"
+            "title": "Success Rate (%)",
+            "name": "Success_Rate"
           },
           "graph": {
             "type": "Line",
@@ -76,12 +96,30 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "calculation": "percentage"
             }
-          ]
+          ],
+          "associate": [
+            {
+              "widgetId": "0"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            }
+          ],
+          "filters": {
+            "dataIndex": 15,
+            "sourceId": "3"
+          },
+          "relatedTrace": {
+            "enableRelate": true,
+            "status": "ERROR"
+          }
         },
         {
           "x": 0,
@@ -91,7 +129,8 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "Load (calls / min)"
+            "title": "Load (calls / min)",
+            "name": "Load"
           },
           "graph": {
             "type": "Line",
@@ -107,7 +146,21 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "0"
+            },
+            {
+              "widgetId": "3"
+            }
+          ],
+          "filters": {
+            "dataIndex": 15,
+            "sourceId": "3"
+          }
         },
         {
           "x": 0,
@@ -117,7 +170,8 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Response Time (ms)"
+            "title": "Response Time (ms)",
+            "name": "Response_Time"
           },
           "graph": {
             "type": "Line",
@@ -133,7 +187,21 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "0"
+            }
+          ],
+          "relatedTrace": {
+            "enableRelate": true,
+            "latency": true
+          }
         }
       ],
       "layer": "GENERAL",

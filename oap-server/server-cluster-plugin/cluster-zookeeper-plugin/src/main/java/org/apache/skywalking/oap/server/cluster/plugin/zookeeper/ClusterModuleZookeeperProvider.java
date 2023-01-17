@@ -29,16 +29,16 @@ import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
@@ -55,14 +55,13 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
     private static final String BASE_PATH = "/skywalking";
 
-    private final ClusterModuleZookeeperConfig config;
+    private ClusterModuleZookeeperConfig config;
     private CuratorFramework client;
     private ServiceDiscovery<RemoteInstance> serviceDiscovery;
     private ZookeeperCoordinator coordinator;
 
     public ClusterModuleZookeeperProvider() {
         super();
-        this.config = new ClusterModuleZookeeperConfig();
     }
 
     @Override
@@ -76,8 +75,18 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ClusterModuleZookeeperConfig>() {
+            @Override
+            public Class type() {
+                return ClusterModuleZookeeperConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final ClusterModuleZookeeperConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -139,6 +148,7 @@ public class ClusterModuleZookeeperProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+        this.registerServiceImplementation(ClusterCoordinator.class, coordinator);
     }
 
     @Override

@@ -47,6 +47,8 @@ public class Event {
 
     private long endTime;
 
+    private String layer;
+
     public void setParameters(final List<KeyValue> parameters) {
         this.parameters = parameters;
     }

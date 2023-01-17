@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "4",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -63,7 +52,6 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "apdex"
@@ -92,7 +80,6 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage",
@@ -123,7 +110,6 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "unit": "calls / min"
@@ -138,7 +124,8 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Avg Response Time (ms)"
+                    "title": "Service Avg Response Time (ms)",
+                    "name": "Service_Avg_Response"
                   },
                   "graph": {
                     "type": "Line",
@@ -154,10 +141,30 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
-                  "metricConfig": [
-                    {}
-                  ]
+                  "associate": [
+                    {
+                      "widgetId": "4-0-10"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 6,
@@ -167,7 +174,8 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Apdex"
+                    "title": "Service Apdex",
+                    "name": "Service_Apdex"
                   },
                   "graph": {
                     "type": "Line",
@@ -183,12 +191,40 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "apdex"
                     }
-                  ]
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-10"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "queryOrder": "BY_DURATION",
+                    "status": "ERROR"
+                  }
                 },
                 {
                   "x": 12,
@@ -198,7 +234,8 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Response Time Percentile (ms)"
+                    "title": "Service Response Time Percentile (ms)",
+                    "name": "Service_Response_Percentile"
                   },
                   "graph": {
                     "type": "Line",
@@ -214,23 +251,51 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
-                  ]
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-10"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
-                  "x": 18,
-                  "y": 5,
-                  "w": 6,
+                  "x": 0,
+                  "y": 16,
+                  "w": 8,
                   "h": 11,
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Success Rate (%)"
+                    "title": "Success Rate (%)",
+                    "name": "Success_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -246,23 +311,51 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-10"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  }
                 },
                 {
-                  "x": 0,
-                  "y": 16,
-                  "w": 8,
+                  "x": 18,
+                  "y": 5,
+                  "w": 6,
                   "h": 11,
                   "i": "7",
                   "type": "Widget",
                   "widget": {
                     "title": "Service Load (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min)"
+                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min)",
+                    "name": "Service_Load"
                   },
                   "graph": {
                     "type": "Line",
@@ -278,7 +371,30 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-10"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  }
                 },
                 {
                   "x": 8,
@@ -288,7 +404,8 @@
                   "i": "9",
                   "type": "Widget",
                   "widget": {
-                    "title": "Message Queue Consuming Count"
+                    "title": "Message Queue Consuming Count",
+                    "name": "Message_Consuming_Count"
                   },
                   "graph": {
                     "type": "Line",
@@ -304,7 +421,30 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-10"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  }
                 },
                 {
                   "x": 16,
@@ -315,7 +455,8 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Message Queue Avg Consuming Latency (ms)",
-                    "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
+                    "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)",
+                    "name": "Message_Consuming_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -331,7 +472,30 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-4"
+                    },
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    },
+                    {
+                      "widgetId": "4-0-9"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 12,
+                    "sourceId": "4-0-3"
+                  }
                 },
                 {
                   "x": 0,
@@ -352,14 +516,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 8,
@@ -380,14 +537,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 16,
@@ -414,8 +564,7 @@
                       "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 16,
@@ -437,9 +586,9 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
+                      "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
                   ]
@@ -458,14 +607,12 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_resp_time"
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 0,
@@ -487,8 +634,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "moved": false
+                  ]
                 }
               ]
             },
@@ -502,25 +648,36 @@
                   "h": 49,
                   "i": "0",
                   "type": "Widget",
-                  "widget": {
-                    "title": ""
-                  },
                   "graph": {
                     "type": "InstanceList",
                     "dashboardName": "General-Instance",
                     "fontSize": 12
                   },
                   "metrics": [
-                    "service_instance_cpm"
+                    "service_instance_cpm",
+                    "service_instance_sla",
+                    "service_instance_resp_time"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ]
                 }
@@ -536,9 +693,6 @@
                   "h": 49,
                   "i": "0",
                   "type": "Widget",
-                  "widget": {
-                    "title": ""
-                  },
                   "graph": {
                     "type": "EndpointList",
                     "dashboardName": "General-Endpoint",
@@ -547,16 +701,30 @@
                     "showYAxis": false
                   },
                   "metrics": [
-                    "endpoint_cpm"
+                    "endpoint_cpm",
+                    "endpoint_sla",
+                    "endpoint_resp_time"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ]
                 }
@@ -572,19 +740,9 @@
                   "h": 48,
                   "i": "0",
                   "type": "Topology",
-                  "widget": {
-                    "title": "Title"
-                  },
                   "graph": {
                     "showDepth": true
                   },
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false,
                   "linkDashboard": "General-Service-Relation",
                   "nodeDashboard": [
                     {
@@ -676,42 +834,65 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Trace",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
                 }
               ]
             },
             {
-              "name": "Profile",
+              "name": "Trace Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "0",
+                  "type": "Profile"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "Trace Profiling supported services written in Java or Python with SkyWalking native agents installed.",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": ""
+                  }
+                }
+              ]
+            },
+            {
+              "name": "eBPF Profiling",
               "children": [
                 {
                   "x": 0,
                   "y": 0,
                   "w": 24,
-                  "h": 49,
-                  "i": "0",
-                  "type": "Profile",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "h": 2,
+                  "i": "3",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 46,
+                  "i": "5",
+                  "type": "Ebpf"
                 }
               ]
             },
@@ -724,23 +905,20 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Log",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Log"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "5",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
       "layer": "GENERAL",

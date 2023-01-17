@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.receiver.sharing.server;
 
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
@@ -28,7 +27,6 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegisterImpl;
 import org.apache.skywalking.oap.server.core.server.auth.AuthenticationInterceptor;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -36,20 +34,16 @@ import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class SharingServerModuleProvider extends ModuleProvider {
 
-    private final SharingServerConfig config;
+    private SharingServerConfig config;
     private GRPCServer grpcServer;
     private HTTPServer httpServer;
     private ReceiverGRPCHandlerRegister receiverGRPCHandlerRegister;
     private ReceiverHTTPHandlerRegister receiverHTTPHandlerRegister;
     private AuthenticationInterceptor authenticationInterceptor;
-
-    public SharingServerModuleProvider() {
-        super();
-        this.config = new SharingServerConfig();
-    }
 
     @Override
     public String name() {
@@ -62,8 +56,18 @@ public class SharingServerModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<SharingServerConfig>() {
+            @Override
+            public Class type() {
+                return SharingServerConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final SharingServerConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

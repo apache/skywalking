@@ -16,8 +16,13 @@
 {{- contains . }}
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
-  attributes: []
+  attributes:
+  {{- contains .attributes }}
+  - name: pod
+    value: {{ notEmpty .value }}
+  - name: namespace
+    value: {{ notEmpty .value }}
+  {{- end }}
   language: UNKNOWN
   instanceuuid: {{ notEmpty .instanceuuid }}
-  layer: MESH
 {{- end }}

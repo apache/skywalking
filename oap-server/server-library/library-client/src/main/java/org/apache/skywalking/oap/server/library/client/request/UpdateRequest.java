@@ -18,4 +18,5 @@
 package org.apache.skywalking.oap.server.library.client.request;
 
 public interface UpdateRequest extends PrepareRequest {
+    void onUpdateFailure();
 }

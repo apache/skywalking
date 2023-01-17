@@ -27,4 +27,3 @@ logs:
   errorurl: http://testui/
   firstreportederror: {{ .firstreportederror }}
 {{- end }}
-total: {{ gt .total 0 }}

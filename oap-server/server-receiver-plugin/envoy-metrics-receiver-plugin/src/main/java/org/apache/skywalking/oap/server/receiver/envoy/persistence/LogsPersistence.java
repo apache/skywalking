@@ -22,7 +22,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.provider.log.ILogAnalyzerService;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -81,7 +81,7 @@ public class LogsPersistence implements ALSHTTPAnalysis {
     public LogData convertToLogData(final HTTPAccessLogEntry logEntry, final Result result) {
         final ServiceMetaInfo service = result.getService();
 
-        final ServiceMeshMetric.Builder metrics =
+        final HTTPServiceMeshMetric.Builder metrics =
             new LogEntry2MetricsAdapter(logEntry, null, null).adaptCommonPart();
 
         return LogData

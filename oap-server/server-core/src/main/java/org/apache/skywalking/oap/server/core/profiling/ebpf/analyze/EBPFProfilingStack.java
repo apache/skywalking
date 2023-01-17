@@ -21,11 +21,14 @@ package org.apache.skywalking.oap.server.core.profiling.ebpf.analyze;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFOffCPUProfiling;
+import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFOnCPUProfiling;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.EBPFProfilingStackMetadata;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingStackType;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
 
-import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,24 +42,11 @@ public class EBPFProfilingStack {
     private long dumpCount;
     private List<Symbol> symbols;
 
-    public static EBPFProfilingStack deserialize(EBPFProfilingDataRecord record) throws Exception {
-        final LinkedList<Symbol> symbols = new LinkedList<>();
-        final ByteArrayInputStream stackInput = new ByteArrayInputStream(record.getStacksBinary());
-
-        for (EBPFProfilingStackMetadata stack = EBPFProfilingStackMetadata.parseDelimitedFrom(stackInput);
-             stack != null; stack = EBPFProfilingStackMetadata.parseDelimitedFrom(stackInput)) {
-            EBPFProfilingStackMetadata finalStack = stack;
-            stack.getStackSymbolsList()
-                    .forEach(s -> symbols.addFirst(new Symbol(
-                            s,
-                            EBPFProfilingStackType.valueOf(finalStack.getStackType())
-                    )));
-        }
-
+    public static EBPFProfilingStack deserialize(EBPFProfilingDataRecord record,
+                                                 EBPFProfilingAnalyzeAggregateType aggregateType) throws Exception {
         final EBPFProfilingStack stack = new EBPFProfilingStack();
+        analyzeSymbolAndDimension(record, aggregateType, stack);
         stack.setUploadTime(record.getUploadTime());
-        stack.setDumpCount(record.getStackDumpCount());
-        stack.setSymbols(symbols);
         return stack;
     }
 
@@ -66,5 +56,41 @@ public class EBPFProfilingStack {
     public static final class Symbol {
         private String name;
         private EBPFProfilingStackType stackType;
+    }
+
+    private static void analyzeSymbolAndDimension(EBPFProfilingDataRecord record,
+                                       EBPFProfilingAnalyzeAggregateType aggregateType,
+                                       EBPFProfilingStack toStack) throws Exception {
+        final EBPFProfilingTargetType targetType = EBPFProfilingTargetType.valueOf(record.getTargetType());
+        switch (targetType) {
+            case ON_CPU:
+                final EBPFOnCPUProfiling onCPUProfiling = EBPFOnCPUProfiling.parseFrom(record.getDataBinary());
+                toStack.setDumpCount(onCPUProfiling.getDumpCount());
+                toStack.setSymbols(parseSymbols(onCPUProfiling.getStacksList()));
+                break;
+            case OFF_CPU:
+                final EBPFOffCPUProfiling offCPUProfiling = EBPFOffCPUProfiling.parseFrom(record.getDataBinary());
+                toStack.setSymbols(parseSymbols(offCPUProfiling.getStacksList()));
+                if (aggregateType == EBPFProfilingAnalyzeAggregateType.DURATION) {
+                    toStack.setDumpCount(offCPUProfiling.getDuration());
+                } else {
+                    toStack.setDumpCount(offCPUProfiling.getSwitchCount());
+                }
+                break;
+            default:
+                throw new Exception("unknown target type: " + targetType);
+        }
+    }
+
+    private static List<Symbol> parseSymbols(List<EBPFProfilingStackMetadata> metadataList) {
+        final LinkedList<Symbol> symbols = new LinkedList<>();
+        for (EBPFProfilingStackMetadata stack : metadataList) {
+            stack.getStackSymbolsList()
+                    .forEach(s -> symbols.addFirst(new Symbol(
+                            s,
+                            EBPFProfilingStackType.valueOf(stack.getStackType())
+                    )));
+        }
+        return symbols;
     }
 }

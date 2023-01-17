@@ -217,7 +217,10 @@ The text of each license is the standard Apache 2.0 license.
 
    proto files from cncf/udpa: https://github.com/cncf/udpa Apache 2.0
    proto files from envoyproxy/data-plane-api: https://github.com/envoyproxy/data-plane-api  Apache 2.0
+   proto files from opencensus: https://github.com/census-instrumentation/opencensus-proto/tree/master/gen-go  Apache 2.0
    proto files from prometheus/client_model: https://github.com/prometheus/client_model Apache 2.0
+   proto files from opentelemetry: https://github.com/open-telemetry/opentelemetry-proto/tree/main/opentelemetry/proto Apache 2.0
    flatbuffers files from istio/proxy: https://github.com/istio/proxy Apache 2.0
    mvnw files from https://github.com/apache/maven-wrapper Apache 2.0
    svg files from skywalking-ui/src/assets/icons: https://github.com/google/material-design-icons Apache 2.0
+   ZipkinQueryHandler.java reference from zipkin2.server.internal.ZipkinQueryApiV2: https://github.com/openzipkin/zipkin  Apache 2.0

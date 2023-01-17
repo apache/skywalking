@@ -64,7 +64,6 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
             Collection<Tag> tags = appendSearchableTags(message.getTags());
-            record.setTags(new ArrayList<>(tags));
             record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));
             record.setTagsInString(Tag.Util.toStringList(new ArrayList<>(tags)));
             RecordStreamProcessor.getInstance().in(record);
@@ -79,6 +78,13 @@ public class AlarmStandardPersistence implements AlarmCallback {
         tags.forEach(tag -> {
             if (configService.getSearchableAlarmTags().contains(tag.getKey())) {
                 final Tag alarmTag = new Tag(tag.getKey(), tag.getValue());
+
+                if (tag.getValue().length()  > Tag.TAG_LENGTH || alarmTag.toString().length() > Tag.TAG_LENGTH) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Alarm tag : {} length > : {}, dropped", alarmTag, Tag.TAG_LENGTH);
+                    }
+                    return;
+                }
                 alarmTags.add(alarmTag);
             }
         });

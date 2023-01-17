@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * ElasticSearchExtension represents extra metadata for columns, but specific for ElasticSearch usages.
@@ -34,7 +34,11 @@ public class ElasticSearchExtension {
      * The analyzer policy appointed to fuzzy query, especially for ElasticSearch.
      * When it is null, it means no need to build match query, no `copy_to` column, and no analyzer assigned.
      */
-    private final ElasticSearchMatchQuery.AnalyzerType analyzer;
+    private final ElasticSearch.MatchQuery.AnalyzerType analyzer;
+
+    private final String columnAlias;
+
+    private final boolean isKeyword;
 
     public boolean needMatchQuery() {
         return analyzer != null;

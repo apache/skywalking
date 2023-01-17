@@ -73,7 +73,7 @@
 * remove the no use maxItemNum for labeled-value metric, etc.
 * Add Azure Functions logo.
 * Support search Endpoint use keyword params in trace view.
-* Add a function which show the statistics infomation during the trace query.
+* Add a function which show the statistics information during the trace query.
 * Remove the sort button at the column of Type in the trace statistics page.
 * Optimize the APISIX icon in the topology.
 * Implement metrics templates in the topology.

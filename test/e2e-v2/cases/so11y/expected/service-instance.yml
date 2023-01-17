@@ -21,5 +21,4 @@
   attributes: []
   language: UNKNOWN
   instanceuuid: {{ b64enc "oap-server" }}.1_{{ b64enc "http://localhost:1234" }}
-  layer: SO11Y_OAP
 {{- end}}

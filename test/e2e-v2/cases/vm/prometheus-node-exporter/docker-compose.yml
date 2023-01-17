@@ -22,7 +22,7 @@ services:
       service: oap
     environment:
       SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OC_RULES: vm
+      SW_OTEL_RECEIVER_ENABLED_OTEL_RULES: vm
     ports:
       - 12800
 
@@ -36,7 +36,7 @@ services:
       - 9100
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.29.0
+    image: otel/opentelemetry-collector:0.50.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]

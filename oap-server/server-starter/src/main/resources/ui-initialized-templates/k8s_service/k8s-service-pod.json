@@ -1,0 +1,51 @@
+[
+  {
+    "id": "89a35b46-449d-4ef0-8297-2109f69086eb",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 48,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Pod Logs",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 44,
+                  "i": "0",
+                  "type": "DemandLog"
+                }
+              ]
+            },
+            {
+              "name":"Network Profiling",
+              "children":[
+                {
+                  "x":0,
+                  "y":0,
+                  "w":24,
+                  "h":44,
+                  "i":"0",
+                  "type":"NetworkProfiling",
+                  "linkDashboard":"Kubernetes-Process-Relation-Metrics"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "K8S_SERVICE",
+      "entity": "ServiceInstance",
+      "name": "K8S-Service-Pods",
+      "id": "89a35b46-449d-4ef0-8297-2109f69086eb",
+      "isRoot": false
+    }
+  }
+]

@@ -84,8 +84,6 @@ Parameter (2) is the status of this request. The status(success/failure) reflect
 
 **percentile** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
 In this case, see `p99`, `p95`, `p90`, `p75`, and `p50` of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
-Before 7.0.0, `p99`, `p95`, `p90`, `p75`, `p50` func(s) are used to calculate metrics separately. They are still supported in 7.x, but they are no longer recommended and are not included in the current official OAL script. 
-> service_p99 = from(Service.latency).p99(10);
 
 In this case, the p99 value of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
 
@@ -140,7 +138,7 @@ endpoint_percentile = from(Endpoint.latency).percentile(10)
 endpoint_success = from(Endpoint.*).filter(status == true).percent()
 
 // Calculate the sum of response code in [404, 500, 503], for each service.
-endpoint_abnormal = from(Endpoint.*).filter(responseCode in [404, 500, 503]).count()
+endpoint_abnormal = from(Endpoint.*).filter(httpResponseStatusCode in [404, 500, 503]).count()
 
 // Calculate the sum of request type in [RequestType.RPC, RequestType.gRPC], for each service.
 endpoint_rpc_calls_sum = from(Endpoint.*).filter(type in [RequestType.RPC, RequestType.gRPC]).count()

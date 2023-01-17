@@ -30,8 +30,12 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearchMatchQuery;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -46,6 +50,7 @@ import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
     "name",
     "layer"
 })
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
@@ -62,7 +67,9 @@ public class ServiceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = NAME)
-    @ElasticSearchMatchQuery
+    @ElasticSearch.MatchQuery
+    @ElasticSearch.Column(columnAlias = "service_traffic_name")
+    @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
 
     @Setter
@@ -85,6 +92,7 @@ public class ServiceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(columnName = LAYER)
+    @BanyanDB.SeriesID(index = 0)
     private Layer layer = Layer.UNDEFINED;
 
     /**
@@ -94,12 +102,18 @@ public class ServiceTraffic extends Metrics {
      * @return Base64 encode(serviceName) + "." + layer.value
      */
     @Override
-    protected String id0() {
+    protected StorageID id0() {
+        String id;
         if (layer != null) {
-            return encode(name) + Const.POINT + layer.value();
+            id = encode(name) + Const.POINT + layer.value();
         } else {
-            return encode(name) + Const.POINT + Layer.UNDEFINED.value();
+            id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
+        return new StorageID().appendMutant(new String[] {
+            NAME,
+            LAYER
+        }, id);
+
     }
 
     @Override

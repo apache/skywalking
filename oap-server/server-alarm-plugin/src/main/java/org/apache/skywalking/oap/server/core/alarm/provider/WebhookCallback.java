@@ -38,7 +38,7 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 
 /**
- * Use SkyWalking alarm webhook API call a remote endpoints.
+ * Use SkyWalking alarm webhook API calls a remote endpoints.
  */
 @Slf4j
 public class WebhookCallback implements AlarmCallback {

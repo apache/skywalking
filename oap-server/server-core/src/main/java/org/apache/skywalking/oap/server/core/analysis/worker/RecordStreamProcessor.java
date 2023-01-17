@@ -56,8 +56,6 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends Record> recordClass) throws StorageException {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()
@@ -76,7 +74,8 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         // Record stream doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
         Model model = modelSetter.add(
             recordClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second), true);
-        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO);
+        ExportRecordWorker exportWorker = new ExportRecordWorker(moduleDefineHolder);
+        RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO, exportWorker);
 
         workers.put(recordClass, persistentWorker);
     }

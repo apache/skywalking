@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.library.datacarrier.consumer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
 import org.apache.skywalking.oap.server.library.datacarrier.SampleData;
@@ -105,11 +104,6 @@ public class ConsumerTest {
         public boolean onError = false;
 
         @Override
-        public void init(final Properties properties) {
-
-        }
-
-        @Override
         public void consume(List<SampleData> data) {
             if (onError) {
                 throw new RuntimeException("consume exception");
@@ -119,11 +113,6 @@ public class ConsumerTest {
         @Override
         public void onError(List<SampleData> data, Throwable t) {
             IS_OCCUR_ERROR = true;
-        }
-
-        @Override
-        public void onExit() {
-
         }
     }
 

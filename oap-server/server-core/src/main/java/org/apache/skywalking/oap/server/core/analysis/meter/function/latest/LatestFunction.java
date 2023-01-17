@@ -22,7 +22,6 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -35,7 +34,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDBShardingKey;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -49,7 +49,7 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     @Setter
     @Getter
     @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDBShardingKey(index = 0)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
     /**
@@ -63,6 +63,7 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Latest)
+    @BanyanDB.MeasureField
     private long value;
 
     @Override
@@ -136,8 +137,10 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + entityId;
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override
@@ -186,15 +189,5 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     @Override
     public int hashCode() {
         return Objects.hash(entityId, getTimeBucket());
-    }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
     }
 }

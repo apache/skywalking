@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.TopologyQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.EndpointTopology;
+import org.apache.skywalking.oap.server.core.query.type.ProcessTopology;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstanceTopology;
 import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -47,7 +48,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
     }
 
     public Topology getGlobalTopology(final Duration duration) throws IOException {
-        return getQueryService().getGlobalTopology(duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        return getQueryService().getGlobalTopology(duration);
     }
 
     public Topology getServiceTopology(final String serviceId, final Duration duration) throws IOException {
@@ -57,8 +58,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
     }
 
     public Topology getServicesTopology(final List<String> serviceIds, final Duration duration) throws IOException {
-        return getQueryService().getServiceTopology(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), serviceIds);
+        return getQueryService().getServiceTopology(duration, serviceIds);
     }
 
     public ServiceInstanceTopology getServiceInstanceTopology(final String clientServiceId,
@@ -66,7 +66,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
                                                               final Duration duration) throws IOException {
         return getQueryService().getServiceInstanceTopology(
             clientServiceId, serverServiceId,
-            duration.getStartTimeBucket(), duration.getEndTimeBucket()
+            duration
         );
     }
 
@@ -75,13 +75,15 @@ public class TopologyQuery implements GraphQLQueryResolver {
      */
     @Deprecated
     public Topology getEndpointTopology(final String endpointId, final Duration duration) throws IOException {
-        return getQueryService().getEndpointTopology(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), endpointId);
+        return getQueryService().getEndpointTopology(duration, endpointId);
     }
 
     public EndpointTopology getEndpointDependencies(final String endpointId,
                                                     final Duration duration) throws IOException {
-        return getQueryService().getEndpointDependencies(
-            duration.getStartTimeBucket(), duration.getEndTimeBucket(), endpointId);
+        return getQueryService().getEndpointDependencies(duration, endpointId);
+    }
+
+    public ProcessTopology getProcessTopology(final String instanceId, final Duration duration) throws IOException {
+        return getQueryService().getProcessTopology(instanceId, duration);
     }
 }

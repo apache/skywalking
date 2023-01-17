@@ -1,6 +1,6 @@
 # Dynamic Configuration Apollo Implementation
 
-[Apollo](https://github.com/ctripcorp/apollo/) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
+[Apollo](https://github.com/ctripcorp/apollo/) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
 
 ```yaml
 configuration:
@@ -15,17 +15,17 @@ configuration:
 
 ## Config Storage
 ### Single Config
-Single configs in apollo are key/value pairs:
+Single configs in Apollo are key/value pairs:
 
 | Key | Value |
 |-----|-----|
-| configKey | configVaule |
+| configKey | configValue |
 
 e.g. The config is:
 ```
 {agent-analyzer.default.slowDBAccessThreshold}:{default:200,mongodb:50}
 ```
-The config in apollo is:
+The config in Apollo is:
 
 | Key | Value |
 |-----|-----|
@@ -34,7 +34,7 @@ The config in apollo is:
 
 
 ### Group Config
-Group config in apollo are key/value pairs as well, and the key is composited by configKey and subItemKey with `.`.
+Group config in Apollo are key/value pairs as well, and the key is composited by configKey and subItemKey with `.`.
 
 | Key | Value |
 |-----|-----|
@@ -48,7 +48,7 @@ e.g. The config is:
                                               |{productAPI-v1}:{value of productAPI-v1}
                                               |{productAPI-v2}:{value of productAPI-v2}
 ```
-The config in apollo is:
+The config in Apollo is:
 
 | Key | Value |
 |-----|-----|

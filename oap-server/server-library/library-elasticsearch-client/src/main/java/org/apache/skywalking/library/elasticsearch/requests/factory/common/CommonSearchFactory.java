@@ -17,17 +17,19 @@
 
 package org.apache.skywalking.library.elasticsearch.requests.factory.common;
 
+import java.util.HashMap;
+import java.util.Map;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpRequestBuilder;
 import com.linecorp.armeria.common.MediaType;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.requests.factory.SearchFactory;
 import org.apache.skywalking.library.elasticsearch.requests.search.Scroll;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -71,6 +73,21 @@ public final class CommonSearchFactory implements SearchFactory {
 
         if (log.isDebugEnabled()) {
             log.debug("Scroll request: {}", new String(content));
+        }
+
+        return builder.content(MediaType.JSON, content).build();
+    }
+
+    @SneakyThrows
+    @Override
+    public HttpRequest deleteScrollContext(String scrollId) {
+        final HttpRequestBuilder builder = HttpRequest.builder().delete("/_search/scroll");
+        final Map<String, String> params = new HashMap<>();
+        params.put("scroll_id", scrollId);
+        final byte[] content = version.codec().encode(params);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Delete scroll context request: {}", new String(content));
         }
 
         return builder.content(MediaType.JSON, content).build();

@@ -1,19 +1,19 @@
-# Send Envoy metrics to SkyWalking with / without Istio
+# Send Envoy metrics to SkyWalking with/without Istio
 
 Envoy defines a gRPC service to emit metrics, and whatever is used to implement this protocol can be used to receive the metrics.
 SkyWalking has a built-in receiver that implements this protocol, so you can configure Envoy to emit its metrics to SkyWalking.
 
-As an APM system, SkyWalking does not only receive and store the metrics emitted by Envoy, but it also analyzes the topology of services and service instances.
+As an APM system, SkyWalking not only receives and stores the metrics emitted by Envoy but also analyzes the topology of services and service instances.
 
-**Attention:** There are two versions of Envoy metrics service protocol currently:
+**Attention:** There are two versions of the Envoy metrics service protocol currently:
 [v2](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/api/v2/core/grpc_service.proto#envoy-api-msg-core-grpcservice) and
 [v3](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v3/config/metrics/v3/metrics_service.proto). SkyWalking (8.3.0+) supports both of them.
 
 ## Configure Envoy to send metrics to SkyWalking without Istio
 
-Envoy can be used with / without Istio. This section explains how you can configure the standalone Envoy to send metrics to SkyWalking.
+Envoy can be used with/without Istio. This section explains how you can configure the standalone Envoy to send metrics to SkyWalking.
 
-In order to let Envoy send metrics to SkyWalking, we need to feed Envoy with a configuration that contains `stats_sinks`, which in turn includes `envoy.metrics_service`.
+To let Envoy send metrics to SkyWalking, we need to feed Envoy with a configuration that contains `stats_sinks`, which in turn includes `envoy.metrics_service`.
 This `envoy.metrics_service` should be configured as a [`config.grpc_service`](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/api/v2/core/grpc_service.proto#envoy-api-msg-core-grpcservice) entry.
 
 The noteworthy parts of the config are shown below:
@@ -52,7 +52,7 @@ The comprehensive static configuration can be found [here](config.yaml).
 
 Note that Envoy can also be configured dynamically through [xDS Protocol](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/xds_protocol.rst).
 
-As mentioned above, SkyWalking also builds the topology of services from the metrics, since Envoy also carries service metadata along with the metrics. To feed Envoy such metadata, see the other part of the configuration as follows:
+As mentioned above, SkyWalking also builds the topology of services from the metrics since Envoy also carries service metadata along with the metrics. To feed Envoy such metadata, see the other part of the configuration as follows:
 
 ```yaml
 node:
@@ -88,7 +88,7 @@ istioctl manifest install -y \
 
 Note:
 `proxyStatsMatcher` is only supported by `Istio 1.8+`.
-We recommend using `inclusionRegexps` to reserve specific metrics which need to be analyzed, in order to reduce memory usage and avoid CPU overhead.
+We recommend using `inclusionRegexps` to reserve specific metrics that need to be analyzed to reduce memory usage and avoid CPU overhead.
 For example, OAP uses these metrics:
 
 ```shell
@@ -108,3 +108,7 @@ istioctl manifest install -y \
 # Metrics data
 
 Some Envoy statistics are [listed here](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). Sample data that contain identifiers can be found [here](identify.json), while the metrics can be found [here](metrics.json).
+
+# Network Monitoring
+
+SkyWalking supports network monitoring of the data plane in the Service Mesh. [Read this documentation](../backend/backend-k8s-network-monitoring.md) for learn more.

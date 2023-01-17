@@ -29,6 +29,9 @@ public class ConfigService implements Service {
     private final String searchableTracesTags;
     private final String searchableLogsTags;
     private final String searchableAlarmTags;
+    private final int metricsDataTTL;
+    private final int recordDataTTL;
+    private final int persistentPeriod;
 
     public ConfigService(CoreModuleConfig moduleConfig) {
         this.gRPCHost = moduleConfig.getGRPCHost();
@@ -36,5 +39,8 @@ public class ConfigService implements Service {
         this.searchableTracesTags = moduleConfig.getSearchableTracesTags();
         this.searchableLogsTags = moduleConfig.getSearchableLogsTags();
         this.searchableAlarmTags = moduleConfig.getSearchableAlarmTags();
+        this.metricsDataTTL = moduleConfig.getMetricsDataTTL();
+        this.recordDataTTL = moduleConfig.getRecordDataTTL();
+        this.persistentPeriod = moduleConfig.getPersistentPeriod();
     }
 }

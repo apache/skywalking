@@ -27,17 +27,6 @@
           "h": 52,
           "i": "0",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 1,
           "children": [
             {
               "name": "Overview",
@@ -50,7 +39,8 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Response Time Percentile (ms)"
+                    "title": "Endpoint Response Time Percentile (ms)",
+                    "name": "Endpoint_Response_Percentile"
                   },
                   "graph": {
                     "type": "Line",
@@ -66,13 +56,33 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
-                  ]
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 8,
@@ -82,7 +92,8 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Avg Response Time (ms)"
+                    "title": "Endpoint Avg Response Time (ms)",
+                    "name": "Endpoint_Avg_Response"
                   },
                   "graph": {
                     "type": "Line",
@@ -98,10 +109,30 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
-                  "x": 16,
+                  "x": 8,
                   "y": 13,
                   "w": 8,
                   "h": 13,
@@ -109,7 +140,8 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Message Queue Avg Consuming Latency (ms)",
-                    "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)"
+                    "tips": "The avg latency of message consuming. Latency = timestamp(received) - timestamp(producing)",
+                    "name": "Message_Consuming_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -125,35 +157,23 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
-                },
-                {
-                  "x": 8,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Message Queue Consuming Count",
-                    "tips": "The number of consumed messages."
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": false,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "standard": {},
-                  "metrics": [
-                    "endpoint_mq_consume_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -163,7 +183,8 @@
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Success Rate (%)"
+                    "title": "Endpoint Success Rate (%)",
+                    "name": "Endpoint_Success_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -179,7 +200,32 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  },
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -189,7 +235,9 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Endpoint Load (calls / min)"
+                    "title": "Endpoint Load (calls / min)",
+                    "name": "Endpoint_Load",
+                    "tips": "requests(HTTP / RPC) / min, consuming messages(MQ) / min"
                   },
                   "graph": {
                     "type": "Line",
@@ -199,14 +247,29 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "standard": {},
                   "metrics": [
                     "endpoint_cpm"
                   ],
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "associate": [
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-6"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    }
+                  ]
                 }
               ]
             },
@@ -220,20 +283,10 @@
                   "h": 49,
                   "i": "0",
                   "type": "Topology",
-                  "widget": {
-                    "title": "Title"
-                  },
                   "graph": {
                     "showDepth": true
                   },
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false,
-                  "linkDashboard": "Endpoint-Relation",
+                  "linkDashboard": "General-Endpoint-Relation",
                   "nodeDashboard": "General-Endpoint",
                   "linkServerMetrics": [
                     "endpoint_relation_sla",
@@ -290,18 +343,7 @@
                   "w": 24,
                   "h": 49,
                   "i": "0",
-                  "type": "Trace",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
                 }
               ]
             },
@@ -314,24 +356,11 @@
                   "w": 24,
                   "h": 49,
                   "i": "0",
-                  "type": "Log",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "standard": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Log"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
         }
       ],
       "layer": "GENERAL",

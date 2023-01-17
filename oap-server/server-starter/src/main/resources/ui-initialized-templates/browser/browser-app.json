@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "12",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -62,12 +51,13 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "value": "12-0-2",
+                  "label": "12-0-2"
                 },
                 {
                   "x": 0,
@@ -89,7 +79,8 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "moved": false
+                  "value": "12-0-3",
+                  "label": "12-0-3"
                 },
                 {
                   "x": 16,
@@ -99,7 +90,8 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "App Error Count"
+                    "title": "App Error Count",
+                    "name": "App_Error_Count"
                   },
                   "graph": {
                     "type": "Bar",
@@ -111,7 +103,20 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "12-0-5",
+                  "label": "12-0-5",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-7"
+                    },
+                    {
+                      "widgetId": "12-0-11"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 11,
+                    "sourceId": "12-0-11"
+                  }
                 },
                 {
                   "x": 0,
@@ -121,7 +126,8 @@
                   "i": "7",
                   "type": "Widget",
                   "widget": {
-                    "title": "App Load (calls / min)"
+                    "title": "App Load (calls / min)",
+                    "name": "App_Load"
                   },
                   "graph": {
                     "type": "Line",
@@ -137,7 +143,20 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "12-0-7",
+                  "label": "App_Load",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-5"
+                    },
+                    {
+                      "widgetId": "12-0-11"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 11,
+                    "sourceId": "12-0-11"
+                  }
                 },
                 {
                   "x": 8,
@@ -159,7 +178,8 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "moved": false
+                  "value": "12-0-10",
+                  "label": "12-0-10"
                 },
                 {
                   "x": 8,
@@ -169,7 +189,8 @@
                   "i": "11",
                   "type": "Widget",
                   "widget": {
-                    "title": "App Error Rate (%)"
+                    "title": "App Error Rate (%)",
+                    "name": "App_Error_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -185,12 +206,25 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "value": "12-0-11",
+                  "label": "App_Error_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-7"
+                    },
+                    {
+                      "widgetId": "12-0-5"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 11,
+                    "sourceId": "12-0-7"
+                  }
                 },
                 {
                   "x": 0,
@@ -205,14 +239,15 @@
                   "metrics": [
                     "browser_app_page_pv"
                   ],
-                  "moved": false,
                   "widget": {
                     "title": "Top Hot Pages  (calls / min)"
                   },
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
-                  }
+                  },
+                  "value": "12-0-12",
+                  "label": "12-0-12"
                 },
                 {
                   "x": 16,
@@ -227,7 +262,6 @@
                   "metrics": [
                     "browser_app_page_error_rate"
                   ],
-                  "moved": false,
                   "widget": {
                     "title": "Top Unstable Pages / Error Rate (%)"
                   },
@@ -239,7 +273,9 @@
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "value": "12-0-13",
+                  "label": "12-0-13"
                 },
                 {
                   "x": 16,
@@ -254,14 +290,15 @@
                   "metrics": [
                     "browser_app_single_version_error_sum"
                   ],
-                  "moved": false,
                   "widget": {
                     "title": "Error Count of Versions In The Selected App"
                   },
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
-                  }
+                  },
+                  "value": "12-0-14",
+                  "label": "12-0-14"
                 }
               ]
             },
@@ -284,18 +321,27 @@
                     "fontSize": 12
                   },
                   "metrics": [
-                    "browser_app_single_version_pv"
+                    "browser_app_single_version_pv",
+                    "browser_app_single_version_error_rage"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "PV",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Error Rate"
                     }
-                  ]
+                  ],
+                  "value": "12-1-0",
+                  "label": "12-1-0"
                 }
               ]
             },
@@ -320,18 +366,27 @@
                     "showYAxis": false
                   },
                   "metrics": [
-                    "browser_app_page_pv"
+                    "browser_app_page_pv",
+                    "browser_app_page_error_rate"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "PV",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Error Rate"
                     }
-                  ]
+                  ],
+                  "value": "12-2-0",
+                  "label": "12-2-0"
                 }
               ]
             },
@@ -344,19 +399,33 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Trace",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Log"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "13",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
       "layer": "BROWSER",

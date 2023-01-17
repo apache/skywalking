@@ -25,13 +25,17 @@ are located at `$CLASSPATH/zabbix-rules`.
 The file is written in YAML format, defined by the scheme described below. Square brackets indicate that a parameter is optional.
 
 An example for Zabbix agent configuration could be found [here](../../../../test/e2e-v2/cases/vm/zabbix/zabbix_agentd.conf).
-You could find details on Zabbix agent items from [Zabbix Agent documentation](https://www.zabbix.com/documentation/current/manual/config/items/itemtypes/zabbix_agent).
+You can find details on Zabbix agent items from [Zabbix Agent documentation](https://www.zabbix.com/documentation/current/manual/config/items/itemtypes/zabbix_agent).
 
 ### Configuration file
 
 ```yaml
+# initExp is the expression that initializes the current configuration file
+initExp: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
 metricPrefix: <string>
+# expPrefix is executed before the metrics executes other functions.
+expPrefix: <string>
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
 # Datasource from Zabbix Item keys.

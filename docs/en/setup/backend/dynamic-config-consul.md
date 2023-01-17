@@ -1,6 +1,6 @@
 # Dynamic Configuration Consul Implementation
 
-[Consul](https://github.com/rickfast/consul-client) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
+[Consul](https://github.com/rickfast/consul-client) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
 
 ```yaml
 configuration:
@@ -35,7 +35,7 @@ The config in Consul is:
 
 
 ### Group Config
-Group config in Consul are key/value pairs as well, but  according to the level keys organized by `/`, see: https://www.consul.io/docs/dynamic-app-config/kv#using-consul-kv
+Group config in Consul are key/value pairs as well, but  according to the level keys organized by `/`.
 
 | Key | Value |
 |-----|-----|
@@ -43,7 +43,7 @@ Group config in Consul are key/value pairs as well, but  according to the level 
 | configKey/subItemkey2 | subItemValue2 |
 | ... | ... |
 
-If use Consul UI we can see keys organized like folder:
+If we use Consul UI, we can see keys organized like a folder:
 ```
 configKey
     -- subItemkey1

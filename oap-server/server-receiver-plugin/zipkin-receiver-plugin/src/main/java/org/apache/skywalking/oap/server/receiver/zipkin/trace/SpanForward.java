@@ -18,97 +18,187 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 
+import com.google.gson.JsonObject;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinService;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceRelation;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinServiceSpan;
+import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.EndpointMeta;
-import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
-import org.apache.skywalking.oap.server.receiver.zipkin.handler.SpanEncode;
-import org.apache.skywalking.oap.server.storage.plugin.zipkin.ZipkinSpan;
+import zipkin2.Annotation;
 import zipkin2.Span;
-import zipkin2.codec.SpanBytesEncoder;
+import zipkin2.internal.HexCodec;
 
-@RequiredArgsConstructor
+@Slf4j
 public class SpanForward {
-    private static final String DEFAULT_SERVICE_INSTANCE_NAME = "unknown_instance";
+    private final ZipkinReceiverConfig config;
     private final NamingControl namingControl;
     private final SourceReceiver receiver;
-    private final ZipkinReceiverConfig config;
+    private final List<String> searchTagKeys;
+    private final long samplerBoundary;
+
+    public SpanForward(final ZipkinReceiverConfig config, final ModuleManager manager) {
+        this.config = config;
+        this.namingControl = manager.find(CoreModule.NAME).provider().getService(NamingControl.class);
+        this.receiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.searchTagKeys = Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
+        float sampleRate = (float) config.getSampleRate() / 10000;
+        samplerBoundary = (long) (Long.MAX_VALUE * sampleRate);
+    }
 
     public void send(List<Span> spanList) {
-        spanList.forEach(span -> {
+        if (CollectionUtils.isEmpty(spanList)) {
+            return;
+        }
+        getSampledTraces(spanList).forEach(span -> {
             ZipkinSpan zipkinSpan = new ZipkinSpan();
-            zipkinSpan.setTraceId(span.traceId());
-            zipkinSpan.setSpanId(span.id());
             String serviceName = span.localServiceName();
             if (StringUtil.isEmpty(serviceName)) {
                 serviceName = "Unknown";
             }
-            serviceName = namingControl.formatServiceName(serviceName);
-            String serviceId = IDManager.ServiceID.buildId(serviceName, true);
-            zipkinSpan.setServiceId(serviceId);
-            String serviceInstanceName = this.getServiceInstanceName(span);
-            serviceInstanceName = namingControl.formatInstanceName(serviceInstanceName);
-            zipkinSpan.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(serviceId, serviceInstanceName));
-
-            long startTime = span.timestampAsLong() / 1000;
-            zipkinSpan.setStartTime(startTime);
-            long timeBucket = TimeBucket.getRecordTimeBucket(zipkinSpan.getStartTime());
-            zipkinSpan.setTimeBucket(timeBucket);
-            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(zipkinSpan.getStartTime());
-            
-            String spanName = span.name();
-            if (!StringUtil.isEmpty(spanName)) {
-                final String endpointName = namingControl.formatEndpointName(serviceName, spanName);
-                zipkinSpan.setEndpointName(endpointName);
-                zipkinSpan.setEndpointId(IDManager.EndpointID.buildId(zipkinSpan.getServiceId(), endpointName));
-
-                //Create endpoint meta for the server side span
-                EndpointMeta endpointMeta = new EndpointMeta();
-                endpointMeta.setServiceName(serviceName);
-                endpointMeta.setEndpoint(endpointName);
-                endpointMeta.setTimeBucket(minuteTimeBucket);
-                receiver.receive(endpointMeta);
+            zipkinSpan.setSpanId(span.id());
+            zipkinSpan.setTraceId(span.traceId());
+            zipkinSpan.setSpanId(span.id());
+            zipkinSpan.setParentId(span.parentId());
+            zipkinSpan.setName(namingControl.formatEndpointName(serviceName, span.name()));
+            zipkinSpan.setDuration(span.duration());
+            zipkinSpan.setKind(span.kind().name());
+            zipkinSpan.setLocalEndpointServiceName(namingControl.formatServiceName(serviceName));
+            zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
+            zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
+            Integer localPort = span.localEndpoint().port();
+            if (localPort != null) {
+                zipkinSpan.setLocalEndpointPort(localPort);
             }
-            long latency = span.durationAsLong() / 1000;
+            if (span.remoteEndpoint() != null) {
+                zipkinSpan.setRemoteEndpointServiceName(namingControl.formatServiceName(span.remoteServiceName()));
+                zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
+                zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
+                Integer remotePort = span.remoteEndpoint().port();
+                if (remotePort != null) {
+                    zipkinSpan.setRemoteEndpointPort(remotePort);
+                }
+            }
+            zipkinSpan.setTimestamp(span.timestampAsLong());
+            zipkinSpan.setDebug(span.debug());
+            zipkinSpan.setShared(span.shared());
 
-            zipkinSpan.setEndTime(startTime + latency);
-            zipkinSpan.setIsError(BooleanUtils.booleanToValue(false));
-            zipkinSpan.setEncode(SpanEncode.PROTO3);
-            zipkinSpan.setLatency((int) latency);
-            zipkinSpan.setDataBinary(SpanBytesEncoder.PROTO3.encode(span));
+            long timestampMillis = span.timestampAsLong() / 1000;
+            zipkinSpan.setTimestampMillis(timestampMillis);
+            long timeBucket = TimeBucket.getRecordTimeBucket(timestampMillis);
+            zipkinSpan.setTimeBucket(timeBucket);
 
-            span.tags().forEach((key, value) -> {
-                zipkinSpan.getTags().add(key + "=" + value);
-            });
+            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(timestampMillis);
 
+            if (!span.tags().isEmpty() || !span.annotations().isEmpty()) {
+                List<String> query = zipkinSpan.getQuery();
+                JsonObject annotationsJson = new JsonObject();
+                JsonObject tagsJson = new JsonObject();
+                for (Annotation annotation : span.annotations()) {
+                    annotationsJson.addProperty(Long.toString(annotation.timestamp()), annotation.value());
+                    if (annotation.value().length() > ZipkinSpanRecord.QUERY_LENGTH) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Span annotation : {}  length > : {}, dropped", annotation.value(), ZipkinSpanRecord.QUERY_LENGTH);
+                        }
+                        continue;
+                    }
+                    query.add(annotation.value());
+                }
+                zipkinSpan.setAnnotations(annotationsJson);
+                for (Map.Entry<String, String> tag : span.tags().entrySet()) {
+                    String tagString = tag.getKey() + "=" + tag.getValue();
+                    tagsJson.addProperty(tag.getKey(), tag.getValue());
+                    if (tag.getValue().length()  > Tag.TAG_LENGTH || tagString.length() > Tag.TAG_LENGTH) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Span tag : {} length > : {}, dropped", tagString, Tag.TAG_LENGTH);
+                        }
+                        continue;
+                    }
+                    query.add(tag.getKey());
+                    query.add(tagString);
+
+                    if (searchTagKeys.contains(tag.getKey())) {
+                        addAutocompleteTags(minuteTimeBucket, tag.getKey(), tag.getValue());
+                    }
+                }
+                zipkinSpan.setTags(tagsJson);
+            }
             receiver.receive(zipkinSpan);
 
-            // Create the metadata source
-            // No instance name is required in the Zipkin model.
-            ServiceMeta serviceMeta = new ServiceMeta();
-            serviceMeta.setName(serviceName);
-            serviceMeta.setTimeBucket(minuteTimeBucket);
-            serviceMeta.setLayer(Layer.GENERAL);
-            receiver.receive(serviceMeta);
+            toService(zipkinSpan, minuteTimeBucket);
+            toServiceSpan(zipkinSpan, minuteTimeBucket);
+            if (!StringUtil.isEmpty(zipkinSpan.getRemoteEndpointServiceName())) {
+                toServiceRelation(zipkinSpan, minuteTimeBucket);
+            }
         });
     }
 
-    private String getServiceInstanceName(Span span) {
-        for (String tagName : config.getInstanceNameRule()) {
-            String serviceInstanceName = span.tags().get(tagName);
-            if (StringUtil.isNotEmpty(serviceInstanceName)) {
-                return serviceInstanceName;
+    private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
+        TagAutocomplete tagAutocomplete = new TagAutocomplete();
+        tagAutocomplete.setTagKey(key);
+        tagAutocomplete.setTagValue(value);
+        tagAutocomplete.setTagType(TagType.ZIPKIN);
+        tagAutocomplete.setTimeBucket(minuteTimeBucket);
+        receiver.receive(tagAutocomplete);
+    }
+
+    private void toService(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
+        ZipkinService service = new ZipkinService();
+        service.setServiceName(zipkinSpan.getLocalEndpointServiceName());
+        service.setTimeBucket(minuteTimeBucket);
+        receiver.receive(service);
+    }
+
+    private void toServiceSpan(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
+        ZipkinServiceSpan serviceSpan = new ZipkinServiceSpan();
+        serviceSpan.setServiceName(zipkinSpan.getLocalEndpointServiceName());
+        serviceSpan.setSpanName(zipkinSpan.getName());
+        serviceSpan.setTimeBucket(minuteTimeBucket);
+        receiver.receive(serviceSpan);
+    }
+
+    private void toServiceRelation(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
+        ZipkinServiceRelation relation = new ZipkinServiceRelation();
+        relation.setServiceName(zipkinSpan.getLocalEndpointServiceName());
+        relation.setRemoteServiceName(zipkinSpan.getRemoteEndpointServiceName());
+        relation.setTimeBucket(minuteTimeBucket);
+        receiver.receive(relation);
+    }
+
+    private List<Span> getSampledTraces(List<Span> input) {
+        //100% sampleRate
+        if (config.getSampleRate() == 10000) {
+            return input;
+        }
+        List<Span> sampledTraces = new ArrayList<>(input.size());
+        for (Span span : input) {
+            if (Boolean.TRUE.equals(span.debug())) {
+                sampledTraces.add(span);
+                continue;
+            }
+            long traceId = HexCodec.lowerHexToUnsignedLong(span.traceId());
+            traceId = traceId == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(traceId);
+            if (traceId <= samplerBoundary) {
+                sampledTraces.add(span);
             }
         }
-        return DEFAULT_SERVICE_INSTANCE_NAME;
+        return sampledTraces;
     }
 }

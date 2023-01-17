@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -34,7 +35,8 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
 
     private String enabledHandlers;
 
-    private String enabledOcRules;
+    @Getter
+    private String enabledOtelRules;
 
     public List<String> getEnabledHandlers() {
         return split(enabledHandlers);
@@ -52,7 +54,7 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
         }
         f.setAccessible(true);
         try {
-            return  split(f.get(this));
+            return split(f.get(this));
         } catch (IllegalAccessException e) {
             log.warn("failed to access disabled rule list of {}", handler, e);
             return Collections.emptyList();

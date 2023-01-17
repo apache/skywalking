@@ -27,12 +27,6 @@ import org.apache.skywalking.oap.server.analyzer.provider.jvm.JVMSourceDispatche
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics.Timer;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * A handler deserializes the message of JVM Metrics and pushes it to downstream.
@@ -43,42 +37,17 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
     private final NamingControl namingLengthControl;
     private final JVMSourceDispatcher jvmSourceDispatcher;
 
-    private final HistogramMetrics histogram;
-    private final HistogramMetrics histogramBatch;
-    private final CounterMetrics errorCounter;
-
     public JVMMetricsHandler(ModuleManager manager, KafkaFetcherConfig config) {
         super(manager, config);
         this.jvmSourceDispatcher = new JVMSourceDispatcher(manager);
         this.namingLengthControl = manager.find(CoreModule.NAME)
                                           .provider()
                                           .getService(NamingControl.class);
-        MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME)
-                                               .provider()
-                                               .getService(MetricsCreator.class);
-        histogram = metricsCreator.createHistogramMetric(
-            "meter_in_latency",
-            "The process latency of meter",
-            new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka")
-        );
-        histogramBatch = metricsCreator.createHistogramMetric(
-            "meter_in_latency",
-            "The process latency of meter",
-            new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka")
-        );
-        errorCounter = metricsCreator.createCounter(
-            "meter_analysis_error_count",
-            "The error number of meter analysis",
-            new MetricsTag.Keys("protocol"),
-            new MetricsTag.Values("kafka")
-        );
     }
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try (Timer ignored = histogramBatch.createTimer()) {
+        try {
             JVMMetricCollection metrics = JVMMetricCollection.parseFrom(record.value().get());
 
             if (log.isDebugEnabled()) {
@@ -93,10 +62,9 @@ public class JVMMetricsHandler extends AbstractKafkaHandler {
             builder.setServiceInstance(namingLengthControl.formatInstanceName(builder.getServiceInstance()));
 
             builder.getMetricsList().forEach(jvmMetric -> {
-                try (Timer ignored2 = histogram.createTimer()) {
+                try {
                     jvmSourceDispatcher.sendMetric(builder.getService(), builder.getServiceInstance(), jvmMetric);
                 } catch (Exception e) {
-                    errorCounter.inc();
                     log.error(e.getMessage(), e);
                 }
             });

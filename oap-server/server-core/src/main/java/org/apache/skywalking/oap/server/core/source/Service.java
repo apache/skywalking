@@ -82,9 +82,6 @@ public class Service extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
-    @Getter
-    @Setter
-    private TCPInfo tcpInfo = new TCPInfo();
 
     public String getTag(String key) {
         return originalTags.get(key);

@@ -1,0 +1,93 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  zookeeper:
+    image: zookeeper:3.4
+    hostname: zookeeper
+    expose:
+      - 2181
+    networks:
+      - e2e
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  broker-a:
+    image: bitnami/kafka:2.4.1
+    hostname: broker-a
+    expose:
+      - 9092
+    networks:
+      - e2e
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_BROKER_ID=10
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_EXPORTER: default
+      SW_EXPORTER_ENABLE_KAFKA_TRACE: "true"
+      SW_EXPORTER_ENABLE_KAFKA_LOG: "true"
+      SW_EXPORTER_KAFKA_SERVERS: broker-a:9092
+      SW_TELEMETRY: prometheus
+    ports:
+      - 1234
+      - 12800
+    depends_on:
+      broker-a:
+        condition: service_healthy
+    networks:
+      - e2e
+
+  provider:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: consumer
+    ports:
+      - 9092
+    depends_on:
+      provider:
+        condition: service_healthy
+networks:
+  e2e:

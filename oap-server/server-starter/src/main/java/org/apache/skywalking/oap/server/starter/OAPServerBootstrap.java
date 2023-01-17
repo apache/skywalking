@@ -19,14 +19,13 @@
 package org.apache.skywalking.oap.server.starter;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.version.Version;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * Starter core. Load the core configuration file, and initialize the startup sequence through {@link ModuleManager}.
@@ -43,12 +42,10 @@ public class OAPServerBootstrap {
             ApplicationConfiguration applicationConfiguration = configLoader.load();
             manager.init(applicationConfiguration);
 
-            manager.find(TelemetryModule.NAME)
+            manager.find(CoreModule.NAME)
                    .provider()
-                   .getService(MetricsCreator.class)
-                   .createGauge("uptime", "oap server start up time", MetricsTag.EMPTY_KEY, MetricsTag.EMPTY_VALUE)
-                   // Set uptime to second
-                   .setValue(System.currentTimeMillis() / 1000d);
+                   .getService(ServerStatusService.class)
+                   .bootedNow(System.currentTimeMillis());
 
             log.info("Version of OAP: {}", Version.CURRENT);
 

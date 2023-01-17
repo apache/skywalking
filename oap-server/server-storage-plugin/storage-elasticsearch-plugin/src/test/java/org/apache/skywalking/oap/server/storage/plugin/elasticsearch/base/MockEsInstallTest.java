@@ -127,8 +127,8 @@ public class MockEsInstallTest {
                         .source(new Mappings.Source())
                     .build(),
                 new HashSet<>(ImmutableSet.of("a", "b")),
-                new HashSet<>(ImmutableSet.of("b")),
-                "{\"properties\":{\"a\":{\"type\":\"keyword\"},\"b\":{\"type\":\"keyword\"}},\"_source\":{\"excludes\":[\"b\"]}}",
+                new HashSet<>(),
+                "{\"properties\":{\"a\":{\"type\":\"keyword\"},\"b\":{\"type\":\"keyword\"}},\"_source\":{\"excludes\":[\"a\"]}}",
                 "{\"properties\":{},\"_source\":null}",
                 false
             },
@@ -145,13 +145,14 @@ public class MockEsInstallTest {
                 Mappings.builder()
                         .type(ElasticSearchClient.TYPE)
                         .properties(new HashMap<>(
-                            ImmutableMap.of("b", ImmutableMap.of("type", "keyword"))))
+                            ImmutableMap.of("c", ImmutableMap.of("type", "keyword"))))
                         .source(new Mappings.Source())
                     .build(),
                 new HashSet<>(ImmutableSet.of("a", "b")),
-                null,
-                "{\"properties\":{\"a\":{\"type\":\"keyword\"},\"b\":{\"type\":\"keyword\"}},\"_source\":{\"excludes\":[]}}",
-                "{\"properties\":{},\"_source\":null}",
+                new HashSet<>(ImmutableSet.of("c")),
+                "{\"properties\":{\"a\":{\"type\":\"keyword\"},\"b\":{\"type\":\"keyword\"},\"c\":{\"type\":\"keyword\"}}," +
+                    "\"_source\":{\"excludes\":[\"a\",\"b\",\"c\"]}}",
+                "{\"properties\":{\"c\":{\"type\":\"keyword\"}},\"_source\":null}",
                 false
             },
             {
@@ -224,8 +225,8 @@ public class MockEsInstallTest {
                     .build(),
                 new HashSet<>(ImmutableSet.of("a")),
                 new HashSet<>(ImmutableSet.of("b")),
-                "{\"properties\":{\"a\":{\"type\":\"keyword\"},\"b\":{\"type\":\"keyword\"},\"c\":{\"type\":\"keyword\",\"index\":false}},\"" +
-                    "_source\":{\"excludes\":[\"b\"]}}",
+                "{\"properties\":{\"a\":{\"type\":\"keyword\"},\"b\":{\"type\":\"keyword\"},\"c\":{\"type\":\"keyword\",\"index\":false}}," +
+                    "\"_source\":{\"excludes\":[\"a\",\"b\"]}}",
                 "{\"properties\":{\"c\":{\"type\":\"keyword\",\"index\":false}},\"_source\":null}",
                 false
             }
@@ -248,18 +249,18 @@ public class MockEsInstallTest {
         //clone it since the items will be changed after combine
         Mappings hisMappingsClone = cloneMappings(this.hisMappings);
         //put the current mappings
-        structures.putStructure(this.name, this.hisMappings);
+        structures.putStructure(this.name, this.hisMappings, new HashMap<>());
         //if current mappings already contains new mappings items
-        Assert.assertEquals(this.contains, structures.containsStructure(this.name, this.newMappings));
+        Assert.assertEquals(this.contains, structures.containsMapping(this.name, this.newMappings));
 
         //put the new mappings and combine
-        structures.putStructure(this.name, this.newMappings);
+        structures.putStructure(this.name, this.newMappings, new HashMap<>());
         Mappings mappings = structures.getMapping(this.name);
         Assert.assertEquals(this.combineResult, mapper.writeValueAsString(mappings));
 
-        //diff the hisMapping and new, if has new item will update current index
-        structures.putStructure(this.name, this.newMappings);
-        Mappings diff = structures.diffStructure(this.name, hisMappingsClone);
+        //diff the hisMapping and new, if it has new item will update current index
+        structures.putStructure(this.name, this.newMappings, new HashMap<>());
+        Mappings diff = structures.diffMappings(this.name, hisMappingsClone);
         Assert.assertEquals(this.diffResult, mapper.writeValueAsString(diff));
     }
 

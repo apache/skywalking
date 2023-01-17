@@ -1,0 +1,543 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "AWS_EKS-cluster",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Node Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_node_count"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Failed Node Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_failed_node_count"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Pod Count (namespace dimension)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_namespace_count"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Pod Count (service dimension)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_service_count"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "Network RX Dropped Count (per second, per node)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_net_rx_dropped"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Network RX Error Count (per second, per node)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_net_rx_error"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "widget": {
+            "title": "Network TX Dropped Count (per second, per node)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_net_tx_dropped"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "widget": {
+            "title": "Network TX Error Count (per second, per node)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "eks_cluster_net_tx_error"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "w": 12,
+          "h": 26,
+          "i": "12",
+          "type": "Widget",
+          "widget": {
+            "title": "Node List"
+          },
+          "graph": {
+            "type": "InstanceList",
+            "dashboardName": "AWS_EKS-node",
+            "fontSize": 12
+          },
+          "metrics": [
+            "eks_cluster_node_cpu_utilization",
+            "eks_cluster_node_memory_utilization",
+            "eks_cluster_node_network_tx_errors",
+            "eks_cluster_node_network_rx_errors"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readLabeledMetricsValues",
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "CPU Usage",
+              "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Memory Usage",
+              "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Network TX Errors",
+              "unit": "count/s",
+              "calculation": "average"
+            },
+            {
+              "label": "Network RX Errors",
+              "unit": "count/s",
+              "calculation": "average"
+            }
+          ],
+          "moved": false
+        },
+        {
+          "x": 12,
+          "y": 52,
+          "w": 12,
+          "h": 26,
+          "i": "13",
+          "type": "Widget",
+          "widget": {
+            "title": "Service List"
+          },
+          "graph": {
+            "type": "EndpointList",
+            "dashboardName": "AWS_EKS-service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          },
+          "metrics": [
+            "eks_cluster_service_pod_cpu_utilization",
+            "eks_cluster_service_pod_memory_utilization",
+            "eks_cluster_service_pod_net_tx_error",
+            "eks_cluster_service_pod_net_rx_error"
+          ],
+          "metricTypes": [
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "CPU Usage",
+              "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Memory Usage",
+              "unit": "%",
+              "calculation": "average"
+            },
+            {
+              "label": "Network TX Errors",
+              "unit": "count/s",
+              "calculation": "average"
+            },
+            {
+              "label": "Network RX Errors",
+              "unit": "count/s",
+              "calculation": "average"
+            }
+          ]
+        }
+      ],
+      "layer": "AWS_EKS",
+      "entity": "Service",
+      "name": "AWS_EKS-cluster",
+      "id": "AWS_EKS-cluster",
+      "isRoot": false
+    }
+  }
+]

@@ -7,13 +7,13 @@ There are various ways to collect logs from applications.
 
 You can use [Filebeat](https://www.elastic.co/cn/beats/filebeat), [Fluentd](https://fluentd.org)
 and [FluentBit](http://fluentbit.io) to collect logs, and then transport the logs to SkyWalking OAP through Kafka or
-HTTP protocol, with the formats [Kafka JSON](../../protocols/Log-Data-Protocol.md#native-kafka-protocol)
-or [HTTP JSON array](../../protocols/Log-Data-Protocol.md#http-api).
+HTTP protocol, with the formats [Kafka JSON](../../api/log-data-protocol.md#native-kafka-protocol)
+or [HTTP JSON array](../../api/log-data-protocol.md#http-api).
 
 #### Filebeat
 Filebeat supports using Kafka to transport logs. Open [kafka-fetcher](kafka-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.
 
-Take the following filebeat config yaml as an example to set up Filebeat:
+Take the following Filebeat config YAML as an example to set up Filebeat:
 - [filebeat.yml](../../../../test/e2e-v2/cases/kafka/log/filebeat.yml)
 
 #### Fluentd
@@ -35,9 +35,9 @@ Read the doc on [Skywalking Exporter](https://github.com/open-telemetry/opentele
 
 ### Java agent's toolkits
 Java agent provides toolkits for 
-[log4j](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md),
-[log4j2](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-2.x.md), and
-[logback](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-logback-1.x.md) 
+[log4j](https://github.com/apache/skywalking-java/blob/main/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md),
+[log4j2](https://github.com/apache/skywalking-java/blob/main/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-2.x.md), and
+[logback](https://github.com/apache/skywalking-java/blob/main/docs/en/setup/service-agent/java-agent/Application-toolkit-logback-1.x.md) 
 to report logs through gRPC with automatically injected trace context.
 
 [SkyWalking Satellite sidecar](https://github.com/apache/skywalking-satellite) is a recommended proxy/side that
@@ -45,9 +45,9 @@ forwards logs (including the use of Kafka MQ to transport logs). When using this
 and enable configs `enableNativeProtoLog`.
 
 Java agent provides toolkits for
-[log4j](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md#print-skywalking-context-in-your-logs),
-[log4j2](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-2.x.md#print-skywalking-context-in-your-logs), and
-[logback](https://github.com/apache/skywalking-java/blob/20fb8c81b3da76ba6628d34c12d23d3d45c973ef/docs/en/setup/service-agent/java-agent/Application-toolkit-logback-1.x.md#print-skywalking-context-in-your-logs)
+[log4j](https://github.com/apache/skywalking-java/blob/main/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-1.x.md#print-skywalking-context-in-your-logs),
+[log4j2](https://github.com/apache/skywalking-java/blob/main/docs/en/setup/service-agent/java-agent/Application-toolkit-log4j-2.x.md#print-skywalking-context-in-your-logs), and
+[logback](https://github.com/apache/skywalking-java/blob/main/docs/en/setup/service-agent/java-agent/Application-toolkit-logback-1.x.md#print-skywalking-context-in-your-logs)
 to report logs through files with automatically injected trace context.
 
 Log framework config examples:
@@ -66,7 +66,7 @@ To explore how to enable the reporting features for your use cases, please refer
 ## Log Analyzer
 
 Log analyzer of OAP server supports native log data. OAP could use Log Analysis Language to
-structure log content through parsing, extracting, and saving logs. 
+structure log content through parsing, extracting and saving logs. 
 The analyzer also uses Meter Analysis Language Engine for further metrics calculation.
 
 ```yaml

@@ -1,15 +1,14 @@
 # Backend setup
 SkyWalking's backend distribution package consists of the following parts:
 
-1. **bin/cmd scripts**: Located in the `/bin` folder. Includes startup linux shell and Windows cmd scripts for the backend
-   server and UI startup.
+1. **bin/cmd scripts**: Located in the `/bin` folder. Includes startup Linux shell and Windows cmd scripts for the backend server and UI startup.
 
 2. **Backend config**: Located in the `/config` folder. Includes settings files of the backend, which are:
     * `application.yml`
     * `log4j.xml`
     * `alarm-settings.yml`
 
-3. **Libraries of backend**: Located in the `/oap-libs` folder. All dependencies of the backend can be found in it.
+3. **Libraries of backend**: Located in the `/oap-libs` folder. All dependencies of the backend can be found there.
 
 4. **Webapp env**: Located in the `webapp` folder. UI frontend jar file can be found here, together with its `webapp.yml` setting file.
 
@@ -17,16 +16,16 @@ SkyWalking's backend distribution package consists of the following parts:
 
 Requirement: **JDK8 to JDK17 are tested**. Other versions are not tested and may or may not work.
 
-Before you start, you should know that the main purpose of quickstart is to help you obtain a basic configuration for previews/demo. Performance and long-term running are not our goals.
+Before you begin, you should understand that the main purpose of the following quickstart is to help you obtain a basic configuration for previews/demos. Performance and long-term running are **NOT** among the purposes of the quickstart.
 
-For production/QA/tests environments, see [Backend and UI deployment documents](#deploy-backend-and-ui).
+**For production/QA/tests environments, see [Backend and UI deployment documents](ui-setup.md).**
 
 You can use `bin/startup.sh` (or cmd) to start up the backend and UI with their default settings, set out as follows:
 
 - Backend storage uses **H2 by default** (for an easier start)
 - Backend listens on `0.0.0.0/11800` for gRPC APIs and `0.0.0.0/12800` for HTTP REST APIs.
 
-In Java, DotNetCore, Node.js, and Istio agents/probes, you should set the gRPC service address to `ip/host:11800`, and ip/host should be where your backend is.
+In Java, DotNetCore, Node.js, and Istio agents/probes, you should set the gRPC service address to `ip/host:11800`, and IP/host should be where your backend is.
 - UI listens on `8080` port and request `127.0.0.1/12800` to run a GraphQL query.
 
 ### Interaction
@@ -35,25 +34,25 @@ Before deploying Skywalking in your distributed environment, you should learn ab
 
 <img src="https://skywalking.apache.org/doc-graph/communication-net.png"/>
 
-- All native agents and probes, either language based or mesh probe, use the gRPC service (`core/default/gRPC*` in `application.yml`) to report data to the backend. Also, the Jetty service is supported in JSON format.
-- UI uses GraphQL (HTTP) query to access the backend also in Jetty service (`core/default/rest*` in `application.yml`).
+- Most native agents and probes, including language-based or mesh probes, use gRPC service (`core/default/gRPC*` in `application.yml`) to report data to the backend. Also, the REST service is supported in JSON format.
+- UI uses GraphQL (HTTP) query to access the backend, also in REST service (`core/default/rest*` in `application.yml`).
 
 
 ## Startup script
-The default startup scripts are `/bin/oapService.sh`(.bat). 
-Read the [start up mode](backend-start-up-mode.md) document to learn about other ways to start up the backend.
+The default startup scripts are `/bin/oapService.sh`(.bat).
+Read the [start up mode](backend-start-up-mode.md) document to learn other ways to start up the backend.
 
 
 ## application.yml
-SkyWalking backend startup behaviours are driven by `config/application.yml`.
-Understanding the setting file will help you read this document.
-The core concept behind this setting file is that the SkyWalking collector is based on pure modular design. 
-End users can switch or assemble the collector features according to their own requirements.
+SkyWalking backend startup behaviours are driven by `config/application.yml`. Understanding the settings file will help you read this document.
+
+The core concept behind this setting file is that the SkyWalking collector is based on a pure modular design.
+End-users can switch or assemble the collector features according to their unique requirements.
 
 In `application.yml`, there are three levels.
 1. **Level 1**: Module name. This means that this module is active in running mode.
-1. **Level 2**: Provider option list and provider selector. Available providers are listed here with a selector to indicate which one will actually take effect. If there is only one provider listed, the `selector` is optional and can be omitted.
-1. **Level 3**. Settings of the provider.
+1. **Level 2**: Provider option list and provider selector. Available providers are listed here with a selector to indicate which one will actually take effect. If only one provider is listed, the `selector` is optional and can be omitted.
+1. **Level 3**. Settings of the chosen provider.
 
 Example:
 
@@ -61,9 +60,9 @@ Example:
 storage:
   selector: mysql # the mysql storage will actually be activated, while the h2 storage takes no effect
   h2:
-    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db}
-    user: ${SW_STORAGE_H2_USER:sa}
+    properties:
+      jdbcUrl: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
+      dataSource.user: ${SW_STORAGE_H2_USER:sa}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
   mysql:
     properties:
@@ -83,11 +82,11 @@ storage:
 1. **`default`** is the default implementor of the core module.
 1. `driver`, `url`, ... `metadataQueryMaxSize` are all setting items of the implementor.
 
-At the same time, there are two types of modules: required and optional. The required modules provide the skeleton of the backend. 
+At the same time, there are two types of modules: required and optional. The required modules provide the skeleton of the backend.
 Even though their modular design supports pluggability, removing those modules does not serve any purpose. For optional modules, some of them have
 a provider implementation called `none`, meaning that it only provides a shell with no actual logic, typically such as telemetry.
 Setting `-` to the `selector` means that this whole module will be excluded at runtime.
-We advise against trying to change the APIs of those modules, unless you understand the SkyWalking project and its codes very well.
+We advise against changing the APIs of those modules unless you understand the SkyWalking project and its codes very well.
 
 The required modules are listed here:
 1. **Core**. Provides the basic and major skeleton of all data analysis and stream dispatch.
@@ -99,22 +98,21 @@ capabilities. See [**Cluster Management**](backend-cluster.md) for more details.
 
 ## FAQs
 #### Why do we need to set the timezone? And when do we do it?
-SkyWalking provides downsampling time series metrics features. 
+SkyWalking provides downsampling time-series metrics features.
 Query and store at each time dimension (minute, hour, day, month metrics indexes)
 related to timezone when time formatting.
 
-For example, metrics time will be formatted like YYYYMMDDHHmm in minute dimension metrics,
-which is timezone related.
-  
-By default, SkyWalking's OAP backend chooses the OS default timezone.
-If you want to override it, please follow the Java and OS documents.
+For example, metrics time will be formatted like yyyyMMddHHmm in minute dimension metrics, which is timezone-related.
+
+By default, SkyWalking's OAP backend chooses the **OS default timezone**.
+Please follow the Java and OS documents if you want to override the timezone.
 
 #### How to query the storage directly from a 3rd party tool?
-SkyWalking provides different options based on browser UI, CLI and GraphQL to support extensions. But some users may want to query data 
+SkyWalking provides different options based on browser UI, CLI and GraphQL to support extensions. But some users may want to query data
 directly from the storage. For example, in the case of ElasticSearch, Kibana is a great tool for doing this.
 
-By default, in order to reduce memory, network and storage space usages, SkyWalking saves based64-encoded ID(s) only in metrics entities. 
-But these tools usually don't support nested query, and are not convenient to work with. For these exceptional reasons,
+By default, SkyWalking saves based64-encoded ID(s) only in metrics entities to reduce memory, network and storage space usages.
+But these tools usually don't support nested queries and are not convenient to work with. For these exceptional reasons,
 SkyWalking provides a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
 
 Take a look at `core/default/activeExtraModelColumns` config in the `application.yaml`, and set it as `true` to enable this feature.

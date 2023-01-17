@@ -17,19 +17,20 @@
 
 package org.apache.skywalking.oap.server.receiver.browser.provider;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.browser.module.BrowserModule;
-import org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc.BrowserPerfServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc.BrowserPerfServiceHandler;
+import org.apache.skywalking.oap.server.receiver.browser.provider.handler.grpc.BrowserPerfServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest.BrowserPerfServiceHTTPHandler;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.ErrorLogParserListenerManager;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.errorlog.listener.ErrorLogRecordListener;
@@ -40,7 +41,7 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class BrowserModuleProvider extends ModuleProvider {
-    private final BrowserServiceModuleConfig moduleConfig = new BrowserServiceModuleConfig();
+    private BrowserServiceModuleConfig moduleConfig;
 
     @Override
     public String name() {
@@ -53,8 +54,18 @@ public class BrowserModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return moduleConfig;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<BrowserServiceModuleConfig>() {
+            @Override
+            public Class type() {
+                return BrowserServiceModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final BrowserServiceModuleConfig initialized) {
+                moduleConfig = initialized;
+            }
+        };
     }
 
     @Override
@@ -87,7 +98,7 @@ public class BrowserModuleProvider extends ModuleProvider {
         httpHandlerRegister.addHandler(
             new BrowserPerfServiceHTTPHandler(getManager(), moduleConfig,
                                               errorLogParserListenerManager,
-                                              perfDataListenerManager()));
+                                              perfDataListenerManager()), Collections.singletonList(HttpMethod.POST));
     }
 
     @Override

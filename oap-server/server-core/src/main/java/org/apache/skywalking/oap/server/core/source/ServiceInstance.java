@@ -59,7 +59,7 @@ public class ServiceInstance extends Source {
     private String serviceName;
     @Getter
     @Setter
-    private Layer layer;
+    private Layer serviceLayer;
     @Getter
     @Setter
     private String endpointName;
@@ -87,13 +87,9 @@ public class ServiceInstance extends Source {
     @Setter
     private SideCar sideCar = new SideCar();
 
-    @Getter
-    @Setter
-    private TCPInfo tcpInfo = new TCPInfo();
-
     @Override
     public void prepare() {
-        serviceId = IDManager.ServiceID.buildId(serviceName, layer.isNormal());
+        serviceId = IDManager.ServiceID.buildId(serviceName, serviceLayer.isNormal());
     }
 
     public String getTag(String key) {

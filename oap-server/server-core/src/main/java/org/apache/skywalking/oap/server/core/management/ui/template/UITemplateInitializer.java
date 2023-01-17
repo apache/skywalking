@@ -21,10 +21,11 @@ package org.apache.skywalking.oap.server.core.management.ui.template;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -39,6 +40,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * Each config file should be only one dashboard setting json object.
  * The dashboard names should be different in the same Layer and entity.
  */
+@Slf4j
 public class UITemplateInitializer {
     public static String[] UI_TEMPLATE_FOLDER = new String[] {
         Layer.MESH.name(),
@@ -46,13 +48,19 @@ public class UITemplateInitializer {
         Layer.OS_LINUX.name(),
         Layer.MESH_CP.name(),
         Layer.MESH_DP.name(),
+        Layer.MYSQL.name(),
+        Layer.POSTGRESQL.name(),
         Layer.K8S.name(),
         Layer.BROWSER.name(),
         Layer.SO11Y_OAP.name(),
         Layer.VIRTUAL_DATABASE.name(),
+        Layer.VIRTUAL_CACHE.name(),
         Layer.K8S_SERVICE.name(),
         Layer.SO11Y_SATELLITE.name(),
         Layer.FAAS.name(),
+        Layer.APISIX.name(),
+        Layer.VIRTUAL_MQ.name(),
+        Layer.AWS_EKS.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
@@ -68,10 +76,13 @@ public class UITemplateInitializer {
 
     public void initAll() throws IOException {
         for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
-            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
-                Locale.ROOT));
-            for (File file : templateFiles) {
-                initTemplate(file);
+            try {
+                File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase());
+                for (File file : templateFiles) {
+                    initTemplate(file);
+                }
+            } catch (FileNotFoundException e) {
+                log.debug("No such folder of path: {}, skipping loading UI templates", folder);
             }
         }
     }

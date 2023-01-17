@@ -26,6 +26,7 @@ import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.DAO;
@@ -34,8 +35,8 @@ public interface IAlarmQueryDAO extends DAO {
 
     Gson GSON = new Gson();
 
-    Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from, final long startTB,
-                    final long endTB, final List<Tag> tags) throws IOException;
+    Alarms getAlarm(final Integer scopeId, final String keyword, final int limit, final int from,
+                    final Duration duration, final List<Tag> tags) throws IOException;
 
     /**
      * Parser the raw tags.

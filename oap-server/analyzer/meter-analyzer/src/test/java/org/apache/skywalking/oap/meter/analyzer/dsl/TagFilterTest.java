@@ -53,22 +53,84 @@ public class TagFilterTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
+        final SampleFamily sf =
+            SampleFamilyBuilder.newBuilder(
+                Sample.builder().labels(of("idc", "t2")).value(50).name("http_success_request").build(),
+                Sample.builder()
+                      .labels(of("idc", "t3", "region", "cn", "svc", "catalog"))
+                      .value(50)
+                      .name("http_success_request")
+                      .build(),
+                Sample.builder()
+                      .labels(of("idc", "t1", "region", "us", "svc", "product"))
+                      .value(50)
+                      .name("http_success_request")
+                      .build(),
+                Sample.builder()
+                      .labels(of("idc", "t1", "region", "us", "instance", "10.0.0.1"))
+                      .name("http_success_request")
+                      .value(50)
+                      .build(),
+                Sample.builder()
+                      .labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1"))
+                      .name("http_success_request")
+                      .value(3)
+                      .build()
+            ).build();
         return Arrays.asList(new Object[][] {
             {
-                "default",
-                of("instance_cpu_percentage", SampleFamily.EMPTY),
-                "instance_cpu_percentage",
-                Result.fail("Parsed result is an EMPTY sample family"),
+                "tagEqual",
+                of("http_success_request", sf),
+                "http_success_request.tagEqual('idc', 't3')",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder()
+                          .labels(of("idc", "t3", "region", "cn", "svc", "catalog"))
+                          .value(50)
+                          .name("http_success_request")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1"))
+                          .name("http_success_request")
+                          .value(3)
+                          .build()
+                ).build()),
                 false,
-            },
+                },
             {
-                "single-value",
-                of("instance_cpu_percentage", SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).name("instance_cpu_percentage").build()).build()),
-                "instance_cpu_percentage",
-                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().value(1600592418480.0).name("instance_cpu_percentage").build()).build()),
+                "tagNotEqual",
+                of("http_success_request", sf),
+                "http_success_request.tagNotEqual('idc', 't1')",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t2")).value(50).name("http_success_request").build(),
+                    Sample.builder()
+                          .labels(of("idc", "t3", "region", "cn", "svc", "catalog"))
+                          .value(50)
+                          .name("http_success_request")
+                          .build(),
+                    Sample.builder()
+                          .labels(of("idc", "t3", "region", "cn", "instance", "10.0.0.1"))
+                          .name("http_success_request")
+                          .value(3)
+                          .build()
+                ).build()),
                 false,
-            },
-        });
+                },
+            {
+                "tagMatch",
+                of("http_success_request", sf),
+                "http_success_request.tagMatch('idc', 't1|t2|t3')",
+                Result.success(sf),
+                false,
+                },
+            {
+                "tagNotMatch",
+                of("http_success_request", sf),
+                "http_success_request.tagNotMatch('idc', 't1|t3')",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("idc", "t2")).value(50).name("http_success_request").build()).build()),
+                false,
+                },
+            });
     }
 
     @Test

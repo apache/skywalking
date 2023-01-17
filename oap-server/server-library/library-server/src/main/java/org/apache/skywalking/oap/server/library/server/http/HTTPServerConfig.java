@@ -36,8 +36,6 @@ public class HTTPServerConfig {
     @Builder.Default
     private long idleTimeOut = 30000;
     @Builder.Default
-    private int acceptorPriorityDelta = 0;
-    @Builder.Default
     private int acceptQueueSize = 0;
     @Builder.Default
     private int maxRequestHeaderSize = 8192;

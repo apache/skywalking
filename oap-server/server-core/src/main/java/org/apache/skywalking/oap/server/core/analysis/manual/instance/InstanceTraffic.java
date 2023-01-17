@@ -25,13 +25,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -46,24 +50,27 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
     "serviceId",
     "name"
 })
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";
     public static final String NAME = "name";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String PROPERTIES = "properties";
-    public static final String LAYER = "layer";
 
     private static final Gson GSON = new Gson();
 
     @Setter
     @Getter
     @Column(columnName = SERVICE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
     @Setter
     @Getter
     @Column(columnName = NAME, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "instance_traffic_name")
+    @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
@@ -76,17 +83,15 @@ public class InstanceTraffic extends Metrics {
     @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
-    @Setter
-    @Getter
-    @Column(columnName = LAYER)
-    private Layer layer = Layer.UNDEFINED;
-
     @Override
     public boolean combine(final Metrics metrics) {
         final InstanceTraffic instanceTraffic = (InstanceTraffic) metrics;
         this.lastPingTimestamp = instanceTraffic.getLastPingTimestamp();
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
-            this.properties = instanceTraffic.getProperties();
+            if (this.properties == null) {
+                this.properties = new JsonObject();
+            }
+            instanceTraffic.getProperties().entrySet().forEach(it -> this.properties.add(it.getKey(), it.getValue()));
         }
         /**
          * Keep the time bucket as the same time inserted.
@@ -106,7 +111,6 @@ public class InstanceTraffic extends Metrics {
     public void deserialize(final RemoteData remoteData) {
         setServiceId(remoteData.getDataStrings(0));
         setName(remoteData.getDataStrings(1));
-        setLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
         final String propString = remoteData.getDataStrings(2);
         if (StringUtil.isNotEmpty(propString)) {
             setProperties(GSON.fromJson(propString, JsonObject.class));
@@ -120,7 +124,6 @@ public class InstanceTraffic extends Metrics {
         final RemoteData.Builder builder = RemoteData.newBuilder();
         builder.addDataStrings(serviceId);
         builder.addDataStrings(name);
-        builder.addDataIntegers(layer.value());
         if (properties == null) {
             builder.addDataStrings(Const.EMPTY_STRING);
         } else {
@@ -132,8 +135,12 @@ public class InstanceTraffic extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return IDManager.ServiceInstanceID.buildId(serviceId, name);
+    protected StorageID id0() {
+        return new StorageID()
+            .appendMutant(new String[] {
+                SERVICE_ID,
+                NAME
+            }, IDManager.ServiceInstanceID.buildId(serviceId, name));
     }
 
     public static class Builder implements StorageBuilder<InstanceTraffic> {
@@ -148,9 +155,6 @@ public class InstanceTraffic extends Metrics {
             }
             instanceTraffic.setLastPingTimestamp(((Number) converter.get(LAST_PING_TIME_BUCKET)).longValue());
             instanceTraffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
-            if (converter.get(LAYER) != null) {
-                instanceTraffic.setLayer(Layer.valueOf(((Number) converter.get(LAYER)).intValue()));
-            }
             return instanceTraffic;
         }
 
@@ -165,8 +169,6 @@ public class InstanceTraffic extends Metrics {
             }
             converter.accept(LAST_PING_TIME_BUCKET, storageData.getLastPingTimestamp());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            Layer layer = storageData.getLayer();
-            converter.accept(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
         }
     }
 
@@ -186,6 +188,17 @@ public class InstanceTraffic extends Metrics {
     }
 
     public static class PropertyUtil {
+        /**
+         * `namespace` and `pod` are key properties that help "on demand Pod logs"
+         * to locate the corresponding Pod in Kubernetes, when language agent is
+         * registering a new service instance that is supposed to work in terms of
+         * "on demand Pod logs", the agent should also fill in these 2 properties.
+         *
+         * @since 9.1.0
+         */
+        public static final String NAMESPACE = "namespace";
+        public static final String POD = "pod";
+
         public static final String LANGUAGE = "language";
         public static final String IPV4 = "ipv4";
         public static final String IPV4S = "ipv4s";

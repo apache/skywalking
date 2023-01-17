@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.query.graphql;
 
+import com.linecorp.armeria.common.HttpMethod;
 import graphql.kickstart.tools.SchemaParser;
 import graphql.kickstart.tools.SchemaParserBuilder;
 import graphql.scalars.ExtendedScalars;
+import java.util.Collections;
 import org.apache.skywalking.oap.query.graphql.resolver.AggregationQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.AlarmQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.BrowserLogQuery;
@@ -35,9 +37,11 @@ import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
+import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.ProfileQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Query;
+import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
@@ -45,7 +49,6 @@ import org.apache.skywalking.oap.query.graphql.resolver.UIConfigurationManagemen
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.QueryModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -55,7 +58,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
  * GraphQL query provider.
  */
 public class GraphQLQueryProvider extends ModuleProvider {
-    protected final GraphQLQueryConfig config = new GraphQLQueryConfig();
+    protected GraphQLQueryConfig config;
     protected final SchemaParserBuilder schemaBuilder = SchemaParser.newParser();
 
     @Override
@@ -69,12 +72,23 @@ public class GraphQLQueryProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<GraphQLQueryConfig>() {
+            @Override
+            public Class type() {
+                return GraphQLQueryConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final GraphQLQueryConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        final MetadataQueryV2 metadataQueryV2 = new MetadataQueryV2(getManager());
         schemaBuilder.file("query-protocol/common.graphqls")
                      .resolvers(new Query(), new Mutation(), new HealthQuery(getManager()))
                      .file("query-protocol/metadata.graphqls")
@@ -115,10 +129,19 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/event.graphqls")
                      .resolvers(new EventQuery(getManager()))
                      .file("query-protocol/metadata-v2.graphqls")
-                     .resolvers(new MetadataQueryV2(getManager()))
+                     .resolvers(metadataQueryV2)
                      .file("query-protocol/ebpf-profiling.graphqls")
                      .resolvers(new EBPFProcessProfilingQuery(getManager()), new EBPFProcessProfilingMutation(getManager()))
-                     .scalars(ExtendedScalars.GraphQLLong);
+                     .file("query-protocol/record.graphqls")
+                     .resolvers(new RecordsQuery(getManager()));
+
+        if (config.isEnableOnDemandPodLog()) {
+            schemaBuilder
+                .file("query-protocol/ondemand-pod-log.graphqls")
+                .resolvers(new OndemandLogQuery(metadataQueryV2));
+        }
+
+        schemaBuilder.scalars(ExtendedScalars.GraphQLLong);
     }
 
     @Override
@@ -127,7 +150,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                                                   .provider()
                                                   .getService(HTTPHandlerRegister.class);
         service.addHandler(
-            new GraphQLQueryHandler(config, schemaBuilder.build().makeExecutableSchema()));
+            new GraphQLQueryHandler(config, schemaBuilder.build().makeExecutableSchema()),
+            Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override

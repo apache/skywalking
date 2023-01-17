@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusAnalyzer;
@@ -150,6 +152,12 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         span.getTagsList().forEach(tag -> {
             if (searchableTagKeys.contains(tag.getKey())) {
                 final Tag spanTag = new Tag(tag.getKey(), tag.getValue());
+                if (tag.getValue().length()  > Tag.TAG_LENGTH || spanTag.toString().length() > Tag.TAG_LENGTH) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Segment tag : {} length > : {}, dropped", spanTag, Tag.TAG_LENGTH);
+                    }
+                    return;
+                }
                 if (!segment.getTags().contains(spanTag)) {
                     segment.getTags().add(spanTag);
                 }
@@ -173,6 +181,18 @@ public class SegmentAnalysisListener implements FirstAnalysisListener, EntryAnal
         segment.setEndpointId(endpointId);
 
         sourceReceiver.receive(segment);
+        addAutocompleteTags();
+    }
+
+    private void addAutocompleteTags() {
+        segment.getTags().forEach(tag -> {
+            TagAutocomplete tagAutocomplete = new TagAutocomplete();
+            tagAutocomplete.setTagKey(tag.getKey());
+            tagAutocomplete.setTagValue(tag.getValue());
+            tagAutocomplete.setTagType(TagType.TRACE);
+            tagAutocomplete.setTimeBucket(TimeBucket.getMinuteTimeBucket(segment.getStartTime()));
+            sourceReceiver.receive(tagAutocomplete);
+        });
     }
 
     private enum SAMPLE_STATUS {

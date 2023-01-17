@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.junit.Assert;
@@ -33,6 +34,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class RulesReaderTest {
     @Test
@@ -96,5 +98,12 @@ public class RulesReaderTest {
         assertThat(feishuSettingsWebhooks.get(0).getSecret(), is("dummysecret"));
         assertThat(feishuSettingsWebhooks.get(1).getUrl(), is("https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2"));
         assertNull(feishuSettingsWebhooks.get(1).getSecret());
+
+        PagerDutySettings pagerDutySettings = rules.getPagerDutySettings();
+        assertEquals("dummy_text_template", pagerDutySettings.getTextTemplate());
+        List<String> pagerDutyIntegrationKeys = pagerDutySettings.getIntegrationKeys();
+        assertEquals(2, pagerDutyIntegrationKeys.size());
+        assertEquals("dummy_key", pagerDutyIntegrationKeys.get(0));
+        assertEquals("dummy_key2", pagerDutyIntegrationKeys.get(1));
     }
 }

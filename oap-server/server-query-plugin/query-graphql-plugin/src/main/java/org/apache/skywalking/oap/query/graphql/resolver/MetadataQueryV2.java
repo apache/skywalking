@@ -77,8 +77,7 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
 
     public List<ServiceInstance> listInstances(final Duration duration,
                                                final String serviceId) throws IOException {
-        return getMetadataQueryService().listInstances(
-            duration.getStartTimestamp(), duration.getEndTimestamp(), serviceId);
+        return getMetadataQueryService().listInstances(duration, serviceId);
     }
 
     public ServiceInstance getInstance(final String instanceId) throws IOException {
@@ -94,12 +93,16 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return getMetadataQueryService().getEndpointInfo(endpointId);
     }
 
-    public List<Process> listProcesses(final String serviceId, final String instanceId) throws IOException {
-        return getMetadataQueryService().listProcesses(serviceId, instanceId);
+    public List<Process> listProcesses(final Duration duration, final String instanceId) throws IOException {
+        return getMetadataQueryService().listProcesses(duration, instanceId);
     }
 
     public Process getProcess(final String processId) throws IOException {
         return getMetadataQueryService().getProcess(processId);
+    }
+
+    public Long estimateProcessScale(String serviceId, List<String> labels) throws IOException {
+        return getMetadataQueryService().estimateProcessScale(serviceId, labels);
     }
 
     public TimeInfo getTimeInfo() {

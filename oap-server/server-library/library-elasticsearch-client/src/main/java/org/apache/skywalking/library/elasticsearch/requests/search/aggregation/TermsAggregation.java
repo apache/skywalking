@@ -36,6 +36,8 @@ public final class TermsAggregation extends Aggregation {
     private final BucketOrder order;
     private final Integer size;
     private final ImmutableMap<String, Aggregation> aggregations;
+    private final TermsAggregationBuilder.CollectMode collectMode;
+    private final TermsAggregationBuilder.ExecutionHint executionHint;
 
     @Override
     public String name() {
@@ -57,6 +59,12 @@ public final class TermsAggregation extends Aggregation {
                     }
                     if (value.getOrder() != null) {
                         writeOrder(value, gen);
+                    }
+                    if (value.getCollectMode() != null) {
+                        gen.writeStringField("collect_mode", value.getCollectMode().value);
+                    }
+                    if (value.getExecutionHint() != null) {
+                        gen.writeStringField("execution_hint", value.getExecutionHint().value);
                     }
                 }
                 gen.writeEndObject();

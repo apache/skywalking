@@ -1,6 +1,6 @@
 # Health Check
 
-Health check intends to provide a unique approach to check the health status of the OAP server. It includes the health status
+Health check intends to provide a unique approach to checking the health status of the OAP server. It includes the health status
 of modules, GraphQL, and gRPC services readiness.
 
 > 0 means healthy, and more than 0 means unhealthy.

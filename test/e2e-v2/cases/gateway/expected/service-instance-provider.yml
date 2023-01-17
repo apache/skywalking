@@ -37,7 +37,6 @@
   {{- end}}
   language: JAVA
   instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  layer: GENERAL
 - id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider2" }}
   name: provider2
   attributes:
@@ -59,5 +58,4 @@
   {{- end}}
   language: JAVA
   instanceuuid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider2" }}
-  layer: GENERAL
 {{- end}}

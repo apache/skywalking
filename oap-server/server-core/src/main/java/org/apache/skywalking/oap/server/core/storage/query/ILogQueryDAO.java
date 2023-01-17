@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
+
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
@@ -43,18 +46,21 @@ public interface ILogQueryDAO extends Service {
                    Order queryOrder,
                    int from,
                    int limit,
-                   final long startTB,
-                   final long endTB,
+                   final Duration duration,
                    final List<Tag> tags,
                    final List<String> keywordsOfContent,
                    final List<String> excludingKeywordsOfContent) throws IOException;
 
     /**
-     * Parser the raw tags.
+     * Parse the raw tags with base64 representation of data binary
      */
     default void parserDataBinary(String dataBinaryBase64, List<KeyValue> tags) {
+        parserDataBinary(Base64.getDecoder().decode(dataBinaryBase64), tags);
+    }
+
+    default void parserDataBinary(byte[] dataBinary, List<KeyValue> tags) {
         try {
-            LogTags logTags = LogTags.parseFrom(Base64.getDecoder().decode(dataBinaryBase64));
+            LogTags logTags = LogTags.parseFrom(dataBinary);
             logTags.getDataList().forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
         } catch (InvalidProtocolBufferException e) {
             throw new RuntimeException(e);

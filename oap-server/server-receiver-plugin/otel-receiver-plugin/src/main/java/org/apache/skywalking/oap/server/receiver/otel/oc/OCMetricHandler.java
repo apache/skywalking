@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.oc;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.protobuf.Timestamp;
 import io.grpc.stub.StreamObserver;
@@ -29,13 +30,16 @@ import io.opencensus.proto.metrics.v1.DistributionValue;
 import io.opencensus.proto.metrics.v1.LabelKey;
 import io.opencensus.proto.metrics.v1.LabelValue;
 import io.opencensus.proto.metrics.v1.SummaryValue;
+import io.opencensus.proto.resource.v1.Resource;
 import io.vavr.Function1;
 import io.vavr.Tuple;
+
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
@@ -49,19 +53,19 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
-
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 import static java.util.stream.Collectors.toList;
 
-@Slf4j
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase implements Handler {
-
-    private List<PrometheusMetricConverter> metrics;
+    private static final String HOST_NAME_LABEL = "node_identifier_host_name";
+    private List<PrometheusMetricConverter> converters;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
         return new StreamObserver<ExportMetricsServiceRequest>() {
             private Node node;
             private Map<String, String> nodeLabels = new HashMap<>();
+            private Resource resource;
 
             @Override
             public void onNext(ExportMetricsServiceRequest request) {
@@ -70,10 +74,7 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
                     nodeLabels.clear();
                     if (node.hasIdentifier()) {
                         if (StringUtil.isNotBlank(node.getIdentifier().getHostName())) {
-                            nodeLabels.put("node_identifier_host_name", node.getIdentifier().getHostName());
-                        }
-                        if (node.getIdentifier().getPid() > 0) {
-                            nodeLabels.put("node_identifier_pid", String.valueOf(node.getIdentifier().getPid()));
+                            nodeLabels.put(HOST_NAME_LABEL, node.getIdentifier().getHostName());
                         }
                     }
                     final String name = node.getServiceInfo().getName();
@@ -81,7 +82,14 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
                         nodeLabels.put("job_name", name);
                     }
                 }
-                metrics.forEach(m -> m.toMeter(request.getMetricsList().stream()
+                //new version of the OTEL moved the host name to the `Resources`
+                if (request.hasResource() && StringUtil.isBlank(nodeLabels.get(HOST_NAME_LABEL))) {
+                    resource = request.getResource();
+                    if (StringUtil.isNotBlank(resource.getLabelsMap().get("net.host.name"))) {
+                        nodeLabels.put(HOST_NAME_LABEL, resource.getLabelsMap().get("net.host.name"));
+                    }
+                }
+                converters.forEach(m -> m.toMeter(request.getMetricsList().stream()
                     .flatMap(metric -> metric.getTimeseriesList().stream().map(timeSeries ->
                         Tuple.of(metric.getMetricDescriptor(),
                                  buildLabelsFromNodeInfo(
@@ -166,20 +174,26 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
         return "oc";
     }
 
-    @Override public void active(List<String> enabledRules,
-        MeterSystem service, GRPCHandlerRegister grpcHandlerRegister) {
-        List<Rule> rules;
+    @Override
+    public void active(
+        OtelMetricReceiverConfig config,
+        MeterSystem meterSystem,
+        GRPCHandlerRegister grpcHandlerRegister)
+        throws ModuleStartException {
+        final List<String> enabledRules =
+            Splitter.on(",")
+                .omitEmptyStrings()
+                .splitToList(config.getEnabledOtelRules());
+        final List<Rule> rules;
         try {
-            rules = Rules.loadRules("otel-oc-rules", enabledRules);
-        } catch (ModuleStartException e) {
-            log.warn("failed to load otel-oc-rules");
-            return;
+            rules = Rules.loadRules("otel-rules", enabledRules);
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to load otel rules.", e);
         }
         if (rules.isEmpty()) {
             return;
         }
-        this.metrics = rules.stream().map(r ->
-            new PrometheusMetricConverter(r, service))
+        this.converters = rules.stream().map(r -> new PrometheusMetricConverter(r, meterSystem))
             .collect(toList());
         grpcHandlerRegister.addHandler(this);
     }

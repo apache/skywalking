@@ -1,11 +1,11 @@
 # Kafka Fetcher
 
-The Kafka Fetcher pulls messages from the Kafka Broker to learn about what agent is delivered. Check the agent documentation for details. Typically, tracing segments, service/instance properties, JVM metrics, and meter system data are supported.  Kafka Fetcher can work with gRPC/HTTP Receivers at the same time for adopting different transport protocols.
+The Kafka Fetcher pulls messages from the Kafka Broker to learn about what agents have delivered. Check the agent documentation for details on how to enable the Kafka reporter. Typically, tracing segments,  service/instance properties, JVM metrics, and meter system data are supported (depending on the agent implementation). Kafka Fetcher can work with gRPC/HTTP Receivers simultaneously for adopting different transport protocols.
 
-Kafka Fetcher is disabled by default. To enable it, configure as follows.
+Kafka Fetcher is disabled by default. To enable it, configure it as follows.
 
-Namespace aims to isolate multi OAP cluster when using the same Kafka cluster.
-If you set a namespace for Kafka fetcher, the OAP will add a prefix to topic name. You should also set namespace in the property named `plugin.kafka.namespace` in `agent.config`.
+Namespace aims to isolate multi OAP clusters when using the same Kafka cluster.
+If you set a namespace for Kafka fetcher, the OAP will add a prefix to the topic name. You should also set the namespace in the property named `plugin.kafka.namespace` in `agent.config`.
 
 ```yaml
 kafka-fetcher:
@@ -31,9 +31,10 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:false}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:""}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
 ```
 
-In the cluster mode, all topics have the same number of partitions. Set `"isSharding"` to `"true"` and assign the partitions to consume for the OAP server.  Use commas to separate multiple partitions for the OAP server.
+In the cluster mode, all topics have the same number of partitions. Set `"isSharding"` to `"true"` and assign the partitions to consume for the OAP server. Use commas to separate multiple partitions for the OAP server.
 
 The Kafka Fetcher allows you to configure all the Kafka producers listed [here](http://kafka.apache.org/24/documentation.html#consumerconfigs) in property `kafkaConsumerConfig`. For example:
 ```yaml
@@ -46,6 +47,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
     kafkaConsumerConfig:
       enable.auto.commit: true
       ...
@@ -62,6 +64,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     isSharding: ${SW_KAFKA_FETCHER_IS_SHARDING:true}
     consumePartitions: ${SW_KAFKA_FETCHER_CONSUME_PARTITIONS:1,3,5}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
     mm2SourceAlias: ${SW_KAFKA_MM2_SOURCE_ALIAS:""}
     mm2SourceSeparator: ${SW_KAFKA_MM2_SOURCE_SEPARATOR:""}
     kafkaConsumerConfig:
@@ -70,7 +73,7 @@ kafka-fetcher:
 ```
 
 ## Other Fetcher Plugins
-There are other transporter plugins. You could find these plugins from 3rd party repositories.
+There are other transporter plugins. You can find these plugins from 3rd party repositories.
 
 * [Pulsar Fetcher Plugin](https://github.com/SkyAPM/transporter-plugin-for-skywalking/blob/main/docs/en/pulsar/Pulsar-Fetcher.md)
 

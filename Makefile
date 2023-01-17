@@ -20,7 +20,7 @@ SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 CONTEXT ?= ${SW_ROOT}/dist
 SKIP_TEST ?= false
 DIST ?= apache-skywalking-apm-bin.tar.gz
-CLI_VERSION ?= 0.9.0 # CLI version inside OAP image should always use an Apache released artifact.
+CLI_VERSION ?= 0.11.0 # CLI version inside OAP image should always use an Apache released artifact.
 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
@@ -41,6 +41,7 @@ DOCKER_BUILD_TOP:=${CONTEXT}/docker_build
 HUB ?= skywalking
 OAP_NAME ?= oap
 UI_NAME ?= ui
+DATA_GENERATOR_NAME ?= data-generator
 TAG ?= latest
 
 .PHONY: docker docker.all
@@ -57,6 +58,7 @@ BUILD_ARGS := $(BUILD_ARGS) --build-arg DIST=$(DIST) --build-arg SKYWALKING_CLI_
 
 %.ui: NAME = $(UI_NAME)
 %.oap: NAME = $(OAP_NAME)
+%.data-generator: NAME = $(DATA_GENERATOR_NAME)
 
 docker.%: PLATFORMS =
 docker.%: LOAD_OR_PUSH = --load

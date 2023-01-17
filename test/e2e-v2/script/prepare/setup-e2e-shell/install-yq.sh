@@ -24,7 +24,7 @@ BIN_DIR=$2
 
 if ! command -v yq &> /dev/null; then
   mkdir -p $BASE_DIR/yq && cd $BASE_DIR/yq
-  curl -kLo yq.tar.gz https://github.com/mikefarah/yq/archive/v4.11.1.tar.gz
+  curl -kLo yq.tar.gz https://github.com/mikefarah/yq/archive/v4.14.1.tar.gz
   tar -zxf yq.tar.gz --strip=1
   go install && go build -ldflags -s && cp yq $BIN_DIR/
 fi

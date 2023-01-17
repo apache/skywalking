@@ -16,9 +16,6 @@
  *
  */
 
-// For services using protocols HTTP 1/2, gRPC, RPC, etc., the cpm metrics means "calls per minute",
-// for services that are built on top of TCP, the cpm means "packages per minute".
-
 // Service scope metrics
 service_resp_time = from(Service.latency).longAvg();
 service_sla = from(Service.*).percent(status == true);
@@ -58,7 +55,6 @@ endpoint_cpm = from(Endpoint.*).cpm();
 endpoint_resp_time = from(Endpoint.latency).longAvg();
 endpoint_sla = from(Endpoint.*).percent(status == true);
 endpoint_percentile = from(Endpoint.latency).percentile(10); // Multiple values including p50, p75, p90, p95, p99
-endpoint_mq_consume_count = from(Endpoint.*).filter(type == RequestType.MQ).count();
 endpoint_mq_consume_latency = from((str->long)Endpoint.tag["transmission.latency"]).filter(type == RequestType.MQ).filter(tag["transmission.latency"] != null).longAvg();
 
 // Endpoint relation scope metrics
@@ -71,3 +67,32 @@ database_access_resp_time = from(DatabaseAccess.latency).longAvg();
 database_access_sla = from(DatabaseAccess.*).percent(status == true);
 database_access_cpm = from(DatabaseAccess.*).cpm();
 database_access_percentile = from(DatabaseAccess.latency).percentile(10);
+
+cache_read_resp_time = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Read).longAvg();
+cache_read_sla = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Read).percent(status == true);
+cache_read_cpm = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Read).cpm();
+cache_read_percentile = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Read).percentile(10);
+
+cache_write_resp_time = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Write).longAvg();
+cache_write_sla = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Write).percent(status == true);
+cache_write_cpm = from(CacheAccess.*).filter(operation == VirtualCacheOperation.Write).cpm();
+cache_write_percentile = from(CacheAccess.latency).filter(operation == VirtualCacheOperation.Write).percentile(10);
+
+cache_access_resp_time = from(CacheAccess.latency).longAvg();
+cache_access_sla = from(CacheAccess.*).percent(status == true);
+cache_access_cpm = from(CacheAccess.*).cpm();
+cache_access_percentile = from(CacheAccess.latency).percentile(10);
+
+mq_service_consume_cpm = from(MQAccess.*).filter(operation == MQOperation.Consume).cpm();
+mq_service_consume_sla = from(MQAccess.*).filter(operation == MQOperation.Consume).percent(status == true);
+mq_service_consume_latency = from(MQAccess.transmissionLatency).filter(operation == MQOperation.Consume).longAvg();
+mq_service_consume_percentile = from(MQAccess.transmissionLatency).filter(operation == MQOperation.Consume).percentile(10);
+mq_service_produce_cpm = from(MQAccess.*).filter(operation == MQOperation.Produce).cpm();
+mq_service_produce_sla = from(MQAccess.*).filter(operation == MQOperation.Produce).percent(status == true);
+
+mq_endpoint_consume_cpm = from(MQEndpointAccess.*).filter(operation == MQOperation.Consume).cpm();
+mq_endpoint_consume_latency = from(MQEndpointAccess.transmissionLatency).filter(operation == MQOperation.Consume).longAvg();
+mq_endpoint_consume_percentile = from(MQEndpointAccess.transmissionLatency).filter(operation == MQOperation.Consume).percentile(10);
+mq_endpoint_consume_sla = from(MQEndpointAccess.*).filter(operation == MQOperation.Consume).percent(status == true);
+mq_endpoint_produce_cpm = from(MQEndpointAccess.*).filter(operation == MQOperation.Produce).cpm();
+mq_endpoint_produce_sla = from(MQEndpointAccess.*).filter(operation == MQOperation.Produce).percent(status == true);

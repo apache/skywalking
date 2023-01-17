@@ -55,7 +55,7 @@ public class LogTestQuery implements GraphQLQueryResolver {
         if (!config.isEnableLogTestTool()) {
             throw new IllegalAccessException(
                 "LAL debug tool is not enabled. To enable, please set SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL=true," +
-                    "for more details, refer to https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/");
+                    "for more details, refer to https://skywalking.apache.org/docs/main/next/en/setup/backend/configuration-vocabulary/");
         }
 
         requireNonNull(request, "request");
@@ -65,8 +65,7 @@ public class LogTestQuery implements GraphQLQueryResolver {
         final LogAnalyzerModuleProvider provider =
             (LogAnalyzerModuleProvider) moduleManager.find(LogAnalyzerModule.NAME)
                                                      .provider();
-        final LogAnalyzerModuleConfig config =
-            (LogAnalyzerModuleConfig) provider.createConfigBeanIfAbsent();
+        final LogAnalyzerModuleConfig config = provider.getModuleConfig();
         final DSL dsl = DSL.of(moduleManager, config, request.getDsl());
         final Binding binding = new Binding();
 

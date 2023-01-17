@@ -18,22 +18,94 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql;
 
-import com.google.gson.JsonObject;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.Connection;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
+import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
+import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.client.Client;
+import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+import com.google.gson.JsonObject;
 
-public class PostgreSQLTableInstaller extends MySQLTableInstaller {
+public class PostgreSQLTableInstaller extends H2TableInstaller {
+    public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager) {
+        super(client, moduleManager);
+    }
 
-    public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager, int maxSizeOfArrayColumn,
-                                    int numOfSearchableValuesPerTag) {
-        super(client, moduleManager, maxSizeOfArrayColumn, numOfSearchableValuesPerTag);
+    @Override
+    public void start() {
+        /*
+         * Override column because the default column names in core are reserved in PostgreSQL.
+         */
+        this.overrideColumnName("precision", "cal_precision");
+        this.overrideColumnName("match", "match_num");
+    }
+
+    @Override
+    public void createTableIndexes(
+        JDBCHikariCPClient client,
+        Connection connection,
+        String tableName,
+        List<ModelColumn> columns,
+        boolean additionalTable) throws JDBCClientException {
+        // Additional table's id follow the main table can not be primary key
+        if (additionalTable) {
+            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+            tableIndexSQL.append(tableName.toUpperCase()).append("_id_IDX");
+            tableIndexSQL.append(" ON ").append(tableName).append("(").append(ID_COLUMN).append(")");
+            createIndex(client, connection, tableName, tableIndexSQL);
+        }
+
+        int indexSeq = 0;
+        for (final ModelColumn modelColumn : columns) {
+            if (modelColumn.shouldIndex() && modelColumn.getLength() < 256) {
+                    SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                    tableIndexSQL.append(tableName.toUpperCase())
+                                 .append("_")
+                                 .append(String.valueOf(indexSeq++))
+                                 .append("_IDX ");
+                    tableIndexSQL.append("ON ").append(tableName).append("(")
+                                 .append(modelColumn.getColumnName().getStorageName())
+                                 .append(")");
+                    createIndex(client, connection, tableName, tableIndexSQL);
+            }
+        }
+
+        List<String> columnList = columns.stream().map(column -> column.getColumnName().getStorageName()).collect(
+            Collectors.toList());
+        for (final ModelColumn modelColumn : columns) {
+            for (final SQLDatabaseExtension.MultiColumnsIndex index : modelColumn.getSqlDatabaseExtension()
+                                                                                 .getIndices()) {
+                final String[] multiColumns = index.getColumns();
+                //Create MultiColumnsIndex on the additional table only when it contains all need columns.
+                if (additionalTable && !columnList.containsAll(Arrays.asList(multiColumns))) {
+                    continue;
+                }
+                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
+                tableIndexSQL.append(tableName.toUpperCase())
+                             .append("_")
+                             .append(String.valueOf(indexSeq++))
+                             .append("_IDX ");
+                tableIndexSQL.append(" ON ").append(tableName).append("(");
+                for (int i = 0; i < multiColumns.length; i++) {
+                    tableIndexSQL.append(multiColumns[i]);
+                    if (i < multiColumns.length - 1) {
+                        tableIndexSQL.append(",");
+                    }
+                }
+                tableIndexSQL.append(")");
+                createIndex(client, connection, tableName, tableIndexSQL);
+            }
+        }
     }
 
     @Override
@@ -59,22 +131,14 @@ public class PostgreSQLTableInstaller extends MySQLTableInstaller {
             }
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            String oneColumnType = transform(column, (Class<?>) elementType, elementType);
-            // Remove the storageName as prefix
-            oneColumnType = oneColumnType.substring(storageName.length());
-            StringBuilder columns = new StringBuilder();
-            for (int i = 0; i < maxSizeOfArrayColumn; i++) {
-                columns.append(storageName).append("_").append(i).append(oneColumnType)
-                       .append(i == maxSizeOfArrayColumn - 1 ? "" : ",");
-            }
-            return columns.toString();
+            return transform(column, (Class<?>) elementType, elementType);
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
     }
 
     @Override
-    protected String getColumn(final ModelColumn column) {
+    public String getColumn(final ModelColumn column) {
         final String storageName = column.getColumnName().getStorageName();
         final Class<?> type = column.getType();
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {

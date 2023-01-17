@@ -20,7 +20,7 @@ An event contains the following fields. The definitions of event can be found at
 
 ### UUID
 
-Unique ID of the event. Since an event may span a long period of time, the UUID is necessary to associate the start time with the end time of the same event. 
+Unique ID of the event. Since an event may span a long period of time, the UUID is necessary to associate the start time with the end time of the same event.
 
 ### Source
 
@@ -42,7 +42,7 @@ It's NOT recommended to include the detailed logs of this event, such as the exc
 
 ### Parameters
 
-The parameters in the `message` field. This is a simple `<string,string>` map. 
+The parameters in the `message` field. This is a simple `<string,string>` map.
 
 ### Start Time
 
@@ -55,61 +55,10 @@ The end time of the event. This field may be empty if the event has not ended ye
 **NOTE:** When reporting an event, you typically call the report function twice, the first time for starting of the event and the second time for ending of the event, both with the same UUID.
 There are also cases where you would already have both the start time and end time. For example, when exporting events from a third-party system, the start time and end time are already known so you may simply call the report function once.
 
-## How to Configure Alarms for Events
-
-Events derive from metrics, and can be the source to trigger alarms. For example, if a specific event occurs for a
-certain times in a period, alarms can be triggered and sent.
-
-Every event has a default `value = 1`, when `n` events with the same name are reported, they are aggregated
-into `value = n` as follows.
-
-```
-Event{name=Unhealthy, source={service=A,instance=a}, ...}
-Event{name=Unhealthy, source={service=A,instance=a}, ...}
-Event{name=Unhealthy, source={service=A,instance=a}, ...}
-Event{name=Unhealthy, source={service=A,instance=a}, ...}
-Event{name=Unhealthy, source={service=A,instance=a}, ...}
-Event{name=Unhealthy, source={service=A,instance=a}, ...}
-```
-
-will be aggregated into
-
-```
-Event{name=Unhealthy, source={service=A,instance=a}, ...} <value = 6>
-```
-
-so you can configure the following alarm rule to trigger alarm when `Unhealthy` event occurs more than 5 times within 10
-minutes.
-
-```yaml
-rules:
-  unhealthy_event_rule:
-    metrics-name: Unhealthy
-    # Healthiness check is usually a scheduled task,
-    # they may be unhealthy for the first few times,
-    # and can be unhealthy occasionally due to network jitter,
-    # please adjust the threshold as per your actual situation.
-    threshold: 5
-    op: ">"
-    period: 10
-    count: 1
-    message: Service instance has been unhealthy for 10 minutes
-```
-
-For more alarm configuration details, please refer to the [alarm doc](../setup/backend/backend-alarm.md).
-
-**Note** that the `Unhealthy` event above is only for demonstration, they are not detected by default in SkyWalking,
-however, you can use the methods in [How to Report Events](#how-to-report-events) to report this kind of events.
-
 ## Correlation between events and metrics
 
 SkyWalking UI visualizes the events in the dashboard when the event service / instance / endpoint matches the displayed
 service / instance / endpoint.
-
-By default, SkyWalking also generates some metrics for events by using [OAL](oal.md). The default metrics list of event
-may change over time, you can find the complete list
-in [event.oal](../../../oap-server/server-starter/src/main/resources/oal/event.oal). If you want to generate you
-custom metrics from events, please refer to [OAL](oal.md) about how to write OAL rules.
 
 ## Known Events
 
@@ -121,7 +70,7 @@ custom metrics from events, please refer to [OAL](oal.md) about how to write OAL
 
 The following events are all reported
 by [Kubernetes Event Exporter](http://github.com/apache/skywalking-kubernetes-event-exporter), in order to see these
-events, please make sure you have deployed the exporter. 
+events, please make sure you have deployed the exporter.
 
 | Name | Type | When | Where |
 | :----: | :----: | :-----| :---- |

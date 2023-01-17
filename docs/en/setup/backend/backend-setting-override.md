@@ -44,9 +44,5 @@ then the value of `restHost` here will be overwritten to `172.0.4.12`; otherwise
 
 Placeholder nesting is also supported, like `${REST_HOST:${ANOTHER_REST_HOST:127.0.0.1}}`.
 In this case, if the `REST_HOST ` environment variable does not exist, but the ```REST_ANOTHER_REST_HOSTHOST``` 
-environment variable exists and its value is `172.0.4.12`, then the value of `restHost` here will be overwritten to `172.0.4.12`;
+environment variable exists, and its value is `172.0.4.12`, then the value of `restHost` here will be overwritten to `172.0.4.12`;
 otherwise, it will be set to `127.0.0.1`.
-
-
-
-

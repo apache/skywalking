@@ -21,5 +21,4 @@
   attributes: []
   language: UNKNOWN
   instanceuuid: {{ b64enc "test-service" }}.1_{{ b64enc "test-instance" }}
-  layer: GENERAL
 {{- end}}

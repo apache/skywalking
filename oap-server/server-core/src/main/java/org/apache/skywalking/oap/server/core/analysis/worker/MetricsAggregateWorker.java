@@ -19,16 +19,15 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.util.List;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
-import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
+import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -50,13 +49,26 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private CounterMetrics aggregationCounter;
     private long lastSendTime = 0;
 
-    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder, AbstractWorker<Metrics> nextWorker,
-                           String modelName, long l1FlushPeriod) {
+    MetricsAggregateWorker(ModuleDefineHolder moduleDefineHolder,
+                           AbstractWorker<Metrics> nextWorker,
+                           String modelName,
+                           long l1FlushPeriod,
+                           MetricStreamKind kind) {
         super(moduleDefineHolder);
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData();
         String name = "METRICS_L1_AGGREGATION";
-        this.dataCarrier = new DataCarrier<>("MetricsAggregateWorker." + modelName, name, 2, 10000);
+        int queueChannelSize = 2;
+        int queueBufferSize = 10_000;
+        if (MetricStreamKind.MAL == kind) {
+            // In MAL meter streaming, the load of data flow is much less as they are statistics already,
+            // but in OAL sources, they are raw data.
+            // Set the buffer(size of queue) as 1/20 to reduce unnecessary resource costs.
+            queueChannelSize = 1;
+            queueBufferSize = 1_000;
+        }
+        this.dataCarrier = new DataCarrier<>(
+            "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize);
 
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
             name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
@@ -106,9 +118,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         if (currentTime - lastSendTime > l1FlushPeriod) {
             mergeDataCache.read().forEach(
                 data -> {
-                    if (log.isDebugEnabled()) {
-                        log.debug(data.toString());
-                    }
                     nextWorker.in(data);
                 }
             );
@@ -118,10 +127,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
 
     private class AggregatorConsumer implements IConsumer<Metrics> {
         @Override
-        public void init(final Properties properties) {
-        }
-
-        @Override
         public void consume(List<Metrics> data) {
             MetricsAggregateWorker.this.onWork(data);
         }
@@ -129,10 +134,6 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         @Override
         public void onError(List<Metrics> data, Throwable t) {
             log.error(t.getMessage(), t);
-        }
-
-        @Override
-        public void onExit() {
         }
 
         @Override

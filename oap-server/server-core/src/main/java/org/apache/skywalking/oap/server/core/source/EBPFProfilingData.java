@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.source;
 
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EBPF_PROFILING_DATA;
 
@@ -46,7 +47,7 @@ public class EBPFProfilingData extends Source {
     private String taskId;
     private long uploadTime;
     private String stackIdList;
-    private byte[] stacksBinary;
-    private int dumpCount;
+    private EBPFProfilingTargetType targetType;
+    private byte[] dataBinary;
 
 }

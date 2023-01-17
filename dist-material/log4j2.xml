@@ -34,7 +34,6 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <logger name="org.eclipse.jetty" level="INFO"/>
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
         <Root level="info">

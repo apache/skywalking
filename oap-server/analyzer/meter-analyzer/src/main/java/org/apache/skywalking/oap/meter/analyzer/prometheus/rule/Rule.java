@@ -31,12 +31,10 @@ import java.util.List;
 @NoArgsConstructor
 public class Rule implements MetricRuleConfig {
     private String name;
-    private String fetcherInterval;
-    private String fetcherTimeout;
-    private String metricsPath;
-    private StaticConfig staticConfig;
     private String metricPrefix;
     private String expSuffix;
+    private String expPrefix;
     private String filter;
+    private String initExp;
     private List<MetricsRule> metricsRules;
 }

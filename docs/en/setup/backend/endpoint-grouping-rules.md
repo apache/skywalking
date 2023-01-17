@@ -2,7 +2,7 @@
 In most cases, endpoints are detected automatically through language agents, service mesh observability solutions,
 or meter system configurations.
 
-There are some special cases, especially when REST style URI is used, where the application codes include the parameter in the endpoint name,
+There are some special cases, especially when REST-style URI is used, where the application codes include the parameter in the endpoint name,
 such as putting order ID in the URI. Examples are `/prod/ORDER123` and `/prod/ORDER456`. But logically, most would expect to
 have an endpoint name like `prod/{order-id}`. This is a specially designed feature in parameterized endpoint grouping.
 
@@ -52,19 +52,19 @@ info:
 2. All OpenAPI definition documents are located in the `openapi-definitions` directory, with directories having at most two levels. We recommend using the service name as the subDirectory name, as you will then not be required to set `x-sw-service-name`. For example:
   ```
 ├── openapi-definitions
-│   ├── serviceA
-│   │   ├── customerAPI-v1.yaml
-│   │   └── productAPI-v1.yaml
-│   └── serviceB
-│       └── productAPI-v2.yaml
+│   ├── serviceA
+│   │   ├── customerAPI-v1.yaml
+│   │   └── productAPI-v1.yaml
+│   └── serviceB
+│       └── productAPI-v2.yaml
 ```
-3. The feature is enabled by default. You can disable it by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:false}`.
+3. The feature is enabled by default. You can disable it by setting the `Core Module` configuration `${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI:false}`.
 
 ### Rules match priority 
 We recommend designing the API path as clearly as possible. If the API path is fuzzy and an endpoint name matches multiple paths, SkyWalking would select a path according to the match priority set out below:
-1. The exact path being matched. 
+1. The exact path is matched. 
    E.g. `/products or /products/inventory`
-2. The path which has less variables.
+2. The path with fewer variables.
    E.g. In the case of `/products/{var1}/{var2} and /products/{var1}/abc`, endpoint name `/products/123/abc` will match the second one.
 3. If the paths have the same number of variables, the longest path is matched, and the vars are considered to be `1`.
    E.g. In the case of `/products/abc/{var1} and products/{var12345}/ef`, endpoint name `/products/abc/ef` will match the first one, because `length("abc") = 3` is larger than `length("ef") = 2`.
@@ -272,7 +272,7 @@ components:
 
 Here are some use cases:
 
-   | Incoming Endpiont | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
+   | Incoming Endpoint | Incoming Service | x-sw-service-name | x-sw-endpoint-name-match-rule | x-sw-endpoint-name-format | Matched | Grouping Result |
    |-----|-----|-----|-----|-----|-----|-----|
    | `GET:/products` | serviceB | default | default | default | true | `GET:/products` |
    | `GET:/products/123` | serviceB | default | default | default |  true | `GET:/products{id}` |
@@ -286,8 +286,8 @@ Here are some use cases:
    | `/products/123:<GET>` | serviceB | default | `${PATH}:<${METHOD}>` | default | true | `GET:/products/{id}` |
 
 ### Initialize and update the OpenAPI definitions dynamically
-Use [Dynamic Configuration](dynamic-config) to initialize and update OpenAPI definitions, the endpoint grouping rules from OpenAPI
-will re-create by new config.
+Use [Dynamic Configuration](dynamic-config.md) to initialize and update OpenAPI definitions, the endpoint grouping rules from OpenAPI
+will re-create by the new config.
 
 
 ## Endpoint name grouping by custom configuration

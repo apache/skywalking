@@ -37,5 +37,4 @@
   {{- end}}
   language: JAVA
   instanceuuid: {{ b64enc "e2e-service-consumer" }}.1_{{ b64enc "consumer1" }}
-  layer: GENERAL
 {{- end}}

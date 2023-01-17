@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "1",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 2,
           "children": [
             {
               "name": "Overview",
@@ -50,7 +39,8 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Latency (ms)"
+                    "title": "Service Instance Latency (ms)",
+                    "name": "Instance_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -66,7 +56,23 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-0-0",
+                  "label": "Instance_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-2"
+                    },
+                    {
+                      "widgetId": "1-0-1"
+                    },
+                    {
+                      "widgetId": "1-0-3"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 17,
+                    "sourceId": "1-0-3"
+                  }
                 },
                 {
                   "x": 0,
@@ -76,7 +82,8 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Instance Successful Rate (%)"
+                    "title": "Service Instance Successful Rate (%)",
+                    "name": "Instance_Successful_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -92,7 +99,23 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-0-1",
+                  "label": "Instance_Successful_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-0"
+                    },
+                    {
+                      "widgetId": "1-0-2"
+                    },
+                    {
+                      "widgetId": "1-0-3"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 17,
+                    "sourceId": "1-0-3"
+                  }
                 },
                 {
                   "x": 11,
@@ -102,7 +125,9 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Service Throughput (Bytes)"
+                    "title": "Service Instance Throughput (Bytes)",
+                    "name": "Instance_Throughput",
+                    "tips": "This metrics is only avaible for TCP services"
                   },
                   "graph": {
                     "type": "Line",
@@ -113,14 +138,30 @@
                     "showYAxis": true
                   },
                   "metrics": [
-                    "service_throughput_received",
-                    "service_throughput_sent"
+                    "service_instance_throughput_received",
+                    "service_instance_throughput_sent"
                   ],
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-0-2",
+                  "label": "Service_Instance_Throughput",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-0"
+                    },
+                    {
+                      "widgetId": "1-0-1"
+                    },
+                    {
+                      "widgetId": "1-0-3"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 17,
+                    "sourceId": "1-0-3"
+                  }
                 },
                 {
                   "x": 0,
@@ -131,7 +172,7 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Service Instance Load (calls or packets / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (packets / min)"
+                    "name": "Instance_Load"
                   },
                   "graph": {
                     "type": "Line",
@@ -147,7 +188,19 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-0-3",
+                  "label": "Instance_Load",
+                  "associate": [
+                    {
+                      "widgetId": "1-0-0"
+                    },
+                    {
+                      "widgetId": "1-0-1"
+                    },
+                    {
+                      "widgetId": "1-0-2"
+                    }
+                  ]
                 }
               ]
             },
@@ -178,7 +231,8 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-10",
+                  "label": "1-1-10"
                 },
                 {
                   "x": 6,
@@ -206,7 +260,8 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-11",
+                  "label": "1-1-11"
                 },
                 {
                   "x": 0,
@@ -232,7 +287,8 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-12",
+                  "label": "1-1-12"
                 },
                 {
                   "x": 12,
@@ -258,7 +314,8 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-13",
+                  "label": "1-1-13"
                 },
                 {
                   "x": 6,
@@ -284,7 +341,8 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-14",
+                  "label": "1-1-14"
                 },
                 {
                   "x": 0,
@@ -320,7 +378,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "byteToMB"
@@ -340,7 +397,9 @@
                     {
                       "calculation": "byteToMB"
                     }
-                  ]
+                  ],
+                  "value": "1-1-15",
+                  "label": "1-1-15"
                 },
                 {
                   "x": 18,
@@ -366,7 +425,8 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-16",
+                  "label": "1-1-16"
                 },
                 {
                   "x": 12,
@@ -394,7 +454,8 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-17",
+                  "label": "1-1-17"
                 },
                 {
                   "x": 6,
@@ -420,7 +481,8 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-18",
+                  "label": "1-1-18"
                 },
                 {
                   "x": 0,
@@ -446,7 +508,64 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false
+                  "value": "1-1-19",
+                  "label": "1-1-19"
+                },
+                {
+                  "x": 12,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "20",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_instance_sidecar_internal_req_latency_nanos"
+                  ],
+                  "widget": {
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "value": "1-1-20",
+                  "label": "1-1-20"
+                },
+                {
+                  "x": 18,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "21",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "service_instance_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "widget": {
+                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
+                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "value": "1-1-21",
+                  "label": "1-1-21"
                 }
               ]
             },
@@ -459,28 +578,38 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Log",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Log"
+                }
+              ]
+            },
+            {
+              "name": "Pod Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 44,
+                  "i": "0",
+                  "type": "DemandLog"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "2",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
-      "name": "Mesh-Instance",
       "layer": "MESH",
       "entity": "ServiceInstance",
+      "name": "Mesh-Instance",
       "id": "Mesh-Instance"
     }
   }

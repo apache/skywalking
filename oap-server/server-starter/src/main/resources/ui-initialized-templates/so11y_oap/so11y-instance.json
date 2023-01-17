@@ -39,8 +39,7 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 6,
@@ -66,7 +65,6 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "calculation": "byteToMB"
@@ -81,7 +79,7 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "GC Time (ms)"
+            "title": "GC Time (ms / min)"
           },
           "graph": {
             "type": "Line",
@@ -92,14 +90,11 @@
             "showYAxis": true
           },
           "metrics": [
-            "meter_oap_instance_jvm_young_gc_time",
-            "meter_oap_instance_jvm_old_gc_time"
+            "meter_oap_instance_jvm_gc_time"
           ],
           "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false
+            "readLabeledMetricsValues"
+          ]
         },
         {
           "x": 12,
@@ -122,8 +117,7 @@
           "metricTypes": [
             "readMetricsValues",
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 6,
@@ -133,7 +127,7 @@
           "i": "4",
           "type": "Widget",
           "widget": {
-            "title": "Trace Analysis Latency (ms)"
+            "title": "Trace Analysis Latency (ms / min)"
           },
           "graph": {
             "type": "Line",
@@ -148,11 +142,10 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
-          "x": 12,
+          "x": 18,
           "y": 39,
           "w": 6,
           "h": 13,
@@ -176,8 +169,7 @@
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 6,
@@ -187,7 +179,7 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Count (Per 5 Minutes)"
+            "title": "Persistence Count (Per Minutes)"
           },
           "graph": {
             "type": "Bar",
@@ -200,11 +192,10 @@
           "metricTypes": [
             "readMetricsValues",
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
-          "x": 0,
+          "x": 6,
           "y": 39,
           "w": 6,
           "h": 13,
@@ -230,8 +221,7 @@
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 18,
@@ -241,7 +231,7 @@
           "i": "8",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Execution Latency (ms)"
+            "title": "Persistence Execution Latency Per Metric Type (ms / 5min)"
           },
           "graph": {
             "type": "Line",
@@ -256,8 +246,7 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 12,
@@ -267,7 +256,7 @@
           "i": "9",
           "type": "Widget",
           "widget": {
-            "title": "Persistence Preparing Latency (ms)"
+            "title": "Persistence Preparing Latency Per Metric Type (ms / 5min)"
           },
           "graph": {
             "type": "Line",
@@ -282,11 +271,10 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
-          "x": 6,
+          "x": 12,
           "y": 39,
           "w": 6,
           "h": 13,
@@ -310,8 +298,7 @@
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 0,
@@ -336,8 +323,7 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 18,
@@ -347,7 +333,7 @@
           "i": "12",
           "type": "Widget",
           "widget": {
-            "title": "Mesh Analysis Latency (ms)"
+            "title": "Mesh Analysis Latency (ms / min)"
           },
           "graph": {
             "type": "Line",
@@ -363,7 +349,6 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "50,70,90,99",
@@ -392,8 +377,7 @@
           "metricTypes": [
             "readMetricsValues",
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 0,
@@ -418,8 +402,32 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 39,
+          "w": 6,
+          "h": 13,
+          "i": "15",
+          "type": "Widget",
+          "metricTypes": [
+            "readLabeledMetricsValues"
           ],
-          "moved": false
+          "metrics": [
+            "meter_oap_instance_metrics_persistent_cache"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Metrics Persistent Cache Count(Per Minute)"
+          }
         }
       ],
       "layer": "SO11Y_OAP",

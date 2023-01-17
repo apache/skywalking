@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.trace.provider.parser.listener;
 
 import com.google.gson.JsonObject;
-import java.util.List;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.RefType;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
@@ -34,19 +33,17 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
-import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.ISource;
+import org.apache.skywalking.oap.server.core.source.RequestType;
 import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
-import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
 import org.junit.Assert;
 import org.junit.Before;
@@ -54,6 +51,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 import static org.mockito.Matchers.any;
@@ -418,18 +417,13 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(4, receivedSources.size());
+        Assert.assertEquals(2, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);
-        final ServiceMeta serviceMeta = (ServiceMeta) receivedSources.get(2);
-        final DatabaseAccess databaseAccess = (DatabaseAccess) receivedSources.get(3);
         Assert.assertEquals("mock-service", serviceRelation.getSourceServiceName());
         Assert.assertEquals("127.0.0.1:8080", serviceRelation.getDestServiceName());
         Assert.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
         Assert.assertEquals("127.0.0.1:8080", serviceInstanceRelation.getDestServiceInstanceName());
-        Assert.assertEquals("127.0.0.1:8080", serviceMeta.getName());
-        Assert.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
-        Assert.assertEquals("127.0.0.1:8080", databaseAccess.getName());
     }
 
     /**
@@ -473,4 +467,58 @@ public class RPCAnalysisListenerTest {
         Assert.assertEquals("target-instance", serviceInstanceRelation.getDestServiceInstanceName());
         mockReceiver.clear();
     }
+
+    @Test
+    public void testMQEntryWithoutRef() {
+        final MockReceiver mockReceiver = new MockReceiver();
+        RPCAnalysisListener listener = new RPCAnalysisListener(
+            mockReceiver,
+            CONFIG,
+            CACHE,
+            NAMING_CONTROL
+        );
+
+        final long startTime = System.currentTimeMillis();
+        SpanObject spanObject = SpanObject.newBuilder()
+                                          .setOperationName("/MQ/consumer")
+                                          .setStartTime(startTime)
+                                          .setEndTime(startTime + 1000L)
+                                          .setIsError(true)
+                                          .setSpanType(SpanType.Entry)
+                                          .setSpanLayer(SpanLayer.MQ)
+                                          .setPeer("mq-server:9090")
+                                          .addTags(
+                                              KeyStringValuePair.newBuilder()
+                                                                .setKey(SpanTags.MQ_QUEUE)
+                                                                .setValue("queue")
+                                                                .build()
+                                          ).build();
+        final SegmentObject segment = SegmentObject.newBuilder()
+                                                   .setService("mock-service")
+                                                   .setServiceInstance("mock-instance")
+                                                   .addSpans(spanObject)
+                                                   .build();
+        listener.parseEntry(spanObject, segment);
+        listener.build();
+
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
+        Assert.assertEquals(5, receivedSources.size());
+        final Service service = (Service) receivedSources.get(0);
+        final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
+        final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
+        final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
+        final Endpoint endpoint = (Endpoint) receivedSources.get(4);
+        Assert.assertEquals("mock-service", service.getName());
+        Assert.assertEquals("/MQ/consumer", service.getEndpointName());
+        Assert.assertEquals(RequestType.MQ, service.getType());
+        Assert.assertFalse(service.isStatus());
+        Assert.assertEquals("mock-instance", serviceInstance.getName());
+        Assert.assertEquals("/MQ/consumer", endpoint.getName());
+        Assert.assertEquals("mq-server:9090", serviceRelation.getSourceServiceName());
+        Assert.assertEquals("mock-service", serviceRelation.getDestServiceName());
+        Assert.assertEquals("mq-server:9090", serviceInstanceRelation.getSourceServiceInstanceName());
+        Assert.assertEquals("mock-instance", serviceInstanceRelation.getDestServiceInstanceName());
+
+    }
+
 }

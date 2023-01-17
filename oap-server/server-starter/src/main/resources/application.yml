@@ -74,10 +74,9 @@ core:
     restHost: ${SW_CORE_REST_HOST:0.0.0.0}
     restPort: ${SW_CORE_REST_PORT:12800}
     restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
-    restMinThreads: ${SW_CORE_REST_JETTY_MIN_THREADS:1}
-    restMaxThreads: ${SW_CORE_REST_JETTY_MAX_THREADS:200}
-    restIdleTimeOut: ${SW_CORE_REST_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptQueueSize: ${SW_CORE_REST_JETTY_QUEUE_SIZE:0}
+    restMaxThreads: ${SW_CORE_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_CORE_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_CORE_REST_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
@@ -103,9 +102,6 @@ core:
     storageSessionTimeout: ${SW_CORE_STORAGE_SESSION_TIMEOUT:70000}
     # The period of doing data persistence. Unit is second.Default value is 25s
     persistentPeriod: ${SW_CORE_PERSISTENT_PERIOD:25}
-    # Cache metrics data for 1 minute to reduce database queries, and if the OAP cluster changes within that minute,
-    # the metrics may not be accurate within that minute.
-    enableDatabaseSession: ${SW_CORE_ENABLE_DATABASE_SESSION:true}
     topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10} # top_n record worker report cycle, unit is minute
     # Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,
     # and it will cause more load for memory, network of OAP and storage.
@@ -117,15 +113,22 @@ core:
     # The max length of service + endpoint names should be less than 240
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
     # Define the set of span tag keys, which should be searchable through the GraphQL.
-    searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+    # The max length of key=value should be less than 256 or will be dropped.
+    searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
     # Define the set of log tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
     # Define the set of alarm tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableAlarmTags: ${SW_SEARCHABLE_ALARM_TAG_KEYS:level}
+    # The max size of tags keys for autocomplete select.
+    autocompleteTagKeysQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_KEYS_QUERY_MAX_SIZE:100}
+    # The max size of tags values for autocomplete select.
+    autocompleteTagValuesQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_VALUES_QUERY_MAX_SIZE:100}
     # The number of threads used to prepare metrics data to the storage.
     prepareThreads: ${SW_CORE_PREPARE_THREADS:2}
     # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
-    enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPAENAPI:true}
+    enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI:true}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -144,31 +147,34 @@ storage:
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} # Replicas number of new indexes
+    # Specify the settings for each index individually.
+    # If configured, this setting has the highest priority and overrides the generic settings.
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
     # Super data set has been defined in the codes, such as trace segments.The following 3 config would be improve es performance when storage super size data in es.
-    superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
-    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
+    superDatasetDayStep: ${SW_STORAGE_ES_SUPER_DATASET_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin traces.
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
     indexTemplateOrder: ${SW_STORAGE_ES_INDEX_TEMPLATE_ORDER:0} # the order of index template
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    # flush the bulk every 10 seconds whatever the number of requests
-    # INT(flushInterval * 2/3) would be used for index refresh period.
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15}
+    # flush the bulk every 5 seconds whatever the number of requests
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:5}
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
     resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
     metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:10000}
     scrollingBatchSize: ${SW_STORAGE_ES_SCROLLING_BATCH_SIZE:5000}
     segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
     profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    profileDataQueryBatchSize: ${SW_STORAGE_ES_QUERY_PROFILE_DATA_BATCH_SIZE:100}
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    # Enable shard metrics and records indices into multi-physical indices, one index template per metric/meter aggregation function or record.
+    logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
   h2:
-    driver: ${SW_STORAGE_H2_DRIVER:org.h2.jdbcx.JdbcDataSource}
-    url: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
-    user: ${SW_STORAGE_H2_USER:sa}
+    properties:
+      jdbcUrl: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
+      dataSource.user: ${SW_STORAGE_H2_USER:sa}
     metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:100}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:1}
   mysql:
@@ -181,10 +187,19 @@ storage:
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+  mysql-sharding:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:13307/swtest?rewriteBatchedStatements=true"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
+    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+    # The dataSources are configured in ShardingSphere-Proxy config-sharding.yaml.
+    # The dataSource name should include the prefix "ds_" and separated by "," and start from ds_0
+    dataSources: ${SW_JDBC_SHARDING_DATA_SOURCES:ds_0,ds_1}
   tidb:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/tidbswtest?rewriteBatchedStatements=true"}
@@ -196,21 +211,8 @@ storage:
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
       dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-  influxdb:
-    # InfluxDB configuration
-    url: ${SW_STORAGE_INFLUXDB_URL:http://localhost:8086}
-    user: ${SW_STORAGE_INFLUXDB_USER:root}
-    password: ${SW_STORAGE_INFLUXDB_PASSWORD:}
-    database: ${SW_STORAGE_INFLUXDB_DATABASE:skywalking}
-    actions: ${SW_STORAGE_INFLUXDB_ACTIONS:1000} # the number of actions to collect
-    duration: ${SW_STORAGE_INFLUXDB_DURATION:1000} # the time to wait at most (milliseconds)
-    batchEnabled: ${SW_STORAGE_INFLUXDB_BATCH_ENABLED:true}
-    fetchTaskLogMaxSize: ${SW_STORAGE_INFLUXDB_FETCH_TASK_LOG_MAX_SIZE:5000} # the max number of fetch task log in a request
-    connectionResponseFormat: ${SW_STORAGE_INFLUXDB_CONNECTION_RESPONSE_FORMAT:MSGPACK} # the response format of connection to influxDB, cannot be anything but MSGPACK or JSON.
   postgresql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}
@@ -221,46 +223,23 @@ storage:
       dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
       dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-  zipkin-elasticsearch:
-    namespace: ${SW_NAMESPACE:""}
-    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
-    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
-    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
-    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
-    dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
-    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
-    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} # Replicas number of new indexes
-    # Super data set has been defined in the codes, such as trace segments.The following 3 config would be improve es performance when storage super size data in es.
-    superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
-    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
-    superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
-    user: ${SW_ES_USER:""}
-    password: ${SW_ES_PASSWORD:""}
-    secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
-    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    # flush the bulk every 10 seconds whatever the number of requests
-    # INT(flushInterval * 2/3) would be used for index refresh period.
-    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:15}
-    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
-    resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
-    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:5000}
-    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
-    profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
-    oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
-    oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
-    advanced: ${SW_STORAGE_ES_ADVANCED:""}
-  iotdb:
-    host: ${SW_STORAGE_IOTDB_HOST:127.0.0.1}
-    rpcPort: ${SW_STORAGE_IOTDB_RPC_PORT:6667}
-    username: ${SW_STORAGE_IOTDB_USERNAME:root}
-    password: ${SW_STORAGE_IOTDB_PASSWORD:root}
-    storageGroup: ${SW_STORAGE_IOTDB_STORAGE_GROUP:root.skywalking}
-    sessionPoolSize: ${SW_STORAGE_IOTDB_SESSIONPOOL_SIZE:8} # If it's zero, the SessionPool size will be 2*CPU_Cores
-    fetchTaskLogMaxSize: ${SW_STORAGE_IOTDB_FETCH_TASK_LOG_MAX_SIZE:1000} # the max number of fetch task log in a request
+  banyandb:
+    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
+    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
+    flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
+    recordShardsNumber: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_NUMBER:1}
+    superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
+    concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
+    blockIntervalHours: ${SW_STORAGE_BANYANDB_BLOCK_INTERVAL_HOURS:24} # Unit is hour
+    segmentIntervalDays: ${SW_STORAGE_BANYANDB_SEGMENT_INTERVAL_DAYS:1} # Unit is day
+    superDatasetBlockIntervalHours: ${SW_STORAGE_BANYANDB_SUPER_DATASET_BLOCK_INTERVAL_HOURS:4} # Unit is hour
+    superDatasetSegmentIntervalDays: ${SW_STORAGE_BANYANDB_SUPER_DATASET_SEGMENT_INTERVAL_DAYS:1} # Unit is day
+    specificGroupSettings: ${SW_STORAGE_BANYANDB_SPECIFIC_GROUP_SETTINGS:""} # For example, {"group1": {"blockIntervalHours": 4, "segmentIntervalDays": 1}}
 
 agent-analyzer:
   selector: ${SW_AGENT_ANALYZER:default}
@@ -273,12 +252,14 @@ agent-analyzer:
     # Nginx and Envoy agents can't get the real remote address.
     # Exit spans with the component in the list would not generate the client-side instance relation metrics.
     noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
-    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,spring-sleuth} # Which files could be meter analyzed, files split by ","
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,go-runtime,python-runtime} # Which files could be meter analyzed, files split by ","
+    slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
+    slowCacheWriteThreshold: ${SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:default}
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,k8s-service,default}
     malFiles: ${SW_LOG_MAL_FILES:""}
 
 event-analyzer:
@@ -288,14 +269,13 @@ event-analyzer:
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:
-    # For Jetty server
+    # For HTTP server
     restHost: ${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
     restPort: ${SW_RECEIVER_SHARING_REST_PORT:0}
     restContextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
-    restMinThreads: ${SW_RECEIVER_SHARING_JETTY_MIN_THREADS:1}
-    restMaxThreads: ${SW_RECEIVER_SHARING_JETTY_MAX_THREADS:200}
-    restIdleTimeOut: ${SW_RECEIVER_SHARING_JETTY_IDLE_TIMEOUT:30000}
-    restAcceptQueueSize: ${SW_RECEIVER_SHARING_JETTY_QUEUE_SIZE:0}
+    restMaxThreads: ${SW_RECEIVER_SHARING_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_SHARING_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_SHARING_REST_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
@@ -330,7 +310,7 @@ receiver-profile:
   default:
 
 receiver-zabbix:
-  selector: ${SW_RECEIVER_ZABBIX:default}
+  selector: ${SW_RECEIVER_ZABBIX:-}
   default:
     port: ${SW_RECEIVER_ZABBIX_PORT:10051}
     host: ${SW_RECEIVER_ZABBIX_HOST:0.0.0.0}
@@ -352,12 +332,6 @@ envoy-metric:
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
 
-prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:-}
-  default:
-    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
-    maxConvertWorker: ${SW_PROMETHEUS_FETCHER_NUM_CONVERT_WORKER:-1}
-
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
   default:
@@ -367,6 +341,7 @@ kafka-fetcher:
     replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
     enableNativeProtoLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG:true}
     enableNativeJsonLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG:true}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
     kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
     kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
@@ -377,21 +352,36 @@ receiver-meter:
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
-    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc"}
-    enabledOcRules: ${SW_OTEL_RECEIVER_ENABLED_OC_RULES:"istio-controlplane,k8s-node,oap,vm"}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
+    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
   default:
-    host: ${SW_RECEIVER_ZIPKIN_HOST:0.0.0.0}
-    port: ${SW_RECEIVER_ZIPKIN_PORT:9411}
-    contextPath: ${SW_RECEIVER_ZIPKIN_CONTEXT_PATH:/}
-    jettyMinThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MIN_THREADS:1}
-    jettyMaxThreads: ${SW_RECEIVER_ZIPKIN_JETTY_MAX_THREADS:200}
-    jettyIdleTimeOut: ${SW_RECEIVER_ZIPKIN_JETTY_IDLE_TIMEOUT:30000}
-    jettyAcceptorPriorityDelta: ${SW_RECEIVER_ZIPKIN_JETTY_DELTA:0}
-    jettyAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_QUEUE_SIZE:0}
-    instanceNameRule: ${SW_RECEIVER_ZIPKIN_INSTANCE_NAME_RULE:[spring.instance_id,node_id]}
+    # Defines a set of span tag keys which are searchable.
+    # The max length of key=value should be less than 256 or will be dropped.
+    searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
+    # The sample rate precision is 1/10000, should be between 0 and 10000
+    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    ## The below configs are for OAP collect zipkin trace from HTTP
+    enableHttpCollector: ${SW_ZIPKIN_HTTP_COLLECTOR_ENABLED:true}
+    restHost: ${SW_RECEIVER_ZIPKIN_REST_HOST:0.0.0.0}
+    restPort: ${SW_RECEIVER_ZIPKIN_REST_PORT:9411}
+    restContextPath: ${SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_RECEIVER_ZIPKIN_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE:0}
+    ## The below configs are for OAP collect zipkin trace from kafka
+    enableKafkaCollector: ${SW_ZIPKIN_KAFKA_COLLECTOR_ENABLED:false}
+    kafkaBootstrapServers: ${SW_ZIPKIN_KAFKA_SERVERS:localhost:9092}
+    kafkaGroupId: ${SW_ZIPKIN_KAFKA_GROUP_ID:zipkin}
+    kafkaTopic: ${SW_ZIPKIN_KAFKA_TOPIC:zipkin}
+    # Kafka consumer config, JSON format as Properties. If it contains the same key with above, would override.
+    kafkaConsumerConfig: ${SW_ZIPKIN_KAFKA_CONSUMER_CONFIG:"{\"auto.offset.reset\":\"earliest\",\"enable.auto.commit\":true}"}
+    # The Count of the topic consumers
+    kafkaConsumers: ${SW_ZIPKIN_KAFKA_CONSUMERS:1}
+    kafkaHandlerThreadPoolSize: ${SW_ZIPKIN_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
+    kafkaHandlerThreadPoolQueueSize: ${SW_ZIPKIN_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
 
 receiver-browser:
   selector: ${SW_RECEIVER_BROWSER:default}
@@ -413,9 +403,34 @@ query:
     enableLogTestTool: ${SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL:false}
     # Maximum complexity allowed for the GraphQL query that can be used to
     # abort a query if the total number of data fields queried exceeds the defined threshold.
-    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:100}
+    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:1000}
     # Allow user add, disable and update UI template
     enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
+    # "On demand log" allows users to fetch Pod containers' log in real time,
+    # because this might expose secrets in the logs (if any), users need
+    # to enable this manually, and add permissions to OAP cluster role.
+    enableOnDemandPodLog: ${SW_ENABLE_ON_DEMAND_POD_LOG:false}
+
+# This module is for Zipkin query API and support zipkin-lens UI
+query-zipkin:
+  selector: ${SW_QUERY_ZIPKIN:-}
+  default:
+    # For HTTP server
+    restHost: ${SW_QUERY_ZIPKIN_REST_HOST:0.0.0.0}
+    restPort: ${SW_QUERY_ZIPKIN_REST_PORT:9412}
+    restContextPath: ${SW_QUERY_ZIPKIN_REST_CONTEXT_PATH:/zipkin}
+    restMaxThreads: ${SW_QUERY_ZIPKIN_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_QUERY_ZIPKIN_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_QUERY_ZIPKIN_REST_QUEUE_SIZE:0}
+    # Default look back for traces and autocompleteTags, 1 day in millis
+    lookback: ${SW_QUERY_ZIPKIN_LOOKBACK:86400000}
+    # The Cache-Control max-age (seconds) for serviceNames, remoteServiceNames and spanNames
+    namesMaxAge: ${SW_QUERY_ZIPKIN_NAMES_MAX_AGE:300}
+    ## The below config are OAP support for zipkin-lens UI
+    # Default traces query max size
+    uiQueryLimit: ${SW_QUERY_ZIPKIN_UI_QUERY_LIMIT:10}
+    # Default look back on the UI for search traces, 15 minutes in millis
+    uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
 
 alarm:
   selector: ${SW_ALARM:default}
@@ -490,9 +505,19 @@ configuration:
 
 exporter:
   selector: ${SW_EXPORTER:-}
-  grpc:
-    targetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
-    targetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+  default:
+    # gRPC exporter
+    enableGRPCMetrics: ${SW_EXPORTER_ENABLE_GRPC_METRICS:false}
+    gRPCTargetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+    gRPCTargetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+    # Kafka exporter
+    enableKafkaTrace: ${SW_EXPORTER_ENABLE_KAFKA_TRACE:false}
+    enableKafkaLog: ${SW_EXPORTER_ENABLE_KAFKA_LOG:false}
+    kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
+    # Kafka producer config, JSON format as Properties.
+    kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
+    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-export-trace}
+    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-export-log}
 
 health-checker:
   selector: ${SW_HEALTH_CHECKER:-}
@@ -511,3 +536,8 @@ receiver-event:
 receiver-ebpf:
   selector: ${SW_RECEIVER_EBPF:default}
   default:
+
+receiver-telegraf:
+  selector: ${SW_RECEIVER_TELEGRAF:default}
+  default:
+    activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}

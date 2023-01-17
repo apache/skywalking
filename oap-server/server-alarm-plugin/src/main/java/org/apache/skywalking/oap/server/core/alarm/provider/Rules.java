@@ -24,8 +24,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
+import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
@@ -43,6 +45,8 @@ public class Rules {
     private DingtalkSettings dingtalks;
     private FeishuSettings feishus;
     private WeLinkSettings welinks;
+    private PagerDutySettings pagerDutySettings;
+    private DiscordSettings discordSettings;
 
     public Rules() {
         this.rules = new ArrayList<>();

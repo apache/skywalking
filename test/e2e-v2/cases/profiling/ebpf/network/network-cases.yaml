@@ -1,0 +1,156 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cases:
+  # service list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+    expected: expected/service.yml
+  # service instance list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=service
+    expected: expected/service-instance.yml
+  # process list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql process list --service-name=service --instance-name=test
+    expected: expected/process.yml
+
+  # create network profiling task
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling ebpf create network --service-name=service --instance-name=test --sampling-config=test/e2e-v2/cases/profiling/ebpf/network/sampling.yaml
+    expected: expected/profiling-create.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dep process --service-name service --instance-name=test
+    expected: expected/dependency-processs.yml
+
+  # single value of process relation, client/server side read/write
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_client_write_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_client_write_total_bytes|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_client_write_avg_exe_time|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_client_read_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name UNKNOWN_REMOTE \
+      --dest-service-name service --dest-instance-name test --dest-process-name service \
+      --name process_relation_server_write_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+
+  # histogram value of process relation, client side write_rtt/write_exe/read time
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name=process_relation_client_write_rtt_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name=process_relation_client_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name UNKNOWN_REMOTE \
+      --dest-service-name service --dest-instance-name test --dest-process-name service \
+      --name=process_relation_server_write_rtt_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name UNKNOWN_REMOTE \
+      --dest-service-name service --dest-instance-name test --dest-process-name service \
+      --name=process_relation_server_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name UNKNOWN_REMOTE \
+      --dest-service-name service --dest-instance-name test --dest-process-name service \
+      --name=process_relation_server_write_exe_time_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+
+  # HTTP/1.x metrics
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_http1_request_cpm|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_http1_request_package_size|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_http1_response_package_size|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_http1_request_package_size_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_http1_response_package_size_percentile|yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+      --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE \
+      --name process_relation_http1_client_duration|yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+
+  # slow traces
+  - query: |
+      traceid=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list \
+      --name=sampled_slow_trace_record --service-name service --instance-name test --process-name service \
+      --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE 100 | yq e '. | map(select(.name == "skywalking-/provider")).[0].id' -);
+       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace $traceid
+    expected: expected/skywalking-trace.yml
+  # not founds
+  - query: |
+      curl -s -k http://${service_host}:${service_80}/consumer?type=notfound > /dev/null;
+      sleep 5;
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list \
+        --name=sampled_status_4xx_trace_record --service-name service --instance-name test --process-name service \
+        --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE 20
+    expected: expected/status-4xx-traces.yml
+  - query: |
+      curl -s -k http://${service_host}:${service_80}/consumer?type=error > /dev/null;
+      sleep 5;
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list \
+        --name=sampled_status_5xx_trace_record --service-name service --instance-name test --process-name service \
+        --dest-service-name service --dest-instance-name test --dest-process-name UNKNOWN_REMOTE 20
+    expected: expected/status-5xx-traces.yml

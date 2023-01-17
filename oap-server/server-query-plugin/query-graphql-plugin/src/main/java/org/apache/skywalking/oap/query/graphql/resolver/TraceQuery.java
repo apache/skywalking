@@ -21,10 +21,14 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import com.google.common.base.Strings;
 import java.io.IOException;
+import java.util.Set;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -33,12 +37,13 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 public class TraceQuery implements GraphQLQueryResolver {
 
     private final ModuleManager moduleManager;
     private TraceQueryService queryService;
+    private TagAutoCompleteQueryService tagQueryService;
 
     public TraceQuery(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -51,17 +56,19 @@ public class TraceQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
+    private TagAutoCompleteQueryService getTagQueryService() {
+        if (tagQueryService == null) {
+            this.tagQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TagAutoCompleteQueryService.class);
+        }
+        return tagQueryService;
+    }
+
     public TraceBrief queryBasicTraces(final TraceQueryCondition condition) throws IOException {
-        long startSecondTB = 0;
-        long endSecondTB = 0;
         String traceId = Const.EMPTY_STRING;
 
         if (!Strings.isNullOrEmpty(condition.getTraceId())) {
             traceId = condition.getTraceId();
-        } else if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = condition.getQueryDuration().getStartTimeBucketInSec();
-            endSecondTB = condition.getQueryDuration().getEndTimeBucketInSec();
-        } else {
+        } else if (isNull(condition.getQueryDuration())) {
             throw new UnexpectedException("The condition must contains either queryDuration or traceId.");
         }
 
@@ -74,11 +81,19 @@ public class TraceQuery implements GraphQLQueryResolver {
 
         return getQueryService().queryBasicTraces(
             condition.getServiceId(), condition.getServiceInstanceId(), endpointId, traceId, minDuration,
-            maxDuration, traceState, queryOrder, pagination, startSecondTB, endSecondTB, condition.getTags()
+            maxDuration, traceState, queryOrder, pagination, condition.getQueryDuration(), condition.getTags()
         );
     }
 
     public Trace queryTrace(final String traceId) throws IOException {
         return getQueryService().queryTrace(traceId);
+    }
+
+    public Set<String> queryTraceTagAutocompleteKeys(final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteKeys(TagType.TRACE, queryDuration);
+    }
+
+    public Set<String> queryTraceTagAutocompleteValues(final String tagKey, final Duration queryDuration) throws IOException {
+        return getTagQueryService().queryTagAutocompleteValues(TagType.TRACE, tagKey, queryDuration);
     }
 }

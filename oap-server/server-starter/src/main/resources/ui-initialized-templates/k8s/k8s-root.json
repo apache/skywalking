@@ -36,15 +36,45 @@
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
-            "showGroup": true
+            "showGroup": false
           },
           "metrics": [
-            ""
+            "k8s_cluster_node_total",
+            "k8s_cluster_namespace_total",
+            "k8s_cluster_deployment_total",
+            "k8s_cluster_service_total",
+            "k8s_cluster_pod_total"
           ],
           "metricTypes": [
-            ""
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "calculation": "average",
+              "label": "Node"
+            },
+            {
+              "calculation": "average",
+              "label": "Namespace"
+            },
+            {
+              "calculation": "average",
+              "label": "Deployment"
+            },
+            {
+              "calculation": "average",
+              "label": "Service"
+            },
+            {
+              "calculation": "average",
+              "label": "Pod"
+            }
+          ]
         },
         {
           "x": 0,
@@ -65,16 +95,16 @@
             "content": "Provide monitoring of the status and resources of the K8S Cluster.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-k8s-monitoring/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/"
           },
           "moved": false
         }
       ],
+      "id": "K8S-Root",
       "layer": "K8S",
       "entity": "All",
       "name": "K8S-Root",
-      "isRoot": true,
-      "id": "K8S-Root"
+      "isRoot": true
     }
   }
 ]

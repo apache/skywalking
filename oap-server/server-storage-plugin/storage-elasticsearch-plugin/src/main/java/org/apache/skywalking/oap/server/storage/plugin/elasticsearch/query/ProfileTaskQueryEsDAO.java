@@ -53,6 +53,9 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProfileTaskRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileTaskRecord.INDEX_NAME));
+        }
 
         if (StringUtil.isNotEmpty(serviceId)) {
             query.must(Query.term(ProfileTaskRecord.SERVICE_ID, serviceId));
@@ -99,7 +102,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME);
 
         final SearchBuilder search = Search.builder()
-                                           .query(Query.ids(id))
+                                           .query(Query.bool().must(Query.term(ProfileTaskRecord.TASK_ID, id)))
                                            .size(1);
 
         final SearchResponse response = getClient().search(index, search.build());
@@ -114,7 +117,7 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
     private ProfileTask parseTask(SearchHit data) {
         final Map<String, Object> source = data.getSource();
         return ProfileTask.builder()
-                          .id(data.getId())
+                          .id((String) source.get(ProfileTaskRecord.TASK_ID))
                           .serviceId((String) source.get(ProfileTaskRecord.SERVICE_ID))
                           .endpointName((String) source.get(ProfileTaskRecord.ENDPOINT_NAME))
                           .startTime(

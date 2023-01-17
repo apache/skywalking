@@ -22,14 +22,14 @@ kafka-fetcher:
 
 ### Manual Meter API
 
-Custom metrics may be collected by Manual Meter API.
-Custom metrics collected cannot be used directly, they should be configured in `meter-analyzer-config` configuration files, which is described in next part.
+Custom metrics may be collected by the Manual Meter API.
+Custom metrics collected cannot be used directly; they should be configured in the `meter-analyzer-config` configuration files described in the next part.
 
 The receiver adds labels with `key = service` and `key = instance` to the collected data samples,
 and values from service and service instance name defined in SkyWalking Agent,
 for identification of the metric data.
 
-A typical manual meter API set is [Spring Sleuth APIs](spring-sleuth-setup.md)
+A typical manual meter API set is [Spring MicroMeter Observations APIs](micrometer-observations.md)
 
 ### OpenTelemetry Exporter
 
@@ -73,16 +73,20 @@ All available meter analysis scripts could be found [here](../../../../oap-serve
 |satellite| Metrics of SkyWalking Satellite self-observability(so11y)| meter-analyzer-config/satellite.yaml| SkyWalking Satellite --meter format-->SkyWalking OAP Server|
 |threadpool| Metrics of Thread Pool | meter-analyzer-config/threadpool.yaml | Thread Pool --meter format--> SkyWalking OAP Server |
 |datasource| Metrics of DataSource metrics | meter-analyzer-config/datasource.yaml | Datasource --meter format--> SkyWalking OAP Server |
-|spring-sleuth| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-sleuth.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
+|spring-micrometer| Metrics of Spring Sleuth Application | meter-analyzer-config/spring-micrometer.yaml | Sprign Sleuth Application --meter format--> SkyWalking OAP Server |
 
-An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-sleuth.yaml).
-If you're using Spring Sleuth, see [Spring Sleuth Setup](spring-sleuth-setup.md).
+An example can be found [here](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-micrometer.yaml).
+If you're using Spring MicroMeter Observations, see [Spring MicroMeter Observations APIs](micrometer-observations.md).
 
 ### Meters configuration
 
 ```yaml
+# initExp is the expression that initializes the current configuration file
+initExp: <string>
 # filter the metrics, only those metrics that satisfy this condition will be passed into the `metricsRules` below.
 filter: <closure> # example: '{ tags -> tags.job_name == "vm-monitoring" }'
+# expPrefix is executed before the metrics executes other functions.
+expPrefix: <string>
 # expSuffix is appended to all expression in this file.
 expSuffix: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>

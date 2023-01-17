@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace;
 
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleProvider;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.SamplingPolicy;
@@ -32,10 +35,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.reflect.Whitebox;
-
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TraceSamplingPolicyWatcherTest {
@@ -227,6 +226,7 @@ public class TraceSamplingPolicyWatcherTest {
         ConfigWatcherRegister register = new ServiceMockConfigWatcherRegister(3);
 
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        Whitebox.setInternalState(provider, "moduleConfig", moduleConfig);
         provider.getModuleConfig().setTraceSamplingPolicyWatcher(watcher);
         register.registerConfigChangeWatcher(watcher);
         register.start();

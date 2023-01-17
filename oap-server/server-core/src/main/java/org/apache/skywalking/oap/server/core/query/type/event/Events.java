@@ -25,6 +25,4 @@ import lombok.Data;
 @Data
 public class Events {
     private List<Event> events = new ArrayList<>();
-
-    private long total;
 }

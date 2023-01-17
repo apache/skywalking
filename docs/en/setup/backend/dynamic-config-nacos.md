@@ -1,6 +1,6 @@
 # Dynamic Configuration Nacos Implementation
 
-[Nacos](https://github.com/alibaba/nacos) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
+[Nacos](https://github.com/alibaba/nacos) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
 
 ```yaml
 configuration:
@@ -31,7 +31,7 @@ e.g. The config is:
 ```
 {agent-analyzer.default.slowDBAccessThreshold}:{default:200,mongodb:50}
 ```
-If `group = skywalking` the config in nacos is:
+If `group = skywalking`, the config in Nacos is:
 
 | Data Id | Group | Config Value |
 |-----|-----|-----|
@@ -46,20 +46,20 @@ If `group = skywalking` the config in nacos is:
 | subItemkey2 | {group} | subItemValue2 |
 | ... | ... | ... |
 
-Notice: If you add/remove a subItem, you need to add/remove the subItemKey from the group which the subItem belongs:
+Notice: If you add/remove a subItem, you need to add/remove the subItemKey from the group to which the subItem belongs:
 
 | Data Id | Group | Config Value | Config Type |
 |-----|-----|-----|-----|
 | configKey | {group} | subItemkey1</br>subItemkey2</br>... | TEXT |
 
-We separate subItemkeys by `\n` or `\r\n`, trim leading and trailing whitespace, if you set the config by `Nacos UI` each subItemkey should in a new line:
+We separate subItemkeys by `\n` or `\r\n`, trim leading and trailing whitespace; if you set the config by `Nacos UI`, each subItemkey should be in a new line:
 ```
 subItemValue1
 subItemValue2
 ...
 
 ```
-If you set the config by `API` each subItemkey should separated by `\n` or `\r\n`:
+If you set the config by `API`, each subItemkey should be separated by `\n` or `\r\n`:
 ```
 configService.publishConfig("test-module.default.testKeyGroup", "skywalking", "subItemkey1\n subItemkey2"));
 ```
@@ -70,7 +70,7 @@ e.g. The config is:
                                               |{productAPI-v1}:{value of productAPI-v1}
                                               |{productAPI-v2}:{value of productAPI-v2}
 ```
-If `group = skywalking` the config in nacos is:
+If `group = skywalking`, the config in Nacos is:
 
 | Data Id | Group | Config Value | Config Type |
 |-----|-----|-----|-----|
@@ -78,5 +78,3 @@ If `group = skywalking` the config in nacos is:
 | customerAPI-v1 | skywalking | value of customerAPI-v1 |
 | productAPI-v1 | skywalking | value of productAPI-v1 |
 | productAPI-v2 | skywalking | value of productAPI-v2 |
-
-

@@ -60,7 +60,6 @@ public class NoneStreamProcessor implements StreamProcessor<NoneStream> {
         }
     }
 
-    @Override
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends NoneStream> streamClass) throws StorageException {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()
@@ -78,7 +77,7 @@ public class NoneStreamProcessor implements StreamProcessor<NoneStream> {
 
         ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
         // None stream doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
-        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second), true);
+        Model model = modelSetter.add(streamClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Minute), true);
 
         final NoneStreamPersistentWorker persistentWorker = new NoneStreamPersistentWorker(moduleDefineHolder, model, noneStream);
         workers.put(streamClass, persistentWorker);

@@ -34,20 +34,23 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
+
+import static java.util.Objects.nonNull;
 
 public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
@@ -59,8 +62,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB,
-                                       long endSecondTB,
+    public TraceBrief queryBasicTraces(Duration duration,
                                        long minDuration,
                                        long maxDuration,
                                        String serviceId,
@@ -72,7 +74,16 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                                        TraceState traceState,
                                        QueryOrder queryOrder,
                                        final List<Tag> tags) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(SegmentRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SegmentRecord.INDEX_NAME));
+        }
 
         if (startSecondTB != 0 && endSecondTB != 0) {
             query.must(Query.range(SegmentRecord.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
@@ -133,7 +144,6 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 endSecondTB
             ), search.build());
         final TraceBrief traceBrief = new TraceBrief();
-        traceBrief.setTotal(response.getHits().getTotal());
 
         for (SearchHit searchHit : response.getHits().getHits()) {
             BasicTrace basicTrace = new BasicTrace();
@@ -172,7 +182,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
-                new HashMapConverter.ToEntity(searchHit.getSource()));
+                new ElasticSearchConverter.ToEntity(SegmentRecord.INDEX_NAME, searchHit.getSource()));
             segmentRecords.add(segmentRecord);
         }
         return segmentRecords;

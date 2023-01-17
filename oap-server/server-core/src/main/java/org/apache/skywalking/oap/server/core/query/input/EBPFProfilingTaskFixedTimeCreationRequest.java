@@ -23,12 +23,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class EBPFProfilingTaskFixedTimeCreationRequest {
-    // Define how to find the process
-    private EBPFProfilingProcessFinder processFinder;
+    // Define which processes under the service need to be profiling
+    private String serviceId;
+    // Aggregate which processes need to be profiling from labels
+    private List<String> processLabels;
 
     // The task start timestamp(ms), if less than or equal zero means the task starts ASAP
     private long startTime;

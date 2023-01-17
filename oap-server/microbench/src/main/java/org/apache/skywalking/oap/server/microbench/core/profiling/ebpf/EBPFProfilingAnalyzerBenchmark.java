@@ -134,12 +134,12 @@ public class EBPFProfilingAnalyzerBenchmark extends AbstractMicrobenchmark {
         }
 
         public void analyze() {
-            new EBPFProfilingAnalyzer(null, 100, 100, 5).generateTrees(new EBPFProfilingAnalyzation(), stackStream.parallelStream());
+            new EBPFProfilingAnalyzer(null, 100, 5).generateTrees(new EBPFProfilingAnalyzation(), stackStream.parallelStream());
         }
     }
 
-    private static int calculateStackCount(int stackReportPeriodSecond, int totalTimeMiniute, int combineInstanceCount) {
-        return (int) (TimeUnit.MINUTES.toSeconds(totalTimeMiniute) / stackReportPeriodSecond * combineInstanceCount);
+    private static int calculateStackCount(int stackReportPeriodSecond, int totalTimeMinute, int combineInstanceCount) {
+        return (int) (TimeUnit.MINUTES.toSeconds(totalTimeMinute) / stackReportPeriodSecond * combineInstanceCount);
     }
 
     @State(Scope.Benchmark)

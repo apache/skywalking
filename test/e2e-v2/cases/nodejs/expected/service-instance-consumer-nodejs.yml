@@ -29,5 +29,4 @@
   {{- end}}
   language: NODEJS
   instanceuuid: {{ b64enc "consumer" }}.1_{{ b64enc "consumer-instance" }}
-  layer: GENERAL
 {{- end}}

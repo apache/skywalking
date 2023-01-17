@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "12",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -50,7 +39,8 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page FMP Latency (ms)"
+                    "title": "Page FMP Latency (ms)",
+                    "name": "Page_FMP_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -66,12 +56,36 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "key": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4",
                       "label": "P50, P75, P90, P95, P99"
+                    }
+                  ],
+                  "value": "12-0-0",
+                  "label": "12-0-0",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-10"
                     }
                   ]
                 },
@@ -83,7 +97,8 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page First Pack Latency (ms)"
+                    "title": "Page First Pack Latency (ms)",
+                    "name": "Page_First_Pack_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -99,12 +114,36 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "key": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4",
                       "label": "P50, P75, P90, P95, P99"
+                    }
+                  ],
+                  "value": "12-0-1",
+                  "label": "Page_First_Pack_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-10"
                     }
                   ]
                 },
@@ -116,7 +155,8 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page FPT Latency (ms)"
+                    "title": "Page FPT Latency (ms)",
+                    "name": "Page_FPT_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -132,12 +172,36 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "key": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4",
                       "label": "P50, P75, P90, P95, P99"
+                    }
+                  ],
+                  "value": "12-0-2",
+                  "label": "Page_FPT_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-10"
                     }
                   ]
                 },
@@ -149,7 +213,8 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page DOM Ready Latency (ms)"
+                    "title": "Page DOM Ready Latency (ms)",
+                    "name": "Page_DOM_Ready_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -165,12 +230,36 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "key": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4",
                       "label": "P50, P75, P90, P95, P99"
+                    }
+                  ],
+                  "value": "12-0-3",
+                  "label": "Page_DOM_Ready_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-10"
                     }
                   ]
                 },
@@ -182,7 +271,8 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page TTL Latency (ms)"
+                    "title": "Page TTL Latency (ms)",
+                    "name": "Page_TTL_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -198,12 +288,36 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "key": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4",
                       "label": "P50, P75, P90, P95, P99"
+                    }
+                  ],
+                  "value": "12-0-4",
+                  "label": "Page_TTL_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-10"
                     }
                   ]
                 },
@@ -215,7 +329,8 @@
                   "i": "8",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page Load Latency (ms)"
+                    "title": "Page Load Latency (ms)",
+                    "name": "Page_Load_Latency"
                   },
                   "graph": {
                     "type": "Line",
@@ -231,12 +346,36 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "key": "0,1,2,3,4",
                       "label": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0,1,2,3,4"
+                    }
+                  ],
+                  "value": "12-0-8",
+                  "label": "Page_Load_Latency",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-10"
                     }
                   ]
                 },
@@ -248,7 +387,8 @@
                   "i": "9",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page Performance (ms)"
+                    "title": "Page Performance (ms)",
+                    "name": "Page_Performance"
                   },
                   "graph": {
                     "type": "Line",
@@ -282,7 +422,31 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "12-0-9",
+                  "label": "Page_Performance",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-10"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -292,7 +456,8 @@
                   "i": "10",
                   "type": "Widget",
                   "widget": {
-                    "title": "Page Error Count Layout"
+                    "title": "Page Error Count Layout",
+                    "name": "Page_Error_Count_Layout"
                   },
                   "graph": {
                     "type": "Bar",
@@ -310,7 +475,31 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "12-0-10",
+                  "label": "Page_Error_Count_Layout",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    },
+                    {
+                      "widgetId": "12-0-3"
+                    },
+                    {
+                      "widgetId": "12-0-4"
+                    },
+                    {
+                      "widgetId": "12-0-8"
+                    },
+                    {
+                      "widgetId": "12-0-9"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    }
+                  ]
                 }
               ]
             },
@@ -323,19 +512,33 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Trace",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Log"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "13",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
       "layer": "BROWSER",

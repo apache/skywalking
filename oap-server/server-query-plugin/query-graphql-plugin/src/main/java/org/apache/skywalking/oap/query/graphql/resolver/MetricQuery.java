@@ -22,7 +22,9 @@ import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.query.graphql.type.BatchMetricConditions;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
@@ -40,6 +42,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * @since 8.0.0 This query is replaced by {@link MetricsQuery}
  */
 @Deprecated
+@Slf4j
 public class MetricQuery implements GraphQLQueryResolver {
     private MetricsQuery query;
 
@@ -59,17 +62,21 @@ public class MetricQuery implements GraphQLQueryResolver {
             kv.setValue(query.readMetricsValue(condition, duration));
             values.addKVInt(kv);
         } else {
-            for (final String id : metrics.getIds()) {
-                KVInt kv = new KVInt();
-                kv.setId(id);
-
+            List<KVInt> ints = metrics.getIds().parallelStream().map(id -> {
                 MetricsCondition condition = new MetricsCondition();
                 condition.setName(metrics.getName());
                 condition.setEntity(new MockEntity(id));
+                try {
+                    KVInt kv = new KVInt();
+                    kv.setId(id);
+                    kv.setValue(query.readMetricsValue(condition, duration));
+                    return kv;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList());
+            ints.forEach(v -> values.addKVInt(v));
 
-                kv.setValue(query.readMetricsValue(condition, duration));
-                values.addKVInt(kv);
-            }
         }
 
         return values;
@@ -77,7 +84,6 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public IntValues getLinearIntValues(final MetricCondition metrics,
                                         final Duration duration) throws IOException {
-
         MetricsCondition condition = new MetricsCondition();
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));

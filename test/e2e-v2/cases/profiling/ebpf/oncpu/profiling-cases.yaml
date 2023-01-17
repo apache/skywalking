@@ -1,0 +1,45 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+cases:
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml service ls
+    expected: expected/service.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml instance ls --service-name sqrt
+    expected: expected/instance.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt --instance-name test-instance
+    expected: expected/process.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create prepare --service-name sqrt
+    expected: expected/profiling-create-prepare.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process estimate scale --service-name sqrt --labels e2e-label1,e2e-label2
+    expected: expected/process-estimate-scale.yml
+  - query: |
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create fixed --service-name sqrt --labels e2e-label1,e2e-label2 --duration 1m
+    expected: expected/profiling-create.yml
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt
+    expected: expected/profiling-task-list.yml
+  - query: |
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$( \
+        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -
+      )
+    expected: expected/profiling-schedule-list.yml
+  - query: |
+      taskid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -)
+      scheduleid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
+      start=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
+      end=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
+    expected: expected/profiling-analysis.yml

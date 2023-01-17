@@ -30,4 +30,4 @@
      ==== 🆕 Remove this line WHEN AND ONLY WHEN you're adding a new feature, follow the checklist 👆 ==== -->
 
 - [ ] If this pull request closes/resolves/fixes an existing issue, replace the issue number. Closes #<issue number>.
-- [ ] Update the [`CHANGES` log](https://github.com/apache/skywalking/blob/changelog/docs/en/changes/changes.md).
+- [ ] Update the [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md).

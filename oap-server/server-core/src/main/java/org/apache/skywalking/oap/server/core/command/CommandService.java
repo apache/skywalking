@@ -18,12 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.command;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskCommand;
+import org.apache.skywalking.oap.server.network.trace.component.command.EBPFProfilingTaskExtensionConfig;
 import org.apache.skywalking.oap.server.network.trace.component.command.ProfileTaskCommand;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -49,18 +54,39 @@ public class CommandService implements Service {
     /**
      * Used to notify the eBPF Profiling task to the eBPF agent side
      */
-    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task) {
+    public EBPFProfilingTaskCommand newEBPFProfilingTaskCommand(EBPFProfilingTask task, List<String> processId) {
         final String serialNumber = UUID.randomUUID().toString();
         EBPFProfilingTaskCommand.FixedTrigger fixedTrigger = null;
         if (Objects.equals(task.getTriggerType(), EBPFProfilingTriggerType.FIXED_TIME)) {
             fixedTrigger = new EBPFProfilingTaskCommand.FixedTrigger(task.getFixedTriggerDuration());
         }
-        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), task.getProcessId(), task.getCreateTime(),
-                task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name());
+        return new EBPFProfilingTaskCommand(serialNumber, task.getTaskId(), processId, task.getTaskStartTime(),
+                task.getLastUpdateTime(), task.getTriggerType().name(), fixedTrigger, task.getTargetType().name(),
+                convertExtension(task));
     }
 
-    private String generateSerialNumber(final int serviceInstanceId, final long time,
-                                        final String serviceInstanceUUID) {
-        return UUID.randomUUID().toString(); // Simply generate a uuid without taking care of the parameters
+    private EBPFProfilingTaskExtensionConfig convertExtension(EBPFProfilingTask task) {
+        EBPFProfilingTaskExtension extensionConfig = task.getExtensionConfig();
+        if (extensionConfig == null || CollectionUtils.isEmpty(extensionConfig.getNetworkSamplings())) {
+            return null;
+        }
+        EBPFProfilingTaskExtensionConfig config = new EBPFProfilingTaskExtensionConfig();
+        config.setNetworkSamplings(extensionConfig.getNetworkSamplings().stream().map(s -> {
+            return EBPFProfilingTaskExtensionConfig.NetworkSamplingRule.builder()
+                    .uriRegex(s.getUriRegex())
+                    .minDuration(s.getMinDuration())
+                    .when4xx(s.isWhen5xx())
+                    .when5xx(s.isWhen5xx())
+                    .settings(EBPFProfilingTaskExtensionConfig.CollectSettings.builder()
+                            .requireCompleteRequest(s.getSettings().isRequireCompleteRequest())
+                            .maxRequestSize(s.getSettings().getMaxRequestSize())
+                            .requireCompleteResponse(s.getSettings().isRequireCompleteResponse())
+                            .maxResponseSize(s.getSettings().getMaxResponseSize())
+                            .build())
+                    .build();
+        }).collect(Collectors.toList()));
+
+        return config;
     }
+
 }

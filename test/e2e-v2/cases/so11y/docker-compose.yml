@@ -26,6 +26,7 @@ services:
       SW_METER_ANALYZER_ACTIVE_FILES: satellite
     ports:
       - 12800
+      - 1234
 
   provider:
     extends:
@@ -51,6 +52,17 @@ services:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: satellite:11800
     depends_on:
       provider:
+        condition: service_healthy
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.50.0
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    depends_on:
+      oap:
         condition: service_healthy
 
   satellite:

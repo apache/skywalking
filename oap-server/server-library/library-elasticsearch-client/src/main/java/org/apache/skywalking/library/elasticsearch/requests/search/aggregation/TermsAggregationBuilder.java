@@ -31,6 +31,9 @@ public final class TermsAggregationBuilder implements AggregationBuilder {
     private Integer size;
     private ImmutableMap.Builder<String, Aggregation> subAggregations;
 
+    private CollectMode collectMode;
+    private ExecutionHint executionHint;
+
     TermsAggregationBuilder(final String name) {
         checkArgument(!Strings.isNullOrEmpty(name), "name cannot be blank");
         this.name = name;
@@ -65,6 +68,18 @@ public final class TermsAggregationBuilder implements AggregationBuilder {
         return subAggregation(subAggregationBuilder.build());
     }
 
+    public TermsAggregationBuilder collectMode(CollectMode collectMode) {
+        requireNonNull(collectMode, "collectMode");
+        this.collectMode = collectMode;
+        return this;
+    }
+
+    public TermsAggregationBuilder executionHint(ExecutionHint executionHint) {
+        requireNonNull(executionHint, "executionHint");
+        this.executionHint = executionHint;
+        return this;
+    }
+
     @Override
     public TermsAggregation build() {
         ImmutableMap<String, Aggregation> subAggregations;
@@ -74,7 +89,7 @@ public final class TermsAggregationBuilder implements AggregationBuilder {
             subAggregations = this.subAggregations.build();
         }
         return new TermsAggregation(
-            name, field, order, size, subAggregations
+            name, field, order, size, subAggregations, collectMode, executionHint
         );
     }
 
@@ -83,5 +98,35 @@ public final class TermsAggregationBuilder implements AggregationBuilder {
             subAggregations = ImmutableMap.builder();
         }
         return subAggregations;
+    }
+
+    public enum CollectMode {
+        BREADTH_FIRST("breadth_first"), DEPTH_FIRST("depth_first");
+
+        final String value;
+
+        CollectMode(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public enum ExecutionHint {
+        GLOBAL_ORDINALS("global_ordinals"), MAP("map");
+
+        final String value;
+
+        ExecutionHint(final String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
     }
 }

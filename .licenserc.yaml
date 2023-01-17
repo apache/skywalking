@@ -49,6 +49,8 @@ header:
     - 'skywalking-ui/node'
     - 'skywalking-ui/.browserslistrc'
     - 'skywalking-ui/.prettierrc'
+    - 'skywalking-ui/src/types/auto-imports.d.ts'
+    - 'skywalking-ui/src/types/components.d.ts'
     - '**/src/main/fbs/istio/**'
     - '**/src/main/proto/envoy/**'
     - '**/src/main/proto/udpa/**'
@@ -61,6 +63,65 @@ header:
     - '**/src/main/proto/protoc-gen-swagger/**'
     - '**/src/main/proto/validate/validate.proto'
     - '**/src/main/proto/opencensus/**'
+    - '**/src/main/proto/opentelemetry/**'
     - 'oap-server/server-starter/src/main/resources/version.properties'
 
   comment: on-failure
+
+dependency:
+  files:
+    - pom.xml
+    - skywalking-ui/package.json
+  excludes:
+    - name: org.openjdk.jmh:jmh-core # We don't distribute the dependencies, they are just for the build process
+      recursive: true
+    - name: org.apache.skywalking:* # Exclude self dependencies
+  licenses:
+    - name: org.slf4j:slf4j-api
+      version: 1.7.30,1.7.32
+      license: Apache-2.0
+    - name: com.squareup.okhttp3:okhttp
+      version: 3.14.9,3.12.2
+      license: Apache-2.0
+    - name: com.google.guava:listenablefuture
+      version: 9999.0-empty-to-avoid-conflict-with-guava
+      license: Apache-2.0
+    - name: io.swagger:swagger-annotations
+      version: 1.6.6
+      license: Apache-2.0
+    - name: com.squareup.okio:okio
+      version: 1.15.0,1.17.2
+      license: Apache-2.0
+    - name: com.squareup.retrofit2:retrofit
+      version: 2.3.0,2.5.0
+      license: Apache-2.0
+    - name: com.squareup.retrofit2:converter-jackson
+      version: 2.3.0,2.5.0
+      license: Apache-2.0
+    - name: com.fasterxml.jackson.module:jackson-module-kotlin
+      version: 2.13.4
+      license: Apache-2.0
+    - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
+      version: 2.13.2
+      license: Apache-2.0
+    - name: com.graphql-java:graphql-java-extended-scalars
+      version: 18.1
+      license: MIT
+    - name: com.github.luben:zstd-jni
+      version: 1.4.3-1
+      license: BSD-2-Clause
+    - name: com.h2database:h2
+      version: 2.1.212
+      license: MPL-2.0
+    - name: org.antlr:antlr4-runtime
+      version: 4.9.2
+      license: BSD-3-Clause
+    - name: com.google.flatbuffers:flatbuffers-java
+      version: 1.12.0
+      license: Apache-2.0
+    - name: build.buf.protoc-gen-validate:pgv-java-stub
+      version: 0.6.13
+      license: Apache-2.0
+    - name: build.buf.protoc-gen-validate:protoc-gen-validate
+      version: 0.6.13
+      license: Apache-2.0

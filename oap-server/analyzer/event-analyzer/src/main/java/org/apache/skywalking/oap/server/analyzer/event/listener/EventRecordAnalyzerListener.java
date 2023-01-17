@@ -19,15 +19,15 @@
 package org.apache.skywalking.oap.server.analyzer.event.listener;
 
 import com.google.gson.Gson;
-import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.event.v3.Source;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.Event;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import lombok.RequiredArgsConstructor;
 
 /**
  * EventRecordAnalyzerListener forwards the event data to the persistence layer with the query required conditions.
@@ -38,18 +38,17 @@ public class EventRecordAnalyzerListener implements EventAnalyzerListener {
 
     private final NamingControl namingControl;
 
-    private final SourceReceiver sourceReceiver;
-
     private final Event event = new Event();
 
     @Override
     public void build() {
         MetricsStreamProcessor.getInstance().in(event);
-        sourceReceiver.receive(event);
     }
 
     @Override
     public void parse(final org.apache.skywalking.apm.network.event.v3.Event e) {
+        event.setLayer(Layer.nameOf(e.getLayer()));
+
         event.setUuid(e.getUuid());
 
         if (e.hasSource()) {
@@ -76,20 +75,16 @@ public class EventRecordAnalyzerListener implements EventAnalyzerListener {
 
     public static class Factory implements EventAnalyzerListener.Factory {
         private final NamingControl namingControl;
-        private final SourceReceiver sourceReceiver;
 
         public Factory(final ModuleManager moduleManager) {
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
-            this.sourceReceiver = moduleManager.find(CoreModule.NAME)
-                                               .provider()
-                                               .getService(SourceReceiver.class);
         }
 
         @Override
         public EventAnalyzerListener create(final ModuleManager moduleManager) {
-            return new EventRecordAnalyzerListener(namingControl, sourceReceiver);
+            return new EventRecordAnalyzerListener(namingControl);
         }
     }
 }

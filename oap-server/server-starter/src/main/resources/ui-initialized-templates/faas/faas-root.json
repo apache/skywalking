@@ -61,16 +61,37 @@
                     "showGroup": false
                   },
                   "metrics": [
-                    "service_cpm"
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time",
+                    "service_apdex"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "calculation": "apdexAvg",
+                      "label": "Apdex"
                     }
                   ]
                 }
@@ -99,7 +120,7 @@
                     ""
                   ],
                   "moved": false,
-                  "linkDashboard": "Function-Function-Relation",
+                  "linkDashboard": "FaaS-Function-Relation",
                   "nodeDashboard": [
                     {
                       "scope": "Service",
@@ -224,7 +245,7 @@
             "content": "FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://openfunction.dev/docs/best-practices/skywalking-solution-for-openfunction/"
+            "url": "https://openfunction.dev/"
           },
           "moved": false
         }

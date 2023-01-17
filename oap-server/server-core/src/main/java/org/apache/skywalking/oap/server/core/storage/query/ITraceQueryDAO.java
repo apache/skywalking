@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
@@ -30,8 +31,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface ITraceQueryDAO extends Service {
 
-    TraceBrief queryBasicTraces(long startSecondTB,
-                                long endSecondTB,
+    TraceBrief queryBasicTraces(Duration duration,
                                 long minDuration,
                                 long maxDuration,
                                 String serviceId,

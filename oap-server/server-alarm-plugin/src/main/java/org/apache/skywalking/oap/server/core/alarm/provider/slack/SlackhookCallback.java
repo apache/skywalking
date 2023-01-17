@@ -41,7 +41,7 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 /**
- * Use SkyWalking alarm slack webhook API call a remote endpoints.
+ * Use SkyWalking alarm slack webhook API calls a remote endpoints.
  */
 @Slf4j
 public class SlackhookCallback implements AlarmCallback {

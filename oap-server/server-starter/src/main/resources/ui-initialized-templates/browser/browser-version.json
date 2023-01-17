@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "12",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -50,7 +39,8 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Error Count  of The Selected Version"
+                    "title": "Error Count  of The Selected Version",
+                    "name": "Error_Count"
                   },
                   "graph": {
                     "type": "Bar",
@@ -62,12 +52,25 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "value": "12-0-0",
+                  "label": "12-0-0",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 15,
+                    "sourceId": "12-0-2"
+                  }
                 },
                 {
                   "x": 0,
@@ -77,7 +80,8 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Error Rate  of The Selected Version"
+                    "title": "Error Rate  of The Selected Version",
+                    "name": "Error_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -93,12 +97,25 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "value": "12-0-1",
+                  "label": "Error_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 15,
+                    "sourceId": "12-0-2"
+                  }
                 },
                 {
                   "x": 0,
@@ -108,7 +125,8 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Load of The Selected Version (CPM - calls per minute) "
+                    "title": "Load of The Selected Version (CPM - calls per minute) ",
+                    "name": "Load_Version"
                   },
                   "graph": {
                     "type": "Line",
@@ -124,7 +142,16 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "12-0-2",
+                  "label": "Load_Version",
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-0"
+                    }
+                  ]
                 }
               ]
             },
@@ -137,19 +164,33 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Trace",
-                  "metricTypes": [
-                    ""
-                  ],
-                  "metrics": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Log"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "13",
+          "type": "Event",
+          "eventAssociate": true
         }
       ],
       "layer": "BROWSER",

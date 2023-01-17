@@ -30,13 +30,14 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
- * Adapt {@link HTTPAccessLogEntry} objects to {@link ServiceMeshMetric} builders.
+ * Adapt {@link HTTPAccessLogEntry} objects to {@link HTTPServiceMeshMetric} builders.
  */
 @RequiredArgsConstructor
 public class LogEntry2MetricsAdapter {
@@ -57,11 +58,11 @@ public class LogEntry2MetricsAdapter {
     protected final ServiceMetaInfo targetService;
 
     /**
-     * Adapt the {@code entry} into a downstream metrics {@link ServiceMeshMetric.Builder}.
+     * Adapt the {@code entry} into a downstream metrics {@link HTTPServiceMeshMetric.Builder}.
      *
-     * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
+     * @return the {@link HTTPServiceMeshMetric.Builder} adapted from the given entry.
      */
-    public ServiceMeshMetric.Builder adaptToDownstreamMetrics() {
+    public HTTPServiceMeshMetric.Builder adaptToDownstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final long startTime = formatAsLong(properties.getStartTime());
         final long duration = formatAsLong(properties.getTimeToLastDownstreamTxByte());
@@ -74,11 +75,11 @@ public class LogEntry2MetricsAdapter {
     }
 
     /**
-     * Adapt the {@code entry} into a upstream metrics {@link ServiceMeshMetric.Builder}.
+     * Adapt the {@code entry} into an upstream metrics {@link HTTPServiceMeshMetric.Builder}.
      *
-     * @return the {@link ServiceMeshMetric.Builder} adapted from the given entry.
+     * @return the {@link HTTPServiceMeshMetric.Builder} adapted from the given entry.
      */
-    public ServiceMeshMetric.Builder adaptToUpstreamMetrics() {
+    public HTTPServiceMeshMetric.Builder adaptToUpstreamMetrics() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final long startTime = formatAsLong(properties.getStartTime());
         final long outboundStartTime = startTime + formatAsLong(properties.getTimeToFirstUpstreamTxByte());
@@ -91,7 +92,7 @@ public class LogEntry2MetricsAdapter {
             .setDetectPoint(DetectPoint.client);
     }
 
-    public ServiceMeshMetric.Builder adaptCommonPart() {
+    public HTTPServiceMeshMetric.Builder adaptCommonPart() {
         final AccessLogCommon properties = entry.getCommonProperties();
         final String endpoint = endpoint();
         int responseCode = entry.getResponse().getResponseCode().getValue();
@@ -100,15 +101,22 @@ public class LogEntry2MetricsAdapter {
         final Protocol protocol = requestProtocol(entry.getRequest());
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
+        final long internalRequestLatencyNanos = properties.getTimeToFirstUpstreamTxByte().getNanos();
+        final long internalResponseLatencyNanos =
+            properties.getTimeToFirstDownstreamTxByte().getNanos()
+                - properties.getTimeToFirstUpstreamRxByte().getNanos();
 
-        final ServiceMeshMetric.Builder builder =
-            ServiceMeshMetric.newBuilder()
-                             .setEndpoint(endpoint)
-                             .setResponseCode(Math.toIntExact(responseCode))
-                             .setStatus(status)
-                             .setProtocol(protocol)
-                             .setTlsMode(tlsMode)
-                             .setInternalErrorCode(internalErrorCode);
+        final HTTPServiceMeshMetric.Builder builder =
+            HTTPServiceMeshMetric
+                .newBuilder()
+                .setEndpoint(endpoint)
+                .setResponseCode(Math.toIntExact(responseCode))
+                .setStatus(status)
+                .setProtocol(protocol)
+                .setTlsMode(tlsMode)
+                .setInternalErrorCode(internalErrorCode)
+                .setInternalRequestLatencyNanos(internalRequestLatencyNanos)
+                .setInternalResponseLatencyNanos(internalResponseLatencyNanos);
 
         Optional.ofNullable(sourceService)
                 .map(ServiceMetaInfo::getServiceName)
@@ -122,6 +130,26 @@ public class LogEntry2MetricsAdapter {
         Optional.ofNullable(targetService)
                 .map(ServiceMetaInfo::getServiceInstanceName)
                 .ifPresent(builder::setDestServiceInstance);
+
+        Optional
+            .ofNullable(sourceService)
+            .map(ServiceMetaInfo::getTags)
+            .ifPresent(tags -> {
+                tags.forEach(p -> {
+                    builder.addSourceInstanceProperties(
+                        KeyStringValuePair.newBuilder().setKey(p.getKey()).setValue(p.getValue()));
+                });
+            });
+
+        Optional
+            .ofNullable(targetService)
+            .map(ServiceMetaInfo::getTags)
+            .ifPresent(tags -> {
+                tags.forEach(p -> {
+                    builder.addDestInstanceProperties(
+                        KeyStringValuePair.newBuilder().setKey(p.getKey()).setValue(p.getValue()));
+                });
+            });
 
         return builder;
     }

@@ -22,9 +22,18 @@
 BASE_DIR=$1
 BIN_DIR=$2
 
-if ! command -v swctl &> /dev/null; then
+install_swctl() {
   mkdir -p $BASE_DIR/swctl && cd $BASE_DIR/swctl
   curl -kLo skywalking-cli.tar.gz https://github.com/apache/skywalking-cli/archive/${SW_CTL_COMMIT}.tar.gz
   tar -zxf skywalking-cli.tar.gz --strip=1
-  make install DESTDIR=$BIN_DIR
+  VERSION=${SW_CTL_COMMIT} make install DESTDIR=$BIN_DIR
+}
+
+if ! command -v swctl &> /dev/null; then
+  echo "swctl is not installed"
+  install_swctl
+elif ! swctl --version | grep -q "${SW_CTL_COMMIT}"; then
+  # Check if the installed version is correct
+  echo "swctl is already installed, but version is not ${SW_CTL_COMMIT}, will re-install it"
+  install_swctl
 fi

@@ -18,47 +18,55 @@
 
 package org.apache.skywalking.oap.server.network.trace.component.command;
 
+import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.skywalking.apm.network.common.v3.Command;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
+
+import java.util.List;
 
 /**
  * eBPF profiling task command, OAP uses this to send a task to the ebpf agent side
  */
 public class EBPFProfilingTaskCommand extends BaseCommand implements Serializable {
     public static final String NAME = "EBPFProfilingTaskQuery";
+    private static final Gson GSON = new Gson();
 
     private String taskId;
-    private String processId;
+    private List<String> processIdList;
     private long taskStartTime;
     private long taskUpdateTime;
     private String triggerType;
     private FixedTrigger fixedTrigger;
     private String targetType;
+    private EBPFProfilingTaskExtensionConfig extensionConfig;
 
-    public EBPFProfilingTaskCommand(String serialNumber, String taskId, String processId, long taskStartTime,
+    public EBPFProfilingTaskCommand(String serialNumber, String taskId, List<String> processIdList, long taskStartTime,
                                     long taskUpdateTime, String triggerType, FixedTrigger fixedTrigger,
-                                    String targetType) {
+                                    String targetType, EBPFProfilingTaskExtensionConfig extensionConfig) {
         super(NAME, serialNumber);
         this.taskId = taskId;
-        this.processId = processId;
+        this.processIdList = processIdList;
         this.taskStartTime = taskStartTime;
         this.taskUpdateTime = taskUpdateTime;
         this.triggerType = triggerType;
         this.fixedTrigger = fixedTrigger;
         this.targetType = targetType;
+        this.extensionConfig = extensionConfig;
     }
 
     @Override
     public Command.Builder serialize() {
         final Command.Builder builder = commandBuilder();
         builder.addArgs(KeyStringValuePair.newBuilder().setKey("TaskId").setValue(taskId))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("ProcessId").setValue(processId))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("ProcessId").setValue(Joiner.on(",").join(processIdList)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TaskUpdateTime").setValue(String.valueOf(taskUpdateTime)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TriggerType").setValue(triggerType))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TargetType").setValue(targetType))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("TaskStartTime").setValue(String.valueOf(taskStartTime)));
+                .addArgs(KeyStringValuePair.newBuilder().setKey("TaskStartTime").setValue(String.valueOf(taskStartTime)))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("ExtensionConfigJSON").setValue(GSON.toJson(extensionConfig)));
 
         if (fixedTrigger != null) {
             builder.addArgs(KeyStringValuePair.newBuilder().setKey("FixedTriggerDuration").setValue(String.valueOf(fixedTrigger.duration)));

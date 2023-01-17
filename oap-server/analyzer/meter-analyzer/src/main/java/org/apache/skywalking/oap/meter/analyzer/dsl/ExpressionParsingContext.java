@@ -72,11 +72,6 @@ public class ExpressionParsingContext implements Closeable {
     ScopeType scopeType;
 
     /**
-     * Mark whether the retagByK8sMeta func in expressions is active
-     */
-    boolean isRetagByK8sMeta;
-
-    /**
      * Get labels no scope related.
      *
      * @return labels

@@ -24,4 +24,3 @@ traces:
   traceids:
   - {{ notEmpty (index .traceids 0) }}
 {{- end }}
-total: {{ gt .total 0 }}

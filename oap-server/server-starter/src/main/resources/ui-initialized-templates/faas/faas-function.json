@@ -22,22 +22,11 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 12,
           "w": 24,
           "h": 52,
           "i": "4",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 0,
           "children": [
             {
               "name": "Overview",
@@ -63,12 +52,13 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "apdex"
                     }
-                  ]
+                  ],
+                  "value": "4-0-0",
+                  "label": "4-0-0"
                 },
                 {
                   "x": 8,
@@ -92,13 +82,14 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage",
                       "unit": "%"
                     }
-                  ]
+                  ],
+                  "value": "4-0-1",
+                  "label": "4-0-1"
                 },
                 {
                   "x": 16,
@@ -123,12 +114,13 @@
                   "metricTypes": [
                     "readMetricsValue"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "unit": "calls / min"
                     }
-                  ]
+                  ],
+                  "value": "4-0-2",
+                  "label": "4-0-2"
                 },
                 {
                   "x": 0,
@@ -138,7 +130,8 @@
                   "i": "3",
                   "type": "Widget",
                   "widget": {
-                    "title": "Function Avg Response Time (ms)"
+                    "title": "Function Avg Response Time (ms)",
+                    "name": "Function_Avg_Response"
                   },
                   "graph": {
                     "type": "Line",
@@ -154,10 +147,27 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
-                  "metricConfig": [
-                    {}
-                  ]
+                  "value": "4-0-3",
+                  "label": "Function_Avg_Response",
+                  "associate": [
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 5,
+                    "sourceId": "4-0-5"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 6,
@@ -167,7 +177,8 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "Function Response Time Percentile (ms)"
+                    "title": "Function Response Time Percentile (ms)",
+                    "name": "Function_Response_Percentile"
                   },
                   "graph": {
                     "type": "Line",
@@ -183,13 +194,29 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "P50, P75, P90, P95, P99",
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
-                  ]
+                  ],
+                  "value": "4-0-5",
+                  "label": "Function_Response_Percentile",
+                  "associate": [
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 12,
@@ -199,7 +226,8 @@
                   "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Success Rate (%)"
+                    "title": "Success Rate (%)",
+                    "name": "Success_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -215,12 +243,32 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "calculation": "percentage"
                     }
-                  ]
+                  ],
+                  "value": "4-0-6",
+                  "label": "Success_Rate",
+                  "associate": [
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-3"
+                    },
+                    {
+                      "widgetId": "4-0-7"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 5,
+                    "sourceId": "4-0-5"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  }
                 },
                 {
                   "x": 18,
@@ -231,7 +279,8 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Function Load (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC functions, this means Calls Per Minute (calls / min)"
+                    "tips": "For HTTP 1/2, gRPC, RPC functions, this means Calls Per Minute (calls / min)",
+                    "name": "Function_Load"
                   },
                   "graph": {
                     "type": "Line",
@@ -247,7 +296,26 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "moved": false
+                  "value": "4-0-7",
+                  "label": "Function_Load",
+                  "associate": [
+                    {
+                      "widgetId": "4-0-5"
+                    },
+                    {
+                      "widgetId": "4-0-6"
+                    },
+                    {
+                      "widgetId": "4-0-3"
+                    }
+                  ],
+                  "filters": {
+                    "dataIndex": 5,
+                    "sourceId": "4-0-5"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true
+                  }
                 },
                 {
                   "x": 0,
@@ -258,7 +326,8 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Function Instances Load (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC functions, this means Calls Per Minute (calls / min),"
+                    "tips": "For HTTP 1/2, gRPC, RPC functions, this means Calls Per Minute (calls / min),",
+                    "name": "Function_Instances_Load"
                   },
                   "graph": {
                     "type": "TopList"
@@ -269,13 +338,8 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "moved": false
+                  "value": "4-0-11",
+                  "label": "Function_Instances_Load"
                 },
                 {
                   "x": 8,
@@ -297,13 +361,8 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "moved": false
+                  "value": "4-0-12",
+                  "label": "4-0-12"
                 },
                 {
                   "x": 16,
@@ -331,7 +390,8 @@
                       "calculation": "percentage"
                     }
                   ],
-                  "moved": false
+                  "value": "4-0-13",
+                  "label": "4-0-13"
                 }
               ]
             },
@@ -345,27 +405,40 @@
                   "h": 49,
                   "i": "0",
                   "type": "Widget",
-                  "widget": {
-                    "title": ""
-                  },
                   "graph": {
                     "type": "InstanceList",
                     "dashboardName": "FaaS-Instance",
                     "fontSize": 12
                   },
                   "metrics": [
-                    "service_instance_cpm"
+                    "service_instance_cpm",
+                    "service_instance_sla",
+                    "service_instance_resp_time"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
                     }
-                  ]
+                  ],
+                  "value": "4-1-0",
+                  "label": "4-1-0"
                 }
               ]
             },
@@ -379,19 +452,9 @@
                   "h": 48,
                   "i": "0",
                   "type": "Topology",
-                  "widget": {
-                    "title": "Title"
-                  },
                   "graph": {
                     "showDepth": true
                   },
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false,
                   "linkDashboard": "FaaS-Function-Relation",
                   "nodeDashboard": [
                     {
@@ -479,23 +542,19 @@
                   "w": 24,
                   "h": 48,
                   "i": "0",
-                  "type": "Trace",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 12,
+          "i": "5",
+          "type": "Event"
         }
       ],
       "layer": "FAAS",

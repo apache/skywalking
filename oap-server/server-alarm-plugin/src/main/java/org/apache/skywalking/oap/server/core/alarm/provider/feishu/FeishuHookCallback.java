@@ -97,7 +97,7 @@ public class FeishuHookCallback implements AlarmCallback {
     }
 
     /**
-     * deal requestBody,if has sign set the sign
+     * deal requestBody,if it has sign set the sign
      */
     private String getRequestBody(FeishuSettings.WebHookUrl webHookUrl, AlarmMessage alarmMessage) {
         String requestBody = String.format(
@@ -119,7 +119,7 @@ public class FeishuHookCallback implements AlarmCallback {
     }
 
     /**
-     * build content,if has ats someone set the ats
+     * build content,if it has ats someone set the ats
      */
     private Map<String, Object> buildContent(JsonObject jsonObject) {
         Map<String, Object> content = new HashMap<>();

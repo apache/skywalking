@@ -18,21 +18,33 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.process;
 
+import com.google.gson.Gson;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.Process;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class ProcessDispatcher implements SourceDispatcher<Process> {
+    private static final Gson GSON = new Gson();
+
     @Override
     public void dispatch(Process source) {
         final ProcessTraffic traffic = new ProcessTraffic();
         traffic.setServiceId(source.getServiceId());
         traffic.setInstanceId(source.getInstanceId());
         traffic.setName(source.getName());
-        traffic.setLayer(source.getLayer().value());
+        if (CollectionUtils.isNotEmpty(source.getLabels())) {
+            traffic.setLabelsJson(GSON.toJson(source.getLabels()));
+        } else {
+            traffic.setLabelsJson(Const.EMPTY_STRING);
+        }
 
         traffic.setAgentId(source.getAgentId());
         traffic.setProperties(source.getProperties());
+        if (source.getProfilingSupportStatus() != null) {
+            traffic.setProfilingSupportStatus(source.getProfilingSupportStatus().value());
+        }
         if (source.getDetectType() != null) {
             traffic.setDetectType(source.getDetectType().value());
         }

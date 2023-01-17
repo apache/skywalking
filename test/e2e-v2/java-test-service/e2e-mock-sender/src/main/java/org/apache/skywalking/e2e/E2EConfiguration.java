@@ -28,4 +28,8 @@ import org.springframework.context.annotation.Configuration;
 public class E2EConfiguration {
     private String oapHost;
     private String oapGrpcPort;
+    private String zipkinKafkaBootstrapServers;
+    private String zipkinKafkaGroupId;
+    private String zipkinKafkaTopic;
+    private String otelMetricsDataPath;
 }

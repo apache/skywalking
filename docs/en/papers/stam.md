@@ -116,14 +116,14 @@ Figure 5, STAM traffic generation when no server-side instrumentation
 
 - 3.**Uninstrumented Node Having Header Forward Capability**
 
-Besides the cases we evaluated in (2) Uninstrumented Nodes, there is one complex and special case: the instrumented node has the capability to propagate the header from downstream to upstream, typically in all proxy, such as Envoy[11], Nginx[12], Spring Cloud Gateway[13]. As proxy, it has the capability to forward all headers from downstream to upstream to keep some of information in the header, including the tracing context, authentication, browser information, and routing information, in order to make them accessible by the business services behind the proxy, like Envoy route configuration [14]. When some proxy can’t be instrumented, no matter what the reason, it should not affect the topology detection.
+Besides the cases we evaluated in (2) Uninstrumented Nodes, there is one complex and special case: the instrumented node has the capability to propagate the header from downstream to upstream, typically in all proxy, such as Envoy[11], Nginx[12], Spring Cloud Gateway[13]. As proxy, it has the capability to forward all headers from downstream to upstream to keep some of information in the header, including the tracing context, authentication, browser information, and routing information, in order to make them accessible by the business services behind the proxy, like Envoy route configuration. When some proxy can’t be instrumented, no matter what the reason, it should not affect the topology detection.
 
 In this case, the proxy address would be used at the client side and propagate through RPC context as peer network address, and the proxy forwards this to different upstream services. Then STAM could detect this case and generate the proxy as a conjectural node. In the STAM, more than one alias names for this network address should be generated. After those two are detected and synchronized to the analysis node, the analysis core knows there is at least one uninstrumented service standing between client and servers. So, it will generate the relationships of `client service->peer network address`, `peer->server service B` and `peer network address ->server service C`, as shown in Figure 6.
 
 <p align="center">
 <img src="https://skywalking.apache.org/papers/STAM/STAM-uninstrumentation-proxy.png"/>
 <br/>
-Figure 6, STAM traffic generation when the proxy uninstrumentatio
+Figure 6, STAM traffic generation when the proxy uninstrumentation
 </p>
 
 # Conclusion
@@ -151,4 +151,3 @@ This paper and the STAM are licensed in the Apache 2.0.
 1. Envoy Proxy, http://envoyproxy.io/
 1. Nginx, http://nginx.org/
 1. Spring Cloud Gateway, https://spring.io/projects/spring-cloud-gateway
-1. Envoy Route Configuration, https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/rds.proto.html?highlight=request_headers_to_

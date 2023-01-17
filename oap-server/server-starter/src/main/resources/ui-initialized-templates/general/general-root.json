@@ -61,16 +61,37 @@
                     "showGroup": true
                   },
                   "metrics": [
-                    "service_cpm"
+                    "service_cpm",
+                    "service_sla",
+                    "service_resp_time",
+                    "service_apdex"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "percentageAvg",
+                      "unit": "%",
+                      "label": "Success Rate"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "calculation": "apdexAvg",
+                      "label": "Apdex"
                     }
                   ]
                 }
@@ -205,6 +226,19 @@
                   "moved": false
                 }
               ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Log"
+                }
+              ]
             }
           ],
           "moved": false
@@ -228,7 +262,7 @@
             "content": "Observe Service through telemetry data collected from SkyWalking Agent.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/service-agent/server-agents/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/"
           },
           "moved": false
         }

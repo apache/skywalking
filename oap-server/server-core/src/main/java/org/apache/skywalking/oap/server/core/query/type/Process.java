@@ -41,14 +41,16 @@ public class Process {
     @Setter
     private String instanceName;
     @Setter
-    private String layer;
-    @Setter
     private String agentId;
     @Setter
     private String detectType;
+    @Setter
+    private String profilingSupportStatus;
     private final List<Attribute> attributes;
+    private final List<String> labels;
 
     public Process() {
         this.attributes = new ArrayList<>();
+        this.labels = new ArrayList<>();
     }
 }

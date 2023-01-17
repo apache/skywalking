@@ -44,7 +44,7 @@
 * Upgrade H2 version to 2.0.206 to fix CVE-2021-23463 and GHSA-h376-j262-vhq6.
 * Extend column name override mechanism working for `ValueColumnMetadata`.
 * Introduce new concept `Layer` and removed `NodeType`. More details refer
-  to [v9-version-upgrade](https://skywalking.apache.org/docs/main/latest/en/faq/v9-version-upgrade/).
+  to [v9-version-upgrade](https://skywalking.apache.org/docs/main/next/en/faq/v9-version-upgrade/).
 * Fix query sort metrics failure in H2 Storage.
 * Bump up grpc to 1.43.2 and protobuf to 3.19.2 to fix CVE-2021-22569.
 * Add source layer and dest layer to relation.
@@ -125,7 +125,7 @@
 * Add `Column.shardingKeyIdx` for column definition for BanyanDB.
 
 ```
-Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same 
+Sharding key is used to group time series data per metric of one entity in one place (same sharding and/or same
 row for column-oriented database).
 For example,
 ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded by service ID

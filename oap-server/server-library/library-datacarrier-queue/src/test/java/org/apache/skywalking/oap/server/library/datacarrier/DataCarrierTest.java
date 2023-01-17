@@ -20,14 +20,12 @@ package org.apache.skywalking.oap.server.library.datacarrier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.Channels;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.datacarrier.partition.ProducerThreadPartitioner;
 import org.apache.skywalking.oap.server.library.datacarrier.partition.SimpleRollingPartitioner;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.powermock.api.support.membermodification.MemberModifier;
@@ -119,13 +117,6 @@ public class DataCarrierTest {
                 e.printStackTrace();
             }
             IConsumer<SampleData> consumer = new IConsumer<SampleData>() {
-                int i = 0;
-
-                @Override
-                public void init(final Properties properties) {
-
-                }
-
                 @Override
                 public void consume(List<SampleData> data) {
 
@@ -133,11 +124,6 @@ public class DataCarrierTest {
 
                 @Override
                 public void onError(List<SampleData> data, Throwable t) {
-
-                }
-
-                @Override
-                public void onExit() {
 
                 }
             };

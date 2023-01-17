@@ -14,12 +14,66 @@
 # limitations under the License.
 
 spans:
-{{- contains .spans }}
+  {{- contains .spans }}
   - traceid: {{ .traceid }}
     segmentid: {{ .segmentid }}
     spanid: {{ .spanid }}
     parentspanid: {{ .parentspanid }}
     refs: []
+    servicecode: e2e-service-consumer
+    serviceinstancename: consumer1
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: POST:/users
+    type: Entry
+    peer: ""
+    component: Tomcat
+    iserror: false
+    layer: Http
+    tags:
+      {{- contains .tags }}
+      - key: http.method
+        value: POST
+      - key: url
+        value: {{ notEmpty .value }}
+      {{- end }}
+    logs: []
+    attachedevents: []
+  - traceid: {{ notEmpty .traceid }}
+    segmentid: {{ .segmentid }}
+    spanid: {{ .spanid }}
+    parentspanid: {{ .parentspanid }}
+    refs: []
+    servicecode: e2e-service-consumer
+    serviceinstancename: consumer1
+    starttime: {{ gt .starttime 0 }}
+    endtime: {{ gt .endtime 0 }}
+    endpointname: /users
+    type: Exit
+    peer: provider:9090
+    component: SpringRestTemplate
+    iserror: false
+    layer: Http
+    tags:
+      {{- contains .tags }}
+      - key: http.method
+        value: POST
+      - key: url
+        value: {{ notEmpty .value }}
+      {{- end }}
+    logs: []
+    attachedevents: []
+  - traceid: {{ notEmpty .traceid }}
+    segmentid: {{ .segmentid }}
+    spanid: {{ .spanid }}
+    parentspanid: {{ .parentspanid }}
+    refs:
+      {{- contains .refs }}
+      - traceid: {{ notEmpty .traceid }}
+        parentsegmentid: {{ .parentsegmentid }}
+        parentspanid: 1
+        type: CROSS_PROCESS
+      {{- end }}
     servicecode: e2e-service-provider
     serviceinstancename: provider1
     starttime: {{ gt .starttime 0 }}
@@ -38,4 +92,5 @@ spans:
         value: {{ notEmpty .value }}
       {{- end }}
     logs: []
+    attachedevents: []
   {{- end }}

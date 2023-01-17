@@ -113,6 +113,7 @@ public class Expression {
         public static final DownsamplingType AVG = DownsamplingType.AVG;
         public static final DownsamplingType SUM = DownsamplingType.SUM;
         public static final DownsamplingType LATEST = DownsamplingType.LATEST;
+        public static final DownsamplingType SUM_PER_MIN = DownsamplingType.SUM_PER_MIN;
 
         private final String literal;
 

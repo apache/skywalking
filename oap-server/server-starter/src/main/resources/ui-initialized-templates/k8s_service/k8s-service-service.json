@@ -1,239 +1,276 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "K8S-Service-Service",
     "configuration": {
       "children": [
         {
-          "x": 8,
-          "y": 15,
-          "w": 8,
-          "h": 15,
-          "i": "0",
-          "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_cpu_usage"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Pod CPU Usage (m)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          }
-        },
-        {
           "x": 0,
-          "y": 15,
-          "w": 8,
-          "h": 15,
-          "i": "1",
-          "type": "Widget",
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_memory_requests",
-            "k8s_service_memory_limits"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Service Memory Resources (Mi)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricConfig": [
+          "y": 0,
+          "w": 24,
+          "h": 51,
+          "i": "0",
+          "type": "Tab",
+          "children": [
             {
-              "calculation": "byteToMB"
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 8,
+                  "y": 15,
+                  "w": 8,
+                  "h": 15,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_pod_cpu_usage"
+                  ],
+                  "widget": {
+                    "title": "Pod CPU Usage (m)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 15,
+                  "w": 8,
+                  "h": 15,
+                  "i": "1",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_memory_requests",
+                    "k8s_service_memory_limits"
+                  ],
+                  "widget": {
+                    "title": "Service Memory Resources (Mi)"
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    },
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "2",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_cpu_cores_requests",
+                    "k8s_service_cpu_cores_limits"
+                  ],
+                  "widget": {
+                    "title": "Service CPU Resources (m)"
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_pod_status"
+                  ],
+                  "widget": {
+                    "title": "Service Pod Status"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": false,
+                    "tableHeaderCol1": "Status-Pod",
+                    "tableHeaderCol2": "Status-Pod"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "4",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_pod_total"
+                  ],
+                  "widget": {
+                    "title": "Service Pod Total"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 15,
+                  "w": 8,
+                  "h": 15,
+                  "i": "5",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_pod_memory_usage"
+                  ],
+                  "widget": {
+                    "title": "Pod Memory Usage (Mi)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToMB"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 8,
+                  "h": 15,
+                  "i": "6",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_pod_status_waiting"
+                  ],
+                  "widget": {
+                    "title": "Pod Waiting"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": false,
+                    "tableHeaderCol1": "Container-Pod-Waiting Reason",
+                    "tableHeaderCol2": ""
+                  }
+                },
+                {
+                  "x": 8,
+                  "y": 30,
+                  "w": 8,
+                  "h": 15,
+                  "i": "7",
+                  "type": "Widget",
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [
+                    "k8s_service_pod_status_restarts_total"
+                  ],
+                  "widget": {
+                    "title": "Pod Restarts"
+                  },
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": true,
+                    "tableHeaderCol1": "Pod",
+                    "tableHeaderCol2": "Restarts Total"
+                  }
+                }
+              ]
             },
             {
-              "calculation": "byteToMB"
-            }
-          ]
-        },
-        {
-          "x": 16,
-          "y": 0,
-          "w": 8,
-          "h": 15,
-          "i": "2",
-          "type": "Widget",
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_cpu_cores_requests",
-            "k8s_service_cpu_cores_limits"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Service CPU Resources (m)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          }
-        },
-        {
-          "x": 8,
-          "y": 0,
-          "w": 8,
-          "h": 15,
-          "i": "3",
-          "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_status"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Service Pod Status"
-          },
-          "graph": {
-            "type": "Table",
-            "showTableValues": false,
-            "tableHeaderCol1": "Status-Pod",
-            "tableHeaderCol2": "Status-Pod"
-          }
-        },
-        {
-          "x": 0,
-          "y": 0,
-          "w": 8,
-          "h": 15,
-          "i": "4",
-          "type": "Widget",
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_total"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Service Pod Total"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          }
-        },
-        {
-          "x": 16,
-          "y": 15,
-          "w": 8,
-          "h": 15,
-          "i": "5",
-          "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_memory_usage"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Pod Memory Usage (Mi)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricConfig": [
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 47,
+                  "i": "0",
+                  "type": "Ebpf"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "white",
+                    "backgroundColor": "blue",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
+                  }
+                }
+              ]
+            },
             {
-              "calculation": "byteToMB"
+              "name": "Pods",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 31,
+                  "i": "1",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "K8S-Service-Pods",
+                    "fontSize": 12
+                  }
+                }
+              ]
             }
           ]
-        },
-        {
-          "x": 0,
-          "y": 30,
-          "w": 8,
-          "h": 15,
-          "i": "6",
-          "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_status_waiting"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Pod Waiting"
-          },
-          "graph": {
-            "type": "Table",
-            "showTableValues": false,
-            "tableHeaderCol1": "Container-Pod-Waiting Reason",
-            "tableHeaderCol2": ""
-          }
-        },
-        {
-          "x": 8,
-          "y": 30,
-          "w": 8,
-          "h": 15,
-          "i": "7",
-          "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "k8s_service_pod_status_restarts_total"
-          ],
-          "moved": false,
-          "widget": {
-            "title": "Pod Restarts"
-          },
-          "graph": {
-            "type": "Table",
-            "showTableValues": true,
-            "tableHeaderCol1": "Pod",
-            "tableHeaderCol2": "Restarts Total"
-          }
         }
       ],
       "layer": "K8S_SERVICE",

@@ -38,9 +38,10 @@
             "top_n_database_statement"
           ],
           "metricTypes": [
-            "readSampledRecords"
+            "readRecords"
           ],
-          "moved": false
+          "value": "2",
+          "label": "2"
         },
         {
           "x": 6,
@@ -50,7 +51,8 @@
           "i": "3",
           "type": "Widget",
           "widget": {
-            "title": "Database Access Successful Rate (%)"
+            "title": "Database Access Successful Rate (%)",
+            "name": "Successful_Rate"
           },
           "graph": {
             "type": "Line",
@@ -66,12 +68,28 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "calculation": "percentage"
             }
-          ]
+          ],
+          "value": "3",
+          "label": "Successful_Rate",
+          "associate": [
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
         },
         {
           "x": 12,
@@ -81,7 +99,8 @@
           "i": "4",
           "type": "Widget",
           "widget": {
-            "title": "Database Traffic (calls / min)"
+            "title": "Database Traffic (calls / min)",
+            "name": "Database_Traffic"
           },
           "graph": {
             "type": "Line",
@@ -97,7 +116,19 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "value": "4",
+          "label": "Database_Traffic",
+          "associate": [
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            }
+          ]
         },
         {
           "x": 18,
@@ -107,7 +138,8 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "Database Access Latency Percentile (ms)"
+            "title": "Database Access Latency Percentile (ms)",
+            "name": "Latency_Percentile"
           },
           "graph": {
             "type": "Line",
@@ -123,13 +155,29 @@
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "P50, P75, P90, P95, P99",
               "labelsIndex": "0,1,2,3,4"
             }
-          ]
+          ],
+          "value": "5",
+          "label": "5",
+          "associate": [
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "6"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
         },
         {
           "x": 0,
@@ -139,7 +187,8 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Database Avg Response Time (ms)"
+            "title": "Database Avg Response Time (ms)",
+            "name": "Database_Avg_Response"
           },
           "graph": {
             "type": "Line",
@@ -155,7 +204,23 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "value": "6",
+          "label": "Database_Avg_Response",
+          "associate": [
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            },
+            {
+              "widgetId": "5"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
         }
       ],
       "layer": "VIRTUAL_DATABASE",

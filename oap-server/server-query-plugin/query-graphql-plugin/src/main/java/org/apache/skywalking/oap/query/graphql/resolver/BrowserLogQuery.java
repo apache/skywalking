@@ -27,8 +27,6 @@ import org.apache.skywalking.oap.server.core.query.input.BrowserErrorLogQueryCon
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import static java.util.Objects.nonNull;
-
 @RequiredArgsConstructor
 public class BrowserLogQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
@@ -42,17 +40,10 @@ public class BrowserLogQuery implements GraphQLQueryResolver {
     }
 
     public BrowserErrorLogs queryBrowserErrorLogs(BrowserErrorLogQueryCondition condition) throws IOException {
-        long startSecondTB = 0, endSecondTB = 0;
-        if (nonNull(condition.getQueryDuration())) {
-            startSecondTB = condition.getQueryDuration()
-                                     .getStartTimeBucketInSec();
-            endSecondTB = condition.getQueryDuration()
-                                   .getEndTimeBucketInSec();
-        }
 
         return getQueryService().queryBrowserErrorLogs(
             condition.getServiceId(), condition.getServiceVersionId(), condition.getPagePathId(),
-            condition.getCategory(), startSecondTB, endSecondTB, condition.getPaging()
+            condition.getCategory(), condition.getQueryDuration(), condition.getPaging()
         );
     }
 }

@@ -45,4 +45,14 @@ public interface IBatchDAO extends DAO {
      * @param prepareRequests data to insert or update. No delete happens in streaming mode.
      */
     CompletableFuture<Void> flush(List<PrepareRequest> prepareRequests);
+
+    /**
+     * End of flush is an event to notify the whole flush period is ending.
+     * This provides a time point to do clean up works.
+     *
+     * @since 9.2.0
+     */
+    default void endOfFlush() {
+
+    }
 }

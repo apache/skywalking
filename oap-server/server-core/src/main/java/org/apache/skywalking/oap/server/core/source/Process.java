@@ -22,8 +22,10 @@ import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
+import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
+
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
 
@@ -60,9 +62,6 @@ public class Process extends Source {
     private String instanceName;
     @Getter
     @Setter
-    private Layer layer;
-    @Getter
-    @Setter
     private boolean isServiceNormal;
     @Getter
     @Setter
@@ -73,6 +72,12 @@ public class Process extends Source {
     @Getter
     @Setter
     private JsonObject properties;
+    @Setter
+    @Getter
+    private List<String> labels;
+    @Setter
+    @Getter
+    private ProfilingSupportStatus profilingSupportStatus;
 
     @Override
     public void prepare() {

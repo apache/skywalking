@@ -32,17 +32,13 @@ public class ResourceUtilsTest {
 
     @Test
     public void testGetPathFilesSuccess() throws FileNotFoundException {
-        final File[] files = ResourceUtils.getPathFiles("testdata", new String[] {
-            "prometheus.txt"
-        });
+        final File[] files = ResourceUtils.getPathFiles("testdata");
         Assert.assertNotNull(files);
         Assert.assertEquals(1, files.length);
     }
 
     @Test(expected = FileNotFoundException.class)
     public void testGetPathFilesNotFound() throws FileNotFoundException {
-        ResourceUtils.getPathFiles("testdata", new String[] {
-            "not-existed"
-        });
+        ResourceUtils.getPathFiles("doesn't exist");
     }
 }

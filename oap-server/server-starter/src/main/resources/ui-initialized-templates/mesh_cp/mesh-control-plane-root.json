@@ -39,12 +39,42 @@
             "showGroup": true
           },
           "metrics": [
-            ""
+            "meter_istio_cpu",
+            "meter_istio_go_goroutines",
+            "meter_istio_pilot_xds",
+            "meter_istio_pilot_services",
+            "meter_istio_pilot_virt_services"
           ],
           "metricTypes": [
-            ""
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues",
+            "readMetricsValues"
           ],
-          "moved": false
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "CPU",
+              "calculation": "average"
+            },
+            {
+              "calculation": "average",
+              "label": "Goroutines"
+            },
+            {
+              "calculation": "average",
+              "label": "Pilot xDS"
+            },
+            {
+              "calculation": "average",
+              "label": "Pilot Services"
+            },
+            {
+              "calculation": "average",
+              "label": "Pilot Virt Services"
+            }
+          ]
         },
         {
           "x": 0,
@@ -65,11 +95,12 @@
             "content": "Provide monitoring of the behavior of Istio through its self-monitoring metrics.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/istio/readme/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/istio/readme/"
           },
           "moved": false
         }
       ],
+      "id": "Mesh-Control-Plane-Root",
       "layer": "MESH_CP",
       "entity": "All",
       "name": "Mesh-Control-Plane-Root",

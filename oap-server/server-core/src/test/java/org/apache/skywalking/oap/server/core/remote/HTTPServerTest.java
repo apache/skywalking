@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.core.remote;
 
 import com.linecorp.armeria.client.WebClient;
+import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.Post;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
 import org.junit.Assert;
@@ -42,7 +44,7 @@ public class HTTPServerTest {
 
         SERVER = new HTTPServer(config);
         SERVER.initialize();
-        SERVER.addHandler(new TestPostHandler());
+        SERVER.addHandler(new TestPostHandler(), Collections.singletonList(HttpMethod.POST));
         SERVER.start();
     }
 
@@ -96,11 +98,6 @@ public class HTTPServerTest {
 
         Assert.assertEquals(
             WebClient.of().options(testHandlerURI).aggregate().get().status().code(),
-            405
-        );
-
-        Assert.assertEquals(
-            WebClient.of().head(testHandlerURI).aggregate().get().status().code(),
             405
         );
     }

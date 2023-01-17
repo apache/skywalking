@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 
 @MetricsFunction(functionName = "max")
@@ -33,7 +34,8 @@ public abstract class MaxLongMetrics extends Metrics implements LongValueHolder 
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    private long value = Long.MIN_VALUE;
+    @BanyanDB.MeasureField
+    private long value;
 
     @Entrance
     public final void combine(@SourceFrom long count) {
@@ -51,15 +53,5 @@ public abstract class MaxLongMetrics extends Metrics implements LongValueHolder 
 
     @Override
     public void calculate() {
-    }
-
-    @Override
-    public boolean haveDefault() {
-        return true;
-    }
-
-    @Override
-    public boolean isDefaultValue() {
-        return value == 0;
     }
 }

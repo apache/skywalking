@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.e2e.controller;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.apache.skywalking.e2e.User;
 import org.apache.skywalking.e2e.UserRepo;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 @RestController
@@ -36,6 +42,10 @@ import java.util.Random;
 @SuppressWarnings("SameReturnValue")
 public class UserController {
     private static final org.slf4j.Logger LOGBACK_LOGGER = LoggerFactory.getLogger(UserController.class);
+
+    private final Cache<String, String> guavaCache = CacheBuilder.newBuilder()
+            .concurrencyLevel(Runtime.getRuntime().availableProcessors())
+            .build();
 
     private final UserRepo userRepo;
     private final int sleepMin = 500;
@@ -51,6 +61,8 @@ public class UserController {
     @PostMapping("/users")
     public User createAuthor(@RequestBody final User user) throws InterruptedException {
         Thread.sleep(randomSleepLong(sleepMin, sleepMax));
+        //virtual cache test case
+        testCacheService();
         return userRepo.save(user);
     }
 
@@ -67,5 +79,20 @@ public class UserController {
         Random rand = new Random();
         int randomNumber = rand.nextInt((max - min) + 1) + min;
         return randomNumber;
+    }
+
+    private void testCacheService() {
+        String userInfo = guavaCache.getIfPresent("user_1");
+        if (!StringUtils.hasLength(userInfo)) {
+            guavaCache.put("user_1", "name:John,address:earth");
+        }
+        Map<String, String> users = new HashMap<>();
+        users.put("user_2", "name:Tom,address:earth");
+        users.put("user_3", "name:Jack,address:earth");
+        guavaCache.putAll(users);
+        guavaCache.getAllPresent(Arrays.asList("user_2", "user_3"));
+        guavaCache.invalidate("user_1");
+        guavaCache.invalidate("user_2");
+        guavaCache.invalidateAll();
     }
 }

@@ -30,9 +30,9 @@ import java.util.List;
 public interface IEBPFProfilingDataDAO extends DAO {
     /**
      * list profiling data by task and time
-     * @param taskId profiling task id
+     * @param scheduleIdList profiling schedule ID list
      * @param beginTime timestamp bigger than or equals
      * @param endTime timestamp smaller than
      */
-    List<EBPFProfilingDataRecord> queryData(String taskId, long beginTime, long endTime) throws IOException;
+    List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException;
 }

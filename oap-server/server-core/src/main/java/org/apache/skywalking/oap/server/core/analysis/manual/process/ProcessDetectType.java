@@ -43,7 +43,13 @@ public enum ProcessDetectType {
     /**
      * Detect by kubernetes platform
      */
-    KUBERNETES(2)
+    KUBERNETES(2),
+
+    /**
+     * Detect by Network Profiling for build the Topology only.
+     * This type of process should not be profileable.
+     */
+    VIRTUAL(3),
     ;
 
     private final int value;

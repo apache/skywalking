@@ -1,0 +1,135 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+expSuffix: |-
+  processRelation('side', ['service'], ['instance'], 'client_process_id', 'server_process_id', 'component')
+expPrefix: |-
+  forEach(['client', 'server'], { prefix, tags ->
+    if (tags[prefix + '_process_id'] != null) {
+      return
+    }
+    if (tags[prefix + '_local'] == 'true') {
+      tags[prefix + '_process_id'] = ProcessRegistry.generateVirtualLocalProcess(tags.service, tags.instance)
+      return
+    }
+    tags[prefix + '_process_id'] = ProcessRegistry.generateVirtualRemoteProcess(tags.service, tags.instance, tags[prefix + '_address'])
+  })
+  .forEach(['component'], { key, tags ->
+    String result = ""
+    // protocol are defined in the component-libraries.yml
+    String protocol = tags['protocol']
+    String ssl = tags['is_ssl']
+    if (protocol == 'http' && ssl == 'true') {
+      result = '129'  // https
+    } else if (protocol == 'http') {
+      result = '49'   // http
+    } else if (ssl == 'true') {
+      result = '130'  // tls
+    } else {
+      result = '110'  // tcp
+    }
+    tags[key] = result
+  })
+metricPrefix: process_relation
+metricsRules:
+  # TCP Metrics: client side
+  - name: client_write_cpm
+    exp:  rover_net_p_client_write_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_write_total_bytes
+    exp:  rover_net_p_client_write_bytes_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_write_avg_exe_time
+    exp:  rover_net_p_client_write_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: client_read_cpm
+    exp:  rover_net_p_client_read_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_read_total_bytes
+    exp:  rover_net_p_client_read_bytes_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_read_avg_exe_time
+    exp: rover_net_p_client_read_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: client_write_avg_rtt_time
+    exp: rover_net_p_client_write_rtt_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: client_connect_cpm
+    exp: rover_net_p_client_connect_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_connect_exe_time
+    exp: rover_net_p_client_connect_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: client_close_cpm
+    exp: rover_net_p_client_close_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_close_avg_exe_time
+    exp: rover_net_p_client_close_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: client_retransmit_cpm
+    exp: rover_net_p_client_retransmit_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_drop_cpm
+    exp: rover_net_p_client_drop_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: client_write_rtt_time_percentile
+    exp: rover_net_p_client_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: client_write_exe_time_percentile
+    exp: rover_net_p_client_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: client_read_exe_time_percentile
+    exp: rover_net_p_client_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+
+  # TCP Metrics: server side
+  - name: server_write_cpm
+    exp:  rover_net_p_server_write_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_write_total_bytes
+    exp:  rover_net_p_server_write_bytes_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_write_avg_exe_time
+    exp:  rover_net_p_server_write_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: server_read_cpm
+    exp:  rover_net_p_server_read_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_read_total_bytes
+    exp:  rover_net_p_server_read_bytes_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_read_avg_exe_time
+    exp: rover_net_p_server_read_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: server_write_avg_rtt_time
+    exp: rover_net_p_server_write_rtt_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: server_connect_cpm
+    exp: rover_net_p_server_connect_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_connect_avg_exe_time
+    exp: rover_net_p_server_connect_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: server_close_cpm
+    exp: rover_net_p_server_close_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_close_avg_exe_time
+    exp: rover_net_p_server_close_exe_time_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: server_retransmit_cpm
+    exp: rover_net_p_server_retransmit_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_drop_cpm
+    exp: rover_net_p_server_drop_counts_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: server_write_rtt_time_percentile
+    exp: rover_net_p_server_write_rtt_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: server_write_exe_time_percentile
+    exp: rover_net_p_server_write_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: server_read_exe_time_percentile
+    exp: rover_net_p_server_read_exe_time_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+
+  # HTTP/1.x Metrics
+  - name: http1_request_cpm
+    exp: rover_net_p_http1_request_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component']).downsampling(SUM_PER_MIN)
+  - name: http1_response_status_cpm
+    exp: rover_net_p_http1_response_status_counter.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'code']).downsampling(SUM_PER_MIN)
+  - name: http1_request_package_size
+    exp: rover_net_p_http1_request_package_size_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: http1_response_package_size
+    exp: rover_net_p_http1_response_package_size_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: http1_request_package_size_percentile
+    exp: rover_net_p_http1_request_package_size_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: http1_response_package_size_percentile
+    exp: rover_net_p_http1_response_package_size_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: http1_client_duration
+    exp: rover_net_p_http1_client_duration_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: http1_server_duration
+    exp: rover_net_p_http1_server_duration_avg.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component'])
+  - name: http1_client_duration_percentile
+    exp: rover_net_p_http1_client_duration_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: http1_server_duration_percentile
+    exp: rover_net_p_http1_server_duration_histogram.sum(['service', 'instance', 'side', 'client_process_id', 'server_process_id', 'component', 'le']).histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)

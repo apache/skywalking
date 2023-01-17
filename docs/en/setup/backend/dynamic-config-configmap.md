@@ -1,6 +1,6 @@
-# Dynamic Configuration Kuberbetes Configmap Implementation
+# Dynamic Configuration Kubernetes Configmap Implementation
 
-[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as Dynamic Configuration Center (DCC). To use it, please configure as follows:
+[configmap](https://kubernetes.io/docs/concepts/configuration/configmap/) is also supported as a Dynamic Configuration Center (DCC). To use it, please configure it as follows:
 
 ```yaml
 configuration:
@@ -47,8 +47,7 @@ data:
 ```
 
 ## Config Storage
-The configs is configmap data items as the above example shows. we can organize the configs
-in 1 or more configmap files.
+The configs are configmap data items, as the above example shows. we can organize the configs in 1 or more configmap files.
 ### Single Config
 Under configmap.data:
 ```

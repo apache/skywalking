@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.receiver.event;
 
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.analyzer.event.EventAnalyzerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
@@ -43,8 +44,8 @@ public class EventModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new EventModuleConfig();
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override
@@ -61,7 +62,9 @@ public class EventModuleProvider extends ModuleProvider {
         HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
                                                               .provider()
                                                               .getService(HTTPHandlerRegister.class);
-        httpHandlerRegister.addHandler(new EventRestServiceHandler(getManager()));
+        httpHandlerRegister.addHandler(new EventRestServiceHandler(getManager()),
+                                       Collections.singletonList(HttpMethod.POST)
+        );
     }
 
     @Override

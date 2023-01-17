@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.profile.provider.handler;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -111,8 +112,14 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 LOGGER.error(throwable.getMessage(), throwable);
-                responseObserver.onCompleted();
             }
 
             @Override
@@ -146,9 +153,10 @@ public class ProfileTaskServiceHandler extends ProfileTaskGrpc.ProfileTaskImplBa
         logRecord.setOperationType(operationType.getCode());
         logRecord.setOperationTime(System.currentTimeMillis());
         // same with task time bucket, ensure record will ttl same with profile task
+        long timestamp = task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration());
         logRecord.setTimeBucket(
-            TimeBucket.getRecordTimeBucket(task.getStartTime() + TimeUnit.MINUTES.toMillis(task.getDuration())));
-
+            TimeBucket.getRecordTimeBucket(timestamp));
+        logRecord.setTimestamp(timestamp);
         RecordStreamProcessor.getInstance().in(logRecord);
     }
 

@@ -27,11 +27,15 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
- * Percentile is a better implementation than {@link PxxMetrics}. It is introduced since 7.0.0, it could calculate the
- * multiple P50/75/90/95/99 values once for all.
+ * Percentile is a better implementation than deprecated PxxMetrics in older releases.
+ * This could calculate the multiple P50/75/90/95/99 values once for all.
+ *
+ * @since 7.0.0
  */
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
@@ -50,14 +54,18 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @BanyanDB.MeasureField
     private DataTable percentileValues;
     @Getter
     @Setter
     @Column(columnName = PRECISION, storageOnly = true)
+    @BanyanDB.MeasureField
     private int precision;
     @Getter
     @Setter
     @Column(columnName = DATASET, storageOnly = true)
+    @BanyanDB.MeasureField
     private DataTable dataset;
 
     private boolean isCalculated;

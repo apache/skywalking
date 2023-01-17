@@ -1,0 +1,95 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'skywalking-so11y' }" # The OpenTelemetry job name
+expSuffix: instance(['service'], ['host_name'], Layer.SO11Y_OAP)
+metricPrefix: meter_oap
+metricsRules:
+  - name: instance_cpu_percentage
+    exp: (process_cpu_seconds_total * 100).sum(['service', 'host_name']).rate('PT1M')
+  - name: instance_jvm_memory_bytes_used
+    exp: jvm_memory_bytes_used.sum(['service', 'host_name'])
+  - name: instance_jvm_gc_count
+    exp: "jvm_gc_collection_seconds_count.tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation|PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation')
+    .sum(['service', 'host_name', 'gc']).increase('PT1M')
+    .tag({tags -> if (tags['gc'] == 'PS Scavenge' || tags['gc'] == 'Copy' || tags['gc'] == 'ParNew' || tags['gc'] == 'G1 Young Generation') {tags.gc = 'young_gc_count'} })
+    .tag({tags -> if (tags['gc'] == 'PS MarkSweep' || tags['gc'] == 'MarkSweepCompact' || tags['gc'] == 'ConcurrentMarkSweep' || tags['gc'] == 'G1 Old Generation') {tags.gc = 'old_gc_count'} })"
+  - name: instance_jvm_gc_time
+    exp: "(jvm_gc_collection_seconds_sum * 1000).tagMatch('gc', 'PS Scavenge|Copy|ParNew|G1 Young Generation|PS MarkSweep|MarkSweepCompact|ConcurrentMarkSweep|G1 Old Generation')
+    .sum(['service', 'host_name', 'gc']).increase('PT1M')
+    .tag({tags -> if (tags['gc'] == 'PS Scavenge' || tags['gc'] == 'Copy' || tags['gc'] == 'ParNew' || tags['gc'] == 'G1 Young Generation') {tags.gc = 'young_gc_time'} })
+    .tag({tags -> if (tags['gc'] == 'PS MarkSweep' || tags['gc'] == 'MarkSweepCompact' || tags['gc'] == 'ConcurrentMarkSweep' || tags['gc'] == 'G1 Old Generation') {tags.gc = 'old_gc_time'} })"
+  - name: instance_trace_count
+    exp: trace_in_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_trace_latency_percentile
+    exp: trace_in_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_trace_analysis_error_count
+    exp: trace_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_mesh_count
+    exp: mesh_analysis_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_mesh_latency_percentile
+    exp: mesh_analysis_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_mesh_analysis_error_count
+    exp: mesh_analysis_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_metrics_aggregation
+    exp: "metrics_aggregation.tagEqual('dimensionality', 'minute').sum(['service', 'host_name', 'level']).increase('PT1M')
+    .tag({tags -> if (tags['level'] == '1') {tags.level = 'L1 aggregation'} }).tag({tags -> if (tags['level'] == '2') {tags.level = 'L2 aggregation'} })"
+  - name: instance_persistence_execute_percentile
+    exp: persistence_timer_bulk_execute_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_persistence_prepare_percentile
+    exp: persistence_timer_bulk_prepare_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,70,90,99])
+  - name: instance_persistence_error_count
+    exp: persistence_timer_bulk_error_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_persistence_execute_count
+    exp: persistence_timer_bulk_execute_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_persistence_prepare_count
+    exp: persistence_timer_bulk_prepare_latency_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_metrics_persistent_cache
+    exp: metrics_persistent_cache.sum(['service', 'host_name', 'status']).increase('PT1M')
+  - name: jvm_thread_live_count
+    exp: jvm_threads_current.sum(['service', 'host_name'])
+  - name: jvm_thread_daemon_count
+    exp: jvm_threads_daemon.sum(['service', 'host_name'])
+  - name: jvm_thread_peak_count
+    exp: jvm_threads_peak.sum(['service', 'host_name'])
+  - name: jvm_thread_runnable_count
+    exp: jvm_threads_state.tagMatch('state', 'RUNNABLE').sum(['service', 'host_name'])
+  - name: jvm_thread_blocked_count
+    exp: jvm_threads_state.tagMatch('state', 'BLOCKED').sum(['service', 'host_name'])
+  - name: jvm_thread_waiting_count
+    exp: jvm_threads_state.tagMatch('state', 'WAITING').sum(['service', 'host_name'])
+  - name: jvm_thread_timed_waiting_count
+    exp: jvm_threads_state.tagMatch('state', 'TIMED_WAITING').sum(['service', 'host_name'])
+  - name: jvm_class_loaded_count
+    exp: jvm_classes_loaded.sum(['service', 'host_name'])
+  - name: jvm_class_total_unloaded_count
+    exp: jvm_classes_unloaded_total.sum(['service', 'host_name'])
+  - name: jvm_class_total_loaded_count
+    exp: jvm_classes_loaded_total.sum(['service', 'host_name'])

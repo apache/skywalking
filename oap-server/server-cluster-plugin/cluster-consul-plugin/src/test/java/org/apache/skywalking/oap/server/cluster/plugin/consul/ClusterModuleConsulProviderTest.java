@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -46,7 +45,6 @@ import org.powermock.reflect.Whitebox;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyCollection;
 import static org.mockito.Mockito.anyLong;
@@ -56,7 +54,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Consul.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+@PowerMockIgnore({
+    "com.sun.org.apache.xerces.*",
+    "javax.xml.*",
+    "org.xml.*",
+    "javax.management.*",
+    "org.w3c.*"
+})
 public class ClusterModuleConsulProviderTest {
 
     private ClusterModuleConsulProvider provider = new ClusterModuleConsulProvider();
@@ -69,11 +73,12 @@ public class ClusterModuleConsulProviderTest {
     @Before
     public void before() {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
-                .thenReturn(new MetricsCreatorNoop());
+               .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         provider.setManager(moduleManager);
+        Whitebox.setInternalState(provider, "config", new ClusterModuleConsulConfig());
     }
 
     @Test
@@ -84,12 +89,6 @@ public class ClusterModuleConsulProviderTest {
     @Test
     public void module() {
         assertEquals(ClusterModule.class, provider.module());
-    }
-
-    @Test
-    public void createConfigBeanIfAbsent() {
-        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
-        assertTrue(moduleConfig instanceof ClusterModuleConsulConfig);
     }
 
     @Test(expected = ModuleStartException.class)
@@ -121,7 +120,10 @@ public class ClusterModuleConsulProviderTest {
 
         List<HostAndPort> address = (List<HostAndPort>) addressCaptor.getValue();
         assertEquals(2, address.size());
-        assertEquals(Lists.newArrayList(HostAndPort.fromParts("10.0.0.1", 1000), HostAndPort.fromParts("10.0.0.2", 1001)), address);
+        assertEquals(
+            Lists.newArrayList(HostAndPort.fromParts("10.0.0.1", 1000), HostAndPort.fromParts("10.0.0.2", 1001)),
+            address
+        );
     }
 
     @Test
@@ -136,7 +138,7 @@ public class ClusterModuleConsulProviderTest {
 
         PowerMockito.mockStatic(Consul.class);
         when(Consul.builder()).thenReturn(builder);
-        when(builder.withConnectTimeoutMillis(anyLong())).thenCallRealMethod();
+        when(builder.withConnectTimeoutMillis(anyLong())).thenReturn(builder);
 
         when(builder.withHostAndPort(any())).thenReturn(builder);
 

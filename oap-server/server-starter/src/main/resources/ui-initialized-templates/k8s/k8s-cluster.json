@@ -37,7 +37,7 @@
           "metricTypes": [
             ""
           ],
-          "activedTabIndex": 0,
+          "activedTabIndex": 1,
           "children": [
             {
               "name": "Overview",
@@ -459,16 +459,23 @@
                     "fontSize": 12
                   },
                   "metrics": [
-                    "k8s_node_cpu_usage"
+                    "k8s_node_cpu_usage",
+                    "k8s_node_pod_total"
                   ],
                   "metricTypes": [
+                    "readMetricsValues",
                     "readMetricsValues"
                   ],
                   "moved": false,
                   "metricConfig": [
                     {
                       "label": "CPU Usage",
-                      "unit": "m"
+                      "unit": "m",
+                      "calculation": "average"
+                    },
+                    {
+                      "calculation": "average",
+                      "label": "Pod"
                     }
                   ]
                 }

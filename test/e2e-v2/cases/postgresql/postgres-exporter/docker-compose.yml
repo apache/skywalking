@@ -1,0 +1,147 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      - TZ=Asia/Shanghai
+      - SW_STORAGE=postgresql
+      - SW_JDBC_URL=jdbc:postgresql://postgres:5432/skywalking
+      - SW_DATA_SOURCE_USER=postgres
+      - SW_DATA_SOURCE_PASSWORD=123456
+      - SW_CORE_TOPN_REPORT_PERIOD=2
+    ports:
+      - 12800
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    image: postgres:14.1
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=skywalking
+    ports:
+      - 5432
+    command: postgres -c config_file=/etc/postgresql.conf
+    volumes:
+     - ./postgresql.conf:/etc/postgresql.conf
+     - ./data:/var/lib/postgresql/data
+    networks:
+      - e2e
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5432"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  postgres_2: &pgsql
+    image: postgres:14.1
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=skywalking
+    ports:
+      - 5432
+    command: postgres -c config_file=/etc/postgresql.conf
+    volumes:
+      - ./postgresql.conf:/etc/postgresql.conf
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5432" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  postgres_3:
+    <<: *pgsql
+  postgres-load:
+    image: postgres:14.1
+    environment:
+      - PGPASSWORD=123456
+    depends_on:
+      - otel-collector
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+     - ../postgres-exporter:/docker
+    command:
+      - -c
+      - "psql -f /docker/mock.sql -h postgres -p 5432 -U postgres"
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.11.0
+    depends_on:
+      - postgres
+    ports:
+      - 9187
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres:5432/postgres?sslmode=disable
+    networks:
+      - e2e
+  postgres-exporter_2:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.11.0
+    depends_on:
+      - postgres
+    ports:
+      - 9187
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres_2:5432/postgres?sslmode=disable
+    networks:
+      - e2e
+  postgres-exporter_3:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.11.0
+    depends_on:
+      - postgres
+    ports:
+      - 9187
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres_3:5432/postgres?sslmode=disable
+    networks:
+      - e2e
+  fluentbit:
+    image: fluent/fluent-bit:1.9
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data/log:/tmp/skywalking-logs
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit-parser.conf:/fluent-bit/etc/fluent-bit-parser.conf
+      - ./fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
+    networks:
+      - e2e
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.50.0
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

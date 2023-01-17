@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
@@ -41,13 +41,8 @@ import org.apache.skywalking.oap.server.library.util.ConnectUtils;
  */
 public class ClusterModuleConsulProvider extends ModuleProvider {
 
-    private final ClusterModuleConsulConfig config;
+    private ClusterModuleConsulConfig config;
     private Consul client;
-
-    public ClusterModuleConsulProvider() {
-        super();
-        this.config = new ClusterModuleConsulConfig();
-    }
 
     @Override
     public String name() {
@@ -60,8 +55,18 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ClusterModuleConsulConfig>() {
+            @Override
+            public Class type() {
+                return ClusterModuleConsulConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final ClusterModuleConsulConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -93,6 +98,7 @@ public class ClusterModuleConsulProvider extends ModuleProvider {
         ConsulCoordinator coordinator = new ConsulCoordinator(getManager(), config, client);
         this.registerServiceImplementation(ClusterRegister.class, coordinator);
         this.registerServiceImplementation(ClusterNodesQuery.class, coordinator);
+        this.registerServiceImplementation(ClusterCoordinator.class, coordinator);
     }
 
     @Override

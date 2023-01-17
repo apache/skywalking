@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,7 +60,7 @@ public class MinLongMetricsTest {
     public class MinLongMetricsImpl extends MinLongMetrics {
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 
