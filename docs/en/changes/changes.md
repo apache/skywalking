@@ -3,6 +3,7 @@
 #### Project
 
 * Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
+* Bump up Apache parent pom version to 29.
 
 #### OAP Server
 
@@ -100,5 +101,6 @@
 * Add documentation about replacing Zipkin server with SkyWalking OAP.
 * Add Lens UI relative docs in Zipkin trace section.
 * Add Profiling APIs.
+* Fix backend telemetry doc and so11y dashboard doc as the OAP Prometheus fetcher was removed since 9.3.0
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
