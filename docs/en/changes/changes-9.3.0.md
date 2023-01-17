@@ -99,6 +99,7 @@
   * Support configuration for TTL and (block|segment) intervals
 * Elasticsearch storage: Provide system environment variable(`SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS`) and support specify the settings `(number_of_shards/number_of_replicas)` for each index individually.
 * Elasticsearch storage: Support update index settings `(number_of_shards/number_of_replicas)` for the index template after rebooting.
+* Elasticsearch storage: Support batchOfBytes configuration to set up the batch bytes size of the record data.
 * Optimize MQ Topology analysis. Use entry span's peer from the consumer side as source service when no producer instrumentation(no cross-process reference).
 * Refactor JDBC storage implementations to reuse logics.
 * Fix `ClassCastException` in `LoggingConfigWatcher`.

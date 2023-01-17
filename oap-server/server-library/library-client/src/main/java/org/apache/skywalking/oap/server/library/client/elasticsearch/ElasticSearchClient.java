@@ -360,9 +360,11 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public BulkProcessor createBulkProcessor(int bulkActions,
                                              int flushInterval,
-                                             int concurrentRequests) {
+                                             int concurrentRequests,
+                                             int batchOfBytes) {
         return BulkProcessor.builder()
                             .bulkActions(bulkActions)
+                            .batchOfBytes(batchOfBytes)
                             .flushInterval(Duration.ofSeconds(flushInterval))
                             .concurrentRequests(concurrentRequests)
                             .build(es);

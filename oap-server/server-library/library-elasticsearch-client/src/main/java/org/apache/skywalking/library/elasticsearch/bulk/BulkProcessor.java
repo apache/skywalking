@@ -21,6 +21,9 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.util.Exceptions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +53,8 @@ public final class BulkProcessor {
     private final Semaphore semaphore;
     private final long flushInternalInMillis;
     private volatile long lastFlushTS = 0;
+    private final int batchOfBytes;
+    private volatile int bufferOfBytes = 0;
 
     public static BulkProcessorBuilder builder() {
         return new BulkProcessorBuilder();
@@ -57,11 +62,12 @@ public final class BulkProcessor {
 
     BulkProcessor(
         final AtomicReference<ElasticSearch> es, final int bulkActions,
-        final Duration flushInterval, final int concurrentRequests) {
+        final Duration flushInterval, final int concurrentRequests, final int batchOfBytes) {
         requireNonNull(flushInterval, "flushInterval");
 
         this.es = requireNonNull(es, "es");
         this.bulkActions = bulkActions;
+        this.batchOfBytes = batchOfBytes;
         this.semaphore = new Semaphore(concurrentRequests > 0 ? concurrentRequests : 1);
         this.requests = new ArrayBlockingQueue<>(bulkActions + 1);
 
@@ -94,6 +100,8 @@ public final class BulkProcessor {
     private CompletableFuture<Void> internalAdd(Object request) {
         requireNonNull(request, "request");
         final CompletableFuture<Void> f = new CompletableFuture<>();
+        int len = toByteArray(request).length;
+        bufferOfBytes += len;
         requests.put(new Holder(f, request));
         flushIfNeeded();
         return f;
@@ -101,7 +109,7 @@ public final class BulkProcessor {
 
     @SneakyThrows
     private void flushIfNeeded() {
-        if (requests.size() >= bulkActions) {
+        if (bufferOfBytes > batchOfBytes || requests.size() >= bulkActions) {
             flush();
         }
     }
@@ -129,7 +137,7 @@ public final class BulkProcessor {
 
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
-
+        bufferOfBytes = 0;
         final CompletableFuture<Void> flush = doFlush(batch);
         flush.whenComplete((ignored1, ignored2) -> semaphore.release());
         flush.join();
@@ -177,9 +185,20 @@ public final class BulkProcessor {
         return future;
     }
 
+
+    private byte[] toByteArray (Object obj) throws IOException {
+        try(ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(obj);
+            oos.flush();
+            return  bos.toByteArray();
+        }
+    }
+
     @RequiredArgsConstructor
     static class Holder {
         private final CompletableFuture<Void> future;
         private final Object request;
     }
+
 }

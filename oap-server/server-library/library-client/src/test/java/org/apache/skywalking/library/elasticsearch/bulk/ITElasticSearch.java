@@ -205,7 +205,7 @@ public class ITElasticSearch {
 
     @Test
     public void bulk() {
-        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2);
+        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2, 5 * 1024 * 1024);
 
         Map<String, String> source = new HashMap<>();
         source.put("column1", "value1");
