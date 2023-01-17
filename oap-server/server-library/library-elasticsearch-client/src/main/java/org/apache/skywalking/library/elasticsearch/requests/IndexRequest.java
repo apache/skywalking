@@ -32,7 +32,7 @@ public final class IndexRequest {
     private final String type;
     private final String id;
     /**
-     * the routing value to control the sharding policy
+     * The routing value of the request.
      */
     @Builder.Default
     private final Optional<String> routing = Optional.empty();
