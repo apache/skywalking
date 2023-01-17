@@ -102,9 +102,8 @@ public @interface ElasticSearch {
     /**
      * Routing defines a field of {@link Record} to control the sharding policy.
      */
-    @Target(ElementType.TYPE)
+    @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.RUNTIME)
     @interface Routing {
-        String value();
     }
 }

@@ -45,7 +45,6 @@ import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = SegmentRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.TIME_SEC_RANGE_SHARDING_ALGORITHM, dataSourceShardingColumn = SERVICE_ID, tableShardingColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(SegmentRecord.START_TIME)
-@ElasticSearch.Routing(SegmentRecord.TRACE_ID)
 public class SegmentRecord extends Record {
 
     public static final String INDEX_NAME = "segment";
@@ -69,6 +68,7 @@ public class SegmentRecord extends Record {
     @Getter
     @Column(columnName = TRACE_ID, length = 150)
     @BanyanDB.GlobalIndex
+    @ElasticSearch.Routing
     private String traceId;
     @Setter
     @Getter

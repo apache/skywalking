@@ -98,12 +98,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             banyanDBModelExtension.setStoreIDTag(true);
         }
 
-        if (aClass.isAnnotationPresent(ElasticSearch.Routing.class)) {
-            String routing = aClass.getAnnotation(ElasticSearch.Routing.class).value();
-            elasticSearchModelExtension.setRouting(routing);
-        }
-
         checker.check(storage.getModelName());
+        elasticSearchModelExtension.setRouting(storage.getModelName(), modelColumns);
 
         Model model = new Model(
             storage.getModelName(),
@@ -198,10 +194,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     ElasticSearch.MatchQuery.class);
                 final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
                 final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
+                final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
                     elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
-                    keywordColumn != null
+                    keywordColumn != null,
+                    routingColumn != null
                 );
 
                 // BanyanDB extension

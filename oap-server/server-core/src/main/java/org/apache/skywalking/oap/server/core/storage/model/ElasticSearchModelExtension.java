@@ -19,8 +19,11 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ElasticSearchModelExtension {
 
@@ -28,6 +31,27 @@ public class ElasticSearchModelExtension {
      * Routing defines a field of {@link Record} to control the sharding policy.
      */
     @Getter
-    @Setter
     private String routing;
+
+    public void setRouting(String modelName, List<ModelColumn> modelColumns) throws IllegalStateException {
+        if (CollectionUtils.isEmpty(modelColumns)) {
+            return;
+        }
+
+        List<ModelColumn> routingColumns = modelColumns.stream()
+                .filter(col -> col.getElasticSearchExtension().isRouting())
+                .collect(Collectors.toList());
+
+        int size = routingColumns.size();
+        if (size > 1) {
+            throw new IllegalStateException(modelName + "'s routing field is duplicated "
+                    + routingColumns.stream()
+                            .map(col -> col.getColumnName().toString())
+                            .collect(Collectors.joining(",", "[", "]")));
+        }
+
+        if (size == 1) {
+            routing = routingColumns.get(0).getColumnName().getName();
+        }
+    }
 }
