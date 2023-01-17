@@ -19,21 +19,7 @@ You may also set `Prometheus` to enable them. For more information, refer to the
 
 ## Self Observability
 ### Static IP or hostname
-SkyWalking supports collecting telemetry data into the OAP backend directly. Users could check them out through UI or
-GraphQL API.
-
-Add the following configuration to enable self-observability-related modules.
-
-1. Set up prometheus telemetry.
-```yaml
-telemetry:
-  selector: ${SW_TELEMETRY:prometheus}
-  prometheus:
-    host: 127.0.0.1
-    port: 1543
-```
-
-2. Set up OpenTelemetry to scrape the metrics from OAP telemetry.
+Set up OpenTelemetry to scrape the metrics from OAP telemetry.
 
 Refer to [the E2E test case](../../../../test/e2e-v2/cases/so11y/otel-collector-config.yaml) as an example.
 
