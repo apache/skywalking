@@ -136,9 +136,6 @@ public final class BulkProcessor {
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
         final List<CompletableFuture<Void>> futures = doFlush(batch);
-        for (final CompletableFuture<Void> future : futures) {
-            future.join();
-        }
         futures.stream().map(future -> future.join());
         semaphore.release();
         lastFlushTS = System.currentTimeMillis();
