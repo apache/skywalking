@@ -18,19 +18,22 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class RoutingUtils {
 
-    public static Optional<String> getRouting(final Model model, final Map<String, Object> builder) {
+    /**
+     * get the value of the field annotated {@link ElasticSearch.Routing}
+     */
+    public static Optional<String> getRoutingValue(final Model model, final ElasticSearchConverter.ToStorage toStorage) {
         Optional<String> routingField = model.getElasticSearchModelExtension().getRouting();
-        return routingField.map(v -> extractRoutingValue(v, builder));
+        return routingField.map(v -> extractRoutingValue(v, toStorage));
     }
 
-    private static String extractRoutingValue(String routingField, Map<String, Object> builder) {
-        Object value = builder.get(routingField);
+    private static String extractRoutingValue(String routingField, ElasticSearchConverter.ToStorage toStorage) {
+        Object value = toStorage.get(routingField);
         if (value == null) {
             return null;
         }

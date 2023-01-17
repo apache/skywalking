@@ -351,10 +351,10 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return prepareInsert(indexName, id, Optional.empty(), source);
     }
 
-    public IndexRequestWrapper prepareInsert(String indexName, String id, Optional<String> routing,
+    public IndexRequestWrapper prepareInsert(String indexName, String id, Optional<String> routingValue,
                                              Map<String, Object> source) {
         indexName = indexNameConverter.apply(indexName);
-        return new IndexRequestWrapper(indexName, TYPE, id, routing, source);
+        return new IndexRequestWrapper(indexName, TYPE, id, routingValue, source);
     }
 
     public UpdateRequestWrapper prepareUpdate(String indexName, String id,

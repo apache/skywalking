@@ -31,6 +31,9 @@ public final class IndexRequest {
     private final String index;
     private final String type;
     private final String id;
+    /**
+     * the routing value to control the sharding policy
+     */
     @Builder.Default
     private final Optional<String> routing = Optional.empty();
     private final Map<String, ?> doc;
