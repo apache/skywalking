@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -215,6 +216,23 @@ public class ITElasticSearch {
             IndexRequestWrapper
                 indexRequest =
                 new IndexRequestWrapper("bulk_insert_test", "type", String.valueOf(i), source);
+            bulkProcessor.add(indexRequest.getRequest());
+        }
+
+        bulkProcessor.flush();
+    }
+
+    @Test
+    public void bulkPer_1KB() {
+        BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2, 1024);
+
+        Map<String, String> source = new HashMap<>();
+        source.put("column1", RandomStringUtils.randomAlphanumeric(1024));
+        source.put("column2", "value2");
+
+        for (int i = 0; i < 100; i++) {
+            IndexRequestWrapper indexRequest = new IndexRequestWrapper(
+                "bulk_insert_test6", "type", String.valueOf(i), source);
             bulkProcessor.add(indexRequest.getRequest());
         }
 
