@@ -139,7 +139,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinSpanRecord.TRACE_ID, traceId));
         SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
-        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        final SearchParams params = new SearchParams()
+                .scroll(SCROLL_CONTEXT_RETENTION)
+                .routing(traceId);
         SearchResponse response = getClient().search(index, search.build(), params);
         final Set<String> scrollIds = new HashSet<>();
         List<Span> trace = new ArrayList<>();
@@ -236,7 +238,9 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         BoolQueryBuilder query = Query.bool().must(Query.terms(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds)));
         SearchBuilder search = Search.builder().query(query).sort(ZipkinSpanRecord.TIMESTAMP_MILLIS, Sort.Order.DESC)
                                      .size(SCROLLING_BATCH_SIZE); //max span size for 1 scroll
-        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        final SearchParams params = new SearchParams()
+                .scroll(SCROLL_CONTEXT_RETENTION)
+                .routing(String.join(",", traceIds));
 
         SearchResponse response = getClient().search(index, search.build(), params);
         final Set<String> scrollIds = new HashSet<>();
