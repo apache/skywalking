@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ElasticSearchModelExtension {
@@ -31,7 +32,7 @@ public class ElasticSearchModelExtension {
      * Routing defines a field of {@link Record} to control the sharding policy.
      */
     @Getter
-    private String routing;
+    private Optional<String> routing = Optional.empty();
 
     public void setRouting(String modelName, List<ModelColumn> modelColumns) throws IllegalStateException {
         if (CollectionUtils.isEmpty(modelColumns)) {
@@ -51,7 +52,7 @@ public class ElasticSearchModelExtension {
         }
 
         if (size == 1) {
-            routing = routingColumns.get(0).getColumnName().getName();
+            routing = Optional.of(routingColumns.get(0).getColumnName().getName());
         }
     }
 }

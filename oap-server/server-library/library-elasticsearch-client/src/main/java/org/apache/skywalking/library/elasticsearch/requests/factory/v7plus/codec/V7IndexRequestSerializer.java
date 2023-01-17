@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 final class V7IndexRequestSerializer extends JsonSerializer<IndexRequest> {
     @Override
@@ -38,8 +37,8 @@ final class V7IndexRequestSerializer extends JsonSerializer<IndexRequest> {
             {
                 gen.writeStringField("_index", value.getIndex());
                 gen.writeStringField("_id", value.getId());
-                if (StringUtil.isNotBlank(value.getRouting())) {
-                    gen.writeStringField("routing", value.getRouting());
+                if (value.getRouting().isPresent()) {
+                    gen.writeStringField("routing", value.getRouting().get());
                 }
             }
             gen.writeEndObject();
