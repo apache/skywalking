@@ -18,10 +18,11 @@ telemetry:
 You may also set `Prometheus` to enable them. For more information, refer to the details below.
 
 ## Self Observability
-### Static IP or hostname
-SkyWalking supports collecting telemetry data into the OAP backend directly. Users could check them out through UI or
-GraphQL API.
+SkyWalking supports exposing telemetry data representing OAP running status through Prometheus endpoint.
+Users could set up OpenTelemetry collector to scrap and forward telemetry data to OAP server for further analysis, 
+eventually showing up UI or GraphQL API.
 
+### Static IP or hostname
 Add the following configuration to enable self-observability-related modules.
 
 1. Set up prometheus telemetry.
@@ -100,6 +101,8 @@ For the full example for OpenTelemetry Collector configuration and recommended v
 
 
 ___
+
+Users also could leverage the Prometheus endpoint for their own Prometheus and Grafana.
 
 **NOTE**: Since Apr 21, 2021, the **Grafana** project has been relicensed to **AGPL-v3**, and is no longer licensed for Apache 2.0. Check the LICENSE details.
 The following Prometheus + Grafana solution is optional rather than recommended.
