@@ -100,7 +100,7 @@ public @interface ElasticSearch {
     }
 
     /**
-     * Routing is to identify which field in {@link Record} is providing the routing for ElasticSearch.
+     * Routing defines a field of {@link Record} to control the sharding policy.
      */
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.RUNTIME)

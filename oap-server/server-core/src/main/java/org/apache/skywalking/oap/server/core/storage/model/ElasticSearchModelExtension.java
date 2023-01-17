@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 public class ElasticSearchModelExtension {
 
     /**
-     * Routing is to identify which field in {@link Record} is providing the routing for ElasticSearch.
+     * Routing defines a field of {@link Record} to control the sharding policy.
      */
     @Getter
     @Setter
