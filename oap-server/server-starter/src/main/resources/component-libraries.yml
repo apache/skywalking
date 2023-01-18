@@ -655,6 +655,9 @@ AsyncPG:
 AIORedis:
   id: 7017
   languages: Python
+Websockets:
+  id: 7018
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent

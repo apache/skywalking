@@ -80,7 +80,7 @@
 * Add Python HBase happybase module component ID(94).
 * Fix gRPC alarm cannot update settings from dynamic configuration source.
 * Add `batchOfBytes` configuration to limit the size of bulk flush.
-
+* Add Python Websocket module component ID(7018).
 
 #### UI
 
