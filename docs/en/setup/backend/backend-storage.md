@@ -107,6 +107,8 @@ storage:
     # Set it to `true` could shard metrics indices into multi-physical indices
     # as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
+    # Custom routing can reduce the impact of searches. Instead of having to fan out a search request to all the shards in an index, the request can be sent to just the shard that matches the specific routing value (or values).
+    enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
 ```
 
 ### ElasticSearch With Https SSL Encrypting communications.

@@ -80,6 +80,7 @@
 * Add Python HBase happybase module component ID(94).
 * Fix gRPC alarm cannot update settings from dynamic configuration source.
 * Add Python Websocket module component ID(7018).
+* [**Breaking Change**] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing.
 
 #### UI
 

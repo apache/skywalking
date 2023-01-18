@@ -60,6 +60,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         ShardingKeyChecker checker = new ShardingKeyChecker();
         SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
         BanyanDBModelExtension banyanDBModelExtension = new BanyanDBModelExtension();
+        ElasticSearchModelExtension elasticSearchModelExtension = new ElasticSearchModelExtension();
         retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, record);
         // Add extra column for additional entities
         if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
@@ -96,7 +97,9 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
             banyanDBModelExtension.setStoreIDTag(true);
         }
-
+        // Set routing rules for ElasticSearch
+        elasticSearchModelExtension.setRouting(storage.getModelName(), modelColumns);
+        
         checker.check(storage.getModelName());
 
         Model model = new Model(
@@ -109,7 +112,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             aClass,
             storage.isTimeRelativeID(),
             sqlDBModelExtension,
-            banyanDBModelExtension
+            banyanDBModelExtension,
+            elasticSearchModelExtension
         );
 
         this.followColumnNameRules(model);
@@ -191,10 +195,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     ElasticSearch.MatchQuery.class);
                 final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
                 final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
+                final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
                     elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
-                    keywordColumn != null
+                    keywordColumn != null,
+                    routingColumn != null
                 );
 
                 // BanyanDB extension

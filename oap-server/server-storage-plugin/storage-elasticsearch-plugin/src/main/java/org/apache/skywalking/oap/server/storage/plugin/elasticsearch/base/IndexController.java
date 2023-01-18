@@ -49,6 +49,10 @@ public enum IndexController {
     @Getter
     private boolean logicSharding = false;
 
+    @Setter
+    @Getter
+    private boolean enableCustomRouting = false;
+
     public String getTableName(Model model) {
         if (!logicSharding) {
             return isMetricModel(model) ? "metrics-all" :
