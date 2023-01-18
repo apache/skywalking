@@ -49,6 +49,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RoutingUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 
 import static java.util.Objects.nonNull;
@@ -178,7 +179,9 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                   .query(Query.term(SegmentRecord.TRACE_ID, traceId))
                   .size(segmentQueryMaxSize);
 
-        final SearchParams searchParams = new SearchParams().routing(traceId);
+        SearchParams searchParams = new SearchParams();
+        RoutingUtils.addRoutingValueToSearchParam(searchParams, traceId);
+
         final SearchResponse response = getClient().search(index, search.build(), searchParams);
 
         List<SegmentRecord> segmentRecords = new ArrayList<>();

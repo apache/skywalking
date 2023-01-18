@@ -170,6 +170,8 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
     # Enable shard metrics and records indices into multi-physical indices, one index template per metric/meter aggregation function or record.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
+    # Custom routing can reduce the impact of searches. Instead of having to fan out a search request to all the shards in an index, the request can be sent to just the shard that matches the specific routing value (or values).
+    enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
   h2:
     properties:
       jdbcUrl: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
@@ -24,10 +25,27 @@ import java.util.Optional;
 
 public class RoutingUtils {
 
+    public static void addRoutingValueToSearchParam(SearchParams searchParams, String routingValue) {
+        if (!IndexController.INSTANCE.isEnableCustomRouting()) {
+            return;
+        }
+        searchParams.routing(routingValue);
+    }
+
+    public static void addRoutingValuesToSearchParam(SearchParams searchParams, Iterable<String> routingValues) {
+        if (!IndexController.INSTANCE.isEnableCustomRouting()) {
+            return;
+        }
+        searchParams.routing(routingValues);
+    }
+
     /**
      * get the value of the field annotated {@link ElasticSearch.Routing}
      */
     public static Optional<String> getRoutingValue(final Model model, final ElasticSearchConverter.ToStorage toStorage) {
+        if (!IndexController.INSTANCE.isEnableCustomRouting()) {
+            return Optional.empty();
+        }
         Optional<String> routingField = model.getElasticSearchModelExtension().getRouting();
         return routingField.map(v -> extractRoutingValue(v, toStorage));
     }
