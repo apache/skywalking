@@ -39,4 +39,14 @@ public class HTTPServerConfig {
     private int acceptQueueSize = 0;
     @Builder.Default
     private int maxRequestHeaderSize = 8192;
+
+    @Builder.Default
+    private boolean enableTLS = false;
+    @Builder.Default
+    private boolean enableTlsSelfSigned = false;
+
+    private int httpsPort;
+    private String tlsKeyPath;
+    private String tlsCertChainPath;
+
 }
