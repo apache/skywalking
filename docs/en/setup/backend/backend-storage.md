@@ -12,7 +12,7 @@ Natively supported storage:
 - OpenSearch
 - ElasticSearch 6, 7, 8
 - MySQL
-- MySQL-Sharding(Shardingsphere-Proxy 5.1.2)
+- MySQL-Sharding(Shardingsphere-Proxy 5.3.1)
 - TiDB
 - PostgreSQL
 - BanyanDB
@@ -107,6 +107,8 @@ storage:
     # Set it to `true` could shard metrics indices into multi-physical indices
     # as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
+    # Custom routing can reduce the impact of searches. Instead of having to fan out a search request to all the shards in an index, the request can be sent to just the shard that matches the specific routing value (or values).
+    enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
 ```
 
 ### ElasticSearch With Https SSL Encrypting communications.
@@ -278,7 +280,7 @@ MySQL-Sharding plugin provides the MySQL database sharding and table sharding, t
 leverage [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy)
 to manage the JDBC between OAP and multi-database instances, and according to the sharding rules do routing to the database and table sharding.
 
-Tested Shardingsphere-Proxy 5.1.2 version, and MySQL Client driver 8.0.13 version is currently available.
+Tested Shardingsphere-Proxy 5.3.1 version, and MySQL Client driver 8.0.13 version is currently available.
 Activate MySQL and Shardingsphere-Proxy as storage, and set storage provider to **mysql-sharding**.
 
 **NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes.

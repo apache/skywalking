@@ -3,6 +3,7 @@
 #### Project
 
 * Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
+* Bump up Apache parent pom version to 29.
 
 #### OAP Server
 
@@ -69,6 +70,17 @@
 * Correct the TopN record query DAO of BanyanDB.
 * Tweak interval settings of BanyanDB.
 * Support monitoring AWS Cloud EKS.
+* Bump BanyanDB Java client to 0.3.0-rc1.
+* Remove `id` tag from measures.
+* Add `Banyandb.MeasureField` to mark a column as a BanyanDB Measure field.
+* Add `BanyanDB.StoreIDTag` to store a process's id for searching.
+* [**Breaking Change**] The supported version of ShardingSphere-Proxy is upgraded from 5.1.2 to 5.3.1. Due to the changes of ShardingSphere's API, versions before 5.3.1 are not compatible.
+* Add the eBPF network profiling E2E Test in the per storage.
+* Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
+* Add Python HBase happybase module component ID(94).
+* Fix gRPC alarm cannot update settings from dynamic configuration source.
+* Add Python Websocket module component ID(7018).
+* [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
 
 #### UI
 
@@ -78,6 +90,8 @@
 * Add Micrometer icon
 * Update MySQL UI to support MariaDB
 * Add AWS menu for supporting AWS monitoring
+* Add missing FastAPI logo
+* Update the log details page to support the formatted display of JSON content
 
 #### Documentation
 
@@ -85,5 +99,9 @@
   enhancement.
 * Update `monitoring MySQL document` to add the `MariaDB` part.
 * Reorganize the protocols docs to a more clear API docs.
+* Add documentation about replacing Zipkin server with SkyWalking OAP.
+* Add Lens UI relative docs in Zipkin trace section.
+* Add Profiling APIs.
+* Fix backend telemetry doc and so11y dashboard doc as the OAP Prometheus fetcher was removed since 9.3.0
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)

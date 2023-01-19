@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -83,10 +84,13 @@ public class ZipkinSpanRecord extends Record {
     @Getter
     @Column(columnName = TRACE_ID)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE}, reserveOriginalColumns = true)
+    @BanyanDB.SeriesID(index = 0)
+    @ElasticSearch.Routing
     private String traceId;
     @Setter
     @Getter
     @Column(columnName = SPAN_ID)
+    @BanyanDB.SeriesID(index = 1)
     private String spanId;
     @Setter
     @Getter
@@ -115,7 +119,6 @@ public class ZipkinSpanRecord extends Record {
     @Setter
     @Getter
     @Column(columnName = LOCAL_ENDPOINT_SERVICE_NAME)
-    @BanyanDB.SeriesID(index = 0)
     private String localEndpointServiceName;
     @Setter
     @Getter

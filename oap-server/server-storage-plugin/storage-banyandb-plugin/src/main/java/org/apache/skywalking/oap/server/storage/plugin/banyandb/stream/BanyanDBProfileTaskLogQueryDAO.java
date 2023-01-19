@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.banyandb.v1.client.RowEntity;
+import org.apache.skywalking.banyandb.v1.client.Element;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
@@ -59,14 +59,14 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
                 });
 
         final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
-        for (final RowEntity rowEntity : resp.getElements()) {
-            tasks.add(buildProfileTaskLog(rowEntity));
+        for (final Element element : resp.getElements()) {
+            tasks.add(buildProfileTaskLog(element));
         }
 
         return tasks;
     }
 
-    private ProfileTaskLog buildProfileTaskLog(RowEntity data) {
+    private ProfileTaskLog buildProfileTaskLog(Element data) {
         return ProfileTaskLog.builder()
                 .id(data.getId())
                 .taskId(data.getTagValue(ProfileTaskLogRecord.TASK_ID))

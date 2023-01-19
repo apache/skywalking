@@ -133,7 +133,7 @@ public class TCITShardingSphere {
     public static Collection<Object[]> versions() {
         return Arrays.asList(new Object[][] {
             {
-                "5.1.2",
+                "5.3.1",
                 DataSourceType.MYSQL
             }
         });

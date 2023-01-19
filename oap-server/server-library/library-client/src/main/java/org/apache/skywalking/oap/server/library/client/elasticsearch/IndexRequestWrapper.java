@@ -18,6 +18,8 @@
 package org.apache.skywalking.oap.server.library.client.elasticsearch;
 
 import java.util.Map;
+import java.util.Optional;
+
 import lombok.Getter;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
@@ -28,10 +30,17 @@ public class IndexRequestWrapper implements InsertRequest {
 
     public IndexRequestWrapper(String index, String type, String id,
                                Map<String, ?> source) {
+        this(index, type, id, Optional.empty(), source);
+    }
+
+    public IndexRequestWrapper(String index, String type, String id,
+                               Optional<String> routing,
+                               Map<String, ?> source) {
         request = IndexRequest.builder()
                               .index(index)
                               .type(type)
                               .id(id)
+                              .routing(routing)
                               .doc(source)
                               .build();
     }

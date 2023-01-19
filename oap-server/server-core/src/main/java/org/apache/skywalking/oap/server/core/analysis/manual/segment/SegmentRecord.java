@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -67,6 +68,7 @@ public class SegmentRecord extends Record {
     @Getter
     @Column(columnName = TRACE_ID, length = 150)
     @BanyanDB.GlobalIndex
+    @ElasticSearch.Routing
     private String traceId;
     @Setter
     @Getter

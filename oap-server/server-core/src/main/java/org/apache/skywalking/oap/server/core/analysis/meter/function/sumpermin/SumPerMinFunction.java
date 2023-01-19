@@ -61,11 +61,13 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
     @Getter
     @Setter
     @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @BanyanDB.MeasureField
     private long value;
 
     @Getter
     @Setter
     @Column(columnName = TOTAL, storageOnly = true)
+    @BanyanDB.MeasureField
     private long total;
 
     @Entrance

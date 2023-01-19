@@ -161,8 +161,10 @@ catalog:
                 path: "/en/setup/service-agent/virtual-mq"
           - name: "Service Mesh"
             catalog:
-              - name: "Observe Service Mesh"
+              - name: "Observe Service Mesh through Access Log Service (ALS)"
                 path: "/en/setup/envoy/als_setting"
+              - name: "Observe Service Mesh through Zipkin traces"
+                path: "/en/setup/zipkin/tracing"
               - name: "Observe Control Plane (Istio)"
                 path: "/en/setup/istio/readme"
               - name: "Observe Data Plane (Envoy)"
@@ -243,6 +245,8 @@ catalog:
             path: "/en/api/instance-properties"
           - name: "Event"
             path: "/en/api/event"
+          - name: "Profiling"
+            path: "/en/api/profiling-protocol"
       - name: "Query APIs"
         catalog:
           - name:  "GraphQL APIs"

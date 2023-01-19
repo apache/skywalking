@@ -328,7 +328,7 @@ spring-annotation:
   languages: Java
 HBase:
   id: 94
-  languages: Java
+  languages: Java,Python
 spring-kafka-consumer:
   id: 95
   languages: Java
@@ -654,6 +654,9 @@ AsyncPG:
   languages: Python
 AIORedis:
   id: 7017
+  languages: Python
+Websockets:
+  id: 7018
   languages: Python
 
 # PHP components

@@ -64,6 +64,12 @@ public class BanyanDBExtension {
     private final BanyanDB.IndexRule.IndexType indexType;
 
     /**
+     *  A column belong to a measure's field.
+     */
+    @Getter
+    private final boolean isMeasureField;
+
+    /**
      * @return true if this column is a part of sharding key
      */
     public boolean isShardingKey() {

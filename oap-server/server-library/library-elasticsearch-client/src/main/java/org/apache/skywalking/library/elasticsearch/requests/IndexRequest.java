@@ -18,6 +18,8 @@
 package org.apache.skywalking.library.elasticsearch.requests;
 
 import java.util.Map;
+import java.util.Optional;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,5 +31,10 @@ public final class IndexRequest {
     private final String index;
     private final String type;
     private final String id;
+    /**
+     * The routing value of the request.
+     */
+    @Builder.Default
+    private final Optional<String> routing = Optional.empty();
     private final Map<String, ?> doc;
 }

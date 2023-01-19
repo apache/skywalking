@@ -15,72 +15,21 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
-  name: /usr/local/bin/python
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  instanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  instancename: productpage
+  name: service
+  serviceid: {{ b64enc "service" }}.1
+  servicename: service
+  instanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
+  instancename: test
   agentid: {{ notEmpty .agentid }}
-  detecttype: KUBERNETES
+  detecttype: VM
   attributes:
     {{- contains .attributes }}
     - name: host_ip
       value: {{ notEmpty .value }}
-    - name: container_ip
-      value: {{ notEmpty .value }}
     - name: pid
       value: {{ notEmpty .value }}
     - name: command_line
-      value: {{ notEmpty .value }}
-    - name: support_ebpf_profiling
-      value: "false"
+      value: /service/service
     {{- end }}
-  labels:
-    - mesh-application
-- id: {{ notEmpty .id }}
-  name: envoy
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  instanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  instancename: productpage
-  agentid: {{ notEmpty .agentid }}
-  detecttype: KUBERNETES
-  attributes:
-    {{- contains .attributes }}
-    - name: host_ip
-      value: {{ notEmpty .value }}
-    - name: container_ip
-      value: {{ notEmpty .value }}
-    - name: pid
-      value: {{ notEmpty .value }}
-    - name: command_line
-      value: {{ notEmpty .value }}
-    - name: support_ebpf_profiling
-      value: true
-    {{- end }}
-  labels:
-    - mesh-envoy
-- id: {{ notEmpty .id }}
-  name: pilot-agent
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
-  instanceid: {{ b64enc "default::productpage" }}.1_{{ b64enc "productpage" }}
-  instancename: productpage
-  agentid: {{ notEmpty .agentid }}
-  detecttype: KUBERNETES
-  attributes:
-    {{- contains .attributes }}
-    - name: host_ip
-      value: {{ notEmpty .value }}
-    - name: container_ip
-      value: {{ notEmpty .value }}
-    - name: pid
-      value: {{ notEmpty .value }}
-    - name: command_line
-      value: {{ notEmpty .value }}
-    - name: support_ebpf_profiling
-      value: "false"
-    {{- end }}
-  labels:
-    - mesh-envoy
+  labels: []
 {{- end }}

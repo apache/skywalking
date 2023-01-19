@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RoutingUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
@@ -140,6 +141,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         BoolQueryBuilder query = Query.bool().must(Query.term(ZipkinSpanRecord.TRACE_ID, traceId));
         SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        RoutingUtils.addRoutingValueToSearchParam(params, traceId);
         SearchResponse response = getClient().search(index, search.build(), params);
         final Set<String> scrollIds = new HashSet<>();
         List<Span> trace = new ArrayList<>();
@@ -237,6 +239,7 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         SearchBuilder search = Search.builder().query(query).sort(ZipkinSpanRecord.TIMESTAMP_MILLIS, Sort.Order.DESC)
                                      .size(SCROLLING_BATCH_SIZE); //max span size for 1 scroll
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
+        RoutingUtils.addRoutingValuesToSearchParam(params, traceIds);
 
         SearchResponse response = getClient().search(index, search.build(), params);
         final Set<String> scrollIds = new HashSet<>();

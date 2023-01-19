@@ -17,7 +17,7 @@ version: '2.1'
 
 services:
   sharding-proxy:
-    image: apache/shardingsphere-proxy:5.1.2
+    image: apache/shardingsphere-proxy:5.3.1
     volumes:
       - ./../prepare/setup-oap/download-mysql.sh:/opt/shardingsphere-proxy/download-mysql.sh
     networks:
