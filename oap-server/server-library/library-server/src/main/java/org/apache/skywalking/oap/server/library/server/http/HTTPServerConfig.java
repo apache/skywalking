@@ -42,8 +42,6 @@ public class HTTPServerConfig {
 
     @Builder.Default
     private boolean enableTLS = false;
-    @Builder.Default
-    private boolean enableTlsSelfSigned = false;
 
     private int httpsPort;
     private String tlsKeyPath;

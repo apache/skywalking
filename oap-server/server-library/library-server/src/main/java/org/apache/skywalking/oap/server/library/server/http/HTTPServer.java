@@ -80,17 +80,13 @@ public class HTTPServer implements Server {
 
         if (config.isEnableTLS()) {
             sb.https(config.getHttpsPort());
-            if (config.isEnableTlsSelfSigned()) {
-                sb.tlsSelfSigned();
-            } else {
-                try (InputStream cert =
-                             Files.newInputStream(Paths.get(config.getTlsCertChainPath())
-                                     .toFile().toPath());
-                     InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
-                    sb.tls(cert, key);
-                } catch (IOException e) {
-                    throw new IllegalArgumentException(e);
-                }
+            try (InputStream cert =
+                         Files.newInputStream(Paths.get(config.getTlsCertChainPath())
+                                 .toFile().toPath());
+                 InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
+                sb.tls(cert, key);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
             }
         }
         if (config.getAcceptQueueSize() > 0) {
