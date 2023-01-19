@@ -89,7 +89,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      */
     private int bulkActions = 5000;
 
-    private int batchOfBytes = 1024 * 1024 * 5;
+    private int batchOfBytes = 1024 * 1024 * 10;
     /**
      * Period of flush, no matter `bulkActions` reached or not.
      * Unit is second.

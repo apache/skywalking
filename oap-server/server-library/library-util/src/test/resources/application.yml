@@ -53,7 +53,7 @@ storage:
     indexReplicasNumber: ${ES_INDEX_REPLICAS_NUMBER:0}
     # Batch process setting, refer to https://www.elastic.co/guide/en/elasticsearch/client/java-api/5.5/java-docs-bulk-processor.html
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    batchOfBytes: ${SW_STORAGE_ES_BATCH_OF_BYTES:5242880} #configuration to limit the size of bulk flush. default 5M
+    batchOfBytes: ${SW_STORAGE_ES_BATCH_OF_BYTES:10485760} # A threshold to control the max body size of ElasticSearch Bulk flush.
     syncBulkActions: ${SW_STORAGE_ES_SYNC_BULK_ACTIONS:50000} # Execute the sync bulk metrics data every ${SW_STORAGE_ES_SYNC_BULK_ACTIONS} requests
     bulkSize: ${ES_BULK_SIZE:20} # flush the bulk every 20mb
     flushInterval: ${ES_FLUSH_INTERVAL:10} # flush the bulk every 10 seconds whatever the number of requests

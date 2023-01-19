@@ -156,7 +156,7 @@ storage:
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
     indexTemplateOrder: ${SW_STORAGE_ES_INDEX_TEMPLATE_ORDER:0} # the order of index template
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
-    batchOfBytes: ${SW_STORAGE_ES_BATCH_OF_BYTES:5242880} # configuration to limit the size of bulk flush. default 5M
+    batchOfBytes: ${SW_STORAGE_ES_BATCH_OF_BYTES:10485760} # A threshold to control the max body size of ElasticSearch Bulk flush.
     # flush the bulk every 5 seconds whatever the number of requests
     flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:5}
     concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
