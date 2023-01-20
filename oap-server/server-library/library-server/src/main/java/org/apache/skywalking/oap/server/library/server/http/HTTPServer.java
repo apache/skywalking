@@ -64,10 +64,6 @@ public class HTTPServer implements Server {
             .serviceUnder(contextPath + "/docs", DocService.builder().build())
             .service("/internal/l7check", HealthCheckService.of())
             .workerGroup(config.getMaxThreads())
-            .http(new InetSocketAddress(
-                config.getHost(),
-                config.getPort()
-            ))
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
             .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
@@ -79,7 +75,7 @@ public class HTTPServer implements Server {
             .decorator(LoggingService.newDecorator());
 
         if (config.isEnableTLS()) {
-            sb.https(config.getHttpsPort());
+            sb.https(config.getPort());
             try (InputStream cert =
                          Files.newInputStream(Paths.get(config.getTlsCertChainPath())
                                  .toFile().toPath());
@@ -88,6 +84,11 @@ public class HTTPServer implements Server {
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
+        } else {
+            sb.http(new InetSocketAddress(
+                    config.getHost(),
+                    config.getPort()
+            ));
         }
         if (config.getAcceptQueueSize() > 0) {
             sb.maxNumConnections(config.getAcceptQueueSize());

@@ -43,7 +43,6 @@ public class HTTPServerConfig {
     @Builder.Default
     private boolean enableTLS = false;
 
-    private int httpsPort;
     private String tlsKeyPath;
     private String tlsCertChainPath;
 
