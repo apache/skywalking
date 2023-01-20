@@ -44,7 +44,7 @@ metricsRules:
   - name: memory_available
     exp: windows_os_physical_memory_free_bytes
   - name: memory_used
-    exp: windows_cs_physical_memory_bytes-windows_os_physical_memory_free_bytes
+    exp: windows_cs_physical_memory_bytes - windows_os_physical_memory_free_bytes
   - name: memory_swap_free
     exp: windows_os_virtual_memory_free_bytes
   - name: memory_swap_total
