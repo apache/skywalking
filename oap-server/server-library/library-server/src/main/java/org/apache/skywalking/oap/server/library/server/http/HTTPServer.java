@@ -28,6 +28,7 @@ import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingService;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -75,10 +76,10 @@ public class HTTPServer implements Server {
             .decorator(LoggingService.newDecorator());
 
         if (config.isEnableTLS()) {
-            sb.https(config.getPort());
-            try (InputStream cert =
-                         Files.newInputStream(Paths.get(config.getTlsCertChainPath())
-                                 .toFile().toPath());
+            sb.https(new InetSocketAddress(
+                    config.getHost(),
+                    config.getPort()));
+            try (InputStream cert = new FileInputStream(config.getTlsCertChainPath());
                  InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
                 sb.tls(cert, key);
             } catch (IOException e) {
