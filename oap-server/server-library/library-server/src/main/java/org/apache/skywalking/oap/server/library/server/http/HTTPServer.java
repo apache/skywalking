@@ -27,13 +27,21 @@ import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
 import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingService;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
+
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.server.Server;
+import org.apache.skywalking.oap.server.library.server.ssl.PrivateKeyUtil;
+
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
@@ -56,10 +64,6 @@ public class HTTPServer implements Server {
             .serviceUnder(contextPath + "/docs", DocService.builder().build())
             .service("/internal/l7check", HealthCheckService.of())
             .workerGroup(config.getMaxThreads())
-            .http(new InetSocketAddress(
-                config.getHost(),
-                config.getPort()
-            ))
             .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
             .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
             .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
@@ -70,6 +74,22 @@ public class HTTPServer implements Server {
             })
             .decorator(LoggingService.newDecorator());
 
+        if (config.isEnableTLS()) {
+            sb.https(new InetSocketAddress(
+                    config.getHost(),
+                    config.getPort()));
+            try (InputStream cert = new FileInputStream(config.getTlsCertChainPath());
+                 InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
+                sb.tls(cert, key);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        } else {
+            sb.http(new InetSocketAddress(
+                    config.getHost(),
+                    config.getPort()
+            ));
+        }
         if (config.getAcceptQueueSize() > 0) {
             sb.maxNumConnections(config.getAcceptQueueSize());
         }
