@@ -72,7 +72,7 @@ public class HTTPServer implements Server {
     private com.linecorp.armeria.server.Server httpServer;
 
     private ScheduledExecutorService scheduledExecutorService;
-    
+
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;
     }
