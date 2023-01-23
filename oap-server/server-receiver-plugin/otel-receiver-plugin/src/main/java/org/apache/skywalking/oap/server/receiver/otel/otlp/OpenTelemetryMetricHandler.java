@@ -18,30 +18,6 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
-import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
-import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
-import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
-import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
-import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
-import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
-import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
-import org.apache.skywalking.oap.server.receiver.otel.Handler;
-import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.stub.StreamObserver;
@@ -52,12 +28,45 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Sum;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint.ValueAtQuantile;
 import io.vavr.Function1;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
+import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
+import org.apache.skywalking.oap.server.receiver.otel.Handler;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+
+import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
+@RequiredArgsConstructor
 public class OpenTelemetryMetricHandler
     extends MetricsServiceGrpc.MetricsServiceImplBase
     implements Handler {
+
+    private final ModuleManager manager;
+
+    private final OtelMetricReceiverConfig config;
 
     private static final Map<String, String> LABEL_MAPPINGS =
         ImmutableMap
@@ -75,14 +84,11 @@ public class OpenTelemetryMetricHandler
     }
 
     @Override
-    public void active(
-        final OtelMetricReceiverConfig config,
-        final MeterSystem service,
-        final GRPCHandlerRegister grpcHandlerRegister) throws ModuleStartException {
+    public void active() throws ModuleStartException {
         final List<String> enabledRules =
             Splitter.on(",")
-                .omitEmptyStrings()
-                .splitToList(config.getEnabledOtelRules());
+                    .omitEmptyStrings()
+                    .splitToList(config.getEnabledOtelRules());
         final List<Rule> rules;
         try {
             rules = Rules.loadRules("otel-rules", enabledRules);
@@ -94,9 +100,14 @@ public class OpenTelemetryMetricHandler
             return;
         }
 
+        GRPCHandlerRegister grpcHandlerRegister = manager.find(SharingServerModule.NAME)
+                                                         .provider()
+                                                         .getService(GRPCHandlerRegister.class);
+        final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
+
         converters = rules
             .stream()
-            .map(r -> new PrometheusMetricConverter(r, service))
+            .map(r -> new PrometheusMetricConverter(r, meterSystem))
             .collect(toList());
 
         grpcHandlerRegister.addHandler(this);
