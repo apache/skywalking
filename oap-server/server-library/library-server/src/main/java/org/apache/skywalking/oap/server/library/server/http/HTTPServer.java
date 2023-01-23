@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.library.server.http;
 
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -34,23 +34,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.attribute.FileTime;
 import java.time.Duration;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ssl.PrivateKeyUtil;
+import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
 
 import static java.util.Objects.requireNonNull;
 
@@ -63,15 +57,9 @@ public class HTTPServer implements Server {
 
     private Set<Object> handlers;
 
-    private Path tlsCertChainPath;
-    private Path tlsKeyPath;
-
-    private FileTime lastModifiedTimeCert;
-    private FileTime lastModifiedTimeKey;
+    private MultipleFilesChangeMonitor monitor;
 
     private com.linecorp.armeria.server.Server httpServer;
-
-    private ScheduledExecutorService scheduledExecutorService;
 
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;
@@ -89,17 +77,9 @@ public class HTTPServer implements Server {
             sb.https(new InetSocketAddress(
                     config.getHost(),
                     config.getPort()));
-            tlsCertChainPath = Paths.get(config.getTlsCertChainPath());
-            tlsKeyPath = Paths.get(config.getTlsKeyPath());
 
-            try {
-                lastModifiedTimeCert = Files.getLastModifiedTime(tlsCertChainPath);
-                lastModifiedTimeKey = Files.getLastModifiedTime(tlsKeyPath);
-            } catch (IOException e) {
-                log.error("Failed to get last modified time of TLS cert chain file and TLS key file", e);
-            }
-            try (InputStream cert = new FileInputStream(tlsCertChainPath.toFile());
-                 InputStream key = PrivateKeyUtil.loadDecryptionKey(tlsKeyPath.toString())) {
+            try (InputStream cert = new FileInputStream(config.getTlsCertChainPath());
+                 InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
                 sb.tls(cert, key);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
@@ -111,11 +91,11 @@ public class HTTPServer implements Server {
             ));
         }
 
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
-                new ThreadFactoryBuilder()
-                        .setNameFormat("HTTPServer" + "-%d")
-                        .setDaemon(true)
-                        .build());
+        monitor = new MultipleFilesChangeMonitor(
+                10,
+                readableContents -> updateCert(),
+                config.getTlsCertChainPath(),
+                config.getTlsKeyPath());
 
         log.info("Server root context path: {}", contextPath);
     }
@@ -159,22 +139,10 @@ public class HTTPServer implements Server {
     }
 
     public void updateCert() {
-        FileTime lastModifiedTimeCertNow;
-        FileTime lastModifiedTimeKeyNow;
-        try {
-            lastModifiedTimeCertNow = Files.getLastModifiedTime(tlsCertChainPath);
-            lastModifiedTimeKeyNow = Files.getLastModifiedTime(tlsKeyPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (lastModifiedTimeCertNow.equals(lastModifiedTimeCert)
-                && lastModifiedTimeKeyNow.equals(lastModifiedTimeKey)) {
-            return;
-        }
         log.info("TLS cert chain file or TLS key file has been updated, reloading...");
         httpServer.reconfigure(sb -> {
-            try (InputStream cert = new FileInputStream(tlsCertChainPath.toFile());
-                 InputStream key = PrivateKeyUtil.loadDecryptionKey(tlsKeyPath.toString())) {
+            try (InputStream cert = new FileInputStream(config.getTlsCertChainPath());
+                 InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
                 sb.tls(cert, key);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
@@ -184,8 +152,6 @@ public class HTTPServer implements Server {
               .pathPrefix(config.getContextPath())
               .build(handlers.toArray());
         });
-        lastModifiedTimeCert = lastModifiedTimeCertNow;
-        lastModifiedTimeKey = lastModifiedTimeKeyNow;
     }
 
     @Override
@@ -193,7 +159,7 @@ public class HTTPServer implements Server {
         httpServer = sb.build();
         httpServer.start().join();
         if (config.isEnableTLS()) {
-            scheduledExecutorService.schedule(this::updateCert, 10, TimeUnit.SECONDS);
+            monitor.start();
         }
     }
 }
