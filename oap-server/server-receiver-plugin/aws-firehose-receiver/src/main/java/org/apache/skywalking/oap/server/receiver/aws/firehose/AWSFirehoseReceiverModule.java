@@ -16,33 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.server.http;
+package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
-@Setter
-@Getter
-@Builder
-public class HTTPServerConfig {
+public class AWSFirehoseReceiverModule extends ModuleDefine {
 
-    private String host;
-    private int port;
-    private String contextPath;
+    public static final String NAME = "aws-firehose";
 
-    @Builder.Default
-    private int maxThreads = 200;
-    @Builder.Default
-    private long idleTimeOut = 30000;
-    @Builder.Default
-    private int acceptQueueSize = 0;
-    @Builder.Default
-    private int maxRequestHeaderSize = 8192;
+    public AWSFirehoseReceiverModule() {
+        super(NAME);
+    }
 
-    @Builder.Default
-    private boolean enableTLS = false;
-
-    private String tlsKeyPath;
-    private String tlsCertChainPath;
+    @Override
+    public Class[] services() {
+        return new Class[0];
+    }
 }

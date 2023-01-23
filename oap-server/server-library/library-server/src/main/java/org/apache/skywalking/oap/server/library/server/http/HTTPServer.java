@@ -25,6 +25,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.docs.DocService;
+import com.linecorp.armeria.server.encoding.DecodingService;
 import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 import com.linecorp.armeria.server.logging.LoggingService;
 
@@ -72,8 +73,8 @@ public class HTTPServer implements Server {
                 }
                 return delegate.serve(ctx, req);
             })
+            .decorator(DecodingService.newDecorator())
             .decorator(LoggingService.newDecorator());
-
         if (config.isEnableTLS()) {
             sb.https(new InetSocketAddress(
                     config.getHost(),
