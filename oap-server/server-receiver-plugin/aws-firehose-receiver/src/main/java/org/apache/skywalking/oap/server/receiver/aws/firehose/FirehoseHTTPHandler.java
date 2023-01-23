@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
@@ -24,7 +25,6 @@ import com.linecorp.armeria.server.annotation.Post;
 import com.linecorp.armeria.server.annotation.ProducesJson;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Base64;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +49,7 @@ public class FirehoseHTTPHandler {
                     openTelemetryMetricRequestProcessor.processMetricsRequest(request);
                 }
             }
-        } catch (IOException e) {
+        } catch (InvalidProtocolBufferException e) {
             log.warn("Only OpenTelemetry format is accepted", e);
             return HttpResponse.ofJson(
                 HttpStatus.BAD_REQUEST,
