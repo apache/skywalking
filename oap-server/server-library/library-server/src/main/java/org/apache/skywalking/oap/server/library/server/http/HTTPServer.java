@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.library.server.http;
 
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -33,9 +34,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.time.Duration;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +61,18 @@ public class HTTPServer implements Server {
     // Health check service, supports HEAD, GET method.
     private final Set<HttpMethod> allowedMethods = Sets.newHashSet(HttpMethod.HEAD);
 
+    private Set<Object> handlers;
+
+    private Path tlsCertChainPath;
+    private Path tlsKeyPath;
+
+    private FileTime lastModifiedTimeCert;
+    private FileTime lastModifiedTimeKey;
+
+    private com.linecorp.armeria.server.Server httpServer;
+
+    private ScheduledExecutorService scheduledExecutorService;
+    
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;
     }
@@ -60,26 +82,24 @@ public class HTTPServer implements Server {
         // TODO replace prefix with real context path when Armeria supports it
         final String contextPath = StringUtils.stripEnd(config.getContextPath(), "/");
         sb = com.linecorp.armeria.server.Server
-            .builder()
-            .serviceUnder(contextPath + "/docs", DocService.builder().build())
-            .service("/internal/l7check", HealthCheckService.of())
-            .workerGroup(config.getMaxThreads())
-            .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
-            .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
-            .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
-                if (!allowedMethods.contains(ctx.method())) {
-                    return HttpResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
-                }
-                return delegate.serve(ctx, req);
-            })
-            .decorator(LoggingService.newDecorator());
-
+            .builder();
+        normalInitialize(sb);
         if (config.isEnableTLS()) {
+            handlers = new HashSet<>();
             sb.https(new InetSocketAddress(
                     config.getHost(),
                     config.getPort()));
-            try (InputStream cert = new FileInputStream(config.getTlsCertChainPath());
-                 InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
+            tlsCertChainPath = Paths.get(config.getTlsCertChainPath());
+            tlsKeyPath = Paths.get(config.getTlsKeyPath());
+
+            try {
+                lastModifiedTimeCert = Files.getLastModifiedTime(tlsCertChainPath);
+                lastModifiedTimeKey = Files.getLastModifiedTime(tlsKeyPath);
+            } catch (IOException e) {
+                log.error("Failed to get last modified time of TLS cert chain file and TLS key file", e);
+            }
+            try (InputStream cert = new FileInputStream(tlsCertChainPath.toFile());
+                 InputStream key = PrivateKeyUtil.loadDecryptionKey(tlsKeyPath.toString())) {
                 sb.tls(cert, key);
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
@@ -90,11 +110,33 @@ public class HTTPServer implements Server {
                     config.getPort()
             ));
         }
+
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
+                new ThreadFactoryBuilder()
+                        .setNameFormat("HTTPServer" + "-%d")
+                        .setDaemon(true)
+                        .build());
+
+        log.info("Server root context path: {}", contextPath);
+    }
+
+    private void normalInitialize(ServerBuilder sb) {
+        final String contextPath = StringUtils.stripEnd(config.getContextPath(), "/");
+        sb.serviceUnder(contextPath + "/docs", DocService.builder().build())
+        .service("/internal/l7check", HealthCheckService.of())
+        .workerGroup(config.getMaxThreads())
+        .http1MaxHeaderSize(config.getMaxRequestHeaderSize())
+        .idleTimeout(Duration.ofMillis(config.getIdleTimeOut()))
+        .decorator(Route.ofCatchAll(), (delegate, ctx, req) -> {
+            if (!allowedMethods.contains(ctx.method())) {
+                return HttpResponse.of(HttpStatus.METHOD_NOT_ALLOWED);
+            }
+            return delegate.serve(ctx, req);
+        })
+        .decorator(LoggingService.newDecorator());
         if (config.getAcceptQueueSize() > 0) {
             sb.maxNumConnections(config.getAcceptQueueSize());
         }
-
-        log.info("Server root context path: {}", contextPath);
     }
 
     /**
@@ -107,15 +149,51 @@ public class HTTPServer implements Server {
             "Bind handler {} into http server {}:{}",
             handler.getClass().getSimpleName(), config.getHost(), config.getPort()
         );
-
+        if (config.isEnableTLS()) {
+            handlers.add(handler);
+        }
         sb.annotatedService()
           .pathPrefix(config.getContextPath())
           .build(handler);
         this.allowedMethods.addAll(httpMethods);
     }
 
+    public void updateCert() {
+        FileTime lastModifiedTimeCertNow;
+        FileTime lastModifiedTimeKeyNow;
+        try {
+            lastModifiedTimeCertNow = Files.getLastModifiedTime(tlsCertChainPath);
+            lastModifiedTimeKeyNow = Files.getLastModifiedTime(tlsKeyPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (lastModifiedTimeCertNow.equals(lastModifiedTimeCert)
+                && lastModifiedTimeKeyNow.equals(lastModifiedTimeKey)) {
+            return;
+        }
+        log.info("TLS cert chain file or TLS key file has been updated, reloading...");
+        httpServer.reconfigure(sb -> {
+            try (InputStream cert = new FileInputStream(tlsCertChainPath.toFile());
+                 InputStream key = PrivateKeyUtil.loadDecryptionKey(tlsKeyPath.toString())) {
+                sb.tls(cert, key);
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+            normalInitialize(sb);
+            sb.annotatedService()
+              .pathPrefix(config.getContextPath())
+              .build(handlers.toArray());
+        });
+        lastModifiedTimeCert = lastModifiedTimeCertNow;
+        lastModifiedTimeKey = lastModifiedTimeKeyNow;
+    }
+
     @Override
     public void start() {
-        sb.build().start().join();
+        httpServer = sb.build();
+        httpServer.start().join();
+        if (config.isEnableTLS()) {
+            scheduledExecutorService.schedule(this::updateCert, 10, TimeUnit.SECONDS);
+        }
     }
 }
