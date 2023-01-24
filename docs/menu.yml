@@ -117,6 +117,8 @@ catalog:
             path: "/en/guides/backend-oal-scripts"
           - name: "OpenTelemetry Metrics"
             path: "/en/setup/backend/opentelemetry-receiver"
+          - name: "AWS CloudWatch Metrics"
+            path: "/en/setup/backend/aws-firehose-receiver"
           - name: "Zabbix Metrics"
             path: "/en/setup/backend/backend-zabbix"
           - name: "Meter Analysis"

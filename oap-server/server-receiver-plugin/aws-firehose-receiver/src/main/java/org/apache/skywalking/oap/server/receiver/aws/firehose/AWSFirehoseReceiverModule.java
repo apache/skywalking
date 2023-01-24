@@ -16,20 +16,20 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.otel;
+package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 
-public class OtelMetricReceiverModule extends ModuleDefine {
-    public static final String NAME = "receiver-otel";
+public class AWSFirehoseReceiverModule extends ModuleDefine {
 
-    public OtelMetricReceiverModule() {
+    public static final String NAME = "aws-firehose";
+
+    public AWSFirehoseReceiverModule() {
         super(NAME);
     }
 
     @Override
     public Class[] services() {
-        return new Class[] {OpenTelemetryMetricRequestProcessor.class};
+        return new Class[0];
     }
 }

@@ -45,5 +45,4 @@ public class HTTPServerConfig {
 
     private String tlsKeyPath;
     private String tlsCertChainPath;
-
 }
