@@ -156,4 +156,9 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 9.2.0
      */
     private boolean logicSharding = false;
+
+    /**
+     * if enabled, custom routing values will be used, to reduce the number of shards that need to be searched.
+     */
+    private boolean enableCustomRouting = false;
 }

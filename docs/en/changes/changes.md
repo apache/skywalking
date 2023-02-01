@@ -81,6 +81,10 @@
 * Fix gRPC alarm cannot update settings from dynamic configuration source.
 * Add `batchOfBytes` configuration to limit the size of bulk flush.
 * Add Python Websocket module component ID(7018).
+* [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
+* Enhance OAP HTTP server to support HTTPS
+* Remove handler scan in otel receiver, manual initialization instead
+* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
 
 #### UI
 

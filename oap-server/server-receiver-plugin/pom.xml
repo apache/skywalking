@@ -47,6 +47,7 @@
         <module>skywalking-zabbix-receiver-plugin</module>
         <module>skywalking-ebpf-receiver-plugin</module>
         <module>skywalking-telegraf-receiver-plugin</module>
+        <module>aws-firehose-receiver</module>
     </modules>
 
     <dependencies>

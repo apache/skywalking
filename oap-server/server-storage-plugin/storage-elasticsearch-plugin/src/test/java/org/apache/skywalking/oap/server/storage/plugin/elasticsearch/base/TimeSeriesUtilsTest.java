@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension;
+import org.apache.skywalking.oap.server.core.storage.model.ElasticSearchModelExtension;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.junit.Assert;
@@ -43,15 +44,15 @@ public class TimeSeriesUtilsTest {
     public void prepare() {
         superDatasetModel = new Model("superDatasetModel", Lists.newArrayList(),
                                       0, DownSampling.Second, true, true, Record.class, true,
-                                      new SQLDatabaseModelExtension(), new BanyanDBModelExtension()
+                                      new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
         normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(),
                                       0, DownSampling.Second, true, false, Record.class, true,
-                                      new SQLDatabaseModelExtension(), new BanyanDBModelExtension()
+                                      new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
         normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(),
                                        0, DownSampling.Minute, false, false, Metrics.class, true,
-                                       new SQLDatabaseModelExtension(), new BanyanDBModelExtension()
+                                       new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
         TimeSeriesUtils.setDAY_STEP(3);

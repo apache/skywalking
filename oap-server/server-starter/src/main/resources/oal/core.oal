@@ -47,7 +47,7 @@ service_instance_relation_server_percentile = from(ServiceInstanceRelation.laten
 
 // Service Instance Scope metrics
 service_instance_sla = from(ServiceInstance.*).percent(status == true);
-service_instance_resp_time= from(ServiceInstance.latency).longAvg();
+service_instance_resp_time = from(ServiceInstance.latency).longAvg();
 service_instance_cpm = from(ServiceInstance.*).cpm();
 
 // Endpoint scope metrics

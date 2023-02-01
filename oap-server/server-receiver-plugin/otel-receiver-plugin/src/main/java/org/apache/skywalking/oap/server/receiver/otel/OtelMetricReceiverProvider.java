@@ -18,21 +18,25 @@
 
 package org.apache.skywalking.oap.server.receiver.otel;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.receiver.otel.oc.OCMetricHandler;
+import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricHandler;
+import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
-
-import static java.util.stream.Collectors.toList;
 
 public class OtelMetricReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
+
+    private List<Handler> handlers;
+
     private OtelMetricReceiverConfig config;
+
+    private OpenTelemetryMetricRequestProcessor metricRequestProcessor;
 
     @Override
     public String name() {
@@ -45,10 +49,10 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ConfigCreator newConfigCreator() {
+    public ConfigCreator<OtelMetricReceiverConfig> newConfigCreator() {
         return new ConfigCreator<OtelMetricReceiverConfig>() {
             @Override
-            public Class type() {
+            public Class<OtelMetricReceiverConfig> type() {
                 return OtelMetricReceiverConfig.class;
             }
 
@@ -61,23 +65,28 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        metricRequestProcessor = new OpenTelemetryMetricRequestProcessor(
+            getManager(), config);
+        registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
+        final List<String> enabledHandlers = config.getEnabledHandlers();
+        List<Handler> handlers = new ArrayList<>();
+        final OpenTelemetryMetricHandler openTelemetryMetricHandler = new OpenTelemetryMetricHandler(
+            getManager(), metricRequestProcessor);
+        if (enabledHandlers.contains(openTelemetryMetricHandler.type())) {
+            handlers.add(openTelemetryMetricHandler);
+        }
+        final OCMetricHandler ocMetricHandler = new OCMetricHandler(getManager(), config);
+        if (enabledHandlers.contains(ocMetricHandler.type())) {
+            handlers.add(ocMetricHandler);
+        }
+        this.handlers = handlers;
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        if (config.getEnabledHandlers().isEmpty()) {
-            return;
-        }
-        GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
-            .provider()
-            .getService(GRPCHandlerRegister.class);
-        final MeterSystem meterSystem = getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class);
-        final List<Handler> handlers =
-            Handler.all().stream()
-                .filter(h -> config.getEnabledHandlers().contains(h.type()))
-                .collect(toList());
+        metricRequestProcessor.start();
         for (Handler h : handlers) {
-            h.active(config, meterSystem, grpcHandlerRegister);
+            h.active();
         }
     }
 

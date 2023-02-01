@@ -171,6 +171,8 @@ storage:
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
     # Enable shard metrics and records indices into multi-physical indices, one index template per metric/meter aggregation function or record.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
+    # Custom routing can reduce the impact of searches. Instead of having to fan out a search request to all the shards in an index, the request can be sent to just the shard that matches the specific routing value (or values).
+    enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
   h2:
     properties:
       jdbcUrl: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1}
@@ -542,3 +544,17 @@ receiver-telegraf:
   selector: ${SW_RECEIVER_TELEGRAF:default}
   default:
     activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
+
+aws-firehose:
+  selector: ${SW_RECEIVER_AWS_FIREHOSE:default}
+  default:
+    host: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_HOST:0.0.0.0}
+    port: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_PORT:12801}
+    contextPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_CONTEXT_PATH:/}
+    maxThreads: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_MAX_THREADS:200}
+    idleTimeOut: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_IDLE_TIME_OUT:30000}
+    acceptQueueSize: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ACCEPT_QUEUE_SIZE:0}
+    maxRequestHeaderSize: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    enableTLS: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ENABLE_TLS:false}
+    tlsKeyPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_KEY_PATH:}
+    tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}

@@ -40,6 +40,8 @@ public class ElasticSearchExtension {
 
     private final boolean isKeyword;
 
+    private final boolean isRouting;
+
     public boolean needMatchQuery() {
         return analyzer != null;
     }

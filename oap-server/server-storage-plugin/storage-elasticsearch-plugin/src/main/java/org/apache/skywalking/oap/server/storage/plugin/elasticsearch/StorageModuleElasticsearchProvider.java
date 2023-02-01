@@ -240,6 +240,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(
             ISpanAttachedEventQueryDAO.class, new SpanAttachedEventEsDAO(elasticSearchClient, config));
         IndexController.INSTANCE.setLogicSharding(config.isLogicSharding());
+        IndexController.INSTANCE.setEnableCustomRouting(config.isEnableCustomRouting());
     }
 
     @Override
