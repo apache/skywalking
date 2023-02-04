@@ -29,8 +29,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
 
         <ui.path>${project.parent.basedir}/skywalking-ui</ui.path>
@@ -95,14 +95,6 @@
     <build>
         <finalName>skywalking-webapp</finalName>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${compiler.version}</source>
-                    <target>${compiler.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
