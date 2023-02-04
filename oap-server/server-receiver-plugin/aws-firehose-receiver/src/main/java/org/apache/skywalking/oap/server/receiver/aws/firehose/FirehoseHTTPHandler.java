@@ -23,7 +23,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.Post;
 import com.linecorp.armeria.server.annotation.ProducesJson;
-import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
+import io.opentelemetry.proto.collector.metrics.firehose.v1.ExportMetricsServiceRequest;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 import lombok.AllArgsConstructor;
@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRe
 @Slf4j
 @AllArgsConstructor
 public class FirehoseHTTPHandler {
-
     private final OpenTelemetryMetricRequestProcessor openTelemetryMetricRequestProcessor;
 
     @Post("/aws/firehose/metrics")
@@ -46,7 +45,8 @@ public class FirehoseHTTPHandler {
                     Base64.getDecoder().decode(record.getData()));
                 ExportMetricsServiceRequest request;
                 while ((request = ExportMetricsServiceRequest.parseDelimitedFrom(byteArrayInputStream)) != null) {
-                    openTelemetryMetricRequestProcessor.processMetricsRequest(request);
+                    openTelemetryMetricRequestProcessor.processMetricsRequest(
+                        OtelMetricsConvertor.convertExportMetricsRequest(request));
                 }
             }
         } catch (InvalidProtocolBufferException e) {
