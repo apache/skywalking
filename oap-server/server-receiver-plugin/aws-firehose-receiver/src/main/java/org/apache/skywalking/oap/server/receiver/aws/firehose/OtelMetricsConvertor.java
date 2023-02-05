@@ -50,7 +50,6 @@ import io.opentelemetry.proto.metrics.v1.Summary;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
 import io.opentelemetry.proto.resource.v1.Resource;
 import java.util.Optional;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class OtelMetricsConvertor {
 
@@ -302,14 +301,24 @@ public class OtelMetricsConvertor {
 
     private static AnyValue convertAnyValue(final io.opentelemetry.proto.common.firehose.v1.AnyValue value) {
         final AnyValue.Builder builder = AnyValue.newBuilder();
-        Optional.of(value.getBoolValue()).ifPresent(builder::setBoolValue);
-        Optional.of(value.getDoubleValue()).ifPresent(builder::setDoubleValue);
-        Optional.of(value.getIntValue()).ifPresent(builder::setIntValue);
-        Optional.of(value.getStringValue()).filter(StringUtil::isNotBlank).ifPresent(builder::setStringValue);
-        Optional.of(value.getArrayValue()).map(OtelMetricsConvertor::convertValuList).ifPresent(builder::setArrayValue);
-        Optional.of(value.getKvlistValue())
-                .map(OtelMetricsConvertor::convertKvlistValue)
-                .ifPresent(builder::setKvlistValue);
+        if (value.hasBoolValue()) {
+            builder.setBoolValue(value.getBoolValue());
+        }
+        if (value.hasDoubleValue()) {
+            builder.setDoubleValue(value.getDoubleValue());
+        }
+        if (value.hasIntValue()) {
+            builder.setIntValue(value.getIntValue());
+        }
+        if (value.hasStringValue()) {
+            builder.setStringValue(value.getStringValue());
+        }
+        if (value.hasArrayValue()) {
+            builder.setArrayValue(convertValuList(value.getArrayValue()));
+        }
+        if (value.hasKvlistValue()) {
+            builder.setKvlistValue(convertKvlistValue(value.getKvlistValue()));
+        }
         return builder.build();
     }
 

@@ -1,180 +1,245 @@
 {
-  "resourceMetrics": [{
-    "resource": {
-      "attributes": [{
-        "key": "cloud.provider",
-        "value": {
-          "stringValue": "aws"
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "cloud.provider",
+            "value": {
+              "stringValue": "aws"
+            }
+          },
+          {
+            "key": "cloud.account.id",
+            "value": {
+              "stringValue": "xxxxxxxx"
+            }
+          },
+          {
+            "key": "cloud.region",
+            "value": {
+              "stringValue": "ap-northeast-1"
+            }
+          },
+          {
+            "key": "aws.exporter.arn",
+            "value": {
+              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:xxxxxxxx:metric-stream/CustomFull-CmHV2P"
+            }
+          }
+        ]
+      },
+      "instrumentationLibraryMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "amazonaws.com/AWS/S3/BytesDownloaded",
+              "unit": "By",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/S3"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "BytesDownloaded"
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": "skywalking"
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": "test"
+                      }
+                    ],
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": 166199.0,
+                    "quantileValues": [
+                      {
+                        "value": 166199.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 166199.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/TotalRequestLatency",
+              "unit": "ms",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/S3"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "TotalRequestLatency"
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": "skywalking"
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": "test"
+                      }
+                    ],
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": 66.0,
+                    "quantileValues": [
+                      {
+                        "value": 66.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 66.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/FirstByteLatency",
+              "unit": "ms",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/S3"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "FirstByteLatency"
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": "skywalking"
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": "test"
+                      }
+                    ],
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": 64.0,
+                    "quantileValues": [
+                      {
+                        "value": 64.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 64.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/GetRequests",
+              "unit": "{Count}",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/S3"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "GetRequests"
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": "skywalking"
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": "test"
+                      }
+                    ],
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": 1.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/AllRequests",
+              "unit": "{Count}",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/S3"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "AllRequests"
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": "skywalking"
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": "test"
+                      }
+                    ],
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": 1.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
         }
-      }, {
-        "key": "cloud.account.id",
-        "value": {
-          "stringValue": "008835616606"
-        }
-      }, {
-        "key": "cloud.region",
-        "value": {
-          "stringValue": "ap-northeast-1"
-        }
-      }, {
-        "key": "aws.exporter.arn",
-        "value": {
-          "stringValue": "arn:aws:cloudwatch:ap-northeast-1:008835616606:metric-stream/CustomFull-CmHV2P"
-        }
-      }]
-    },
-    "instrumentationLibraryMetrics": [{
-      "metrics": [{
-        "name": "amazonaws.com/AWS/S3/BytesDownloaded",
-        "unit": "By",
-        "doubleSummary": {
-          "dataPoints": [{
-            "labels": [{
-              "key": "Namespace",
-              "value": "AWS/S3"
-            }, {
-              "key": "MetricName",
-              "value": "BytesDownloaded"
-            }, {
-              "key": "BucketName",
-              "value": "skywalking"
-            }, {
-              "key": "FilterId",
-              "value": "test"
-            }],
-            "startTimeUnixNano": "1674547500000000000",
-            "timeUnixNano": "1674547560000000000",
-            "count": "1",
-            "sum": 166199.0,
-            "quantileValues": [{
-              "value": 166199.0
-            }, {
-              "quantile": 1.0,
-              "value": 166199.0
-            }]
-          }]
-        }
-      }, {
-        "name": "amazonaws.com/AWS/S3/TotalRequestLatency",
-        "unit": "ms",
-        "doubleSummary": {
-          "dataPoints": [{
-            "labels": [{
-              "key": "Namespace",
-              "value": "AWS/S3"
-            }, {
-              "key": "MetricName",
-              "value": "TotalRequestLatency"
-            }, {
-              "key": "BucketName",
-              "value": "skywalking"
-            }, {
-              "key": "FilterId",
-              "value": "test"
-            }],
-            "startTimeUnixNano": "1674547500000000000",
-            "timeUnixNano": "1674547560000000000",
-            "count": "1",
-            "sum": 66.0,
-            "quantileValues": [{
-              "value": 66.0
-            }, {
-              "quantile": 1.0,
-              "value": 66.0
-            }]
-          }]
-        }
-      }, {
-        "name": "amazonaws.com/AWS/S3/FirstByteLatency",
-        "unit": "ms",
-        "doubleSummary": {
-          "dataPoints": [{
-            "labels": [{
-              "key": "Namespace",
-              "value": "AWS/S3"
-            }, {
-              "key": "MetricName",
-              "value": "FirstByteLatency"
-            }, {
-              "key": "BucketName",
-              "value": "skywalking"
-            }, {
-              "key": "FilterId",
-              "value": "test"
-            }],
-            "startTimeUnixNano": "1674547500000000000",
-            "timeUnixNano": "1674547560000000000",
-            "count": "1",
-            "sum": 64.0,
-            "quantileValues": [{
-              "value": 64.0
-            }, {
-              "quantile": 1.0,
-              "value": 64.0
-            }]
-          }]
-        }
-      }, {
-        "name": "amazonaws.com/AWS/S3/GetRequests",
-        "unit": "{Count}",
-        "doubleSummary": {
-          "dataPoints": [{
-            "labels": [{
-              "key": "Namespace",
-              "value": "AWS/S3"
-            }, {
-              "key": "MetricName",
-              "value": "GetRequests"
-            }, {
-              "key": "BucketName",
-              "value": "skywalking"
-            }, {
-              "key": "FilterId",
-              "value": "test"
-            }],
-            "startTimeUnixNano": "1674547500000000000",
-            "timeUnixNano": "1674547560000000000",
-            "count": "1",
-            "sum": 1.0,
-            "quantileValues": [{
-              "value": 1.0
-            }, {
-              "quantile": 1.0,
-              "value": 1.0
-            }]
-          }]
-        }
-      }, {
-        "name": "amazonaws.com/AWS/S3/AllRequests",
-        "unit": "{Count}",
-        "doubleSummary": {
-          "dataPoints": [{
-            "labels": [{
-              "key": "Namespace",
-              "value": "AWS/S3"
-            }, {
-              "key": "MetricName",
-              "value": "AllRequests"
-            }, {
-              "key": "BucketName",
-              "value": "skywalking"
-            }, {
-              "key": "FilterId",
-              "value": "test"
-            }],
-            "startTimeUnixNano": "1674547500000000000",
-            "timeUnixNano": "1674547560000000000",
-            "count": "1",
-            "sum": 1.0,
-            "quantileValues": [{
-              "value": 1.0
-            }, {
-              "quantile": 1.0,
-              "value": 1.0
-            }]
-          }]
-        }
-      }]
-    }]
-  }]
+      ]
+    }
+  ]
 }

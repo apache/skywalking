@@ -41,8 +41,10 @@ public class OtelMetricsConvertorTest {
         for (TestData testData : findTestData()) {
             io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest request = convertSource(
                 testData.getSourceFile());
-            final Map convertedData = new Gson().fromJson(JsonFormat.printer().print(request), Map.class);
-            final Map expect = new Gson().fromJson(new String(Files.readAllBytes(testData.getExpectFile().toPath())), Map.class);
+            String str = JsonFormat.printer().print(request);
+            final Map convertedData = new Gson().fromJson(str, Map.class);
+            final Map expect = new Gson().fromJson(
+                new String(Files.readAllBytes(testData.getExpectFile().toPath())), Map.class);
             Assert.assertEquals(
                 String.format("diff , %s -> %s", testData.getSourceFile(), testData.getExpectFile()),
                 expect,
@@ -67,7 +69,6 @@ public class OtelMetricsConvertorTest {
             return res;
         }
         for (File subFile : subFiles) {
-            final String absolutePath = subFile.getAbsolutePath();
             File sourceFile = new File(subFile.getAbsolutePath(), "source.json");
             File expectFile = new File(subFile.getAbsolutePath(), "expect.json");
             res.add(new TestData(sourceFile, expectFile));
@@ -79,6 +80,7 @@ public class OtelMetricsConvertorTest {
     @Setter
     @AllArgsConstructor
     private static class TestData {
+        // OTEL 0.7.0
         private File sourceFile;
         private File expectFile;
     }

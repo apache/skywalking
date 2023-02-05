@@ -6,29 +6,25 @@
           {
             "key": "cloud.provider",
             "value": {
-              "kvlistValue": {
-              }
+              "stringValue": "aws"
             }
           },
           {
             "key": "cloud.account.id",
             "value": {
-              "kvlistValue": {
-              }
+              "stringValue": "xxxxxxxx"
             }
           },
           {
             "key": "cloud.region",
             "value": {
-              "kvlistValue": {
-              }
+              "stringValue": "ap-northeast-1"
             }
           },
           {
             "key": "aws.exporter.arn",
             "value": {
-              "kvlistValue": {
-              }
+              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:xxxxxxxx:metric-stream/CustomFull-CmHV2P"
             }
           }
         ]

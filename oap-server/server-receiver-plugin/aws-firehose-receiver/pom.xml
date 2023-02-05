@@ -31,13 +31,6 @@
     <artifactId>aws-firehose-receiver</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <fbs.sources>${basedir}/src/main/fbs</fbs.sources>
-        <fbs.generated.sources>${project.build.directory}/generated-sources/fbs/java</fbs.generated.sources>
-        <fbs.compiler>${project.build.directory}/bin/flatc</fbs.compiler>
-        <fbs.compiler.artifact.type>tar.gz</fbs.compiler.artifact.type>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -51,22 +44,8 @@
         </dependency>
     </dependencies>
 
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>kr.motd.maven</groupId>
-                <artifactId>os-maven-plugin</artifactId>
-                <version>${os-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>detect</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>

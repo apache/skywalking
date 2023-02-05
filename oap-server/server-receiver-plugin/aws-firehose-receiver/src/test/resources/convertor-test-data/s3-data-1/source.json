@@ -12,7 +12,7 @@
           {
             "key": "cloud.account.id",
             "value": {
-              "stringValue": "008835616606"
+              "stringValue": "xxxxxxxx"
             }
           },
           {
@@ -24,7 +24,7 @@
           {
             "key": "aws.exporter.arn",
             "value": {
-              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:008835616606:metric-stream/CustomFull-CmHV2P"
+              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:xxxxxxxx:metric-stream/CustomFull-CmHV2P"
             }
           }
         ]
