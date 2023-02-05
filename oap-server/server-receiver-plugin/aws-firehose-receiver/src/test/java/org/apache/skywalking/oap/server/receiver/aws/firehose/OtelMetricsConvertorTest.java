@@ -50,6 +50,7 @@ public class OtelMetricsConvertorTest {
                 expect,
                 convertedData
             );
+            System.out.printf("test pass %s -> %s %n", testData.getSourceFile(), testData.getExpectFile());
         }
     }
 
