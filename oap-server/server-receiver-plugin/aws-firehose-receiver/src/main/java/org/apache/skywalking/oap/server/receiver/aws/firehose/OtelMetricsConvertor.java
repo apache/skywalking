@@ -162,6 +162,10 @@ public class OtelMetricsConvertor {
         return builder.build();
     }
 
+    /**
+     * Convert DoubleDataPoint in OTEL 0.7 to NumberDataPoint
+     * Notice this method ignore Exemplar field in HistogramDataPoint
+     */
     private static NumberDataPoint convertDoubleDataPoint(final DoubleDataPoint doubleDataPoint) {
         final NumberDataPoint.Builder builder = NumberDataPoint.newBuilder();
         doubleDataPoint.getLabelsList()
@@ -171,7 +175,6 @@ public class OtelMetricsConvertor {
         builder.setTimeUnixNano(doubleDataPoint.getTimeUnixNano());
         builder.setStartTimeUnixNano(doubleDataPoint.getStartTimeUnixNano());
         builder.setAsDouble(doubleDataPoint.getValue());
-        //        intDataPoint.getExemplarsList().stream().map(OtelMetricsConvertor::convertExemplars).forEach(builder::addExemplars);
         return builder.build();
     }
 
@@ -184,7 +187,6 @@ public class OtelMetricsConvertor {
         builder.setTimeUnixNano(intDataPoint.getTimeUnixNano());
         builder.setStartTimeUnixNano(intDataPoint.getStartTimeUnixNano());
         builder.setAsInt(intDataPoint.getValue());
-        //        intDataPoint.getExemplarsList().stream().map(OtelMetricsConvertor::convertExemplars).forEach(builder::addExemplars);
         return builder.build();
     }
 
@@ -208,6 +210,10 @@ public class OtelMetricsConvertor {
         return builder.build();
     }
 
+    /**
+     * Convert IntHistogramDataPoint in OTEL 0.7 to HistogramDataPoint
+     * Notice this method ignore min, max, Exemplar fields in HistogramDataPoint
+     */
     private static HistogramDataPoint convertIntHistogramDataPoint(final IntHistogramDataPoint intHistogramDataPoint) {
         final HistogramDataPoint.Builder builder = HistogramDataPoint.newBuilder();
         intHistogramDataPoint.getLabelsList()
@@ -220,15 +226,15 @@ public class OtelMetricsConvertor {
         builder.setStartTimeUnixNano(intHistogramDataPoint.getStartTimeUnixNano());
         builder.setTimeUnixNano(intHistogramDataPoint.getTimeUnixNano());
         builder.addBucketCounts(intHistogramDataPoint.getBucketCountsCount());
-        //        builder.setMax(intHistogramDataPoint.);
-        //        builder.setMin();
-        //        builder.setExemplars();
-        //        builder.setFlags();
-        //TODO
-        builder.addExplicitBounds(intHistogramDataPoint.getExplicitBoundsCount());
+        builder.setFlags(DataPointFlags.FLAG_NONE_VALUE);
+        builder.addAllExplicitBounds(intHistogramDataPoint.getExplicitBoundsList());
         return builder.build();
     }
 
+    /**
+     * Convert IntHistogramDataPoint in OTEL 0.7 to HistogramDataPoint
+     * Notice this method ignore min, max, Exemplar fields in HistogramDataPoint
+     */
     private static HistogramDataPoint convertDoubleHistogramDataPoint(final DoubleHistogramDataPoint intHistogramDataPoint) {
         final HistogramDataPoint.Builder builder = HistogramDataPoint.newBuilder();
         intHistogramDataPoint.getLabelsList()
@@ -240,11 +246,8 @@ public class OtelMetricsConvertor {
         builder.setStartTimeUnixNano(intHistogramDataPoint.getStartTimeUnixNano());
         builder.setTimeUnixNano(intHistogramDataPoint.getTimeUnixNano());
         builder.addBucketCounts(intHistogramDataPoint.getBucketCountsCount());
-        //        builder.setMax(intHistogramDataPoint.);
-        //        builder.setMin();
-        //        builder.setExemplars();
-        //        builder.setFlags();
-        builder.addExplicitBounds(intHistogramDataPoint.getExplicitBoundsCount());
+        builder.setFlags(DataPointFlags.FLAG_NONE_VALUE);
+        builder.addAllExplicitBounds(intHistogramDataPoint.getExplicitBoundsList());
         return builder.build();
     }
 
