@@ -37,11 +37,6 @@
             <artifactId>otel-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java-util</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
