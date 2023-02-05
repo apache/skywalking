@@ -1,0 +1,132 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "cloud.provider",
+            "value": {
+              "stringValue": "aws"
+            }
+          },
+          {
+            "key": "cloud.account.id",
+            "value": {
+              "stringValue": "xxxxxxxx"
+            }
+          },
+          {
+            "key": "cloud.region",
+            "value": {
+              "stringValue": "ap-northeast-1"
+            }
+          },
+          {
+            "key": "aws.exporter.arn",
+            "value": {
+              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:xxxxxxxx:metric-stream/CustomFull-CmHV2P"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "amazonaws.com/AWS/S3/4xxErrors",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/S3"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "4xxErrors"
+                        }
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": {
+                          "stringValue": "skywalking"
+                        }
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/5xxErrors",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/S3"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "5xxErrors"
+                        }
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": {
+                          "stringValue": "skywalking"
+                        }
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
