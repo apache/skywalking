@@ -19,7 +19,7 @@ package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
 import com.google.gson.Gson;
 import com.google.protobuf.util.JsonFormat;
-import io.opentelemetry.proto.collector.metrics.firehose.v1.ExportMetricsServiceRequest;
+import io.opentelemetry.proto.collector.metrics.firehose.v0_7.ExportMetricsServiceRequest;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

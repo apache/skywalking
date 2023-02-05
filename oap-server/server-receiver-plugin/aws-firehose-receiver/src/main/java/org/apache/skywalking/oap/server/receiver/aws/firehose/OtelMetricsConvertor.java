@@ -17,27 +17,27 @@
 
 package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
-import io.opentelemetry.proto.collector.metrics.firehose.v1.ExportMetricsServiceRequest;
-import io.opentelemetry.proto.common.firehose.v1.ArrayValue;
-import io.opentelemetry.proto.common.firehose.v1.KeyValue;
-import io.opentelemetry.proto.common.firehose.v1.KeyValueList;
-import io.opentelemetry.proto.common.firehose.v1.StringKeyValue;
+import io.opentelemetry.proto.collector.metrics.firehose.v0_7.ExportMetricsServiceRequest;
+import io.opentelemetry.proto.common.firehose.v0_7.ArrayValue;
+import io.opentelemetry.proto.common.firehose.v0_7.KeyValue;
+import io.opentelemetry.proto.common.firehose.v0_7.KeyValueList;
+import io.opentelemetry.proto.common.firehose.v0_7.StringKeyValue;
 import io.opentelemetry.proto.common.v1.AnyValue;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleDataPoint;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleGauge;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleHistogram;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleHistogramDataPoint;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleSum;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleSummary;
-import io.opentelemetry.proto.metrics.firehose.v1.DoubleSummaryDataPoint;
-import io.opentelemetry.proto.metrics.firehose.v1.InstrumentationLibraryMetrics;
-import io.opentelemetry.proto.metrics.firehose.v1.IntDataPoint;
-import io.opentelemetry.proto.metrics.firehose.v1.IntGauge;
-import io.opentelemetry.proto.metrics.firehose.v1.IntHistogram;
-import io.opentelemetry.proto.metrics.firehose.v1.IntHistogramDataPoint;
-import io.opentelemetry.proto.metrics.firehose.v1.IntSum;
-import io.opentelemetry.proto.metrics.firehose.v1.Metric;
-import io.opentelemetry.proto.metrics.firehose.v1.ResourceMetrics;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleDataPoint;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleGauge;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleHistogram;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleHistogramDataPoint;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleSum;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleSummary;
+import io.opentelemetry.proto.metrics.firehose.v0_7.DoubleSummaryDataPoint;
+import io.opentelemetry.proto.metrics.firehose.v0_7.InstrumentationLibraryMetrics;
+import io.opentelemetry.proto.metrics.firehose.v0_7.IntDataPoint;
+import io.opentelemetry.proto.metrics.firehose.v0_7.IntGauge;
+import io.opentelemetry.proto.metrics.firehose.v0_7.IntHistogram;
+import io.opentelemetry.proto.metrics.firehose.v0_7.IntHistogramDataPoint;
+import io.opentelemetry.proto.metrics.firehose.v0_7.IntSum;
+import io.opentelemetry.proto.metrics.firehose.v0_7.Metric;
+import io.opentelemetry.proto.metrics.firehose.v0_7.ResourceMetrics;
 import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
 import io.opentelemetry.proto.metrics.v1.DataPointFlags;
 import io.opentelemetry.proto.metrics.v1.Gauge;
@@ -246,16 +246,16 @@ public class OtelMetricsConvertor {
         return builder.build();
     }
 
-    private static AggregationTemporality convertAggregationTemporality(final io.opentelemetry.proto.metrics.firehose.v1.AggregationTemporality aggregationTemporality) {
+    private static AggregationTemporality convertAggregationTemporality(final io.opentelemetry.proto.metrics.firehose.v0_7.AggregationTemporality aggregationTemporality) {
 
-        if (aggregationTemporality == io.opentelemetry.proto.metrics.firehose.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED) {
+        if (aggregationTemporality == io.opentelemetry.proto.metrics.firehose.v0_7.AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED) {
             return AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED;
         }
-        if (aggregationTemporality == io.opentelemetry.proto.metrics.firehose.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE) {
+        if (aggregationTemporality == io.opentelemetry.proto.metrics.firehose.v0_7.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE) {
             return AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE;
         }
 
-        if (aggregationTemporality == io.opentelemetry.proto.metrics.firehose.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA) {
+        if (aggregationTemporality == io.opentelemetry.proto.metrics.firehose.v0_7.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA) {
             return AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA;
         }
         throw new UnsupportedOperationException("Can't convert " + aggregationTemporality);
@@ -291,7 +291,7 @@ public class OtelMetricsConvertor {
         return builder.build();
     }
 
-    private static Resource convertResource(final io.opentelemetry.proto.resource.firehose.v1.Resource resource) {
+    private static Resource convertResource(final io.opentelemetry.proto.resource.firehose.v0_7.Resource resource) {
         final Resource.Builder builder = Resource.newBuilder();
         for (KeyValue keyValue : resource.getAttributesList()) {
             builder.addAttributes(convertKeyValue(keyValue));
@@ -299,7 +299,7 @@ public class OtelMetricsConvertor {
         return builder.build();
     }
 
-    private static AnyValue convertAnyValue(final io.opentelemetry.proto.common.firehose.v1.AnyValue value) {
+    private static AnyValue convertAnyValue(final io.opentelemetry.proto.common.firehose.v0_7.AnyValue value) {
         final AnyValue.Builder builder = AnyValue.newBuilder();
         if (value.hasBoolValue()) {
             builder.setBoolValue(value.getBoolValue());

@@ -19,7 +19,7 @@ package opentelemetry.proto.collector.metrics.v1;
 import "opentelemetry/proto/metrics/v1/metrics.proto";
 
 option java_multiple_files = true;
-option java_package = "io.opentelemetry.proto.collector.metrics.firehose.v1";
+option java_package = "io.opentelemetry.proto.collector.metrics.firehose.v0_7";
 option java_outer_classname = "MetricsServiceProto";
 option go_package = "github.com/open-telemetry/opentelemetry-proto/gen/go/collector/metrics/v1";
 

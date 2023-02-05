@@ -23,7 +23,7 @@ import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.Post;
 import com.linecorp.armeria.server.annotation.ProducesJson;
-import io.opentelemetry.proto.collector.metrics.firehose.v1.ExportMetricsServiceRequest;
+import io.opentelemetry.proto.collector.metrics.firehose.v0_7.ExportMetricsServiceRequest;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 import lombok.AllArgsConstructor;

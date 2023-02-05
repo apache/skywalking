@@ -17,7 +17,7 @@ syntax = "proto3";
 package opentelemetry.proto.common.v1;
 
 option java_multiple_files = true;
-option java_package = "io.opentelemetry.proto.common.firehose.v1";
+option java_package = "io.opentelemetry.proto.common.firehose.v0_7";
 option java_outer_classname = "CommonProto";
 option go_package = "github.com/open-telemetry/opentelemetry-proto/gen/go/common/v1";
 
