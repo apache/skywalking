@@ -128,10 +128,6 @@ public class OtelMetricsConvertor {
                               .stream()
                               .map(OtelMetricsConvertor::convertValueAtQuantile)
                               .forEach(builder::addQuantileValues);
-        doubleSummaryDataPoint.getQuantileValuesList()
-                              .stream()
-                              .map(OtelMetricsConvertor::convertValueAtQuantile)
-                              .forEach(builder::addQuantileValues);
         builder.setStartTimeUnixNano(doubleSummaryDataPoint.getStartTimeUnixNano());
         builder.setTimeUnixNano(doubleSummaryDataPoint.getTimeUnixNano());
         return builder.build();
