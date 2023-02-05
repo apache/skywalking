@@ -39,6 +39,7 @@ import io.opentelemetry.proto.metrics.firehose.v1.IntSum;
 import io.opentelemetry.proto.metrics.firehose.v1.Metric;
 import io.opentelemetry.proto.metrics.firehose.v1.ResourceMetrics;
 import io.opentelemetry.proto.metrics.v1.AggregationTemporality;
+import io.opentelemetry.proto.metrics.v1.DataPointFlags;
 import io.opentelemetry.proto.metrics.v1.Gauge;
 import io.opentelemetry.proto.metrics.v1.Histogram;
 import io.opentelemetry.proto.metrics.v1.HistogramDataPoint;
@@ -122,13 +123,15 @@ public class OtelMetricsConvertor {
                               .forEach(builder::addAttributes);
         builder.setCount(doubleSummaryDataPoint.getCount());
         builder.setSum(doubleSummaryDataPoint.getSum());
-        //        builder.setFlags(doubleSummaryDataPoint.getFp);
-        //        builder.addQuantileValues();
+        builder.setFlags(DataPointFlags.FLAG_NONE_VALUE);
         doubleSummaryDataPoint.getQuantileValuesList()
                               .stream()
                               .map(OtelMetricsConvertor::convertValueAtQuantile)
                               .forEach(builder::addQuantileValues);
-
+        doubleSummaryDataPoint.getQuantileValuesList()
+                              .stream()
+                              .map(OtelMetricsConvertor::convertValueAtQuantile)
+                              .forEach(builder::addQuantileValues);
         builder.setStartTimeUnixNano(doubleSummaryDataPoint.getStartTimeUnixNano());
         builder.setTimeUnixNano(doubleSummaryDataPoint.getTimeUnixNano());
         return builder.build();
