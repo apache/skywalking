@@ -87,6 +87,7 @@
 * Remove handler scan in otel receiver, manual initialization instead
 * Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
 * Avoid Antlr dependencies' versions might be different in compile time and runtime.
+* Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
 
 #### UI
 
