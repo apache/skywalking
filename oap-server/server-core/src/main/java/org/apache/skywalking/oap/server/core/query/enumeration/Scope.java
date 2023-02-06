@@ -18,11 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.query.enumeration;
 
-import java.util.HashMap;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inEndpointCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inEndpointRelationCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inProcessCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inProcessRelationCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inServiceCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inServiceInstanceCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inServiceInstanceRelationCatalog;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inServiceRelationCatalog;
+
+/**
+ * Scope n query stage represents the scope catalog. All scopes with their catalogs are defined in {@link DefaultScopeDefine}.
+ * Scope IDs could be various due to different OAL/MAL input.
+ * Scope catalog provides high dimension classification for all scopes as a hierarchy structure.
+ */
 public enum Scope {
     /**
      * @since Deprecated from 9.0.0
@@ -35,25 +47,46 @@ public enum Scope {
     ServiceRelation(DefaultScopeDefine.SERVICE_RELATION),
     ServiceInstanceRelation(DefaultScopeDefine.SERVICE_INSTANCE_RELATION),
     EndpointRelation(DefaultScopeDefine.ENDPOINT_RELATION),
+    Process(DefaultScopeDefine.PROCESS),
     ProcessRelation(DefaultScopeDefine.PROCESS_RELATION);
 
+    /**
+     * Scope ID is defined in {@link DefaultScopeDefine}.
+     */
     @Getter
     private int scopeId;
 
     Scope(int scopeId) {
         this.scopeId = scopeId;
-        Finder.ALL_QUERY_SCOPES.put(scopeId, this);
     }
 
     public static class Finder {
-        private static HashMap<Integer, Scope> ALL_QUERY_SCOPES = new HashMap<>();
-
         public static Scope valueOf(int scopeId) {
-            Scope scope = ALL_QUERY_SCOPES.get(scopeId);
-            if (scope == null) {
-                throw new UnexpectedException("Can't find scope id =" + scopeId);
+            if (inServiceCatalog(scopeId)) {
+                return Service;
             }
-            return scope;
+            if (inServiceInstanceCatalog(scopeId)) {
+                return ServiceInstance;
+            }
+            if (inEndpointCatalog(scopeId)) {
+                return Endpoint;
+            }
+            if (inServiceRelationCatalog(scopeId)) {
+                return ServiceRelation;
+            }
+            if (inServiceInstanceRelationCatalog(scopeId)) {
+                return ServiceInstanceRelation;
+            }
+            if (inEndpointRelationCatalog(scopeId)) {
+                return EndpointRelation;
+            }
+            if (inProcessCatalog(scopeId)) {
+                return Process;
+            }
+            if (inProcessRelationCatalog(scopeId)) {
+                return ProcessRelation;
+            }
+            return All;
         }
     }
 

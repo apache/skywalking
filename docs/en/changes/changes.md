@@ -95,11 +95,22 @@
 * Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
 * Migrate the build tool from vue cli to Vite4.
 * Fix Instance Relation and Endpoint Relation dashboards show up.
-* Add Micrometer icon
-* Update MySQL UI to support MariaDB
-* Add AWS menu for supporting AWS monitoring
-* Add missing FastAPI logo
-* Update the log details page to support the formatted display of JSON content
+* Add Micrometer icon.
+* Update MySQL UI to support MariaDB.
+* Add AWS menu for supporting AWS monitoring.
+* Add missing FastAPI logo.
+* Update the log details page to support the formatted display of JSON content.
+* Fix build config.
+* Avoid being unable to drag process nodes for the first time.
+* Add node folder into ignore list.
+* Add ElPopconfirm to component types.
+* Add an iframe widget for zipkin UI.
+* Optimize graph tooltips to make them more friendly.
+* Bump json5 from 1.0.1 to 1.0.2.
+* Add websockets icon.
+* Implement independent mode for widgets.
+* Bump http-cache-semantics from 4.1.0 to 4.1.1.
+* Update menus for OpenFunction.
 
 #### Documentation
 
