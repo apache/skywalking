@@ -2,11 +2,6 @@
 
 #### Project
 
-* Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
-* Bump up Apache parent pom version to 29.
-* Bump up Armeria version to 1.21.0.
-* Clean up maven `pom.xml`s.
-
 #### OAP Server
 
 * Add `ServerStatusService` in the core module to provide a new way to expose booting status to other modules.
@@ -19,7 +14,6 @@
     // (1) the time bucket of the server's latest stability status is provided
     //     1.1 the OAP has booted successfully
     //     1.2 the current dimensionality is in minute.
-    //     1.3 the OAP cluster is rebalanced due to scaling
     // (2) the metrics are from the time after the timeOfLatestStabilitySts
     // (3) the metrics don't exist in the cache
     // the kernel should NOT try to load it from the database.
@@ -56,49 +50,25 @@
 * Remove `component_id` from `service_instance_relation_client_side` and `service_instance_relation_server_side`.
 * Make the satellite E2E test more stable.
 * Add Istio 1.16 to test matrix.
-* Register ValueColumn as Tag for Record in BanyanDB storage plugin.
-* Bump up Netty to 4.1.86.
-* Remove unnecessary additional columns when storage is in logical sharding mode.
-* The cluster coordinator support watch mechanism for notifying `RemoteClientManager` and `ServerStatusService`.
-* Fix ServiceMeshServiceDispatcher overwrite ServiceDispatcher debug file when open SW_OAL_ENGINE_DEBUG.
-* Use `groupBy` and `in` operators to optimize topology query for BanyanDB storage plugin.
-* Support server status watcher for `MetricsPersistentWorker` to check the metrics whether required initialization.
-* Fix the meter value are not correct when using `sumPerMinLabeld` or `sumHistogramPercentile` MAL function.
-* Fix cannot display attached events when using Zipkin Lens UI query traces.
-* Remove `time_bucket` for both Stream and Measure kinds in BanyanDB plugin.
-* Merge `TIME_BUCKET` of `Metrics` and `Record` into `StorageData`.
-* Support no `layer` in the `listServices` query.
-* Fix `time_bucket` of `ServiceTraffic` not set correctly in `slowSql` of MAL.
-* Correct the TopN record query DAO of BanyanDB.
-* Tweak interval settings of BanyanDB.
-* Support monitoring AWS Cloud EKS.
-* Bump BanyanDB Java client to 0.3.0-rc1.
-* Remove `id` tag from measures.
-* Add `Banyandb.MeasureField` to mark a column as a BanyanDB Measure field.
-* Add `BanyanDB.StoreIDTag` to store a process's id for searching.
-* [**Breaking Change**] The supported version of ShardingSphere-Proxy is upgraded from 5.1.2 to 5.3.1. Due to the changes of ShardingSphere's API, versions before 5.3.1 are not compatible.
-* Add the eBPF network profiling E2E Test in the per storage.
-* Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
-* Add Python HBase happybase module component ID(94).
-* Fix gRPC alarm cannot update settings from dynamic configuration source.
-* Add `batchOfBytes` configuration to limit the size of bulk flush.
-* Add Python Websocket module component ID(7018).
-* [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
-* Enhance OAP HTTP server to support HTTPS
-* Remove handler scan in otel receiver, manual initialization instead
-* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
-* Avoid Antlr dependencies' versions might be different in compile time and runtime.
 
 #### UI
 
 * Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
 * Migrate the build tool from vue cli to Vite4.
 * Fix Instance Relation and Endpoint Relation dashboards show up.
-* Add Micrometer icon
-* Update MySQL UI to support MariaDB
-* Add AWS menu for supporting AWS monitoring
-* Add missing FastAPI logo
-* Update the log details page to support the formatted display of JSON content
+* Fix build config.
+* Avoid being unable to drag process nodes for the first time.
+* Add node folder into ignore list.
+* Add ElPopconfirm to component types.
+* Add a iframe widget for zipkin UI.
+* Optimize graph tooltips to make them more friendly.
+* Bump json5 from 1.0.1 to 1.0.2.
+* Add missing fastapi logo.
+* Formatted display of json content type.
+* Add websockets icon.
+* Implement independent mode for widgets.
+* Bump http-cache-semantics from 4.1.0 to 4.1.1.
+* Update menus for OpenFunction.
 
 #### Documentation
 
@@ -106,9 +76,5 @@
   enhancement.
 * Update `monitoring MySQL document` to add the `MariaDB` part.
 * Reorganize the protocols docs to a more clear API docs.
-* Add documentation about replacing Zipkin server with SkyWalking OAP.
-* Add Lens UI relative docs in Zipkin trace section.
-* Add Profiling APIs.
-* Fix backend telemetry doc and so11y dashboard doc as the OAP Prometheus fetcher was removed since 9.3.0
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/160?closed=1)
