@@ -136,8 +136,10 @@ public final class BulkProcessor {
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
         final List<CompletableFuture<Void>> futures = doFlush(batch);
-        futures.stream().map(future -> future.join());
-        semaphore.release();
+        final CompletableFuture<Void> future = CompletableFuture.allOf(
+            futures.toArray(new CompletableFuture[futures.size()]));
+        future.whenComplete((v, t) -> semaphore.release());
+        future.join();
         lastFlushTS = System.currentTimeMillis();
     }
 
@@ -156,11 +158,12 @@ public final class BulkProcessor {
                 byte[] bytes = codec.encode(holder.request);
                 bs.add(bytes);
                 bs.add("\n".getBytes());
-                bufferOfBytes += bytes.length;
-                if (bufferOfBytes > batchOfBytes) {
+                bufferOfBytes += bytes.length + 1;
+                if (bufferOfBytes >= batchOfBytes) {
                     final ByteBuf content = Unpooled.wrappedBuffer(bs.toArray(new byte[0][]));
                     byteBufList.add(content);
                     bs.clear();
+                    bufferOfBytes = 0;
                 }
             }
             if (CollectionUtils.isNotEmpty(bs)) {
@@ -168,7 +171,7 @@ public final class BulkProcessor {
                 byteBufList.add(content);
             }
             for (final ByteBuf content : byteBufList) {
-                CompletableFuture future = es.get().version().thenCompose(v -> {
+                CompletableFuture<Void> future = es.get().version().thenCompose(v -> {
                     try {
                         final RequestFactory rf = v.requestFactory();
                         return es.get().client().execute(rf.bulk().bulk(content)).aggregate().thenAccept(response -> {
