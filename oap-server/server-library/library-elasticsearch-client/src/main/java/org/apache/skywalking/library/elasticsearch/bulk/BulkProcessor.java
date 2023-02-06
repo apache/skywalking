@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.ElasticSearch;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
+import org.apache.skywalking.library.elasticsearch.requests.factory.Codec;
 import org.apache.skywalking.library.elasticsearch.requests.factory.RequestFactory;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 
 import static java.util.Objects.requireNonNull;
@@ -50,23 +53,26 @@ public final class BulkProcessor {
     private final Semaphore semaphore;
     private final long flushInternalInMillis;
     private volatile long lastFlushTS = 0;
+    private final int batchOfBytes;
 
     public static BulkProcessorBuilder builder() {
         return new BulkProcessorBuilder();
     }
 
-    BulkProcessor(
-        final AtomicReference<ElasticSearch> es, final int bulkActions,
-        final Duration flushInterval, final int concurrentRequests) {
+    BulkProcessor(final AtomicReference<ElasticSearch> es,
+                  final int bulkActions,
+                  final Duration flushInterval,
+                  final int concurrentRequests,
+                  final int batchOfBytes) {
         requireNonNull(flushInterval, "flushInterval");
 
         this.es = requireNonNull(es, "es");
         this.bulkActions = bulkActions;
+        this.batchOfBytes = batchOfBytes;
         this.semaphore = new Semaphore(concurrentRequests > 0 ? concurrentRequests : 1);
         this.requests = new ArrayBlockingQueue<>(bulkActions + 1);
 
-        final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(
-            1, r -> {
+        final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             final Thread thread = new Thread(r);
             thread.setName("ElasticSearch BulkProcessor");
             return thread;
@@ -129,52 +135,73 @@ public final class BulkProcessor {
 
         final List<Holder> batch = new ArrayList<>(requests.size());
         requests.drainTo(batch);
-
-        final CompletableFuture<Void> flush = doFlush(batch);
-        flush.whenComplete((ignored1, ignored2) -> semaphore.release());
-        flush.join();
-
+        final List<CompletableFuture<Void>> futures = doFlush(batch);
+        final CompletableFuture<Void> future = CompletableFuture.allOf(
+            futures.toArray(new CompletableFuture[futures.size()]));
+        future.whenComplete((v, t) -> semaphore.release());
+        future.join();
         lastFlushTS = System.currentTimeMillis();
     }
 
-    private CompletableFuture<Void> doFlush(final List<Holder> batch) {
+    private List<CompletableFuture<Void>> doFlush(final List<Holder> batch) {
         log.debug("Executing bulk with {} requests", batch.size());
-
         if (batch.isEmpty()) {
-            return CompletableFuture.completedFuture(null);
+            return Collections.emptyList();
         }
-
-        final CompletableFuture<Void> future = es.get().version().thenCompose(v -> {
-            try {
-                final RequestFactory rf = v.requestFactory();
-                final List<byte[]> bs = new ArrayList<>();
-                for (final Holder holder : batch) {
-                    bs.add(v.codec().encode(holder.request));
-                    bs.add("\n".getBytes());
+        try {
+            int bufferOfBytes = 0;
+            Codec codec = es.get().version().get().codec();
+            final List<byte[]> bs = new ArrayList<>();
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            List<ByteBuf> byteBufList = new ArrayList<>();
+            for (final Holder holder : batch) {
+                byte[] bytes = codec.encode(holder.request);
+                bs.add(bytes);
+                bs.add("\n".getBytes());
+                bufferOfBytes += bytes.length + 1;
+                if (bufferOfBytes >= batchOfBytes) {
+                    final ByteBuf content = Unpooled.wrappedBuffer(bs.toArray(new byte[0][]));
+                    byteBufList.add(content);
+                    bs.clear();
+                    bufferOfBytes = 0;
                 }
+            }
+            if (CollectionUtils.isNotEmpty(bs)) {
                 final ByteBuf content = Unpooled.wrappedBuffer(bs.toArray(new byte[0][]));
-                return es.get().client().execute(rf.bulk().bulk(content))
-                         .aggregate().thenAccept(response -> {
-                        final HttpStatus status = response.status();
-                        if (status != HttpStatus.OK) {
-                            throw new RuntimeException(response.contentUtf8());
-                        }
-                    });
-            } catch (Exception e) {
-                return Exceptions.throwUnsafely(e);
+                byteBufList.add(content);
             }
-        });
-        future.whenComplete((ignored, exception) -> {
-            if (exception != null) {
-                batch.stream().map(it -> it.future)
-                     .forEach(it -> it.completeExceptionally(exception));
-                log.error("Failed to execute requests in bulk", exception);
-            } else {
-                log.debug("Succeeded to execute {} requests in bulk", batch.size());
-                batch.stream().map(it -> it.future).forEach(it -> it.complete(null));
+            for (final ByteBuf content : byteBufList) {
+                CompletableFuture<Void> future = es.get().version().thenCompose(v -> {
+                    try {
+                        final RequestFactory rf = v.requestFactory();
+                        return es.get().client().execute(rf.bulk().bulk(content)).aggregate().thenAccept(response -> {
+                            final HttpStatus status = response.status();
+                            if (status != HttpStatus.OK) {
+                                throw new RuntimeException(response.contentUtf8());
+                            }
+                        });
+                    } catch (Exception e) {
+                        return Exceptions.throwUnsafely(e);
+                    }
+                });
+                future.whenComplete((ignored, exception) -> {
+                    if (exception != null) {
+                        batch.stream().map(it -> it.future)
+                             .forEach(it -> it.completeExceptionally((Throwable) exception));
+                        log.error("Failed to execute requests in bulk", exception);
+                    } else {
+                        log.debug("Succeeded to execute {} requests in bulk", batch.size());
+                        batch.stream().map(it -> it.future).forEach(it -> it.complete(null));
+                    }
+                });
+                futures.add(future);
             }
-        });
-        return future;
+            return futures;
+
+        } catch (Exception e) {
+            log.error("Failed to execute requests in bulk", e);
+            return Collections.emptyList();
+        }
     }
 
     @RequiredArgsConstructor
@@ -182,4 +209,5 @@ public final class BulkProcessor {
         private final CompletableFuture<Void> future;
         private final Object request;
     }
+
 }

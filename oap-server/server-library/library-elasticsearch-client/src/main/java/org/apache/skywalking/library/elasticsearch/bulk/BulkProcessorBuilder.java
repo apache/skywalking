@@ -32,10 +32,17 @@ public final class BulkProcessorBuilder {
     private int bulkActions = -1;
     private Duration flushInterval;
     private int concurrentRequests = 2;
+    private int batchOfBytes;
 
     public BulkProcessorBuilder bulkActions(int bulkActions) {
         checkArgument(bulkActions > 0, "bulkActions must be positive");
         this.bulkActions = bulkActions;
+        return this;
+    }
+
+    public BulkProcessorBuilder batchOfBytes(int batchOfBytes) {
+        checkArgument(batchOfBytes > 0, "batchOfBytes must be positive");
+        this.batchOfBytes = batchOfBytes;
         return this;
     }
 
@@ -52,6 +59,6 @@ public final class BulkProcessorBuilder {
 
     public BulkProcessor build(AtomicReference<ElasticSearch> es) {
         return new BulkProcessor(
-            es, bulkActions, flushInterval, concurrentRequests);
+            es, bulkActions, flushInterval, concurrentRequests, batchOfBytes);
     }
 }
