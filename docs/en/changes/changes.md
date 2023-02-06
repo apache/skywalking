@@ -4,6 +4,8 @@
 
 * Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
 * Bump up Apache parent pom version to 29.
+* Bump up Armeria version to 1.21.0.
+* Clean up maven `pom.xml`s.
 
 #### OAP Server
 
@@ -85,6 +87,7 @@
 * Enhance OAP HTTP server to support HTTPS
 * Remove handler scan in otel receiver, manual initialization instead
 * Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
+* Avoid Antlr dependencies' versions might be different in compile time and runtime.
 
 #### UI
 
