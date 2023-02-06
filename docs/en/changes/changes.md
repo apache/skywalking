@@ -103,7 +103,7 @@
 * Avoid being unable to drag process nodes for the first time.
 * Add node folder into ignore list.
 * Add ElPopconfirm to component types.
-* Add a iframe widget for zipkin UI.
+* Add an iframe widget for zipkin UI.
 * Optimize graph tooltips to make them more friendly.
 * Bump json5 from 1.0.1 to 1.0.2.
 * Add websockets icon.
