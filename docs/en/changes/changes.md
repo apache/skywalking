@@ -89,7 +89,7 @@
 * Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
 * Avoid Antlr dependencies' versions might be different in compile time and runtime.
 * Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
-* Add missing tcp throughput metrics.
+* Add missing TCP throughput metrics.
 
 #### UI
 
