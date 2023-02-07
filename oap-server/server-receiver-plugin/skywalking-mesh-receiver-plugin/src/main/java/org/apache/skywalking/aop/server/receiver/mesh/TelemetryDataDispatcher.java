@@ -224,6 +224,8 @@ public class TelemetryDataDispatcher {
         service.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         service.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         service.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
+        service.setReceivedBytes(metrics.getReceivedBytes());
+        service.setSentBytes(metrics.getSentBytes());
 
         SOURCE_RECEIVER.receive(service);
     }
@@ -267,6 +269,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
+        serviceRelation.setReceivedBytes(metrics.getReceivedBytes());
+        serviceRelation.setSentBytes(metrics.getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
@@ -298,6 +302,8 @@ public class TelemetryDataDispatcher {
         serviceInstance.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         serviceInstance.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         serviceInstance.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
+        serviceInstance.setReceivedBytes(metrics.getReceivedBytes());
+        serviceInstance.setSentBytes(metrics.getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceInstance);
     }
@@ -374,6 +380,8 @@ public class TelemetryDataDispatcher {
         serviceRelation.getSideCar().setInternalErrorCode(metrics.getInternalErrorCode());
         serviceRelation.getSideCar().setInternalRequestLatencyNanos(metrics.getInternalRequestLatencyNanos());
         serviceRelation.getSideCar().setInternalResponseLatencyNanos(metrics.getInternalResponseLatencyNanos());
+        serviceRelation.setReceivedBytes(metrics.getReceivedBytes());
+        serviceRelation.setSentBytes(metrics.getSentBytes());
 
         SOURCE_RECEIVER.receive(serviceRelation);
     }
