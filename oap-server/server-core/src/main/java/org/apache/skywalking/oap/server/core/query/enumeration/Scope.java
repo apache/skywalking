@@ -31,9 +31,10 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.in
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.inServiceRelationCatalog;
 
 /**
- * Scope n query stage represents the scope catalog. All scopes with their catalogs are defined in {@link DefaultScopeDefine}.
+ * Scope in query stage represents the scope catalog. All scopes with their catalogs are defined in
+ * {@link DefaultScopeDefine}.
  * Scope IDs could be various due to different OAL/MAL input.
- * Scope catalog provides high dimension classification for all scopes as a hierarchy structure.
+ * Scope catalog provides high dimension classifications for all scopes as a hierarchy structure.
  */
 public enum Scope {
     /**
