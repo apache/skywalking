@@ -18,18 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Percentile is a better implementation than deprecated PxxMetrics in older releases.
@@ -53,7 +53,8 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     @Getter
     @Setter
-    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "value")
     @BanyanDB.MeasureField
     private DataTable percentileValues;
     @Getter

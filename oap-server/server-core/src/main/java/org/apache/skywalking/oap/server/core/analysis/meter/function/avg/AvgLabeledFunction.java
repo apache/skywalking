@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -34,12 +31,15 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
 import java.util.Objects;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @MeterFunction(functionName = "avgLabeled")
 @ToString
@@ -64,17 +64,20 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
 
     @Getter
     @Setter
-    @Column(name = SUMMATION, legacyName = "summation", storageOnly = true)
+    @Column(name = SUMMATION, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
-    @Column(name = COUNT, legacyName = "count", storageOnly = true)
+    @Column(name = COUNT, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "count")
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
-    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "value")
     @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 

@@ -18,12 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import com.google.common.base.Strings;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -39,19 +33,24 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import com.google.common.base.Strings;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collector;
-import java.util.stream.IntStream;
-
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
+import java.util.stream.IntStream;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * AvgPercentile intends to calculate percentile based on the average of raw values over the interval(minute, hour or day).
@@ -81,17 +80,20 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
     private String entityId;
     @Getter
     @Setter
-    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "name")
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter
     @Setter
-    @Column(name = SUMMATION, legacyName = "summation", storageOnly = true)
+    @Column(name = SUMMATION, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
-    @Column(name = COUNT, legacyName = "count", storageOnly = true)
+    @Column(name = COUNT, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "count")
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter

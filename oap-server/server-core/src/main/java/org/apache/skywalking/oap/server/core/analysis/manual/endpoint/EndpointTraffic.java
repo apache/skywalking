@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
-import com.google.common.base.Strings;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
@@ -39,7 +35,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import com.google.common.base.Strings;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.TIME_BUCKET;
 
@@ -62,7 +61,8 @@ public class EndpointTraffic extends Metrics {
     private String serviceId;
     @Setter
     @Getter
-    @Column(name = NAME, legacyName = "name")
+    @Column(name = NAME)
+    @ElasticSearch.Column(columnAlias = "name")
     @ElasticSearch.MatchQuery
     @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;

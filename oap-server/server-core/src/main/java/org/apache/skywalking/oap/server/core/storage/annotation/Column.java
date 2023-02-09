@@ -18,14 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import lombok.Getter;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import lombok.Getter;
 
 /**
  * Data column of all persistent entity.
@@ -42,17 +41,6 @@ public @interface Column {
      * Also check {@code legacyName()}.
      */
     String name();
-
-    /**
-     * Some storage implementations can merge all metrics/records types into a single table/index, but before the merge
-     * there are some column names with different types, which causes column conflicts after merging. To make it
-     * compatible with old releases where tables are not merged, this field is provided to add legacy column name so
-     * old implementations can use this name to create tables.
-     *
-     * @deprecated use {@link #name()} instead.
-     */
-    @Deprecated
-    String legacyName() default "";
 
     /**
      * The function is used in aggregation query.

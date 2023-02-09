@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,7 +46,7 @@ public class ModelColumnTest {
                                              false, false, true, 0,
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
-                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, false, false),
+                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false),
                                              new BanyanDBExtension(-1, false, true, BanyanDB.IndexRule.IndexType.INVERTED, false)
         );
         Assert.assertEquals(true, column.isStorageOnly());
@@ -56,7 +55,7 @@ public class ModelColumnTest {
         column = new ModelColumn(new ColumnName(c), DataTable.class, DataTable.class,
                                  false, false, true, 200,
                                  new SQLDatabaseExtension(),
-                                 new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, false, false),
+                                 new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false),
                                  new BanyanDBExtension(-1, false, true, BanyanDB.IndexRule.IndexType.INVERTED, false)
         );
         Assert.assertEquals(true, column.isStorageOnly());
@@ -66,7 +65,7 @@ public class ModelColumnTest {
         column = new ModelColumn(new ColumnName(c), String.class, String.class,
                                  false, false, true, 200,
                                  new SQLDatabaseExtension(),
-                                 new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, false, false),
+                                 new ElasticSearchExtension(ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false),
                                  new BanyanDBExtension(-1, false, true, BanyanDB.IndexRule.IndexType.INVERTED, false)
         );
         Assert.assertEquals(false, column.isStorageOnly());
@@ -79,7 +78,7 @@ public class ModelColumnTest {
                                              true, false, true, 200,
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
-                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, false, false),
+                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false),
                                              new BanyanDBExtension(-1, false, true, BanyanDB.IndexRule.IndexType.INVERTED, false)
         );
     }
@@ -90,7 +89,7 @@ public class ModelColumnTest {
                                              true, true, false, 200,
                                              new SQLDatabaseExtension(),
                                              new ElasticSearchExtension(
-                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, false, false),
+                                                 ElasticSearch.MatchQuery.AnalyzerType.OAP_ANALYZER, null, false, false),
                                              new BanyanDBExtension(-1, false, true, BanyanDB.IndexRule.IndexType.INVERTED, false)
         );
     }

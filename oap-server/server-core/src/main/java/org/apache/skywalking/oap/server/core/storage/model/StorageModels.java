@@ -17,16 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
-import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import com.google.common.base.Strings;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +26,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
+import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
+import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -194,11 +193,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 // ElasticSearch extension
                 final ElasticSearch.MatchQuery elasticSearchAnalyzer = field.getAnnotation(
                     ElasticSearch.MatchQuery.class);
+                final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
                 final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
                 final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
-                    Strings.isNullOrEmpty(column.legacyName()) ? null : column.legacyName(),
+                    elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
                     keywordColumn != null,
                     routingColumn != null
                 );

@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceF
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * Apdex dissatisfaction levels of Tolerating (apdex_t) and Frustrated (apdex_f) indicate how slow site performance
@@ -64,7 +65,8 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     private long tNum;
     @Getter
     @Setter
-    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @ElasticSearch.Column(columnAlias = "value")
     @BanyanDB.MeasureField
     private int value;
 

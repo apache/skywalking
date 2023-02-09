@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.instance;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
@@ -34,12 +29,17 @@ import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 
 @Stream(name = InstanceTraffic.INDEX_NAME, scopeId = SERVICE_INSTANCE,
@@ -67,7 +67,8 @@ public class InstanceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = NAME, legacyName = "name", storageOnly = true)
+    @Column(name = NAME, storageOnly = true)
+    @ElasticSearch.Column(columnAlias = "name")
     @BanyanDB.SeriesID(index = 1)
     private String name;
 

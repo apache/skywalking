@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -39,7 +36,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import static org.apache.logging.log4j.util.Base64Util.encode;
 import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 
@@ -66,7 +65,8 @@ public class ServiceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = NAME, legacyName = "name")
+    @Column(name = NAME)
+    @ElasticSearch.Column(columnAlias = "name")
     @ElasticSearch.MatchQuery
     @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
