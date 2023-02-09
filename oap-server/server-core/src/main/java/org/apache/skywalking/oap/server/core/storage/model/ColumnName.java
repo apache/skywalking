@@ -32,12 +32,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @ToString
 public class ColumnName {
     private final String name;
-    private final String legacyName;
     private String storageName;
 
     public ColumnName(Column column) {
         storageName = name = column.name();
-        legacyName = column.legacyName();
     }
 
     public void overrideName(String oldName, String storageName) {

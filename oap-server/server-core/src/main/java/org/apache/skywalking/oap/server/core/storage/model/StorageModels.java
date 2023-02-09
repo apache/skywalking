@@ -17,8 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import com.google.common.base.Strings;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -28,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-
+import com.google.common.base.Strings;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -187,7 +186,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 indexDefinitions.forEach(indexDefinition -> {
                     sqlDatabaseExtension.appendIndex(new SQLDatabaseExtension.MultiColumnsIndex(
-                        !Strings.isNullOrEmpty(column.legacyName()) ? column.legacyName() : column.name(),
+                        column.name(),
                         indexDefinition.withColumns()
                     ));
                 });
@@ -199,6 +198,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
+                    Strings.isNullOrEmpty(column.legacyName()) ? null : column.legacyName(),
                     keywordColumn != null,
                     routingColumn != null
                 );
@@ -250,11 +250,11 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 modelColumns.add(modelColumn);
                 if (log.isDebugEnabled()) {
-                    log.debug("The field named [{}] with the [{}] type", column.legacyName(), field.getType());
+                    log.debug("The field named [{}] with the [{}] type", column.name(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                        modelName, !Strings.isNullOrEmpty(column.legacyName()) ? column.legacyName() : column.name(),
+                        modelName, column.name(),
                         column.dataType(), column.function(), column.defaultValue(), scopeId
                     );
                 }
@@ -315,8 +315,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         return models;
     }
 
-    private class ShardingKeyChecker {
-        private ArrayList<ModelColumn> keys = new ArrayList<>();
+    private static class ShardingKeyChecker {
+        private final ArrayList<ModelColumn> keys = new ArrayList<>();
 
         /**
          * @throws IllegalStateException if sharding key indices are conflicting.

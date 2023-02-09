@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.base.Strings;
-import com.google.gson.Gson;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
@@ -38,13 +33,17 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StorageEsInstaller extends ModelInstaller {
@@ -306,7 +305,7 @@ public class StorageEsInstaller extends ModelInstaller {
         for (ModelColumn columnDefine : model.getColumns()) {
             final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType(), columnDefine.getElasticSearchExtension());
             String columnName = columnDefine.getColumnName().getName();
-            String legacyName = columnDefine.getColumnName().getLegacyName();
+            String legacyName = columnDefine.getElasticSearchExtension().getLegacyColumnName();
             if (config.isLogicSharding() && !Strings.isNullOrEmpty(legacyName)) {
                 columnName = legacyName;
             }
