@@ -45,7 +45,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     protected static final String S_NUM = "s_num";
     // Level: tolerated
     protected static final String T_NUM = "t_num";
-    protected static final String VALUE = "value";
+    protected static final String VALUE = "int_value";
 
     @Getter
     @Setter
@@ -64,7 +64,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     private long tNum;
     @Getter
     @Setter
-    @Column(name = "int_value", legacyName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
     private int value;
 

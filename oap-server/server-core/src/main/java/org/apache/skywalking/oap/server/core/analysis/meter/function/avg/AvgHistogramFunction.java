@@ -56,8 +56,8 @@ import java.util.Objects;
 @ToString
 public abstract class AvgHistogramFunction extends Meter implements AcceptableValue<BucketedValues> {
     public static final String DATASET = "dataset";
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
+    protected static final String SUMMATION = "datatable_summation";
+    protected static final String COUNT = "datatable_count";
 
     @Setter
     @Getter
@@ -66,12 +66,12 @@ public abstract class AvgHistogramFunction extends Meter implements AcceptableVa
     private String entityId;
     @Getter
     @Setter
-    @Column(name = "datatable_summation", legacyName = SUMMATION, storageOnly = true)
+    @Column(name = SUMMATION, legacyName = "summation", storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
-    @Column(name = "datatable_count", legacyName = COUNT, storageOnly = true)
+    @Column(name = COUNT, legacyName = "count", storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter

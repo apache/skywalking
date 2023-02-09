@@ -61,8 +61,8 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
-    public static final String VALUE = "value";
-    protected static final String SUMMATION = "summation";
+    public static final String VALUE = "datatable_value";
+    protected static final String SUMMATION = "datatable_summation";
 
     @Setter
     @Getter
@@ -71,12 +71,12 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
     private String entityId;
     @Getter
     @Setter
-    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter
     @Setter
-    @Column(name = "datatable_summation", legacyName = SUMMATION, storageOnly = true)
+    @Column(name = SUMMATION, legacyName = "summation", storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     /**

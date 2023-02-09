@@ -31,13 +31,13 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 @MetricsFunction(functionName = "doubleAvg")
 public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHolder {
 
-    protected static final String SUMMATION = "summation";
+    protected static final String SUMMATION = "double_summation";
     protected static final String COUNT = "count";
-    protected static final String VALUE = "value";
+    protected static final String VALUE = "double_value";
 
     @Getter
     @Setter
-    @Column(name = "double_summation", legacyName = SUMMATION, storageOnly = true)
+    @Column(name = SUMMATION, legacyName = "summation", storageOnly = true)
     @BanyanDB.MeasureField
     private double summation;
     @Getter
@@ -47,7 +47,7 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     private long count;
     @Getter
     @Setter
-    @Column(name = "double_value", legacyName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
     private double value;
 

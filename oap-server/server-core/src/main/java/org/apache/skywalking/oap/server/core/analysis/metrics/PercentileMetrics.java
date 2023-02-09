@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
     protected static final String DATASET = "dataset";
-    protected static final String VALUE = "value";
+    protected static final String VALUE = "datatable_value";
     protected static final String PRECISION = "precision";
 
     private static final int[] RANKS = {
@@ -53,7 +53,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     @Getter
     @Setter
-    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable percentileValues;
     @Getter

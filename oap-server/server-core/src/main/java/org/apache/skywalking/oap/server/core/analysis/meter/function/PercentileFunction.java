@@ -53,7 +53,7 @@ import java.util.stream.IntStream;
 public abstract class PercentileFunction extends Meter implements AcceptableValue<PercentileFunction.PercentileArgument>, MultiIntValuesHolder {
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
-    public static final String VALUE = "value";
+    public static final String VALUE = "datatable_value";
 
     @Setter
     @Getter
@@ -62,7 +62,7 @@ public abstract class PercentileFunction extends Meter implements AcceptableValu
     private String entityId;
     @Getter
     @Setter
-    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter

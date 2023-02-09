@@ -53,7 +53,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";
-    public static final String NAME = "name";
+    public static final String NAME = "instance_traffic_name";
     public static final String LAST_PING_TIME_BUCKET = "last_ping";
     public static final String PROPERTIES = "properties";
 
@@ -67,7 +67,7 @@ public class InstanceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = "instance_traffic_name", legacyName = NAME, storageOnly = true)
+    @Column(name = NAME, legacyName = "name", storageOnly = true)
     @BanyanDB.SeriesID(index = 1)
     private String name;
 

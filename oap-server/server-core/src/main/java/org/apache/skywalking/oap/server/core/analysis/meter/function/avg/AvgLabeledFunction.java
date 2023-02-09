@@ -44,9 +44,9 @@ import java.util.Set;
 @MeterFunction(functionName = "avgLabeled")
 @ToString
 public abstract class AvgLabeledFunction extends Meter implements AcceptableValue<DataTable>, LabeledValueHolder {
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
-    protected static final String VALUE = "value";
+    protected static final String SUMMATION = "datatable_summation";
+    protected static final String COUNT = "datatable_count";
+    protected static final String VALUE = "datatable_value";
 
     @Setter
     @Getter
@@ -64,17 +64,17 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
 
     @Getter
     @Setter
-    @Column(name = "datatable_summation", legacyName = SUMMATION, storageOnly = true)
+    @Column(name = SUMMATION, legacyName = "summation", storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
-    @Column(name = "datatable_count", legacyName = COUNT, storageOnly = true)
+    @Column(name = COUNT, legacyName = "count", storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
-    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, legacyName = "value", dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 
