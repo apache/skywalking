@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.List;
+import com.google.common.base.Strings;
 import org.apache.skywalking.oal.rt.util.ClassMethodUtil;
 import org.apache.skywalking.oal.rt.util.TypeCastUtil;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -31,6 +27,12 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOn
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.List;
 
 import static java.util.Objects.isNull;
 
@@ -136,7 +138,10 @@ public class DeepAnalysis {
             for (Field field : c.getDeclaredFields()) {
                 Column column = field.getAnnotation(Column.class);
                 if (column != null) {
-                    result.addPersistentField(field.getName(), column.columnName(), field.getType());
+                    result.addPersistentField(
+                        field.getName(),
+                        !Strings.isNullOrEmpty(column.legacyName()) ? column.legacyName() : column.name(),
+                        field.getType());
                 }
             }
             c = c.getSuperclass();

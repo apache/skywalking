@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.database;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -32,6 +31,8 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import java.util.Objects;
+
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
@@ -44,7 +45,7 @@ public class TopNDatabaseStatement extends TopN {
     private String id;
     @Getter
     @Setter
-    @Column(columnName = STATEMENT, length = 2000, storageOnly = true)
+    @Column(name = STATEMENT, length = 2000, storageOnly = true)
     private String statement;
 
     @Override

@@ -66,32 +66,31 @@ public class ServiceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = NAME)
+    @Column(name = "service_traffic_name", legacyName = NAME)
     @ElasticSearch.MatchQuery
-    @ElasticSearch.Column(columnAlias = "service_traffic_name")
     @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
 
     @Setter
     @Getter
-    @Column(columnName = SHORT_NAME)
+    @Column(name = SHORT_NAME)
     private String shortName = Const.EMPTY_STRING;
 
     /**
      * `normal` Base64 encode(serviceName) + ".1" `un-normal` Base64 encode(serviceName) + ".0"
      */
     @Setter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     private String serviceId;
 
     @Setter
     @Getter
-    @Column(columnName = GROUP)
+    @Column(name = GROUP)
     private String group;
 
     @Setter
     @Getter
-    @Column(columnName = LAYER)
+    @Column(name = LAYER)
     @BanyanDB.SeriesID(index = 0)
     private Layer layer = Layer.UNDEFINED;
 

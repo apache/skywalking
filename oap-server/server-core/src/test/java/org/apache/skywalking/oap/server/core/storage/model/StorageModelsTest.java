@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -39,6 +38,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.List;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({DefaultScopeDefine.class})
@@ -82,19 +83,19 @@ public class StorageModelsTest {
 
     @Stream(name = "StorageModelsTest", scopeId = -1, builder = TestModel.Builder.class, processor = MetricsStreamProcessor.class)
     private static class TestModel {
-        @Column(columnName = "column")
+        @Column(name = "column")
         private String column;
 
-        @Column(columnName = "column1")
+        @Column(name = "column1")
         @SQLDatabase.QueryUnifiedIndex(withColumns = {"column2"})
         private String column1;
 
-        @Column(columnName = "column2")
+        @Column(name = "column2")
         @SQLDatabase.QueryUnifiedIndex(withColumns = {"column1"})
         @SQLDatabase.QueryUnifiedIndex(withColumns = {"column"})
         private String column2;
 
-        @Column(columnName = "column", storageOnly = true)
+        @Column(name = "column", storageOnly = true)
         private String column4;
 
         static class Builder implements StorageBuilder<StorageData> {

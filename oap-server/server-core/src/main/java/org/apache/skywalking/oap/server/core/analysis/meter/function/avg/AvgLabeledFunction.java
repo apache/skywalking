@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import java.util.Objects;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -36,10 +34,12 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.Objects;
+import java.util.Set;
 
 @MeterFunction(functionName = "avgLabeled")
 @ToString
@@ -50,7 +50,7 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
@@ -59,25 +59,22 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
      */
     @Setter
     @Getter
-    @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @Column(name = InstanceTraffic.SERVICE_ID)
     private String serviceId;
 
     @Getter
     @Setter
-    @Column(columnName = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_summation")
+    @Column(name = "datatable_summation", legacyName = SUMMATION, storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
-    @Column(columnName = COUNT, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_count")
+    @Column(name = "datatable_count", legacyName = COUNT, storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 

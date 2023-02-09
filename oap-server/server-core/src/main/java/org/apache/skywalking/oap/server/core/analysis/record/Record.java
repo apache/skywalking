@@ -34,6 +34,6 @@ public abstract class Record implements StorageData {
      */
     @Getter
     @Setter
-    @Column(columnName = TIME_BUCKET)
+    @Column(name = TIME_BUCKET)
     private long timeBucket;
 }

@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 
 /**
  * Data column of all persistent entity.
@@ -33,10 +34,25 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
     /**
-     * column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
+     * Column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
      * could be a keyword, then, the implementation will use {@link ModelManipulator} to replace the column name.
+     * <p>
+     * Be careful not to use the same column name for two models with the same type (metrics/record), which causes
+     * column conflicts in storage implementations that merge all metrics/records models into a single table/index.
+     * Also check {@code legacyName()}.
      */
-    String columnName();
+    String name();
+
+    /**
+     * Some storage implementations can merge all metrics/records types into a single table/index, but before the merge
+     * there are some column names with different types, which causes column conflicts after merging. To make it
+     * compatible with old releases where tables are not merged, this field is provided to add legacy column name so
+     * old implementations can use this name to create tables.
+     *
+     * @deprecated use {@link #name()} instead.
+     */
+    @Deprecated
+    String legacyName() default "";
 
     /**
      * The function is used in aggregation query.

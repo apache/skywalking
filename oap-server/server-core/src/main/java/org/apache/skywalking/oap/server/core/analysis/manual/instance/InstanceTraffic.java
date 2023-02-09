@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -62,25 +61,24 @@ public class InstanceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
     @Setter
     @Getter
-    @Column(columnName = NAME, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "instance_traffic_name")
+    @Column(name = "instance_traffic_name", legacyName = NAME, storageOnly = true)
     @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
     @Getter
-    @Column(columnName = LAST_PING_TIME_BUCKET)
+    @Column(name = LAST_PING_TIME_BUCKET)
     private long lastPingTimestamp;
 
     @Setter
     @Getter
-    @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
+    @Column(name = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
     @Override

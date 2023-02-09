@@ -33,7 +33,7 @@ public abstract class MaxDoubleMetrics extends Metrics implements DoubleValueHol
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     @BanyanDB.MeasureField
     private double value;
 

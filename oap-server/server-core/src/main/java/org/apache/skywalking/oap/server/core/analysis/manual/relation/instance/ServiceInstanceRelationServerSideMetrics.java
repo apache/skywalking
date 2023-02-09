@@ -56,23 +56,23 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SOURCE_SERVICE_ID)
+    @Column(name = SOURCE_SERVICE_ID)
     private String sourceServiceId;
     @Setter
     @Getter
-    @Column(columnName = SOURCE_SERVICE_INSTANCE_ID)
+    @Column(name = SOURCE_SERVICE_INSTANCE_ID)
     private String sourceServiceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = DEST_SERVICE_ID)
+    @Column(name = DEST_SERVICE_ID)
     private String destServiceId;
     @Setter
     @Getter
-    @Column(columnName = DEST_SERVICE_INSTANCE_ID)
+    @Column(name = DEST_SERVICE_INSTANCE_ID)
     private String destServiceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
 

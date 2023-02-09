@@ -50,18 +50,18 @@ public class ProfileTaskLogRecord extends Record {
     public static final String OPERATION_TIME = "operation_time";
     public static final String TIMESTAMP = "timestamp";
 
-    @Column(columnName = TASK_ID)
+    @Column(name = TASK_ID)
     private String taskId;
-    @Column(columnName = INSTANCE_ID)
+    @Column(name = INSTANCE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String instanceId;
-    @Column(columnName = OPERATION_TYPE, storageOnly = true)
+    @Column(name = OPERATION_TYPE, storageOnly = true)
     private int operationType;
-    @Column(columnName = OPERATION_TIME)
+    @Column(name = OPERATION_TIME)
     private long operationTime;
     @Getter
     @Setter
-    @Column(columnName = TIMESTAMP)
+    @Column(name = TIMESTAMP)
     private long timestamp;
 
     @Override

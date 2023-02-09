@@ -34,17 +34,17 @@ public abstract class RateMetrics extends Metrics implements IntValueHolder {
 
     @Getter
     @Setter
-    @Column(columnName = DENOMINATOR)
+    @Column(name = DENOMINATOR)
     @BanyanDB.MeasureField
     private long denominator;
     @Getter
     @Setter
-    @Column(columnName = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
     private int percentage;
     @Getter
     @Setter
-    @Column(columnName = NUMERATOR)
+    @Column(name = NUMERATOR)
     @BanyanDB.MeasureField
     private long numerator;
 

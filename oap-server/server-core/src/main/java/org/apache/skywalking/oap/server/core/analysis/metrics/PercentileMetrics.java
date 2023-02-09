@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
@@ -29,7 +26,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Metrics
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Percentile is a better implementation than deprecated PxxMetrics in older releases.
@@ -53,18 +53,17 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable percentileValues;
     @Getter
     @Setter
-    @Column(columnName = PRECISION, storageOnly = true)
+    @Column(name = PRECISION, storageOnly = true)
     @BanyanDB.MeasureField
     private int precision;
     @Getter
     @Setter
-    @Column(columnName = DATASET, storageOnly = true)
+    @Column(name = DATASET, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable dataset;
 

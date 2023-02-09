@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * ElasticSearch annotation is a holder including all annotations for ElasticSearch storage
@@ -81,21 +82,6 @@ public @interface ElasticSearch {
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
     @interface Keyword {
-
-    }
-
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface Column {
-
-        /**
-         * Warning: this is only used to solve the conflict among the existing columns since we need support to merge
-         * all metrics
-         * in one physical index template. When creating a new column, we should avoid the compatibility issue
-         * between these 2 storage modes rather than use this alias.
-         */
-        @Deprecated
-        String columnAlias();
 
     }
 

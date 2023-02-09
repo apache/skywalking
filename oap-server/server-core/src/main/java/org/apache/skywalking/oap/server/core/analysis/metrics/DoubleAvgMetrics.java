@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceF
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 @MetricsFunction(functionName = "doubleAvg")
 public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHolder {
@@ -38,19 +37,17 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
 
     @Getter
     @Setter
-    @Column(columnName = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "double_summation")
+    @Column(name = "double_summation", legacyName = SUMMATION, storageOnly = true)
     @BanyanDB.MeasureField
     private double summation;
     @Getter
     @Setter
-    @Column(columnName = COUNT, storageOnly = true)
+    @Column(name = COUNT, storageOnly = true)
     @BanyanDB.MeasureField
     private long count;
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
-    @ElasticSearch.Column(columnAlias = "double_value")
+    @Column(name = "double_value", legacyName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
     private double value;
 

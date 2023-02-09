@@ -53,31 +53,31 @@ public class SpanAttachedEventRecord extends Record {
     public static final String DATA_BINARY = "data_binary";
     public static final String TIMESTAMP = "timestamp";
 
-    @Column(columnName = START_TIME_SECOND)
+    @Column(name = START_TIME_SECOND)
     private long startTimeSecond;
-    @Column(columnName = START_TIME_NANOS)
+    @Column(name = START_TIME_NANOS)
     private int startTimeNanos;
-    @Column(columnName = EVENT)
+    @Column(name = EVENT)
     @BanyanDB.SeriesID(index = 0)
     private String event;
-    @Column(columnName = END_TIME_SECOND)
+    @Column(name = END_TIME_SECOND)
     private long endTimeSecond;
-    @Column(columnName = END_TIME_NANOS)
+    @Column(name = END_TIME_NANOS)
     private int endTimeNanos;
-    @Column(columnName = TRACE_REF_TYPE)
+    @Column(name = TRACE_REF_TYPE)
     private int traceRefType;
-    @Column(columnName = RELATED_TRACE_ID)
+    @Column(name = RELATED_TRACE_ID)
     @BanyanDB.GlobalIndex
     private String relatedTraceId;
-    @Column(columnName = TRACE_SEGMENT_ID)
+    @Column(name = TRACE_SEGMENT_ID)
     private String traceSegmentId;
-    @Column(columnName = TRACE_SPAN_ID)
+    @Column(name = TRACE_SPAN_ID)
     private String traceSpanId;
-    @Column(columnName = DATA_BINARY, storageOnly = true)
+    @Column(name = DATA_BINARY, storageOnly = true)
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TIMESTAMP)
+    @Column(name = TIMESTAMP)
     private long timestamp;
 
     @Override

@@ -58,10 +58,10 @@ public class ServiceLabelRecord extends Metrics {
     public static final String LABEL = "label";
 
     @BanyanDB.SeriesID(index = 0)
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     private String serviceId;
     @BanyanDB.SeriesID(index = 1)
-    @Column(columnName = LABEL, length = 50)
+    @Column(name = LABEL, length = 50)
     private String label;
 
     @Override

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -42,6 +41,8 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import java.util.Objects;
+
 @MeterFunction(functionName = "avg")
 @ToString
 public abstract class AvgFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
@@ -51,7 +52,7 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
@@ -60,22 +61,22 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
      */
     @Setter
     @Getter
-    @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @Column(name = InstanceTraffic.SERVICE_ID)
     private String serviceId;
 
     @Getter
     @Setter
-    @Column(columnName = SUMMATION, storageOnly = true)
+    @Column(name = SUMMATION, storageOnly = true)
     @BanyanDB.MeasureField
     protected long summation;
     @Getter
     @Setter
-    @Column(columnName = COUNT, storageOnly = true)
+    @Column(name = COUNT, storageOnly = true)
     @BanyanDB.MeasureField
     protected long count;
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
     private long value;
 

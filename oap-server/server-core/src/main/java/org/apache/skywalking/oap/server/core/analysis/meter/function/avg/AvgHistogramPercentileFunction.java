@@ -21,12 +21,6 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 import com.google.common.base.Strings;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +39,16 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
@@ -76,30 +76,27 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(name = ENTITY_ID)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @Column(name = "datatable_value", legacyName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter
     @Setter
-    @Column(columnName = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_summation")
+    @Column(name = "datatable_summation", legacyName = SUMMATION, storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
-    @Column(columnName = COUNT, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_count")
+    @Column(name = "datatable_count", legacyName = COUNT, storageOnly = true)
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
-    @Column(columnName = DATASET, storageOnly = true)
+    @Column(name = DATASET, storageOnly = true)
     @BanyanDB.MeasureField
     private DataTable dataset = new DataTable(30);
     /**
@@ -107,7 +104,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
      */
     @Getter
     @Setter
-    @Column(columnName = RANKS, storageOnly = true)
+    @Column(name = RANKS, storageOnly = true)
     private IntList ranks = new IntList(10);
 
     private boolean isCalculated = false;

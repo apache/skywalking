@@ -55,19 +55,19 @@ public class EndpointRelationServerSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SOURCE_ENDPOINT)
+    @Column(name = SOURCE_ENDPOINT)
     private String sourceEndpoint;
     @Setter
     @Getter
-    @Column(columnName = DEST_ENDPOINT)
+    @Column(name = DEST_ENDPOINT)
     private String destEndpoint;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID, storageOnly = true)
+    @Column(name = COMPONENT_ID, storageOnly = true)
     private int componentId;
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
 

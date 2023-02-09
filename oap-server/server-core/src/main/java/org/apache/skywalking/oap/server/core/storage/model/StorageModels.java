@@ -17,14 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -35,6 +28,15 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -185,7 +187,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 indexDefinitions.forEach(indexDefinition -> {
                     sqlDatabaseExtension.appendIndex(new SQLDatabaseExtension.MultiColumnsIndex(
-                        column.columnName(),
+                        !Strings.isNullOrEmpty(column.legacyName()) ? column.legacyName() : column.name(),
                         indexDefinition.withColumns()
                     ));
                 });
@@ -193,12 +195,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 // ElasticSearch extension
                 final ElasticSearch.MatchQuery elasticSearchAnalyzer = field.getAnnotation(
                     ElasticSearch.MatchQuery.class);
-                final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
                 final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
                 final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
-                    elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
                     keywordColumn != null,
                     routingColumn != null
                 );
@@ -223,10 +223,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(
-                    new ColumnName(
-                        modelName,
-                        column.columnName()
-                    ),
+                    new ColumnName(column),
                     field.getType(),
                     field.getGenericType(),
                     column.storageOnly(),
@@ -253,12 +250,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 modelColumns.add(modelColumn);
                 if (log.isDebugEnabled()) {
-                    log.debug("The field named [{}] with the [{}] type", column.columnName(), field.getType());
+                    log.debug("The field named [{}] with the [{}] type", column.legacyName(), field.getType());
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                        modelName, column.columnName(), column.dataType(), column.function(),
-                        column.defaultValue(), scopeId
+                        modelName, !Strings.isNullOrEmpty(column.legacyName()) ? column.legacyName() : column.name(),
+                        column.dataType(), column.function(), column.defaultValue(), scopeId
                     );
                 }
             }
@@ -290,6 +287,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     private void followColumnNameRules(Model model) {
         columnNameOverrideRule.forEach((oldName, newName) -> {
             model.getColumns().forEach(column -> {
+                log.debug("Override model column name: [{}] {} -> {}.", model.getName(), oldName, newName);
                 column.getColumnName().overrideName(oldName, newName);
                 column.getSqlDatabaseExtension()
                       .getIndices()
