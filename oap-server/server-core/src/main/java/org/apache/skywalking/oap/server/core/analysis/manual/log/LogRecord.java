@@ -47,7 +47,7 @@ public class LogRecord extends AbstractLogRecord {
 
     @Setter
     @Getter
-    @Column(columnName = UNIQUE_ID)
+    @Column(name = UNIQUE_ID)
     private String uniqueId;
 
     @Override

@@ -36,7 +36,7 @@ public class ElasticSearchExtension {
      */
     private final ElasticSearch.MatchQuery.AnalyzerType analyzer;
 
-    private final String columnAlias;
+    private final String legacyColumnName;
 
     private final boolean isKeyword;
 

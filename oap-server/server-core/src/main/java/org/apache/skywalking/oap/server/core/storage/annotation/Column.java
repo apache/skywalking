@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
+import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
-import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 
 /**
  * Data column of all persistent entity.
@@ -33,10 +33,14 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Column {
     /**
-     * column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
+     * Column name in the storage. Most of the storage will keep the name consistently. But in same cases, this name
      * could be a keyword, then, the implementation will use {@link ModelManipulator} to replace the column name.
+     * <p>
+     * Be careful not to use the same column name for two models with the same type (metrics/record), which causes
+     * column conflicts in storage implementations that merge all metrics/records models into a single table/index.
+     * Also check {@code legacyName()}.
      */
-    String columnName();
+    String name();
 
     /**
      * The function is used in aggregation query.

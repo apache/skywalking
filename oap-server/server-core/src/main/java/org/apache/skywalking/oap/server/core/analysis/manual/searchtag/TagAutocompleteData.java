@@ -56,18 +56,18 @@ public class TagAutocompleteData extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = TAG_KEY)
+    @Column(name = TAG_KEY)
     @BanyanDB.SeriesID(index = 1)
     private String tagKey;
     @Setter
     @Getter
-    @Column(columnName = TAG_VALUE, length = Tag.TAG_LENGTH)
+    @Column(name = TAG_VALUE, length = Tag.TAG_LENGTH)
     @BanyanDB.SeriesID(index = 2)
     private String tagValue;
 
     @Setter
     @Getter
-    @Column(columnName = TAG_TYPE)
+    @Column(name = TAG_TYPE)
     @BanyanDB.SeriesID(index = 0)
     private String tagType;
 

@@ -20,17 +20,6 @@ package org.apache.skywalking.oal.rt;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -76,6 +65,18 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
@@ -261,10 +262,10 @@ public class OALRuntime implements OALEngine {
                 AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(
                     constPool, AnnotationsAttribute.visibleTag);
                 /**
-                 * Add @Column(columnName = "${sourceField.columnName}")
+                 * Add @Column(name = "${sourceField.columnName}")
                  */
                 Annotation columnAnnotation = new Annotation(Column.class.getName(), constPool);
-                columnAnnotation.addMemberValue("columnName", new StringMemberValue(field.getColumnName(), constPool));
+                columnAnnotation.addMemberValue("name", new StringMemberValue(field.getColumnName(), constPool));
                 if (field.getType().equals(String.class)) {
                     columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
                 }

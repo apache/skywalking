@@ -57,38 +57,38 @@ public class BrowserErrorLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = UNIQUE_ID)
+    @Column(name = UNIQUE_ID)
     private String uniqueId;
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_VERSION_ID, length = 512)
+    @Column(name = SERVICE_VERSION_ID, length = 512)
     private String serviceVersionId;
 
     @Setter
     @Getter
-    @Column(columnName = PAGE_PATH_ID, length = 512)
+    @Column(name = PAGE_PATH_ID, length = 512)
     private String pagePathId;
 
     @Setter
     @Getter
-    @Column(columnName = TIMESTAMP)
+    @Column(name = TIMESTAMP)
     private long timestamp;
 
     @Setter
     @Getter
-    @Column(columnName = ERROR_CATEGORY)
+    @Column(name = ERROR_CATEGORY)
     private int errorCategory;
 
     @Setter
     @Getter
-    @Column(columnName = DATA_BINARY)
+    @Column(name = DATA_BINARY)
     private byte[] dataBinary;
 
     public static class Builder implements StorageBuilder<BrowserErrorLogRecord> {

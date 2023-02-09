@@ -59,28 +59,28 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     public static final int PROCESS_LABELS_JSON_MAX_LENGTH = 1000;
     public static final int EXTENSION_CONFIG_JSON_MAX_LENGTH = 1000;
 
-    @Column(columnName = LOGICAL_ID)
+    @Column(name = LOGICAL_ID)
     private String logicalId;
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
-    @Column(columnName = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
+    @Column(name = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
     private String processLabelsJson;
-    @Column(columnName = INSTANCE_ID, length = 512)
+    @Column(name = INSTANCE_ID, length = 512)
     private String instanceId;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = TRIGGER_TYPE)
+    @Column(name = TRIGGER_TYPE)
     private int triggerType = EBPFProfilingTriggerType.UNKNOWN.value();
-    @Column(columnName = FIXED_TRIGGER_DURATION)
+    @Column(name = FIXED_TRIGGER_DURATION)
     private long fixedTriggerDuration;
-    @Column(columnName = TARGET_TYPE)
+    @Column(name = TARGET_TYPE)
     private int targetType = EBPFProfilingTargetType.UNKNOWN.value();
-    @Column(columnName = CREATE_TIME)
+    @Column(name = CREATE_TIME)
     private long createTime;
-    @Column(columnName = LAST_UPDATE_TIME)
+    @Column(name = LAST_UPDATE_TIME)
     private long lastUpdateTime;
-    @Column(columnName = EXTENSION_CONFIG_JSON, length = EXTENSION_CONFIG_JSON_MAX_LENGTH, storageOnly = true)
+    @Column(name = EXTENSION_CONFIG_JSON, length = EXTENSION_CONFIG_JSON_MAX_LENGTH, storageOnly = true)
     private String extensionConfigJson;
 
     @Override

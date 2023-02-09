@@ -57,21 +57,21 @@ public class ServiceRelationServerSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SOURCE_SERVICE_ID)
+    @Column(name = SOURCE_SERVICE_ID)
     private String sourceServiceId;
     @Setter
     @Getter
-    @Column(columnName = DEST_SERVICE_ID)
+    @Column(name = DEST_SERVICE_ID)
     private String destServiceId;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_IDS, storageOnly = true)
+    @Column(name = COMPONENT_IDS, storageOnly = true)
     @ElasticSearch.Keyword
     @BanyanDB.SeriesID(index = 1)
     private IntList componentIds = new IntList(3);
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
 

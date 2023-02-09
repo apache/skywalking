@@ -51,20 +51,20 @@ public class SampledStatus5xxTraceRecord extends Record {
     public static final String LATENCY = "latency";
     public static final String TIMESTAMP = "timestamp";
 
-    @Column(columnName = SCOPE)
+    @Column(name = SCOPE)
     private int scope;
-    @Column(columnName = ENTITY_ID)
+    @Column(name = ENTITY_ID)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
-    @Column(columnName = TRACE_ID, storageOnly = true)
+    @Column(name = TRACE_ID, storageOnly = true)
     private String traceId;
-    @Column(columnName = URI, storageOnly = true)
+    @Column(name = URI, storageOnly = true)
     private String uri;
-    @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
+    @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Setter
     @Getter
-    @Column(columnName = TIMESTAMP)
+    @Column(name = TIMESTAMP)
     private long timestamp;
 
     @Override

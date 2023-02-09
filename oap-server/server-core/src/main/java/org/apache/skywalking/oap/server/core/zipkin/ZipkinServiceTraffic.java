@@ -51,7 +51,7 @@ public class ZipkinServiceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_NAME)
+    @Column(name = SERVICE_NAME)
     @BanyanDB.SeriesID(index = 0)
     private String serviceName = Const.EMPTY_STRING;
 

@@ -62,15 +62,15 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     public static final String END_TIME = "end_time";
     public static final String EBPF_PROFILING_SCHEDULE_ID = "ebpf_profiling_schedule_id";
 
-    @Column(columnName = TASK_ID, length = 600)
+    @Column(name = TASK_ID, length = 600)
     private String taskId;
-    @Column(columnName = PROCESS_ID, length = 600)
+    @Column(name = PROCESS_ID, length = 600)
     private String processId;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = END_TIME)
+    @Column(name = END_TIME)
     private long endTime;
-    @Column(columnName = EBPF_PROFILING_SCHEDULE_ID)
+    @Column(name = EBPF_PROFILING_SCHEDULE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String scheduleId;
 
