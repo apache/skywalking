@@ -90,7 +90,7 @@
 * Avoid Antlr dependencies' versions might be different in compile time and runtime.
 * Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
 * Add missing TCP throughput metrics.
-* Refactor `@Column` annotation, swap `Column#name` and ` column name that was used as logical sharding to legacy and deprecate it.
+* Refactor `@Column` annotation, swap `Column#name` and `ElasticSearch.Column#columnAlias` and rename `ElasticSearch.Column#columnAlias` to `ElasticSearch.Column#legacyName`.
 
 #### UI
 

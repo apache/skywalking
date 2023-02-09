@@ -65,19 +65,19 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "summation")
+    @ElasticSearch.Column(legacyName = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "count")
+    @ElasticSearch.Column(legacyName = "count")
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "value")
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 

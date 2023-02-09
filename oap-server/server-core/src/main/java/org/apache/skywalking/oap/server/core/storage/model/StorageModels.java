@@ -198,7 +198,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
-                    elasticSearchColumn == null ? null : elasticSearchColumn.columnAlias(),
+                    elasticSearchColumn == null ? null : elasticSearchColumn.legacyName(),
                     keywordColumn != null,
                     routingColumn != null
                 );

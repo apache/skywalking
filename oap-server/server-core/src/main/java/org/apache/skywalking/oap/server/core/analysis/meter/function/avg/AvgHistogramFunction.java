@@ -67,13 +67,13 @@ public abstract class AvgHistogramFunction extends Meter implements AcceptableVa
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "summation")
+    @ElasticSearch.Column(legacyName = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "count")
+    @ElasticSearch.Column(legacyName = "count")
     @BanyanDB.MeasureField
     protected DataTable count = new DataTable(30);
     @Getter

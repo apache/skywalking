@@ -71,13 +71,13 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "value")
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "summation")
+    @ElasticSearch.Column(legacyName = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     /**

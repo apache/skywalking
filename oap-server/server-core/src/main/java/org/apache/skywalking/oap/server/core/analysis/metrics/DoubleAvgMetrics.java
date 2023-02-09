@@ -39,7 +39,7 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "summation")
+    @ElasticSearch.Column(legacyName = "summation")
     @BanyanDB.MeasureField
     private double summation;
     @Getter
@@ -50,7 +50,7 @@ public abstract class DoubleAvgMetrics extends Metrics implements DoubleValueHol
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
-    @ElasticSearch.Column(columnAlias = "value")
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private double value;
 

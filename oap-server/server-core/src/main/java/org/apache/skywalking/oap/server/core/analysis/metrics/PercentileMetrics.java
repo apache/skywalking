@@ -54,7 +54,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "value")
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable percentileValues;
     @Getter

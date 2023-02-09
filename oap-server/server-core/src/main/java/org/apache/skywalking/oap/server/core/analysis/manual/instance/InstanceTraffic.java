@@ -68,7 +68,7 @@ public class InstanceTraffic extends Metrics {
     @Setter
     @Getter
     @Column(name = NAME, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "name")
+    @ElasticSearch.Column(legacyName = "name")
     @BanyanDB.SeriesID(index = 1)
     private String name;
 

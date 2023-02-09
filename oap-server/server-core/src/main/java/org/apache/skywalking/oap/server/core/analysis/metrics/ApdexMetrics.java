@@ -66,7 +66,7 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
-    @ElasticSearch.Column(columnAlias = "value")
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private int value;
 

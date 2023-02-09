@@ -95,7 +95,7 @@ public @interface ElasticSearch {
          * between these 2 storage modes rather than use this alias.
          */
         @Deprecated
-        String columnAlias();
+        String legacyName();
 
     }
 
