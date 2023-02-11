@@ -199,6 +199,8 @@ catalog:
                 path: "/en/setup/backend/backend-mysql-monitoring"
               - name: "PostgreSQL Server"
                 path: "/en/setup/backend/backend-postgresql-monitoring"
+              - name: "AWS-DynamoDB Server"
+                path: "/en/setup/backend/backend-aws-dynamodb-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"

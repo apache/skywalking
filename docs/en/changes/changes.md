@@ -91,6 +91,7 @@
 * Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
 * Add missing TCP throughput metrics.
 * Refactor `@Column` annotation, swap `Column#name` and `ElasticSearch.Column#columnAlias` and rename `ElasticSearch.Column#columnAlias` to `ElasticSearch.Column#legacyName`.
+* Support Amazon DynamoDB monitoring.
 
 #### UI
 

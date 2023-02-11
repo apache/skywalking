@@ -141,7 +141,13 @@ public enum Layer {
     /**
      * EKS (Amazon Elastic Kubernetes Service) is k8s service provided by AWS Cloud
      */
-    AWS_EKS(22, true);
+    AWS_EKS(22, true),
+
+    /**
+     * Amazon DynamoDB is a fully managed NoSQL database service that provides
+     * fast and predictable performance with seamless scalability.
+     */
+    AWS_DYNAMODB(23, true);
 
     private final int value;
     /**

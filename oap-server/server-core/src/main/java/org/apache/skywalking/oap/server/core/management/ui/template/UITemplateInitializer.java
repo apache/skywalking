@@ -61,6 +61,7 @@ public class UITemplateInitializer {
         Layer.APISIX.name(),
         Layer.VIRTUAL_MQ.name(),
         Layer.AWS_EKS.name(),
+        Layer.AWS_DYNAMODB.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
