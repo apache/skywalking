@@ -37,17 +37,17 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
 
     @Getter
     @Setter
-    @Column(columnName = SUMMATION, storageOnly = true)
+    @Column(name = SUMMATION, storageOnly = true)
     @BanyanDB.MeasureField
     protected long summation;
     @Getter
     @Setter
-    @Column(columnName = COUNT, storageOnly = true)
+    @Column(name = COUNT, storageOnly = true)
     @BanyanDB.MeasureField
     protected long count;
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
     private long value;
 

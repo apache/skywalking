@@ -4,6 +4,8 @@
 
 * Bump up Zipkin and Zipkin lens UI dependency to 2.24.0.
 * Bump up Apache parent pom version to 29.
+* Bump up Armeria version to 1.21.0.
+* Clean up maven `pom.xml`s.
 
 #### OAP Server
 
@@ -79,19 +81,38 @@
 * Fix TCP service instances are lack of instance properties like `pod` and `namespace`, which causes Pod log not to work for TCP workloads.
 * Add Python HBase happybase module component ID(94).
 * Fix gRPC alarm cannot update settings from dynamic configuration source.
+* Add `batchOfBytes` configuration to limit the size of bulk flush.
 * Add Python Websocket module component ID(7018).
 * [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
+* Enhance OAP HTTP server to support HTTPS
+* Remove handler scan in otel receiver, manual initialization instead
+* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
+* Avoid Antlr dependencies' versions might be different in compile time and runtime.
+* Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
+* Add missing TCP throughput metrics.
+* Refactor `@Column` annotation, swap `Column#name` and `ElasticSearch.Column#columnAlias` and rename `ElasticSearch.Column#columnAlias` to `ElasticSearch.Column#legacyName`.
 
 #### UI
 
 * Add Zipkin Lens UI to webapp, and proxy it to context path `/zipkin`.
 * Migrate the build tool from vue cli to Vite4.
 * Fix Instance Relation and Endpoint Relation dashboards show up.
-* Add Micrometer icon
-* Update MySQL UI to support MariaDB
-* Add AWS menu for supporting AWS monitoring
-* Add missing FastAPI logo
-* Update the log details page to support the formatted display of JSON content
+* Add Micrometer icon.
+* Update MySQL UI to support MariaDB.
+* Add AWS menu for supporting AWS monitoring.
+* Add missing FastAPI logo.
+* Update the log details page to support the formatted display of JSON content.
+* Fix build config.
+* Avoid being unable to drag process nodes for the first time.
+* Add node folder into ignore list.
+* Add ElPopconfirm to component types.
+* Add an iframe widget for zipkin UI.
+* Optimize graph tooltips to make them more friendly.
+* Bump json5 from 1.0.1 to 1.0.2.
+* Add websockets icon.
+* Implement independent mode for widgets.
+* Bump http-cache-semantics from 4.1.0 to 4.1.1.
+* Update menus for OpenFunction.
 
 #### Documentation
 

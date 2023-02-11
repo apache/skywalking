@@ -56,20 +56,20 @@ public class NetworkAddressAlias extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = ADDRESS)
+    @Column(name = ADDRESS)
     @BanyanDB.SeriesID(index = 0)
     private String address;
     @Setter
     @Getter
-    @Column(columnName = REPRESENT_SERVICE_ID)
+    @Column(name = REPRESENT_SERVICE_ID)
     private String representServiceId;
     @Setter
     @Getter
-    @Column(columnName = REPRESENT_SERVICE_INSTANCE_ID)
+    @Column(name = REPRESENT_SERVICE_INSTANCE_ID)
     private String representServiceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = LAST_UPDATE_TIME_BUCKET)
+    @Column(name = LAST_UPDATE_TIME_BUCKET)
     private long lastUpdateTimeBucket;
 
     @Override

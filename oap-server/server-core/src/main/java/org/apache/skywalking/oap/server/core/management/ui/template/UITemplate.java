@@ -47,16 +47,16 @@ public class UITemplate extends ManagementData {
     public static final String UPDATE_TIME = "update_time";
     public static final String DISABLED = "disabled";
 
-    @Column(columnName = TEMPLATE_ID)
+    @Column(name = TEMPLATE_ID)
     private String templateId;
     /**
      * Configuration in JSON format.
      */
-    @Column(columnName = CONFIGURATION, storageOnly = true, length = 1_000_000)
+    @Column(name = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configuration;
-    @Column(columnName = UPDATE_TIME)
+    @Column(name = UPDATE_TIME)
     private long updateTime;
-    @Column(columnName = DISABLED)
+    @Column(name = DISABLED)
     private int disabled;
 
     @Override

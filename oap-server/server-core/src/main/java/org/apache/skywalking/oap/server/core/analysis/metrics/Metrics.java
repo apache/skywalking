@@ -49,7 +49,7 @@ public abstract class Metrics extends StreamData implements StorageData {
      */
     @Getter
     @Setter
-    @Column(columnName = TIME_BUCKET)
+    @Column(name = TIME_BUCKET)
     private long timeBucket;
 
     /**

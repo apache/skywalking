@@ -59,24 +59,24 @@ public class ProfileTaskRecord extends NoneStream {
         return new StorageID().append(TASK_ID, taskId);
     }
 
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
-    @Column(columnName = ENDPOINT_NAME, length = 512)
+    @Column(name = ENDPOINT_NAME, length = 512)
     private String endpointName;
-    @Column(columnName = TASK_ID)
+    @Column(name = TASK_ID)
     private String taskId;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = DURATION)
+    @Column(name = DURATION)
     private int duration;
-    @Column(columnName = MIN_DURATION_THRESHOLD)
+    @Column(name = MIN_DURATION_THRESHOLD)
     private int minDurationThreshold;
-    @Column(columnName = DUMP_PERIOD)
+    @Column(name = DUMP_PERIOD)
     private int dumpPeriod;
-    @Column(columnName = CREATE_TIME)
+    @Column(name = CREATE_TIME)
     private long createTime;
-    @Column(columnName = MAX_SAMPLING_COUNT)
+    @Column(name = MAX_SAMPLING_COUNT)
     private int maxSamplingCount;
 
     public static class Builder implements StorageBuilder<ProfileTaskRecord> {

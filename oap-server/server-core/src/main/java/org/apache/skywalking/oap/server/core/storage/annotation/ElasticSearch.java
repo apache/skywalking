@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
  * ElasticSearch annotation is a holder including all annotations for ElasticSearch storage
@@ -95,7 +95,7 @@ public @interface ElasticSearch {
          * between these 2 storage modes rather than use this alias.
          */
         @Deprecated
-        String columnAlias();
+        String legacyName();
 
     }
 

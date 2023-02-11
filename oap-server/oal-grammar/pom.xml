@@ -27,10 +27,6 @@
 
     <artifactId>oal-grammar</artifactId>
 
-    <properties>
-        <antlr.version>4.9.2</antlr.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -43,7 +39,6 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${antlr.version}</version>
                 <executions>
                     <execution>
                         <id>antlr</id>

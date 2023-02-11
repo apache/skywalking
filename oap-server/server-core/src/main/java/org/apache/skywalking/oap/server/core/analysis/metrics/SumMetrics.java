@@ -34,7 +34,7 @@ public abstract class SumMetrics extends Metrics implements LongValueHolder {
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
     @BanyanDB.MeasureField
     private long value;
 

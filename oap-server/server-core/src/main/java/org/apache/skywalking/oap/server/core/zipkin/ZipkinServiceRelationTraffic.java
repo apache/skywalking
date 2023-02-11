@@ -52,12 +52,12 @@ public class ZipkinServiceRelationTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_NAME)
+    @Column(name = SERVICE_NAME)
     @BanyanDB.SeriesID(index = 0)
     private String serviceName;
     @Setter
     @Getter
-    @Column(columnName = REMOTE_SERVICE_NAME)
+    @Column(name = REMOTE_SERVICE_NAME)
     @BanyanDB.SeriesID(index = 1)
     private String remoteServiceName;
 

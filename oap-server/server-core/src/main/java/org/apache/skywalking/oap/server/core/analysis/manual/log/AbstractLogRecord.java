@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.log;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -34,6 +33,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.List;
 
 public abstract class AbstractLogRecord extends Record {
     public static final String ADDITIONAL_TAG_TABLE = "log_tag";
@@ -51,46 +52,46 @@ public abstract class AbstractLogRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE}, reserveOriginalColumns = true)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID, length = 512)
+    @Column(name = SERVICE_INSTANCE_ID, length = 512)
     @BanyanDB.SeriesID(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = ENDPOINT_ID, length = 512)
+    @Column(name = ENDPOINT_ID, length = 512)
     private String endpointId;
     @Setter
     @Getter
-    @Column(columnName = TRACE_ID, length = 150)
+    @Column(name = TRACE_ID, length = 150)
     @BanyanDB.GlobalIndex
     private String traceId;
     @Setter
     @Getter
-    @Column(columnName = TRACE_SEGMENT_ID, length = 150)
+    @Column(name = TRACE_SEGMENT_ID, length = 150)
     @BanyanDB.GlobalIndex
     private String traceSegmentId;
     @Setter
     @Getter
-    @Column(columnName = SPAN_ID)
+    @Column(name = SPAN_ID)
     @BanyanDB.NoIndexing
     private int spanId;
     @Setter
     @Getter
-    @Column(columnName = CONTENT_TYPE, storageOnly = true)
+    @Column(name = CONTENT_TYPE, storageOnly = true)
     private int contentType = ContentType.NONE.value();
     @Setter
     @Getter
-    @Column(columnName = CONTENT, length = 1_000_000)
+    @Column(name = CONTENT, length = 1_000_000)
     @ElasticSearch.MatchQuery(analyzer = ElasticSearch.MatchQuery.AnalyzerType.OAP_LOG_ANALYZER)
     private LongText content;
     @Setter
     @Getter
-    @Column(columnName = TIMESTAMP)
+    @Column(name = TIMESTAMP)
     private long timestamp;
 
     /**
@@ -98,11 +99,11 @@ public abstract class AbstractLogRecord extends Record {
      */
     @Setter
     @Getter
-    @Column(columnName = TAGS_RAW_DATA, storageOnly = true)
+    @Column(name = TAGS_RAW_DATA, storageOnly = true)
     private byte[] tagsRawData;
     @Setter
     @Getter
-    @Column(columnName = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
 

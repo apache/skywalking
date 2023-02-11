@@ -62,49 +62,49 @@ public class SegmentRecord extends Record {
 
     @Setter
     @Getter
-    @Column(columnName = SEGMENT_ID, length = 150)
+    @Column(name = SEGMENT_ID, length = 150)
     private String segmentId;
     @Setter
     @Getter
-    @Column(columnName = TRACE_ID, length = 150)
+    @Column(name = TRACE_ID, length = 150)
     @BanyanDB.GlobalIndex
     @ElasticSearch.Routing
     private String traceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE}, reserveOriginalColumns = true)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID, length = 512)
+    @Column(name = SERVICE_INSTANCE_ID, length = 512)
     @BanyanDB.SeriesID(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = ENDPOINT_ID, length = 512)
+    @Column(name = ENDPOINT_ID, length = 512)
     private String endpointId;
     @Setter
     @Getter
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
     @Setter
     @Getter
-    @Column(columnName = LATENCY)
+    @Column(name = LATENCY)
     private int latency;
     @Setter
     @Getter
-    @Column(columnName = IS_ERROR)
+    @Column(name = IS_ERROR)
     @BanyanDB.SeriesID(index = 2)
     private int isError;
     @Setter
     @Getter
-    @Column(columnName = DATA_BINARY, storageOnly = true)
+    @Column(name = DATA_BINARY, storageOnly = true)
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(columnName = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
 

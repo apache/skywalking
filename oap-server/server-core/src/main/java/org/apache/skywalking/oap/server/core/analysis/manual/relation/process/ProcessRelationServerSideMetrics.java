@@ -54,24 +54,24 @@ public class ProcessRelationServerSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_INSTANCE_ID)
+    @Column(name = SERVICE_INSTANCE_ID)
     private String serviceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = SOURCE_PROCESS_ID)
+    @Column(name = SOURCE_PROCESS_ID)
     private String sourceProcessId;
     @Setter
     @Getter
-    @Column(columnName = DEST_PROCESS_ID)
+    @Column(name = DEST_PROCESS_ID)
     private String destProcessId;
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Setter
     @Getter
-    @Column(columnName = COMPONENT_ID, storageOnly = true)
+    @Column(name = COMPONENT_ID, storageOnly = true)
     @BanyanDB.SeriesID(index = 1)
     private int componentId;
 

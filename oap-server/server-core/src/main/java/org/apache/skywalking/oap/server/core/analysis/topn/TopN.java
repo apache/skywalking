@@ -37,21 +37,21 @@ public abstract class TopN extends Record implements ComparableStorageData {
     
     @Getter
     @Setter
-    @Column(columnName = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
+    @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.TREE)
     private long latency;
     @Getter
     @Setter
-    @Column(columnName = TRACE_ID, storageOnly = true)
+    @Column(name = TRACE_ID, storageOnly = true)
     private String traceId;
     @Getter
     @Setter
-    @Column(columnName = ENTITY_ID, length = 512)
+    @Column(name = ENTITY_ID, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter
-    @Column(columnName = TIMESTAMP)
+    @Column(name = TIMESTAMP)
     private long timestamp;
 
     @Override

@@ -146,8 +146,11 @@
     </profiles>
 
     <properties>
+        <!-- Built in properties -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <compiler.version>1.8</compiler.version>
+
         <powermock.version>2.0.7</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>4.13.1</junit.version>
@@ -168,14 +171,20 @@
         <!-- necessary for Java 9+ -->
         <org.apache.tomcat.annotations-api.version>6.0.53</org.apache.tomcat.annotations-api.version>
 
+        <!--
+          The version of Antlr compiler (maven plugin) must match the version of runtime (maven dependency),
+          hence we don't allow arbitrary dependency overriding in oap-server-bom and keep the version only here
+          in a single place. Upgrading Antlr version here requires recompiling the oal-rt/oal-rt modules so users
+          won't face error like "ANTLR Tool version 4.9.3 used for code generation does not match the current runtime version 4.7.1".
+        -->
+        <antlr.version>4.9.2</antlr.version>
+
         <!-- Plugin versions -->
-        <docker.plugin.version>0.4.13</docker.plugin.version>
         <takari-maven-plugin.version>0.6.1</takari-maven-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <jmh.version>1.21</jmh.version>
-        <gmaven-plugin.version>1.5</gmaven-plugin.version>
         <checkstyle.fails.on.error>true</checkstyle.fails.on.error>
         <assertj-core.version>3.20.2</assertj-core.version>
 
@@ -287,24 +296,18 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>${antlr.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
-                <!-- mvn -N io.takari:maven:wrapper -Dmaven=3.5.4 -->
-                <plugin>
-                    <groupId>io.takari</groupId>
-                    <artifactId>maven</artifactId>
-                    <version>${takari-maven-plugin.version}</version>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
@@ -350,6 +353,12 @@
                         </excludes>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4-maven-plugin</artifactId>
+                    <version>${antlr.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -381,45 +390,14 @@
                                     <!-- Build has not yet been updated for Java 9+ -->
                                     <version>1.8</version>
                                 </requireJavaVersion>
-                                <requireMavenVersion>
-                                    <version>3.6</version>
-                                </requireMavenVersion>
                             </rules>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${compiler.version}</source>
-                    <target>${compiler.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <source>${compiler.version}</source>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.plugin.version}</version>
-                <configuration>
-                    <skipDocker>true</skipDocker>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>

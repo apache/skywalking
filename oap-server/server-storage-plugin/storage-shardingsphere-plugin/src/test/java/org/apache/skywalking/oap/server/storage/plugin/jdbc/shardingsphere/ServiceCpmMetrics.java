@@ -45,7 +45,7 @@ public class ServiceCpmMetrics extends CPMMetrics {
     @Setter
     @Getter
     @Column(
-        columnName = "entity_id",
+        name = "entity_id",
         length = 512
     )
     private String entityId;

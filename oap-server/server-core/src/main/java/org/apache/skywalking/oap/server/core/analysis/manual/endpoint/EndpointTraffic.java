@@ -18,10 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.endpoint;
 
-import com.google.common.base.Strings;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
@@ -39,7 +35,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import com.google.common.base.Strings;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.TIME_BUCKET;
 
@@ -53,18 +52,18 @@ public class EndpointTraffic extends Metrics {
     public static final String INDEX_NAME = "endpoint_traffic";
 
     public static final String SERVICE_ID = "service_id";
-    public static final String NAME = "name";
+    public static final String NAME = "endpoint_traffic_name";
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
     @Setter
     @Getter
-    @Column(columnName = NAME)
+    @Column(name = NAME)
+    @ElasticSearch.Column(legacyName = "name")
     @ElasticSearch.MatchQuery
-    @ElasticSearch.Column(columnAlias = "endpoint_traffic_name")
     @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
 

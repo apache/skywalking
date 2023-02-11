@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.analysis.manual.process;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +40,8 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.util.Map;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
 
@@ -69,12 +70,12 @@ public class ProcessTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     private String serviceId;
 
     @Setter
     @Getter
-    @Column(columnName = INSTANCE_ID, length = 600)
+    @Column(name = INSTANCE_ID, length = 600)
     @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
@@ -84,33 +85,33 @@ public class ProcessTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = NAME, length = 500)
+    @Column(name = NAME, length = 500)
     @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
     @Getter
-    @Column(columnName = LAST_PING_TIME_BUCKET)
+    @Column(name = LAST_PING_TIME_BUCKET)
     private long lastPingTimestamp;
 
     @Setter
     @Getter
-    @Column(columnName = DETECT_TYPE)
+    @Column(name = DETECT_TYPE)
     private int detectType = ProcessDetectType.UNDEFINED.value();
 
     @Setter
     @Getter
-    @Column(columnName = AGENT_ID, length = 500)
+    @Column(name = AGENT_ID, length = 500)
     private String agentId;
 
     @Setter
     @Getter
-    @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
+    @Column(name = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
     @Setter
     @Getter
-    @Column(columnName = LABELS_JSON, storageOnly = true, length = 500)
+    @Column(name = LABELS_JSON, storageOnly = true, length = 500)
     private String labelsJson;
 
     /**
@@ -118,7 +119,7 @@ public class ProcessTraffic extends Metrics {
      */
     @Setter
     @Getter
-    @Column(columnName = PROFILING_SUPPORT_STATUS)
+    @Column(name = PROFILING_SUPPORT_STATUS)
     private int profilingSupportStatus;
 
     @Override

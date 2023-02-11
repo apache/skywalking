@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -35,6 +34,8 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
@@ -68,26 +69,26 @@ public class AlarmRecord extends Record {
             .append(ID1, id1);
     }
 
-    @Column(columnName = SCOPE)
+    @Column(name = SCOPE)
     private int scope;
-    @Column(columnName = NAME, storageOnly = true, length = 512)
+    @Column(name = NAME, storageOnly = true, length = 512)
     private String name;
-    @Column(columnName = ID0, storageOnly = true, length = 512)
+    @Column(name = ID0, storageOnly = true, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String id0;
-    @Column(columnName = ID1, storageOnly = true)
+    @Column(name = ID1, storageOnly = true)
     private String id1;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = ALARM_MESSAGE)
+    @Column(name = ALARM_MESSAGE)
     @ElasticSearch.MatchQuery
     private String alarmMessage;
-    @Column(columnName = RULE_NAME)
+    @Column(name = RULE_NAME)
     private String ruleName;
-    @Column(columnName = TAGS, indexOnly = true)
+    @Column(name = TAGS, indexOnly = true)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
-    @Column(columnName = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)
     private byte[] tagsRawData;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {

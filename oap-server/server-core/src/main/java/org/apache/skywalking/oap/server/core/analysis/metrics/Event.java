@@ -84,38 +84,38 @@ public class Event extends Metrics {
         return new StorageID().append(UUID, getUuid());
     }
 
-    @Column(columnName = UUID)
+    @Column(name = UUID)
     @BanyanDB.SeriesID(index = 0)
     private String uuid;
 
-    @Column(columnName = SERVICE)
+    @Column(name = SERVICE)
     private String service;
 
-    @Column(columnName = SERVICE_INSTANCE)
+    @Column(name = SERVICE_INSTANCE)
     private String serviceInstance;
 
-    @Column(columnName = ENDPOINT)
+    @Column(name = ENDPOINT)
     private String endpoint;
 
-    @Column(columnName = NAME)
+    @Column(name = NAME)
     private String name;
 
-    @Column(columnName = TYPE)
+    @Column(name = TYPE)
     private String type;
 
-    @Column(columnName = MESSAGE)
+    @Column(name = MESSAGE)
     private String message;
 
-    @Column(columnName = PARAMETERS, storageOnly = true, length = PARAMETER_MAX_LENGTH)
+    @Column(name = PARAMETERS, storageOnly = true, length = PARAMETER_MAX_LENGTH)
     private String parameters;
 
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
 
-    @Column(columnName = END_TIME)
+    @Column(name = END_TIME)
     private long endTime;
 
-    @Column(columnName = LAYER)
+    @Column(name = LAYER)
     private Layer layer;
 
     @Override

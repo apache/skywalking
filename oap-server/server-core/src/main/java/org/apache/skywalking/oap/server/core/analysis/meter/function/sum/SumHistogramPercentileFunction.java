@@ -18,17 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.sum;
 
-import com.google.common.base.Strings;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collector;
-import java.util.stream.IntStream;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -48,9 +37,19 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import com.google.common.base.Strings;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collector;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
+import java.util.stream.IntStream;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SumPercentile intends to calculate percentile based on the summary of raw values over the interval(minute, hour or day).
@@ -61,24 +60,24 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
-    public static final String VALUE = "value";
-    protected static final String SUMMATION = "summation";
+    public static final String VALUE = "datatable_value";
+    protected static final String SUMMATION = "datatable_summation";
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID)
+    @Column(name = ENTITY_ID)
     @BanyanDB.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter
     @Setter
-    @Column(columnName = SUMMATION, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_summation")
+    @Column(name = SUMMATION, storageOnly = true)
+    @ElasticSearch.Column(legacyName = "summation")
     @BanyanDB.MeasureField
     protected DataTable summation = new DataTable(30);
     /**
@@ -86,7 +85,7 @@ public abstract class SumHistogramPercentileFunction extends Meter implements Ac
      */
     @Getter
     @Setter
-    @Column(columnName = RANKS, storageOnly = true)
+    @Column(name = RANKS, storageOnly = true)
     @BanyanDB.MeasureField
     private IntList ranks = new IntList(10);
 
