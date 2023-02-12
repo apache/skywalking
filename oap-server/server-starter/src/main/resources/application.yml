@@ -356,7 +356,7 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
-    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*"}
+    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
@@ -408,7 +408,7 @@ query:
     # abort a query if the total number of data fields queried exceeds the defined threshold.
     maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:1000}
     # Allow user add, disable and update UI template
-    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
+    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:true}
     # "On demand log" allows users to fetch Pod containers' log in real time,
     # because this might expose secrets in the logs (if any), users need
     # to enable this manually, and add permissions to OAP cluster role.
