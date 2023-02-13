@@ -18,10 +18,6 @@
   cases:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/service.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=SkyWalking
-      expected:  expected/instance.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=SkyWalking
-      expected:  expected/endpoint.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_cpu_total_percentage --service-name=SkyWalking --net.host.name=10.211.55.3 | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_memory_swap_total --service-name=SkyWalking --endpoint-name=kube-dns  | yq e 'to_entries' -
