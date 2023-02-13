@@ -76,6 +76,15 @@
 
     <profiles>
         <profile>
+            <id>jdk8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
+            <properties>
+                <jdk.options></jdk.options>
+            </properties>
+        </profile>
+        <profile>
             <id>backend</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -156,6 +165,7 @@
         <junit.version>5.9.2</junit.version>
         <mockito-core.version>4.11.0</mockito-core.version>
         <lombok.version>1.18.22</lombok.version>
+        <jdk.options>--add-opens java.base/java.lang=ALL-UNNAMED</jdk.options>
 
         <!-- core lib dependency -->
         <grpc.version>1.49.0</grpc.version>
@@ -372,6 +382,7 @@
                             <exclude>IT*.class</exclude>
                             <exclude>ShardingIntegrationTest.class</exclude>
                         </excludes>
+                        <argLine>${jdk.options}</argLine>
                     </configuration>
                 </plugin>
 
