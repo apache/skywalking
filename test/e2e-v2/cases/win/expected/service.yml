@@ -14,8 +14,8 @@
 # limitations under the License.
 
   {{- contains . }}
-- id: {{ b64enc "win::SkyWalking" }}.1
-  name: win::SkyWalking
+- id: {{ b64enc "10.211.55.3:9182" }}.1
+  name: SkyWalking
   group: 
   shortname: SkyWalking
   normal: true

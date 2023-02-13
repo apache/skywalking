@@ -11,7 +11,7 @@ Windows entity as a `Service` in OAP and on the `Layer: OS_WINDOWS`.
 
 ## Setup
 **For OpenTelemetry receiver:**
-1. Setup [Prometheus node-exporter](https://prometheus.io/docs/guides/node-exporter/).
+1. Setup [Prometheus windows_exporter](https://github.com/prometheus-community/windows_exporter).
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/vm/prometheus-node-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 

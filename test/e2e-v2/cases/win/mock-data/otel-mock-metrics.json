@@ -6,7 +6,7 @@
           {
             "key": "service.name",
             "value": {
-              "stringValue": "win::SkyWalking"
+              "stringValue": "SkyWalking"
             }
           },
           {
@@ -18,7 +18,7 @@
           {
             "key": "service.instance.id",
             "value": {
-              "stringValue": "win::SkyWalking"
+              "stringValue": "10.211.55.3:9182"
             }
           },
           {
@@ -89,7 +89,7 @@
           {
             "key": "service.name",
             "value": {
-              "stringValue": "win::SkyWalking"
+              "stringValue": "SkyWalking"
             }
           },
           {
@@ -101,7 +101,7 @@
           {
             "key": "service.instance.id",
             "value": {
-              "stringValue": "win::SkyWalking"
+              "stringValue": "10.211.55.3:9182"
             }
           },
           {
