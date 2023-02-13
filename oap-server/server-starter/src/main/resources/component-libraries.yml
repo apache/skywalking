@@ -658,6 +658,9 @@ AIORedis:
 Websockets:
   id: 7018
   languages: Python
+HTTPX:
+  id: 7019
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
