@@ -15,9 +15,9 @@
 
   {{- contains . }}
 - id: {{ b64enc "10.211.55.3:9182" }}.1
-  name: 10.211.55.3
+  name: SkyWalking
   group: 
-  shortname: 10.211.55.3
+  shortname: SkyWalking
   normal: true
   layers:
     - OS_WINDOWS
