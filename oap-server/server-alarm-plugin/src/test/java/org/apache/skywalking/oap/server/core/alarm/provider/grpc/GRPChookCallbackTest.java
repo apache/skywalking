@@ -27,8 +27,8 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GRPChookCallbackTest {
 
@@ -38,7 +38,7 @@ public class GRPChookCallbackTest {
 
     private List<AlarmMessage> alarmMessageList;
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         GRPCAlarmSetting setting = new GRPCAlarmSetting();
         setting.setTargetHost("127.0.0.1");

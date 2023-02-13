@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.meter.analyzer;
 
-import java.util.Arrays;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+import java.util.Arrays;
+import java.util.List;
+
+@ExtendWith(MockitoExtension.class)
 public class MetricConvertTest {
 
     @Test
@@ -45,10 +46,9 @@ public class MetricConvertTest {
             null
         );
         MockMetricConvert metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals("filter", "{ tags -> tags.job_name == 'apisix-monitoring' }", metricConvert.filter);
-        Assert.assertEquals(
-            "exp",
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName);
+        Assertions.assertEquals("{ tags -> tags.job_name == 'apisix-monitoring' }", metricConvert.filter);
+        Assertions.assertEquals(
             "((apisix_nginx_http_current_connections.tag({tags -> tags.service_name = 1}))).tag({tags -> tags.service_name = 2})",
             metricConvert.exp
         );
@@ -66,9 +66,9 @@ public class MetricConvertTest {
             null
         );
         metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals(
-            "exp", "(apisix_nginx_http_current_connections.tag({tags -> tags.service_name = 1}))",
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName);
+        Assertions.assertEquals(
+            "(apisix_nginx_http_current_connections.tag({tags -> tags.service_name = 1}))",
             metricConvert.exp
         );
 
@@ -85,9 +85,9 @@ public class MetricConvertTest {
             null
         );
         metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals(
-            "exp", "(apisix_nginx_http_current_connections).tag({tags -> tags.service_name = 2})",
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName);
+        Assertions.assertEquals(
+            "(apisix_nginx_http_current_connections).tag({tags -> tags.service_name = 2})",
             metricConvert.exp
         );
 
@@ -104,9 +104,9 @@ public class MetricConvertTest {
             null
         );
         metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals(
-            "exp", "apisix_nginx_http_current_connections",
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName);
+        Assertions.assertEquals(
+            "apisix_nginx_http_current_connections",
             metricConvert.exp
         );
 
@@ -126,12 +126,12 @@ public class MetricConvertTest {
             null
         );
         MockMetricConvert metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals("filter", "{ tags -> tags.job_name == 'apisix-monitoring' }", metricConvert.filter);
-        Assert.assertEquals(
-            "exp",
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName);
+        Assertions.assertEquals("{ tags -> tags.job_name == 'apisix-monitoring' }", metricConvert.filter);
+        Assertions.assertEquals(
             "(((apisix_nginx_http_current_connections.tag({tags -> tags.service_name = 1})).sum(['a']))).tag({tags -> tags.service_name = 2})",
-            metricConvert.exp
+            metricConvert.exp,
+                "exp"
         );
 
         // expSuffix is null
@@ -147,10 +147,11 @@ public class MetricConvertTest {
             null
         );
         metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals(
-            "exp", "((apisix_nginx_http_current_connections.tag({tags -> tags.service_name = 1})).downsampling(LATEST))",
-            metricConvert.exp
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName, "metrics name");
+        Assertions.assertEquals(
+            "((apisix_nginx_http_current_connections.tag({tags -> tags.service_name = 1})).downsampling(LATEST))",
+            metricConvert.exp,
+            "exp"
         );
 
         // expPrefix is null
@@ -166,10 +167,11 @@ public class MetricConvertTest {
             null
         );
         metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals(
-            "exp", "(apisix_nginx_http_current_connections.downsampling(LATEST)).tag({tags -> tags.service_name = 2})",
-            metricConvert.exp
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName, "metrics name");
+        Assertions.assertEquals(
+            "(apisix_nginx_http_current_connections.downsampling(LATEST)).tag({tags -> tags.service_name = 2})",
+            metricConvert.exp,
+            "exp"
         );
 
         // expPrefix and expSuffix is null
@@ -185,10 +187,11 @@ public class MetricConvertTest {
             null
         );
         metricConvert = new MockMetricConvert(mockMetricRuleConfig, null);
-        Assert.assertEquals("metrics name", "meter_apisix_sv_http_connections", metricConvert.metricsName);
-        Assert.assertEquals(
-            "exp", "apisix_nginx_http_current_connections",
-            metricConvert.exp
+        Assertions.assertEquals("meter_apisix_sv_http_connections", metricConvert.metricsName, "metrics name");
+        Assertions.assertEquals(
+            "apisix_nginx_http_current_connections",
+            metricConvert.exp,
+            "exp"
         );
 
     }

@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -27,10 +26,14 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PercentileFunctionTest {
     private static final long[] BUCKETS = new long[] {
@@ -52,13 +55,13 @@ public class PercentileFunctionTest {
         90
     };
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
@@ -109,46 +112,48 @@ public class PercentileFunctionTest {
          *     250, 80 <- P90
          * </pre>
          */
-        Assert.assertArrayEquals(new int[] {
+        Assertions.assertArrayEquals(new int[] {
             100,
             250
         }, values);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIncompatible() {
-        PercentileFunctionInst inst = new PercentileFunctionInst();
-        inst.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            new PercentileFunction.PercentileArgument(
-                new BucketedValues(
-                    BUCKETS,
-                    new long[] {
-                        10,
-                        20,
-                        30,
-                        40
-                    }
-                ),
-                RANKS
-            )
-        );
+        assertThrows(IllegalArgumentException.class, () -> {
+            PercentileFunctionInst inst = new PercentileFunctionInst();
+            inst.accept(
+                    MeterEntity.newService("service-test", Layer.GENERAL),
+                    new PercentileFunction.PercentileArgument(
+                            new BucketedValues(
+                                    BUCKETS,
+                                    new long[]{
+                                            10,
+                                            20,
+                                            30,
+                                            40
+                                    }
+                            ),
+                            RANKS
+                    )
+            );
 
-        inst.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            new PercentileFunction.PercentileArgument(
-                new BucketedValues(
-                    BUCKETS_2ND,
-                    new long[] {
-                        10,
-                        20,
-                        30,
-                        40
-                    }
-                ),
-                RANKS
-            )
-        );
+            inst.accept(
+                    MeterEntity.newService("service-test", Layer.GENERAL),
+                    new PercentileFunction.PercentileArgument(
+                            new BucketedValues(
+                                    BUCKETS_2ND,
+                                    new long[]{
+                                            10,
+                                            20,
+                                            30,
+                                            40
+                                    }
+                            ),
+                            RANKS
+                    )
+            );
+        });
     }
 
     @Test
@@ -173,11 +178,11 @@ public class PercentileFunctionTest {
         PercentileFunctionInst inst2 = new PercentileFunctionInst();
         inst2.deserialize(inst.serialize().build());
 
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
-        Assert.assertEquals(inst.getRanks(), inst2.getRanks());
-        Assert.assertEquals(0, inst2.getPercentileValues().size());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getRanks(), inst2.getRanks());
+        Assertions.assertEquals(0, inst2.getPercentileValues().size());
     }
 
     @Test
@@ -212,11 +217,11 @@ public class PercentileFunctionTest {
 
         final PercentileFunction inst2 = (PercentileFunction) storageBuilder.storage2Entity(
             new HashMapConverter.ToEntity(map));
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
-        Assert.assertEquals(inst.getPercentileValues(), inst2.getPercentileValues());
-        Assert.assertEquals(inst.getRanks(), inst2.getRanks());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getPercentileValues(), inst2.getPercentileValues());
+        Assertions.assertEquals(inst.getRanks(), inst2.getRanks());
     }
 
     private static class PercentileFunctionInst extends PercentileFunction {

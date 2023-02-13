@@ -18,50 +18,51 @@
 
 package org.apache.skywalking.oap.server.library.datacarrier.consumer;
 
+import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.SampleData;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
-import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
-import org.apache.skywalking.oap.server.library.datacarrier.SampleData;
-import org.junit.Assert;
-import org.junit.Test;
-import org.powermock.api.support.membermodification.MemberModifier;
 
 public class ConsumerTest {
-    public static LinkedBlockingQueue<SampleData> BUFFER = new LinkedBlockingQueue<SampleData>();
+    public static LinkedBlockingQueue<SampleData> BUFFER = new LinkedBlockingQueue<>();
 
     public static boolean IS_OCCUR_ERROR = false;
 
     @Test
     public void testConsumerLessThanChannel() throws IllegalAccessException {
 
-        final DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
+        final DataCarrier<SampleData> carrier = new DataCarrier<>(2, 100);
 
         for (int i = 0; i < 100; i++) {
-            Assert.assertTrue(carrier.produce(new SampleData().setName("data" + i)));
+            Assertions.assertTrue(carrier.produce(new SampleData().setName("data" + i)));
         }
         SampleConsumer consumer = new SampleConsumer();
 
         consumer.i = 100;
         carrier.consume(SampleConsumer.class, 1);
-        Assert.assertEquals(1, ((SampleConsumer) getConsumer(carrier)).i);
+        Assertions.assertEquals(1, ((SampleConsumer) getConsumer(carrier)).i);
 
         SampleConsumer2 consumer2 = new SampleConsumer2();
         consumer2.i = 100;
         carrier.consume(consumer2, 1);
-        Assert.assertEquals(100, ((SampleConsumer2) getConsumer(carrier)).i);
+        Assertions.assertEquals(100, ((SampleConsumer2) getConsumer(carrier)).i);
 
         carrier.shutdownConsumers();
     }
 
     @Test
-    public void testConsumerMoreThanChannel() throws IllegalAccessException, InterruptedException {
+    public void testConsumerMoreThanChannel() throws InterruptedException {
         BUFFER.drainTo(new ArrayList<SampleData>());
         final DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
 
         for (int i = 0; i < 200; i++) {
-            Assert.assertTrue(carrier.produce(new SampleData().setName("data" + i)));
+            Assertions.assertTrue(carrier.produce(new SampleData().setName("data" + i)));
         }
         SampleConsumer consumer = new SampleConsumer();
 
@@ -72,13 +73,13 @@ public class ConsumerTest {
         List<SampleData> result = new ArrayList<SampleData>();
         BUFFER.drainTo(result);
 
-        Assert.assertEquals(200, result.size());
+        Assertions.assertEquals(200, result.size());
 
         HashSet<Integer> consumerCounter = new HashSet<Integer>();
         for (SampleData data : result) {
             consumerCounter.add(data.getIntValue());
         }
-        Assert.assertEquals(2, consumerCounter.size());
+        Assertions.assertEquals(2, consumerCounter.size());
     }
 
     @Test
@@ -86,7 +87,7 @@ public class ConsumerTest {
         final DataCarrier<SampleData> carrier = new DataCarrier<SampleData>(2, 100);
 
         for (int i = 0; i < 200; i++) {
-            Assert.assertTrue(carrier.produce(new SampleData().setName("data" + i)));
+            Assertions.assertTrue(carrier.produce(new SampleData().setName("data" + i)));
         }
         SampleConsumer2 consumer = new SampleConsumer2();
 
@@ -95,7 +96,7 @@ public class ConsumerTest {
 
         Thread.sleep(3 * 1000L);
 
-        Assert.assertTrue(IS_OCCUR_ERROR);
+        Assertions.assertTrue(IS_OCCUR_ERROR);
     }
 
     class SampleConsumer2 implements IConsumer<SampleData> {
@@ -117,10 +118,9 @@ public class ConsumerTest {
     }
 
     private IConsumer getConsumer(DataCarrier<SampleData> carrier) throws IllegalAccessException {
-        ConsumeDriver pool = (ConsumeDriver) MemberModifier.field(DataCarrier.class, "driver").get(carrier);
-        ConsumerThread[] threads = (ConsumerThread[]) MemberModifier.field(ConsumeDriver.class, "consumerThreads")
-                                                                    .get(pool);
+        ConsumeDriver pool = Whitebox.getInternalState(carrier, "driver");
+        ConsumerThread[] threads = Whitebox.getInternalState(pool, "consumerThreads");
 
-        return (IConsumer) MemberModifier.field(ConsumerThread.class, "consumer").get(threads[0]);
+        return Whitebox.getInternalState(threads[0], "consumer");
     }
 }

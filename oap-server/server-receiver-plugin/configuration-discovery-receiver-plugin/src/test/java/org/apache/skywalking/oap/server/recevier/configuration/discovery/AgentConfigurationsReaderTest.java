@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class AgentConfigurationsReaderTest {
     @Test
@@ -30,25 +30,25 @@ public class AgentConfigurationsReaderTest {
 
         Map<String, AgentConfigurations> configurationCache = reader.readAgentConfigurationsTable()
                                                                     .getAgentConfigurationsCache();
-        Assert.assertEquals(2, configurationCache.size());
+        Assertions.assertEquals(2, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
-        Assert.assertEquals("serviceA", agentConfigurations0.getService());
-        Assert.assertEquals(2, agentConfigurations0.getConfiguration().size());
-        Assert.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
-        Assert.assertEquals(
+        Assertions.assertEquals("serviceA", agentConfigurations0.getService());
+        Assertions.assertEquals(2, agentConfigurations0.getConfiguration().size());
+        Assertions.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals(
             "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
             agentConfigurations0.getUuid()
         );
 
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
-        Assert.assertEquals("serviceB", agentConfigurations1.getService());
-        Assert.assertEquals(2, agentConfigurations1.getConfiguration().size());
-        Assert.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
-        Assert.assertEquals(
+        Assertions.assertEquals("serviceB", agentConfigurations1.getService());
+        Assertions.assertEquals(2, agentConfigurations1.getConfiguration().size());
+        Assertions.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals(
             "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
             agentConfigurations0.getUuid()
         );

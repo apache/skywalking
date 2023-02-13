@@ -20,49 +20,22 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableSet;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.skywalking.library.elasticsearch.response.Mappings;
-import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
-import org.testcontainers.shaded.com.google.common.collect.ImmutableSet;
 
-@RunWith(Parameterized.class)
 public class MockEsInstallTest {
     private final ObjectMapper mapper = new ObjectMapper();
-    @Parameterized.Parameter
-    public String name;
-
-    @Parameterized.Parameter(1)
-    public Mappings hisMappings;
-
-    @Parameterized.Parameter(2)
-    public Mappings newMappings;
-
-    @Parameterized.Parameter(3)
-    public Set<String> excludes;
-
-    @Parameterized.Parameter(4)
-    public Set<String> newExcludes;
-
-    @Parameterized.Parameter(5)
-    public String combineResult;
-
-    @Parameterized.Parameter(6)
-    public String diffResult;
-
-    @Parameterized.Parameter(7)
-    public boolean contains;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
 
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
@@ -233,35 +206,51 @@ public class MockEsInstallTest {
         });
     }
 
-    @Before
-    public void init() {
-        if (this.excludes != null) {
-            this.hisMappings.getSource().setExcludes(this.excludes);
+    public void init(String name,
+                     Mappings hisMappings,
+                     Mappings newMappings,
+                     Set<String> excludes,
+                     Set<String> newExcludes,
+                     String combineResult,
+                     String diffResult,
+                     boolean contains) {
+        if (excludes != null) {
+            hisMappings.getSource().setExcludes(excludes);
         }
-        if (this.newExcludes != null) {
-            this.newMappings.getSource().setExcludes(this.newExcludes);
+        if (newExcludes != null) {
+            newMappings.getSource().setExcludes(newExcludes);
         }
     }
 
-    @Test
-    public void mockEsInstallTest() throws JsonProcessingException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void mockEsInstallTest(String name,
+                                  Mappings hisMappings,
+                                  Mappings newMappings,
+                                  Set<String> excludes,
+                                  Set<String> newExcludes,
+                                  String combineResult,
+                                  String diffResult,
+                                  boolean contains) throws JsonProcessingException {
+        init(name, hisMappings, newMappings, excludes, newExcludes, combineResult, diffResult, contains);
+
         IndexStructures structures = new IndexStructures();
         //clone it since the items will be changed after combine
-        Mappings hisMappingsClone = cloneMappings(this.hisMappings);
+        Mappings hisMappingsClone = cloneMappings(hisMappings);
         //put the current mappings
-        structures.putStructure(this.name, this.hisMappings, new HashMap<>());
+        structures.putStructure(name, hisMappings, new HashMap<>());
         //if current mappings already contains new mappings items
-        Assert.assertEquals(this.contains, structures.containsMapping(this.name, this.newMappings));
+        Assertions.assertEquals(contains, structures.containsMapping(name, newMappings));
 
         //put the new mappings and combine
-        structures.putStructure(this.name, this.newMappings, new HashMap<>());
-        Mappings mappings = structures.getMapping(this.name);
-        Assert.assertEquals(this.combineResult, mapper.writeValueAsString(mappings));
+        structures.putStructure(name, newMappings, new HashMap<>());
+        Mappings mappings = structures.getMapping(name);
+        Assertions.assertEquals(combineResult, mapper.writeValueAsString(mappings));
 
         //diff the hisMapping and new, if it has new item will update current index
-        structures.putStructure(this.name, this.newMappings, new HashMap<>());
-        Mappings diff = structures.diffMappings(this.name, hisMappingsClone);
-        Assert.assertEquals(this.diffResult, mapper.writeValueAsString(diff));
+        structures.putStructure(name, newMappings, new HashMap<>());
+        Mappings diff = structures.diffMappings(name, hisMappingsClone);
+        Assertions.assertEquals(diffResult, mapper.writeValueAsString(diff));
     }
 
     private Mappings cloneMappings(Mappings mappings) {

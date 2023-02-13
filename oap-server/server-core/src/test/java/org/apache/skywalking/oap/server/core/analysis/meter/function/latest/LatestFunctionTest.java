@@ -18,37 +18,37 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.latest;
 
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import java.util.Map;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
+@ExtendWith(MockitoExtension.class)
 public class LatestFunctionTest {
 
     @Spy
     private LatestFunction function;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
@@ -57,10 +57,10 @@ public class LatestFunctionTest {
     public void testAccept() {
         long time = 1597113318673L;
         function.accept(MeterEntity.newService("latest_sync_time", Layer.GENERAL), time);
-        assertThat(function.getValue(), is(time));
+        assertThat(function.getValue()).isEqualTo(time);
         time = 1597113447737L;
         function.accept(MeterEntity.newService("latest_sync_time", Layer.GENERAL), time);
-        assertThat(function.getValue(), is(time));
+        assertThat(function.getValue()).isEqualTo(time);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class LatestFunctionTest {
         function.accept(MeterEntity.newService("latest_sync_time", Layer.GENERAL), time1);
         function.accept(MeterEntity.newService("latest_sync_time", Layer.GENERAL), time2);
         function.calculate();
-        assertThat(function.getValue(), is(time2));
+        assertThat(function.getValue()).isEqualTo(time2);
     }
 
     @Test
@@ -79,8 +79,8 @@ public class LatestFunctionTest {
         function.accept(MeterEntity.newService("latest_sync_time", Layer.GENERAL), time);
         LatestFunction function2 = Mockito.spy(LatestFunction.class);
         function2.deserialize(function.serialize().build());
-        assertThat(function2.getEntityId(), is(function.getEntityId()));
-        assertThat(function2.getTimeBucket(), is(function.getTimeBucket()));
+        assertThat(function2.getEntityId()).isEqualTo(function.getEntityId());
+        assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
     }
 
     @Test
@@ -96,6 +96,6 @@ public class LatestFunctionTest {
         map.put(LatestFunction.VALUE, map.get(LatestFunction.VALUE));
 
         LatestFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
-        assertThat(function2.getValue(), is(function.getValue()));
+        assertThat(function2.getValue()).isEqualTo(function.getValue());
     }
 }

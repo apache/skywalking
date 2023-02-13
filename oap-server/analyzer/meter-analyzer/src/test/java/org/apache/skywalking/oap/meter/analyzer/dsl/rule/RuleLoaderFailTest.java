@@ -19,27 +19,21 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl.rule;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
-
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@Slf4j
-@RunWith(Parameterized.class)
-public class RuleLoaderFailTest {
-    @Parameterized.Parameter
-    public List<String> enabledRule;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    @Parameterized.Parameters(name = "{index}: {0}")
+@Slf4j
+public class RuleLoaderFailTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {Arrays.asList("not-exist-folder/*")},
@@ -51,8 +45,9 @@ public class RuleLoaderFailTest {
         });
     }
 
-    @Test(expected = UnexpectedException.class)
-    public void test() throws ModuleStartException, IOException {
-        Rules.loadRules("otel-rules", enabledRule);
+    @ParameterizedTest
+    @MethodSource("data")
+    public void test(List<String> enabledRule) throws ModuleStartException, IOException {
+        assertThrows(UnexpectedException.class, () -> Rules.loadRules("otel-rules", enabledRule));
     }
 }

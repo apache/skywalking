@@ -38,4 +38,12 @@
         <module>configuration-k8s-configmap</module>
         <module>configuration-nacos</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-testing</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

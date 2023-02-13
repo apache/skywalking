@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.relation.service;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ServiceRelationTest {
     @Test
@@ -32,7 +32,7 @@ public class ServiceRelationTest {
         otherObject.setEntityId("VXNlcg==.0-em0tY2xpZW50LXNldHRpbmctd2ViYXBpQDEwNjQ4.1");
         otherObject.setTimeBucket(202101071505L);
 
-        Assert.assertTrue(thisObject.equals(otherObject));
+        Assertions.assertTrue(thisObject.equals(otherObject));
     }
 
     @Test
@@ -45,7 +45,7 @@ public class ServiceRelationTest {
         otherObject.setEntityId("VXNlcg==.0-em0tY2xpZW50LXNldHRpbmctd2ViYXBpQDEwNjQ4.1");
         otherObject.setTimeBucket(202101071506L);
 
-        Assert.assertFalse(thisObject.equals(otherObject));
+        Assertions.assertFalse(thisObject.equals(otherObject));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ServiceRelationTest {
         otherObject.setEntityId("VXNlcg==.0-em0tY2xpZW50LXNldHRpbmctd2ViYXBpQDEwNjQ4.1");
         otherObject.setTimeBucket(202101071505L);
 
-        Assert.assertTrue(thisObject.equals(otherObject));
+        Assertions.assertTrue(thisObject.equals(otherObject));
     }
 
     @Test
@@ -71,6 +71,6 @@ public class ServiceRelationTest {
         otherObject.setEntityId("VXNlcg==.0-em0tY2xpZW50LXNldHRpbmctd2ViYXBpQDEwNjQ4.1");
         otherObject.setTimeBucket(202101071506L);
 
-        Assert.assertFalse(thisObject.equals(otherObject));
+        Assertions.assertFalse(thisObject.equals(otherObject));
     }
 }

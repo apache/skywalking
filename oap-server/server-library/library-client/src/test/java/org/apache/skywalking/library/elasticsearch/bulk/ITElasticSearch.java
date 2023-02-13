@@ -18,17 +18,8 @@
 package org.apache.skywalking.library.elasticsearch.bulk;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
@@ -38,62 +29,63 @@ import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexRequestWrapper;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
 @Slf4j
-@RequiredArgsConstructor
-@RunWith(Parameterized.class)
 public class ITElasticSearch {
 
-    @Parameterized.Parameters(name = "version: {0}, namespace: {1}")
     public static Collection<Object[]> versions() {
-        return Arrays.asList(new Object[][] {
-            {"6.3.2", ""},
-            {"6.3.2", "test"},
-            {"7.8.0", ""},
-            {"7.8.0", "test"}
+        // noinspection resource
+        return Arrays.asList(new Object[][]{
+                {
+                        new ElasticsearchContainer(
+                                DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                        .withTag("6.3.2")),
+                        ""},
+                {
+                        new ElasticsearchContainer(
+                                DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                        .withTag("6.3.2")),
+                        "test"},
+                {
+                        new ElasticsearchContainer(
+                                DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                        .withTag("7.8.0")),
+                        ""},
+                {
+                        new ElasticsearchContainer(
+                                DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
+                                        .withTag("7.8.0")),
+                        "test"}
         });
     }
 
-    private final String version;
-    private final String namespace;
-
-    private ElasticsearchContainer server;
-
-    private ElasticSearchClient client;
-
-    @Before
-    public void before() throws Exception {
-        server = new ElasticsearchContainer(
-            DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
-                           .withTag(version)
-        );
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("versions")
+    public void indexOperate(final ElasticsearchContainer server,
+                             final String namespace) {
         server.start();
 
-        client = new ElasticSearchClient(
-            server.getHttpHostAddress(),
-            "http", "", "", "test", "test",
-            indexNameConverter(namespace), 500, 6000,
-            0, 15
+        final ElasticSearchClient client = new ElasticSearchClient(
+                server.getHttpHostAddress(),
+                "http", "", "", "test", "test",
+                indexNameConverter(namespace), 500, 6000,
+                0, 15
         );
         client.connect();
-    }
 
-    @After
-    public void after() throws IOException {
-        client.shutdown();
-        server.stop();
-    }
-
-    @Test
-    public void indexOperate() {
         Map<String, Object> settings = new HashMap<>();
         settings.put("number_of_shards", 2);
         settings.put("number_of_replicas", 2);
@@ -109,28 +101,43 @@ public class ITElasticSearch {
 
         String indexName = "test_index_operate";
         client.createIndex(indexName, mappings, settings);
-        Assert.assertTrue(client.isExistsIndex(indexName));
+        Assertions.assertTrue(client.isExistsIndex(indexName));
 
         Index index = client.getIndex(indexName).get();
         log.info(index.toString());
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "2",
             ((Map<String, ?>) index.getSettings().get("index")).get("number_of_shards")
         );
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "2",
             ((Map<String, ?>) index.getSettings().get("index")).get("number_of_replicas")
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "text",
             ((Map<String, ?>) index.getMappings().getProperties().get("column1")).get("type")
         );
+
+        client.shutdown();
+        server.stop();
     }
 
-    @Test
-    public void documentOperate() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void documentOperate(final ElasticsearchContainer server,
+                                final String namespace) {
+        server.start();
+
+        final ElasticSearchClient client = new ElasticSearchClient(
+                server.getHttpHostAddress(),
+                "http", "", "", "test", "test",
+                indexNameConverter(namespace), 500, 6000,
+                0, 15
+        );
+        client.connect();
+
         String id = String.valueOf(System.currentTimeMillis());
 
         Map<String, Object> builder = ImmutableMap.<String, Object>builder()
@@ -143,29 +150,44 @@ public class ITElasticSearch {
         client.forceInsert(indexName, id, builder);
 
         Optional<Document> response = client.get(indexName, id);
-        Assert.assertEquals("kimchy", response.get().getSource().get("user"));
-        Assert.assertEquals("trying out Elasticsearch", response.get().getSource().get("message"));
+        Assertions.assertEquals("kimchy", response.get().getSource().get("user"));
+        Assertions.assertEquals("trying out Elasticsearch", response.get().getSource().get("message"));
 
         builder = ImmutableMap.<String, Object>builder().put("user", "pengys").build();
         client.forceUpdate(indexName, id, builder);
 
         response = client.get(indexName, id);
-        Assert.assertEquals("pengys", response.get().getSource().get("user"));
-        Assert.assertEquals("trying out Elasticsearch", response.get().getSource().get("message"));
+        Assertions.assertEquals("pengys", response.get().getSource().get("user"));
+        Assertions.assertEquals("trying out Elasticsearch", response.get().getSource().get("message"));
 
         SearchBuilder sourceBuilder = Search.builder();
         sourceBuilder.query(Query.term("user", "pengys"));
         SearchResponse searchResponse = client.search(indexName, sourceBuilder.build());
-        Assert.assertEquals("trying out Elasticsearch", searchResponse.getHits()
+        Assertions.assertEquals("trying out Elasticsearch", searchResponse.getHits()
                                                                       .getHits()
                                                                       .iterator()
                                                                       .next()
                                                                       .getSource()
                                                                       .get("message"));
+
+        client.shutdown();
+        server.stop();
     }
 
-    @Test
-    public void templateOperate() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void templateOperate(final ElasticsearchContainer server,
+                                final String namespace) {
+        server.start();
+
+        final ElasticSearchClient client = new ElasticSearchClient(
+                server.getHttpHostAddress(),
+                "http", "", "", "test", "test",
+                indexNameConverter(namespace), 500, 6000,
+                0, 15
+        );
+        client.connect();
+
         Map<String, Object> settings = new HashMap<>();
         settings.put("number_of_shards", 1);
         settings.put("number_of_replicas", 0);
@@ -185,27 +207,42 @@ public class ITElasticSearch {
 
         client.createOrUpdateTemplate(indexName, settings, mapping, 0);
 
-        Assert.assertTrue(client.isExistsTemplate(indexName));
+        Assertions.assertTrue(client.isExistsTemplate(indexName));
 
         Map<String, Object> builder = ImmutableMap.of("name", "pengys");
         client.forceInsert(indexName + "-2019", "testid", builder);
         Index index = client.getIndex(indexName + "-2019").get();
         log.info(index.toString());
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "1",
             ((Map<String, Object>) index.getSettings().get("index")).get("number_of_shards")
         );
-        Assert.assertEquals(
+        Assertions.assertEquals(
             "0",
             ((Map<String, ?>) index.getSettings().get("index")).get("number_of_replicas")
         );
         client.deleteTemplate(indexName);
-        Assert.assertFalse(client.isExistsTemplate(indexName));
+        Assertions.assertFalse(client.isExistsTemplate(indexName));
+
+        client.shutdown();
+        server.stop();
     }
 
-    @Test
-    public void bulk() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void bulk(final ElasticsearchContainer server,
+                     final String namespace) {
+        server.start();
+
+        final ElasticSearchClient client = new ElasticSearchClient(
+                server.getHttpHostAddress(),
+                "http", "", "", "test", "test",
+                indexNameConverter(namespace), 500, 6000,
+                0, 15
+        );
+        client.connect();
+
         BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2, 5 * 1024 * 1024);
 
         Map<String, String> source = new HashMap<>();
@@ -220,10 +257,25 @@ public class ITElasticSearch {
         }
 
         bulkProcessor.flush();
+
+        client.shutdown();
+        server.stop();
     }
 
-    @Test
-    public void bulkPer_1KB() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void bulkPer_1KB(final ElasticsearchContainer server,
+                            final String namespace) {
+        server.start();
+
+        final ElasticSearchClient client = new ElasticSearchClient(
+                server.getHttpHostAddress(),
+                "http", "", "", "test", "test",
+                indexNameConverter(namespace), 500, 6000,
+                0, 15
+        );
+        client.connect();
+
         BulkProcessor bulkProcessor = client.createBulkProcessor(2000, 10, 2, 1024);
 
         Map<String, String> source = new HashMap<>();
@@ -239,8 +291,20 @@ public class ITElasticSearch {
         bulkProcessor.flush();
     }
 
-    @Test
-    public void timeSeriesOperate() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void timeSeriesOperate(final ElasticsearchContainer server,
+                                  final String namespace) {
+        server.start();
+
+        final ElasticSearchClient client = new ElasticSearchClient(
+                server.getHttpHostAddress(),
+                "http", "", "", "test", "test",
+                indexNameConverter(namespace), 500, 6000,
+                0, 15
+        );
+        client.connect();
+
         final String indexName = "test_time_series_operate";
         final String timeSeriesIndexName = indexName + "-2019";
         final Mappings mapping =
@@ -255,11 +319,14 @@ public class ITElasticSearch {
         client.forceInsert(timeSeriesIndexName, "testid", builder);
 
         Collection<String> indexes = client.retrievalIndexByAliases(indexName);
-        Assert.assertEquals(1, indexes.size());
+        Assertions.assertEquals(1, indexes.size());
         String index = indexes.iterator().next();
-        Assert.assertTrue(client.deleteByIndexName(index));
-        Assert.assertFalse(client.isExistsIndex(timeSeriesIndexName));
+        Assertions.assertTrue(client.deleteByIndexName(index));
+        Assertions.assertFalse(client.isExistsIndex(timeSeriesIndexName));
         client.deleteTemplate(indexName);
+
+        client.shutdown();
+        server.stop();
     }
 
     private static Function<String, String> indexNameConverter(String namespace) {

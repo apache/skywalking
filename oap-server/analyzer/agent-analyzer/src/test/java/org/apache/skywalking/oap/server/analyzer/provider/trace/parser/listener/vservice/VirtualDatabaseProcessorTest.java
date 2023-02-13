@@ -36,8 +36,8 @@ import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class VirtualDatabaseProcessorTest {
         processor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         processor.emitTo(sources::add);
-        Assert.assertTrue(sources.isEmpty());
+        Assertions.assertTrue(sources.isEmpty());
     }
 
     @Test
@@ -75,23 +75,23 @@ public class VirtualDatabaseProcessorTest {
         processor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         processor.emitTo(sources::add);
-        Assert.assertEquals(sources.size(), 3);
+        Assertions.assertEquals(sources.size(), 3);
 
         ServiceMeta serviceMeta = (ServiceMeta) sources.get(0);
-        Assert.assertEquals("127.0.0.1:3306", serviceMeta.getName());
-        Assert.assertEquals(202209121413L, serviceMeta.getTimeBucket());
-        Assert.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
+        Assertions.assertEquals("127.0.0.1:3306", serviceMeta.getName());
+        Assertions.assertEquals(202209121413L, serviceMeta.getTimeBucket());
+        Assertions.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
 
         DatabaseAccess databaseAccess = (DatabaseAccess) sources.get(1);
-        Assert.assertEquals("127.0.0.1:3306", databaseAccess.getName());
-        Assert.assertEquals(1000, databaseAccess.getLatency());
-        Assert.assertEquals(202209121413L, databaseAccess.getTimeBucket());
+        Assertions.assertEquals("127.0.0.1:3306", databaseAccess.getName());
+        Assertions.assertEquals(1000, databaseAccess.getLatency());
+        Assertions.assertEquals(202209121413L, databaseAccess.getTimeBucket());
 
         DatabaseSlowStatement slowStatement = (DatabaseSlowStatement) sources.get(2);
-        Assert.assertEquals("MTI3LjAuMC4xOjMzMDY=.0", slowStatement.getDatabaseServiceId());
-        Assert.assertEquals(1000, slowStatement.getLatency());
-        Assert.assertEquals(20220912141312L, slowStatement.getTimeBucket());
-        Assert.assertEquals("trace-id-1", slowStatement.getTraceId());
+        Assertions.assertEquals("MTI3LjAuMC4xOjMzMDY=.0", slowStatement.getDatabaseServiceId());
+        Assertions.assertEquals(1000, slowStatement.getLatency());
+        Assertions.assertEquals(20220912141312L, slowStatement.getTimeBucket());
+        Assertions.assertEquals("trace-id-1", slowStatement.getTraceId());
     }
 
     @Test
@@ -110,18 +110,18 @@ public class VirtualDatabaseProcessorTest {
         processor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         processor.emitTo(sources::add);
-        Assert.assertEquals(sources.size(), 2);
+        Assertions.assertEquals(sources.size(), 2);
 
         ServiceMeta serviceMeta = (ServiceMeta) sources.get(0);
-        Assert.assertEquals("127.0.0.1:3306", serviceMeta.getName());
-        Assert.assertEquals(202209121413L, serviceMeta.getTimeBucket());
-        Assert.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
+        Assertions.assertEquals("127.0.0.1:3306", serviceMeta.getName());
+        Assertions.assertEquals(202209121413L, serviceMeta.getTimeBucket());
+        Assertions.assertEquals(Layer.VIRTUAL_DATABASE, serviceMeta.getLayer());
 
         DatabaseAccess databaseAccess = (DatabaseAccess) sources.get(1);
 
-        Assert.assertEquals("127.0.0.1:3306", databaseAccess.getName());
-        Assert.assertEquals(3, databaseAccess.getLatency());
-        Assert.assertEquals(202209121413L, databaseAccess.getTimeBucket());
+        Assertions.assertEquals("127.0.0.1:3306", databaseAccess.getName());
+        Assertions.assertEquals(3, databaseAccess.getLatency());
+        Assertions.assertEquals(202209121413L, databaseAccess.getTimeBucket());
     }
 
     private long getTimeInMillis(String s) {

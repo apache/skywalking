@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class StorageIDTest {
     @Test
@@ -28,7 +28,7 @@ public class StorageIDTest {
         id.append("time_bucket", 202212141438L) //2022-12-14 14:38
           .append("entity_id", "encoded-service-name");
 
-        Assert.assertEquals("202212141438_encoded-service-name", id.build());
+        Assertions.assertEquals("202212141438_encoded-service-name", id.build());
     }
 
     @Test
@@ -41,6 +41,6 @@ public class StorageIDTest {
         id2.append("time_bucket", 202212141438L) //2022-12-14 14:38
            .append("entity_id", "encoded-service-name");
 
-        Assert.assertEquals(true, id.equals(id2));
+        Assertions.assertEquals(true, id.equals(id2));
     }
 }

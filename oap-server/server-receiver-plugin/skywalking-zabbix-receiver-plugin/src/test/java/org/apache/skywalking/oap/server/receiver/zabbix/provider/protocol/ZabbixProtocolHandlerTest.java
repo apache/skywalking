@@ -19,22 +19,29 @@
 package org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.ZabbixBaseTest;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.ZabbixMetrics;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.quality.Strictness.LENIENT;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = LENIENT)
 public class ZabbixProtocolHandlerTest extends ZabbixBaseTest {
+    @BeforeEach
+    public void setup() throws Throwable {
+        setupMetrics();
+    }
 
     @Override
-    protected ZabbixMetrics buildZabbixMetrics() throws ModuleStartException, Exception {
+    protected ZabbixMetrics buildZabbixMetrics() {
         ZabbixMetrics metrics = mock(ZabbixMetrics.class);
         // mock zabbix metrics
         when(metrics.getAllMonitorMetricNames(any())).thenReturn(ImmutableSet.<String>builder().add("system.cpu.load[all,avg15]").build());
