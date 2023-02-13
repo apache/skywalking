@@ -80,7 +80,7 @@ public class OtelMetricsSender {
             return msg;
         }
         for (File file : files) {
-            final ExportMetricsServiceRequest.Builder builder = ExportMetricsServiceRequest.newBuilder();
+            final win::SkyWalking.Builder builder = ExportMetricsServiceRequest.newBuilder();
             String jsonData = rewriteTimeField(file);
             JsonFormat.parser().merge(jsonData, builder);
             sendReq(builder);

@@ -16,7 +16,7 @@
   {{- contains . }}
 - id: {{ b64enc "win::SkyWalking" }}.1
   name: win::SkyWalking
-  group: win-1
+  group: 
   shortname: SkyWalking
   normal: true
   layers:

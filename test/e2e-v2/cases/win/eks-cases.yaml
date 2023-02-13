@@ -22,7 +22,7 @@
       expected:  expected/instance.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=win::SkyWalking
       expected:  expected/endpoint.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_cpu_total_percentage --service-name=win-1::SkyWalking --instance-name=ip-172-31-23-33.ap-northeast-1.compute.internal | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_cpu_total_percentage --service-name=win-1::SkyWalking --net.host.name=10.211.55.3 | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_memory_swap_total --service-name=win-1::SkyWalking --endpoint-name=kube-dns  | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml

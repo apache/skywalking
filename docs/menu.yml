@@ -183,6 +183,8 @@ catalog:
             catalog:
               - name: "Linux Monitoring"
                 path: "/en/setup/backend/backend-vm-monitoring"
+              - name: "Windows Monitoring"
+                path: "/en/setup/backend/backend-win-monitoring"
           - name: "AWS Cloud Monitoring"
             catalog:
               - name: "EKS Monitoring"
