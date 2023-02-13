@@ -15,389 +15,188 @@
  * limitations under the License.
  */
 
-[
-  {
+[{
+  "id": "Windows-Service",
+  "configuration": {
+    "children": [{
+      "x": 8,
+      "y": 19,
+      "w": 8,
+      "h": 13,
+      "i": "2",
+      "type": "Widget",
+      "widget": {
+        "title": "Network Bandwidth Usage (KB/s)"
+      },
+      "graph": {
+        "type": "Area",
+        "opacity": 0.4,
+        "showXAxis": true,
+        "showYAxis": true
+      },
+      "metrics": ["meter_win_network_receive", "meter_win_network_transmit"],
+      "metricTypes": ["readMetricsValues", "readMetricsValues"]
+    }, {
+      "x": 8,
+      "y": 6,
+      "w": 8,
+      "h": 13,
+      "i": "3",
+      "type": "Widget",
+      "widget": {
+        "title": "Disk R/W (KB/s - OTEL, ops - Zabbix)"
+      },
+      "graph": {
+        "type": "Line",
+        "opacity": 0.4,
+        "showXAxis": true,
+        "showYAxis": true
+      },
+      "metrics": ["meter_win_disk_read", "meter_win_disk_written"],
+      "metricTypes": ["readMetricsValues", "readMetricsValues"],
+      "metricConfig": [{
+        "calculation": "byteToKB"
+      }, {
+        "calculation": "byteToKB"
+      }]
+    }, {
+      "x": 0,
+      "y": 6,
+      "w": 8,
+      "h": 13,
+      "i": "5",
+      "type": "Widget",
+      "widget": {
+        "title": "CPU Average Used (%)"
+      },
+      "graph": {
+        "type": "Line",
+        "step": false,
+        "smooth": false,
+        "showSymbol": false,
+        "showXAxis": true,
+        "showYAxis": true
+      },
+      "metrics": ["meter_win_cpu_average_used"],
+      "metricTypes": ["readLabeledMetricsValues"]
+    }, {
+      "x": 16,
+      "y": 6,
+      "w": 8,
+      "h": 13,
+      "i": "6",
+      "type": "Widget",
+      "widget": {
+        "title": "Memory RAM (MB)"
+      },
+      "graph": {
+        "type": "Area",
+        "opacity": 0.4,
+        "showXAxis": true,
+        "showYAxis": true
+      },
+      "metrics": ["meter_win_memory_used", "meter_win_memory_total", "meter_win_memory_available"],
+      "metricTypes": ["readMetricsValues", "readMetricsValues", "readMetricsValues"],
+      "metricConfig": [{
+        "calculation": "byteToMB"
+      }, {
+        "calculation": "byteToMB"
+      }, {
+        "calculation": "byteToMB"
+      }]
+    }, {
+      "x": 0,
+      "y": 19,
+      "w": 8,
+      "h": 13,
+      "i": "8",
+      "type": "Widget",
+      "widget": {
+        "title": "Memory Swap (MB)"
+      },
+      "graph": {
+        "type": "Area",
+        "opacity": 0.4,
+        "showXAxis": true,
+        "showYAxis": true
+      },
+      "metrics": ["meter_win_memory_swap_free", "meter_win_memory_swap_total"],
+      "metricTypes": ["readMetricsValues", "readMetricsValues"],
+      "metricConfig": [{
+        "calculation": "byteToMB"
+      }, {
+        "calculation": "byteToMB"
+      }]
+    }, {
+      "x": 16,
+      "y": 0,
+      "w": 8,
+      "h": 6,
+      "i": "9",
+      "type": "Widget",
+      "widget": {
+        "title": "Memory Swap Usage"
+      },
+      "graph": {
+        "type": "Card",
+        "fontSize": 14,
+        "textAlign": "center",
+        "showUnit": true
+      },
+      "metrics": ["meter_win_memory_swap_percentage"],
+      "metricTypes": ["readMetricsValue"],
+      "metricConfig": [{
+        "calculation": "percentage",
+        "unit": "%"
+      }]
+    }, {
+      "x": 8,
+      "y": 0,
+      "w": 8,
+      "h": 6,
+      "i": "10",
+      "type": "Widget",
+      "widget": {
+        "title": "Memory RAM Usage"
+      },
+      "graph": {
+        "type": "Card",
+        "fontSize": 14,
+        "textAlign": "center",
+        "showUnit": true
+      },
+      "metrics": ["meter_win_memory_used"],
+      "metricTypes": ["readMetricsValue"],
+      "metricConfig": [{
+        "calculation": "byteToMB",
+        "unit": "MB"
+      }]
+    }, {
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 6,
+      "i": "11",
+      "type": "Widget",
+      "widget": {
+        "title": "CPU Usage"
+      },
+      "graph": {
+        "type": "Card",
+        "fontSize": 14,
+        "textAlign": "center",
+        "showUnit": true
+      },
+      "metrics": ["meter_win_cpu_total_percentage"],
+      "metricTypes": ["readMetricsValue"],
+      "metricConfig": [{
+        "unit": "%"
+      }]
+    }],
+    "layer": "OS_WINDOWS",
+    "entity": "Service",
+    "name": "Windows-Service",
     "id": "Windows-Service",
-    "configuration": {
-      "children": [
-        {
-          "x": 16,
-          "y": 32,
-          "w": 8,
-          "h": 13,
-          "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": "Filefd Allocated"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_filefd_allocated"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 8,
-          "y": 32,
-          "w": 8,
-          "h": 13,
-          "i": "1",
-          "type": "Widget",
-          "widget": {
-            "title": "Network Status"
-          },
-          "graph": {
-            "type": "Line",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_tcp_curr_estab",
-            "meter_vm_tcp_tw",
-            "meter_vm_tcp_alloc",
-            "meter_vm_sockets_used",
-            "meter_vm_udp_inuse"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 0,
-          "y": 32,
-          "w": 8,
-          "h": 13,
-          "i": "2",
-          "type": "Widget",
-          "widget": {
-            "title": "Network Bandwidth Usage (KB/s)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_network_receive",
-            "meter_vm_network_transmit"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 16,
-          "y": 19,
-          "w": 8,
-          "h": 13,
-          "i": "3",
-          "type": "Widget",
-          "widget": {
-            "title": "Disk R/W (KB/s - OTEL, ops - Zabbix)"
-          },
-          "graph": {
-            "type": "Line",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_disk_read",
-            "meter_vm_disk_written"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
-            },
-            {
-              "calculation": "byteToKB"
-            }
-          ]
-        },
-        {
-          "x": 8,
-          "y": 19,
-          "w": 8,
-          "h": 13,
-          "i": "4",
-          "type": "Widget",
-          "widget": {
-            "title": "File System Mountpoint Usage (%)"
-          },
-          "graph": {
-            "type": "Line",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_filesystem_percentage"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 0,
-          "y": 6,
-          "w": 8,
-          "h": 13,
-          "i": "5",
-          "type": "Widget",
-          "widget": {
-            "title": "CPU Average Used (%)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_cpu_average_used"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "moved": false
-        },
-        {
-          "x": 16,
-          "y": 6,
-          "w": 8,
-          "h": 13,
-          "i": "6",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory RAM (MB)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_memory_used",
-            "meter_vm_memory_total",
-            "meter_vm_memory_available"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "byteToMB"
-            },
-            {
-              "calculation": "byteToMB"
-            },
-            {
-              "calculation": "byteToMB"
-            }
-          ]
-        },
-        {
-          "x": 8,
-          "y": 6,
-          "w": 8,
-          "h": 13,
-          "i": "7",
-          "type": "Widget",
-          "widget": {
-            "title": "CPU Load"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_cpu_load5",
-            "meter_vm_cpu_load1",
-            "meter_vm_cpu_load15"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "percentage"
-            },
-            {
-              "calculation": "percentage"
-            },
-            {
-              "calculation": "percentage"
-            }
-          ]
-        },
-        {
-          "x": 0,
-          "y": 19,
-          "w": 8,
-          "h": 13,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory Swap (MB)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metrics": [
-            "meter_vm_memory_swap_free",
-            "meter_vm_memory_swap_total"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "byteToMB"
-            },
-            {
-              "calculation": "byteToMB"
-            }
-          ]
-        },
-        {
-          "x": 16,
-          "y": 0,
-          "w": 8,
-          "h": 6,
-          "i": "9",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory Swap Usage"
-          },
-          "graph": {
-            "type": "Card",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showUnit": true
-          },
-          "metrics": [
-            "meter_vm_memory_swap_percentage"
-          ],
-          "metricTypes": [
-            "readMetricsValue"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "percentage",
-              "unit": "%"
-            }
-          ]
-        },
-        {
-          "x": 8,
-          "y": 0,
-          "w": 8,
-          "h": 6,
-          "i": "10",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory RAM Usage"
-          },
-          "graph": {
-            "type": "Card",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showUnit": true
-          },
-          "metrics": [
-            "meter_vm_memory_used"
-          ],
-          "metricTypes": [
-            "readMetricsValue"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "calculation": "byteToMB",
-              "unit": "MB"
-            }
-          ]
-        },
-        {
-          "x": 0,
-          "y": 0,
-          "w": 8,
-          "h": 6,
-          "i": "11",
-          "type": "Widget",
-          "widget": {
-            "title": "CPU Usage"
-          },
-          "graph": {
-            "type": "Card",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showUnit": true
-          },
-          "metrics": [
-            "meter_vm_cpu_total_percentage"
-          ],
-          "metricTypes": [
-            "readMetricsValue"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "unit": "%"
-            }
-          ]
-        }
-      ],
-      "layer": "OS_WINDOWS",
-      "entity": "Service",
-      "name": "Windows-Service",
-      "id": "Windows-Service",
-      "isRoot": false
-    }
+    "isRoot": false
   }
-]
+}]
