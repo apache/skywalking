@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class StandaloneManagerTest {
     @Test
@@ -31,8 +31,8 @@ public class StandaloneManagerTest {
         RemoteInstance remote2 = new RemoteInstance(new Address("B", 100, false));
 
         standaloneManager.registerRemote(remote1);
-        Assert.assertEquals(remote1, standaloneManager.queryRemoteNodes().get(0));
+        Assertions.assertEquals(remote1, standaloneManager.queryRemoteNodes().get(0));
         standaloneManager.registerRemote(remote2);
-        Assert.assertEquals(remote2, standaloneManager.queryRemoteNodes().get(0));
+        Assertions.assertEquals(remote2, standaloneManager.queryRemoteNodes().get(0));
     }
 }

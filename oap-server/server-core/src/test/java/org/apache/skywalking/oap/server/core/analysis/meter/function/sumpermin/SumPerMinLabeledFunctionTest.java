@@ -27,33 +27,32 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SumPerMinLabeledFunctionTest {
 
     private SumPerMinLabeledFunctionInst function;
     private DataTable table1;
     private DataTable table2;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @Before
+    @BeforeEach
     public void before() {
         function = new SumPerMinLabeledFunctionInst();
         function.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
@@ -68,7 +67,7 @@ public class SumPerMinLabeledFunctionTest {
         table2.put("400", 77L);
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
@@ -77,10 +76,10 @@ public class SumPerMinLabeledFunctionTest {
     public void testAccept() {
         function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table1);
         function.calculate();
-        assertThat(function.getValue(), is(table1));
+        assertThat(function.getValue()).isEqualTo(table1);
         function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table2);
         function.calculate();
-        assertThat(function.getValue(), is(table1.append(table2)));
+        assertThat(function.getValue()).isEqualTo(table1.append(table2));
     }
 
     @Test
@@ -88,7 +87,7 @@ public class SumPerMinLabeledFunctionTest {
         function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table1);
         function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table2);
         function.calculate();
-        assertThat(function.getValue(), is(table1.append(table2)));
+        assertThat(function.getValue()).isEqualTo(table1.append(table2));
     }
 
     @Test
@@ -105,7 +104,7 @@ public class SumPerMinLabeledFunctionTest {
         for (String key : result.keys()) {
             result.put(key, result.get(key) / 60);
         }
-        assertThat(hourFunction.getValue(), is(result));
+        assertThat(hourFunction.getValue()).isEqualTo(result);
     }
 
     @Test
@@ -113,8 +112,8 @@ public class SumPerMinLabeledFunctionTest {
         function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), table1);
         SumPerMinLabeledFunction function2 = Mockito.spy(SumPerMinLabeledFunction.class);
         function2.deserialize(function.serialize().build());
-        assertThat(function2.getEntityId(), is(function.getEntityId()));
-        assertThat(function2.getTimeBucket(), is(function.getTimeBucket()));
+        assertThat(function2.getEntityId()).isEqualTo(function.getEntityId());
+        assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
     }
 
     @Test
@@ -130,7 +129,7 @@ public class SumPerMinLabeledFunctionTest {
         map.put(SumPerMinLabeledFunction.TOTAL, ((DataTable) map.get(SumPerMinLabeledFunction.TOTAL)).toStorageData());
 
         SumPerMinLabeledFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
-        assertThat(function2.getValue(), is(function.getValue()));
+        assertThat(function2.getValue()).isEqualTo(function.getValue());
     }
 
     private static class SumPerMinLabeledFunctionInst extends SumPerMinLabeledFunction {

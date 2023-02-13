@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
-import java.util.Map;
-import java.util.stream.IntStream;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -29,12 +27,16 @@ import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.HistogramFunction.DATASET;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class HistogramFunctionTest {
     private static final long[] BUCKETS = new long[] {
@@ -58,13 +60,13 @@ public class HistogramFunctionTest {
         10
     };
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
@@ -97,7 +99,7 @@ public class HistogramFunctionTest {
         final int[] results = inst.getDataset().sortedValues(new HeatMap.KeyComparator(true)).stream()
                                   .flatMapToInt(l -> IntStream.of(l.intValue()))
                                   .toArray();
-        Assert.assertArrayEquals(new int[] {
+        Assertions.assertArrayEquals(new int[] {
             1,
             6,
             13,
@@ -130,33 +132,35 @@ public class HistogramFunctionTest {
             })
         );
 
-        Assert.assertEquals(1L, inst.getDataset().get(Bucket.INFINITE_NEGATIVE).longValue());
+        Assertions.assertEquals(1L, inst.getDataset().get(Bucket.INFINITE_NEGATIVE).longValue());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIncompatible() {
-        HistogramFunctionInst inst = new HistogramFunctionInst();
-        inst.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            new BucketedValues(
-                BUCKETS, new long[] {
-                0,
-                4,
-                10,
-                10
-            })
-        );
+        assertThrows(IllegalArgumentException.class, () -> {
+            HistogramFunctionInst inst = new HistogramFunctionInst();
+            inst.accept(
+                    MeterEntity.newService("service-test", Layer.GENERAL),
+                    new BucketedValues(
+                            BUCKETS, new long[]{
+                            0,
+                            4,
+                            10,
+                            10
+                    })
+            );
 
-        inst.accept(
-            MeterEntity.newService("service-test", Layer.GENERAL),
-            new BucketedValues(
-                BUCKETS_2ND, new long[] {
-                1,
-                2,
-                3,
-                4
-            })
-        );
+            inst.accept(
+                    MeterEntity.newService("service-test", Layer.GENERAL),
+                    new BucketedValues(
+                            BUCKETS_2ND, new long[]{
+                            1,
+                            2,
+                            3,
+                            4
+                    })
+            );
+        });
     }
 
     @Test
@@ -176,9 +180,9 @@ public class HistogramFunctionTest {
         final HistogramFunctionInst inst2 = new HistogramFunctionInst();
         inst2.deserialize(inst.serialize().build());
 
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
     }
 
     @Test
@@ -198,9 +202,9 @@ public class HistogramFunctionTest {
         final HistogramFunctionInst inst2 = new HistogramFunctionInst();
         inst2.deserialize(inst.serialize().build());
 
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
     }
 
     @Test
@@ -227,9 +231,9 @@ public class HistogramFunctionTest {
 
         final HistogramFunction inst2 = (HistogramFunction) storageBuilder.storage2Entity(
             new HashMapConverter.ToEntity(map));
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
     }
 
     private static class HistogramFunctionInst extends HistogramFunction {

@@ -20,6 +20,12 @@ package org.apache.skywalking.oap.server.receiver.aws.firehose;
 import com.google.gson.Gson;
 import com.google.protobuf.util.JsonFormat;
 import io.opentelemetry.proto.collector.metrics.firehose.v0_7.ExportMetricsServiceRequest;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,11 +34,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class OtelMetricsConvertorTest {
 
@@ -45,10 +46,10 @@ public class OtelMetricsConvertorTest {
             final Map convertedData = new Gson().fromJson(str, Map.class);
             final Map expect = new Gson().fromJson(
                 new String(Files.readAllBytes(testData.getExpectFile().toPath())), Map.class);
-            Assert.assertEquals(
-                String.format("diff , %s -> %s", testData.getSourceFile(), testData.getExpectFile()),
+            Assertions.assertEquals(
                 expect,
-                convertedData
+                convertedData,
+                String.format("diff , %s -> %s", testData.getSourceFile(), testData.getExpectFile())
             );
             System.out.printf("test pass %s -> %s %n", testData.getSourceFile(), testData.getExpectFile());
         }

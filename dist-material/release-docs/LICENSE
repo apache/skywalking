@@ -220,25 +220,16 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.14.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.14.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.9.5 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.14.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.10.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.13.4 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.9.5 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.14.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.android/annotations/4.1.1.4 Apache-2.0
     https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305/3.0.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305/1.3.9 Apache-2.0
     https://mvnrepository.com/artifact/com.google.code.gson/gson/2.9.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.errorprone/error_prone_annotations/2.14.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.errorprone/error_prone_annotations/2.11.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.flatbuffers/flatbuffers-java/1.12.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.guava/failureaccess/1.0.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.guava/guava/31.1-android Apache-2.0
     https://mvnrepository.com/artifact/com.google.guava/guava/31.1-jre Apache-2.0
     https://mvnrepository.com/artifact/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava Apache-2.0
     https://mvnrepository.com/artifact/com.google.inject/guice/4.1.0 Apache-2.0
@@ -249,19 +240,13 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.21.0 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.21.0 Apache-2.0
     https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.5.3 Apache-2.0
-    https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.2.6 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/logging-interceptor/4.9.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/3.14.9 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/4.9.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.okio/okio/1.17.2 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okio/okio/2.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-jackson/2.9.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-jackson/2.3.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit/2.9.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit/2.3.0 Apache-2.0
     https://mvnrepository.com/artifact/com.zaxxer/HikariCP/3.1.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.9.4 Apache-2.0
-    https://mvnrepository.com/artifact/commons-codec/commons-codec/1.11 Apache-2.0
     https://mvnrepository.com/artifact/commons-codec/commons-codec/1.15 Apache-2.0
     https://mvnrepository.com/artifact/commons-io/commons-io/2.7 Apache-2.0
     https://mvnrepository.com/artifact/commons-logging/commons-logging/1.2 Apache-2.0
@@ -286,43 +271,31 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.10.2 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.10.2 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.10.2 Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-common/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-common/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.52.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.54.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.52.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.54.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.45.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.77.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.86.Final Apache-2.0
     https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.25.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient/0.6.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.15.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_httpserver/0.15.0 Apache-2.0
@@ -357,13 +330,9 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.codehaus.groovy/groovy/3.0.8 Apache-2.0
     https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.31 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect/1.7.10 Apache-2.0
-    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib/1.4.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib/1.7.10 Apache-2.0
-    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-common/1.4.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10 Apache-2.0
-    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.4.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.6.21 Apache-2.0
-    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.4.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.6.21 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.4 Apache-2.0
@@ -393,7 +362,6 @@ BSD-3-Clause licenses
 The following components are provided under the BSD-3-Clause License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.21.1 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java/3.21.8 BSD-3-Clause
     https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java-util/3.21.8 BSD-3-Clause
     https://npmjs.com/package/d3-collection/v/1.0.7 1.0.7 BSD-3-Clause
@@ -401,7 +369,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/d3-tip/node_modules/d3-selection/v/1.4.2 1.4.2 BSD-3-Clause
     https://npmjs.com/package/normalize-wheel-es/v/1.2.0 1.2.0 BSD-3-Clause
     https://mvnrepository.com/artifact/org.antlr/antlr4-runtime/4.9.2 BSD-3-Clause
-    https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core/1.3 BSD-3-Clause
     https://npmjs.com/package/rw/v/1.3.3 1.3.3 BSD-3-Clause
     https://npmjs.com/package/source-map/v/0.6.1 0.6.1 BSD-3-Clause
     https://npmjs.com/package/source-map-js/v/1.0.2 1.0.2 BSD-3-Clause
@@ -414,7 +381,6 @@ The following components are provided under the CC0-1.0 License. See project lin
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://mvnrepository.com/artifact/org.latencyutils/LatencyUtils/2.0.3 CC0-1.0
-    https://mvnrepository.com/artifact/org.reactivestreams/reactive-streams/1.0.3 CC0-1.0
 
 ========================================================================
 CC0-1.0 and BSD-2-Clause licenses
@@ -423,14 +389,6 @@ The following components are provided under the CC0-1.0 and BSD-2-Clause License
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://mvnrepository.com/artifact/org.hdrhistogram/HdrHistogram/2.1.12 CC0-1.0 and BSD-2-Clause
-
-========================================================================
-EPL-1.0 licenses
-========================================================================
-The following components are provided under the EPL-1.0 License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
-    https://mvnrepository.com/artifact/junit/junit/4.13.1 EPL-1.0
 
 ========================================================================
 ISC licenses
@@ -552,7 +510,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on/1.71 MIT
     https://mvnrepository.com/artifact/org.bouncycastle/bcutil-jdk18on/1.71 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.12.0 MIT
-    https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.5.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT

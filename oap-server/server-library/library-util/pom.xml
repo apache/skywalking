@@ -37,12 +37,6 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.stefanbirkner</groupId>
-            <artifactId>system-rules</artifactId>
-            <version>${ststem-rules.version}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -60,6 +54,12 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

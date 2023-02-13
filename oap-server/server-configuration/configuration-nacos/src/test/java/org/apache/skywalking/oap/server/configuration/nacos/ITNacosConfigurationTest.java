@@ -21,43 +21,48 @@ package org.apache.skywalking.oap.server.configuration.nacos;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
-import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
-import org.yaml.snakeyaml.Yaml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
+@Testcontainers
 public class ITNacosConfigurationTest {
     private final Yaml yaml = new Yaml();
 
     private NacosConfigurationTestProvider provider;
 
-    @Rule
+    @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
             .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
-            .withEnv(Collections.singletonMap("MODE", "standalone"));
+            .withEnv(Collections.singletonMap("MODE", "standalone"))
+            .withExposedPorts(8848);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         System.setProperty("nacos.host", container.getHost());
         System.setProperty("nacos.port", String.valueOf(container.getMappedPort(8848)));
@@ -74,7 +79,8 @@ public class ITNacosConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Test(timeout = 20000)
+    @Test
+    @Timeout(20)
     public void shouldReadUpdated() throws NacosException {
         assertNull(provider.watcher.value());
 
@@ -100,7 +106,8 @@ public class ITNacosConfigurationTest {
         assertNull(provider.watcher.value());
     }
 
-    @Test(timeout = 20000)
+    @Test
+    @Timeout(20)
     public void shouldReadUpdatedGroup() throws NacosException {
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
 

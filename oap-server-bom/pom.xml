@@ -67,7 +67,7 @@
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
         <postgresql.version>42.4.1</postgresql.version>
         <jetcd.version>0.5.3</jetcd.version>
-        <testcontainers.version>1.15.3</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <armeria.version>1.21.0</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
@@ -539,10 +539,22 @@
                 <artifactId>testcontainers</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>

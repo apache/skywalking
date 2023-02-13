@@ -18,76 +18,77 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.skywalking.oap.server.core.query.enumeration.Step;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class DurationTest {
 
     @Test
     public void testConvertToTimeBucket() {
-        Assert.assertEquals(20220908L, DurationUtils.INSTANCE.convertToTimeBucket(Step.DAY, "2022-09-08"));
-        Assert.assertEquals(2022090810L, DurationUtils.INSTANCE.convertToTimeBucket(Step.HOUR, "2022-09-08 10"));
-        Assert.assertEquals(202209081010L, DurationUtils.INSTANCE.convertToTimeBucket(Step.MINUTE, "2022-09-08 1010"));
-        Assert.assertEquals(
+        Assertions.assertEquals(20220908L, DurationUtils.INSTANCE.convertToTimeBucket(Step.DAY, "2022-09-08"));
+        Assertions.assertEquals(2022090810L, DurationUtils.INSTANCE.convertToTimeBucket(Step.HOUR, "2022-09-08 10"));
+        Assertions.assertEquals(202209081010L, DurationUtils.INSTANCE.convertToTimeBucket(Step.MINUTE, "2022-09-08 1010"));
+        Assertions.assertEquals(
             20220908101010L, DurationUtils.INSTANCE.convertToTimeBucket(Step.SECOND, "2022-09-08 101010"));
         try {
             DurationUtils.INSTANCE.convertToTimeBucket(Step.DAY, "2022-09-08 10");
-            Assert.fail("Should throw IllegalArgumentException");
+            Assertions.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 
     @Test
     public void testStartTimeDurationToSecondTimeBucket() {
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908000000L, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.DAY, "2022-09-08"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908100000L, DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 10"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908101000L,
             DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.MINUTE, "2022-09-08 1010")
         );
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908101010L,
             DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.SECOND, "2022-09-08 101010")
         );
         try {
             DurationUtils.INSTANCE.startTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 30");
-            Assert.fail("Should throw IllegalArgumentException");
+            Assertions.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 
     @Test
     public void testEndTimeDurationToSecondTimeBucket() {
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908235959L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.DAY, "2022-09-08"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908105959L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 10"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908101059L, DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.MINUTE, "2022-09-08 1010"));
-        Assert.assertEquals(
+        Assertions.assertEquals(
             20220908101010L,
             DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.SECOND, "2022-09-08 101010")
         );
         try {
             DurationUtils.INSTANCE.endTimeDurationToSecondTimeBucket(Step.HOUR, "2022-09-08 30");
-            Assert.fail("Should throw IllegalArgumentException");
+            Assertions.fail("Should throw IllegalArgumentException");
         } catch (IllegalArgumentException e) {
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 
     @Test
     public void testGetDurationPoints() {
         List<PointOfTime> pointOfTimes = DurationUtils.INSTANCE.getDurationPoints(Step.DAY, 20220910, 20220912);
-        Assert.assertTrue(Arrays.asList(20220910L, 20220911L, 20220912L)
+        Assertions.assertTrue(Arrays.asList(20220910L, 20220911L, 20220912L)
                                 .equals(pointOfTimes.stream().map(PointOfTime::getPoint).collect(Collectors.toList())));
     }
 }

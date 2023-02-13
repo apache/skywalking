@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.config.group;
 
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EndpointGroupingRuleReaderTest {
     @Test
@@ -32,13 +32,13 @@ public class EndpointGroupingRuleReaderTest {
         final EndpointGroupingRule rule = reader.read();
 
         StringFormatGroup.FormatResult formatResult = rule.format("serviceA", "/prod/123");
-        Assert.assertTrue(formatResult.isMatch());
-        Assert.assertEquals("/prod/{id}", formatResult.getName());
+        Assertions.assertTrue(formatResult.isMatch());
+        Assertions.assertEquals("/prod/{id}", formatResult.getName());
 
         formatResult = rule.format("serviceA", "/prod/");
-        Assert.assertFalse(formatResult.isMatch());
+        Assertions.assertFalse(formatResult.isMatch());
 
         formatResult = rule.format("serviceB", "/prod/123");
-        Assert.assertFalse(formatResult.isMatch());
+        Assertions.assertFalse(formatResult.isMatch());
     }
 }

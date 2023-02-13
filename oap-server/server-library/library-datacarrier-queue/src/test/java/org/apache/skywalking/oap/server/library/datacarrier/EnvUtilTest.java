@@ -18,29 +18,26 @@
 
 package org.apache.skywalking.oap.server.library.datacarrier;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(EnvUtil.class)
+@ExtendWith(SystemStubsExtension.class)
 public class EnvUtilTest {
+    @SystemStub
+    private final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
-    @Before
+    @BeforeEach
     public void before() {
-
-        PowerMockito.mockStatic(System.class);
-
-        when(System.getenv("myInt")).thenReturn("123");
-        when(System.getenv("wrongInt")).thenReturn("wrong123");
-        when(System.getenv("myLong")).thenReturn("12345678901234567");
-        when(System.getenv("wrongLong")).thenReturn("wrong123");
+        environmentVariables.set("myInt", "123");
+        environmentVariables.set("wrongInt", "wrong123");
+        environmentVariables.set("myLong", "12345678901234567");
+        environmentVariables.set("wrongLong", "wrong123");
     }
 
     @Test
@@ -54,5 +51,4 @@ public class EnvUtilTest {
         assertEquals(12345678901234567L, EnvUtil.getLong("myLong", 123L));
         assertEquals(987654321987654321L, EnvUtil.getLong("wrongLong", 987654321987654321L));
     }
-
 }
