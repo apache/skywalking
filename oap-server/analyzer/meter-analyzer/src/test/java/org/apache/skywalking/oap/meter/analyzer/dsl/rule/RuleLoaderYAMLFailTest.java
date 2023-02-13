@@ -18,28 +18,20 @@
 
 package org.apache.skywalking.oap.meter.analyzer.dsl.rule;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.yaml.snakeyaml.error.YAMLException;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@Slf4j
-@RunWith(Parameterized.class)
-public class RuleLoaderYAMLFailTest {
-    @Parameterized.Parameter
-    public List<String> enabledRule;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-    @Parameterized.Parameters(name = "{index}: {0}")
+public class RuleLoaderYAMLFailTest {
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
+        return Arrays.asList(new Object[][]{
                 {Arrays.asList("illegal-yaml/test.yml")},
                 {Arrays.asList("illegal-yaml/test")},
                 {Arrays.asList("illegal-yaml/*.yml")},
@@ -47,8 +39,9 @@ public class RuleLoaderYAMLFailTest {
         });
     }
 
-    @Test(expected = YAMLException.class)
-    public void test() throws ModuleStartException, IOException {
-        Rules.loadRules("otel-rules", enabledRule);
+    @ParameterizedTest
+    @MethodSource("data")
+    public void test(List<String> enabledRule) {
+        assertThrows(YAMLException.class, () -> Rules.loadRules("otel-rules", enabledRule));
     }
 }

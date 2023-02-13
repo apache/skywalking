@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingStackElemen
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTree;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,11 +58,11 @@ public class EBPFProfilingAnalyzeContext {
     public void analyzeAssert() throws IOException {
         final Analyzer analyzer = new Analyzer();
         final EBPFProfilingAnalyzation analyze = analyzer.analyze(null, buildTimeRanges(), EBPFProfilingAnalyzeAggregateType.COUNT);
-        Assert.assertNotNull(analyze);
-        Assert.assertNull(analyze.getTip());
-        Assert.assertNotNull(analyze.getTrees());
+        Assertions.assertNotNull(analyze);
+        Assertions.assertNull(analyze.getTip());
+        Assertions.assertNotNull(analyze.getTrees());
         for (int i = 0; i < excepted.size(); i++) {
-            Assert.assertTrue(analyze.getTrees().size() > i);
+            Assertions.assertTrue(analyze.getTrees().size() > i);
             final Except except = excepted.get(i);
             final EBPFProfilingTree actualTree = analyze.getTrees().get(i);
             validateTree(except, actualTree, 0);
@@ -75,7 +75,7 @@ public class EBPFProfilingAnalyzeContext {
         boolean found = false;
         int dataId = 0;
         for (EBPFProfilingStackElement element : actual.getElements()) {
-            Assert.assertNotNull(element);
+            Assertions.assertNotNull(element);
             if (element.getParentId() == parentId
                     && Objects.equals(element.getSymbol(), symbol)
                     && Objects.equals(element.getDumpCount(), count)) {
@@ -83,7 +83,7 @@ public class EBPFProfilingAnalyzeContext {
                 dataId = element.getId();
             }
         }
-        Assert.assertTrue("could not found:" + except.getData(), found);
+        Assertions.assertTrue(found, "could not found:" + except.getData());
 
         if (CollectionUtils.isNotEmpty(except.getChild())) {
             for (Except e : except.getChild()) {

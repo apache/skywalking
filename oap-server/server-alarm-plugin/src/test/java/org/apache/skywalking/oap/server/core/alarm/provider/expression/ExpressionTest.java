@@ -19,23 +19,23 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.expression;
 
 import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mvel2.CompileException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ExpressionTest {
     private Expression expression;
 
-    @Before
+    @BeforeEach
     public void init() {
         expression = new Expression(new ExpressionContext());
     }
@@ -49,15 +49,15 @@ public class ExpressionTest {
         assertNull(flag);
         dataMap.put("b", Boolean.TRUE);
         flag = expression.eval(expr, dataMap);
-        assertThat(flag, is(true));
+        assertThat(flag).isEqualTo(true);
     }
 
     @Test
     public void testAnalysisInputs() {
         String expr = " a && b ";
         Set<String> inputs = expression.analysisInputs(expr);
-        assertThat(inputs.size(), is(2));
-        assertThat(inputs, is(Sets.newHashSet("a", "b")));
+        assertThat(inputs.size()).isEqualTo(2);
+        assertThat(inputs).isEqualTo(Sets.newHashSet("a", "b"));
     }
 
     @Test
@@ -66,7 +66,7 @@ public class ExpressionTest {
         Object flag = expression.eval(expr);
         assertNull(flag);
         flag = expression.eval(" 1 > 0");
-        assertThat(flag, is(true));
+        assertThat(flag).isEqualTo(true);
     }
 
     @Test
@@ -76,13 +76,15 @@ public class ExpressionTest {
         Object compiledExpression = expression.compile(expr, context);
         assertNotNull(compiledExpression);
         Object sameExpression = expression.compile(expr, context);
-        assertThat(compiledExpression, is(sameExpression));
+        assertThat(compiledExpression).isEqualTo(sameExpression);
     }
 
-    @Test(expected = CompileException.class)
+    @Test
     public void testCompileWithException() {
-        String expr = " a && * b ";
-        ExpressionContext context = new ExpressionContext();
-        expression.compile(expr, context);
+        assertThrows(CompileException.class, () -> {
+            String expr = " a && * b ";
+            ExpressionContext context = new ExpressionContext();
+            expression.compile(expr, context);
+        });
     }
 }

@@ -18,31 +18,31 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TimeSeriesUtilsTestCase {
 
     @Test
     public void indexTimeSeries() {
-        Assert.assertEquals(20190602, TimeSeriesUtils.isolateTimeFromIndexName("Index_Test-20190602"));
+        Assertions.assertEquals(20190602, TimeSeriesUtils.isolateTimeFromIndexName("Index_Test-20190602"));
     }
 
     @Test
     public void querySuperDatasetIndices() {
         String[] indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
-        Assert.assertEquals(indices.length, 5);
+        Assertions.assertEquals(indices.length, 5);
         indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
-        Assert.assertEquals(indices.length, 1);
+        Assertions.assertEquals(indices.length, 1);
         indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
-        Assert.assertEquals(indices.length, 1);
+        Assertions.assertEquals(indices.length, 1);
         TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(2);
         indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200601140000L, 20200605140000L);
-        Assert.assertEquals(indices.length, 3);
+        Assertions.assertEquals(indices.length, 3);
         indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200605140000L);
-        Assert.assertEquals(indices.length, 1);
+        Assertions.assertEquals(indices.length, 1);
         indices = TimeSeriesUtils.superDatasetIndexNames(SegmentRecord.INDEX_NAME, 20200605140000L, 20200601140000L);
-        Assert.assertEquals(indices.length, 1);
+        Assertions.assertEquals(indices.length, 1);
 
     }
 }

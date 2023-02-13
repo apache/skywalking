@@ -41,8 +41,8 @@ import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
 import org.apache.skywalking.oap.server.core.source.CacheSlowAccess;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class VirtualCacheProcessorTest {
 
@@ -54,7 +54,7 @@ public class VirtualCacheProcessorTest {
         cacheVirtualServiceProcessor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         cacheVirtualServiceProcessor.emitTo(sources::add);
-        Assert.assertTrue(sources.isEmpty());
+        Assertions.assertTrue(sources.isEmpty());
     }
 
     @Test
@@ -74,27 +74,27 @@ public class VirtualCacheProcessorTest {
         cacheVirtualServiceProcessor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         cacheVirtualServiceProcessor.emitTo(sources::add);
-        Assert.assertEquals(sources.size(), 3);
+        Assertions.assertEquals(sources.size(), 3);
 
         ServiceMeta serviceMeta = (ServiceMeta) sources.get(0);
-        Assert.assertEquals("127.0.0.1:6379", serviceMeta.getName());
-        Assert.assertEquals(202209121413L, serviceMeta.getTimeBucket());
-        Assert.assertEquals(Layer.VIRTUAL_CACHE, serviceMeta.getLayer());
+        Assertions.assertEquals("127.0.0.1:6379", serviceMeta.getName());
+        Assertions.assertEquals(202209121413L, serviceMeta.getTimeBucket());
+        Assertions.assertEquals(Layer.VIRTUAL_CACHE, serviceMeta.getLayer());
 
         CacheSlowAccess slowAccess = (CacheSlowAccess) sources.get(1);
-        Assert.assertEquals("MTI3LjAuMC4xOjYzNzk=.0", slowAccess.getCacheServiceId());
-        Assert.assertEquals(1000, slowAccess.getLatency());
-        Assert.assertEquals(20220912141312L, slowAccess.getTimeBucket());
-        Assert.assertEquals(VirtualCacheOperation.Read, slowAccess.getOperation());
-        Assert.assertNotNull(slowAccess.getTraceId());
-        Assert.assertNotNull(slowAccess.getCommand());
-        Assert.assertNotNull(slowAccess.getKey());
+        Assertions.assertEquals("MTI3LjAuMC4xOjYzNzk=.0", slowAccess.getCacheServiceId());
+        Assertions.assertEquals(1000, slowAccess.getLatency());
+        Assertions.assertEquals(20220912141312L, slowAccess.getTimeBucket());
+        Assertions.assertEquals(VirtualCacheOperation.Read, slowAccess.getOperation());
+        Assertions.assertNotNull(slowAccess.getTraceId());
+        Assertions.assertNotNull(slowAccess.getCommand());
+        Assertions.assertNotNull(slowAccess.getKey());
 
         CacheAccess cacheAccess = (CacheAccess) sources.get(2);
-        Assert.assertEquals("127.0.0.1:6379", cacheAccess.getName());
-        Assert.assertEquals(1000, cacheAccess.getLatency());
-        Assert.assertEquals(202209121413L, cacheAccess.getTimeBucket());
-        Assert.assertNotNull(cacheAccess.getOperation());
+        Assertions.assertEquals("127.0.0.1:6379", cacheAccess.getName());
+        Assertions.assertEquals(1000, cacheAccess.getLatency());
+        Assertions.assertEquals(202209121413L, cacheAccess.getTimeBucket());
+        Assertions.assertNotNull(cacheAccess.getOperation());
     }
 
     @Test
@@ -114,18 +114,18 @@ public class VirtualCacheProcessorTest {
         cacheVirtualServiceProcessor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         cacheVirtualServiceProcessor.emitTo(sources::add);
-        Assert.assertEquals(sources.size(), 2);
+        Assertions.assertEquals(sources.size(), 2);
 
         ServiceMeta serviceMeta = (ServiceMeta) sources.get(0);
-        Assert.assertEquals("127.0.0.1:6379", serviceMeta.getName());
-        Assert.assertEquals(202209121413L, serviceMeta.getTimeBucket());
-        Assert.assertEquals(Layer.VIRTUAL_CACHE, serviceMeta.getLayer());
+        Assertions.assertEquals("127.0.0.1:6379", serviceMeta.getName());
+        Assertions.assertEquals(202209121413L, serviceMeta.getTimeBucket());
+        Assertions.assertEquals(Layer.VIRTUAL_CACHE, serviceMeta.getLayer());
 
         CacheAccess cacheAccess = (CacheAccess) sources.get(1);
-        Assert.assertEquals("127.0.0.1:6379", cacheAccess.getName());
-        Assert.assertEquals(3, cacheAccess.getLatency());
-        Assert.assertEquals(202209121413L, cacheAccess.getTimeBucket());
-        Assert.assertNotNull(cacheAccess.getOperation());
+        Assertions.assertEquals("127.0.0.1:6379", cacheAccess.getName());
+        Assertions.assertEquals(3, cacheAccess.getLatency());
+        Assertions.assertEquals(202209121413L, cacheAccess.getTimeBucket());
+        Assertions.assertNotNull(cacheAccess.getOperation());
     }
 
     @Test
@@ -143,27 +143,27 @@ public class VirtualCacheProcessorTest {
         cacheVirtualServiceProcessor.prepareVSIfNecessary(spanObject, segmentObject);
         ArrayList<Source> sources = new ArrayList<>();
         cacheVirtualServiceProcessor.emitTo(sources::add);
-        Assert.assertEquals(sources.size(), 3);
+        Assertions.assertEquals(sources.size(), 3);
 
         ServiceMeta serviceMeta = (ServiceMeta) sources.get(0);
-        Assert.assertEquals("redis-local", serviceMeta.getName());
-        Assert.assertEquals(202209121413L, serviceMeta.getTimeBucket());
-        Assert.assertEquals(Layer.VIRTUAL_CACHE, serviceMeta.getLayer());
+        Assertions.assertEquals("redis-local", serviceMeta.getName());
+        Assertions.assertEquals(202209121413L, serviceMeta.getTimeBucket());
+        Assertions.assertEquals(Layer.VIRTUAL_CACHE, serviceMeta.getLayer());
 
         CacheSlowAccess slowAccess = (CacheSlowAccess) sources.get(1);
-        Assert.assertEquals("cmVkaXMtbG9jYWw=.0", slowAccess.getCacheServiceId());
-        Assert.assertEquals(1000, slowAccess.getLatency());
-        Assert.assertEquals(20220912141312L, slowAccess.getTimeBucket());
-        Assert.assertEquals(VirtualCacheOperation.Read, slowAccess.getOperation());
-        Assert.assertNotNull(slowAccess.getTraceId());
-        Assert.assertNotNull(slowAccess.getCommand());
-        Assert.assertNotNull(slowAccess.getKey());
+        Assertions.assertEquals("cmVkaXMtbG9jYWw=.0", slowAccess.getCacheServiceId());
+        Assertions.assertEquals(1000, slowAccess.getLatency());
+        Assertions.assertEquals(20220912141312L, slowAccess.getTimeBucket());
+        Assertions.assertEquals(VirtualCacheOperation.Read, slowAccess.getOperation());
+        Assertions.assertNotNull(slowAccess.getTraceId());
+        Assertions.assertNotNull(slowAccess.getCommand());
+        Assertions.assertNotNull(slowAccess.getKey());
 
         CacheAccess cacheAccess = (CacheAccess) sources.get(2);
-        Assert.assertEquals("redis-local", cacheAccess.getName());
-        Assert.assertEquals(1000, cacheAccess.getLatency());
-        Assert.assertEquals(202209121413L, cacheAccess.getTimeBucket());
-        Assert.assertNotNull(cacheAccess.getOperation());
+        Assertions.assertEquals("redis-local", cacheAccess.getName());
+        Assertions.assertEquals(1000, cacheAccess.getLatency());
+        Assertions.assertEquals(202209121413L, cacheAccess.getTimeBucket());
+        Assertions.assertNotNull(cacheAccess.getOperation());
     }
 
     private long getTimeInMillis(String s) {

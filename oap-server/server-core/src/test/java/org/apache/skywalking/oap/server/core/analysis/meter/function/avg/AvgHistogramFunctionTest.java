@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
-import java.util.Map;
-import java.util.stream.IntStream;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
@@ -31,10 +29,13 @@ import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.stream.IntStream;
 
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgHistogramFunction.DATASET;
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.COUNT;
@@ -55,13 +56,13 @@ public class AvgHistogramFunctionTest {
         10
     };
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
@@ -95,7 +96,7 @@ public class AvgHistogramFunctionTest {
         final int[] results = inst.getDataset().sortedValues(new HeatMap.KeyComparator(true)).stream()
                                   .flatMapToInt(l -> IntStream.of(l.intValue()))
                                   .toArray();
-        Assert.assertArrayEquals(new int[] {
+        Assertions.assertArrayEquals(new int[] {
             1,
             3,
             6,
@@ -130,7 +131,7 @@ public class AvgHistogramFunctionTest {
 
         inst.calculate();
 
-        Assert.assertEquals(1L, inst.getDataset().get(Bucket.INFINITE_NEGATIVE).longValue());
+        Assertions.assertEquals(1L, inst.getDataset().get(Bucket.INFINITE_NEGATIVE).longValue());
     }
 
     @Test
@@ -151,9 +152,9 @@ public class AvgHistogramFunctionTest {
         final HistogramFunctionInst inst2 = new HistogramFunctionInst();
         inst2.deserialize(inst.serialize().build());
 
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
     }
 
     @Test
@@ -173,9 +174,9 @@ public class AvgHistogramFunctionTest {
         final HistogramFunctionInst inst2 = new HistogramFunctionInst();
         inst2.deserialize(inst.serialize().build());
 
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
     }
 
     @Test
@@ -205,9 +206,9 @@ public class AvgHistogramFunctionTest {
 
         final AvgHistogramFunction inst2 = (AvgHistogramFunction) storageBuilder.storage2Entity(
             new HashMapConverter.ToEntity(map));
-        Assert.assertEquals(inst, inst2);
+        Assertions.assertEquals(inst, inst2);
         // HistogramFunction equal doesn't include dataset.
-        Assert.assertEquals(inst.getDataset(), inst2.getDataset());
+        Assertions.assertEquals(inst.getDataset(), inst2.getDataset());
     }
 
     @Test
@@ -256,7 +257,7 @@ public class AvgHistogramFunctionTest {
         int[] results = inst.getDataset().sortedValues(new HeatMap.KeyComparator(true)).stream()
                             .flatMapToInt(l -> IntStream.of(l.intValue()))
                             .toArray();
-        Assert.assertArrayEquals(new int[] {
+        Assertions.assertArrayEquals(new int[] {
             1,
             3,
             6,

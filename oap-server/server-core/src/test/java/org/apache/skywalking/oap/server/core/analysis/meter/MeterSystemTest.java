@@ -18,32 +18,32 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter;
 
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.spy;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
 public class MeterSystemTest {
-
     @Mock
     private ModuleManager moduleManager;
     private MeterSystem meterSystem;
 
-    @Before
+    @BeforeEach
     public void setup() throws StorageException {
         meterSystem = spy(new MeterSystem(moduleManager));
         Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
@@ -82,8 +82,8 @@ public class MeterSystemTest {
         Class<?> realDataType = Whitebox.getInternalState(meterDefinition, "dataType");
         ScopeType realScopeTypes = Whitebox.getInternalState(meterDefinition, "scopeType");
 
-        Assert.assertEquals(dataType, realDataType);
-        Assert.assertEquals(type, realScopeTypes);
+        Assertions.assertEquals(dataType, realDataType);
+        Assertions.assertEquals(type, realScopeTypes);
     }
 
 }

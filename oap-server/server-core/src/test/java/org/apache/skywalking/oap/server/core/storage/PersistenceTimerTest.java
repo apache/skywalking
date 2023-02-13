@@ -18,12 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsPersistentWorker;
@@ -37,9 +31,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -84,7 +85,7 @@ public class PersistenceTimerTest {
         CompletableFuture<Void> f = Whitebox.invokeMethod(PersistenceTimer.INSTANCE, "extractDataAndSave", iBatchDAO);
         f.join();
 
-        Assert.assertEquals(count * workCount * 2, result.size());
+        Assertions.assertEquals(count * workCount * 2, result.size());
     }
 
     private MetricsPersistentWorker genWorkers(int num, int count) {

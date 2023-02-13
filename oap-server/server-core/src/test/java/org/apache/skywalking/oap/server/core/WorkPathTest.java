@@ -18,12 +18,12 @@
 
 package org.apache.skywalking.oap.server.core;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class WorkPathTest {
     @Test
     public void testPath() {
-        Assert.assertTrue(WorkPath.getPath().exists());
+        Assertions.assertTrue(WorkPath.getPath().exists());
     }
 }

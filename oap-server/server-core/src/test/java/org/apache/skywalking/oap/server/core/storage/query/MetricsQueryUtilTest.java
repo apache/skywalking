@@ -19,46 +19,33 @@
 package org.apache.skywalking.oap.server.core.storage.query;
 
 import com.google.gson.Gson;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static java.util.Arrays.asList;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE;
 import static org.apache.skywalking.oap.server.core.storage.annotation.Column.ValueDataType.LABELED_VALUE;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(Parameterized.class)
-@RequiredArgsConstructor
 public class MetricsQueryUtilTest {
 
     private static final int DEFAULT_VALUE = -1;
 
     private static final String MODULE_NAME = "meter-test";
 
-    private final List<String> queryConditionLabels;
-
-    private final List<String> datePoints;
-
-    private final Map<String, DataTable> valueColumnData;
-
-    private final String expectedResult;
-
-    @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
@@ -106,19 +93,23 @@ public class MetricsQueryUtilTest {
         });
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
             MODULE_NAME, "value", LABELED_VALUE, Function.None, DEFAULT_VALUE, SERVICE
         );
     }
 
-    @Test
-    public void testComposeLabelValue() {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testComposeLabelValue(final List<String> queryConditionLabels,
+                                      final List<String> datePoints,
+                                      final Map<String, DataTable> valueColumnData,
+                                      final String expectedResult) {
         MetricsCondition condition = new MetricsCondition();
         condition.setName(MODULE_NAME);
         List<MetricsValues> result = IMetricsQueryDAO.Util.composeLabelValue(condition, queryConditionLabels, datePoints, valueColumnData);
-        assertThat(new Gson().toJson(result), is(expectedResult));
+        assertThat(new Gson().toJson(result)).isEqualTo(expectedResult);
     }
 
 }

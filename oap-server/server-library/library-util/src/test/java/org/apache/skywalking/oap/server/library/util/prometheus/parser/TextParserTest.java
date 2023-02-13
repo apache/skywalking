@@ -18,22 +18,22 @@
 
 package org.apache.skywalking.oap.server.library.util.prometheus.parser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.Queue;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricFamily;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.MetricType;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TextParserTest {
 
@@ -41,7 +41,7 @@ public class TextParserTest {
 
     long now;
 
-    @Before
+    @BeforeEach
     public void setup() {
         now = System.currentTimeMillis();
         expectedMfs.offer(new MetricFamily.Builder()
@@ -122,9 +122,9 @@ public class TextParserTest {
                 mfNum++;
                 MetricFamily expected = expectedMfs.poll();
                 assertNotNull(expected);
-                assertThat(mf, is(expected));
+                assertThat(mf).isEqualTo(expected);
             }
-            assertThat(mfNum , is(3));
+            assertThat(mfNum).isEqualTo(3);
         }
     }
 }

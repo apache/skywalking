@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.Getter;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
@@ -36,40 +33,45 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Testcontainers
+@ExtendWith(MockitoExtension.class)
 public class ITClusterModuleZookeeperProviderFunctionalTest {
 
     private String zkAddress;
 
-    @Rule
+    @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("zookeeper:3.5"))
-            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1));
+            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1))
+            .withExposedPorts(2181);
 
     @Mock
     private ModuleManager moduleManager;
     @Mock
     private NoneTelemetryProvider telemetryProvider;
 
-    @Before
+    @BeforeEach
     public void init() {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                 .thenReturn(new MetricsCreatorNoop());

@@ -18,32 +18,33 @@
 
 package org.apache.skywalking.oal.rt.parser;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.BooleanMatch;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.BooleanNotEqualMatch;
-import org.apache.skywalking.oap.server.core.analysis.metrics.expression.StringMatch;
 import org.apache.skywalking.oap.server.core.analysis.metrics.expression.NotEqualMatch;
+import org.apache.skywalking.oap.server.core.analysis.metrics.expression.StringMatch;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DeepAnalysisTest {
-    @BeforeClass
+    @BeforeAll
     public static void init() throws IOException, StorageException {
         AnnotationScan scopeScan = new AnnotationScan();
         scopeScan.registerListener(new DefaultScopeDefine.Listener());
         scopeScan.scan();
     }
 
-    @AfterClass
+    @AfterAll
     public static void clear() {
         DefaultScopeDefine.reset();
     }
@@ -60,15 +61,15 @@ public class DeepAnalysisTest {
         result = analysis.analysis(result);
 
         EntryMethod method = result.getEntryMethod();
-        Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
-        Assert.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
+        Assertions.assertEquals("combine", method.getMethodName());
+        Assertions.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
+        Assertions.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
-        Assert.assertEquals(1, source.size());
+        Assertions.assertEquals(1, source.size());
 
         List<DataColumn> persistentFields = result.getPersistentFields();
-        Assert.assertEquals(4, persistentFields.size());
+        Assertions.assertEquals(4, persistentFields.size());
     }
 
     @Test
@@ -83,15 +84,15 @@ public class DeepAnalysisTest {
         result = analysis.analysis(result);
 
         EntryMethod method = result.getEntryMethod();
-        Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
-        Assert.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
+        Assertions.assertEquals("combine", method.getMethodName());
+        Assertions.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
+        Assertions.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
-        Assert.assertEquals(2, source.size());
+        Assertions.assertEquals(2, source.size());
 
         List<DataColumn> persistentFields = result.getPersistentFields();
-        Assert.assertEquals(4, persistentFields.size());
+        Assertions.assertEquals(4, persistentFields.size());
     }
 
     @Test
@@ -111,22 +112,22 @@ public class DeepAnalysisTest {
         result = analysis.analysis(result);
 
         EntryMethod method = result.getEntryMethod();
-        Assert.assertEquals("combine", method.getMethodName());
-        Assert.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
-        Assert.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
+        Assertions.assertEquals("combine", method.getMethodName());
+        Assertions.assertEquals("(long)(source.getLatency())", method.getArgsExpressions().get(0));
+        Assertions.assertEquals("(long)(1)", method.getArgsExpressions().get(1));
 
         List<SourceColumn> source = result.getFieldsFromSource();
-        Assert.assertEquals(2, source.size());
+        Assertions.assertEquals(2, source.size());
 
         List<DataColumn> persistentFields = result.getPersistentFields();
-        Assert.assertEquals(4, persistentFields.size());
+        Assertions.assertEquals(4, persistentFields.size());
 
         List<Expression> filterExpressions = result.getFilters().getFilterExpressions();
-        Assert.assertEquals(1, filterExpressions.size());
+        Assertions.assertEquals(1, filterExpressions.size());
         Expression filterExpression = filterExpressions.get(0);
-        Assert.assertEquals(StringMatch.class.getName(), filterExpression.getExpressionObject());
-        Assert.assertEquals("source.getName()", filterExpression.getLeft());
-        Assert.assertEquals("\"/service/prod/save\"", filterExpression.getRight());
+        Assertions.assertEquals(StringMatch.class.getName(), filterExpression.getExpressionObject());
+        Assertions.assertEquals("source.getName()", filterExpression.getLeft());
+        Assertions.assertEquals("\"/service/prod/save\"", filterExpression.getRight());
     }
 
     @Test

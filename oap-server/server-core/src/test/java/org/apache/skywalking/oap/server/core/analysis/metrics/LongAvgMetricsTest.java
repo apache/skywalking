@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class LongAvgMetricsTest {
     @Test
@@ -31,7 +31,7 @@ public class LongAvgMetricsTest {
         impl.combine(24, 2);
         impl.combine(36, 3);
         impl.calculate();
-        Assert.assertEquals(12, impl.getValue());
+        Assertions.assertEquals(12, impl.getValue());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class LongAvgMetricsTest {
         impl.combine(impl2);
 
         impl.calculate();
-        Assert.assertEquals(18, impl.getValue());
+        Assertions.assertEquals(18, impl.getValue());
     }
 
     public class LongAvgMetricsImpl extends LongAvgMetrics {

@@ -18,17 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics.expression;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
-import org.junit.Assert;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContainMatchTest {
     @Test
     public void match() {
         ContainMatch containMatch = new ContainMatch();
-        Assert.assertFalse(containMatch.match(null, "http.method:GET"));
-        Assert.assertTrue(containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:GET"));
-        Assert.assertFalse(
+        assertFalse(containMatch.match(null, "http.method:GET"));
+        assertTrue(containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:GET"));
+        assertFalse(
             containMatch.match(Arrays.asList("http.method:GET", "http.method:POST"), "http.method:PUT"));
     }
 }

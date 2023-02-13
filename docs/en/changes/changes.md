@@ -91,6 +91,8 @@
 * Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
 * Add missing TCP throughput metrics.
 * Refactor `@Column` annotation, swap `Column#name` and `ElasticSearch.Column#columnAlias` and rename `ElasticSearch.Column#columnAlias` to `ElasticSearch.Column#legacyName`.
+* Add Python HTTPX module component ID(7019).
+* Migrate tests from junit 4 to junit 5.
 * Support Amazon DynamoDB monitoring.
 
 #### UI

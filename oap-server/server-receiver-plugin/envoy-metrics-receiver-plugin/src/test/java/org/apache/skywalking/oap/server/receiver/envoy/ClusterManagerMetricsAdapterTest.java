@@ -19,16 +19,16 @@
 package org.apache.skywalking.oap.server.receiver.envoy;
 
 import io.prometheus.client.Metrics;
-import java.util.HashMap;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.receiver.envoy.als.mx.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.metrics.adapters.ClusterManagerMetricsAdapter;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 
-import static org.hamcrest.CoreMatchers.equalTo;
+import java.util.HashMap;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class ClusterManagerMetricsAdapterTest {
 
@@ -39,7 +39,7 @@ public class ClusterManagerMetricsAdapterTest {
     private Metrics.MetricFamily cbNameInboundFQDN = Metrics.MetricFamily.newBuilder().setName("cluster.inbound|9080||.upstream_cx_total").build();
 
     @SneakyThrows
-    @Before
+    @BeforeEach
     public void setUp() {
         Whitebox.setInternalState(FieldsHelper.SINGLETON, "initialized", false);
         EnvoyMetricReceiverConfig config = new EnvoyMetricReceiverConfig();
@@ -50,28 +50,24 @@ public class ClusterManagerMetricsAdapterTest {
     @Test
     public void testAdaptMetricsName() {
 
-        Assert.assertThat(clusterManagerMetricsAdapter.adaptMetricsName(generalName), equalTo("envoy_cluster_metrics"));
+        assertThat(clusterManagerMetricsAdapter.adaptMetricsName(generalName)).isEqualTo("envoy_cluster_metrics");
     }
 
     @Test
     public void testAdaptLabels() {
 
-        Assert.assertThat(
-            clusterManagerMetricsAdapter.adaptLabels(generalName, new HashMap<>()).toString(),
-            equalTo("{cluster_name=-.sds-grpc.-, metrics_name=" + generalName.getName() + "}")
-        );
-        Assert.assertThat(
-            clusterManagerMetricsAdapter.adaptLabels(cbNameOutboundFQDN, new HashMap<>()).toString(),
-            equalTo("{cluster_name=*.reviews.default, metrics_name=" + cbNameOutboundFQDN.getName()  + "}")
-        );
-        Assert.assertThat(
-            clusterManagerMetricsAdapter.adaptLabels(cbNameOutboundFQDNSubset, new HashMap<>()).toString(),
-            equalTo("{cluster_name=v1.reviews.default, metrics_name=" + cbNameOutboundFQDNSubset.getName()  + "}")
-        );
-        Assert.assertThat(
-            clusterManagerMetricsAdapter.adaptLabels(cbNameInboundFQDN, new HashMap<>()).toString(),
-            equalTo("{cluster_name=-.inbound:9080.-, metrics_name=" + cbNameInboundFQDN.getName()  + "}")
-        );
+        assertThat(
+                clusterManagerMetricsAdapter.adaptLabels(generalName, new HashMap<>()).toString()
+        ).isEqualTo("{cluster_name=-.sds-grpc.-, metrics_name=" + generalName.getName() + "}");
+        assertThat(
+                clusterManagerMetricsAdapter.adaptLabels(cbNameOutboundFQDN, new HashMap<>()).toString()
+        ).isEqualTo("{cluster_name=*.reviews.default, metrics_name=" + cbNameOutboundFQDN.getName() + "}");
+        assertThat(
+                clusterManagerMetricsAdapter.adaptLabels(cbNameOutboundFQDNSubset, new HashMap<>()).toString()
+        ).isEqualTo("{cluster_name=v1.reviews.default, metrics_name=" + cbNameOutboundFQDNSubset.getName() + "}");
+        assertThat(
+                clusterManagerMetricsAdapter.adaptLabels(cbNameInboundFQDN, new HashMap<>()).toString()
+        ).isEqualTo("{cluster_name=-.inbound:9080.-, metrics_name=" + cbNameInboundFQDN.getName() + "}");
 
     }
 }

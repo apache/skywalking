@@ -18,14 +18,6 @@
 
 package org.apache.skywalking.oap.server.configuration.apollo;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Reader;
-import java.time.Duration;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpDelete;
@@ -35,23 +27,36 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.yaml.snakeyaml.Yaml;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import java.time.Duration;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
+@Testcontainers
 public class ITApolloConfigurationTest {
     private final Yaml yaml = new Yaml();
     private final String token = "f71f002a4ff9845639ef655ee7019759e31449de";
@@ -61,7 +66,7 @@ public class ITApolloConfigurationTest {
     private String baseUrl;
     private ApolloConfigurationTestProvider provider;
 
-    @ClassRule
+    @Container
     public final static DockerComposeContainer<?> ENVIRONMENT =
         new DockerComposeContainer<>(new File(ITApolloConfigurationTest.class
                                                 .getClassLoader()
@@ -73,7 +78,7 @@ public class ITApolloConfigurationTest {
                                     .withStartupTimeout(Duration.ofSeconds(100))
             );
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         String metaHost = ENVIRONMENT.getServiceHost("apollo-config-and-portal", 8080);
         String metaPort = ENVIRONMENT.getServicePort("apollo-config-and-portal", 8080).toString();
@@ -99,7 +104,8 @@ public class ITApolloConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Test(timeout = 100000)
+    @Test
+    @Timeout(100)
     public void shouldReadUpdated() {
         try {
             assertNull(provider.watcher.value());
@@ -148,7 +154,8 @@ public class ITApolloConfigurationTest {
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
-    @Test(timeout = 100000)
+    @Test
+    @Timeout(100)
     public void shouldReadUpdated4Group() {
         try {
             assertEquals("{}", provider.groupWatcher.groupItems().toString());

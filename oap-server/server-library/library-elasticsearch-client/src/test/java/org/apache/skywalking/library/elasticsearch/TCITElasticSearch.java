@@ -17,13 +17,6 @@
 
 package org.apache.skywalking.library.elasticsearch;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.library.elasticsearch.client.TemplateClient;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
@@ -36,29 +29,30 @@ import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.awaitility.Duration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.utility.DockerImageName;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RequiredArgsConstructor
-@RunWith(Parameterized.class)
 public class TCITElasticSearch {
-
-    @Parameterized.Parameters(name = "version: {0}")
     public static Collection<Object[]> es() {
+        // noinspection resource
         return Arrays.asList(new Object[][] {
             {
                 "ElasticSearch 6.3.2",
@@ -90,9 +84,7 @@ public class TCITElasticSearch {
                 "ElasticSearch 8.1.0",
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
-                        .withTag("8.1.0")
-                        .asCompatibleSubstituteFor(
-                            "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                        .withTag("8.1.0"))
                                 .withEnv("xpack.security.enabled", "false")
             },
             {
@@ -118,29 +110,18 @@ public class TCITElasticSearch {
         });
     }
 
-    @Parameterized.Parameter
-    public String ignored;
-    @Parameterized.Parameter(1)
-    public ElasticsearchContainer server;
-    private ElasticSearch client;
-
-    @Before
-    public void setup() {
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testTemplate(final String ignored,
+                             final ElasticsearchContainer server) {
         server.start();
 
-        client = ElasticSearch.builder()
-                              .endpoints(server.getHttpHostAddress())
-                              .build();
+        final ElasticSearch client =
+                ElasticSearch.builder()
+                        .endpoints(server.getHttpHostAddress())
+                        .build();
         client.connect();
-    }
 
-    @After
-    public void tearDown() {
-        server.stop();
-    }
-
-    @Test
-    public void testTemplate() {
         final String name = "test-template";
         final TemplateClient templateClient = client.templates();
 
@@ -174,10 +155,22 @@ public class TCITElasticSearch {
             .map(Mappings::getSource)
             .map(Mappings.Source::getExcludes)
             .hasValue(mappings.getSource().getExcludes());
+
+        server.close();
     }
 
-    @Test
-    public void testIndex() {
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testIndex(final String ignored,
+                          final ElasticsearchContainer server) {
+        server.start();
+
+        final ElasticSearch client =
+                ElasticSearch.builder()
+                        .endpoints(server.getHttpHostAddress())
+                        .build();
+        client.connect();
+
         final String index = "test-index";
         assertFalse(client.index().exists(index));
         assertFalse(client.index().get(index).isPresent());
@@ -186,10 +179,22 @@ public class TCITElasticSearch {
         assertNotNull(client.index().get(index));
         assertTrue(client.index().delete(index));
         assertFalse(client.index().get(index).isPresent());
+
+        server.close();
     }
 
-    @Test
-    public void testDoc() {
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testDoc(final String ignored,
+                        final ElasticsearchContainer server) {
+        server.start();
+
+        final ElasticSearch client =
+                ElasticSearch.builder()
+                        .endpoints(server.getHttpHostAddress())
+                        .build();
+        client.connect();
+
         final String index = "test-index";
         assertTrue(client.index().create(index, null, null));
 
@@ -208,10 +213,22 @@ public class TCITElasticSearch {
         assertTrue(client.documents().get(index, type, idWithSpace).isPresent());
         assertEquals(client.documents().get(index, type, idWithSpace).get().getId(), idWithSpace);
         assertEquals(client.documents().get(index, type, idWithSpace).get().getSource(), doc);
+
+        server.close();
     }
 
-    @Test
-    public void testDocUpdate() {
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testDocUpdate(final String ignored,
+                              final ElasticsearchContainer server) {
+        server.start();
+
+        final ElasticSearch client =
+                ElasticSearch.builder()
+                        .endpoints(server.getHttpHostAddress())
+                        .build();
+        client.connect();
+
         final String index = "test-index-update";
         assertTrue(client.index().create(index, null, null));
 
@@ -242,11 +259,23 @@ public class TCITElasticSearch {
                 .build(),
             null);
         assertEquals(client.documents().get(index, type, idWithSpace).get().getSource(), updatedDoc);
+
+        server.close();
     }
 
     @SuppressWarnings("unchecked")
-    @Test
-    public void testSearch() {
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testSearch(final String ignored,
+                           final ElasticsearchContainer server) {
+        server.start();
+
+        final ElasticSearch client =
+                ElasticSearch.builder()
+                        .endpoints(server.getHttpHostAddress())
+                        .build();
+        client.connect();
+
         final String index = "test-index";
         final Mappings.Source sourceConf = new Mappings.Source();
         sourceConf.getExcludes().add("key3");
@@ -292,7 +321,7 @@ public class TCITElasticSearch {
             );
             assertEquals(1, response.getHits().getTotal());
             assertEquals("val1", response.getHits().iterator().next().getSource().get("key1"));
-            assertNull("indexOnly fields should not be stored", response.getHits().iterator().next().getSource().get("key3"));
+            assertNull(response.getHits().iterator().next().getSource().get("key3"), "indexOnly fields should not be stored");
         });
 
         await().atMost(Duration.ONE_MINUTE)
@@ -337,11 +366,14 @@ public class TCITElasticSearch {
                    indexIdsGroup.put("test-index", Arrays.asList("id1", "id2"));
                    Optional<Documents> documents = client.documents().mget(type, indexIdsGroup);
                    Map<String, Map<String, Object>> result = new HashMap<>();
+                   assertThat(documents).isPresent();
                    for (final Document document : documents.get()) {
                        result.put(document.getId(), document.getSource());
                    }
                    assertEquals(2, result.get("id1").size());
                    assertEquals(2, result.get("id2").size());
                });
+
+        server.close();
     }
 }

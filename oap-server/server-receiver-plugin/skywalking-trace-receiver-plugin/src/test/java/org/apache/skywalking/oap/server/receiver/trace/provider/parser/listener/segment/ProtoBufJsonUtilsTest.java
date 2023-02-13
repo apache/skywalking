@@ -24,8 +24,8 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ProtoBufJsonUtilsTest {
     @Test
@@ -87,9 +87,9 @@ public class ProtoBufJsonUtilsTest {
         SegmentObject.Builder segBuilder = SegmentObject.newBuilder();
         ProtoBufJsonUtils.fromJSON(json, segBuilder);
         SegmentObject segmentObject = segBuilder.build();
-        Assert.assertEquals("mocktraceid", segmentObject.getTraceId());
-        Assert.assertEquals(2, segmentObject.getSpansCount());
-        Assert.assertEquals(SpanLayer.Http, segmentObject.getSpans(0).getSpanLayer());
+        Assertions.assertEquals("mocktraceid", segmentObject.getTraceId());
+        Assertions.assertEquals(2, segmentObject.getSpansCount());
+        Assertions.assertEquals(SpanLayer.Http, segmentObject.getSpans(0).getSpanLayer());
 
     }
 
@@ -101,6 +101,6 @@ public class ProtoBufJsonUtilsTest {
             "}";
         Command command = Command.newBuilder().build();
         final Commands nextCommands = Commands.newBuilder().addCommands(command).build();
-        Assert.assertEquals(json, ProtoBufJsonUtils.toJSON(nextCommands));
+        Assertions.assertEquals(json, ProtoBufJsonUtils.toJSON(nextCommands));
     }
 }
