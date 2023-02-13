@@ -20,33 +20,21 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.util.JsonFormat;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.powermock.reflect.Whitebox;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Collection;
-import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.powermock.reflect.Whitebox;
 
 import static org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8SALSServiceMeshHTTPAnalysisTest.getResourceAsStream;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(Parameterized.class)
 public class FieldsHelperTest {
-
-    @Parameterized.Parameter()
-    public String mapping;
-
-    @Parameterized.Parameter(1)
-    public String expectedServiceName;
-
-    @Parameterized.Parameter(2)
-    public String expectedServiceInstanceName;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
@@ -87,13 +75,14 @@ public class FieldsHelperTest {
         });
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Whitebox.setInternalState(FieldsHelper.SINGLETON, "initialized", false);
     }
 
-    @Test
-    public void testFormat() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testFormat(String mapping, String expectedServiceName, String expectedServiceInstanceName) throws Exception {
         try (final InputStreamReader isr = new InputStreamReader(getResourceAsStream("field-helper.msg"))) {
             final StreamAccessLogsMessage.Builder requestBuilder = StreamAccessLogsMessage.newBuilder();
             JsonFormat.parser().merge(isr, requestBuilder);

@@ -21,40 +21,45 @@ package org.apache.skywalking.oap.server.configuration.consul;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.KeyValueClient;
+import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
-import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
-import org.yaml.snakeyaml.Yaml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Testcontainers
 public class ITConsulConfigurationTest {
     private final Yaml yaml = new Yaml();
 
     private ConsulConfigurationTestProvider provider;
 
-    @Rule
+    @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("consul:0.9"))
             .waitingFor(Wait.forLogMessage(".*Synced node info.*", 1))
-            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0");
+            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0")
+            .withExposedPorts(8500);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         System.setProperty("consul.address", container.getHost() + ":" + container.getMappedPort(8500));
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
@@ -68,7 +73,8 @@ public class ITConsulConfigurationTest {
         assertNotNull(provider);
     }
 
-    @Test(timeout = 60000)
+    @Test
+    @Timeout(60)
     public void shouldReadUpdated() {
         assertNull(provider.watcher.value());
 
@@ -94,7 +100,8 @@ public class ITConsulConfigurationTest {
         assertNull(provider.watcher.value());
     }
 
-    @Test(timeout = 30000)
+    @Test
+    @Timeout(30)
     public void shouldReadUpdated4Group() {
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
 

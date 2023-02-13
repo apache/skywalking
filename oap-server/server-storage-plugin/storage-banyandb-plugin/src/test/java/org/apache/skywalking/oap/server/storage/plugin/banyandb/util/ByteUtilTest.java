@@ -18,27 +18,27 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ByteUtilTest {
     @Test
     public void testConvertDoubleAndBackOnce() {
         double pi = 3.14159;
         byte[] data = ByteUtil.double2Bytes(pi);
-        Assert.assertEquals(8, data.length);
-        Assert.assertEquals(pi, ByteUtil.bytes2Double(data), 0.00001);
+        Assertions.assertEquals(8, data.length);
+        Assertions.assertEquals(pi, ByteUtil.bytes2Double(data), 0.00001);
     }
 
     @Test
     public void testConvertDoubleAndBackTwice() {
         double pi = 3.14159;
         byte[] binaryPI = ByteUtil.double2Bytes(pi);
-        Assert.assertEquals(8, binaryPI.length);
-        Assert.assertEquals(pi, ByteUtil.bytes2Double(binaryPI), 0.00001);
+        Assertions.assertEquals(8, binaryPI.length);
+        Assertions.assertEquals(pi, ByteUtil.bytes2Double(binaryPI), 0.00001);
         double e = 2.71828;
         byte[] binaryE = ByteUtil.double2Bytes(e);
-        Assert.assertEquals(8, binaryE.length);
-        Assert.assertEquals(e, ByteUtil.bytes2Double(binaryE), 0.00001);
+        Assertions.assertEquals(8, binaryE.length);
+        Assertions.assertEquals(e, ByteUtil.bytes2Double(binaryE), 0.00001);
     }
 }

@@ -18,20 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 public class ShardingRulesTest {
     private DateTime currentDate;
 
-    @Before
+    @BeforeEach
     public void init() {
         currentDate = DateTimeFormat.forPattern("yyyyMMdd").parseDateTime("20220919");
     }
@@ -62,7 +63,7 @@ public class ShardingRulesTest {
             "SHARDING_COLUMN=time_bucket," + System.lineSeparator() +
             "SHARDING_ALGORITHM(TYPE(NAME=\"interval\"," + System.lineSeparator() +
             "PROPERTIES(\"datetime-pattern\"=\"yyyyMMddHHmmss\",\"datetime-interval-unit\"=\"days\",\"datetime-interval-amount\"=\"1\",\"sharding-suffix-pattern\"=\"yyyyMMdd\",\"datetime-lower\"=\"20220101000000\",\"datetime-upper\"=\"20991201000000\")))))";
-        Assert.assertEquals(expectedRule, rule);
+        Assertions.assertEquals(expectedRule, rule);
     }
 
     @Test
@@ -96,6 +97,6 @@ public class ShardingRulesTest {
             "if (100000000000L < time_bucket && time_bucket < 999999999999L) {return time_bucket.intdiv(100*100);};" +
             "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);};" +
             "}\")))))";
-        Assert.assertEquals(expectedRule, rule);
+        Assertions.assertEquals(expectedRule, rule);
     }
 }

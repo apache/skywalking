@@ -18,33 +18,34 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.yaml.snakeyaml.Yaml;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
+
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
-import org.yaml.snakeyaml.Yaml;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@ExtendWith(SystemStubsExtension.class)
 public class PropertyPlaceholderHelperTest {
     private PropertyPlaceholderHelper placeholderHelper;
-    private Properties properties = new Properties();
+    private final Properties properties = new Properties();
     private final Yaml yaml = new Yaml();
 
-    /**
-     * The EnvironmentVariables rule allows you to set environment variables for your test. All changes to environment
-     * variables are reverted after the test.
-     */
-    @Rule
-    public final EnvironmentVariables environmentVariables = new EnvironmentVariables().set("REST_PORT", "12801");
+    @SystemStub
+    private final EnvironmentVariables justForSideEffect = new EnvironmentVariables().set("REST_PORT", "12801");
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public void init() throws FileNotFoundException {
         Reader applicationReader = ResourceUtils.read("application.yml");
         Map<String, Map<String, Object>> moduleConfig = yaml.loadAs(applicationReader, Map.class);
@@ -67,13 +68,13 @@ public class PropertyPlaceholderHelperTest {
     @Test
     public void testDataType() {
         //tests that do not use ${name} to set config.
-        Assert.assertEquals("grpc.skywalking.apache.org", yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("gRPCHost"), properties)));
+        assertEquals("grpc.skywalking.apache.org", yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("gRPCHost"), properties)));
 
         //tests that use ${REST_HOST:0.0.0.0} but not set REST_HOST in environmentVariables.
-        Assert.assertEquals("0.0.0.0", yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restHost"), properties)));
+        assertEquals("0.0.0.0", yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restHost"), properties)));
 
         //tests that use ${REST_PORT:12800} and set REST_PORT in environmentVariables.
-        Assert.assertEquals((Integer) 12801, yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
+        assertEquals((Integer) 12801, yaml.load(placeholderHelper.replacePlaceholders(properties.getProperty("restPort"), properties)));
     }
 
     @Test
@@ -82,17 +83,11 @@ public class PropertyPlaceholderHelperTest {
         Properties properties = new Properties();
         String resultString = propertyPlaceholderHelper.replacePlaceholders("&${[}7", properties);
 
-        Assert.assertEquals(0, properties.size());
-        Assert.assertTrue(properties.isEmpty());
+        assertEquals(0, properties.size());
+        Assertions.assertTrue(properties.isEmpty());
 
-        Assert.assertNotNull(resultString);
-        Assert.assertEquals("&${[}7", resultString);
-    }
-
-    @After
-    public void afterTest() {
-        //revert environment variables changes after the test for safe.
-        environmentVariables.clear("REST_HOST");
+        assertNotNull(resultString);
+        assertEquals("&${[}7", resultString);
     }
 
     private void selectConfig(final Map<String, Object> configuration) {

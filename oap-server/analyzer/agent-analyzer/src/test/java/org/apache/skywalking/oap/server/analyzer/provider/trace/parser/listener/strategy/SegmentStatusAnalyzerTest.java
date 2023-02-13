@@ -20,9 +20,9 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_ENTRY_SPAN;
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.strategy.SegmentStatusStrategy.FROM_FIRST_SPAN;
@@ -35,7 +35,7 @@ public class SegmentStatusAnalyzerTest {
     private SpanObject localFirstSpan;
     private SpanObject localErrorSpan;
 
-    @Before
+    @BeforeEach
     public void prepare() {
         entryErrorSpan = SpanObject.newBuilder().setIsError(true).setSpanType(SpanType.Entry).setSpanId(0).build();
         entryNormalSpan = SpanObject.newBuilder().setIsError(false).setSpanType(SpanType.Entry).setSpanId(0).build();
@@ -46,27 +46,27 @@ public class SegmentStatusAnalyzerTest {
     @Test
     public void fromSpanStatus() {
         SegmentStatusAnalyzer exceptionAnalyzer = FROM_SPAN_STATUS.getExceptionAnalyzer();
-        Assert.assertTrue(exceptionAnalyzer.isError(entryErrorSpan));
-        Assert.assertFalse(exceptionAnalyzer.isError(entryNormalSpan));
-        Assert.assertTrue(exceptionAnalyzer.isError(localErrorSpan));
-        Assert.assertTrue(exceptionAnalyzer.isError(localFirstSpan));
+        Assertions.assertTrue(exceptionAnalyzer.isError(entryErrorSpan));
+        Assertions.assertFalse(exceptionAnalyzer.isError(entryNormalSpan));
+        Assertions.assertTrue(exceptionAnalyzer.isError(localErrorSpan));
+        Assertions.assertTrue(exceptionAnalyzer.isError(localFirstSpan));
     }
 
     @Test
     public void fromEntrySpan() {
         SegmentStatusAnalyzer exceptionAnalyzer = FROM_ENTRY_SPAN.getExceptionAnalyzer();
-        Assert.assertTrue(exceptionAnalyzer.isError(entryErrorSpan));
-        Assert.assertFalse(exceptionAnalyzer.isError(entryNormalSpan));
-        Assert.assertFalse(exceptionAnalyzer.isError(localErrorSpan));
-        Assert.assertFalse(exceptionAnalyzer.isError(localFirstSpan));
+        Assertions.assertTrue(exceptionAnalyzer.isError(entryErrorSpan));
+        Assertions.assertFalse(exceptionAnalyzer.isError(entryNormalSpan));
+        Assertions.assertFalse(exceptionAnalyzer.isError(localErrorSpan));
+        Assertions.assertFalse(exceptionAnalyzer.isError(localFirstSpan));
     }
 
     @Test
     public void fromFirstSpan() {
         SegmentStatusAnalyzer exceptionAnalyzer = FROM_FIRST_SPAN.getExceptionAnalyzer();
-        Assert.assertTrue(exceptionAnalyzer.isError(entryErrorSpan));
-        Assert.assertFalse(exceptionAnalyzer.isError(entryNormalSpan));
-        Assert.assertFalse(exceptionAnalyzer.isError(localErrorSpan));
-        Assert.assertTrue(exceptionAnalyzer.isError(localFirstSpan));
+        Assertions.assertTrue(exceptionAnalyzer.isError(entryErrorSpan));
+        Assertions.assertFalse(exceptionAnalyzer.isError(entryNormalSpan));
+        Assertions.assertFalse(exceptionAnalyzer.isError(localErrorSpan));
+        Assertions.assertTrue(exceptionAnalyzer.isError(localFirstSpan));
     }
 }

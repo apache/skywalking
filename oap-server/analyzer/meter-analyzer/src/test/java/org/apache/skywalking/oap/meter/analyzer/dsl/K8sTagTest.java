@@ -27,10 +27,6 @@ import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodStatus;
 import io.kubernetes.client.openapi.models.V1Service;
 import io.kubernetes.client.openapi.models.V1ServiceSpec;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
 import io.kubernetes.client.openapi.models.V1ServiceStatus;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -40,46 +36,32 @@ import org.apache.skywalking.library.kubernetes.KubernetesServices;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.dsl.tagOpt.Retag;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.powermock.reflect.Whitebox;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+
 import static com.google.common.collect.ImmutableMap.of;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.when;
 
 @Slf4j
-@PowerMockIgnore({"javax.net.ssl.*", "javax.management.*"})
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(Parameterized.class)
-@PrepareForTest({KubernetesPods.class, KubernetesServices.class, KubernetesClient.class})
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.WARN)
 public class K8sTagTest {
-
-    @Parameterized.Parameter
-    public String name;
-
-    @Parameterized.Parameter(1)
-    public ImmutableMap<String, SampleFamily> input;
-
-    @Parameterized.Parameter(2)
-    public String expression;
-
-    @Parameterized.Parameter(3)
-    public Result want;
-
-    @Parameterized.Parameter(4)
-    public boolean isThrow;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
@@ -255,10 +237,12 @@ public class K8sTagTest {
             });
     }
 
+    private MockedStatic<KubernetesClient> kubernetesClientMockedStatic;
+
     @SneakyThrows
-    @Before
+    @BeforeEach
     public void setup() {
-        PowerMockito.mockStatic(KubernetesClient.class);
+        kubernetesClientMockedStatic = Mockito.mockStatic(KubernetesClient.class);
 
         Whitebox.setInternalState(KubernetesServices.class, "INSTANCE",
                                   Mockito.mock(KubernetesServices.class)
@@ -267,31 +251,37 @@ public class K8sTagTest {
                                   Mockito.mock(KubernetesPods.class)
         );
 
-        PowerMockito.when(KubernetesServices.INSTANCE.list()).thenReturn(ImmutableList.of(
+        when(KubernetesServices.INSTANCE.list()).thenReturn(ImmutableList.of(
                 mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
                 mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2")));
         ImmutableList.of(
             mockService("nginx-service", "default", of("run", "nginx"), "2.2.2.1"),
             mockService("kube-state-metrics", "kube-system", of("run", "kube-state-metrics"), "2.2.2.2"))
             .forEach(svc ->
-                PowerMockito
-                .when(KubernetesServices.INSTANCE.findByID(ObjectID.builder().namespace(svc.getMetadata().getNamespace()).name(svc.getMetadata().getName()).build()))
+                when(KubernetesServices.INSTANCE.findByID(ObjectID.builder().namespace(svc.getMetadata().getNamespace()).name(svc.getMetadata().getName()).build()))
                 .thenReturn(Optional.of(svc))
             );
         ImmutableList.of(
             mockPod("my-nginx-5dc4865748-mbczh", "default", of("run", "nginx"), "1.1.1.1"),
             mockPod("kube-state-metrics-6f979fd498-z7xwx", "kube-system", of("run", "kube-state-metrics"), "1.1.1.2"))
             .forEach(pod -> {
-                PowerMockito
-                .when(KubernetesPods.INSTANCE.findByIP(pod.getStatus().getPodIP()))
-                .thenReturn(Optional.of(pod));
-                PowerMockito
-                .when(KubernetesPods.INSTANCE.findByObjectID(ObjectID.builder().name(pod.getMetadata().getName()).namespace(pod.getMetadata().getNamespace()).build())).thenReturn(Optional.of(pod));
+                when(KubernetesPods.INSTANCE.findByIP(pod.getStatus().getPodIP())).thenReturn(Optional.of(pod));
+                when(KubernetesPods.INSTANCE.findByObjectID(ObjectID.builder().name(pod.getMetadata().getName()).namespace(pod.getMetadata().getNamespace()).build())).thenReturn(Optional.of(pod));
         });
     }
 
-    @Test
-    public void test() {
+    @AfterEach
+    public void after() {
+        kubernetesClientMockedStatic.close();
+    }
+
+    @ParameterizedTest(name = "{index}: {0}")
+    @MethodSource("data")
+    public void test(String name,
+                     ImmutableMap<String, SampleFamily> input,
+                     String expression,
+                     Result want,
+                     boolean isThrow) {
         Expression e = DSL.parse(expression);
         Result r = null;
         try {
@@ -306,7 +296,7 @@ public class K8sTagTest {
         if (isThrow) {
             fail("Should throw something");
         }
-        assertThat(r, is(want));
+        assertThat(r).isEqualTo(want);
     }
 
     private V1Service mockService(String name, String namespace, Map<String, String> selector, String ipAddress) {

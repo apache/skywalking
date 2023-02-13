@@ -23,21 +23,22 @@ import com.google.gson.JsonArray;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
-import com.linecorp.armeria.testing.junit4.server.ServerRule;
+import com.linecorp.armeria.testing.junit5.server.ServerExtension;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
 
 public class WebhookCallbackTest {
-    private final AtomicBoolean isSuccess = new AtomicBoolean();
+    private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
 
-    @Rule
-    public final ServerRule server = new ServerRule() {
+    @RegisterExtension
+    public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
             sb.service("/webhook/receiveAlarm", (ctx, req) -> HttpResponse.from(
@@ -45,7 +46,7 @@ public class WebhookCallbackTest {
                     final String content = r.content().toStringUtf8();
                     final JsonArray elements = new Gson().fromJson(content, JsonArray.class);
                     if (elements.size() == 2) {
-                        isSuccess.set(true);
+                        IS_SUCCESS.set(true);
                         return HttpResponse.of(HttpStatus.OK);
                     }
 
@@ -58,7 +59,7 @@ public class WebhookCallbackTest {
     @Test
     public void testWebhook() {
         List<String> remoteEndpoints = new ArrayList<>();
-        remoteEndpoints.add("http://127.0.0.1:" + server.httpPort() + "/webhook/receiveAlarm");
+        remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
         Rules rules = new Rules();
         rules.setWebhooks(remoteEndpoints);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
@@ -76,6 +77,6 @@ public class WebhookCallbackTest {
         alarmMessages.add(anotherAlarmMessage);
         webhookCallback.doAlarm(alarmMessages);
 
-        Assert.assertTrue(isSuccess.get());
+        Assertions.assertTrue(IS_SUCCESS.get());
     }
 }

@@ -18,15 +18,16 @@
 
 package org.apache.skywalking.oap.server.configuration.api;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 
 /**
  * The default implementor of Config Watcher register.
@@ -34,9 +35,9 @@ import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtec
 @Slf4j
 public abstract class ConfigWatcherRegister implements DynamicConfigurationService {
     public static final String LINE_SEPARATOR = System.getProperty("line.separator", "\n");
-    private Register singleConfigChangeWatcherRegister = new Register();
+    private final Register singleConfigChangeWatcherRegister = new Register();
     @Getter
-    private Register groupConfigChangeWatcherRegister = new Register();
+    private final Register groupConfigChangeWatcherRegister = new Register();
     private volatile boolean isStarted = false;
     private final long syncPeriod;
 

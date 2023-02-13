@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.config.group.openapi;
 
-import java.io.IOException;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
 
 public class EndpointGroupingRuleReader4OpenapiTest {
 
@@ -36,62 +37,62 @@ public class EndpointGroupingRuleReader4OpenapiTest {
         //default x-sw-service-name x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
         // test direct lookup
         String endpointName = nameGrouping.format("serviceA", "GET:/products");
-        Assert.assertEquals("GET:/products", endpointName);
+        Assertions.assertEquals("GET:/products", endpointName);
 
         endpointName = nameGrouping.format("serviceA", "GET:/products/123");
-        Assert.assertEquals("GET:/products/{id}", endpointName);
+        Assertions.assertEquals("GET:/products/{id}", endpointName);
 
         endpointName = nameGrouping.format("serviceA", "GET:/products/123/abc/ef");
-        Assert.assertEquals("GET:/products/123/abc/ef", endpointName);
+        Assertions.assertEquals("GET:/products/123/abc/ef", endpointName);
 
         endpointName = nameGrouping.format("serviceA", "GET:/products/123/relatedProducts");
-        Assert.assertEquals("GET:/products/{id}/relatedProducts", endpointName);
+        Assertions.assertEquals("GET:/products/{id}/relatedProducts", endpointName);
 
         endpointName = nameGrouping.format("serviceA", "GET:/products/1/relatedProducts");
-        Assert.assertEquals("GET:/products/{id}/relatedProducts", endpointName);
+        Assertions.assertEquals("GET:/products/{id}/relatedProducts", endpointName);
 
         //test custom x-sw-service-name same x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
         endpointName = nameGrouping.format("serviceA-1", "POST:/customer");
-        Assert.assertEquals("POST:/customer", endpointName);
+        Assertions.assertEquals("POST:/customer", endpointName);
 
         endpointName = nameGrouping.format("serviceA-1", "<GET>:/customers/1");
-        Assert.assertEquals("<GET>:/customers/{id}", endpointName);
+        Assertions.assertEquals("<GET>:/customers/{id}", endpointName);
 
         //test different x-sw-endpoint-name-match-rule and x-sw-endpoint-name-format
         endpointName = nameGrouping.format("serviceB", "GET:/products");
-        Assert.assertEquals("/products:<GET>", endpointName);
+        Assertions.assertEquals("/products:<GET>", endpointName);
 
         endpointName = nameGrouping.format("serviceB", "GET:/products/asia/cn");
-        Assert.assertEquals("/products/{region}/{country}:<GET>", endpointName);
+        Assertions.assertEquals("/products/{region}/{country}:<GET>", endpointName);
 
         //test match priority, not match /products/{region}/{country}:<GET>
         endpointName = nameGrouping.format("serviceB", "GET:/products/12/relatedProducts");
-        Assert.assertEquals("/products/{id}/relatedProducts:<GET>", endpointName);
+        Assertions.assertEquals("/products/{id}/relatedProducts:<GET>", endpointName);
 
         //test not match, return the origin
         endpointName = nameGrouping.format("serviceA", "GET:/products/");
-        Assert.assertNotEquals("GET:/products", endpointName);
+        Assertions.assertNotEquals("GET:/products", endpointName);
 
         endpointName = nameGrouping.format("serviceA", "GET:/products/123/");
-        Assert.assertEquals("GET:/products/123/", endpointName);
+        Assertions.assertEquals("GET:/products/123/", endpointName);
 
         endpointName = nameGrouping.format("serviceC", "GET:/products/123");
-        Assert.assertEquals("GET:/products/123", endpointName);
+        Assertions.assertEquals("GET:/products/123", endpointName);
 
         endpointName = nameGrouping.format("serviceA", "GET:/products/1/ratings/123");
-        Assert.assertEquals("GET:/products/1/ratings/123", endpointName);
+        Assertions.assertEquals("GET:/products/1/ratings/123", endpointName);
 
         endpointName = nameGrouping.format("serviceA-1", "<GET>:/customers/1/123");
-        Assert.assertEquals("<GET>:/customers/1/123", endpointName);
+        Assertions.assertEquals("<GET>:/customers/1/123", endpointName);
 
         endpointName = nameGrouping.format("serviceB", "/products/:<GET>");
-        Assert.assertEquals("/products/:<GET>", endpointName);
+        Assertions.assertEquals("/products/:<GET>", endpointName);
 
         endpointName = nameGrouping.format("serviceB", "{GET}:/products");
-        Assert.assertEquals("{GET}:/products", endpointName);
+        Assertions.assertEquals("{GET}:/products", endpointName);
 
         endpointName = nameGrouping.format("serviceB", "/products/1/2/3:<GET>");
-        Assert.assertEquals("/products/1/2/3:<GET>", endpointName);
+        Assertions.assertEquals("/products/1/2/3:<GET>", endpointName);
 
     }
 }

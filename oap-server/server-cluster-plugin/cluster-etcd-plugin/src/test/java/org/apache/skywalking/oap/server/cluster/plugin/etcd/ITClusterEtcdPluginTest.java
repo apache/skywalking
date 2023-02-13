@@ -22,28 +22,31 @@ import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.options.GetOption;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 
 @Slf4j
+@Testcontainers
 public class ITClusterEtcdPluginTest {
     private ClusterModuleEtcdConfig etcdConfig;
 
@@ -59,7 +62,7 @@ public class ITClusterEtcdPluginTest {
 
     private static final String SERVICE_NAME = "my-service";
 
-    @Rule
+    @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
             .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
@@ -68,9 +71,10 @@ public class ITClusterEtcdPluginTest {
                 "etcd",
                 "--advertise-client-urls", "http://0.0.0.0:2379",
                 "--listen-client-urls", "http://0.0.0.0:2379"
-            );
+            )
+            .withExposedPorts(2379);
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
         String baseUrl = "http://" + container.getHost() + ":" + container.getMappedPort(2379);
         System.setProperty("etcd.endpoint", baseUrl);

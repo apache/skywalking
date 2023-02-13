@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
-import java.util.Iterator;
-import java.util.ServiceLoader;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.exporter.ExporterModule;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterProvider;
@@ -30,26 +28,29 @@ import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore
+@Disabled
 public class GRPCExporterProviderTest {
 
     private ServiceLoader<ModuleProvider> serviceLoader = ServiceLoader.load(ModuleProvider.class);
     private ModuleProvider grpcExporterProvider;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ModuleStartException {
         Iterator<ModuleProvider> moduleProviderIterator = serviceLoader.iterator();
         assertTrue(moduleProviderIterator.hasNext());

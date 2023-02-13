@@ -18,8 +18,9 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.sampling;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SamplingPolicySettingsReaderTest {
 
@@ -30,13 +31,13 @@ public class SamplingPolicySettingsReaderTest {
                                                                                    .getResourceAsStream(
                                                                                        "trace-sampling-policy-settings.yml"));
         SamplingPolicySettings settings = reader.readSettings();
-        Assert.assertEquals(settings.getDefaultPolicy().getRate().intValue(), 10000);
-        Assert.assertEquals(settings.getDefaultPolicy().getDuration().intValue(), -1);
+        assertEquals(settings.getDefaultPolicy().getRate().intValue(), 10000);
+        assertEquals(settings.getDefaultPolicy().getDuration().intValue(), -1);
 
-        Assert.assertEquals(settings.get("name1").getRate().intValue(), 1000);
-        Assert.assertEquals(settings.get("name1").getDuration().intValue(), 20000);
+        assertEquals(settings.get("name1").getRate().intValue(), 1000);
+        assertEquals(settings.get("name1").getDuration().intValue(), 20000);
 
-        Assert.assertEquals(settings.get("name2").getRate().intValue(), 2000);
-        Assert.assertEquals(settings.get("name2").getDuration().intValue(), 30000);
+        assertEquals(settings.get("name2").getRate().intValue(), 2000);
+        assertEquals(settings.get("name2").getDuration().intValue(), 30000);
     }
 }

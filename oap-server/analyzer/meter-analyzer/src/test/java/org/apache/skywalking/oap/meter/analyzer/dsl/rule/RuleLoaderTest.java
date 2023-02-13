@@ -21,29 +21,19 @@ package org.apache.skywalking.oap.meter.analyzer.dsl.rule;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
-
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Slf4j
-@RunWith(Parameterized.class)
 public class RuleLoaderTest {
-    @Parameterized.Parameter
-    public List<String> enabledRule;
-    @Parameterized.Parameter(1)
-    public int rulesNumber;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
                 {Arrays.asList("test-folder/*.yml"), 1},
@@ -67,10 +57,12 @@ public class RuleLoaderTest {
         });
     }
 
-    @Test
-    public void test() throws ModuleStartException, IOException {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void test(List<String> enabledRule,
+                     int rulesNumber) throws ModuleStartException, IOException {
         List<Rule> rules = Rules.loadRules("otel-rules", enabledRule);
-        assertThat(rules.size(), is(rulesNumber));
+        assertThat(rules.size()).isEqualTo(rulesNumber);
     }
 
 }

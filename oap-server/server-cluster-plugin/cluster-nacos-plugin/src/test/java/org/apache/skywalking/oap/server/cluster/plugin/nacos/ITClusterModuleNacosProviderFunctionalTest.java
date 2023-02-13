@@ -19,60 +19,62 @@
 package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
 import com.alibaba.nacos.api.naming.NamingService;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
-import org.apache.skywalking.oap.server.core.cluster.ClusterWatcher;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
+import org.apache.skywalking.oap.server.core.cluster.ClusterWatcher;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.security.*", "javax.net.ssl.*", "javax.management.*"})
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Testcontainers
+@ExtendWith(MockitoExtension.class)
 public class ITClusterModuleNacosProviderFunctionalTest {
 
     private String nacosAddress;
     private final String username = "nacos";
     private final String password = "nacos";
 
-    @Rule
+    @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
             .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
-            .withEnv(Collections.singletonMap("MODE", "standalone"));
+            .withEnv(Collections.singletonMap("MODE", "standalone"))
+            .withExposedPorts(8848);
 
     @Mock
     private ModuleManager moduleManager;
     @Mock
     private NoneTelemetryProvider telemetryProvider;
 
-    @Before
+    @BeforeEach
     public void before() {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());

@@ -19,16 +19,17 @@
 package org.apache.skywalking.oap.server.library.datacarrier.partition;
 
 import org.apache.skywalking.oap.server.library.datacarrier.SampleData;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ProducerThreadPartitionerTest {
     @Test
     public void testPartition() {
         int partitionNum = (int) Thread.currentThread().getId() % 10;
         ProducerThreadPartitioner<SampleData> partitioner = new ProducerThreadPartitioner<SampleData>();
-        Assert.assertEquals(partitioner.partition(10, new SampleData()), partitionNum);
-        Assert.assertEquals(partitioner.partition(10, new SampleData()), partitionNum);
-        Assert.assertEquals(partitioner.partition(10, new SampleData()), partitionNum);
+        assertEquals(partitioner.partition(10, new SampleData()), partitionNum);
+        assertEquals(partitioner.partition(10, new SampleData()), partitionNum);
+        assertEquals(partitioner.partition(10, new SampleData()), partitionNum);
     }
 }

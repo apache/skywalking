@@ -35,9 +35,8 @@ import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.Zabbix
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixProtocolType;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixRequest;
 import org.apache.skywalking.oap.server.receiver.zabbix.provider.protocol.bean.ZabbixResponse;
-import org.junit.Assert;
-import org.junit.Before;
-import org.mockito.Spy;
+import org.junit.jupiter.api.Assertions;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +50,7 @@ import static org.mockito.Mockito.when;
 
 public abstract class ZabbixBaseTest {
 
-    @Spy
+    @Mock
     private ChannelHandlerContext channelHandlerContext;
 
     private List<Object> requests;
@@ -67,7 +66,6 @@ public abstract class ZabbixBaseTest {
      */
     protected abstract ZabbixMetrics buildZabbixMetrics() throws Exception;
 
-    @Before
     public void setupMetrics() throws Throwable {
         zabbixMetrics = buildZabbixMetrics();
         requests = new ArrayList<>();
@@ -113,15 +111,15 @@ public abstract class ZabbixBaseTest {
         ZabbixResponse response = (ZabbixResponse) responses.get(inx);
 
         // Active Checks
-        Assert.assertEquals(itemNames.length, response.getActiveChecks().size());
+        Assertions.assertEquals(itemNames.length, response.getActiveChecks().size());
         for (String itemName : itemNames) {
             boolean found = false;
 
             for (final ZabbixResponse.ActiveChecks checks : response.getActiveChecks()) {
                 if (Objects.equals(checks.getKey(), itemName)) {
-                    Assert.assertTrue(checks.getDelay() > 0);
-                    Assert.assertTrue(checks.getLastlogsize() >= 0);
-                    Assert.assertTrue(checks.getMtime() >= 0);
+                    Assertions.assertTrue(checks.getDelay() > 0);
+                    Assertions.assertTrue(checks.getLastlogsize() >= 0);
+                    Assertions.assertTrue(checks.getMtime() >= 0);
                     found = true;
                 }
             }
@@ -140,16 +138,16 @@ public abstract class ZabbixBaseTest {
      * Verify Active checks item names with encoded
      */
     private void assertZabbixActiveChecksResponseWithEncoded(String body, String... itemNames) {
-        Assert.assertNotNull(body);
+        Assertions.assertNotNull(body);
         JsonElement bodyRoot = new Gson().fromJson(body, JsonElement.class);
         JsonObject rootObject = bodyRoot.getAsJsonObject();
         // Basic response status
-        Assert.assertEquals("success", rootObject.get("response").getAsString());
+        Assertions.assertEquals("success", rootObject.get("response").getAsString());
 
         // Active Checks
-        Assert.assertNotNull(rootObject.get("data"));
+        Assertions.assertNotNull(rootObject.get("data"));
         JsonArray activeChecks = rootObject.getAsJsonArray("data");
-        Assert.assertEquals(itemNames.length, activeChecks.size());
+        Assertions.assertEquals(itemNames.length, activeChecks.size());
         for (String itemName : itemNames) {
             boolean found = false;
 
@@ -157,9 +155,9 @@ public abstract class ZabbixBaseTest {
                 JsonObject curCheck = perCheck.getAsJsonObject();
                 String itemKey = curCheck.get("key").getAsString();
                 if (Objects.equals(itemKey, itemName)) {
-                    Assert.assertTrue(curCheck.get("delay").getAsInt() > 0);
-                    Assert.assertTrue(curCheck.get("lastlogsize").getAsInt() >= 0);
-                    Assert.assertTrue(curCheck.get("mtime").getAsInt() >= 0);
+                    Assertions.assertTrue(curCheck.get("delay").getAsInt() > 0);
+                    Assertions.assertTrue(curCheck.get("lastlogsize").getAsInt() >= 0);
+                    Assertions.assertTrue(curCheck.get("mtime").getAsInt() >= 0);
                     found = true;
                 }
             }
@@ -177,7 +175,7 @@ public abstract class ZabbixBaseTest {
         ZabbixResponse response = (ZabbixResponse) responses.get(inx);
 
         // Agent data info
-        Assert.assertTrue(StringUtil.isNotEmpty(response.getAgentData().getInfo()));
+        Assertions.assertTrue(StringUtil.isNotEmpty(response.getAgentData().getInfo()));
 
         encoder.encode(channelHandlerContext, response, null);
         String respBody = decoder.decodeToPayload(channelHandlerContext, (ByteBuf) responses.get(inx + 1));
@@ -188,14 +186,14 @@ public abstract class ZabbixBaseTest {
      * Verify Zabbix agent data response with encoded
      */
     public void assertZabbixAgentDataResponseWithEncoded(String body) {
-        Assert.assertNotNull(body);
+        Assertions.assertNotNull(body);
         JsonElement bodyRoot = new Gson().fromJson(body, JsonElement.class);
         JsonObject rootObject = bodyRoot.getAsJsonObject();
         // Basic response status
-        Assert.assertEquals("success", rootObject.get("response").getAsString());
+        Assertions.assertEquals("success", rootObject.get("response").getAsString());
 
         // Agent data
-        Assert.assertNotNull(rootObject.get("info"));
+        Assertions.assertNotNull(rootObject.get("info"));
     }
 
     /**
@@ -203,8 +201,8 @@ public abstract class ZabbixBaseTest {
      */
     public void assertZabbixActiveChecksRequest(int inx, String hostName) {
         ZabbixRequest request = assertZabbixRequestBasic(inx, ZabbixProtocolType.ACTIVE_CHECKS);
-        Assert.assertNotNull(request.getActiveChecks());
-        Assert.assertEquals(hostName, request.getActiveChecks().getHostName());
+        Assertions.assertNotNull(request.getActiveChecks());
+        Assertions.assertEquals(hostName, request.getActiveChecks().getHostName());
     }
 
     /**
@@ -213,20 +211,20 @@ public abstract class ZabbixBaseTest {
     public void assertZabbixAgentDataRequest(int inx, String hostName, String... keyNames) {
         ZabbixRequest request = assertZabbixRequestBasic(inx, ZabbixProtocolType.AGENT_DATA);
         List<ZabbixRequest.AgentData> agentDataList = request.getAgentDataList();
-        Assert.assertNotNull(agentDataList);
-        Assert.assertEquals(keyNames.length, agentDataList.size());
+        Assertions.assertNotNull(agentDataList);
+        Assertions.assertEquals(keyNames.length, agentDataList.size());
         for (String keyName : keyNames) {
             boolean found = false;
 
             for (ZabbixRequest.AgentData agentData : agentDataList) {
                 if (Objects.equals(keyName, agentData.getKey())) {
-                    Assert.assertEquals(hostName, agentData.getHost());
-                    Assert.assertTrue(NumberUtils.isParsable(agentData.getValue()) ?
+                    Assertions.assertEquals(hostName, agentData.getHost());
+                    Assertions.assertTrue(NumberUtils.isParsable(agentData.getValue()) ?
                         Double.parseDouble(agentData.getValue()) > 0 : StringUtil.isNotBlank(agentData.getValue()));
-                    Assert.assertTrue(agentData.getId() > 0);
-                    Assert.assertTrue(agentData.getClock() > 0);
-                    Assert.assertTrue(agentData.getNs() > 0);
-                    Assert.assertTrue(agentData.getState() == 0);
+                    Assertions.assertTrue(agentData.getId() > 0);
+                    Assertions.assertTrue(agentData.getClock() > 0);
+                    Assertions.assertTrue(agentData.getNs() > 0);
+                    Assertions.assertTrue(agentData.getState() == 0);
                     found = true;
                 }
             }
@@ -242,10 +240,10 @@ public abstract class ZabbixBaseTest {
      * Verify zabbix request basic info
      */
     private ZabbixRequest assertZabbixRequestBasic(int inx, ZabbixProtocolType protocolType) {
-        Assert.assertNotNull(requests);
-        Assert.assertTrue(requests.size() > inx);
+        Assertions.assertNotNull(requests);
+        Assertions.assertTrue(requests.size() > inx);
         ZabbixRequest request = (ZabbixRequest) requests.get(inx);
-        Assert.assertEquals(protocolType, request.getType());
+        Assertions.assertEquals(protocolType, request.getType());
         return request;
     }
 
