@@ -39,7 +39,7 @@ metricsRules:
     exp: (windows_cpu_time_total * 100).sum(['node_identifier_host_name' , 'mode']).rate('PT1M')
 
   #memory
-  - name: memory_total
+    - name: memory_total
     exp: windows_cs_physical_memory_bytes
   - name: memory_available
     exp: windows_os_physical_memory_free_bytes
