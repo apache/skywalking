@@ -18,18 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
-import java.io.File;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -84,52 +72,50 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.S
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingTraceQueryDAO;
 import org.joda.time.DateTime;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedStatic;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
+import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(Parameterized.class)
-@PowerMockIgnore({
-    "javax.net.*",
-    "javax.management.*",
-    "com.sun.org.apache.xerces.*",
-    "javax.xml.*", "org.xml.*",
-    "javax.management.*",
-    "org.w3c.*"
-})
-@PrepareForTest({DefaultScopeDefine.class})
 public class TCITShardingSphere {
-    @BeforeClass
+    private static MockedStatic<DefaultScopeDefine> DEFAULT_SCOPE_DEFINE_MOCKED_STATIC;
+
+    @BeforeAll
     public static void setup() {
-        PowerMockito.mockStatic(DefaultScopeDefine.class);
-        PowerMockito.when(DefaultScopeDefine.nameOf(1)).thenReturn("any");
+        DEFAULT_SCOPE_DEFINE_MOCKED_STATIC = mockStatic(DefaultScopeDefine.class);
+        DEFAULT_SCOPE_DEFINE_MOCKED_STATIC.when(() -> DefaultScopeDefine.nameOf(1)).thenReturn("any");
     }
 
-    @Parameterized.Parameter
-    public String version;
+    @AfterAll
+    public static void teardown() {
+        DEFAULT_SCOPE_DEFINE_MOCKED_STATIC.close();
+    }
 
-    @Parameterized.Parameter(1)
-    public DataSourceType dsType;
-
-    @Parameterized.Parameters(name = "version: {0}")
     public static Collection<Object[]> versions() {
         return Arrays.asList(new Object[][] {
             {
@@ -162,16 +148,16 @@ public class TCITShardingSphere {
     private DurationWithinTTL durationWithinTTL = DurationWithinTTL.INSTANCE;
     private final String countQuery = "SELECT COUNT(*) AS rc FROM ";
 
-    @Before
-    public void init() {
+    public void init(final String version,
+                     final DataSourceType dsType) {
         if (dsType.equals(DataSourceType.MYSQL)) {
-            startEnv("docker-compose-mysql.yml", 3306);
+            startEnv(version, "docker-compose-mysql.yml", 3306);
             initConnection("mysql", "/swtest?rewriteBatchedStatements=true", 3306, "root", "root@1234");
         }
         initTestData();
     }
 
-    private void startEnv(String dockerComposeName, int dsServicePort) {
+    private void startEnv(String version, String dockerComposeName, int dsServicePort) {
         environment = new DockerComposeContainer<>(new File(TCITShardingSphere.class
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
@@ -268,14 +254,17 @@ public class TCITShardingSphere {
     }
 
     @SneakyThrows
-    @After
+    @AfterEach
     public void after() {
         environment.stop();
     }
 
     @SneakyThrows
-    @Test
-    public void test() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void test(final String version,
+                     final DataSourceType dsType) {
+        init(version, dsType);
         trafficTest();
         metricsTest();
         tagsTest();
@@ -321,7 +310,7 @@ public class TCITShardingSphere {
         //Test traffic query
         JDBCMetadataQueryDAO metadataQueryDAO = new JDBCMetadataQueryDAO(ssClient, 100);
         List<Endpoint> endpoints = metadataQueryDAO.findEndpoint("", endpointTrafficA.getServiceId(), 100);
-        Assert.assertEquals(endpointTrafficA.getName(), endpoints.get(0).getName());
+        Assertions.assertEquals(endpointTrafficA.getName(), endpoints.get(0).getName());
         log.info("Traffic test passed.");
     }
 
@@ -368,8 +357,8 @@ public class TCITShardingSphere {
         topNCondition.setOrder(Order.DES);
 
         SelectedRecord top1Record = aggregationQueryDAO.sortMetrics(topNCondition, "value", duration, null).get(0);
-        Assert.assertEquals(serviceCpmMetricsB.getEntityId(), top1Record.getId());
-        Assert.assertEquals("200.0000", top1Record.getValue());
+        Assertions.assertEquals(serviceCpmMetricsB.getEntityId(), top1Record.getId());
+        Assertions.assertEquals("200.0000", top1Record.getValue());
 
         //Test metrics query
         ShardingMetricsQueryDAO metricsQueryDAO = new ShardingMetricsQueryDAO(ssClient);
@@ -379,11 +368,11 @@ public class TCITShardingSphere {
         metricsCondition.setEntity(entityA);
 
         long value = metricsQueryDAO.readMetricsValue(metricsCondition, "value", duration);
-        Assert.assertEquals(serviceCpmMetricsA.getValue(), value);
+        Assertions.assertEquals(serviceCpmMetricsA.getValue(), value);
 
         MetricsValues values = metricsQueryDAO.readMetricsValues(metricsCondition, "value", duration);
         String metricsId = serviceCpmMetricsA.getTimeBucket() + "_" + serviceCpmMetricsA.getEntityId();
-        Assert.assertEquals(serviceCpmMetricsA.getValue(), values.getValues().findValue(metricsId, 0));
+        Assertions.assertEquals(serviceCpmMetricsA.getValue(), values.getValues().findValue(metricsId, 0));
         log.info("Metrics test passed.");
     }
 
@@ -422,22 +411,22 @@ public class TCITShardingSphere {
         try (Connection ssConn = ssClient.getConnection()) {
             ResultSet rs = ssClient.executeQuery(ssConn, countQuery + TagAutocompleteData.INDEX_NAME);
             rs.next();
-            Assert.assertEquals(3, rs.getInt("rc"));
+            Assertions.assertEquals(3, rs.getInt("rc"));
         }
 
         // Test query
         JDBCTagAutoCompleteQueryDAO tagQueryDAO = new JDBCTagAutoCompleteQueryDAO(ssClient);
         Set<String> tagKeys = tagQueryDAO.queryTagAutocompleteKeys(TagType.TRACE, 10, duration);
-        Assert.assertEquals(searchableTag, tagKeys.iterator().next());
+        Assertions.assertEquals(searchableTag, tagKeys.iterator().next());
         Set<String> tagValues = tagQueryDAO.queryTagAutocompleteValues(TagType.TRACE, searchableTag, 10, duration);
-        Assert.assertEquals(2, tagValues.size());
+        Assertions.assertEquals(2, tagValues.size());
 
         // Test TTL
         historyDelete(model);
         try (Connection ssConn = ssClient.getConnection()) {
             ResultSet rs = ssClient.executeQuery(ssConn, countQuery + TagAutocompleteData.INDEX_NAME);
             rs.next();
-            Assert.assertEquals(2, rs.getInt("rc"));
+            Assertions.assertEquals(2, rs.getInt("rc"));
         }
         log.info("Tag auto complete data test passed.");
     }
@@ -490,10 +479,10 @@ public class TCITShardingSphere {
             null, null, 10, 0,
             TraceState.SUCCESS, QueryOrder.BY_START_TIME, Collections.singletonList(tag)
         );
-        Assert.assertEquals(segmentRecordA.getSegmentId(), traceBrief.getTraces().get(0).getSegmentId());
+        Assertions.assertEquals(segmentRecordA.getSegmentId(), traceBrief.getTraces().get(0).getSegmentId());
 
         List<SegmentRecord> segmentRecords = traceQueryDAO.queryByTraceId(segmentRecordA.getTraceId());
-        Assert.assertEquals(2, segmentRecords.size());
+        Assertions.assertEquals(2, segmentRecords.size());
         log.info("Records (Trace) test passed.");
     }
 
@@ -568,11 +557,11 @@ public class TCITShardingSphere {
         List<Call.CallDetail> callDetailsServerSide = queryDAO.loadServiceRelationsDetectedAtServerSide(
             duration, Arrays.asList(serviceIdB));
         //Service_A -----> Service_B
-        Assert.assertEquals(serviceIdB, callDetailsServerSide.get(0).getTarget());
+        Assertions.assertEquals(serviceIdB, callDetailsServerSide.get(0).getTarget());
         List<Call.CallDetail> callDetailsClientSide = queryDAO.loadServiceRelationDetectedAtClientSide(
             duration, Arrays.asList(serviceIdA));
         //HTTP_Client -----> Service_A -----> Service_B
-        Assert.assertEquals(2, callDetailsClientSide.size());
+        Assertions.assertEquals(2, callDetailsClientSide.size());
         log.info("Topology test passed.");
     }
 
@@ -585,7 +574,7 @@ public class TCITShardingSphere {
         ShardingRule outPutRule = loadShardingRule(model);
         outPutRule.setOperation("CREATE");
         //The rules in the database erased all `"`
-        Assert.assertEquals(inputRule.toShardingRuleSQL().replaceAll("\"", ""), outPutRule.toShardingRuleSQL());
+        Assertions.assertEquals(inputRule.toShardingRuleSQL().replaceAll("\"", ""), outPutRule.toShardingRuleSQL());
     }
 
     private void updateShardingRuleTest(Model model) throws StorageException {
@@ -596,7 +585,7 @@ public class TCITShardingSphere {
         ShardingRule outPutRule = loadShardingRule(model);
         outPutRule.setOperation("ALTER");
         //The rules in the database erased all `"`
-        Assert.assertEquals(inputRule.toShardingRuleSQL().replaceAll("\"", ""), outPutRule.toShardingRuleSQL());
+        Assertions.assertEquals(inputRule.toShardingRuleSQL().replaceAll("\"", ""), outPutRule.toShardingRuleSQL());
     }
 
     /**
@@ -628,7 +617,7 @@ public class TCITShardingSphere {
         try (Connection conn = dsClient.getConnection()) {
             for (String name : tables) {
                 ResultSet rset = conn.getMetaData().getTables(conn.getCatalog(), null, name, null);
-                Assert.assertTrue(rset.next());
+                Assertions.assertTrue(rset.next());
             }
         }
     }
@@ -672,15 +661,15 @@ public class TCITShardingSphere {
 
             ResultSet logicSet = ssClient.executeQuery(ssConn, countQuery + logicIndex);
             logicSet.next();
-            Assert.assertEquals(2, logicSet.getInt("rc"));
+            Assertions.assertEquals(2, logicSet.getInt("rc"));
 
             ResultSet physicalSet0 = dsClient0.executeQuery(ds0Conn, countQuery + physicalIndex);
             physicalSet0.next();
-            Assert.assertEquals(1, physicalSet0.getInt("rc"));
+            Assertions.assertEquals(1, physicalSet0.getInt("rc"));
 
             ResultSet physicalSet1 = dsClient1.executeQuery(ds1Conn, countQuery + physicalIndex);
             physicalSet1.next();
-            Assert.assertEquals(1, physicalSet1.getInt("rc"));
+            Assertions.assertEquals(1, physicalSet1.getInt("rc"));
 
             if (data.getClass().isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)) {
                 String additionalLogicIndex = data.getClass().getAnnotation(Stream.class).name();
@@ -689,17 +678,17 @@ public class TCITShardingSphere {
                 ResultSet additionalLogicSet = ssClient.executeQuery(
                     ssConn, countQuery + additionalLogicIndex);
                 additionalLogicSet.next();
-                Assert.assertEquals(2, additionalLogicSet.getInt("rc"));
+                Assertions.assertEquals(2, additionalLogicSet.getInt("rc"));
 
                 ResultSet additionalPhysicalSet0 = dsClient0.executeQuery(
                     ds0Conn, countQuery + additionalPhysicalIndex);
                 additionalPhysicalSet0.next();
-                Assert.assertEquals(1, additionalPhysicalSet0.getInt("rc"));
+                Assertions.assertEquals(1, additionalPhysicalSet0.getInt("rc"));
 
                 ResultSet additionalPhysicalSet1 = dsClient1.executeQuery(
                     ds1Conn, countQuery + additionalPhysicalIndex);
                 additionalPhysicalSet1.next();
-                Assert.assertEquals(1, additionalPhysicalSet1.getInt("rc"));
+                Assertions.assertEquals(1, additionalPhysicalSet1.getInt("rc"));
             }
         }
     }
@@ -712,11 +701,11 @@ public class TCITShardingSphere {
         ResultSet rset0 = dsClient0.getConnection()
                                    .getMetaData()
                                    .getTables(dsClient0.getConnection().getCatalog(), null, droppedTable, null);
-        Assert.assertFalse(rset0.next());
+        Assertions.assertFalse(rset0.next());
         ResultSet rset1 = dsClient1.getConnection()
                                    .getMetaData()
                                    .getTables(dsClient1.getConnection().getCatalog(), null, droppedTable, null);
-        Assert.assertFalse(rset1.next());
+        Assertions.assertFalse(rset1.next());
     }
 
     @SneakyThrows

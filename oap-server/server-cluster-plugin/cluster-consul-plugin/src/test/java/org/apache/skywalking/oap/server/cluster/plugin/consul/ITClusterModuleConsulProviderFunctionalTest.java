@@ -21,58 +21,60 @@ package org.apache.skywalking.oap.server.cluster.plugin.consul;
 import com.google.common.base.Strings;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
-import org.apache.skywalking.oap.server.core.cluster.ClusterWatcher;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
+import org.apache.skywalking.oap.server.core.cluster.ClusterWatcher;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.net.ssl.*", "javax.security.*", "javax.management.*"})
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Testcontainers
+@ExtendWith(MockitoExtension.class)
 public class ITClusterModuleConsulProviderFunctionalTest {
 
     private String consulAddress;
 
-    @Rule
+    @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("consul:0.9"))
             .waitingFor(Wait.forLogMessage(".*Synced node info.*", 1))
-            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0");
+            .withCommand("agent", "-server", "-bootstrap-expect=1", "-client=0.0.0.0")
+            .withExposedPorts(8500);
 
     @Mock
     private ModuleManager moduleManager;
     @Mock
     private NoneTelemetryProvider telemetryProvider;
 
-    @Before
+    @BeforeEach
     public void before() {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                 .thenReturn(new MetricsCreatorNoop());

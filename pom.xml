@@ -151,10 +151,10 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <powermock.version>2.0.7</powermock.version>
+        <powermock.version>2.0.9</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
-        <junit.version>4.13.1</junit.version>
-        <mockito-core.version>3.5.13</mockito-core.version>
+        <junit.version>5.9.2</junit.version>
+        <mockito-core.version>4.11.0</mockito-core.version>
         <lombok.version>1.18.22</lombok.version>
 
         <!-- core lib dependency -->
@@ -190,27 +190,39 @@
 
         <skipUTs>false</skipUTs>
         <skipITs>true</skipITs>
+        <system-stubs.version>2.0.2</system-stubs.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
+            <artifactId>powermock-reflect</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -243,10 +255,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
@@ -255,21 +268,22 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock.version}</version>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-inline</artifactId>
+                <version>${mockito-core.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito2</artifactId>
-                <version>${powermock.version}</version>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito-core.version}</version>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>${objenesis.version}</version>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-reflect</artifactId>
+                <version>${powermock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -278,6 +292,13 @@
                 <version>${assertj-core.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>uk.org.webcompere</groupId>
+                <artifactId>system-stubs-jupiter</artifactId>
+                <version>${system-stubs.version}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-generator-annprocess</artifactId>
@@ -446,7 +467,8 @@
                         org/apache/skywalking/oap/server/exporter/grpc/*.java,
                         org/apache/skywalking/oap/server/configuration/service/*.java,
                         **/generated/*_jmhType*.java,
-                        **/generated/*_jmhTest.java
+                        **/generated/*_jmhTest.java,
+                        org/junit/**/*.java
                     </excludes>
                 </configuration>
                 <executions>

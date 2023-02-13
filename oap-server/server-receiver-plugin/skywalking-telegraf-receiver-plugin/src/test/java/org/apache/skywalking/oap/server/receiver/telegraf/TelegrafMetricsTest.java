@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
-import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
@@ -42,30 +41,26 @@ import org.apache.skywalking.oap.server.receiver.telegraf.provider.handler.pojo.
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonParseException;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Arrays;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.Silent.class)
+@ExtendWith(MockitoExtension.class)
 public class TelegrafMetricsTest {
 
     protected CoreModuleProvider moduleProvider;
@@ -73,20 +68,20 @@ public class TelegrafMetricsTest {
     protected MeterSystem meterSystem;
     protected TelegrafServiceHandler telegrafServiceHandler;
 
-    private List<AcceptableValue> values = new ArrayList<>();
+    private List<AcceptableValue<?>> values = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
                 new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
 
-    @Before
+    @BeforeEach
     public void setupMetrics() throws Throwable {
         moduleProvider = Mockito.mock(CoreModuleProvider.class);
         moduleManager = new MockModuleManager() {
@@ -112,51 +107,43 @@ public class TelegrafMetricsTest {
         meterSystem = Mockito.mock(MeterSystem.class);
         Whitebox.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
                 Mockito.spy(MetricsStreamProcessor.getInstance()));
-        doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
         CoreModule coreModule = Mockito.spy(CoreModule.class);
 
         Whitebox.setInternalState(coreModule, "loadedProvider", moduleProvider);
-        when(moduleProvider.getService(MeterSystem.class)).thenReturn(meterSystem);
 
         telegrafServiceHandler = buildTelegrafServiceHandler();
     }
 
     protected TelegrafServiceHandler buildTelegrafServiceHandler() throws Exception {
-        // Notifies meter system received metric
-        doAnswer(invocationOnMock -> {
-            values.add(invocationOnMock.getArgument(0, AcceptableValue.class));
-            return null;
-        }).when(meterSystem).doStreamingCalculation(any());
-
         // load context
         List<Rule> telegrafConfigs = Rules.loadRules(TelegrafModuleConfig.CONFIG_PATH, Arrays.asList("vm"));
         return new TelegrafServiceHandler(moduleManager, meterSystem, telegrafConfigs);
     }
 
-    private TelegrafData assertTelegrafJSONConvert(String jsonMessage) throws Exception {
-        Assert.assertNotNull(jsonMessage);
+    private TelegrafData assertTelegrafJSONConvert(String jsonMessage) throws IOException {
+        Assertions.assertNotNull(jsonMessage);
         ObjectMapper mapper = new ObjectMapper();
         TelegrafData telegrafData = mapper.readValue(jsonMessage, TelegrafData.class);
-        Assert.assertNotNull(telegrafData);
+        Assertions.assertNotNull(telegrafData);
         return telegrafData;
     }
 
     private void assertSample(Sample sample, String... name) {
-        Assert.assertNotNull(sample);
-        Assert.assertTrue(Arrays.asList(name).contains(sample.getName()));
-        Assert.assertEquals(sample.getLabels(), ImmutableMap.copyOf(Collections.singletonMap("host", "localHost")));
-        Assert.assertTrue(sample.getValue() >= 0);
-        Assert.assertTrue(sample.getTimestamp() >= 0);
+        Assertions.assertNotNull(sample);
+        Assertions.assertTrue(Arrays.asList(name).contains(sample.getName()));
+        Assertions.assertEquals(sample.getLabels(), ImmutableMap.copyOf(Collections.singletonMap("host", "localHost")));
+        Assertions.assertTrue(sample.getValue() >= 0);
+        Assertions.assertTrue(sample.getTimestamp() >= 0);
     }
 
     private void assertConvertToSample(TelegrafData telegrafData, int totalSamplesPerMetrics, String... name) {
-        Assert.assertNotNull(telegrafData);
+        Assertions.assertNotNull(telegrafData);
         List<TelegrafDatum> metrics = telegrafData.getMetrics();
-        Assert.assertNotNull(metrics);
+        Assertions.assertNotNull(metrics);
         for (TelegrafDatum t : metrics) {
             boolean convert = false;
             List<Sample> samples = telegrafServiceHandler.convertTelegraf(t);
-            Assert.assertEquals(samples.size(), totalSamplesPerMetrics);
+            Assertions.assertEquals(samples.size(), totalSamplesPerMetrics);
             for (Sample s : samples) {
                 assertSample(s, name);
                 convert = true;
@@ -169,21 +156,21 @@ public class TelegrafMetricsTest {
     }
 
     private void assertConvertToSampleFamily(TelegrafData telegrafData, int sampleFamilySize, int samplePerSampleFamily, String... name) {
-        Assert.assertNotNull(telegrafData);
+        Assertions.assertNotNull(telegrafData);
         List<ImmutableMap<String, SampleFamily>> sampleFamilyCollections = telegrafServiceHandler.convertSampleFamily(telegrafData);
-        Assert.assertNotNull(sampleFamilyCollections);
+        Assertions.assertNotNull(sampleFamilyCollections);
         int actualSize = 0;
         for (ImmutableMap<String, SampleFamily> samples : sampleFamilyCollections) {
-            samples.forEach((k, v) -> Assert.assertEquals(v.samples.length, samplePerSampleFamily));
+            samples.forEach((k, v) -> Assertions.assertEquals(v.samples.length, samplePerSampleFamily));
             actualSize += samples.size();
         }
-        Assert.assertEquals(actualSize, sampleFamilySize);
+        Assertions.assertEquals(actualSize, sampleFamilySize);
         sampleFamilyCollections.forEach(sampleFamily -> {
             for (Map.Entry<String, SampleFamily> entry : sampleFamily.entrySet()) {
                 String key = entry.getKey();
                 SampleFamily value = entry.getValue();
                 boolean convert = false;
-                Assert.assertTrue(Arrays.asList(name).contains(key));
+                Assertions.assertTrue(Arrays.asList(name).contains(key));
                 for (Sample s : value.samples) {
                     assertSample(s, name);
                     convert = true;
@@ -305,8 +292,9 @@ public class TelegrafMetricsTest {
     public void testInvalidJSONConvert() {
         String invalidMetrics = "This is a invalid metrics message";
 
-        Assert.assertThrows("Expected JsonParseException to throw, but it didn't.",
-                JsonParseException.class, () -> assertTelegrafJSONConvert(invalidMetrics));
+        Assertions.assertThrows(
+                JsonParseException.class, () -> assertTelegrafJSONConvert(invalidMetrics),
+                "Expected JsonParseException to throw, but it didn't.");
     }
 
     @Test
@@ -318,12 +306,13 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1663391390}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(oneCpuMetrics);
                     String[] wrongMetricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 4, wrongMetricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
     @Test
@@ -335,12 +324,13 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1663391390}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(oneMemMetrics);
                     String[] wrongMetricsNames = {"cpu_usage_idle", "cpu_usage_irq", "cpu_usage_system", "cpu_usage_user"};
                     assertConvertToSampleFamily(telegrafData, 5, 1, wrongMetricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
     @Test
@@ -357,12 +347,13 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1453365320}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(twoCpuMetrics);
                     String[] metricsNames = {"cpu_usage_idle", "cpu_usage_irq", "cpu_usage_system", "cpu_usage_user"};
                     assertConvertToSample(telegrafData, 6, metricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
     @Test
@@ -384,13 +375,14 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1453365320}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(threeMemMetrics);
                     String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 5, metricsNames);
                     assertConvertToSampleFamily(telegrafData, 3, 1, metricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
     @Test
@@ -412,13 +404,14 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1453365320}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(threeMemMetrics);
                     String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 5, metricsNames);
                     assertConvertToSampleFamily(telegrafData, 15, 2, metricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
     @Test
@@ -445,13 +438,14 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1663391390}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(fourCpuMetrics);
                     String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 5, metricsNames);
                     assertConvertToSampleFamily(telegrafData, 3, 4, metricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
     @Test
@@ -478,13 +472,14 @@ public class TelegrafMetricsTest {
                 "\"tags\":{\"host\":\"localHost\"}," +
                 "\"timestamp\":1663391390}]}";
 
-        Assert.assertThrows("Expected AssertionError to throw, but it didn't.",
+        Assertions.assertThrows(
                 AssertionError.class, () -> {
                     TelegrafData telegrafData = assertTelegrafJSONConvert(fourCpuMetrics);
                     String[] metricsNames = {"mem_available", "mem_available_percent", "mem_total", "mem_used", "mem_used_percent"};
                     assertConvertToSample(telegrafData, 5, metricsNames);
                     assertConvertToSampleFamily(telegrafData, 4, 2, metricsNames);
-                });
+                },
+                "Expected AssertionError to throw, but it didn't.");
     }
 
 }

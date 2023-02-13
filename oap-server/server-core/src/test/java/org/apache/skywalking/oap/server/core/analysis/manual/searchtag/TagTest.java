@@ -17,8 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.searchtag;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TagTest {
     @Test
@@ -27,8 +27,8 @@ public class TagTest {
         final Tag tag1 = new Tag("tag1", "value2");
         final Tag tag2 = new Tag("tag2", "value3");
         final Tag tag3 = new Tag("tag1", "value1");
-        Assert.assertEquals(tag, tag3);
-        Assert.assertNotEquals(tag, tag1);
-        Assert.assertNotEquals(tag, tag2);
+        Assertions.assertEquals(tag, tag3);
+        Assertions.assertNotEquals(tag, tag1);
+        Assertions.assertNotEquals(tag, tag2);
     }
 }

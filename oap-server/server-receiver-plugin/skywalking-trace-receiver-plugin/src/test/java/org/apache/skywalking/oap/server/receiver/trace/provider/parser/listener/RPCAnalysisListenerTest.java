@@ -45,9 +45,9 @@ import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -55,7 +55,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -78,7 +78,7 @@ public class RPCAnalysisListenerTest {
         new EndpointNameGrouping()
     );
 
-    @Before
+    @BeforeEach
     public void init() {
         MockitoAnnotations.initMocks(this);
 
@@ -103,11 +103,11 @@ public class RPCAnalysisListenerTest {
             CACHE,
             NAMING_CONTROL
         );
-        Assert.assertTrue(listener.containsPoint(AnalysisListener.Point.Entry));
-        Assert.assertTrue(listener.containsPoint(AnalysisListener.Point.Local));
-        Assert.assertTrue(listener.containsPoint(AnalysisListener.Point.Exit));
-        Assert.assertFalse(listener.containsPoint(AnalysisListener.Point.First));
-        Assert.assertFalse(listener.containsPoint(AnalysisListener.Point.Segment));
+        Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Entry));
+        Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Local));
+        Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Exit));
+        Assertions.assertFalse(listener.containsPoint(AnalysisListener.Point.First));
+        Assertions.assertFalse(listener.containsPoint(AnalysisListener.Point.Segment));
     }
 
     /**
@@ -151,25 +151,25 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(6, receivedSources.size());
+        Assertions.assertEquals(6, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
         final Endpoint endpoint = (Endpoint) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
-        Assert.assertEquals("mock-service", service.getName());
-        Assert.assertEquals(500, service.getHttpResponseStatusCode());
-        Assert.assertEquals("OK", service.getRpcStatusCode());
-        Assert.assertFalse(service.isStatus());
-        Assert.assertEquals("mock-instance", serviceInstance.getName());
-        Assert.assertEquals("/springMVC", endpoint.getName());
-        Assert.assertEquals(Const.USER_SERVICE_NAME, serviceRelation.getSourceServiceName());
-        Assert.assertEquals(service.getName(), serviceRelation.getDestServiceName());
-        Assert.assertEquals(Const.USER_INSTANCE_NAME, serviceInstanceRelation.getSourceServiceInstanceName());
-        Assert.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
-        Assert.assertEquals(Const.USER_ENDPOINT_NAME, endpointRelation.getEndpoint());
-        Assert.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
+        Assertions.assertEquals("mock-service", service.getName());
+        Assertions.assertEquals(500, service.getHttpResponseStatusCode());
+        Assertions.assertEquals("OK", service.getRpcStatusCode());
+        Assertions.assertFalse(service.isStatus());
+        Assertions.assertEquals("mock-instance", serviceInstance.getName());
+        Assertions.assertEquals("/springMVC", endpoint.getName());
+        Assertions.assertEquals(Const.USER_SERVICE_NAME, serviceRelation.getSourceServiceName());
+        Assertions.assertEquals(service.getName(), serviceRelation.getDestServiceName());
+        Assertions.assertEquals(Const.USER_INSTANCE_NAME, serviceInstanceRelation.getSourceServiceInstanceName());
+        Assertions.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
+        Assertions.assertEquals(Const.USER_ENDPOINT_NAME, endpointRelation.getEndpoint());
+        Assertions.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
     }
 
     /**
@@ -216,26 +216,26 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(6, receivedSources.size());
+        Assertions.assertEquals(6, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
         final Endpoint endpoint = (Endpoint) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
-        Assert.assertEquals("mock-service", service.getName());
-        Assert.assertEquals("mock-instance", serviceInstance.getName());
-        Assert.assertEquals("/springMVC", endpoint.getName());
-        Assert.assertEquals("downstream-service", serviceRelation.getSourceServiceName());
-        Assert.assertEquals(service.getName(), serviceRelation.getDestServiceName());
-        Assert.assertEquals("downstream-instance", serviceInstanceRelation.getSourceServiceInstanceName());
-        Assert.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
-        Assert.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
-        Assert.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
+        Assertions.assertEquals("mock-service", service.getName());
+        Assertions.assertEquals("mock-instance", serviceInstance.getName());
+        Assertions.assertEquals("/springMVC", endpoint.getName());
+        Assertions.assertEquals("downstream-service", serviceRelation.getSourceServiceName());
+        Assertions.assertEquals(service.getName(), serviceRelation.getDestServiceName());
+        Assertions.assertEquals("downstream-instance", serviceInstanceRelation.getSourceServiceInstanceName());
+        Assertions.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
+        Assertions.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
+        Assertions.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
         // tags test
-        Assert.assertEquals("http.method:GET", service.getTags().get(0));
-        Assert.assertEquals("http.method:GET", serviceInstance.getTags().get(0));
-        Assert.assertEquals("http.method:GET", endpoint.getTags().get(0));
+        Assertions.assertEquals("http.method:GET", service.getTags().get(0));
+        Assertions.assertEquals("http.method:GET", serviceInstance.getTags().get(0));
+        Assertions.assertEquals("http.method:GET", endpoint.getTags().get(0));
     }
 
     /**
@@ -278,23 +278,23 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(6, receivedSources.size());
+        Assertions.assertEquals(6, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
         final Endpoint endpoint = (Endpoint) receivedSources.get(4);
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(5);
-        Assert.assertEquals("mock-service", service.getName());
-        Assert.assertEquals("mock-instance", serviceInstance.getName());
-        Assert.assertEquals("/springMVC", endpoint.getName());
-        Assert.assertEquals("127.0.0.1", serviceRelation.getSourceServiceName());
-        Assert.assertEquals(service.getName(), serviceRelation.getDestServiceName());
-        Assert.assertEquals("127.0.0.1", serviceInstanceRelation.getSourceServiceInstanceName());
-        Assert.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
-        Assert.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
-        Assert.assertEquals("downstream-service", endpointRelation.getServiceName());
-        Assert.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
+        Assertions.assertEquals("mock-service", service.getName());
+        Assertions.assertEquals("mock-instance", serviceInstance.getName());
+        Assertions.assertEquals("/springMVC", endpoint.getName());
+        Assertions.assertEquals("127.0.0.1", serviceRelation.getSourceServiceName());
+        Assertions.assertEquals(service.getName(), serviceRelation.getDestServiceName());
+        Assertions.assertEquals("127.0.0.1", serviceInstanceRelation.getSourceServiceInstanceName());
+        Assertions.assertEquals(serviceInstance.getName(), serviceInstanceRelation.getDestServiceInstanceName());
+        Assertions.assertEquals("downstream-endpoint", endpointRelation.getEndpoint());
+        Assertions.assertEquals("downstream-service", endpointRelation.getServiceName());
+        Assertions.assertEquals(endpoint.getName(), endpointRelation.getChildEndpoint());
     }
 
     /**
@@ -333,9 +333,9 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(1, receivedSources.size());
+        Assertions.assertEquals(1, receivedSources.size());
         final Endpoint source = (Endpoint) receivedSources.get(0);
-        Assert.assertEquals("/logic-call", source.getName());
+        Assertions.assertEquals("/logic-call", source.getName());
 
         mockReceiver.clear();
     }
@@ -378,9 +378,9 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(1, receivedSources.size());
+        Assertions.assertEquals(1, receivedSources.size());
         final Endpoint source = (Endpoint) receivedSources.get(0);
-        Assert.assertEquals("/GraphQL-service", source.getName());
+        Assertions.assertEquals("/GraphQL-service", source.getName());
 
         mockReceiver.clear();
     }
@@ -417,13 +417,13 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(2, receivedSources.size());
+        Assertions.assertEquals(2, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);
-        Assert.assertEquals("mock-service", serviceRelation.getSourceServiceName());
-        Assert.assertEquals("127.0.0.1:8080", serviceRelation.getDestServiceName());
-        Assert.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
-        Assert.assertEquals("127.0.0.1:8080", serviceInstanceRelation.getDestServiceInstanceName());
+        Assertions.assertEquals("mock-service", serviceRelation.getSourceServiceName());
+        Assertions.assertEquals("127.0.0.1:8080", serviceRelation.getDestServiceName());
+        Assertions.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
+        Assertions.assertEquals("127.0.0.1:8080", serviceInstanceRelation.getDestServiceInstanceName());
     }
 
     /**
@@ -458,13 +458,13 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(2, receivedSources.size());
+        Assertions.assertEquals(2, receivedSources.size());
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(0);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(1);
-        Assert.assertEquals("mock-service", serviceRelation.getSourceServiceName());
-        Assert.assertEquals("target-service", serviceRelation.getDestServiceName());
-        Assert.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
-        Assert.assertEquals("target-instance", serviceInstanceRelation.getDestServiceInstanceName());
+        Assertions.assertEquals("mock-service", serviceRelation.getSourceServiceName());
+        Assertions.assertEquals("target-service", serviceRelation.getDestServiceName());
+        Assertions.assertEquals("mock-instance", serviceInstanceRelation.getSourceServiceInstanceName());
+        Assertions.assertEquals("target-instance", serviceInstanceRelation.getDestServiceInstanceName());
         mockReceiver.clear();
     }
 
@@ -502,22 +502,22 @@ public class RPCAnalysisListenerTest {
         listener.build();
 
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
-        Assert.assertEquals(5, receivedSources.size());
+        Assertions.assertEquals(5, receivedSources.size());
         final Service service = (Service) receivedSources.get(0);
         final ServiceInstance serviceInstance = (ServiceInstance) receivedSources.get(1);
         final ServiceRelation serviceRelation = (ServiceRelation) receivedSources.get(2);
         final ServiceInstanceRelation serviceInstanceRelation = (ServiceInstanceRelation) receivedSources.get(3);
         final Endpoint endpoint = (Endpoint) receivedSources.get(4);
-        Assert.assertEquals("mock-service", service.getName());
-        Assert.assertEquals("/MQ/consumer", service.getEndpointName());
-        Assert.assertEquals(RequestType.MQ, service.getType());
-        Assert.assertFalse(service.isStatus());
-        Assert.assertEquals("mock-instance", serviceInstance.getName());
-        Assert.assertEquals("/MQ/consumer", endpoint.getName());
-        Assert.assertEquals("mq-server:9090", serviceRelation.getSourceServiceName());
-        Assert.assertEquals("mock-service", serviceRelation.getDestServiceName());
-        Assert.assertEquals("mq-server:9090", serviceInstanceRelation.getSourceServiceInstanceName());
-        Assert.assertEquals("mock-instance", serviceInstanceRelation.getDestServiceInstanceName());
+        Assertions.assertEquals("mock-service", service.getName());
+        Assertions.assertEquals("/MQ/consumer", service.getEndpointName());
+        Assertions.assertEquals(RequestType.MQ, service.getType());
+        Assertions.assertFalse(service.isStatus());
+        Assertions.assertEquals("mock-instance", serviceInstance.getName());
+        Assertions.assertEquals("/MQ/consumer", endpoint.getName());
+        Assertions.assertEquals("mq-server:9090", serviceRelation.getSourceServiceName());
+        Assertions.assertEquals("mock-service", serviceRelation.getDestServiceName());
+        Assertions.assertEquals("mq-server:9090", serviceInstanceRelation.getSourceServiceInstanceName());
+        Assertions.assertEquals("mock-instance", serviceInstanceRelation.getDestServiceInstanceName());
 
     }
 

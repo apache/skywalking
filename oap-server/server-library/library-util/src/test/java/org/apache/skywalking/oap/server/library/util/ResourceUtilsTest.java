@@ -17,28 +17,31 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class ResourceUtilsTest {
 
-    @Test(expected = FileNotFoundException.class)
-    public void shouldThrowWhenResourceNotFound() throws FileNotFoundException {
-        ResourceUtils.read("/not-existed");
+    @Test
+    public void shouldThrowWhenResourceNotFound() {
+        assertThrows(FileNotFoundException.class, () -> ResourceUtils.read("/not-existed"));
     }
 
     @Test
     public void testGetPathFilesSuccess() throws FileNotFoundException {
         final File[] files = ResourceUtils.getPathFiles("testdata");
-        Assert.assertNotNull(files);
-        Assert.assertEquals(1, files.length);
+        assertNotNull(files);
+        assertEquals(1, files.length);
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void testGetPathFilesNotFound() throws FileNotFoundException {
-        ResourceUtils.getPathFiles("doesn't exist");
+    @Test
+    public void testGetPathFilesNotFound() {
+        assertThrows(FileNotFoundException.class, () -> ResourceUtils.getPathFiles("doesn't exist"));
     }
 }

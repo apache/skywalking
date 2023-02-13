@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import java.util.Objects;
 import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Objects;
 
 public class LimitedSizeBufferedDataTest {
     @Test
@@ -46,7 +47,7 @@ public class LimitedSizeBufferedDataTest {
         };
         int i = 0;
         for (MockStorageData data : collection.read()) {
-            Assert.assertEquals(expected[i++], data.latency);
+            Assertions.assertEquals(expected[i++], data.latency);
         }
     }
 

@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
-import io.grpc.testing.GrpcServerRule;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.util.MutableHandlerRegistry;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.exporter.ExportData;
@@ -29,10 +30,16 @@ import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.exporter.grpc.MetricExportServiceGrpc;
 import org.apache.skywalking.oap.server.exporter.provider.ExporterSetting;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.skywalking.oap.server.core.exporter.ExportEvent.EventType.INCREMENT;
 
@@ -40,24 +47,56 @@ public class GRPCExporterTest {
 
     private GRPCMetricsExporter exporter;
 
-    @Rule
-    public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
-
     private MetricExportServiceGrpc.MetricExportServiceImplBase service = new MockMetricExportServiceImpl();
     private MetricsMetaInfo metaInfo = new MetricsMetaInfo("mock-metrics", DefaultScopeDefine.SERVICE);
 
     private MetricExportServiceGrpc.MetricExportServiceBlockingStub stub;
 
-    @Before
+    private Server server;
+    private ManagedChannel channel;
+    private MutableHandlerRegistry serviceRegistry;
+
+    @BeforeEach
     public void setUp() throws Exception {
+        serviceRegistry = new MutableHandlerRegistry();
+        final String name = UUID.randomUUID().toString();
+        InProcessServerBuilder serverBuilder =
+                InProcessServerBuilder
+                        .forName(name)
+                        .fallbackHandlerRegistry(serviceRegistry);
+
+        server = serverBuilder.build();
+        server.start();
+
+        channel = InProcessChannelBuilder.forName(name).build();
+
         ExporterSetting setting = new ExporterSetting();
         setting.setGRPCTargetHost("localhost");
         setting.setGRPCTargetPort(9870);
         exporter = new GRPCMetricsExporter(setting);
-        grpcServerRule.getServiceRegistry().addService(service);
-        stub = MetricExportServiceGrpc.newBlockingStub(grpcServerRule.getChannel());
+        serviceRegistry.addService(service);
+        stub = MetricExportServiceGrpc.newBlockingStub(channel);
         Whitebox.setInternalState(exporter, "blockingStub", stub);
         exporter.start();
+    }
+
+    @AfterEach
+    public void after() {
+        channel.shutdown();
+        server.shutdown();
+
+        try {
+            channel.awaitTermination(1L, TimeUnit.MINUTES);
+            server.awaitTermination(1L, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } finally {
+            channel.shutdownNow();
+            channel = null;
+            server.shutdownNow();
+            server = null;
+        }
     }
 
     @Test

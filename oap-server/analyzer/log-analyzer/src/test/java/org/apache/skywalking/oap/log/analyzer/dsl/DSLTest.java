@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.log.analyzer.dsl;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -30,19 +27,20 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.powermock.reflect.Whitebox;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(Parameterized.class)
 public class DSLTest {
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(
                 new String[] {
@@ -182,15 +180,9 @@ public class DSLTest {
         );
     }
 
-    @Parameterized.Parameter()
-    public String name;
-
-    @Parameterized.Parameter(1)
-    public String script;
-
     final ModuleManager manager = mock(ModuleManager.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         Whitebox.setInternalState(manager, "isInPrepareStage", false);
         when(manager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
@@ -206,8 +198,9 @@ public class DSLTest {
                 .thenReturn("");
     }
 
-    @Test
-    public void testDslStaticCompile() throws ModuleStartException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testDslStaticCompile(String name, String script) throws ModuleStartException {
         final DSL dsl = DSL.of(manager, new LogAnalyzerModuleConfig(), script);
         Whitebox.setInternalState(
             Whitebox.getInternalState(dsl, "filterSpec"), "sinkListenerFactories", Collections.emptyList()

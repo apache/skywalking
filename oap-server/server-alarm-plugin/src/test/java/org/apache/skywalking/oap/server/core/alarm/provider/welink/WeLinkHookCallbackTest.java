@@ -24,25 +24,26 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.ServerBuilder;
-import com.linecorp.armeria.testing.junit4.server.ServerRule;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class WeLinkHookCallbackTest {
-    private final AtomicBoolean isSuccess = new AtomicBoolean();
-    private final AtomicInteger count = new AtomicInteger();
+    private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
+    private static final AtomicInteger COUNT = new AtomicInteger();
 
-    @Rule
-    public final ServerRule server = new ServerRule() {
+    @RegisterExtension
+    public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
             sb.serviceUnder("/welinkhook", (ctx, req) -> HttpResponse.from(
@@ -50,19 +51,19 @@ public class WeLinkHookCallbackTest {
                     final String content = r.content().toStringUtf8();
                     final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
 
-                    if (count.get() == 0) {
+                    if (COUNT.get() == 0) {
                         String clientId = jsonObject.get("client_id").getAsString();
                         if (clientId != null) {
-                            count.incrementAndGet();
+                            COUNT.incrementAndGet();
                         }
-                    } else if (count.get() >= 1) {
+                    } else if (COUNT.get() >= 1) {
                         String appMsgId = jsonObject.get("app_msg_id").getAsString();
                         if (appMsgId != null) {
-                            count.incrementAndGet();
+                            COUNT.incrementAndGet();
                         }
                     }
-                    if (count.get() == 2) {
-                        isSuccess.set(true);
+                    if (COUNT.get() == 2) {
+                        IS_SUCCESS.set(true);
                     }
 
                     return HttpResponse.of(HttpStatus.OK, MediaType.JSON, "{}");
@@ -74,8 +75,8 @@ public class WeLinkHookCallbackTest {
     public void testWeLinkDoAlarm() {
         List<WeLinkSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new WeLinkSettings.WebHookUrl("clientId", "clientSecret",
-                                                   "http://127.0.0.1:" + server.httpPort() + "/welinkhook/api/auth/v2/tickets",
-                                                   "http://127.0.0.1:" + server.httpPort() + "/welinkhook/api/welinkim/v1/im-service/chat/group-chat",
+                                                   "http://127.0.0.1:" + SERVER.httpPort() + "/welinkhook/api/auth/v2/tickets",
+                                                   "http://127.0.0.1:" + SERVER.httpPort() + "/welinkhook/api/welinkim/v1/im-service/chat/group-chat",
                                                    "robotName", "1,2,3"
         ));
         Rules rules = new Rules();
@@ -96,6 +97,6 @@ public class WeLinkHookCallbackTest {
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         welinkHookCallback.doAlarm(alarmMessages);
-        Assert.assertTrue(isSuccess.get());
+        Assertions.assertTrue(IS_SUCCESS.get());
     }
 }

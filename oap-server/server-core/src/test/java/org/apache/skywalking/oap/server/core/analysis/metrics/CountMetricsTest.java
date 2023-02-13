@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class CountMetricsTest {
     @Test
@@ -33,7 +33,7 @@ public class CountMetricsTest {
 
         impl.calculate();
 
-        Assert.assertEquals(18, impl.getValue());
+        Assertions.assertEquals(18, impl.getValue());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class CountMetricsTest {
 
         impl.calculate();
 
-        Assert.assertEquals(36, impl.getValue());
+        Assertions.assertEquals(36, impl.getValue());
     }
 
     public class CountMetricsImpl extends CountMetrics {

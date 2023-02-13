@@ -21,13 +21,14 @@ package org.apache.skywalking.oap.server.configuration.nacos;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.google.common.collect.Sets;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 
-import static org.junit.Assert.assertEquals;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;

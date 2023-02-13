@@ -21,21 +21,20 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class CompositeRuleEvaluatorTest {
 
     private CompositeRuleEvaluator ruleEvaluate;
 
-    @Before
+    @BeforeEach
     public void init() {
         Expression expression = new Expression(new ExpressionContext());
         ruleEvaluate = new CompositeRuleEvaluator(expression);
@@ -50,14 +49,14 @@ public class CompositeRuleEvaluatorTest {
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(1));
-        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule demo service,id0 triggered!"));
-        assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
-        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
-        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
-        assertThat(compositeMsgs.get(0).getTags().get(0).getKey(), is("key"));
-        assertThat(compositeMsgs.get(0).getTags().get(0).getValue(), is("value"));
-        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
+        assertThat(compositeMsgs.size()).isEqualTo(1);
+        assertThat(compositeMsgs.get(0).getAlarmMessage()).isEqualTo("composite rule demo service,id0 triggered!");
+        assertThat(compositeMsgs.get(0).getRuleName()).isEqualTo("dummy");
+        assertThat(compositeMsgs.get(0).getId0()).isEqualTo("id0");
+        assertThat(compositeMsgs.get(0).getId1()).isEqualTo("id1");
+        assertThat(compositeMsgs.get(0).getTags().get(0).getKey()).isEqualTo("key");
+        assertThat(compositeMsgs.get(0).getTags().get(0).getValue()).isEqualTo("value");
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition()).isEqualTo(false);
     }
 
     @Test
@@ -69,14 +68,14 @@ public class CompositeRuleEvaluatorTest {
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(1));
-        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule demo service triggered!"));
-        assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
-        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
-        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
-        assertThat(compositeMsgs.get(0).getTags().get(0).getKey(), is("key"));
-        assertThat(compositeMsgs.get(0).getTags().get(0).getValue(), is("value"));
-        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
+        assertThat(compositeMsgs.size()).isEqualTo(1);
+        assertThat(compositeMsgs.get(0).getAlarmMessage()).isEqualTo("composite rule demo service triggered!");
+        assertThat(compositeMsgs.get(0).getRuleName()).isEqualTo("dummy");
+        assertThat(compositeMsgs.get(0).getId0()).isEqualTo("id0");
+        assertThat(compositeMsgs.get(0).getId1()).isEqualTo("id1");
+        assertThat(compositeMsgs.get(0).getTags().get(0).getKey()).isEqualTo("key");
+        assertThat(compositeMsgs.get(0).getTags().get(0).getValue()).isEqualTo("value");
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition()).isEqualTo(false);
     }
 
     @Test
@@ -86,7 +85,7 @@ public class CompositeRuleEvaluatorTest {
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(0));
+        assertThat(compositeMsgs.size()).isEqualTo(0);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class CompositeRuleEvaluatorTest {
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(0));
+        assertThat(compositeMsgs.size()).isEqualTo(0);
     }
 
     private List<AlarmMessage> getAlarmMessages() {
@@ -141,14 +140,14 @@ public class CompositeRuleEvaluatorTest {
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         alarmMessages.remove(0);
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(1));
-        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
-        assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
-        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
-        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
-        assertThat(compositeMsgs.get(0).getTags().get(0).getKey(), is("key"));
-        assertThat(compositeMsgs.get(0).getTags().get(0).getValue(), is("value"));
-        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
+        assertThat(compositeMsgs.size()).isEqualTo(1);
+        assertThat(compositeMsgs.get(0).getAlarmMessage()).isEqualTo("composite rule triggered!");
+        assertThat(compositeMsgs.get(0).getRuleName()).isEqualTo("dummy");
+        assertThat(compositeMsgs.get(0).getId0()).isEqualTo("id0");
+        assertThat(compositeMsgs.get(0).getId1()).isEqualTo("id1");
+        assertThat(compositeMsgs.get(0).getTags().get(0).getKey()).isEqualTo("key");
+        assertThat(compositeMsgs.get(0).getTags().get(0).getValue()).isEqualTo("value");
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition()).isEqualTo(false);
     }
 
     @Test
@@ -159,7 +158,7 @@ public class CompositeRuleEvaluatorTest {
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         alarmMessages.remove(alarmMessages.size() - 1);
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(0));
+        assertThat(compositeMsgs.size()).isEqualTo(0);
     }
 
     @Test
@@ -169,11 +168,11 @@ public class CompositeRuleEvaluatorTest {
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
-        assertThat(compositeMsgs.size(), is(1));
-        assertThat(compositeMsgs.get(0).getAlarmMessage(), is("composite rule triggered!"));
-        assertThat(compositeMsgs.get(0).getRuleName(), is("dummy"));
-        assertThat(compositeMsgs.get(0).getId0(), is("id0"));
-        assertThat(compositeMsgs.get(0).getId1(), is("id1"));
-        assertThat(compositeMsgs.get(0).isOnlyAsCondition(), is(false));
+        assertThat(compositeMsgs.size()).isEqualTo(1);
+        assertThat(compositeMsgs.get(0).getAlarmMessage()).isEqualTo("composite rule triggered!");
+        assertThat(compositeMsgs.get(0).getRuleName()).isEqualTo("dummy");
+        assertThat(compositeMsgs.get(0).getId0()).isEqualTo("id0");
+        assertThat(compositeMsgs.get(0).getId1()).isEqualTo("id1");
+        assertThat(compositeMsgs.get(0).isOnlyAsCondition()).isEqualTo(false);
     }
 }

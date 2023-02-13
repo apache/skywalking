@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class EndpointCallRelationTest {
     @Test
@@ -34,7 +34,7 @@ public class EndpointCallRelationTest {
             "VXNlcg==.0-VXNlcg==-em1iaXotcHJvbW90aW9uMi1hZG1pbkAxMjUyNw==.1-L0Bpbi9hcGkvaGVhbHRo");
         otherObject.setTimeBucket(202101071505L);
 
-        Assert.assertTrue(thisObject.equals(otherObject));
+        Assertions.assertTrue(thisObject.equals(otherObject));
     }
 
     @Test
@@ -49,6 +49,6 @@ public class EndpointCallRelationTest {
             "VXNlcg==.0-VXNlcg==-em1iaXotcHJvbW90aW9uMi1hZG1pbkAxMjUyNw==.1-L0Bpbi9hcGkvaGVhbHRo");
         otherObject.setTimeBucket(202101071506L);
 
-        Assert.assertFalse(thisObject.equals(otherObject));
+        Assertions.assertFalse(thisObject.equals(otherObject));
     }
 }

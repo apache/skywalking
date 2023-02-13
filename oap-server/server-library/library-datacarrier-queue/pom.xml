@@ -26,4 +26,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>library-datacarrier-queue</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
