@@ -6,7 +6,7 @@
           {
             "key": "service.name",
             "value": {
-              "stringValue": "SkyWalking"
+              "stringValue": "10.211.55.3"
             }
           },
           {
@@ -89,7 +89,7 @@
           {
             "key": "service.name",
             "value": {
-              "stringValue": "SkyWalking"
+              "stringValue": "10.211.55.3"
             }
           },
           {
