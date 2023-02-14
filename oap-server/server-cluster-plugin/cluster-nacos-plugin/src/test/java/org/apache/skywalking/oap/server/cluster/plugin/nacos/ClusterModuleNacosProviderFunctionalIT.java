@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.cluster.plugin.etcd;
+package org.apache.skywalking.oap.server.cluster.plugin.nacos;
 
-import io.etcd.jetcd.Client;
+import com.alibaba.nacos.api.naming.NamingService;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
@@ -35,7 +35,10 @@ import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -50,32 +53,35 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 @Testcontainers
-public class ITClusterModuleEtcdProviderFunctionalTest {
+@ExtendWith(MockitoExtension.class)
+public class ClusterModuleNacosProviderFunctionalIT {
 
-    private String endpoint;
-    private NoneTelemetryProvider telemetryProvider;
+    private String nacosAddress;
+    private final String username = "nacos";
+    private final String password = "nacos";
 
     @Container
     public final GenericContainer<?> container =
-        new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))
-            .waitingFor(Wait.forLogMessage(".*ready to serve client requests.*", 1))
-            .withEnv(Collections.singletonMap("ALLOW_NONE_AUTHENTICATION", "yes"))
-            .withCommand(
-                "etcd",
-                "--advertise-client-urls", "http://0.0.0.0:2379",
-                "--listen-client-urls", "http://0.0.0.0:2379"
-            )
-            .withExposedPorts(2379);
+        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
+            .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
+            .withEnv(Collections.singletonMap("MODE", "standalone"))
+            .withExposedPorts(8848);
+
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
 
     @BeforeEach
-    public void setup() {
-        telemetryProvider = mock(NoneTelemetryProvider.class);
+    public void before() {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
                .thenReturn(new MetricsCreatorNoop());
-        endpoint = "http://" + container.getHost() + ":" + container.getMappedPort(2379);
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+        nacosAddress = container.getHost() + ":" + container.getMappedPort(8848);
     }
 
     @Test
@@ -93,7 +99,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
 
         List<RemoteInstance> remoteInstances = notifiedRemoteNodes(watcher, 1);
         assertEquals(1, remoteInstances.size());
-        assertEquals(1,  queryRemoteNodes(provider, 1).size());
+        assertEquals(1, queryRemoteNodes(provider, 1).size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(selfAddress, queryAddress);
         assertTrue(queryAddress.isSelf());
@@ -113,9 +119,9 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         coordinator.registerRemote(instance);
 
         List<RemoteInstance> remoteInstances = notifiedRemoteNodes(watcher, 1);
-        assertEquals(1, remoteInstances.size());
-        assertEquals(1,  queryRemoteNodes(provider, 1).size());
 
+        assertEquals(1, remoteInstances.size());
+        assertEquals(1, queryRemoteNodes(provider, 1).size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals("127.0.1.2", queryAddress.getHost());
         assertEquals(1000, queryAddress.getPort());
@@ -128,7 +134,6 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ModuleProvider providerA = createProvider(serviceName);
         ModuleProvider providerB = createProvider(serviceName);
         ClusterCoordinator coordinatorA = getClusterCoordinator(providerA);
-
         ClusterCoordinator coordinatorB = getClusterCoordinator(providerB);
         ClusterMockWatcher watcherB = new ClusterMockWatcher();
         coordinatorB.registerWatcher(watcherB);
@@ -142,7 +147,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         // Receiver
         List<RemoteInstance> remoteInstances = notifiedRemoteNodes(watcherB, 1);
         assertEquals(1, remoteInstances.size());
-        assertEquals(1,  queryRemoteNodes(providerB, 1).size());
+        assertEquals(1, queryRemoteNodes(providerB, 1).size());
         Address queryAddress = remoteInstances.get(0).getAddress();
         assertEquals(selfAddress, queryAddress);
         assertFalse(queryAddress.isSelf());
@@ -161,28 +166,26 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterMockWatcher watcherB = new ClusterMockWatcher();
         coordinatorB.registerWatcher(watcherB);
         coordinatorB.start();
-
         Address addressA = new Address("127.0.0.4", 1000, true);
         Address addressB = new Address("127.0.0.5", 1000, true);
 
         RemoteInstance instanceA = new RemoteInstance(addressA);
         RemoteInstance instanceB = new RemoteInstance(addressB);
-
         coordinatorA.registerRemote(instanceA);
         coordinatorB.registerRemote(instanceB);
 
         List<RemoteInstance> remoteInstancesOfA = notifiedRemoteNodes(watcherA, 2);
         validateServiceInstance(addressA, addressB, remoteInstancesOfA);
-        assertEquals(2,  queryRemoteNodes(providerA, 2).size());
+        assertEquals(2, queryRemoteNodes(providerA, 2).size());
 
         List<RemoteInstance> remoteInstancesOfB = notifiedRemoteNodes(watcherB, 2);
         validateServiceInstance(addressB, addressA, remoteInstancesOfB);
-        assertEquals(2,  queryRemoteNodes(providerB, 2).size());
+        assertEquals(2, queryRemoteNodes(providerB, 2).size());
     }
 
     @Test
-    public void unregisterRemoteOfCluster() throws Exception {
-        final String serviceName = "unregister_remote_cluster";
+    public void deregisterRemoteOfCluster() throws Exception {
+        final String serviceName = "deregister_remote_cluster";
         ModuleProvider providerA = createProvider(serviceName);
         ModuleProvider providerB = createProvider(serviceName);
         ClusterCoordinator coordinatorA = getClusterCoordinator(providerA);
@@ -193,51 +196,66 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         ClusterMockWatcher watcherB = new ClusterMockWatcher();
         coordinatorB.registerWatcher(watcherB);
         coordinatorB.start();
-        Address addressA = new Address("127.0.0.4", 1000, true);
-        Address addressB = new Address("127.0.0.5", 1000, true);
 
+        Address addressA = new Address("127.0.0.6", 1000, true);
+        Address addressB = new Address("127.0.0.7", 1000, true);
         RemoteInstance instanceA = new RemoteInstance(addressA);
         RemoteInstance instanceB = new RemoteInstance(addressB);
-
         coordinatorA.registerRemote(instanceA);
         coordinatorB.registerRemote(instanceB);
 
         List<RemoteInstance> remoteInstancesOfA = notifiedRemoteNodes(watcherA, 2);
         validateServiceInstance(addressA, addressB, remoteInstancesOfA);
-        assertEquals(2,  queryRemoteNodes(providerA, 2).size());
+        assertEquals(2, queryRemoteNodes(providerA, 2).size());
 
         List<RemoteInstance> remoteInstancesOfB = notifiedRemoteNodes(watcherB, 2);
         validateServiceInstance(addressB, addressA, remoteInstancesOfB);
-        assertEquals(2,  queryRemoteNodes(providerB, 2).size());
+        assertEquals(2, queryRemoteNodes(providerB, 2).size());
 
-        // unregister A
-        Client client = Whitebox.getInternalState(coordinatorA, "client");
-        client.close();
+        // deregister A
+        NamingService namingServiceA = Whitebox.getInternalState(coordinatorA, "namingService");
+        namingServiceA.deregisterInstance(serviceName, addressA.getHost(), addressA.getPort());
 
         // only B
-        remoteInstancesOfB = notifiedRemoteNodes(watcherB, 1, 120);
+        remoteInstancesOfB = notifiedRemoteNodes(watcherB, 1);
         assertEquals(1, remoteInstancesOfB.size());
-        assertEquals(1,  queryRemoteNodes(providerB, 1).size());
+        assertEquals(1, queryRemoteNodes(providerB, 1).size());
+
         Address address = remoteInstancesOfB.get(0).getAddress();
-        assertEquals(address, addressB);
-        assertTrue(addressB.isSelf());
+        assertEquals(addressB, address);
+        assertTrue(address.isSelf());
     }
 
-    private ClusterModuleEtcdProvider createProvider(String serviceName)
+    private ClusterModuleNacosProvider createProvider(String servicName)
         throws ModuleStartException {
-        return createProvider(serviceName, null, 0);
-    }
+        ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
 
-    private ClusterModuleEtcdProvider createProvider(String serviceName, String internalComHost,
-                                                     int internalComPort)
-        throws ModuleStartException {
-        ClusterModuleEtcdProvider provider = new ClusterModuleEtcdProvider();
-
-        ClusterModuleEtcdConfig config = new ClusterModuleEtcdConfig();
+        ClusterModuleNacosConfig config = new ClusterModuleNacosConfig();
         provider.newConfigCreator().onInitialized(config);
 
-        config.setEndpoints(endpoint);
+        config.setHostPort(nacosAddress);
+        config.setServiceName(servicName);
+        provider.setManager(moduleManager);
+        config.setUsername(username);
+        config.setPassword(password);
+
+        provider.prepare();
+        provider.start();
+        provider.notifyAfterCompleted();
+        return provider;
+    }
+
+    private ClusterModuleNacosProvider createProvider(String serviceName, String internalComHost,
+                                                      int internalComPort) throws Exception {
+        ClusterModuleNacosProvider provider = new ClusterModuleNacosProvider();
+
+        ClusterModuleNacosConfig config = new ClusterModuleNacosConfig();
+        provider.newConfigCreator().onInitialized(config);
+
+        config.setHostPort(nacosAddress);
         config.setServiceName(serviceName);
+        config.setUsername(username);
+        config.setPassword(password);
 
         if (!StringUtil.isEmpty(internalComHost)) {
             config.setInternalComHost(internalComHost);
@@ -246,12 +264,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         if (internalComPort > 0) {
             config.setInternalComPort(internalComPort);
         }
-        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
-        ModuleManager manager = mock(ModuleManager.class);
-        Mockito.when(manager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
-
-        provider.setManager(manager);
+        provider.setManager(moduleManager);
         provider.prepare();
         provider.start();
         provider.notifyAfterCompleted();
@@ -286,11 +299,11 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
 
     private List<RemoteInstance> notifiedRemoteNodes(ClusterMockWatcher watcher, int goals)
         throws InterruptedException {
-        return notifiedRemoteNodes(watcher, goals, 20);
+        return notifiedRemoteNodes(watcher, goals, 30);
     }
 
     private List<RemoteInstance> notifiedRemoteNodes(ClusterMockWatcher watcher, int goals,
-                                                  int cyclic) throws InterruptedException {
+                                                     int cyclic) throws InterruptedException {
         do {
             List<RemoteInstance> instances = watcher.getRemoteInstances();
             if (instances.size() == goals) {
@@ -322,7 +335,7 @@ public class ITClusterModuleEtcdProviderFunctionalTest {
         assertTrue(otherExist);
     }
 
-    class ClusterMockWatcher implements ClusterWatcher {
+    static class ClusterMockWatcher implements ClusterWatcher {
         @Getter
         private List<RemoteInstance> remoteInstances = new ArrayList<>();
 
