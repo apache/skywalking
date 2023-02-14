@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
-public class ITConsulConfigurationTest {
+public class ConsulConfigurationIT {
     private final Yaml yaml = new Yaml();
 
     private ConsulConfigurationTestProvider provider;

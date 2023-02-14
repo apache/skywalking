@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @Slf4j
 @Testcontainers
-public class ITEtcdConfigurationTest {
+public class EtcdConfigurationIT {
     @Container
     public final GenericContainer<?> container =
         new GenericContainer<>(DockerImageName.parse("quay.io/coreos/etcd:v3.5.0"))

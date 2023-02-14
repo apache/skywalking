@@ -16,13 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.configuration.zookeeper.it;
+package org.apache.skywalking.oap.server.configuration.nacos;
 
+import com.alibaba.nacos.api.NacosFactory;
+import com.alibaba.nacos.api.config.ConfigService;
+import com.alibaba.nacos.api.exception.NacosException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.curator.RetryPolicy;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -40,6 +39,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
@@ -50,23 +50,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @Testcontainers
-public class ITZookeeperConfigurationTest {
+public class NacosConfigurationIT {
     private final Yaml yaml = new Yaml();
 
-    private MockZookeeperConfigurationProvider provider;
+    private NacosConfigurationTestProvider provider;
 
     @Container
     public final GenericContainer<?> container =
-        new GenericContainer<>(DockerImageName.parse("zookeeper:3.5"))
-            .waitingFor(Wait.forLogMessage(".*binding to port.*", 1))
-            .withExposedPorts(2181);
-
-    private String zkAddress;
+        new GenericContainer<>(DockerImageName.parse("nacos/nacos-server:1.4.2"))
+            .waitingFor(Wait.forLogMessage(".*Nacos started successfully.*", 1))
+            .withEnv(Collections.singletonMap("MODE", "standalone"))
+            .withExposedPorts(8848);
 
     @BeforeEach
     public void setUp() throws Exception {
-        zkAddress = container.getHost() + ":" + container.getMappedPort(2181);
-        System.setProperty("zk.address", zkAddress);
+        System.setProperty("nacos.host", container.getHost());
+        System.setProperty("nacos.port", String.valueOf(container.getMappedPort(8848)));
 
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
@@ -74,8 +73,7 @@ public class ITZookeeperConfigurationTest {
         final ModuleManager moduleManager = new ModuleManager();
         moduleManager.init(applicationConfiguration);
 
-        provider = (MockZookeeperConfigurationProvider) moduleManager.find(MockZookeeperConfigurationModule.NAME)
-                                                                     .provider();
+        provider = (NacosConfigurationTestProvider) moduleManager.find(NacosConfigurationTestModule.NAME).provider();
 
         assertNotNull(provider);
     }
@@ -83,24 +81,24 @@ public class ITZookeeperConfigurationTest {
     @SuppressWarnings("StatementWithEmptyBody")
     @Test
     @Timeout(20)
-    public void shouldReadUpdated() throws Exception {
-        String namespace = "/default";
-        String key = "test-module.default.testKey";
+    public void shouldReadUpdated() throws NacosException {
         assertNull(provider.watcher.value());
 
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
-        client.start();
-        log.info("per path: " + namespace + "/" + key);
+        final Properties properties = new Properties();
+        final String nacosHost = System.getProperty("nacos.host");
+        final String nacosPort = System.getProperty("nacos.port");
+        log.info("nacosHost: {}, nacosPort: {}", nacosHost, nacosPort);
+        properties.put("serverAddr", nacosHost + ":" + nacosPort);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key, "500".getBytes()) != null);
-
-        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key)));
+        final ConfigService configService = NacosFactory.createConfigService(properties);
+        assertTrue(configService.publishConfig("test-module.default.testKey", "skywalking", "500"));
 
         for (String v = provider.watcher.value(); v == null; v = provider.watcher.value()) {
         }
 
-        assertTrue(client.delete().forPath(namespace + "/" + key) == null);
+        assertEquals("500", provider.watcher.value());
+
+        assertTrue(configService.removeConfig("test-module.default.testKey", "skywalking"));
 
         for (String v = provider.watcher.value(); v != null; v = provider.watcher.value()) {
         }
@@ -110,37 +108,47 @@ public class ITZookeeperConfigurationTest {
 
     @Test
     @Timeout(20)
-    public void shouldReadUpdated4GroupConfig() throws Exception {
-        String namespace = "/default";
-        String key = "test-module.default.testKeyGroup";
+    public void shouldReadUpdatedGroup() throws NacosException {
         assertEquals("{}", provider.groupWatcher.groupItems().toString());
 
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        CuratorFramework client = CuratorFrameworkFactory.newClient(zkAddress, retryPolicy);
-        client.start();
-        log.info("per path: " + namespace + "/" + key);
+        final Properties properties = new Properties();
+        final String nacosHost = System.getProperty("nacos.host");
+        final String nacosPort = System.getProperty("nacos.port");
+        log.info("nacosHost: {}, nacosPort: {}", nacosHost, nacosPort);
+        properties.put("serverAddr", nacosHost + ":" + nacosPort);
 
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key + "/item1", "100".getBytes()) != null);
-        assertTrue(client.create().creatingParentsIfNeeded().forPath(namespace + "/" + key + "/item2", "200".getBytes()) != null);
-
-        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key + "/item1")));
-        log.info("data: " + new String(client.getData().forPath(namespace + "/" + key + "/item2")));
-
+        final ConfigService configService = NacosFactory.createConfigService(properties);
+        //test add group key and item1 item2
+        assertTrue(configService.publishConfig("test-module.default.testKeyGroup", "skywalking", "item1\n item2"));
+        assertTrue(configService.publishConfig("item1", "skywalking", "100"));
+        assertTrue(configService.publishConfig("item2", "skywalking", "200"));
         for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
         }
         for (String v = provider.groupWatcher.groupItems().get("item2"); v == null; v = provider.groupWatcher.groupItems().get("item2")) {
         }
+        assertEquals("100", provider.groupWatcher.groupItems().get("item1"));
+        assertEquals("200", provider.groupWatcher.groupItems().get("item2"));
 
-        assertTrue(client.delete().forPath(namespace + "/" + key + "/item1") == null);
-        assertTrue(client.delete().forPath(namespace + "/" + key + "/item2") == null);
-
+        //test remove item1
+        assertTrue(configService.removeConfig("item1", "skywalking"));
         for (String v = provider.groupWatcher.groupItems().get("item1"); v != null; v = provider.groupWatcher.groupItems().get("item1")) {
         }
+        assertNull(provider.groupWatcher.groupItems().get("item1"));
+
+        //test modify item1
+        assertTrue(configService.publishConfig("item1", "skywalking", "300"));
+        for (String v = provider.groupWatcher.groupItems().get("item1"); v == null; v = provider.groupWatcher.groupItems().get("item1")) {
+        }
+        assertEquals("300", provider.groupWatcher.groupItems().get("item1"));
+
+        //test remove group key
+        assertTrue(configService.removeConfig("test-module.default.testKeyGroup", "skywalking"));
         for (String v = provider.groupWatcher.groupItems().get("item2"); v != null; v = provider.groupWatcher.groupItems().get("item2")) {
         }
-
-        assertNull(provider.groupWatcher.groupItems().get("item1"));
         assertNull(provider.groupWatcher.groupItems().get("item2"));
+        //chean
+        assertTrue(configService.removeConfig("item1", "skywalking"));
+        assertTrue(configService.removeConfig("item2", "skywalking"));
     }
 
     @SuppressWarnings("unchecked")
@@ -165,7 +173,7 @@ public class ITZookeeperConfigurationTest {
                         moduleConfiguration.addProviderConfiguration(name, properties);
                     });
                 }
-             });
+            });
         }
     }
 }

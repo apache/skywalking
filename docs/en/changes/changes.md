@@ -6,6 +6,7 @@
 * Bump up Apache parent pom version to 29.
 * Bump up Armeria version to 1.21.0.
 * Clean up maven `pom.xml`s.
+* Bump up Java version to 11.
 
 #### OAP Server
 
