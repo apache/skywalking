@@ -115,6 +115,13 @@
 * Implement independent mode for widgets.
 * Bump http-cache-semantics from 4.1.0 to 4.1.1.
 * Update menus for OpenFunction.
+* Add auto fresh to widgets independent mode.
+* Fix: clear trace ID on the Log and Trace widgets after using association.
+* Fix: reset duration for query conditions after time range changes.
+* Add AWS S3 menu.
+* Refactor: optimize side bar component to make it more friendly.
+* Fix: remove duplicate popup message for query result.
+* Add logo for HTTPX.
 
 #### Documentation
 
