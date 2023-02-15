@@ -32,7 +32,7 @@ trigger:
   action: http
   interval: 3s
   times: 10
-  url: http://localhost:9093/otel-metrics/send
+  url: http://${sender_host}:${sender_9093}/otel-metrics/send
   method: GET
 
 verify:
