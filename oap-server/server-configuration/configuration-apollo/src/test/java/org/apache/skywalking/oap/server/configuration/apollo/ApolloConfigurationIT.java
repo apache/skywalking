@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @Testcontainers
-public class ITApolloConfigurationTest {
+public class ApolloConfigurationIT {
     private final Yaml yaml = new Yaml();
     private final String token = "f71f002a4ff9845639ef655ee7019759e31449de";
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -68,7 +68,7 @@ public class ITApolloConfigurationTest {
 
     @Container
     public final static DockerComposeContainer<?> ENVIRONMENT =
-        new DockerComposeContainer<>(new File(ITApolloConfigurationTest.class
+        new DockerComposeContainer<>(new File(ApolloConfigurationIT.class
                                                 .getClassLoader()
                                                 .getResource("docker/docker-compose.yaml").getPath()))
             .withExposedService("apollo-config-and-portal", 8080,

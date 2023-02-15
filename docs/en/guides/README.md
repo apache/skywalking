@@ -32,16 +32,16 @@ as well as write some unit test (UT) codes to verify that the new codes would wo
 If the new codes involve other components or libraries, you should also write integration tests (IT).
 
 SkyWalking leverages the plugin `maven-surefire-plugin` to run the UTs and uses `maven-failsafe-plugin`
-to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts with `IT`)
-and leaves them for `maven-failsafe-plugin` to run, which is bound to the `verify` goal.
+to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts or ends with `*IT`, `IT*`)
+and leaves them for `maven-failsafe-plugin` to run, which is bound to the `integration-test` goal.
 Therefore, to run the UTs, try `./mvnw clean test`, which only runs the UTs but not the ITs.
 
-If you would like to run the ITs, please set the property `skipITs` to false
-as well as the profiles of the modules whose ITs you want to run.
-E.g. if you would like to run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipITs=false`,
-and if you would like to run all the ITs, simply run `./mvnw clean verify -DskipITs=false`.
+If you would like to run the ITs, please run `./mvnw integration-test` as well as the profiles of the modules whose ITs you want to run.
+If you don't want to run UTs, please add `-DskipUTs=true`.
+E.g. if you would like to only run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipUTs=true`,
+and if you would like to run all the ITs, simply run `./mvnw clean integration-test -DskipUTs=true`.
 
-Please be advised that if you're writing integration tests, name it with the pattern `IT*` so they would only run when property `skipITs` is set to false.
+Please be advised that if you're writing integration tests, name it with the pattern `IT*` or `*IT` so they would only run in goal `integration-test`.
 
 ### Java Microbenchmark Harness (JMH)
 JMH is a Java harness for building, running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targeting the JVM.

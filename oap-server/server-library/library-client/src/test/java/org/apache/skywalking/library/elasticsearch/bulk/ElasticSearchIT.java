@@ -44,7 +44,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Slf4j
-public class ITElasticSearch {
+public class ElasticSearchIT {
 
     public static Collection<Object[]> versions() {
         // noinspection resource
