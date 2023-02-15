@@ -38,7 +38,7 @@ services:
     networks:
       - e2e
     ports:
-      - 9093:9093
+      - 9093
     healthcheck:
       test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 9093"]
       interval: 5s
