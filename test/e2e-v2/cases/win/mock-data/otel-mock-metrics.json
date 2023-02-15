@@ -6,7 +6,7 @@
           {
             "key": "service.name",
             "value": {
-              "stringValue": "10.211.55.3"
+              "stringValue": "windows-monitoring"
             }
           },
           {
@@ -89,7 +89,7 @@
           {
             "key": "service.name",
             "value": {
-              "stringValue": "10.211.55.3"
+              "stringValue": "windows-monitoring"
             }
           },
           {

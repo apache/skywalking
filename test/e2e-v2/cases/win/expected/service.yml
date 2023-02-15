@@ -14,9 +14,9 @@
 # limitations under the License.
 
   {{- contains . }}
-- id: {{ b64enc "10.211.55.3:9182" }}.1
+- id: {{ b64enc "10.211.55.3" }}.1
   name: 10.211.55.3
-  group: 
+  group: ""
   shortname: 10.211.55.3
   normal: true
   layers:
