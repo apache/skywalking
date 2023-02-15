@@ -141,7 +141,13 @@ public enum Layer {
     /**
      * EKS (Amazon Elastic Kubernetes Service) is k8s service provided by AWS Cloud
      */
-    AWS_EKS(22, true);
+    AWS_EKS(22, true),
+
+    /**
+     * Windows Machine
+     */
+    OS_WINDOWS(23, true);
+
 
     private final int value;
     /**
