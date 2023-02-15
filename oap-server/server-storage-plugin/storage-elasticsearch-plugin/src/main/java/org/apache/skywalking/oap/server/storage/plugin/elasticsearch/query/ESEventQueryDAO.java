@@ -37,7 +37,7 @@ import org.apache.skywalking.oap.server.core.query.type.event.EventQueryConditio
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
-import org.apache.skywalking.oap.server.core.source.Event;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
@@ -78,6 +78,10 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
 
     private void buildMustQueryListByCondition(final EventQueryCondition condition,
                                                final BoolQueryBuilder query) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(Event.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, Event.INDEX_NAME));
+        }
+        
         if (!isNullOrEmpty(condition.getUuid())) {
             query.must(Query.term(Event.UUID, condition.getUuid()));
         }

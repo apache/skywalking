@@ -20,7 +20,7 @@ SW_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 CONTEXT ?= ${SW_ROOT}/dist
 SKIP_TEST ?= false
 DIST ?= apache-skywalking-apm-bin.tar.gz
-CLI_VERSION ?= 0.9.0 # CLI version inside OAP image should always use an Apache released artifact.
+CLI_VERSION ?= 0.11.0 # CLI version inside OAP image should always use an Apache released artifact.
 
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive

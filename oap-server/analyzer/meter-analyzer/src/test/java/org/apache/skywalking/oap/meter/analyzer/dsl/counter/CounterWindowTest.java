@@ -20,10 +20,11 @@ package org.apache.skywalking.oap.meter.analyzer.dsl.counter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.vavr.Tuple2;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.time.Duration;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
 
 import static java.time.Instant.parse;
 
@@ -52,7 +53,7 @@ public class CounterWindowTest {
             return e._2 - increase._2;
         }).toArray();
 
-        Assert.assertArrayEquals(new double[] {0, 1d, 1d, 1d, 1d, 0d, 2d, 1d}, actuals, 0.d);
+        Assertions.assertArrayEquals(new double[] {0, 1d, 1d, 1d, 1d, 0d, 2d, 1d}, actuals, 0.d);
     }
 
     @Test
@@ -65,7 +66,7 @@ public class CounterWindowTest {
             return e._2 - increase._2;
         }).toArray();
 
-        Assert.assertArrayEquals(new double[] {0, 1d, 2d, 2d, 2d, 0d, 3d, 3d}, actuals, 0.d);
+        Assertions.assertArrayEquals(new double[] {0, 1d, 2d, 2d, 2d, 0d, 3d, 3d}, actuals, 0.d);
     }
 
     @Test
@@ -78,7 +79,7 @@ public class CounterWindowTest {
             return e._2 - increase._2;
         }).toArray();
 
-        Assert.assertArrayEquals(new double[] {0, 1d, 2d, 3d, 4d, 0d, 5d, 5d}, actuals, 0.d);
+        Assertions.assertArrayEquals(new double[] {0, 1d, 2d, 3d, 4d, 0d, 5d, 5d}, actuals, 0.d);
     }
 
     @Test
@@ -91,6 +92,6 @@ public class CounterWindowTest {
             return e._2 - increase._2;
         }).toArray();
 
-        Assert.assertArrayEquals(new double[] {0, 1d, 2d, 3d, 4d, 0d, 1d, 2d}, actuals, 0.d);
+        Assertions.assertArrayEquals(new double[] {0, 1d, 2d, 3d, 4d, 0d, 1d, 2d}, actuals, 0.d);
     }
 }

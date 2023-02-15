@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.microbench.library.datacarrier.common;
 
 import org.apache.skywalking.oap.server.library.datacarrier.common.AtomicRangeInteger;
 import org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
 
 public class AtomicRangeIntegerBenchmark extends AbstractMicrobenchmark {
@@ -34,14 +34,14 @@ public class AtomicRangeIntegerBenchmark extends AbstractMicrobenchmark {
     public void testGetAndIncrement() {
         AtomicRangeInteger atomicI = new AtomicRangeInteger(0, 10);
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(i, atomicI.getAndIncrement());
+            Assertions.assertEquals(i, atomicI.getAndIncrement());
         }
-        Assert.assertEquals(0, atomicI.getAndIncrement());
-        Assert.assertEquals(1, atomicI.get());
-        Assert.assertEquals(1, atomicI.intValue());
-        Assert.assertEquals(1, atomicI.longValue());
-        Assert.assertEquals(1, (int) atomicI.floatValue());
-        Assert.assertEquals(1, (int) atomicI.doubleValue());
+        Assertions.assertEquals(0, atomicI.getAndIncrement());
+        Assertions.assertEquals(1, atomicI.get());
+        Assertions.assertEquals(1, atomicI.intValue());
+        Assertions.assertEquals(1, atomicI.longValue());
+        Assertions.assertEquals(1, (int) atomicI.floatValue());
+        Assertions.assertEquals(1, (int) atomicI.doubleValue());
     }
 
     @Test

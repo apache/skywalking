@@ -18,16 +18,34 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ComponentLibraryCatalogFileTest {
     @Test
     public void testInitAndSettings() {
         ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
-        Assert.assertEquals(1, service.getComponentId("Tomcat"));
-        Assert.assertEquals(7, service.getServerIdBasedOnComponent(30));
-        Assert.assertEquals(21, service.getServerIdBasedOnComponent(21));
-        Assert.assertEquals("Redis", service.getServerNameBasedOnComponent(30));
+        Assertions.assertEquals(1, service.getComponentId("Tomcat"));
+        Assertions.assertEquals(7, service.getServerIdBasedOnComponent(30));
+        Assertions.assertEquals(21, service.getServerIdBasedOnComponent(21));
+        Assertions.assertEquals("Redis", service.getServerNameBasedOnComponent(30));
+    }
+
+    /**
+     * Test priority sequence, TCP < TLS(TCP) < RPC < HTTP < HTTPS < SpringMVC
+     */
+    @Test
+    public void testPriority() {
+        ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
+        Assertions.assertEquals(false, service.compare(service.getComponentId("Unknown"), service.getComponentId("tcp")));
+        Assertions.assertEquals(false, service.compare(service.getComponentId("tcp"), service.getComponentId("tls")));
+        Assertions.assertEquals(false, service.compare(service.getComponentId("tls"), service.getComponentId("rpc")));
+        Assertions.assertEquals(false, service.compare(service.getComponentId("rpc"), service.getComponentId("http")));
+        Assertions.assertEquals(false, service.compare(service.getComponentId("http"), service.getComponentId("https")));
+        Assertions.assertEquals(false, service.compare(service.getComponentId("https"), service.getComponentId("SpringMVC")));
+
+        // Equal priority
+        Assertions.assertEquals(false, service.compare(service.getComponentId("Dubbo"), service.getComponentId("SpringMVC")));
+        Assertions.assertEquals(false, service.compare(service.getComponentId("SpringMVC"), service.getComponentId("Dubbo")));
     }
 }

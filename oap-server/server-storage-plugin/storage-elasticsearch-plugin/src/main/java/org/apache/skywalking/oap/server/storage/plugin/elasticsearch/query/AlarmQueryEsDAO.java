@@ -32,6 +32,7 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
@@ -51,12 +52,15 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
     @Override
     public Alarms getAlarm(final Integer scopeId, final String keyword, final int limit,
                            final int from,
-                           final long startTB, final long endTB, final List<Tag> tags)
+                           final Duration duration,
+                           final List<Tag> tags)
         throws IOException {
+        long startTB = duration.getStartTimeBucketInSec();
+        long endTB = duration.getEndTimeBucketInSec();
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(AlarmRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(AlarmRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AlarmRecord.INDEX_NAME));
         }
 

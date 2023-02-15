@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.analyzer.event;
 
 import org.apache.skywalking.oap.server.analyzer.event.listener.EventRecordAnalyzerListener;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -41,8 +40,8 @@ public class EventAnalyzerModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return new EventAnalyzerModuleConfig();
+    public ConfigCreator newConfigCreator() {
+        return null;
     }
 
     @Override

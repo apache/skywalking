@@ -18,7 +18,11 @@ version: '2.1'
 services:
   oap:
     environment:
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth,batch-meter
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-micrometer,batch-meter
+      #virtual cache test case
+      SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD: default:-1
+      SW_SLOW_CACHE_SLOW_READ_THRESHOLD: default:-1
+      SW_CORE_TOPN_REPORT_PERIOD: 1 # TopN period
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
@@ -33,12 +37,13 @@ services:
       service: provider
     environment:
       SW_METER_REPORT_INTERVAL: 5
+    # Activate guava-cache plugin for virtual cache test case
+    command: ["bash" , "-c" , "cp /skywalking/agent/optional-plugins/apm-guava-cache-plugin*.jar /skywalking/agent/plugins/ && java -jar /services_provider.jar"]
     depends_on:
       oap:
         condition: service_healthy
     ports:
       - 9090
-
   sender:
     image: "eclipse-temurin:8-jre"
     volumes:

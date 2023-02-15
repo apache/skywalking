@@ -66,7 +66,7 @@
             "content": "Observe Envoy Proxy through Envoy Metrics Service.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/envoy/metrics_service_setting/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/envoy/metrics_service_setting/"
           },
           "moved": false
         }

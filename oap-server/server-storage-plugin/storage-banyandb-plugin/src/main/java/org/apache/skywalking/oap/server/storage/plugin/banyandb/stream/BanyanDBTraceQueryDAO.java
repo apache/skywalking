@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
+import org.apache.skywalking.banyandb.v1.client.Element;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -28,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -45,6 +47,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryDAO {
     private static final Set<String> BASIC_TAGS = ImmutableSet.of(SegmentRecord.TRACE_ID,
@@ -64,7 +68,6 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             SegmentRecord.ENDPOINT_ID,
             SegmentRecord.LATENCY,
             SegmentRecord.START_TIME,
-            SegmentRecord.TIME_BUCKET,
             SegmentRecord.DATA_BINARY);
 
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
@@ -72,7 +75,13 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     }
 
     @Override
-    public TraceBrief queryBasicTraces(long startSecondTB, long endSecondTB, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
+    public TraceBrief queryBasicTraces(Duration duration, long minDuration, long maxDuration, String serviceId, String serviceInstanceId, String endpointId, String traceId, int limit, int from, TraceState traceState, QueryOrder queryOrder, List<Tag> tags) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         final QueryBuilder<StreamQuery> q = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
@@ -144,7 +153,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             return traceBrief;
         }
 
-        for (final RowEntity row : resp.getElements()) {
+        for (final Element row : resp.getElements()) {
             BasicTrace basicTrace = new BasicTrace();
 
             basicTrace.setSegmentId(row.getId());

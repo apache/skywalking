@@ -1,0 +1,72 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+expSuffix: service(['host'], Layer.OS_LINUX)
+metricPrefix: meter_vm
+metricsRules:
+
+  # cpu
+  - name: cpu_total_percentage
+    exp: cpu_usage_active.tagEqual('cpu', 'cpu-total')
+  - name: cpu_average_used
+    exp: cpu_usage_active.tagNotEqual('cpu', 'cpu-total').avg(['host', 'cpu'])
+  - name: cpu_load1
+    exp: system_load1
+  - name: cpu_load5
+    exp: system_load5
+  - name: cpu_load15
+    exp: system_load15
+
+  # memory
+  - name: memory_total
+    exp: mem_total
+  - name: memory_available
+    exp: mem_available
+  - name: memory_used
+    exp: mem_used
+
+  # swap
+  - name: memory_swap_free
+    exp: mem_swap_free
+  - name: memory_swap_total
+    exp: mem_swap_total
+  - name: memory_swap_percentage
+    exp: 100 - ((mem_swap_free / mem_swap_total) * 100)
+
+    #node filesystem
+  - name: filesystem_percentage
+    exp: disk_used_percent.avg(['host','device'])
+
+    #node disk
+  - name: disk_read
+    exp: diskio_read_bytes.rate('PT1M')
+  - name: disk_written
+    exp: diskio_write_bytes.rate('PT1M')
+
+    #node net
+  - name: network_receive
+    exp: net_bytes_recv.irate()
+  - name: network_transmit
+    exp: net_bytes_sent.irate()
+
+    #node netstat
+  - name: tcp_curr_estab
+    exp: netstat_tcp_established
+  - name: tcp_tw
+    exp: netstat_tcp_time_wait
+  - name: tcp_alloc
+    exp: netstat_tcp_listen
+  - name: udp_inuse
+    exp: netstat_udp_socket

@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -30,14 +33,16 @@ import org.apache.skywalking.oap.server.core.query.MetricDefinition;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
-import org.apache.skywalking.oap.server.core.query.TopNRecordsQueryService;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -50,7 +55,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
     private MetricsQueryService metricsQueryService;
     private AggregationQueryService queryService;
-    private TopNRecordsQueryService topNRecordsQueryService;
+    private RecordQueryService recordQueryService;
     private MetricsMetadataQueryService metricsMetadataQueryService;
 
     public MetricsQuery(ModuleManager moduleManager) {
@@ -75,13 +80,13 @@ public class MetricsQuery implements GraphQLQueryResolver {
         return queryService;
     }
 
-    private TopNRecordsQueryService getTopNRecordsQueryService() {
-        if (topNRecordsQueryService == null) {
-            this.topNRecordsQueryService = moduleManager.find(CoreModule.NAME)
+    private RecordQueryService getRecordQueryService() {
+        if (recordQueryService == null) {
+            this.recordQueryService = moduleManager.find(CoreModule.NAME)
                                                         .provider()
-                                                        .getService(TopNRecordsQueryService.class);
+                                                        .getService(RecordQueryService.class);
         }
-        return topNRecordsQueryService;
+        return recordQueryService;
     }
 
     private MetricsQueryService getMetricsQueryService() {
@@ -214,11 +219,15 @@ public class MetricsQuery implements GraphQLQueryResolver {
 
     /**
      * Read the sampled records.
+     *
+     * @since 9.3.0 This query is replaced by {@link RecordQueryService#readRecords(RecordCondition, Duration)}
      */
+    @Deprecated
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
             return Collections.emptyList();
         }
-        return getTopNRecordsQueryService().readSampledRecords(condition, duration);
+        final List<Record> records = getRecordQueryService().readRecords(new RecordCondition(condition), duration);
+        return records.stream().filter(Objects::nonNull).map(Record::toSelectedRecord).collect(Collectors.toList());
     }
 }

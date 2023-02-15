@@ -20,10 +20,10 @@ Getting Started
 To help you get started, try the following links:
 
 Getting Started
-    https://skywalking.apache.org/docs/main/latest/readme/
+    https://skywalking.apache.org/docs/main/next/readme/
 
 Building
-    https://skywalking.apache.org/docs/main/latest/en/guides/how-to-build/
+    https://skywalking.apache.org/docs/main/next/en/guides/how-to-build/
 
 We welcome contributions of all kinds, for details of how you can help
     https://github.com/apache/skywalking/blob/master/CONTRIBUTING.md

@@ -1,11 +1,11 @@
 Apache SkyWalking
-Copyright 2017-2022 The Apache Software Foundation
+Copyright 2017-2023 The Apache Software Foundation
 
 This product includes software developed at
 The Apache Software Foundation (http://www.apache.org/).
 
 -----------------------------------------------------------------------
-This product contains code form the Prometheus Project:
+This product contains code from the Prometheus Project:
 
 Data model artifacts for Prometheus.
 Copyright 2012-2015 The Prometheus Authors
@@ -13,7 +13,7 @@ Copyright 2012-2015 The Prometheus Authors
 This product includes software developed at
 SoundCloud Ltd. (http://soundcloud.com/).
 -----------------------------------------------------------------------
-This product contains code form the Apache Maven Wrapper Project:
+This product contains code from the Apache Maven Wrapper Project:
 
 Apache Maven Wrapper
 Copyright 2013-2022 The Apache Software Foundation

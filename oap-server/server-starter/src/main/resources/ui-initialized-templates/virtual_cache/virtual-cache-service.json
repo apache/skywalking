@@ -1,0 +1,622 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "Virtual-Cache-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "Access Avg Response Time (ms)",
+            "name": "Access_Avg_Response"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_access_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "6",
+          "label": "Access_Avg_Response",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            }
+          ]
+        },
+
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "Access Successful Rate (%)",
+            "name": "Access_Successful_Rate"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_access_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ],
+          "value": "3",
+          "label": "Successful_Rate",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "3"
+            },
+            {
+              "widgetId": "4"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Access Traffic (calls / min)",
+            "name": "Access_Traffic"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_access_cpm"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "4",
+          "label": "Cache_Traffic",
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "4"
+            }
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Access Latency Percentile (ms)",
+            "name": "Access_Latency_Percentile"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_access_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4"
+            }
+          ],
+          "value": "5",
+          "label": "5",
+          "associate": [
+            {
+              "widgetId": "1"
+            },
+            {
+              "widgetId": "2"
+            },
+            {
+              "widgetId": "3"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
+        },
+
+
+
+
+        {
+          "x": 0,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "Read Avg Response Time (ms)",
+            "name": "Read_Avg_Response"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_read_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "6",
+          "label": "Cache_Read_Avg_Response",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "Read Successful Rate (%)",
+            "name": "Read_Successful_Rate"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_read_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ],
+          "value": "3",
+          "label": "Successful_Rate",
+          "associate": [
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "7"
+            },
+            {
+              "widgetId": "8"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "9",
+          "type": "Widget",
+          "widget": {
+            "title": "Write Avg Response Time (ms)",
+            "name": "Write_Avg_Response"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_write_resp_time"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "6",
+          "label": "Read_Avg_Response",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "10"
+            },
+            {
+              "widgetId": "11"
+            },
+            {
+              "widgetId": "12"
+            }
+          ]
+        },
+
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "10",
+          "type": "Widget",
+          "widget": {
+            "title": "Write Successful Rate (%)",
+            "name": "Write_Successful_Rate"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_write_sla"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "percentage"
+            }
+          ],
+          "value": "3",
+          "label": "Successful_Rate",
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          },
+          "associate": [
+            {
+              "widgetId": "9"
+            },
+            {
+              "widgetId": "11"
+            },
+            {
+              "widgetId": "12"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "widget": {
+            "title": "Read Traffic (calls / min)",
+            "name": "Read_Traffic"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_read_cpm"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "4",
+          "label": "Cache_Traffic",
+          "associate": [
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "8"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "widget": {
+            "title": "Read Latency Percentile (ms)",
+            "name": "Read_Latency_Percentile"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_read_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4"
+            }
+          ],
+          "value": "5",
+          "label": "5",
+          "associate": [
+            {
+              "widgetId": "5"
+            },
+            {
+              "widgetId": "6"
+            },
+            {
+              "widgetId": "7"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
+        },
+
+        {
+          "x": 12,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "11",
+          "type": "Widget",
+          "widget": {
+            "title": "Write Traffic (calls / min)",
+            "name": "Write_Traffic"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_write_cpm"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "value": "4",
+          "label": "Database_Traffic",
+          "associate": [
+            {
+              "widgetId": "9"
+            },
+            {
+              "widgetId": "10"
+            },
+            {
+              "widgetId": "12"
+            }
+          ]
+        },
+        {
+          "x": 18,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "12",
+          "type": "Widget",
+          "widget": {
+            "title": "Write Latency Percentile (ms)",
+            "name": "Write_Latency_Percentile"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "cache_write_percentile"
+          ],
+          "metricTypes": [
+            "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "P50, P75, P90, P95, P99",
+              "labelsIndex": "0,1,2,3,4"
+            }
+          ],
+          "value": "5",
+          "label": "5",
+          "associate": [
+            {
+              "widgetId": "9"
+            },
+            {
+              "widgetId": "10"
+            },
+            {
+              "widgetId": "11"
+            }
+          ],
+          "filters": {
+            "dataIndex": 17,
+            "sourceId": "4"
+          }
+        },
+        {
+          "x": 0,
+          "y": 39,
+          "w": 12,
+          "h": 24,
+          "i": "13",
+          "type": "Widget",
+          "widget": {
+            "title": "Slow Read Command (ms)"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "metrics": [
+            "top_n_cache_read_command"
+          ],
+          "metricTypes": [
+            "readRecords"
+          ],
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "x": 12,
+          "y": 39,
+          "w": 12,
+          "h": 24,
+          "i": "14",
+          "type": "Widget",
+          "widget": {
+            "title": "Slow Write Command (ms)"
+          },
+          "graph": {
+            "type": "TopList",
+            "color": "purple"
+          },
+          "metrics": [
+            "top_n_cache_write_command"
+          ],
+          "metricTypes": [
+            "readRecords"
+          ],
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "layer": "VIRTUAL_CACHE",
+      "entity": "Service",
+      "name": "Virtual-Cache-Service",
+      "id": "Virtual-Cache-Service",
+      "isRoot": false
+    }
+  }
+]

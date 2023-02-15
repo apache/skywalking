@@ -77,12 +77,6 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     @Getter
     private long l1FlushPeriod = 500;
     /**
-     * Hold and forward CoreModuleConfig#enableDatabaseSession to the persistent worker.
-     */
-    @Setter
-    @Getter
-    private boolean enableDatabaseSession;
-    /**
      * The threshold of session time. Unit is ms. Default value is 70s.
      */
     @Setter
@@ -106,23 +100,31 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     }
 
     /**
-     * Create the workers and work flow for every metrics.
+     * Create the workers and work flow for OAL metrics.
      *
      * @param moduleDefineHolder pointer of the module define.
      * @param stream             definition of the metrics class.
      * @param metricsClass       data type of the streaming calculation.
      */
-    @Override
     public void create(ModuleDefineHolder moduleDefineHolder,
                        Stream stream,
                        Class<? extends Metrics> metricsClass) throws StorageException {
-        this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass);
+        this.create(moduleDefineHolder, StreamDefinition.from(stream), metricsClass, MetricStreamKind.OAL);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Create the workers and work flow for MAL meter
+     */
     public void create(ModuleDefineHolder moduleDefineHolder,
                        StreamDefinition stream,
-                       Class<? extends Metrics> metricsClass) throws StorageException {
+                       Class<? extends Metrics> meterClass) throws StorageException {
+        this.create(moduleDefineHolder, stream, meterClass, MetricStreamKind.MAL);
+    }
+
+    private void create(ModuleDefineHolder moduleDefineHolder,
+                        StreamDefinition stream,
+                        Class<? extends Metrics> metricsClass,
+                        MetricStreamKind kind) throws StorageException {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()
                                                                               .getService(StorageBuilderFactory.class);
@@ -133,7 +135,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         IMetricsDAO metricsDAO;
         try {
             metricsDAO = storageDAO.newMetricsDao(builder.getDeclaredConstructor().newInstance());
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 InvocationTargetException e) {
             throw new UnexpectedException("Create " + stream.getBuilder().getSimpleName() + " metrics DAO failure.", e);
         }
 
@@ -165,14 +168,14 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                     metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Hour),
                     false
                 );
-                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
+                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate, kind);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Day),
                     false
                 );
-                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate);
+                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate, kind);
             }
 
             transWorker = new MetricsTransWorker(
@@ -184,7 +187,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             false
         );
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
-            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate);
+            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate, kind);
 
         String remoteReceiverWorkerName = stream.getName() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
@@ -194,7 +197,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
         MetricsRemoteWorker remoteWorker = new MetricsRemoteWorker(moduleDefineHolder, remoteReceiverWorkerName);
         MetricsAggregateWorker aggregateWorker = new MetricsAggregateWorker(
-            moduleDefineHolder, remoteWorker, stream.getName(), l1FlushPeriod);
+            moduleDefineHolder, remoteWorker, stream.getName(), l1FlushPeriod, kind);
 
         entryWorkers.put(metricsClass, aggregateWorker);
     }
@@ -203,13 +206,14 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                            IMetricsDAO metricsDAO,
                                                            Model model,
                                                            MetricsTransWorker transWorker,
-                                                           boolean supportUpdate) {
+                                                           boolean supportUpdate,
+                                                           MetricStreamKind kind) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
-        ExportWorker exportWorker = new ExportWorker(moduleDefineHolder);
+        ExportMetricsWorker exportWorker = new ExportMetricsWorker(moduleDefineHolder);
 
         MetricsPersistentWorker minutePersistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO, alarmNotifyWorker, exportWorker, transWorker,
-            enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
+            supportUpdate, storageSessionTimeout, metricsDataTTL, kind
         );
         persistentWorkers.add(minutePersistentWorker);
 
@@ -219,10 +223,11 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
     private MetricsPersistentWorker downSamplingWorker(ModuleDefineHolder moduleDefineHolder,
                                                        IMetricsDAO metricsDAO,
                                                        Model model,
-                                                       boolean supportUpdate) {
+                                                       boolean supportUpdate,
+                                                       MetricStreamKind kind) {
         MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO,
-            enableDatabaseSession, supportUpdate, storageSessionTimeout, metricsDataTTL
+            supportUpdate, storageSessionTimeout, metricsDataTTL, kind
         );
         persistentWorkers.add(persistentWorker);
 

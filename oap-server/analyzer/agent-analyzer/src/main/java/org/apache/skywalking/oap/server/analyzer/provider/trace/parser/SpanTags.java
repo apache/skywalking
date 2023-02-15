@@ -37,6 +37,20 @@ public class SpanTags {
 
     public static final String DB_TYPE = "db.type";
 
+    public static final String CACHE_TYPE = "cache.type";
+
+    public static final String CACHE_OP = "cache.op";
+
+    public static final String CACHE_CMD = "cache.cmd";
+
+    public static final String CACHE_KEY = "cache.key";
+
+    public static final String MQ_QUEUE = "mq.queue";
+
+    public static final String MQ_TOPIC = "mq.topic";
+
+    public static final String TRANSMISSION_LATENCY = "transmission.latency";
+
     /**
      * Tag, x-le(extension logic endpoint) series tag. Value is JSON format.
      * <pre>

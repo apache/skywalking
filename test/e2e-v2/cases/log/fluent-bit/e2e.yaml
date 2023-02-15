@@ -32,11 +32,8 @@ trigger:
   action: http
   interval: 3s
   times: 10
-  url: http://${provider_host}:${provider_9090}/users
-  method: POST
-  body: '{"id":"123","name":"skywalking"}'
-  headers:
-    "Content-Type": "application/json"
+  url: http://${provider_host}:${provider_9090}/logs/trigger
+  method: GET
 
 verify:
   # verify with retry strategy

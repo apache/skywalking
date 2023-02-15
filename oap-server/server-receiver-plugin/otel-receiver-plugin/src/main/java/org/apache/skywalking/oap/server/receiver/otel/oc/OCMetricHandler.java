@@ -33,29 +33,40 @@ import io.opencensus.proto.metrics.v1.SummaryValue;
 import io.opencensus.proto.resource.v1.Resource;
 import io.vavr.Function1;
 import io.vavr.Tuple;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rules;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Counter;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Gauge;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
 import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
+import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+
 import static java.util.stream.Collectors.toList;
 
+@RequiredArgsConstructor
 public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase implements Handler {
     private static final String HOST_NAME_LABEL = "node_identifier_host_name";
     private List<PrometheusMetricConverter> converters;
+
+    private final ModuleManager manager;
+
+    private final OtelMetricReceiverConfig config;
 
     @Override public StreamObserver<ExportMetricsServiceRequest> export(
         StreamObserver<ExportMetricsServiceResponse> responseObserver) {
@@ -172,19 +183,25 @@ public class OCMetricHandler extends MetricsServiceGrpc.MetricsServiceImplBase i
     }
 
     @Override
-    public void active(
-        OtelMetricReceiverConfig config,
-        MeterSystem meterSystem,
-        GRPCHandlerRegister grpcHandlerRegister)
+    public void active()
         throws ModuleStartException {
         final List<String> enabledRules =
             Splitter.on(",")
                 .omitEmptyStrings()
                 .splitToList(config.getEnabledOtelRules());
-        final List<Rule> rules = Rules.loadRules("otel-rules", enabledRules);
+        final List<Rule> rules;
+        try {
+            rules = Rules.loadRules("otel-rules", enabledRules);
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to load otel rules.", e);
+        }
         if (rules.isEmpty()) {
             return;
         }
+        GRPCHandlerRegister grpcHandlerRegister = manager.find(SharingServerModule.NAME)
+                                                              .provider()
+                                                              .getService(GRPCHandlerRegister.class);
+        final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
         this.converters = rules.stream().map(r -> new PrometheusMetricConverter(r, meterSystem))
             .collect(toList());
         grpcHandlerRegister.addHandler(this);

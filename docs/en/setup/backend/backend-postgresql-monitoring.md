@@ -1,21 +1,22 @@
 # PostgreSQL monitoring
+## PostgreSQL server performance from `postgres-exporter`
 SkyWalking leverages postgres-exporter for collecting metrics data from PostgreSQL. It leverages OpenTelemetry Collector to transfer the metrics to
 [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
 
-## Data flow
+### Data flow
 1. postgres-exporter collect metrics data from PostgreSQL.
 2. OpenTelemetry Collector fetches metrics from postgres-exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
-## Set up
+### Set up
 1. Set up [postgres-exporter](https://github.com/prometheus-community/postgres_exporter#quick-start).
 2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
-## PostgreSQL Monitoring
+### PostgreSQL Monitoring
 PostgreSQL monitoring provides monitoring of the status and resources of the PostgreSQL server.PostgreSQL server as a `Service` in OAP, and land on the `Layer: POSTGRESQL`.
 
-### PostgreSQL Supported Metrics
+#### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
 | Shared Buffers |   MB   | meter_pg_shared_buffers | The number of shared memory buffers used by the server | postgres-exporter|
@@ -44,8 +45,33 @@ PostgreSQL monitoring provides monitoring of the status and resources of the Pos
 | Idle Sessions |      | meter_pg_idle_sessions | The number of connections which state is idle,idle in transaction or idle in transaction (aborted)  | postgres-exporter|
 | Locks Count |      | meter_pg_locks_count | Number of locks  | postgres-exporter|
 
-
-## Customizations
+### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/postgresql.yaml`.
+The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.
+
+## Collect sampled slow SQLs
+SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow SQL statements from PostgreSQL.
+
+### Data flow
+1. fluentbit agent collects slow sql logs from PostgreSQL.
+2. fluentbit agent sends data to SkyWalking OAP Server using native log APIs via HTTP.
+3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
+
+### Set up
+1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
+2. Config [fluentbit](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/fluent-bit.conf)
+3. Config PostgreSQL to enable slow log. [Example](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/postgresql.conf).
+
+### Slow SQL Monitoring
+Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL Cluster is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
+Each PostgreSQL server is cataloged as an `Instance` in OAP.
+#### Supported Metrics
+| Monitoring Panel | Unit | Metric Name | Description | Data Source |
+|-----|------|-----|-----|-----|
+|Slow Statements |   ms   | top_n_database_statement | The latency and statement of PostgreSQL slow SQLs | fluentbit|
+
+### Customizations
+You can customize your own metrics/expression/dashboard panel.
+The slowsql expression rules are found in `/config/lal/pgsql-slowsql.yaml`
 The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.

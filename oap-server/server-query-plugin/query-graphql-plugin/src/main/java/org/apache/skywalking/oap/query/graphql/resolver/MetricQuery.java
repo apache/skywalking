@@ -84,7 +84,6 @@ public class MetricQuery implements GraphQLQueryResolver {
 
     public IntValues getLinearIntValues(final MetricCondition metrics,
                                         final Duration duration) throws IOException {
-
         MetricsCondition condition = new MetricsCondition();
         condition.setName(metrics.getName());
         condition.setEntity(new MockEntity(metrics.getId()));

@@ -34,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.meter.analyzer.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.dsl.Expression;
@@ -247,8 +248,8 @@ public class Analyzer {
     private void createMetric(final ScopeType scopeType,
                               final String dataType,
                               final DownsamplingType downsamplingType) {
-        String functionName = String.format(
-            "%s%s", downsamplingType.toString().toLowerCase(), StringUtils.capitalize(dataType));
+        String downSamplingStr = CaseUtils.toCamelCase(downsamplingType.toString().toLowerCase(), false, '_');
+        String functionName = String.format("%s%s", downSamplingStr, StringUtils.capitalize(dataType));
         meterSystem.create(metricName, functionName, scopeType);
     }
 
@@ -323,7 +324,7 @@ public class Analyzer {
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         metrics.setSourceServiceId(entity.sourceServiceId());
         metrics.setDestServiceId(entity.destServiceId());
-        metrics.setComponentId(0);
+        metrics.getComponentIds().add(0);
         metrics.setEntityId(entity.id());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
@@ -333,7 +334,7 @@ public class Analyzer {
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         metrics.setSourceServiceId(entity.sourceServiceId());
         metrics.setDestServiceId(entity.destServiceId());
-        metrics.setComponentId(0);
+        metrics.getComponentIds().add(0);
         metrics.setEntityId(entity.id());
         MetricsStreamProcessor.getInstance().in(metrics);
     }

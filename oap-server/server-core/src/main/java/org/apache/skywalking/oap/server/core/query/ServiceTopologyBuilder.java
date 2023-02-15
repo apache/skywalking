@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -35,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.Node;
 import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 class ServiceTopologyBuilder {
@@ -108,6 +108,9 @@ class ServiceTopologyBuilder {
                 call.addDetectPoint(DetectPoint.CLIENT);
                 call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
+            } else {
+                Call call = callMap.get(relationId);
+                call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
             }
         }
 
@@ -149,8 +152,24 @@ class ServiceTopologyBuilder {
              * Set the node type due to service side component id has higher priority
              */
             final Node serverSideNode = nodes.get(serverCall.getTarget());
-            serverSideNode.setType(
-                componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+            final String nodeType = serverSideNode.getType();
+            if (nodeType == null || !serverSideNode.hasSetOnceAtServerSide()) {
+                serverSideNode.setTypeFromServerSide(
+                    componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+            } else {
+                final Integer componentId = componentLibraryCatalogService.getComponentId(nodeType);
+                if (componentId != null) {
+                    if (componentLibraryCatalogService.compare(componentId, serverCall.getComponentId())) {
+                        serverSideNode.setTypeFromServerSide(
+                            componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+                    } else {
+                        //Do nothing, as the current value has higher priority
+                    }
+                } else {
+                    serverSideNode.setTypeFromServerSide(
+                        componentLibraryCatalogService.getComponentName(serverCall.getComponentId()));
+                }
+            }
 
             if (!callMap.containsKey(serverCall.getId())) {
                 Call call = new Call();

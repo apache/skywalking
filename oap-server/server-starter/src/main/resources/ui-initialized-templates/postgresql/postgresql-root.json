@@ -17,7 +17,7 @@
 
 [
    {
-      "id":"90ec4ee8-3df2-4bd9-bcb1-2d50cbe49634",
+      "id":"postgresql-root",
       "configuration":{
          "children":[
             {
@@ -33,7 +33,7 @@
                   "content":"Provide PostgreSQL monitoring through OpenTelemetry's Prometheus Receiver",
                   "fontSize":14,
                   "textAlign":"left",
-                  "url":"https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-postgresql-monitoring/"
+                  "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-postgresql-monitoring/"
                }
             },
             {
@@ -56,7 +56,7 @@
          "layer":"POSTGRESQL",
          "entity":"All",
          "name":"PostgreSQL-Root",
-         "id":"90ec4ee8-3df2-4bd9-bcb1-2d50cbe49634",
+         "id":"postgresql-root",
          "isRoot":true
       }
    }

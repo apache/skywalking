@@ -17,7 +17,8 @@
 FROM eclipse-temurin:11-jre
 
 ENV JAVA_OPTS=" -Xms256M " \
-    SW_OAP_ADDRESS="http://127.0.0.1:12800"
+    SW_OAP_ADDRESS="http://127.0.0.1:12800" \
+    SW_ZIPKIN_ADDRESS="http://127.0.0.1:9412"
 
 WORKDIR skywalking
 
@@ -32,7 +33,7 @@ RUN tar -xzf "$DIST" --strip 1; \
     rm -rf "agent";
 
 COPY docker-entrypoint.sh .
-COPY logback.xml webapp/
+COPY log4j2.xml webapp/
 
 EXPOSE 8080
 

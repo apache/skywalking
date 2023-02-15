@@ -19,49 +19,30 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@RunWith(Parameterized.class)
 public class ScopeTest {
-
-    @Parameterized.Parameter
-    public String name;
-
-    @Parameterized.Parameter(1)
-    public ImmutableMap<String, SampleFamily> input;
-
-    @Parameterized.Parameter(2)
-    public String expression;
-
-    @Parameterized.Parameter(3)
-    public boolean isThrow;
-
-    @Parameterized.Parameter(4)
-    public Map<MeterEntity, Sample[]> want;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
-        // This method is called before `@BeforeClass`.
+        // This method is called before `@BeforeAll`.
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
 
@@ -205,7 +186,7 @@ public class ScopeTest {
                 }
             },
             {
-                "sum_service_endpiont",
+                "sum_service_endpoint",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -250,7 +231,7 @@ public class ScopeTest {
             },
 
             {
-                "sum_service_endpiont_labels",
+                "sum_service_endpoint_labels",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -317,7 +298,7 @@ public class ScopeTest {
                 }
             },
             {
-                "sum_service_endpiont_labels_m",
+                "sum_service_endpoint_labels_m",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
                     Sample.builder()
@@ -576,19 +557,24 @@ public class ScopeTest {
         });
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
 
-    @Test
-    public void test() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void test(final String name,
+                     final ImmutableMap<String, SampleFamily> input,
+                     final String expression,
+                     final boolean isThrow,
+                     final Map<MeterEntity, Sample[]> want) {
         Expression e = DSL.parse(expression);
         Result r = null;
         try {
@@ -603,10 +589,10 @@ public class ScopeTest {
         if (isThrow) {
             fail("Should throw something");
         }
-        assertThat(r.isSuccess(), is(true));
+        assertThat(r.isSuccess()).isEqualTo(true);
         Map<MeterEntity, Sample[]> meterSamplesR = r.getData().context.getMeterSamples();
         meterSamplesR.forEach((meterEntity, samples) -> {
-            assertThat(samples, is(want.get(meterEntity)));
+            assertThat(samples).isEqualTo(want.get(meterEntity));
         });
     }
 }

@@ -7,8 +7,8 @@ There are various ways to collect logs from applications.
 
 You can use [Filebeat](https://www.elastic.co/cn/beats/filebeat), [Fluentd](https://fluentd.org)
 and [FluentBit](http://fluentbit.io) to collect logs, and then transport the logs to SkyWalking OAP through Kafka or
-HTTP protocol, with the formats [Kafka JSON](../../protocols/Log-Data-Protocol.md#native-kafka-protocol)
-or [HTTP JSON array](../../protocols/Log-Data-Protocol.md#http-api).
+HTTP protocol, with the formats [Kafka JSON](../../api/log-data-protocol.md#native-kafka-protocol)
+or [HTTP JSON array](../../api/log-data-protocol.md#http-api).
 
 #### Filebeat
 Filebeat supports using Kafka to transport logs. Open [kafka-fetcher](kafka-fetcher.md#kafka-fetcher) and enable configs `enableNativeJsonLog`.

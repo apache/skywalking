@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.storage.model.ElasticSearchExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Type;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class ElasticSearchColumnTypeMappingTestCase {
     public List<String> a;
@@ -30,18 +33,25 @@ public class ElasticSearchColumnTypeMappingTestCase {
     public void test() throws NoSuchFieldException {
         ColumnTypeEsMapping mapping = new ColumnTypeEsMapping();
 
-        Assert.assertEquals("integer", mapping.transform(int.class, int.class));
-        Assert.assertEquals("integer", mapping.transform(Integer.class, Integer.class));
+        Assertions.assertEquals("integer", mapping.transform(int.class, int.class, null));
+        Assertions.assertEquals("integer", mapping.transform(Integer.class, Integer.class, null));
 
-        Assert.assertEquals("long", mapping.transform(long.class, long.class));
-        Assert.assertEquals("long", mapping.transform(Long.class, Long.class));
+        Assertions.assertEquals("long", mapping.transform(long.class, long.class, null));
+        Assertions.assertEquals("long", mapping.transform(Long.class, Long.class, null));
 
-        Assert.assertEquals("double", mapping.transform(double.class, double.class));
-        Assert.assertEquals("double", mapping.transform(Double.class, Double.class));
+        Assertions.assertEquals("double", mapping.transform(double.class, double.class, null));
+        Assertions.assertEquals("double", mapping.transform(Double.class, Double.class, null));
 
-        Assert.assertEquals("keyword", mapping.transform(String.class, String.class));
+        Assertions.assertEquals("keyword", mapping.transform(String.class, String.class, null));
 
         final Type listFieldType = this.getClass().getField("a").getGenericType();
-        Assert.assertEquals("keyword", mapping.transform(List.class, listFieldType));
+        Assertions.assertEquals("keyword", mapping.transform(List.class, listFieldType,
+                                                         new ElasticSearchExtension(null, null, false, false)
+        ));
+
+        Assertions.assertEquals("keyword", mapping.transform(IntList.class, int.class,
+                                                         new ElasticSearchExtension(null, null, true, false)));
+        Assertions.assertEquals("text", mapping.transform(IntList.class, int.class,
+                                                         new ElasticSearchExtension(null, null, false, false)));
     }
 }

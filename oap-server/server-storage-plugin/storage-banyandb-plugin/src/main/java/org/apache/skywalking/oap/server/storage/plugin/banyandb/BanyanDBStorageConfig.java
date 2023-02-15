@@ -56,4 +56,44 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      * Shards Factor for a super dataset
      */
     private int superDatasetShardsFactor;
+    /**
+     * Default global block interval for non-super-dataset models.
+     * Unit is hour.
+     *
+     * @since 9.4.0
+     */
+    private int blockIntervalHours;
+    /**
+     * Default global segment interval for non-super-dataset models.
+     * Unit is day.
+     *
+     * @since 9.4.0
+     */
+    private int segmentIntervalDays;
+    /**
+     * Default global block interval for super-dataset models.
+     * Unit is hour.
+     *
+     * @since 9.4.0
+     */
+    private int superDatasetBlockIntervalHours;
+    /**
+     * Default global segment interval for super-dataset models.
+     * Unit is day.
+     *
+     * @since 9.4.0
+     */
+    private int superDatasetSegmentIntervalDays;
+    /**
+     * Specify the settings for each group individually. All groups created in BanyanDB can
+     * be found with <a href="https://skywalking.apache.org/docs/skywalking-banyandb/next/crud/group/#list-operation">bydbctl</a>.
+     * <p>
+     * NOTE: setting intervals works for all groups except `measure-default`.
+     * <p>
+     * NOTE: available groups: `measure-default`, `measure-sampled`, `stream-default`
+     * and `stream-*` with names of the super dataset as the suffix.
+     *
+     * @since 9.4.0
+     */
+    private String specificGroupSettings;
 }

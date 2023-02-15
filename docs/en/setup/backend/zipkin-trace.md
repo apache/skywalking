@@ -9,6 +9,8 @@ Set `enableHttpCollector` to enable HTTP collector and `enableKafkaCollector` to
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:default}
   default:
+    # Defines a set of span tag keys which are searchable.
+    # The max length of key=value should be less than 256 or will be dropped.
     searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
     # The sample rate precision is 1/10000, should be between 0 and 10000
     sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
@@ -37,7 +39,6 @@ receiver-zipkin:
 ## Zipkin query
 The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation for query traces. 
 It implemented `ZipkinQueryApiV2` through the HTTP service, supporting Zipkin-lens UI.
-**Notice: Zipkin query API implementation does not support BanyanDB yet.**
 
 Use the following config to activate it.
 
@@ -62,3 +63,10 @@ query-zipkin:
     # Default look back for search traces, 15 minutes in millis
     uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
 ```
+
+## Lens UI
+Lens UI is Zipkin native UI. SkyWalking webapp has bundled it in the binary distribution.
+`{webapp IP}:{webapp port}/zipkin` is exposed and accessible for the browser.
+Meanwhile, `Iframe` UI component could be used to host Zipkin Lens UI on the SkyWalking booster UI dashboard.(link=/zipkin) 
+
+Zipkin Lens UI source codes could be found [here](https://github.com/openzipkin/zipkin/tree/master/zipkin-lens).

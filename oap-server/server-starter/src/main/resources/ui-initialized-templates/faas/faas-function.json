@@ -163,6 +163,10 @@
                   "filters": {
                     "dataIndex": 5,
                     "sourceId": "4-0-5"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -208,7 +212,11 @@
                     {
                       "widgetId": "4-0-7"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 12,
@@ -256,6 +264,10 @@
                   "filters": {
                     "dataIndex": 5,
                     "sourceId": "4-0-5"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -300,6 +312,9 @@
                   "filters": {
                     "dataIndex": 5,
                     "sourceId": "4-0-5"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true
                   }
                 },
                 {
@@ -323,12 +338,6 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
                   "value": "4-0-11",
                   "label": "Function_Instances_Load"
                 },
@@ -351,12 +360,6 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
                   ],
                   "value": "4-0-12",
                   "label": "4-0-12"

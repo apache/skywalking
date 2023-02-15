@@ -95,7 +95,7 @@
             "content": "Provide monitoring of the behavior of Istio through its self-monitoring metrics.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/istio/readme/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/istio/readme/"
           },
           "moved": false
         }

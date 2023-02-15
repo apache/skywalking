@@ -47,7 +47,7 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls
     expected: expected/traces-list.yml
   # negative tags search: relationship should be logical AND instead of logical OR
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST,http.status_code=200
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls --tags http.method=POST,http.status_code=201
     expected: expected/empty-traces-list.yml
   # trace detail
   - query: |
@@ -57,8 +57,10 @@ cases:
       )
     expected: expected/trace-users-detail.yml
   # service metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics sorted --name service_apdex 5
+    expected: expected/metrics-top-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics top --name service_sla 5
-    expected: expected/metrics-top-service-sla.yml
+    expected: expected/metrics-top-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=e2e-service-provider |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=e2e-service-provider |yq e 'to_entries' -

@@ -19,23 +19,29 @@
 package org.apache.skywalking.oap.log.analyzer.provider.log.listener;
 
 import com.google.protobuf.Message;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashMap;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.dsl.Binding;
 import org.apache.skywalking.oap.log.analyzer.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
+
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 @Slf4j
 @RequiredArgsConstructor
 public class LogFilterListener implements LogAnalysisListener {
-    private final List<DSL> dsls;
+    private final Collection<DSL> dsls;
 
     @Override
     public void build() {
@@ -57,23 +63,34 @@ public class LogFilterListener implements LogAnalysisListener {
     }
 
     public static class Factory implements LogAnalysisListenerFactory {
-        private final List<DSL> dsls;
+        private final Map<Layer, Map<String, DSL>> dsls;
 
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
-            dsls = new ArrayList<>();
+            dsls = new HashMap<>();
 
             final List<LALConfig> configList = LALConfigs.load(config.getLalPath(), config.lalFiles())
                                                          .stream()
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                dsls.add(DSL.of(moduleManager, config, c.getDsl()));
+                Layer layer = Layer.nameOf(c.getLayer());
+                Map<String, DSL> dsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
+                if (dsls.put(c.getName(), DSL.of(moduleManager, config, c.getDsl())) != null) {
+                    throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
+                }
             }
         }
 
         @Override
-        public LogAnalysisListener create() {
-            return new LogFilterListener(dsls);
+        public LogAnalysisListener create(Layer layer) {
+            if (layer == null) {
+                return null;
+            }
+            final Map<String, DSL> dsl = dsls.get(layer);
+            if (dsl == null) {
+                return null;
+            }
+            return new LogFilterListener(dsl.values());
         }
     }
 }

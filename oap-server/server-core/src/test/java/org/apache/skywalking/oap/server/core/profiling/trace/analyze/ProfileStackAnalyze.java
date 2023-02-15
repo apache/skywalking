@@ -30,8 +30,8 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Data
 public class ProfileStackAnalyze {

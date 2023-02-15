@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.3.0-SNAPSHOT</version>
+        <version>9.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +29,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>prometheus-fetcher-plugin</module>
         <module>kafka-fetcher-plugin</module>
     </modules>
 

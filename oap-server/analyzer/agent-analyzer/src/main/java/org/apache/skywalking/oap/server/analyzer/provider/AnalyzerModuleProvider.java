@@ -19,13 +19,14 @@
 package org.apache.skywalking.oap.server.analyzer.provider;
 
 import java.util.List;
-
 import lombok.Getter;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessService;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheWriteLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
@@ -33,15 +34,15 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentP
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserServiceImpl;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EndpointDepFromCrossThreadAnalysisListener;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.NetworkAddressAliasMappingListener;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SegmentAnalysisListener;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.VirtualServiceAnalysisListener;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -50,9 +51,11 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class AnalyzerModuleProvider extends ModuleProvider {
     @Getter
-    private final AnalyzerModuleConfig moduleConfig;
+    private AnalyzerModuleConfig moduleConfig;
     @Getter
-    private DBLatencyThresholdsAndWatcher thresholds;
+    private DBLatencyThresholdsAndWatcher dbLatencyThresholdsAndWatcher;
+    private CacheReadLatencyThresholdsAndWatcher cacheReadLatencyThresholdsAndWatcher;
+    private CacheWriteLatencyThresholdsAndWatcher cacheWriteLatencyThresholdsAndWatcher;
     @Getter
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
     @Getter
@@ -63,10 +66,6 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     private List<MeterConfig> meterConfigs;
     @Getter
     private MeterProcessService processService;
-
-    public AnalyzerModuleProvider() {
-        this.moduleConfig = new AnalyzerModuleConfig();
-    }
 
     @Override
     public String name() {
@@ -79,21 +78,33 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return moduleConfig;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<AnalyzerModuleConfig>() {
+            @Override
+            public Class type() {
+                return AnalyzerModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final AnalyzerModuleConfig initialized) {
+                moduleConfig = initialized;
+            }
+        };
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        thresholds = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
-
+        dbLatencyThresholdsAndWatcher = new DBLatencyThresholdsAndWatcher(moduleConfig.getSlowDBAccessThreshold(), this);
         uninstrumentedGatewaysConfig = new UninstrumentedGatewaysConfig(this);
-
         traceSamplingPolicyWatcher = new TraceSamplingPolicyWatcher(moduleConfig, this);
+        cacheReadLatencyThresholdsAndWatcher = new CacheReadLatencyThresholdsAndWatcher(moduleConfig.getSlowCacheReadThreshold(), this);
+        cacheWriteLatencyThresholdsAndWatcher = new CacheWriteLatencyThresholdsAndWatcher(moduleConfig.getSlowCacheWriteThreshold(), this);
 
-        moduleConfig.setDbLatencyThresholdsAndWatcher(thresholds);
+        moduleConfig.setDbLatencyThresholdsAndWatcher(dbLatencyThresholdsAndWatcher);
         moduleConfig.setUninstrumentedGatewaysConfig(uninstrumentedGatewaysConfig);
         moduleConfig.setTraceSamplingPolicyWatcher(traceSamplingPolicyWatcher);
+        moduleConfig.setCacheReadLatencyThresholdsAndWatcher(cacheReadLatencyThresholdsAndWatcher);
+        moduleConfig.setCacheWriteLatencyThresholdsAndWatcher(cacheWriteLatencyThresholdsAndWatcher);
 
         segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
@@ -116,9 +127,11 @@ public class AnalyzerModuleProvider extends ModuleProvider {
                                                                               .provider()
                                                                               .getService(
                                                                                   DynamicConfigurationService.class);
-        dynamicConfigurationService.registerConfigChangeWatcher(thresholds);
+        dynamicConfigurationService.registerConfigChangeWatcher(dbLatencyThresholdsAndWatcher);
         dynamicConfigurationService.registerConfigChangeWatcher(uninstrumentedGatewaysConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(traceSamplingPolicyWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(cacheReadLatencyThresholdsAndWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(cacheWriteLatencyThresholdsAndWatcher);
 
         segmentParserService.setListenerManager(listenerManager());
 
@@ -147,6 +160,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
             listenerManager.add(new NetworkAddressAliasMappingListener.Factory(getManager()));
         }
         listenerManager.add(new SegmentAnalysisListener.Factory(getManager(), moduleConfig));
+        listenerManager.add(new VirtualServiceAnalysisListener.Factory(getManager()));
 
         return listenerManager;
     }

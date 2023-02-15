@@ -60,7 +60,6 @@ public class NoneStreamProcessor implements StreamProcessor<NoneStream> {
         }
     }
 
-    @Override
     public void create(ModuleDefineHolder moduleDefineHolder, Stream stream, Class<? extends NoneStream> streamClass) throws StorageException {
         final StorageBuilderFactory storageBuilderFactory = moduleDefineHolder.find(StorageModule.NAME)
                                                                               .provider()

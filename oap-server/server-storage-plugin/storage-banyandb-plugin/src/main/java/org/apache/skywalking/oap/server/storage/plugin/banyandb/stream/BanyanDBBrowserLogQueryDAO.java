@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -27,9 +26,9 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
-import org.apache.skywalking.oap.server.core.query.type.ErrorCategory;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -51,7 +50,11 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
     }
 
     @Override
-    public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId, BrowserErrorCategory category, long startSecondTB, long endSecondTB, int limit, int from) throws IOException {
+    public BrowserErrorLogs queryBrowserErrorLogs(String serviceId, String serviceVersionId, String pagePathId,
+                                                  BrowserErrorCategory category, Duration duration,
+                                                  int limit, int from) throws IOException {
+        long startSecondTB = duration.getStartTimeBucketInSec();
+        long endSecondTB = duration.getEndTimeBucketInSec();
         TimestampRange tsRange = null;
         if (startSecondTB > 0 && endSecondTB > 0) {
             tsRange = new TimestampRange(TimeBucket.getTimestamp(startSecondTB), TimeBucket.getTimestamp(endSecondTB));
@@ -92,34 +95,5 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
             }
         }
         return logs;
-    }
-
-    /**
-     * TODO: merge the default method in the interface
-     */
-    private BrowserErrorLog parserDataBinary(
-            byte[] dataBinary) {
-        try {
-            BrowserErrorLog log = new BrowserErrorLog();
-            org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog browserErrorLog = org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog
-                    .parseFrom(dataBinary);
-
-            log.setService(browserErrorLog.getService());
-            log.setServiceVersion(browserErrorLog.getServiceVersion());
-            log.setTime(browserErrorLog.getTime());
-            log.setPagePath(browserErrorLog.getPagePath());
-            log.setCategory(ErrorCategory.valueOf(browserErrorLog.getCategory().name().toUpperCase()));
-            log.setGrade(browserErrorLog.getGrade());
-            log.setMessage(browserErrorLog.getMessage());
-            log.setLine(browserErrorLog.getLine());
-            log.setCol(browserErrorLog.getCol());
-            log.setStack(browserErrorLog.getStack());
-            log.setErrorUrl(browserErrorLog.getErrorUrl());
-            log.setFirstReportedError(browserErrorLog.getFirstReportedError());
-
-            return log;
-        } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

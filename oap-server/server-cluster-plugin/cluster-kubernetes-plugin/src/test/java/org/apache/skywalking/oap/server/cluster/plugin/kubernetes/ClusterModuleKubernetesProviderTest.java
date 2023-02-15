@@ -20,27 +20,21 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+@ExtendWith(MockitoExtension.class)
 public class ClusterModuleKubernetesProviderTest {
 
     private ClusterModuleKubernetesProvider provider = new ClusterModuleKubernetesProvider();
@@ -50,14 +44,12 @@ public class ClusterModuleKubernetesProviderTest {
     @Mock
     private NoneTelemetryProvider telemetryProvider;
 
-    @Before
+    @BeforeEach
     public void before() {
-        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
-                .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
-        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
         provider.setManager(moduleManager);
+        Whitebox.setInternalState(provider, "config", new ClusterModuleKubernetesConfig());
     }
 
     @Test
@@ -68,12 +60,6 @@ public class ClusterModuleKubernetesProviderTest {
     @Test
     public void module() {
         assertEquals(ClusterModule.class, provider.module());
-    }
-
-    @Test
-    public void createConfigBeanIfAbsent() {
-        ModuleConfig moduleConfig = provider.createConfigBeanIfAbsent();
-        assertTrue(moduleConfig instanceof ClusterModuleKubernetesConfig);
     }
 
     @Test

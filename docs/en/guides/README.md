@@ -32,16 +32,16 @@ as well as write some unit test (UT) codes to verify that the new codes would wo
 If the new codes involve other components or libraries, you should also write integration tests (IT).
 
 SkyWalking leverages the plugin `maven-surefire-plugin` to run the UTs and uses `maven-failsafe-plugin`
-to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts with `IT`)
-and leaves them for `maven-failsafe-plugin` to run, which is bound to the `verify` goal.
+to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts or ends with `*IT`, `IT*`)
+and leaves them for `maven-failsafe-plugin` to run, which is bound to the `integration-test` goal.
 Therefore, to run the UTs, try `./mvnw clean test`, which only runs the UTs but not the ITs.
 
-If you would like to run the ITs, please set the property `skipITs` to false
-as well as the profiles of the modules whose ITs you want to run.
-E.g. if you would like to run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipITs=false`,
-and if you would like to run all the ITs, simply run `./mvnw clean verify -DskipITs=false`.
+If you would like to run the ITs, please run `./mvnw integration-test` as well as the profiles of the modules whose ITs you want to run.
+If you don't want to run UTs, please add `-DskipUTs=true`.
+E.g. if you would like to only run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipUTs=true`,
+and if you would like to run all the ITs, simply run `./mvnw clean integration-test -DskipUTs=true`.
 
-Please be advised that if you're writing integration tests, name it with the pattern `IT*` so they would only run when property `skipITs` is set to false.
+Please be advised that if you're writing integration tests, name it with the pattern `IT*` or `*IT` so they would only run in goal `integration-test`.
 
 ### Java Microbenchmark Harness (JMH)
 JMH is a Java harness for building, running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targeting the JVM.
@@ -83,10 +83,10 @@ To make the orchestration process easier, we're using a [docker-compose](https:/
 Follow these steps:
 1. Decide what (and how many) containers will be needed. For example, for cluster testing, you'll need > 2 OAP nodes, coordinators (e.g. zookeeper), storage (e.g. ElasticSearch), and instrumented services;
 1. Define the containers in `docker-compose.yml`, and carefully specify the dependencies, starting orders, and most importantly, link them together, e.g. set the correct OAP address on the agent end, and set the correct coordinator address in OAP, etc.
-1. Define the e2e case [config](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/configuration-file/) in `e2e.yaml`.
+1. Define the e2e case [config](https://skywalking.apache.org/docs/skywalking-infra-e2e/next/en/setup/configuration-file/) in `e2e.yaml`.
 1. Write the expected data(yml) for verify.
 
-- [Run e2e test](https://skywalking.apache.org/docs/skywalking-infra-e2e/latest/en/setup/run-e2e-tests/)
+- [Run e2e test](https://skywalking.apache.org/docs/skywalking-infra-e2e/next/en/setup/run-e2e-tests/)
 
 All e2e cases should under `skywalking/test/e2e-v2/cases`. You could execute e2e run command in `skywalking/` e.g.
 ```
@@ -113,6 +113,7 @@ storage implementor in addition to the official one.
 - [Source and scope extension for new metrics](source-extension.md). For analysis of a new metric which SkyWalking
 hasn't yet provided, add a new receiver.
 You would most likely have to add a new source and scope. To learn how to do this, read the document.
+- If you would like to add a new root menu or sub-menu to booster UI, read the [UI menu control document](How-to-add-menu.md).
 
 ### OAP backend dependency management
 > This section is only applicable to dependencies of the backend module.

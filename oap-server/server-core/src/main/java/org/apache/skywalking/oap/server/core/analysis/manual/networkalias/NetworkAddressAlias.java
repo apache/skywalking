@@ -28,8 +28,11 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -43,6 +46,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 @EqualsAndHashCode(of = {
     "address"
 })
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class NetworkAddressAlias extends Metrics {
     public static final String INDEX_NAME = "network_address_alias";
     public static final String ADDRESS = "address";
@@ -52,20 +56,20 @@ public class NetworkAddressAlias extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = ADDRESS)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = ADDRESS)
+    @BanyanDB.SeriesID(index = 0)
     private String address;
     @Setter
     @Getter
-    @Column(columnName = REPRESENT_SERVICE_ID)
+    @Column(name = REPRESENT_SERVICE_ID)
     private String representServiceId;
     @Setter
     @Getter
-    @Column(columnName = REPRESENT_SERVICE_INSTANCE_ID)
+    @Column(name = REPRESENT_SERVICE_INSTANCE_ID)
     private String representServiceInstanceId;
     @Setter
     @Getter
-    @Column(columnName = LAST_UPDATE_TIME_BUCKET)
+    @Column(name = LAST_UPDATE_TIME_BUCKET)
     private long lastUpdateTimeBucket;
 
     @Override
@@ -84,8 +88,9 @@ public class NetworkAddressAlias extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return IDManager.NetworkAddressAliasDefine.buildId(address);
+    protected StorageID id0() {
+        return new StorageID().appendMutant(
+            new String[] {ADDRESS}, IDManager.NetworkAddressAliasDefine.buildId(address));
     }
 
     @Override

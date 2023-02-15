@@ -18,7 +18,7 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
       expected: expected/service.yml
     # service endpoint
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-provider
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=logs --service-name=e2e-service-provider
       expected: expected/service-endpoint.yml
     # service instance list
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=e2e-service-provider
@@ -27,6 +27,6 @@
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-service-provider --tags level=INFO --trace-id=$( \
             swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql trace ls \
-              | yq e '.traces | select(.[].endpointnames[0]=="POST:/users") | .[0].traceids[0]' -
+              | yq e '.traces | select(.[].endpointnames[0]=="GET:/logs/trigger") | sort_by(.start) | reverse | .[0].traceids[0]' -
         )
       expected: expected/logs.yml

@@ -155,16 +155,16 @@ resulting in a new sample family having fewer samples (sometimes having just a s
  - max (select maximum over dimensions)
  - avg (calculate the average over dimensions)
 
-These operations can be used to aggregate overall label dimensions or preserve distinct dimensions by inputting `by` parameter.
+These operations can be used to aggregate overall label dimensions or preserve distinct dimensions by inputting `by` parameter( the keyword `by` could be omitted)
 
 ```
-<aggr-op>(by: <tag1, tag2, ...>)
+<aggr-op>(by=[<tag1>, <tag2>, ...])
 ```
 
 Example expression:
 
 ```
-instance_trace_count.sum(by: ['az'])
+instance_trace_count.sum(by=['az'])
 ```
 
 will output the following result:
@@ -252,6 +252,45 @@ They extract level relevant labels from metric labels, then informs the meter-sy
  - `processRelation(detect_point_label, [service_label1...], [instance_label1...], source_process_id_label, dest_process_id_label, component_label)` extracts `DetectPoint` labels from first argument, the label value should be `client` or `server`.
    extracts `Service` labels from the first array argument, extracts `Instance` labels from the second array argument, extracts `ProcessID` labels from the fourth and fifth arguments of the source and destination.
 
+## Configuration file
+
+The OAP can load the configuration at bootstrap. If the new configuration is not well-formed, the OAP fails to start up. The files
+are located at `$CLASSPATH/otel-rules`, `$CLASSPATH/meter-analyzer-config`, `$CLASSPATH/envoy-metrics-rules` and `$CLASSPATH/zabbix-rules`.
+
+The file is written in YAML format, defined by the scheme described below. Brackets indicate that a parameter is optional.
+
+A full example can be found [here](../../../oap-server/server-starter/src/main/resources/otel-rules/oap.yaml)
+
+Generic placeholders are defined as follows:
+
+* `<string>`: A regular string.
+* `<closure>`: A closure with custom logic.
+
+```yaml
+# initExp is the expression that initializes the current configuration file
+initExp: <string>
+# filter the metrics, only those metrics that satisfy this condition will be passed into the `metricsRules` below.
+filter: <closure> # example: '{ tags -> tags.job_name == "vm-monitoring" }'
+# expPrefix is executed before the metrics executes other functions.
+expPrefix: <string>
+# expSuffix is appended to all expression in this file.
+expSuffix: <string>
+# insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
+metricPrefix: <string>
+# Metrics rule allow you to recompute queries.
+metricsRules:
+   [ - <metric_rules> ]
+```
+
+### <metric_rules>
+
+```yaml
+# The name of rule, which combinates with a prefix 'meter_' as the index/table name in storage.
+name: <string>
+# MAL expression.
+exp: <string>
+```
+
 ## More Examples
 
-Please refer to [OAP Self-Observability](../../../oap-server/server-starter/src/main/resources/fetcher-prom-rules/self.yaml)
+Please refer to [OAP Self-Observability](../../../oap-server/server-starter/src/main/resources/otel-rules/oap.yaml).

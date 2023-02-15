@@ -23,6 +23,7 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 
 /**
  * SQLDatabase annotation is a holder including all annotations for SQL-based RDBMS storage
@@ -134,5 +135,17 @@ public @interface SQLDatabase {
     @Retention(RetentionPolicy.RUNTIME)
     @interface MultipleExtraColumn4AdditionalEntity {
         ExtraColumn4AdditionalEntity[] value();
+    }
+
+    /**
+     * Support add sharding policy for a table model. Can be declared on the superclass and overridden by subclass..
+     * @since 9.3.0
+     */
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Sharding {
+        ShardingAlgorithm shardingAlgorithm();
+        String dataSourceShardingColumn() default "";
+        String tableShardingColumn() default "";
     }
 }

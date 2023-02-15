@@ -20,38 +20,18 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collection;
 
 import static com.google.common.collect.ImmutableMap.of;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@RunWith(Parameterized.class)
 public class FunctionTest {
-
-    @Parameterized.Parameter
-    public String name;
-
-    @Parameterized.Parameter(1)
-    public ImmutableMap<String, SampleFamily> input;
-
-    @Parameterized.Parameter(2)
-    public String expression;
-
-    @Parameterized.Parameter(3)
-    public Result want;
-
-    @Parameterized.Parameter(4)
-    public boolean isThrow;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {
@@ -93,16 +73,14 @@ public class FunctionTest {
                 "histogram",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1.25")).value(300).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "0.75")).value(122).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "0.75")).value(12).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(36).name("http_success_request").build()).build()
                 ),
                 "http_success_request.histogram()",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("le", "0")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "25")).value(22).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "750")).value(178).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1250")).value(110).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "750")).value(12).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1250")).value(36).name("http_success_request").build()).build()
                 ),
                 false,
             },
@@ -110,16 +88,14 @@ public class FunctionTest {
                 "histogram_percentile",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1.25")).value(300).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "0.75")).value(122).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", String.valueOf(Integer.MAX_VALUE))).value(410).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "0.75")).value(22).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(30).name("http_success_request").build()).build()
                 ),
                 "http_success_request.histogram().histogram_percentile([75,99])",
                 Result.success(SampleFamilyBuilder.newBuilder(
-                    Sample.builder().labels(of("le", "0")).value(100).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "25")).value(22).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "750")).value(178).name("http_success_request").build(),
-                    Sample.builder().labels(of("le", "1250")).value(110).name("http_success_request").build()).build()
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "750")).value(22).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1250")).value(30).name("http_success_request").build()).build()
                 ),
                 false,
             },
@@ -139,8 +115,13 @@ public class FunctionTest {
         });
     }
 
-    @Test
-    public void test() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void test(String name,
+                     ImmutableMap<String, SampleFamily> input,
+                     String expression,
+                     Result want,
+                     boolean isThrow) {
         Expression e = DSL.parse(expression);
         Result r = null;
         try {
@@ -155,6 +136,6 @@ public class FunctionTest {
         if (isThrow) {
             fail("Should throw something");
         }
-        assertThat(r, is(want));
+        assertThat(r).isEqualTo(want);
     }
 }

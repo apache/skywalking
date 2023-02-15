@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.analysis.worker;
 
 import java.io.IOException;
+import java.util.Optional;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
@@ -37,12 +38,14 @@ public class RecordPersistentWorker extends AbstractWorker<Record> {
     private final Model model;
     private final IRecordDAO recordDAO;
     private final IBatchDAO batchDAO;
+    private final Optional<AbstractWorker<Record>> nextExportWorker;
 
-    RecordPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IRecordDAO recordDAO) {
+    RecordPersistentWorker(ModuleDefineHolder moduleDefineHolder, Model model, IRecordDAO recordDAO, AbstractWorker<Record> nextExportWorker) {
         super(moduleDefineHolder);
         this.model = model;
         this.recordDAO = recordDAO;
         this.batchDAO = moduleDefineHolder.find(StorageModule.NAME).provider().getService(IBatchDAO.class);
+        this.nextExportWorker = Optional.ofNullable(nextExportWorker);
     }
 
     @Override
@@ -53,5 +56,6 @@ public class RecordPersistentWorker extends AbstractWorker<Record> {
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
+        this.nextExportWorker.ifPresent(exportWorker -> exportWorker.in(record));
     }
 }

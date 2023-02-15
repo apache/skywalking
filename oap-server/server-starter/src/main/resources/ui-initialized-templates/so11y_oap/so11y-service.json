@@ -77,7 +77,7 @@
             "content": "The OAP backend cluster itself is a distributed streaming process system, this is the monitoring for the OAP backend itself.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-telemetry/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-telemetry/"
           },
           "moved": false
         }

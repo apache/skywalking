@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
@@ -31,9 +29,9 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogReco
 import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
-import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
@@ -46,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.nonNull;
 
 /**
  * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a stream
@@ -70,8 +70,14 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
     @Override
     public Logs queryLogs(String serviceId, String serviceInstanceId, String endpointId,
                           TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
-                          long startTB, long endTB, List<Tag> tags, List<String> keywordsOfContent,
+                          Duration duration, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
         final QueryBuilder<StreamQuery> query = new QueryBuilder<StreamQuery>() {
             @Override
             public void apply(StreamQuery query) {
@@ -139,18 +145,5 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             logs.getLogs().add(log);
         }
         return logs;
-    }
-
-    /**
-     * Parser the raw tags.
-     * TODO: merge default method
-     */
-    private void parserDataBinary(byte[] dataBinary, List<KeyValue> tags) {
-        try {
-            LogTags logTags = LogTags.parseFrom(dataBinary);
-            logTags.getDataList().forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
-        } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

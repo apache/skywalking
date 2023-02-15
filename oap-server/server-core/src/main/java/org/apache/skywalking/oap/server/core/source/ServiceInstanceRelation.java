@@ -114,9 +114,6 @@ public class ServiceInstanceRelation extends Source {
     @Getter
     @Setter
     private SideCar sideCar = new SideCar();
-    @Getter
-    @Setter
-    private TCPInfo tcpInfo = new TCPInfo();
 
     @Override
     public void prepare() {

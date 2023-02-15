@@ -72,7 +72,7 @@ public class AlarmCore {
                 }));
                 // Set the last execute time, and make sure the second is `00`, such as: 18:30:00
                 if (hasExecute[0]) {
-                    lastExecuteTime = checkTime.minusSeconds(checkTime.getSecondOfMinute());
+                    lastExecuteTime = checkTime.withSecondOfMinute(0).withMillisOfSecond(0);
                 }
 
                 if (!alarmMessageList.isEmpty()) {

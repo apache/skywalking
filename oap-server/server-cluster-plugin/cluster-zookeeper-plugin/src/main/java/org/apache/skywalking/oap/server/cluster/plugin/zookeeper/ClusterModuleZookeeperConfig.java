@@ -23,7 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-class ClusterModuleZookeeperConfig extends ModuleConfig {
+public class ClusterModuleZookeeperConfig extends ModuleConfig {
 
     @Setter
     @Getter

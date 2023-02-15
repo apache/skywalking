@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.configuration.zookeeper;
 import com.google.common.base.Strings;
 import org.apache.skywalking.oap.server.configuration.api.AbstractConfigurationProvider;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 /**
@@ -30,18 +29,24 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 public class ZookeeperConfigurationProvider extends AbstractConfigurationProvider {
     private ZookeeperServerSettings settings;
 
-    public ZookeeperConfigurationProvider() {
-        settings = new ZookeeperServerSettings();
-    }
-
     @Override
     public String name() {
         return "zookeeper";
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return settings;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ZookeeperServerSettings>() {
+            @Override
+            public Class type() {
+                return ZookeeperServerSettings.class;
+            }
+
+            @Override
+            public void onInitialized(final ZookeeperServerSettings initialized) {
+                settings = initialized;
+            }
+        };
     }
 
     @Override

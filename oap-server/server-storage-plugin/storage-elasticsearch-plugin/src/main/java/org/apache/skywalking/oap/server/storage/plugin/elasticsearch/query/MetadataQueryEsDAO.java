@@ -47,6 +47,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraf
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.enumeration.Language;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
 import org.apache.skywalking.oap.server.core.query.type.Process;
@@ -95,7 +96,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (StringUtil.isNotEmpty(group)) {
             query.must(Query.term(ServiceTraffic.GROUP, group));
         }
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
         }
         final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
@@ -135,7 +136,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final BoolQueryBuilder query =
             Query.bool()
                  .must(Query.term(ServiceTraffic.SERVICE_ID, serviceId));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(layerSize);
@@ -145,17 +146,17 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<ServiceInstance> listInstances(long startTimestamp, long endTimestamp,
+    public List<ServiceInstance> listInstances(Duration duration,
                                                String serviceId) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
 
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(startTimestamp);
+        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
         final BoolQueryBuilder query =
             Query.bool()
                  .must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(minuteTimeBucket))
                  .must(Query.term(InstanceTraffic.SERVICE_ID, serviceId));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(InstanceTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, InstanceTraffic.INDEX_NAME));
         }
         final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
@@ -182,7 +183,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
         String id = instanceId;
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(InstanceTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
             id = IndexController.INSTANCE.generateDocId(InstanceTraffic.INDEX_NAME, instanceId);
         }
         final BoolQueryBuilder query =
@@ -211,7 +212,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             query.must(Query.match(matchCName, keyword));
         }
 
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(EndpointTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(EndpointTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EndpointTraffic.INDEX_NAME));
         }
 
@@ -227,7 +228,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 new EndpointTraffic.Builder().storage2Entity(new ElasticSearchConverter.ToEntity(EndpointTraffic.INDEX_NAME, sourceAsMap));
 
             Endpoint endpoint = new Endpoint();
-            endpoint.setId(endpointTraffic.id());
+            endpoint.setId(endpointTraffic.id().build());
             endpoint.setName(endpointTraffic.getName());
             endpoints.add(endpoint);
         }
@@ -241,7 +242,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProcessTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
@@ -252,12 +253,14 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceInstanceId, long lastPingStartTimeBucket, long lastPingEndTimeBucket, boolean includeVirtual) throws IOException {
+    public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
+        long lastPingStartTimeBucket = duration.getStartTimeBucket();
+        long lastPingEndTimeBucket = duration.getEndTimeBucket();
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProcessTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
@@ -273,7 +276,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProcessTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
@@ -289,7 +292,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProcessTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(0);
@@ -306,7 +309,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
 
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProcessTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(0);
@@ -348,7 +351,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool()
                                             .must(Query.term("_id", processId));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ProcessTraffic.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(queryMaxSize);
@@ -385,7 +388,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 new InstanceTraffic.Builder().storage2Entity(new ElasticSearchConverter.ToEntity(InstanceTraffic.INDEX_NAME, sourceAsMap));
 
             ServiceInstance serviceInstance = new ServiceInstance();
-            serviceInstance.setId(instanceTraffic.id());
+            serviceInstance.setId(instanceTraffic.id().build());
             serviceInstance.setName(instanceTraffic.getName());
             serviceInstance.setInstanceUUID(serviceInstance.getId());
 
@@ -417,7 +420,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                 new ProcessTraffic.Builder().storage2Entity(new ElasticSearchConverter.ToEntity(ProcessTraffic.INDEX_NAME, sourceAsMap));
 
             Process process = new Process();
-            process.setId(processTraffic.id());
+            process.setId(processTraffic.id().build());
             process.setName(processTraffic.getName());
             final String serviceId = processTraffic.getServiceId();
             process.setServiceId(serviceId);

@@ -20,18 +20,18 @@ package org.apache.skywalking.oap.server.receiver.envoy.als;
 
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 
 @Slf4j
 public abstract class AbstractALSAnalyzer implements ALSHTTPAnalysis {
 
     /**
-     * Create an adapter to adapt the {@link HTTPAccessLogEntry log entry} into a {@link ServiceMeshMetric.Builder}.
+     * Create an adapter to adapt the {@link HTTPAccessLogEntry log entry} into a {@link HTTPServiceMeshMetric.Builder}.
      *
      * @param entry         the access log entry that is to be adapted from.
      * @param sourceService the source service.
      * @param targetService the target/destination service.
-     * @return an adapter that adapts {@link HTTPAccessLogEntry log entry} into a {@link ServiceMeshMetric.Builder}.
+     * @return an adapter that adapts {@link HTTPAccessLogEntry log entry} into a {@link HTTPServiceMeshMetric.Builder}.
      */
     protected LogEntry2MetricsAdapter newAdapter(
         final HTTPAccessLogEntry entry,

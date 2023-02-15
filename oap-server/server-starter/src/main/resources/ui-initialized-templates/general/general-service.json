@@ -56,9 +56,7 @@
                     {
                       "calculation": "apdex"
                     }
-                  ],
-                  "value": "4-0-0",
-                  "label": "4-0-0"
+                  ]
                 },
                 {
                   "x": 8,
@@ -87,9 +85,7 @@
                       "calculation": "percentage",
                       "unit": "%"
                     }
-                  ],
-                  "value": "4-0-1",
-                  "label": "4-0-1"
+                  ]
                 },
                 {
                   "x": 16,
@@ -118,9 +114,7 @@
                     {
                       "unit": "calls / min"
                     }
-                  ],
-                  "value": "4-0-2",
-                  "label": "4-0-2"
+                  ]
                 },
                 {
                   "x": 0,
@@ -147,8 +141,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "4-0-3",
-                  "label": "Service_Avg_Response",
                   "associate": [
                     {
                       "widgetId": "4-0-10"
@@ -168,7 +160,11 @@
                     {
                       "widgetId": "4-0-9"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 6,
@@ -200,8 +196,6 @@
                       "calculation": "apdex"
                     }
                   ],
-                  "value": "4-0-4",
-                  "label": "Service_Apdex",
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -225,6 +219,11 @@
                   "filters": {
                     "dataIndex": 12,
                     "sourceId": "4-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "queryOrder": "BY_DURATION",
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -258,8 +257,6 @@
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
                   ],
-                  "value": "4-0-5",
-                  "label": "Service_Response_Percentile",
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -283,6 +280,10 @@
                   "filters": {
                     "dataIndex": 12,
                     "sourceId": "4-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -315,8 +316,6 @@
                       "calculation": "percentage"
                     }
                   ],
-                  "value": "4-0-6",
-                  "label": "Success_Rate",
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -340,6 +339,10 @@
                   "filters": {
                     "dataIndex": 12,
                     "sourceId": "4-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -368,8 +371,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "4-0-7",
-                  "label": "Service_Load",
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -420,8 +421,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "4-0-9",
-                  "label": "Message_Consuming_Count",
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -473,8 +472,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "4-0-10",
-                  "label": "Message_Consuming_Latency",
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -519,15 +516,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "value": "4-0-11",
-                  "label": "4-0-11"
+                  ]
                 },
                 {
                   "x": 8,
@@ -548,15 +537,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "DES",
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "value": "4-0-12",
-                  "label": "4-0-12"
+                  ]
                 },
                 {
                   "x": 16,
@@ -583,9 +564,7 @@
                       "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
-                  ],
-                  "value": "4-0-13",
-                  "label": "4-0-13"
+                  ]
                 },
                 {
                   "x": 16,
@@ -612,9 +591,7 @@
                       "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
-                  ],
-                  "value": "4-0-20",
-                  "label": "4-0-20"
+                  ]
                 },
                 {
                   "x": 8,
@@ -635,9 +612,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "value": "4-0-21",
-                  "label": "4-0-21"
+                  ]
                 },
                 {
                   "x": 0,
@@ -659,9 +634,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "value": "4-0-22",
-                  "label": "4-0-22"
+                  ]
                 }
               ]
             },
@@ -706,9 +679,7 @@
                       "label": "Latency",
                       "unit": "ms"
                     }
-                  ],
-                  "value": "4-1-0",
-                  "label": "4-1-0"
+                  ]
                 }
               ]
             },
@@ -755,9 +726,7 @@
                       "label": "Latency",
                       "unit": "ms"
                     }
-                  ],
-                  "value": "4-2-0",
-                  "label": "4-2-0"
+                  ]
                 }
               ]
             },
@@ -914,7 +883,7 @@
                     "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
                     "fontSize": 14,
                     "textAlign": "left",
-                    "url": "https://skywalking.apache.org/docs/skywalking-rover/latest/readme/"
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
                   }
                 },
                 {

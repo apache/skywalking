@@ -18,23 +18,25 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SQLDatabaseExtensionTest {
     @Test
     public void testIndexColumns() {
         final SQLDatabaseExtension.MultiColumnsIndex extraQueryIndex = new SQLDatabaseExtension.MultiColumnsIndex(
-            "a1", new String[] {"a2"});
-        Assert.assertArrayEquals(new String[] {
-            "a1",
-            "a2"
+                "a1", new String[]{"a2"});
+        Assertions.assertArrayEquals(new String[]{
+                "a1",
+                "a2"
         }, extraQueryIndex.getColumns());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIllegalIndexColumns() {
-        SQLDatabaseExtension.MultiColumnsIndex extraQueryIndex = new SQLDatabaseExtension.MultiColumnsIndex(
-            "a1", new String[0]);
+        assertThrows(IllegalArgumentException.class,
+                () -> new SQLDatabaseExtension.MultiColumnsIndex("a1", new String[0]));
     }
 }

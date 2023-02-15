@@ -97,7 +97,7 @@ public class ProfileTaskMutationService implements Service {
         task.setTimeBucket(TimeBucket.getMinuteTimeBucket(taskStartTime));
         NoneStreamProcessor.getInstance().in(task);
 
-        return ProfileTaskCreationResult.builder().id(task.id()).build();
+        return ProfileTaskCreationResult.builder().id(task.id().build()).build();
     }
 
     private String checkDataSuccess(final String serviceId,
@@ -139,15 +139,17 @@ public class ProfileTaskMutationService implements Service {
         }
 
         // Each service can monitor up to 1 endpoints during the execution of tasks
-        long startTimeBucket = TimeBucket.getMinuteTimeBucket(monitorStartTime);
         long endTimeBucket = TimeBucket.getMinuteTimeBucket(monitorEndTime);
         final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(
-            serviceId, null, startTimeBucket, endTimeBucket, 1);
+            serviceId, null, null, endTimeBucket, 1);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
-            // if any task time bucket in this range, means already have task, because time bucket is base on task end time
-            return "current service already has monitor task execute at this time";
+            for (ProfileTask profileTask : alreadyHaveTaskList) {
+                if (profileTask.getStartTime() + TimeUnit.MINUTES.toMillis(profileTask.getDuration()) >= monitorStartTime) {
+                    // if the endTime is greater or equal than the startTime of the newly created task, i.e. there is overlap between two tasks, it is an invalid case
+                    return "current service already has monitor task execute at this time";
+                }
+            }
         }
-
         return null;
     }
 

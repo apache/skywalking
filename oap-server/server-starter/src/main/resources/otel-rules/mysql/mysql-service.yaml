@@ -1,0 +1,72 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'mysql-monitoring' }" # The OpenTelemetry job name
+expSuffix:  tag({tags -> tags.host_name = 'mysql::' + tags.host_name}).service(['host_name'] , Layer.MYSQL)
+metricPrefix: meter_mysql
+metricsRules:
+  # database throughput
+  - name: commands_insert_rate
+    exp: mysql_global_status_commands_total.tagEqual('command','insert').rate('PT1M')
+  - name: commands_select_rate
+    exp: mysql_global_status_commands_total.tagEqual('command','select').rate('PT1M')
+  - name: commands_delete_rate
+    exp: mysql_global_status_commands_total.tagEqual('command','delete').rate('PT1M')
+  - name: commands_update_rate
+    exp: mysql_global_status_commands_total.tagEqual('command','update').rate('PT1M')
+  - name: qps
+    exp: mysql_global_status_queries.rate('PT1M')
+  - name: tps
+    exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').sum(['host_name']).rate('PT1M')
+
+  # connections
+  ## threads
+  - name: threads_connected
+    exp: mysql_global_status_threads_connected
+  - name: threads_created
+    exp: mysql_global_status_threads_created
+  - name: threads_running
+    exp: mysql_global_status_threads_running
+  - name: threads_cached
+    exp: mysql_global_status_threads_cached
+  ## connect
+  - name: connects_aborted
+    exp: mysql_global_status_aborted_connects
+  - name: connects_available
+    exp: mysql_global_variables_max_connections.sum(['host_name']) - mysql_global_status_threads_connected.sum(['host_name'])
+  - name: connection_errors_max_connections
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection')
+  - name: connection_errors_internal
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','internal')
+
+  # slow queries
+  - name: slow_queries_rate
+    exp: mysql_global_status_slow_queries.rate('PT1M')
+    

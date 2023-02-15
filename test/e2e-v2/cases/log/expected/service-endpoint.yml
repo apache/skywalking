@@ -14,6 +14,6 @@
 # limitations under the License.
 
 {{- contains .}}
-- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "POST:/users" }}
-  name: POST:/users
+- id: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "GET:/logs/trigger" }}
+  name: GET:/logs/trigger
 {{- end}}

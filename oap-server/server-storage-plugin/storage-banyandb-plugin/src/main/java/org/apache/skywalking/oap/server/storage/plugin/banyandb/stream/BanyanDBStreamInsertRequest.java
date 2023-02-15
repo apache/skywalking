@@ -27,4 +27,9 @@ import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 @Getter
 public class BanyanDBStreamInsertRequest implements InsertRequest {
     private final StreamWrite streamWrite;
+
+    @Override
+    public void onInsertCompleted() {
+
+    }
 }

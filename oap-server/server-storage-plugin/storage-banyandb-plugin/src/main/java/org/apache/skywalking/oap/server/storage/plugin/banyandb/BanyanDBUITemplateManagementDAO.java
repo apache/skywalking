@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import java.io.IOException;
@@ -60,7 +59,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public TemplateChangeStatus addTemplate(DashboardSetting setting) {
-        Property newTemplate = convert(setting.toEntity());
+        Property newTemplate = applyAll(setting.toEntity());
         try {
             this.getClient().define(newTemplate);
             return TemplateChangeStatus.builder()
@@ -76,7 +75,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) {
-        Property newTemplate = convert(setting.toEntity());
+        Property newTemplate = applyConfiguration(setting.toEntity());
         try {
             this.getClient().define(newTemplate);
             return TemplateChangeStatus.builder()
@@ -98,16 +97,15 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
                     .build();
         }
         UITemplate uiTemplate = parse(oldProperty);
-        uiTemplate.setDisabled(BooleanUtils.FALSE);
         try {
-            this.getClient().define(convert(uiTemplate));
+            this.getClient().define(applyStatus(uiTemplate));
             return TemplateChangeStatus.builder()
                     .status(true)
-                    .id(uiTemplate.id())
+                    .id(uiTemplate.id().build())
                     .build();
         } catch (IOException ioEx) {
             log.error("fail to disable the template", ioEx);
-            return TemplateChangeStatus.builder().status(false).id(uiTemplate.id()).message("Can't disable the template")
+            return TemplateChangeStatus.builder().status(false).id(uiTemplate.id().build()).message("Can't disable the template")
                     .build();
         }
     }
@@ -134,10 +132,36 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
         return uiTemplate;
     }
 
-    public Property convert(UITemplate uiTemplate) {
-        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id())
+    public Property applyAll(UITemplate uiTemplate) {
+        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
                 .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()))
                 .addTag(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()))
+                .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
+                .build();
+    }
+
+    /**
+     * Partial apply status, i.e. disable tag.
+     *
+     * @param uiTemplate previous UITemplate
+     * @return new property (patch) to be applied
+     */
+    public Property applyStatus(UITemplate uiTemplate) {
+        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
+                .addTag(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()))
+                .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
+                .build();
+    }
+
+    /**
+     * Partial apply configuration, i.e. configuration tag.
+     *
+     * @param uiTemplate previous UITemplate
+     * @return new property (patch) to be applied
+     */
+    public Property applyConfiguration(UITemplate uiTemplate) {
+        return Property.create(GROUP, UITemplate.INDEX_NAME, uiTemplate.id().build())
+                .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()))
                 .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()))
                 .build();
     }

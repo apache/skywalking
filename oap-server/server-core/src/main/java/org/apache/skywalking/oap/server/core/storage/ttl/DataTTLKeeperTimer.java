@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +77,8 @@ public enum DataTTLKeeperTimer {
         List<Model> models = modelGetter.allModels();
 
         List<RemoteInstance> remoteInstances = clusterNodesQuery.queryRemoteNodes();
+        // Sort the instances as same as RemoteClientManager#refresh did.
+        Collections.sort(remoteInstances);
         if (CollectionUtils.isNotEmpty(remoteInstances) && !remoteInstances.get(0).getAddress().isSelf()) {
             log.info(
                 "The selected first getAddress is {}. The remove stage is skipped.",

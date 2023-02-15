@@ -1,5 +1,5 @@
 # V8 upgrade
-Starting from SkyWalking v8, the [v3 protocol](../protocols/README.md) has been used. This makes it incompatible with previous releases.
+Starting from SkyWalking v8, the [v3 protocol](../api/trace-data-protocol-v3.md) has been used. This makes it incompatible with previous releases.
 Users who intend to upgrade in v8 series releases could follow the steps below.
 
 

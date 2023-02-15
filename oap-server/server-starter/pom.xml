@@ -21,7 +21,7 @@
     <parent>
         <artifactId>oap-server</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.3.0-SNAPSHOT</version>
+        <version>9.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -166,14 +166,19 @@
             <artifactId>skywalking-ebpf-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-telegraf-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>aws-firehose-receiver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- receiver module -->
 
         <!-- fetcher module -->
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>prometheus-fetcher-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>kafka-fetcher-plugin</artifactId>
@@ -195,6 +200,11 @@
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>storage-banyandb-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-shardingsphere-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- storage module -->
@@ -277,21 +287,6 @@
         <finalName>skywalking-oap</finalName>
         <plugins>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${compiler.version}</source>
-                    <target>${compiler.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <excludes>
@@ -314,6 +309,7 @@
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>
                         <exclude>log-mal-rules/</exclude>
+                        <exclude>telegraf-rules/</exclude>
                     </excludes>
                 </configuration>
             </plugin>

@@ -31,7 +31,11 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -48,6 +52,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
     "instanceId",
     "name",
 })
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
+@BanyanDB.StoreIDAsTag
 public class ProcessTraffic extends Metrics {
     public static final String INDEX_NAME = "process_traffic";
     public static final String SERVICE_ID = "service_id";
@@ -64,12 +70,13 @@ public class ProcessTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     private String serviceId;
 
     @Setter
     @Getter
-    @Column(columnName = INSTANCE_ID, length = 600)
+    @Column(name = INSTANCE_ID, length = 600)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     @Getter
@@ -78,32 +85,33 @@ public class ProcessTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = NAME, length = 500)
+    @Column(name = NAME, length = 500)
+    @BanyanDB.SeriesID(index = 1)
     private String name;
 
     @Setter
     @Getter
-    @Column(columnName = LAST_PING_TIME_BUCKET)
+    @Column(name = LAST_PING_TIME_BUCKET)
     private long lastPingTimestamp;
 
     @Setter
     @Getter
-    @Column(columnName = DETECT_TYPE)
+    @Column(name = DETECT_TYPE)
     private int detectType = ProcessDetectType.UNDEFINED.value();
 
     @Setter
     @Getter
-    @Column(columnName = AGENT_ID, length = 500)
+    @Column(name = AGENT_ID, length = 500)
     private String agentId;
 
     @Setter
     @Getter
-    @Column(columnName = PROPERTIES, storageOnly = true, length = 50000)
+    @Column(name = PROPERTIES, storageOnly = true, length = 50000)
     private JsonObject properties;
 
     @Setter
     @Getter
-    @Column(columnName = LABELS_JSON, storageOnly = true, length = 500)
+    @Column(name = LABELS_JSON, storageOnly = true, length = 500)
     private String labelsJson;
 
     /**
@@ -111,7 +119,7 @@ public class ProcessTraffic extends Metrics {
      */
     @Setter
     @Getter
-    @Column(columnName = PROFILING_SUPPORT_STATUS)
+    @Column(name = PROFILING_SUPPORT_STATUS)
     private int profilingSupportStatus;
 
     @Override
@@ -180,11 +188,14 @@ public class ProcessTraffic extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        if (processId != null) {
-            return processId;
+    protected StorageID id0() {
+        if (processId == null) {
+            processId = IDManager.ProcessID.buildId(instanceId, name);
         }
-        return IDManager.ProcessID.buildId(instanceId, name);
+        return new StorageID().appendMutant(new String[] {
+            INSTANCE_ID,
+            NAME
+        }, processId);
     }
 
     public static class Builder implements StorageBuilder<ProcessTraffic> {

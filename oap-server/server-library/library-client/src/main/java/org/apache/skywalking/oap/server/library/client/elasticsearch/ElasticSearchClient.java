@@ -303,7 +303,6 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return es.get().documents().exists(indexName, TYPE, id);
     }
 
-
     /**
      * Provide to get documents from multi indices by IDs.
      * @param indexIds key: indexName, value: ids list
@@ -315,11 +314,11 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         indexIds.forEach((indexName, ids) -> {
             map.put(indexNameConverter.apply(indexName), ids);
         });
-        return es.get().documents().mGet(TYPE, map);
+        return es.get().documents().mget(TYPE, map);
     }
 
     /**
-     * Search by ids with index alias, when can not locate the physical index. 
+     * Search by ids with index alias, when can not locate the physical index.
      * Otherwise, recommend use method {@link #ids}
      * @param indexName Index alias name or physical name
      * @param ids ID list
@@ -349,8 +348,13 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public IndexRequestWrapper prepareInsert(String indexName, String id,
                                              Map<String, Object> source) {
+        return prepareInsert(indexName, id, Optional.empty(), source);
+    }
+
+    public IndexRequestWrapper prepareInsert(String indexName, String id, Optional<String> routingValue,
+                                             Map<String, Object> source) {
         indexName = indexNameConverter.apply(indexName);
-        return new IndexRequestWrapper(indexName, TYPE, id, source);
+        return new IndexRequestWrapper(indexName, TYPE, id, routingValue, source);
     }
 
     public UpdateRequestWrapper prepareUpdate(String indexName, String id,
@@ -361,9 +365,11 @@ public class ElasticSearchClient implements Client, HealthCheckable {
 
     public BulkProcessor createBulkProcessor(int bulkActions,
                                              int flushInterval,
-                                             int concurrentRequests) {
+                                             int concurrentRequests,
+                                             int batchOfBytes) {
         return BulkProcessor.builder()
                             .bulkActions(bulkActions)
+                            .batchOfBytes(batchOfBytes)
                             .flushInterval(Duration.ofSeconds(flushInterval))
                             .concurrentRequests(concurrentRequests)
                             .build(es);

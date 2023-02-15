@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.sum;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -35,11 +33,14 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entranc
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.Objects;
 
 @ToString
 @MeterFunction(functionName = "sum")
@@ -48,18 +49,19 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = ENTITY_ID, length = 512)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
     @Setter
     @Getter
-    @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @Column(name = InstanceTraffic.SERVICE_ID)
     private String serviceId;
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Sum)
+    @BanyanDB.MeasureField
     private long value;
 
     @Entrance
@@ -126,8 +128,10 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + getEntityId();
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override

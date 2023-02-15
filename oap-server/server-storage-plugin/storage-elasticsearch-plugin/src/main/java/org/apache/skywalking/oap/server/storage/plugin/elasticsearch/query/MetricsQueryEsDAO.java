@@ -111,7 +111,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         final List<String> ids = pointOfTimes.stream().map(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
-            if (IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+            if (IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
                 id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             String indexName = TimeSeriesUtils.queryIndexName(
@@ -183,7 +183,11 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
                 );
             }
         }
-        return Util.composeLabelValue(condition, labels, ids, idMap);
+        return Util.sortValues(
+            Util.composeLabelValue(condition, labels, ids, idMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
     }
 
     @Override
@@ -258,7 +262,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         final String entityId = condition.getEntity().buildId();
 
         if (entityId == null &&
-            IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+            IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
             sourceBuilder.query(
                 Query.bool()
                      .must(rangeQueryBuilder)
@@ -269,7 +273,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             );
         } else if (entityId == null) {
             sourceBuilder.query(rangeQueryBuilder);
-        } else if (IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+        } else if (IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
             sourceBuilder.query(
                 Query.bool()
                      .must(rangeQueryBuilder)

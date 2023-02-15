@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -45,16 +46,14 @@ public class TagAutoCompleteQueryService implements Service {
     }
 
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
-                                                final long startSecondTB,
-                                                final long endSecondTB) throws IOException {
-        return getTagAutoCompleteQueryDAO().queryTagAutocompleteKeys(tagType, config.getAutocompleteTagKeysQueryMaxSize(), startSecondTB, endSecondTB);
+                                                final Duration duration) throws IOException {
+        return getTagAutoCompleteQueryDAO().queryTagAutocompleteKeys(tagType, config.getAutocompleteTagKeysQueryMaxSize(), duration);
     }
 
     public Set<String> queryTagAutocompleteValues(final TagType tagType,
                                                   final String tagKey,
-                                                  final long startSecondTB,
-                                                  final long endSecondTB) throws IOException {
+                                                  final Duration duration) throws IOException {
         return getTagAutoCompleteQueryDAO().queryTagAutocompleteValues(
-            tagType, tagKey, config.getAutocompleteTagValuesQueryMaxSize(), startSecondTB, endSecondTB);
+            tagType, tagKey, config.getAutocompleteTagValuesQueryMaxSize(), duration);
     }
 }

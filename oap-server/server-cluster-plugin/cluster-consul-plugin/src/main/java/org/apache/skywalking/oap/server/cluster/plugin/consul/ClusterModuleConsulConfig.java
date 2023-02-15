@@ -22,7 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-class ClusterModuleConsulConfig extends ModuleConfig {
+public class ClusterModuleConsulConfig extends ModuleConfig {
     @Setter
     @Getter
     private String serviceName;

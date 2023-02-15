@@ -19,21 +19,19 @@
 package org.apache.skywalking.oap.server.starter.config;
 
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ApplicationConfigLoaderTestCase {
 
     private ApplicationConfiguration applicationConfiguration;
 
-    @Before
+    @BeforeEach
     public void setUp() throws ConfigFileNotFoundException {
         System.setProperty("SW_STORAGE", "mysql");
         System.setProperty("SW_RECEIVER_ZIPKIN", "default");
@@ -46,10 +44,10 @@ public class ApplicationConfigLoaderTestCase {
     public void testLoadConfig() {
         Properties providerConfig = applicationConfiguration.getModuleConfiguration("storage")
                                                             .getProviderConfiguration("mysql");
-        assertThat(providerConfig.get("metadataQueryMaxSize"), is(5000));
-        assertThat(providerConfig.get("properties"), instanceOf(Properties.class));
+        assertThat(providerConfig.get("metadataQueryMaxSize")).isEqualTo(5000);
+        assertThat(providerConfig.get("properties")).isInstanceOf(Properties.class);
         Properties properties = (Properties) providerConfig.get("properties");
-        assertThat(properties.get("jdbcUrl"), is("jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"));
+        assertThat(properties.get("jdbcUrl")).isEqualTo("jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true");
     }
 
     @Test

@@ -14,7 +14,7 @@ docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STOR
 
 # Configuration
 
-We could set up environment variables to configure this image. They are defined in [backend-setup](https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-setup/).
+We could set up environment variables to configure this image. They are defined in [backend-setup](https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-setup/).
 
 # Extend image
 

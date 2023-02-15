@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.remote.client;
 
-import io.grpc.testing.GrpcServerRule;
-import java.util.concurrent.TimeUnit;
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
+import io.grpc.inprocess.InProcessChannelBuilder;
+import io.grpc.inprocess.InProcessServerBuilder;
+import io.grpc.util.MutableHandlerRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.RemoteServiceHandler;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
@@ -35,10 +38,14 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -47,15 +54,28 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class GRPCRemoteClientTestCase {
-
     private final String nextWorkerName = "mock-worker";
     private ModuleManagerTesting moduleManager;
-    @Rule
-    public final GrpcServerRule grpcServerRule = new GrpcServerRule().directExecutor();
 
-    @Before
-    public void before() {
+    private Server server;
+    private ManagedChannel channel;
+    private MutableHandlerRegistry serviceRegistry;
+
+    @BeforeEach
+    public void before() throws IOException {
         moduleManager = new ModuleManagerTesting();
+        serviceRegistry = new MutableHandlerRegistry();
+        final String name = UUID.randomUUID().toString();
+        InProcessServerBuilder serverBuilder =
+                InProcessServerBuilder
+                        .forName(name)
+                        .fallbackHandlerRegistry(serviceRegistry);
+
+        server = serverBuilder.build();
+        server.start();
+
+        channel = InProcessChannelBuilder.forName(name).build();
+
         ModuleDefineTesting moduleDefine = new ModuleDefineTesting();
         moduleManager.put(CoreModule.NAME, moduleDefine);
 
@@ -65,6 +85,25 @@ public class GRPCRemoteClientTestCase {
 
         TestWorker worker = new TestWorker(moduleManager);
         workerInstancesService.put(nextWorkerName, worker, TestStreamData.class);
+    }
+
+    @AfterEach
+    public void after() {
+        channel.shutdown();
+        server.shutdown();
+
+        try {
+            channel.awaitTermination(1L, TimeUnit.MINUTES);
+            server.awaitTermination(1L, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } finally {
+            channel.shutdownNow();
+            channel = null;
+            server.shutdownNow();
+            server = null;
+        }
     }
 
     @Test
@@ -98,13 +137,13 @@ public class GRPCRemoteClientTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        grpcServerRule.getServiceRegistry().addService(new RemoteServiceHandler(moduleManager));
+        serviceRegistry.addService(new RemoteServiceHandler(moduleManager));
 
         Address address = new Address("not-important", 11, false);
         GRPCRemoteClient remoteClient = spy(new GRPCRemoteClient(moduleManager, address, 1, 10, 10, null));
         remoteClient.connect();
 
-        doReturn(grpcServerRule.getChannel()).when(remoteClient).getChannel();
+        doReturn(channel).when(remoteClient).getChannel();
 
         for (int i = 0; i < 12; i++) {
             remoteClient.push(nextWorkerName, new TestStreamData());
@@ -135,7 +174,7 @@ public class GRPCRemoteClientTestCase {
         }
     }
 
-    class TestWorker extends AbstractWorker {
+    static class TestWorker extends AbstractWorker {
 
         public TestWorker(ModuleDefineHolder moduleDefineHolder) {
             super(moduleDefineHolder);
@@ -144,7 +183,7 @@ public class GRPCRemoteClientTestCase {
         @Override
         public void in(Object o) {
             TestStreamData streamData = (TestStreamData) o;
-            Assert.assertEquals(987, streamData.value);
+            Assertions.assertEquals(987, streamData.value);
         }
     }
 }

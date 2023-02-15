@@ -26,3 +26,4 @@ e2e:
   zipkin-kafka-bootstrapServers: ${ZIPKIN_KAFKA_BOOTSTRAP_SERVERS:127.0.0.1:9092}
   zipkin-kafka-groupId: ${ZIPKIN_KAFKA_GROUPID:zipkin}
   zipkin-kafka-topic: ${ZIPKIN_KAFKA_TOPIC:zipkin}
+  otel-metrics-data-path: ${OTEL_METRICS_DATA_PATH:/data/otel-metrics/}

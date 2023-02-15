@@ -40,7 +40,8 @@ trigger:
 
 verify:
   retry:
-    count: 20
+    # The  total time must max than 1min
+    count: 30
     interval: 3s
   cases:
     - includes:

@@ -36,15 +36,18 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
     private final int bulkActions;
     private final int flushInterval;
     private final int concurrentRequests;
+    private final int batchOfBytes;
 
     public BatchProcessEsDAO(ElasticSearchClient client,
                              int bulkActions,
                              int flushInterval,
-                             int concurrentRequests) {
+                             int concurrentRequests,
+                             int batchOfBytes) {
         super(client);
         this.bulkActions = bulkActions;
         this.flushInterval = flushInterval;
         this.concurrentRequests = concurrentRequests;
+        this.batchOfBytes = batchOfBytes;
     }
 
     @Override
@@ -53,7 +56,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
             synchronized (this) {
                 if (bulkProcessor == null) {
                     this.bulkProcessor = getClient().createBulkProcessor(
-                        bulkActions, flushInterval, concurrentRequests);
+                        bulkActions, flushInterval, concurrentRequests, batchOfBytes);
                 }
             }
         }
@@ -67,7 +70,7 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
             synchronized (this) {
                 if (bulkProcessor == null) {
                     this.bulkProcessor = getClient().createBulkProcessor(
-                        bulkActions, flushInterval, concurrentRequests);
+                        bulkActions, flushInterval, concurrentRequests, batchOfBytes);
                 }
             }
         }
@@ -75,9 +78,21 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
         if (CollectionUtils.isNotEmpty(prepareRequests)) {
             return CompletableFuture.allOf(prepareRequests.stream().map(prepareRequest -> {
                 if (prepareRequest instanceof InsertRequest) {
-                    return bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest());
+                    return bulkProcessor.add(((IndexRequestWrapper) prepareRequest).getRequest())
+                        .whenComplete((v, throwable) -> {
+                            if (throwable == null) {
+                                // Insert completed
+                                ((IndexRequestWrapper) prepareRequest).onInsertCompleted();
+                            }
+                        });
                 } else {
-                    return bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest());
+                    return bulkProcessor.add(((UpdateRequestWrapper) prepareRequest).getRequest())
+                        .whenComplete((v, throwable) -> {
+                            if (throwable != null) {
+                                // Update failure
+                                ((UpdateRequestWrapper) prepareRequest).onUpdateFailure();
+                            }
+                        });
                 }
             }).toArray(CompletableFuture[]::new));
         }
@@ -86,7 +101,9 @@ public class BatchProcessEsDAO extends EsDAO implements IBatchDAO {
 
     @Override
     public void endOfFlush() {
-        // Flush forcedly due to this kind of metrics has been pushed into the bulk processor.
-        bulkProcessor.flush();
+        // Flush forcibly due to this kind of metrics has been pushed into the bulk processor.
+        if (bulkProcessor != null) {
+            bulkProcessor.flush();
+        }
     }
 }

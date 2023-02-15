@@ -18,19 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.profiling.trace.analyze;
 
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.query.type.ProfileStackElement;
+import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.junit.jupiter.api.Assertions;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import lombok.Data;
-import org.apache.skywalking.oap.server.core.query.type.ProfileStackElement;
-import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.junit.Assert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Data
 public class ProfileStackElementMatcher {
@@ -82,7 +83,7 @@ public class ProfileStackElementMatcher {
     private void assertCurrentNode(ProfileStackElement element) {
         // analyze duration
         Matcher durationInfo = DURATION_PATTERN.matcher(duration);
-        Assert.assertTrue("duration field pattern not match", durationInfo.find());
+        Assertions.assertTrue(durationInfo.find(), "duration field pattern not match");
         int duration = Integer.parseInt(durationInfo.group(1));
         int durationExcludeChild = Integer.parseInt(durationInfo.group(2));
 

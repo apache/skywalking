@@ -1,0 +1,90 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  mysql:
+    image: mysql/mysql-server:8.0.13
+    networks:
+      - e2e
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root@1234
+      - MYSQL_DATABASE=swtest
+      - MYSQL_ROOT_HOST=%
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
+    extends:
+      file: ../docker-compose.yml
+      service: oap
+    networks:
+      - e2e
+    environment:
+      SW_STORAGE: mysql
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
+    ports:
+      - 12800
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  rover:
+    extends:
+      file: ../docker-compose.yml
+      service: rover
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  service:
+    extends:
+      file: ../docker-compose.yml
+      service: service
+    networks:
+      - e2e
+    environment:
+      OAP_BACKEND_ADDR: oap:11800
+    ports:
+      - 80
+    depends_on:
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/80" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  proxy:
+    extends:
+      file: ../docker-compose.yml
+      service: proxy
+    networks:
+      - e2e
+    depends_on:
+      service:
+        condition: service_healthy
+
+networks:
+  e2e:

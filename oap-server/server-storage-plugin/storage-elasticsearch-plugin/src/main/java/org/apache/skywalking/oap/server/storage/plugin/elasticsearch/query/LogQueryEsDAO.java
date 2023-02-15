@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
@@ -67,13 +68,18 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                           final Order queryOrder,
                           final int from,
                           final int limit,
-                          final long startSecondTB,
-                          final long endSecondTB,
+                          final Duration duration,
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
                           final List<String> excludingKeywordsOfContent) throws IOException {
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(LogRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(LogRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, LogRecord.INDEX_NAME));
         }
         if (startSecondTB != 0 && endSecondTB != 0) {

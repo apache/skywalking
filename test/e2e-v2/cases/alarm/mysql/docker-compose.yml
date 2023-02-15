@@ -39,7 +39,7 @@ services:
     environment:
       SW_STORAGE: mysql
       SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
     ports:
       - 12800
     depends_on:

@@ -18,173 +18,129 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-import java.io.IOException;
+import static java.util.stream.Collectors.toSet;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.apache.skywalking.library.kubernetes.KubernetesEndpointWatcher;
-import org.apache.skywalking.library.kubernetes.KubernetesEndpointsListener;
-import org.apache.skywalking.library.kubernetes.KubernetesNodeListener;
-import org.apache.skywalking.library.kubernetes.KubernetesNodeWatcher;
-import org.apache.skywalking.library.kubernetes.KubernetesPodListener;
-import org.apache.skywalking.library.kubernetes.KubernetesPodWatcher;
-import org.apache.skywalking.library.kubernetes.KubernetesServiceListener;
-import org.apache.skywalking.library.kubernetes.KubernetesServiceWatcher;
+import org.apache.skywalking.library.kubernetes.KubernetesClient;
+import org.apache.skywalking.library.kubernetes.KubernetesEndpoints;
+import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
-import io.kubernetes.client.openapi.models.V1Endpoints;
+import io.kubernetes.client.openapi.ApiException;
+import io.kubernetes.client.openapi.apis.CoreV1Api;
 import io.kubernetes.client.openapi.models.V1Node;
 import io.kubernetes.client.openapi.models.V1NodeAddress;
 import io.kubernetes.client.openapi.models.V1NodeStatus;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1Service;
+import io.vavr.Tuple2;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class K8SServiceRegistry
-    implements KubernetesServiceListener, KubernetesPodListener,
-    KubernetesEndpointsListener, KubernetesNodeListener {
-    protected final Map<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
-
-    protected final Map<String/* namespace:serviceName */, V1Service> idServiceMap;
-
-    protected final Map<String/* ip */, V1Pod> ipPodMap;
-
-    protected final Map<String/* ip */, String/* namespace:serviceName */> ipServiceMap;
-
+public class K8SServiceRegistry {
+    protected final EnvoyMetricReceiverConfig config;
     protected final ServiceNameFormatter serviceNameFormatter;
 
-    private final EnvoyMetricReceiverConfig config;
+    protected final LoadingCache<K8SServiceRegistry, Set<String>> nodeIPs;
+    protected final LoadingCache<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
 
-    private final Set<String> nodeIPs = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
+    @SneakyThrows
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
         this.config = config;
 
         serviceNameFormatter = new ServiceNameFormatter(config.getK8sServiceNameRule());
-        ipServiceMetaInfoMap = new ConcurrentHashMap<>();
-        idServiceMap = new ConcurrentHashMap<>();
-        ipPodMap = new ConcurrentHashMap<>();
-        ipServiceMap = new ConcurrentHashMap<>();
-    }
 
-    public void start() throws IOException {
-        KubernetesPodWatcher.INSTANCE.addListener(this).start();
-        KubernetesServiceWatcher.INSTANCE.addListener(this).start();
-        KubernetesEndpointWatcher.INSTANCE.addListener(this).start();
-        KubernetesNodeWatcher.INSTANCE.addListener(this).start();
-    }
+        KubernetesClient.setDefault();
 
-    @Override
-    public void onServiceAdded(final V1Service service) {
-        ofNullable(service.getMetadata()).ifPresent(
-            metadata -> idServiceMap.put(metadata.getNamespace() + ":" + metadata.getName(), service)
-        );
+        final CoreV1Api coreV1Api = new CoreV1Api();
 
-        recompose();
-    }
+        final CacheBuilder<Object, Object> cacheBuilder =
+            CacheBuilder.newBuilder()
+                .expireAfterWrite(Duration.ofMinutes(3));
 
-    @Override
-    public void onServiceDeleted(final V1Service service) {
-        ofNullable(service.getMetadata()).ifPresent(
-            metadata -> idServiceMap.remove(metadata.getNamespace() + ":" + metadata.getName())
-        );
-    }
+        nodeIPs = cacheBuilder.build(CacheLoader.from(() -> {
+            try {
+                return coreV1Api
+                    .listNode(null, null, null, null, null, null, null, null, null, null)
+                    .getItems()
+                    .stream()
+                    .map(V1Node::getStatus)
+                    .map(V1NodeStatus::getAddresses)
+                    .flatMap(it -> it.stream().map(V1NodeAddress::getAddress)
+                        .filter(StringUtil::isNotBlank))
+                    .collect(toSet());
+            } catch (ApiException e) {
+                log.error("Failed to list Nodes.", e);
+                return Collections.emptySet();
+            }
+        }));
 
-    @Override
-    public void onServiceUpdated(V1Service oldService, V1Service newService) {
-        onServiceAdded(newService);
-    }
+        ipServiceMetaInfoMap = cacheBuilder.build(new CacheLoader<String, ServiceMetaInfo>() {
+            @Override
+            public ServiceMetaInfo load(String ip) throws Exception {
+                final Optional<V1Pod> pod = KubernetesPods.INSTANCE.findByIP(ip);
+                if (!pod.isPresent()) {
+                    log.debug("No corresponding Pod for IP: {}", ip);
+                    return config.serviceMetaInfoFactory().unknown();
+                }
 
-    @Override
-    public void onPodAdded(final V1Pod pod) {
-        ofNullable(pod.getStatus()).flatMap(status -> ofNullable(status.getPodIP())).ifPresent(podIP -> ipPodMap.put(podIP, pod));
+                final Optional<ObjectID> serviceID =
+                    KubernetesEndpoints.INSTANCE
+                        .list()
+                        .stream()
+                        .filter(endpoints -> endpoints.getMetadata() != null)
+                        .filter(endpoints -> endpoints.getSubsets() != null)
+                        .map(endpoints -> {
+                            final V1ObjectMeta metadata = endpoints.getMetadata();
+                            if (endpoints
+                                .getSubsets()
+                                .stream()
+                                .filter(subset -> subset.getAddresses() != null)
+                                .flatMap(subset -> subset.getAddresses().stream())
+                                .anyMatch(address -> Objects.equals(ip, address.getIp()))) {
+                                return ObjectID
+                                    .builder()
+                                    .name(metadata.getName())
+                                    .namespace(metadata.getNamespace())
+                                    .build();
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .findFirst();
+                if (!serviceID.isPresent()) {
+                    log.debug("No corresponding endpoint for IP: {}", ip);
+                    return config.serviceMetaInfoFactory().unknown();
+                }
 
-        recompose();
-    }
-
-    @Override
-    public void onPodDeleted(final V1Pod pod) {
-        ofNullable(pod.getStatus()).flatMap(status -> ofNullable(status.getPodIP())).ifPresent(ipPodMap::remove);
-    }
-
-    @Override
-    public void onPodUpdated(V1Pod oldPod, V1Pod newPod) {
-        onPodAdded(newPod);
-    }
-
-    @Override
-    public void onEndpointsAdded(final V1Endpoints endpoints) {
-        V1ObjectMeta endpointsMetadata = endpoints.getMetadata();
-        if (isNull(endpointsMetadata)) {
-            log.error("Endpoints metadata is null: {}", endpoints);
-            return;
-        }
-
-        final String namespace = endpointsMetadata.getNamespace();
-        final String name = endpointsMetadata.getName();
-
-        ofNullable(endpoints.getSubsets()).ifPresent(subsets -> subsets.forEach(
-            subset -> ofNullable(subset.getAddresses()).ifPresent(addresses -> addresses.forEach(
-                address -> ofNullable(address.getIp()).ifPresent(ip -> ipServiceMap.put(ip, namespace + ":" + name))
-            ))
-        ));
-
-        recompose();
-    }
-
-    @Override
-    public void onEndpointsDeleted(final V1Endpoints endpoints) {
-        ofNullable(endpoints.getSubsets()).ifPresent(subsets -> subsets.forEach(
-            subset -> ofNullable(subset.getAddresses()).ifPresent(addresses -> addresses.forEach(
-                address -> ofNullable(address.getIp()).ifPresent(ipServiceMap::remove)
-            ))
-        ));
-    }
-
-    @Override
-    public void onEndpointsUpdated(V1Endpoints oldEndpoints, V1Endpoints newEndpoints) {
-        onEndpointsAdded(newEndpoints);
-    }
-
-    @Override
-    public void onNodeAdded(final V1Node node) {
-        forEachAddress(node, nodeIPs::add);
-    }
-
-    @Override
-    public void onNodeUpdated(final V1Node oldNode, final V1Node newNode) {
-        onNodeAdded(newNode);
-    }
-
-    @Override
-    public void onNodeDeleted(final V1Node node) {
-        forEachAddress(node, nodeIPs::remove);
-    }
-
-    protected void forEachAddress(final V1Node node,
-                                  final Consumer<String> consume) {
-        Optional.ofNullable(node)
-                .map(V1Node::getStatus)
-                .map(V1NodeStatus::getAddresses)
-                .ifPresent(addresses ->
-                               addresses.stream()
-                                        .map(V1NodeAddress::getAddress)
-                                        .filter(StringUtil::isNotBlank)
-                                        .forEach(consume)
-                );
+                final Optional<V1Service> service =
+                    KubernetesServices.INSTANCE.findByID(serviceID.get());
+                if (!service.isPresent()) {
+                    log.debug("No service for namespace and name: {}", serviceID.get());
+                    return config.serviceMetaInfoFactory().unknown();
+                }
+                log.debug(
+                    "Composing service meta info from service and pod for IP: {}", ip);
+                return composeServiceMetaInfo(service.get(), pod.get());
+            }
+        });
     }
 
     protected List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final V1ObjectMeta podMeta) {
@@ -196,38 +152,17 @@ public class K8SServiceRegistry
             return tags;
         }
         return labels.entrySet()
-                     .stream()
-                     .map(each -> new ServiceMetaInfo.KeyValue(each.getKey(), each.getValue()))
-                     .collect(Collectors.toCollection(() -> tags));
+            .stream()
+            .map(each -> new ServiceMetaInfo.KeyValue(each.getKey(), each.getValue()))
+            .collect(Collectors.toCollection(() -> tags));
     }
 
+    @SneakyThrows
     public ServiceMetaInfo findService(final String ip) {
         if (isNode(ip)) {
             return config.serviceMetaInfoFactory().unknown();
         }
-        final ServiceMetaInfo service = ipServiceMetaInfoMap.get(ip);
-        if (isNull(service)) {
-            log.debug("Unknown ip {}, ip -> service is null", ip);
-            return config.serviceMetaInfoFactory().unknown();
-        }
-        return service;
-    }
-
-    protected void recompose() {
-        ipPodMap.forEach((ip, pod) -> {
-            final String namespaceService = ipServiceMap.get(ip);
-            final V1Service service;
-            if (isNullOrEmpty(namespaceService) || isNull(service = idServiceMap.get(namespaceService))) {
-                return;
-            }
-
-            if (isNull(pod.getMetadata())) {
-                log.warn("Pod metadata is null, {}", pod);
-                return;
-            }
-
-            ipServiceMetaInfoMap.computeIfAbsent(ip, unused -> composeServiceMetaInfo(service, pod));
-        });
+        return ipServiceMetaInfoMap.get(ip);
     }
 
     protected ServiceMetaInfo composeServiceMetaInfo(final V1Service service, final V1Pod pod) {
@@ -253,11 +188,12 @@ public class K8SServiceRegistry
         return serviceMetaInfo;
     }
 
+    @SneakyThrows
     public boolean isNode(final String ip) {
-        return nodeIPs.contains(ip);
+        return nodeIPs.get(this).contains(ip);
     }
 
-    public boolean isEmpty() {
-        return ipServiceMetaInfoMap.isEmpty();
+    Tuple2<String, String> metadataID(final V1ObjectMeta metadata) {
+        return new Tuple2<String, String>(metadata.getNamespace(), metadata.getName());
     }
 }

@@ -45,7 +45,7 @@ services:
       - 9411
     ports:
       - 9412
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e
     depends_on:

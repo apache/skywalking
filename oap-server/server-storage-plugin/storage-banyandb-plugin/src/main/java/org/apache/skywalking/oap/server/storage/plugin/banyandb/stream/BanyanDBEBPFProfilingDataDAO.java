@@ -39,8 +39,7 @@ public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements
             EBPFProfilingDataRecord.STACK_ID_LIST,
             EBPFProfilingDataRecord.TARGET_TYPE,
             EBPFProfilingDataRecord.DATA_BINARY,
-            EBPFProfilingDataRecord.TASK_ID,
-            EBPFProfilingDataRecord.TIME_BUCKET);
+            EBPFProfilingDataRecord.TASK_ID);
 
     public BanyanDBEBPFProfilingDataDAO(BanyanDBStorageClient client) {
         super(client);

@@ -30,7 +30,7 @@ setup:
 
 verify:
   retry:
-    count: 20
+    count: 60
     interval: 3s
   cases:
     - includes:

@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.oap.server.tool.profile.exporter.test;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Collections;
-import java.util.List;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -34,25 +29,30 @@ import org.apache.skywalking.oap.server.core.query.TraceQueryService;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.tool.profile.exporter.ExporterConfig;
 import org.apache.skywalking.oap.server.tool.profile.exporter.ProfileSnapshotDumper;
 import org.apache.skywalking.oap.server.tool.profile.exporter.ProfiledBasicInfo;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 import org.yaml.snakeyaml.Yaml;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
+
+@ExtendWith(MockitoExtension.class)
 public class ProfileSnapshotExporterTest {
 
     @Mock
@@ -64,7 +64,7 @@ public class ProfileSnapshotExporterTest {
 
     private ExportedData exportedData;
 
-    @Before
+    @BeforeEach
     public void init() throws IOException {
         CoreModule coreModule = Mockito.spy(CoreModule.class);
         StorageModule storageModule = Mockito.spy(StorageModule.class);
@@ -86,6 +86,7 @@ public class ProfileSnapshotExporterTest {
         Mockito.when(moduleProvider.getService(IProfileThreadSnapshotQueryDAO.class))
                .thenReturn(new ProfileExportSnapshotDAO(exportedData));
         Mockito.when(moduleProvider.getService(ITraceQueryDAO.class)).thenReturn(new ProfileTraceDAO(exportedData));
+        Mockito.when(moduleProvider.getService(ISpanAttachedEventQueryDAO.class)).thenReturn(new SpanAttachedEventQueryDAO());
     }
 
     @Test
@@ -98,8 +99,8 @@ public class ProfileSnapshotExporterTest {
         // dump
         final ProfiledBasicInfo basicInfo = ProfiledBasicInfo.build(config, moduleManager);
         final File writeFile = ProfileSnapshotDumper.dump(basicInfo, moduleManager);
-        Assert.assertTrue(writeFile != null);
-        Assert.assertTrue(writeFile.exists());
+        Assertions.assertTrue(writeFile != null);
+        Assertions.assertTrue(writeFile.exists());
 
         // parse
         final ProfileAnalyzeTimeRange timeRange = new ProfileAnalyzeTimeRange();
@@ -108,14 +109,14 @@ public class ProfileSnapshotExporterTest {
         final List<ThreadSnapshot> threadSnapshots = ProfileSnapshotDumper.parseFromFileWithTimeRange(
             writeFile, Collections.singletonList(timeRange));
 
-        Assert.assertEquals(threadSnapshots.size(), exportedData.getSnapshots().size());
+        Assertions.assertEquals(threadSnapshots.size(), exportedData.getSnapshots().size());
         for (int i = 0; i < threadSnapshots.size(); i++) {
-            Assert.assertEquals(threadSnapshots.get(i).getSequence(), i);
-            Assert.assertEquals(threadSnapshots.get(i).getTime(), i * exportedData.getLimit());
+            Assertions.assertEquals(threadSnapshots.get(i).getSequence(), i);
+            Assertions.assertEquals(threadSnapshots.get(i).getTime(), i * exportedData.getLimit());
 
             final String[] snapshots = exportedData.getSnapshots().get(i).split("-");
             for (int snapshotIndex = 0; snapshotIndex < snapshots.length; snapshotIndex++) {
-                Assert.assertEquals(
+                Assertions.assertEquals(
                     threadSnapshots.get(i).getStack().getCodeSignaturesList().get(snapshotIndex),
                     snapshots[snapshotIndex]
                 );

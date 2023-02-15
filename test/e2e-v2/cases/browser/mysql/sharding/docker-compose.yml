@@ -1,0 +1,165 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  sharding-proxy:
+    extends:
+      file: ../../../../script/shardingsphere-proxy/base-compose.yml
+      service: sharding-proxy
+    networks:
+      - e2e
+    volumes:
+      - ../../../../script/shardingsphere-proxy/conf-mysql:/opt/shardingsphere-proxy/conf
+    expose:
+      - 3307
+    depends_on:
+      mysql-1:
+        condition: service_healthy
+      mysql-2:
+        condition: service_healthy
+
+  mysql-1: &mysql
+    image: mysql/mysql-server:8.0.13
+    networks:
+      - e2e
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: "root@1234"
+      MYSQL_DATABASE: "swtest"
+      MYSQL_ROOT_HOST: "%"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  mysql-2:
+    <<: *mysql
+
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: mysql-sharding
+      SW_JDBC_URL: jdbc:mysql://sharding-proxy:3307/swtest
+      SW_JDBC_SHARDING_DATA_SOURCES: ds_0,ds_1
+      SW_CORE_METRICS_DATA_TTL: 2
+      SW_CORE_RECORD_DATA_TTL: 2
+      SW_OTEL_RECEIVER_ENABLED_OTEL_RULES: ""
+      SW_METER_ANALYZER_ACTIVE_FILES: ""
+
+    ports:
+      - 12800
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
+    networks:
+      - e2e
+    depends_on:
+      sharding-proxy:
+        condition: service_healthy
+
+  provider:
+    build:
+      context: ./../../
+      dockerfile: docker/Dockerfile.provider
+      args:
+        - SW_AGENT_PYTHON_COMMIT=${SW_AGENT_PYTHON_COMMIT}
+    command: [ 'python3', '/entrypoint.py' ]
+    networks:
+      - e2e
+    expose:
+      - 9091
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_AGENT_LOGGING_LEVEL: DEBUG
+    volumes:
+      - ./../../docker/provider.py:/entrypoint.py
+    depends_on:
+      oap:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9091" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  testui:
+    build:
+      context: ./../../
+      dockerfile: docker/Dockerfile.test-ui
+      args:
+        - SW_AGENT_CLIENT_JS_TEST_COMMIT=${SW_AGENT_CLIENT_JS_TEST_COMMIT}
+        - SW_AGENT_CLIENT_JS_COMMIT=${SW_AGENT_CLIENT_JS_COMMIT}
+    networks:
+      - e2e
+    ports:
+      - 80
+    depends_on:
+      provider:
+        condition: service_healthy
+      oap:
+        condition: service_healthy
+
+  selenium-hub:
+    image: selenium/hub:4.0.0-alpha-7-prerelease-20201009
+    networks:
+      - e2e
+    expose:
+      - 4444
+    depends_on:
+      testui:
+        condition: service_started
+      provider:
+        condition: service_healthy
+
+  chrome:
+    image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
+    networks:
+      - e2e
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      selenium-hub:
+        condition: service_started
+      testui:
+        condition: service_started
+      provider:
+        condition: service_healthy
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+  generate-traffic:
+    build:
+      context: ./../../
+      dockerfile: docker/Dockerfile.generate-traffic
+    networks:
+      - e2e
+    restart: always
+    depends_on:
+      selenium-hub:
+        condition: service_started
+      chrome:
+        condition: service_started
+      provider:
+        condition: service_healthy
+      testui:
+        condition: service_started
+
+networks:
+  e2e:

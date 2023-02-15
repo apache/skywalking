@@ -72,7 +72,7 @@
             "content": "Provide Linux OS monitoring.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-vm-monitoring/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-vm-monitoring/"
           },
           "moved": false
         }

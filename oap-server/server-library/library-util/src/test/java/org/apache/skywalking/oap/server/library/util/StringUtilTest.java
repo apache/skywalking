@@ -18,58 +18,62 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StringUtilTest {
     @Test
     public void testIsEmpty() {
-        Assert.assertTrue(StringUtil.isEmpty(null));
-        Assert.assertTrue(StringUtil.isEmpty(""));
-        Assert.assertFalse(StringUtil.isEmpty("   "));
-        Assert.assertFalse(StringUtil.isEmpty("A String"));
+        assertTrue(StringUtil.isEmpty(null));
+        assertTrue(StringUtil.isEmpty(""));
+        assertFalse(StringUtil.isEmpty("   "));
+        assertFalse(StringUtil.isEmpty("A String"));
     }
 
     @Test
     public void testIsBlank() {
-        Assert.assertTrue(StringUtil.isBlank(null));
-        Assert.assertTrue(StringUtil.isBlank(""));
-        Assert.assertTrue(StringUtil.isBlank("   "));
-        Assert.assertFalse(StringUtil.isBlank("A String"));
+        assertTrue(StringUtil.isBlank(null));
+        assertTrue(StringUtil.isBlank(""));
+        assertTrue(StringUtil.isBlank("   "));
+        assertFalse(StringUtil.isBlank("A String"));
     }
 
     @Test
     public void testJoin() {
-        Assert.assertNull(StringUtil.join('.'));
-        Assert.assertEquals("Single part.", StringUtil.join('.', "Single part."));
-        Assert.assertEquals("part1.part2.p3", StringUtil.join('.', "part1", "part2", "p3"));
-        Assert.assertEquals("E", StringUtil.join('E', new String[2]));
+        assertNull(StringUtil.join('.'));
+        assertEquals("Single part.", StringUtil.join('.', "Single part."));
+        assertEquals("part1.part2.p3", StringUtil.join('.', "part1", "part2", "p3"));
+        assertEquals("E", StringUtil.join('E', new String[2]));
     }
 
     @Test
     public void testSubstringMatchReturningTrue() {
         StringBuffer stringBuffer = new StringBuffer("ZP~>xz1;");
-        Assert.assertTrue(StringUtil.substringMatch(stringBuffer, 0, stringBuffer));
+        assertTrue(StringUtil.substringMatch(stringBuffer, 0, stringBuffer));
     }
 
     @Test
     public void testSubstringMatchWithPositive() {
-        Assert.assertFalse(StringUtil.substringMatch("", 4770, ""));
+        assertFalse(StringUtil.substringMatch("", 4770, ""));
     }
 
     @Test
     public void testCut() {
         String str = "aaaaaaabswbswbbsbwbsbbwbsbwbsbwbbsbbebewewewewewewewewewewew";
         String shortStr = "ab";
-        Assert.assertEquals(10, StringUtil.cut(str, 10).length());
-        Assert.assertEquals(2, StringUtil.cut(shortStr, 10).length());
+        assertEquals(10, StringUtil.cut(str, 10).length());
+        assertEquals(2, StringUtil.cut(shortStr, 10).length());
     }
 
     @Test
     public void testTrim() {
-        Assert.assertEquals(StringUtil.trim("aaabcdefaaa", 'a'), "bcdef");
-        Assert.assertEquals(StringUtil.trim("bcdef", 'a'), "bcdef");
-        Assert.assertEquals(StringUtil.trim("abcdef", 'a'), "bcdef");
-        Assert.assertEquals(StringUtil.trim("abcdef", 'f'), "abcde");
+        assertEquals(StringUtil.trim("aaabcdefaaa", 'a'), "bcdef");
+        assertEquals(StringUtil.trim("bcdef", 'a'), "bcdef");
+        assertEquals(StringUtil.trim("abcdef", 'a'), "bcdef");
+        assertEquals(StringUtil.trim("abcdef", 'f'), "abcde");
     }
 }

@@ -41,7 +41,7 @@ services:
       SW_CORE_METRICS_DATA_TTL: 7
       SW_JDBC_URL: "jdbc:mysql://tidb:4000/test"
       SW_DATA_SOURCE_PASSWORD: ""
-    entrypoint: ['sh', '-c', '/download-mysql.sh && /skywalking/docker-entrypoint.sh']
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
     depends_on:
       tidb:
         condition: service_healthy

@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -39,6 +40,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @Setter
 @ScopeDeclaration(id = PROFILE_TASK, name = "ProfileTask")
 @Stream(name = ProfileTaskRecord.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
+@BanyanDB.TimestampColumn(ProfileTaskRecord.START_TIME)
 public class ProfileTaskRecord extends NoneStream {
 
     public static final String INDEX_NAME = "profile_task";
@@ -53,28 +55,28 @@ public class ProfileTaskRecord extends NoneStream {
     public static final String MAX_SAMPLING_COUNT = "max_sampling_count";
 
     @Override
-    public String id() {
-        return taskId;
+    public StorageID id() {
+        return new StorageID().append(TASK_ID, taskId);
     }
 
-    @Column(columnName = SERVICE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = SERVICE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
-    @Column(columnName = ENDPOINT_NAME)
+    @Column(name = ENDPOINT_NAME, length = 512)
     private String endpointName;
-    @Column(columnName = TASK_ID)
+    @Column(name = TASK_ID)
     private String taskId;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = DURATION)
+    @Column(name = DURATION)
     private int duration;
-    @Column(columnName = MIN_DURATION_THRESHOLD)
+    @Column(name = MIN_DURATION_THRESHOLD)
     private int minDurationThreshold;
-    @Column(columnName = DUMP_PERIOD)
+    @Column(name = DUMP_PERIOD)
     private int dumpPeriod;
-    @Column(columnName = CREATE_TIME)
+    @Column(name = CREATE_TIME)
     private long createTime;
-    @Column(columnName = MAX_SAMPLING_COUNT)
+    @Column(name = MAX_SAMPLING_COUNT)
     private int maxSamplingCount;
 
     public static class Builder implements StorageBuilder<ProfileTaskRecord> {

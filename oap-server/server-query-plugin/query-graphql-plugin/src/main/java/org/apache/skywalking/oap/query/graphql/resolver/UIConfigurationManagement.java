@@ -68,7 +68,7 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
                                        .id("")
                                        .message(
                                            "The dashboard creation has been disabled. Check SW_ENABLE_UPDATE_UI_TEMPLATE on " +
-                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
+                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/next/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
                                                "to activate it.")
                                        .build();
         }
@@ -85,7 +85,7 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
                                        .id(setting.getId())
                                        .message(
                                            "The dashboard update has been disabled. Check SW_ENABLE_UPDATE_UI_TEMPLATE on " +
-                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
+                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/next/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
                                                "to activate it.")
                                        .build();
         }
@@ -98,7 +98,7 @@ public class UIConfigurationManagement implements GraphQLQueryResolver, GraphQLM
                                        .id(id)
                                        .message(
                                            "The dashboard disable has been disabled. Check SW_ENABLE_UPDATE_UI_TEMPLATE on " +
-                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/latest/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
+                                               "configuration-vocabulary.md(https://skywalking.apache.org/docs/main/next/en/setup/backend/configuration-vocabulary/#configuration-vocabulary) " +
                                                "to activate it.")
                                        .build();
         }

@@ -23,10 +23,11 @@ import org.apache.skywalking.library.elasticsearch.requests.factory.Codec;
 import org.apache.skywalking.library.elasticsearch.requests.factory.RequestFactory;
 import org.apache.skywalking.library.elasticsearch.requests.factory.v6.V6RequestFactory;
 import org.apache.skywalking.library.elasticsearch.requests.factory.v6.codec.V6Codec;
-import org.apache.skywalking.library.elasticsearch.requests.factory.v7.V78RequestFactory;
-import org.apache.skywalking.library.elasticsearch.requests.factory.v7.V7RequestFactory;
-import org.apache.skywalking.library.elasticsearch.requests.factory.v7.codec.V78Codec;
-import org.apache.skywalking.library.elasticsearch.requests.factory.v7.codec.V7Codec;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.V78RequestFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.V7RequestFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.V81RequestFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.codec.V78Codec;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.codec.V7Codec;
 
 public final class ElasticSearchVersion {
     private final String distribution;
@@ -42,7 +43,7 @@ public final class ElasticSearchVersion {
         this.minor = minor;
 
         if (distribution.equalsIgnoreCase("OpenSearch")) {
-            requestFactory = new V78RequestFactory(this);
+            requestFactory = new V81RequestFactory(this);
             codec = V78Codec.INSTANCE;
             return;
         }
@@ -64,7 +65,7 @@ public final class ElasticSearchVersion {
                 return;
             }
             if (major == 8) {
-                requestFactory = new V78RequestFactory(this);
+                requestFactory = new V81RequestFactory(this);
                 codec = V78Codec.INSTANCE;
                 return;
             }

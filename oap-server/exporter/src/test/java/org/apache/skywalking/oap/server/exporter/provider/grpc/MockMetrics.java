@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 
 public class MockMetrics extends Metrics {
 
     @Override
-    protected String id0() {
-        return "mock-metrics";
+    protected StorageID id0() {
+        return new StorageID().append("", "mock-metrics");
     }
 
     @Override

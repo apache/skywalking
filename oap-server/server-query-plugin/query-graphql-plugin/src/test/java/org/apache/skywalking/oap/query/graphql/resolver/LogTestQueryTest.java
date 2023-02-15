@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import junit.framework.TestCase;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.query.graphql.GraphQLQueryConfig;
@@ -28,20 +27,28 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class LogTestQueryTest extends TestCase {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+public class LogTestQueryTest {
     @Mock
     private ModuleManager moduleManager;
 
@@ -57,14 +64,16 @@ public class LogTestQueryTest extends TestCase {
     @Mock
     private LogAnalyzerModuleConfig lalConfig;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(moduleManager.find(anyString()))
             .thenReturn(providerHolder);
         when(providerHolder.provider())
             .thenReturn(serviceHolder);
-        when(serviceHolder.createConfigBeanIfAbsent())
-            .thenReturn(lalConfig);
+        when(serviceHolder.newConfigCreator()).thenCallRealMethod();
+        when(serviceHolder.getModuleConfig()).thenCallRealMethod();
+        final ModuleProvider.ConfigCreator configCreator = serviceHolder.newConfigCreator();
+        configCreator.onInitialized(lalConfig);
 
         final ModuleProviderHolder m = mock(ModuleProviderHolder.class);
         when(moduleManager.find(CoreModule.NAME)).thenReturn(m);

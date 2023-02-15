@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.telemetry.prometheus;
 
 import io.prometheus.client.hotspot.DefaultExports;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -35,10 +34,6 @@ import org.apache.skywalking.oap.server.telemetry.prometheus.httpserver.HttpServ
 public class PrometheusTelemetryProvider extends ModuleProvider {
     private PrometheusConfig config;
 
-    public PrometheusTelemetryProvider() {
-        config = new PrometheusConfig();
-    }
-
     @Override
     public String name() {
         return "prometheus";
@@ -50,8 +45,18 @@ public class PrometheusTelemetryProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<PrometheusConfig>() {
+            @Override
+            public Class type() {
+                return PrometheusConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final PrometheusConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

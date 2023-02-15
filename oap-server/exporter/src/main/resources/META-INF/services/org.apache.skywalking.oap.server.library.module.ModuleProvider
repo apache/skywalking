@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.server.exporter.provider.grpc.GRPCExporterProvider
+org.apache.skywalking.oap.server.exporter.provider.ExporterProvider

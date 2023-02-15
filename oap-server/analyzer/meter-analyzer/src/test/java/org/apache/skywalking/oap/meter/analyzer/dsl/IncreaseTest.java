@@ -21,9 +21,8 @@ package org.apache.skywalking.oap.meter.analyzer.dsl;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.dsl.counter.CounterWindow;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,30 +30,11 @@ import java.util.List;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.time.Instant.parse;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@RunWith(Parameterized.class)
 public class IncreaseTest {
-
-    @Parameterized.Parameter
-    public String name;
-
-    @Parameterized.Parameter(1)
-    public List<ImmutableMap<String, SampleFamily>> input;
-
-    @Parameterized.Parameter(2)
-    public String expression;
-
-    @Parameterized.Parameter(3)
-    public List<Result> want;
-
-    @Parameterized.Parameter(4)
-    public boolean isThrow;
-
-    @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> data() {
         return asList(new Object[][] {
             {
@@ -231,8 +211,13 @@ public class IncreaseTest {
         });
     }
 
-    @Test
-    public void test() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void test(String name,
+                     List<ImmutableMap<String, SampleFamily>> input,
+                     String expression,
+                     List<Result> want,
+                     boolean isThrow) {
         Expression e = DSL.parse(expression);
         CounterWindow.INSTANCE.reset();
         for (int i = 0; i < input.size(); i++) {
@@ -249,7 +234,7 @@ public class IncreaseTest {
             if (isThrow) {
                 fail("Should throw something");
             }
-            assertThat(r, is(want.get(i)));
+            assertThat(r).isEqualTo(want.get(i));
         }
     }
 }

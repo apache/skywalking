@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -39,7 +40,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Data
 @ScopeDeclaration(id = EBPF_PROFILING_TASK, name = "EBPFProfilingTask")
 @Stream(name = EBPFProfilingTaskRecord.INDEX_NAME, scopeId = EBPF_PROFILING_TASK,
-        builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
+    builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
+@BanyanDB.TimestampColumn(EBPFProfilingTaskRecord.CREATE_TIME)
 public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String INDEX_NAME = "ebpf_profiling_task";
     public static final String LOGICAL_ID = "logical_id";
@@ -52,37 +54,47 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String TARGET_TYPE = "target_type";
     public static final String CREATE_TIME = "create_time";
     public static final String LAST_UPDATE_TIME = "last_update_time";
+    public static final String EXTENSION_CONFIG_JSON = "extension_config_json";
 
     public static final int PROCESS_LABELS_JSON_MAX_LENGTH = 1000;
+    public static final int EXTENSION_CONFIG_JSON_MAX_LENGTH = 1000;
 
-    @Column(columnName = LOGICAL_ID)
+    @Column(name = LOGICAL_ID)
     private String logicalId;
-    @Column(columnName = SERVICE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = SERVICE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String serviceId;
-    @Column(columnName = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
+    @Column(name = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
     private String processLabelsJson;
-    @Column(columnName = INSTANCE_ID)
+    @Column(name = INSTANCE_ID, length = 512)
     private String instanceId;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = TRIGGER_TYPE)
+    @Column(name = TRIGGER_TYPE)
     private int triggerType = EBPFProfilingTriggerType.UNKNOWN.value();
-    @Column(columnName = FIXED_TRIGGER_DURATION)
+    @Column(name = FIXED_TRIGGER_DURATION)
     private long fixedTriggerDuration;
-    @Column(columnName = TARGET_TYPE)
+    @Column(name = TARGET_TYPE)
     private int targetType = EBPFProfilingTargetType.UNKNOWN.value();
-    @Column(columnName = CREATE_TIME)
+    @Column(name = CREATE_TIME)
     private long createTime;
-    @Column(columnName = LAST_UPDATE_TIME)
+    @Column(name = LAST_UPDATE_TIME)
     private long lastUpdateTime;
+    @Column(name = EXTENSION_CONFIG_JSON, length = EXTENSION_CONFIG_JSON_MAX_LENGTH, storageOnly = true)
+    private String extensionConfigJson;
 
     @Override
-    public String id() {
-        return Hashing.sha256().newHasher()
-                .putString(logicalId, Charsets.UTF_8)
-                .putLong(createTime)
-                .hash().toString();
+    public StorageID id() {
+        return new StorageID().appendMutant(
+            new String[] {
+                LOGICAL_ID,
+                CREATE_TIME
+            },
+            Hashing.sha256().newHasher()
+                   .putString(logicalId, Charsets.UTF_8)
+                   .putLong(createTime)
+                   .hash().toString()
+        );
     }
 
     /**
@@ -90,10 +102,10 @@ public class EBPFProfilingTaskRecord extends NoneStream {
      */
     public void generateLogicalId() {
         this.logicalId = Hashing.sha256().newHasher()
-            .putString(serviceId, Charsets.UTF_8)
-            .putString(processLabelsJson, Charsets.UTF_8)
-            .putLong(startTime)
-            .hash().toString();
+                                .putString(serviceId, Charsets.UTF_8)
+                                .putString(processLabelsJson, Charsets.UTF_8)
+                                .putLong(startTime)
+                                .hash().toString();
     }
 
     public static class Builder implements StorageBuilder<EBPFProfilingTaskRecord> {
@@ -112,6 +124,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             record.setCreateTime(((Number) converter.get(CREATE_TIME)).longValue());
             record.setLastUpdateTime(((Number) converter.get(LAST_UPDATE_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            record.setExtensionConfigJson((String) converter.get(EXTENSION_CONFIG_JSON));
             return record;
         }
 
@@ -128,6 +141,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             converter.accept(CREATE_TIME, storageData.getCreateTime());
             converter.accept(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(EXTENSION_CONFIG_JSON, storageData.getExtensionConfigJson());
         }
     }
 }

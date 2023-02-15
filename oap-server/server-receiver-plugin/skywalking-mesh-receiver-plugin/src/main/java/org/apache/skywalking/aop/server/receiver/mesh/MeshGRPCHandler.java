@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.aop.server.receiver.mesh;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.apache.skywalking.apm.network.servicemesh.v3.MeshProbeDownstream;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetric;
+import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetricServiceGrpc;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.slf4j.Logger;
@@ -34,19 +35,26 @@ public class MeshGRPCHandler extends ServiceMeshMetricServiceGrpc.ServiceMeshMet
     }
 
     @Override
-    public StreamObserver<ServiceMeshMetric> collect(StreamObserver<MeshProbeDownstream> responseObserver) {
-        return new StreamObserver<ServiceMeshMetric>() {
+    public StreamObserver<ServiceMeshMetrics> collect(StreamObserver<MeshProbeDownstream> responseObserver) {
+        return new StreamObserver<ServiceMeshMetrics>() {
             @Override
-            public void onNext(ServiceMeshMetric metrics) {
+            public void onNext(ServiceMeshMetrics metrics) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Received mesh metrics: {}", metrics);
                 }
 
-                TelemetryDataDispatcher.process(metrics.toBuilder());
+                TelemetryDataDispatcher.process(metrics);
             }
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 LOGGER.error(throwable.getMessage(), throwable);
             }
 

@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin;
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Arrays;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -34,13 +33,9 @@ import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class ZipkinReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
-    private final ZipkinReceiverConfig config;
+    private ZipkinReceiverConfig config;
     private HTTPServer httpServer;
     private KafkaHandler kafkaHandler;
-
-    public ZipkinReceiverProvider() {
-        config = new ZipkinReceiverConfig();
-    }
 
     @Override
     public String name() {
@@ -53,8 +48,18 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
+    public ConfigCreator newConfigCreator() {
+        return new ConfigCreator<ZipkinReceiverConfig>() {
+            @Override
+            public Class type() {
+                return ZipkinReceiverConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final ZipkinReceiverConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override

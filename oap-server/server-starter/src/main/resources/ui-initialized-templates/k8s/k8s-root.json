@@ -95,7 +95,7 @@
             "content": "Provide monitoring of the status and resources of the K8S Cluster.",
             "fontSize": 14,
             "textAlign": "left",
-            "url": "https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-k8s-monitoring/"
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/"
           },
           "moved": false
         }

@@ -18,10 +18,11 @@ telemetry:
 You may also set `Prometheus` to enable them. For more information, refer to the details below.
 
 ## Self Observability
-### Static IP or hostname
-SkyWalking supports collecting telemetry data into the OAP backend directly. Users could check them out through UI or
-GraphQL API.
+SkyWalking supports exposing telemetry data representing OAP running status through Prometheus endpoint.
+Users could set up OpenTelemetry collector to scrap and forward telemetry data to OAP server for further analysis, 
+eventually showing up UI or GraphQL API.
 
+### Static IP or hostname
 Add the following configuration to enable self-observability-related modules.
 
 1. Set up prometheus telemetry.
@@ -33,63 +34,15 @@ telemetry:
     port: 1543
 ```
 
-2. Set up Prometheus fetcher.
+2. Set up OpenTelemetry to scrape the metrics from OAP telemetry.
 
-```yaml
-prometheus-fetcher:
-  selector: ${SW_PROMETHEUS_FETCHER:default}
-  default:
-    enabledRules: ${SW_PROMETHEUS_FETCHER_ENABLED_RULES:"self"}
-```
+Refer to [the E2E test case](../../../../test/e2e-v2/cases/so11y/otel-collector-config.yaml) as an example.
 
-3. Make sure `config/fetcher-prom-rules/self.yaml` exists.
+For Kubernetes deployments, read the following section, otherwise you should be able to
+adjust the configurations below to fit your scenarios.
 
-Once you deploy an OAP server cluster, the target host should be replaced with a dedicated IP or hostname. For instance,
-if there are three OAP servers in your cluster, their hosts are `service1`, `service2`, and `service3`, respectively. You should
-update each `self.yaml` to switch the target host.
-
-service1:
-```yaml
-fetcherInterval: PT15S
-fetcherTimeout: PT10S
-metricsPath: /metrics
-staticConfig:
-  # targets will be labeled as "instance"
-  targets:
-    - service1:1234
-  labels:
-    service: oap-server
-...
-```
-
-service2:
-```yaml
-fetcherInterval: PT15S
-fetcherTimeout: PT10S
-metricsPath: /metrics
-staticConfig:
-  # targets will be labeled as "instance"
-  targets:
-    - service2:1234
-  labels:
-    service: oap-server
-...
-```
-
-service3:
-```yaml
-fetcherInterval: PT15S
-fetcherTimeout: PT10S
-metricsPath: /metrics
-staticConfig:
-  # targets will be labeled as "instance"
-  targets:
-    - service3:1234
-  labels:
-    service: oap-server
-...
-```
 ### Service discovery on Kubernetes
+
 If you deploy an OAP server cluster on Kubernetes, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes).
@@ -148,6 +101,8 @@ For the full example for OpenTelemetry Collector configuration and recommended v
 
 
 ___
+
+Users also could leverage the Prometheus endpoint for their own Prometheus and Grafana.
 
 **NOTE**: Since Apr 21, 2021, the **Grafana** project has been relicensed to **AGPL-v3**, and is no longer licensed for Apache 2.0. Check the LICENSE details.
 The following Prometheus + Grafana solution is optional rather than recommended.

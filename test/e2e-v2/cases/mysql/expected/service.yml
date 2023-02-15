@@ -14,11 +14,11 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "mysql::showcase" }}.1
-  name: mysql::showcase
-  shortname: showcase
-  group: mysql
+- id: {{ b64enc "mysql::root[root]" }}.1
+  name: mysql::root[root]
+  shortname: root[root]
   normal: true
+  group: "mysql"
   layers:
     - MYSQL
 {{- end }}

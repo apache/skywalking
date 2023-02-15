@@ -29,22 +29,33 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter.StorageToMeasure;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 @Slf4j
 public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implements INetworkAddressAliasDAO {
     private final NetworkAddressAlias.Builder builder = new NetworkAddressAlias.Builder();
 
+    private MetadataRegistry.Schema schema;
+
     private static final Set<String> TAGS = ImmutableSet.of(NetworkAddressAlias.ADDRESS,
-            NetworkAddressAlias.TIME_BUCKET, NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
+            NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET,
             NetworkAddressAlias.REPRESENT_SERVICE_ID, NetworkAddressAlias.REPRESENT_SERVICE_INSTANCE_ID);
 
     public BanyanDBNetworkAddressAliasDAO(final BanyanDBStorageClient client) {
         super(client);
+    }
+
+    private MetadataRegistry.Schema getSchema() {
+        if (schema == null) {
+            schema = MetadataRegistry.INSTANCE.findMetadata(NetworkAddressAlias.INDEX_NAME, DownSampling.Minute);
+        }
+        return schema;
     }
 
     @Override
@@ -61,10 +72,14 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
                         }
                     }
             );
+            /**
+             * Currently, only used by {@link org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBNetworkAddressAliasDAO}.
+             * The default DownSampling strategy, i.e. {@link DownSampling#Minute} is assumed in this case.
+             */
             return resp.getDataPoints()
                     .stream()
                     .map(
-                            point -> builder.storage2Entity(new StorageToMeasure(NetworkAddressAlias.INDEX_NAME, point))
+                            point -> builder.storage2Entity(new StorageToMeasure(getSchema(), point))
                     )
                     .collect(Collectors.toList());
         } catch (IOException e) {

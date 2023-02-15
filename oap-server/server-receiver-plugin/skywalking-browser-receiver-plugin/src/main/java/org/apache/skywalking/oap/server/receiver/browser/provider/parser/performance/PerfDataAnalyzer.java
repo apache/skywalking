@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserPerfData;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.browser.provider.BrowserServiceModuleConfig;
 import org.apache.skywalking.oap.server.receiver.browser.provider.parser.performance.listener.PerfDataAnalysisListener;
 
@@ -36,12 +37,24 @@ public class PerfDataAnalyzer {
     private final List<PerfDataAnalysisListener> analysisListeners = new LinkedList<>();
 
     public void doAnalysis(BrowserPerfData browserPerfData) {
+        if (StringUtil.isBlank(browserPerfData.getService())) {
+            return;
+        }
+
         createAnalysisListeners();
 
         BrowserPerfDataDecorator decorator = new BrowserPerfDataDecorator(browserPerfData);
         // Use the server side current time.
         long nowMillis = System.currentTimeMillis();
         decorator.setTime(nowMillis);
+        if (StringUtil.isBlank(decorator.getServiceVersion())) {
+            // Set the default version as latest, considering it is running.
+            decorator.setServiceVersion("latest");
+        }
+        if (StringUtil.isBlank(decorator.getPagePath())) {
+            // Set the default page path as root(/).
+            decorator.setPagePath("/");
+        }
 
         notifyListener(decorator);
 

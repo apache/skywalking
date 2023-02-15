@@ -26,24 +26,25 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.reflect.Whitebox;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TraceSamplingPolicyWatcherTest {
 
     private AnalyzerModuleProvider provider;
     private AnalyzerModuleConfig moduleConfig;
 
-    @Before
+    @BeforeEach
     public void init() {
         provider = new AnalyzerModuleProvider();
         moduleConfig = new AnalyzerModuleConfig();
@@ -57,7 +58,8 @@ public class TraceSamplingPolicyWatcherTest {
         globalDefaultSamplingRateEquals(watcher, 9999);
     }
 
-    @Test(timeout = 20000)
+    @Test
+    @Timeout(20)
     public void testTraceLatencyThresholdDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new TraceLatencyThresholdMockConfigWatcherRegister(3);
 
@@ -68,7 +70,7 @@ public class TraceSamplingPolicyWatcherTest {
         while (!watcher.shouldSample("", 10000, 3000)) {
             Thread.sleep(2000);
         }
-        Assert.assertTrue(watcher.shouldSample("", 10000, 3001));
+        Assertions.assertTrue(watcher.shouldSample("", 10000, 3001));
     }
 
     @Test
@@ -80,7 +82,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value1);
         globalDefaultDurationEquals(watcher, 8000);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  duration: 8000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -88,7 +90,7 @@ public class TraceSamplingPolicyWatcherTest {
                 "  duration: 8000", ConfigChangeWatcher.EventType.DELETE);
 
         watcher.notify(value2);
-        Assert.assertEquals(watcher.value(), null);
+        Assertions.assertEquals(watcher.value(), null);
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
             "default:\n" +
@@ -96,7 +98,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value3);
         globalDefaultDurationEquals(watcher, 800);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  duration: 800");
 
         ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -105,7 +107,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value4);
         globalDefaultDurationEquals(watcher, 800);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  duration: 800");
 
         ConfigChangeWatcher.ConfigChangeEvent value5 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -115,7 +117,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value5);
         globalDefaultDurationEquals(watcher, 800);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  duration: 800");
     }
 
@@ -139,7 +141,8 @@ public class TraceSamplingPolicyWatcherTest {
         }
     }
 
-    @Test(timeout = 20000)
+    @Test
+    @Timeout(20)
     public void testDefaultSampleRateDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new DefaultSampleRateMockConfigWatcherRegister(3);
 
@@ -162,7 +165,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value1);
         globalDefaultSamplingRateEquals(watcher, 7999);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  rate: 8000");
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -171,7 +174,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value2);
         globalDefaultSamplingRateEquals(watcher, 9999);
-        Assert.assertEquals(watcher.value(), null);
+        Assertions.assertEquals(watcher.value(), null);
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
             "default:\n" +
@@ -179,7 +182,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value3);
         globalDefaultSamplingRateEquals(watcher, 499);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  rate: 500");
 
         ConfigChangeWatcher.ConfigChangeEvent value4 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -188,7 +191,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value4);
         globalDefaultSamplingRateEquals(watcher, 499);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  rate: 500");
 
         ConfigChangeWatcher.ConfigChangeEvent value5 = new ConfigChangeWatcher.ConfigChangeEvent(
@@ -198,7 +201,7 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value5);
         globalDefaultSamplingRateEquals(watcher, 499);
-        Assert.assertEquals(watcher.value(), "default:\n" +
+        Assertions.assertEquals(watcher.value(), "default:\n" +
             "  rate: 500");
     }
 
@@ -222,11 +225,13 @@ public class TraceSamplingPolicyWatcherTest {
         }
     }
 
-    @Test(timeout = 20000)
+    @Test
+    @Timeout(20)
     public void testServiceSampleRateDynamicUpdate() throws InterruptedException {
         ConfigWatcherRegister register = new ServiceMockConfigWatcherRegister(3);
 
         TraceSamplingPolicyWatcher watcher = new TraceSamplingPolicyWatcher(moduleConfig, provider);
+        Whitebox.setInternalState(provider, "moduleConfig", moduleConfig);
         provider.getModuleConfig().setTraceSamplingPolicyWatcher(watcher);
         register.registerConfigChangeWatcher(watcher);
         register.start();
@@ -236,9 +241,9 @@ public class TraceSamplingPolicyWatcherTest {
         }
 
         SamplingPolicy samplingPolicy = getSamplingPolicy("serverName1", watcher);
-        Assert.assertEquals(samplingPolicy.getRate().intValue(), 2000);
-        Assert.assertEquals(samplingPolicy.getDuration().intValue(), 30000);
-        Assert.assertEquals(getSamplingPolicy("serverName1", provider.getModuleConfig().getTraceSamplingPolicyWatcher())
+        Assertions.assertEquals(samplingPolicy.getRate().intValue(), 2000);
+        Assertions.assertEquals(samplingPolicy.getDuration().intValue(), 30000);
+        Assertions.assertEquals(getSamplingPolicy("serverName1", provider.getModuleConfig().getTraceSamplingPolicyWatcher())
                                 .getRate()
                                 .intValue(), 2000);
     }
@@ -254,28 +259,28 @@ public class TraceSamplingPolicyWatcherTest {
 
         watcher.notify(value1);
 
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 8000);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 20000);
-        Assert.assertEquals(watcher.value(), "services:\n" +
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 8000);
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 20000);
+        Assertions.assertEquals(watcher.value(), "services:\n" +
             "  - name: serverName1\n" +
             "    rate: 8000\n" +
             "    duration: 20000");
 
         // use serverName1's sampling rate
-        Assert.assertTrue(watcher.shouldSample("serverName1", 7999, -1));
-        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 20000));
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 7999, -1));
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 10000, 20000));
 
         ConfigChangeWatcher.ConfigChangeEvent value2 = new ConfigChangeWatcher.ConfigChangeEvent(
             "", ConfigChangeWatcher.EventType.DELETE);
 
         watcher.notify(value2);
 
-        Assert.assertNull(getSamplingPolicy("serverName1", watcher));
+        Assertions.assertNull(getSamplingPolicy("serverName1", watcher));
         // use global sampling rate
-        Assert.assertTrue(watcher.shouldSample("serverName1", 9999, -1));
-        Assert.assertFalse(watcher.shouldSample("serverName1", 10000, 1));
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 9999, -1));
+        Assertions.assertFalse(watcher.shouldSample("serverName1", 10000, 1));
 
-        Assert.assertEquals(watcher.value(), null);
+        Assertions.assertEquals(watcher.value(), null);
 
         ConfigChangeWatcher.ConfigChangeEvent value3 = new ConfigChangeWatcher.ConfigChangeEvent(
             "services:\n" +
@@ -284,12 +289,12 @@ public class TraceSamplingPolicyWatcherTest {
                 "    duration: 20000", ConfigChangeWatcher.EventType.ADD);
 
         watcher.notify(value3);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 8000);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 20000);
-        Assert.assertTrue(watcher.shouldSample("serverName1", 7999, -1));
-        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 20000));
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 8000);
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 20000);
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 7999, -1));
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 10000, 20000));
 
-        Assert.assertEquals(watcher.value(), "services:\n" +
+        Assertions.assertEquals(watcher.value(), "services:\n" +
             "  - name: serverName1\n" +
             "    rate: 8000\n" +
             "    duration: 20000");
@@ -301,12 +306,12 @@ public class TraceSamplingPolicyWatcherTest {
                 "    duration: 30000", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value4);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 9000);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 30000);
-        Assert.assertTrue(watcher.shouldSample("serverName1", 8999, -1));
-        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 30000));
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 9000);
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 30000);
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 8999, -1));
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 10000, 30000));
 
-        Assert.assertEquals(watcher.value(), "services:\n" +
+        Assertions.assertEquals(watcher.value(), "services:\n" +
             "  - name: serverName1\n" +
             "    rate: 9000\n" +
             "    duration: 30000");
@@ -318,12 +323,12 @@ public class TraceSamplingPolicyWatcherTest {
                 "    duration: abc", ConfigChangeWatcher.EventType.MODIFY);
 
         watcher.notify(value5);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 9000);
-        Assert.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 30000);
-        Assert.assertTrue(watcher.shouldSample("serverName1", 8999, -1));
-        Assert.assertTrue(watcher.shouldSample("serverName1", 10000, 30000));
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getRate().intValue(), 9000);
+        Assertions.assertEquals(getSamplingPolicy("serverName1", watcher).getDuration().intValue(), 30000);
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 8999, -1));
+        Assertions.assertTrue(watcher.shouldSample("serverName1", 10000, 30000));
 
-        Assert.assertEquals(watcher.value(), "services:\n" +
+        Assertions.assertEquals(watcher.value(), "services:\n" +
             "  - name: serverName1\n" +
             "    rate: 9000\n" +
             "    duration: 30000");
@@ -353,13 +358,13 @@ public class TraceSamplingPolicyWatcherTest {
     }
 
     private void globalDefaultSamplingRateEquals(TraceSamplingPolicyWatcher watcher, int sample) {
-        Assert.assertTrue(watcher.shouldSample("", sample, -1));
-        Assert.assertFalse(watcher.shouldSample("", sample + 1, -1));
+        Assertions.assertTrue(watcher.shouldSample("", sample, -1));
+        Assertions.assertFalse(watcher.shouldSample("", sample + 1, -1));
     }
 
     private void globalDefaultDurationEquals(TraceSamplingPolicyWatcher watcher, int duration) {
-        Assert.assertTrue(watcher.shouldSample("", 10000, duration));
-        Assert.assertFalse(watcher.shouldSample("", 10000, duration - 1));
+        Assertions.assertTrue(watcher.shouldSample("", 10000, duration));
+        Assertions.assertFalse(watcher.shouldSample("", 10000, duration - 1));
     }
 
     private SamplingPolicy getSamplingPolicy(String service, TraceSamplingPolicyWatcher watcher) {

@@ -34,8 +34,6 @@ services:
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
       SW_STORAGE_BANYANDB_HOST: "banyandb"
-      SW_STORAGE_IOTDB_HOST: iotdb
-      SW_STORAGE_IOTDB_SESSIONPOOL_SIZE: 2
       SW_CONFIG_ETCD_PERIOD: 1
       SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379
@@ -53,7 +51,8 @@ services:
       - e2e
     environment:
       - SW_OAP_ADDRESS=http://oap:12800
-  
+      - SW_ZIPKIN_ADDRESS=http://oap:9412
+
   banyandb:
     image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}"
     networks:

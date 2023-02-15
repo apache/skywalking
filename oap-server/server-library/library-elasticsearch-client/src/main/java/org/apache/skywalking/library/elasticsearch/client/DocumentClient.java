@@ -86,7 +86,7 @@ public final class DocumentClient {
     }
 
     @SneakyThrows
-    public Optional<Documents> mGet(String type, Map<String, List<String>> indexIds) {
+    public Optional<Documents> mget(String type, Map<String, List<String>> indexIds) {
         final CompletableFuture<Optional<Documents>> future =
             version.thenCompose(
                 v -> client.execute(v.requestFactory().document().mget(type, indexIds))

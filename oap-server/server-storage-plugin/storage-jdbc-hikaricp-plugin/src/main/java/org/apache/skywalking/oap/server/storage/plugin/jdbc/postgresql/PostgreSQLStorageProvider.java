@@ -18,167 +18,40 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
-import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
-import org.apache.skywalking.oap.server.core.storage.StorageDAO;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.StorageModule;
-import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITopNRecordsQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
-import org.apache.skywalking.oap.server.library.module.ModuleDefine;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2BatchDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EBPFProfilingScheduleDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2EventQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2HistoryDeleteDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2MetadataQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2NetworkAddressAliasDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ServiceLabelQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ProfileThreadSnapshotQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2StorageDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopNRecordsQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2TopologyQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.dao.H2ZipkinQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCStorageProvider;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.PostgreSQLAggregationQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.PostgreSQLAlarmQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.PostgreSQLBrowserLogQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.PostgreSQLLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.PostgreSQLMetricsQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao.PostgreSQLTraceQueryDAO;
 
 /**
  * PostgreSQL storage enhanced and came from MySQLStorageProvider to support PostgreSQL.
  */
-@Slf4j
-public class PostgreSQLStorageProvider extends ModuleProvider {
-    private PostgreSQLStorageConfig config;
-    private JDBCHikariCPClient postgresqlClient;
-
-    public PostgreSQLStorageProvider() {
-        config = new PostgreSQLStorageConfig();
-    }
-
+public class PostgreSQLStorageProvider extends JDBCStorageProvider {
     @Override
     public String name() {
         return "postgresql";
     }
 
     @Override
-    public Class<? extends ModuleDefine> module() {
-        return StorageModule.class;
+    protected ModelInstaller createModelInstaller() {
+        return new PostgreSQLTableInstaller(jdbcClient, getManager());
     }
 
     @Override
-    public ModuleConfig createConfigBeanIfAbsent() {
-        return config;
-    }
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        super.prepare();
 
-    @Override
-    public void prepare() throws ServiceNotProvidedException {
-        this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+        // Override service implementations.
 
-        postgresqlClient = new JDBCHikariCPClient(config.getProperties());
-
-        this.registerServiceImplementation(IBatchDAO.class, new H2BatchDAO(postgresqlClient, config.getMaxSizeOfBatchSql(), config.getAsyncBatchPersistentPoolSize()));
         this.registerServiceImplementation(
-                StorageDAO.class,
-                new H2StorageDAO(postgresqlClient));
+            IMetricsQueryDAO.class,
+            new PostgreSQLMetricsQueryDAO(jdbcClient));
         this.registerServiceImplementation(
-                INetworkAddressAliasDAO.class, new H2NetworkAddressAliasDAO(postgresqlClient));
-
-        this.registerServiceImplementation(ITopologyQueryDAO.class, new H2TopologyQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IMetricsQueryDAO.class, new PostgreSQLMetricsQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(
-                ITraceQueryDAO.class,
-                new PostgreSQLTraceQueryDAO(getManager(), postgresqlClient)
-        );
-        this.registerServiceImplementation(IBrowserLogQueryDAO.class, new PostgreSQLBrowserLogQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(
-                IMetadataQueryDAO.class, new H2MetadataQueryDAO(postgresqlClient, config.getMetadataQueryMaxSize()));
-        this.registerServiceImplementation(IAggregationQueryDAO.class, new PostgreSQLAggregationQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IAlarmQueryDAO.class, new PostgreSQLAlarmQueryDAO(postgresqlClient, getManager()));
-        this.registerServiceImplementation(
-                IHistoryDeleteDAO.class, new H2HistoryDeleteDAO(postgresqlClient));
-        this.registerServiceImplementation(ITopNRecordsQueryDAO.class, new H2TopNRecordsQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(
-                ILogQueryDAO.class,
-                new PostgreSQLLogQueryDAO(postgresqlClient, getManager()));
-
-        this.registerServiceImplementation(IProfileTaskQueryDAO.class, new H2ProfileTaskQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IProfileTaskLogQueryDAO.class, new H2ProfileTaskLogQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(
-                IProfileThreadSnapshotQueryDAO.class, new H2ProfileThreadSnapshotQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(UITemplateManagementDAO.class, new H2UITemplateManagementDAO(postgresqlClient));
-        this.registerServiceImplementation(IEventQueryDAO.class, new H2EventQueryDAO(postgresqlClient));
-
-        this.registerServiceImplementation(IEBPFProfilingTaskDAO.class, new H2EBPFProfilingTaskDAO(postgresqlClient));
-        this.registerServiceImplementation(IEBPFProfilingScheduleDAO.class, new H2EBPFProfilingScheduleDAO(postgresqlClient));
-        this.registerServiceImplementation(IEBPFProfilingDataDAO.class, new H2EBPFProfilingDataDAO(postgresqlClient));
-        this.registerServiceImplementation(IServiceLabelDAO.class, new H2ServiceLabelQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(ITagAutoCompleteQueryDAO.class, new H2TagAutoCompleteQueryDAO(postgresqlClient));
-        this.registerServiceImplementation(IZipkinQueryDAO.class, new H2ZipkinQueryDAO(postgresqlClient));
-    }
-
-    @Override
-    public void start() throws ServiceNotProvidedException, ModuleStartException {
-        final ConfigService configService = getManager().find(CoreModule.NAME)
-                .provider()
-                .getService(ConfigService.class);
-        final int numOfSearchableTags = configService.getSearchableTracesTags().split(Const.COMMA).length;
-
-        try {
-            postgresqlClient.connect();
-
-            MySQLTableInstaller installer = new PostgreSQLTableInstaller(postgresqlClient, getManager());
-            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(installer);
-        } catch (StorageException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void notifyAfterCompleted() throws ServiceNotProvidedException {
-
-    }
-
-    @Override
-    public String[] requiredModules() {
-        return new String[] {CoreModule.NAME};
+            IAggregationQueryDAO.class,
+            new PostgreSQLAggregationQueryDAO(jdbcClient));
     }
 }

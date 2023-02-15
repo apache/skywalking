@@ -32,3 +32,20 @@
         sleep 10;
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=batch_test --instance-name=test-instance --service-name=test-service |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
+    # virtual cache
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_read_resp_time  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
+      expected: expected/metrics-has-value0.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_write_sla  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_access_cpm  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_cache_write_command    --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0 |  yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+      expected: expected/record-has-value.yml
+      # virtual database
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=database_access_resp_time  --service-id=bG9jYWxob3N0Oi0x.0  | yq e 'to_entries' -
+      expected: expected/metrics-has-value0.yml

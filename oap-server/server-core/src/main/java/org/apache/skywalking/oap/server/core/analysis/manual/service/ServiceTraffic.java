@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -30,12 +27,18 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
+import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import static org.apache.logging.log4j.util.Base64Util.encode;
 import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
 
@@ -46,10 +49,11 @@ import static org.apache.skywalking.oap.server.core.Const.DOUBLE_COLONS_SPLIT;
     "name",
     "layer"
 })
+@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class ServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "service_traffic";
 
-    public static final String NAME = "name";
+    public static final String NAME = "service_traffic_name";
 
     public static final String SHORT_NAME = "short_name";
 
@@ -61,31 +65,33 @@ public class ServiceTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(columnName = NAME)
+    @Column(name = NAME)
+    @ElasticSearch.Column(legacyName = "name")
     @ElasticSearch.MatchQuery
-    @ElasticSearch.Column(columnAlias = "service_traffic_name")
+    @BanyanDB.SeriesID(index = 1)
     private String name = Const.EMPTY_STRING;
 
     @Setter
     @Getter
-    @Column(columnName = SHORT_NAME)
+    @Column(name = SHORT_NAME)
     private String shortName = Const.EMPTY_STRING;
 
     /**
      * `normal` Base64 encode(serviceName) + ".1" `un-normal` Base64 encode(serviceName) + ".0"
      */
     @Setter
-    @Column(columnName = SERVICE_ID)
+    @Column(name = SERVICE_ID)
     private String serviceId;
 
     @Setter
     @Getter
-    @Column(columnName = GROUP)
+    @Column(name = GROUP)
     private String group;
 
     @Setter
     @Getter
-    @Column(columnName = LAYER)
+    @Column(name = LAYER)
+    @BanyanDB.SeriesID(index = 0)
     private Layer layer = Layer.UNDEFINED;
 
     /**
@@ -95,12 +101,18 @@ public class ServiceTraffic extends Metrics {
      * @return Base64 encode(serviceName) + "." + layer.value
      */
     @Override
-    protected String id0() {
+    protected StorageID id0() {
+        String id;
         if (layer != null) {
-            return encode(name) + Const.POINT + layer.value();
+            id = encode(name) + Const.POINT + layer.value();
         } else {
-            return encode(name) + Const.POINT + Layer.UNDEFINED.value();
+            id = encode(name) + Const.POINT + Layer.UNDEFINED.value();
         }
+        return new StorageID().appendMutant(new String[] {
+            NAME,
+            LAYER
+        }, id);
+
     }
 
     @Override

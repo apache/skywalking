@@ -20,18 +20,14 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -50,6 +46,9 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags.LOGIC_ENDPOINT;
 
 /**
@@ -60,7 +59,6 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.Sp
 public class RPCAnalysisListener extends CommonAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
     private final List<RPCTrafficSourceBuilder> callingInTraffic = new ArrayList<>(10);
     private final List<RPCTrafficSourceBuilder> callingOutTraffic = new ArrayList<>(10);
-    private final List<DatabaseSlowStatementBuilder> dbSlowStatementBuilders = new ArrayList<>(10);
     private final List<EndpointSourceBuilder> logicEndpointBuilders = new ArrayList<>(10);
     private final Gson gson = new Gson();
     private final SourceReceiver sourceReceiver;
@@ -127,6 +125,21 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
                 setPublicAttrs(sourceBuilder, span);
                 callingInTraffic.add(sourceBuilder);
             }
+        } else if (span.getSpanLayer() == SpanLayer.MQ && StringUtil.isNotBlank(span.getPeer())) {
+            // For MQ, if there is no producer-side instrumentation, we set the existing peer as the source service name.
+            RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
+            sourceBuilder.setSourceServiceName(span.getPeer());
+            sourceBuilder.setSourceServiceInstanceName(span.getPeer());
+            sourceBuilder.setDestEndpointName(span.getOperationName());
+            sourceBuilder.setSourceLayer(Layer.MQ);
+            sourceBuilder.setDestEndpointName(span.getOperationName());
+            sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
+            sourceBuilder.setDestServiceName(segmentObject.getService());
+            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
+            sourceBuilder.setDetectPoint(DetectPoint.SERVER);
+            sourceBuilder.setComponentId(span.getComponentId());
+            setPublicAttrs(sourceBuilder, span);
+            callingInTraffic.add(sourceBuilder);
         } else {
             RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
             sourceBuilder.setSourceServiceName(Const.USER_SERVICE_NAME);
@@ -197,45 +210,6 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
         sourceBuilder.setComponentId(span.getComponentId());
         setPublicAttrs(sourceBuilder, span);
         callingOutTraffic.add(sourceBuilder);
-
-        if (RequestType.DATABASE.equals(sourceBuilder.getType())) {
-            boolean isSlowDBAccess = false;
-
-            DatabaseSlowStatementBuilder slowStatementBuilder = new DatabaseSlowStatementBuilder(namingControl);
-            slowStatementBuilder.setServiceName(networkAddress);
-            slowStatementBuilder.setId(segmentObject.getTraceSegmentId() + "-" + span.getSpanId());
-            slowStatementBuilder.setLatency(sourceBuilder.getLatency());
-            slowStatementBuilder.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
-            slowStatementBuilder.setTraceId(segmentObject.getTraceId());
-            for (KeyStringValuePair tag : span.getTagsList()) {
-                if (SpanTags.DB_STATEMENT.equals(tag.getKey())) {
-                    String sqlStatement = tag.getValue();
-                    if (StringUtil.isNotEmpty(sqlStatement)) {
-                        if (sqlStatement.length() > config.getMaxSlowSQLLength()) {
-                            slowStatementBuilder.setStatement(sqlStatement.substring(0, config.getMaxSlowSQLLength()));
-                        } else {
-                            slowStatementBuilder.setStatement(sqlStatement);
-                        }
-                    }
-                } else if (SpanTags.DB_TYPE.equals(tag.getKey())) {
-                    String dbType = tag.getValue();
-                    DBLatencyThresholdsAndWatcher thresholds = config.getDbLatencyThresholdsAndWatcher();
-                    int threshold = thresholds.getThreshold(dbType);
-                    if (sourceBuilder.getLatency() > threshold) {
-                        isSlowDBAccess = true;
-                    }
-                }
-            }
-
-            if (StringUtil.isEmpty(slowStatementBuilder.getStatement())) {
-                String statement = StringUtil.isEmpty(
-                    span.getOperationName()) ? "[No statement]" : "[No statement]/" + span.getOperationName();
-                slowStatementBuilder.setStatement(statement);
-            }
-            if (isSlowDBAccess) {
-                dbSlowStatementBuilders.add(slowStatementBuilder);
-            }
-        }
     }
 
     private void setPublicAttrs(RPCTrafficSourceBuilder sourceBuilder, SpanObject span) {
@@ -290,7 +264,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             sourceReceiver.receive(callingIn.toServiceInstanceRelation());
             // Service is equivalent to endpoint in FaaS (function as a service)
             // Don't generate endpoint and endpoint dependency to avoid unnecessary costs.
-            if (Layer.FAAS != callingIn.getDestLayer()) {        
+            if (Layer.FAAS != callingIn.getDestLayer()) {
                 sourceReceiver.receive(callingIn.toEndpoint());
                 EndpointRelation endpointRelation = callingIn.toEndpointRelation();
                 /*
@@ -318,17 +292,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             if (serviceInstanceRelation != null) {
                 sourceReceiver.receive(serviceInstanceRelation);
             }
-            if (RequestType.DATABASE.equals(callingOut.getType())) {
-                sourceReceiver.receive(callingOut.toServiceMeta());
-                sourceReceiver.receive(callingOut.toDatabaseAccess());
-            }
         });
-
-        dbSlowStatementBuilders.forEach(dbSlowStatBuilder -> {
-            dbSlowStatBuilder.prepare();
-            sourceReceiver.receive(dbSlowStatBuilder.toDatabaseSlowStatement());
-        });
-
         logicEndpointBuilders.forEach(logicEndpointBuilder -> {
             logicEndpointBuilder.prepare();
             sourceReceiver.receive(logicEndpointBuilder.toEndpoint());

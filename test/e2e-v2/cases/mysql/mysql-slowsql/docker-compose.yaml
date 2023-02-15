@@ -1,0 +1,163 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && chmod 777 /skywalking/docker-entrypoint.sh && /skywalking/docker-entrypoint.sh']
+    networks:
+      - e2e
+    environment:
+      - TZ=Asia/Shanghai
+      - SW_STORAGE=mysql
+      - SW_DATA_SOURCE_USER=root
+      - SW_DATA_SOURCE_PASSWORD=password
+      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
+      - SW_CORE_TOPN_REPORT_PERIOD=2
+    depends_on:
+      mysql:
+        condition: service_healthy
+  mysql:
+    image: mysql:8.0.13
+    networks:
+      - e2e
+    volumes:
+      - ../mysql-slowsql/log:/var/lib/mysql
+      - ../mysql-slowsql/my.cnf:/etc/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=swtest"
+    ports:
+      - 3306
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  mysql_2: &mysql
+    image: mysql:8.0.13
+    networks:
+      - e2e
+    volumes:
+      - ../mysql-slowsql/my.cnf:/etc/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=swtest"
+    ports:
+      - 3306
+  mysql_3:
+    <<: *mysql
+  mysql-load:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+     - ./mock.sql:/docker/mock.sql
+    command:
+      - -c
+      - "mysql -h mysql -uroot -ppassword < /docker/mock.sql"
+  mysql-load_2:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+      - ./mock.sql:/docker/mock.sql
+    command:
+      - -c
+      - "mysql -h mysql_2 -uroot -ppassword < /docker/mock.sql"
+  mysql-load_3:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+      - ./mock.sql:/docker/mock.sql
+    command:
+      - -c
+      - "mysql -h mysql_3 -uroot -ppassword < /docker/mock.sql"
+  fluentbit:
+    image: fluent/fluent-bit:1.9
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ../mysql-slowsql/log:/tmp/skywalking-logs
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit-parser.conf:/fluent-bit/etc/fluent-bit-parser.conf
+      - ./fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
+    networks:
+      - e2e
+    depends_on:
+      - mysql
+  mysql-service:
+    image: prom/mysqld-exporter:v0.14.0
+    ports:
+      - 9104
+    environment:
+      - DATA_SOURCE_NAME=root:password@(mysql:3306)/
+    networks:
+      - e2e
+    depends_on:
+      - mysql
+  mysql-service_2:
+    image: prom/mysqld-exporter:v0.14.0
+    ports:
+      - 9104
+    environment:
+      - DATA_SOURCE_NAME=root:password@(mysql_2:3306)/
+    networks:
+      - e2e
+    depends_on:
+      - mysql_2
+  mysql-service_3:
+    image: prom/mysqld-exporter:v0.14.0
+    ports:
+      - 9104
+    environment:
+      - DATA_SOURCE_NAME=root:password@(mysql_3:3306)/
+    networks:
+      - e2e
+    depends_on:
+      - mysql_3
+  otel-collector:
+    image: otel/opentelemetry-collector:0.50.0
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ../prometheus-mysql-exporter/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+networks:
+  e2e:

@@ -27,13 +27,13 @@ import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.powermock.reflect.Whitebox;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -58,7 +58,7 @@ public class ZookeeperCoordinatorTest {
 
     private Address selfAddress = new Address("127.0.0.1", 1000, true);
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         when(cacheBuilder.name("remote")).thenReturn(cacheBuilder);
         when(cacheBuilder.build()).thenReturn(serviceCache);

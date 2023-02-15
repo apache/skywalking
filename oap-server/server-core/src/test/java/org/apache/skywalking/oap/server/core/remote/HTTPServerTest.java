@@ -23,17 +23,18 @@ import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.Post;
-import java.util.Collections;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
 
 public class HTTPServerTest {
     static HTTPServer SERVER;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeTest() {
         HTTPServerConfig config = HTTPServerConfig.builder()
                                                   .host("0.0.0.0")
@@ -55,54 +56,49 @@ public class HTTPServerTest {
         String testHandlerURI = "http://localhost:12800/test";
         String testNoHandlerURI = "http://localhost:12800/test/noHandler";
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().get(rootURI).aggregate().get().status().code(),
             405
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().post(rootURI, new byte[0]).aggregate().get().status().code(),
             404
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().post(testHandlerURI, new byte[0]).aggregate().get().status().code(),
             200
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().post(testNoHandlerURI, new byte[0]).aggregate().get().status()
                      .code(),
             404
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().trace(testNoHandlerURI).aggregate().get().status().code(),
             405
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().trace(rootURI).aggregate().get().status().code(),
             405
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().put(testHandlerURI, new byte[0]).aggregate().get().status().code(),
             405
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().delete(testHandlerURI).aggregate().get().status().code(),
             405
         );
 
-        Assert.assertEquals(
+        Assertions.assertEquals(
             WebClient.of().options(testHandlerURI).aggregate().get().status().code(),
-            405
-        );
-
-        Assert.assertEquals(
-            WebClient.of().head(testHandlerURI).aggregate().get().status().code(),
             405
         );
     }

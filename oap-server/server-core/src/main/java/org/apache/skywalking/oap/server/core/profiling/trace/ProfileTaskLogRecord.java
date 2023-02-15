@@ -20,11 +20,11 @@ package org.apache.skywalking.oap.server.core.profiling.trace;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -40,6 +40,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @Setter
 @ScopeDeclaration(id = PROFILE_TASK_LOG, name = "ProfileTaskLog")
 @Stream(name = ProfileTaskLogRecord.INDEX_NAME, scopeId = PROFILE_TASK_LOG, builder = ProfileTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.TimestampColumn(ProfileTaskLogRecord.TIMESTAMP)
 public class ProfileTaskLogRecord extends Record {
 
     public static final String INDEX_NAME = "profile_task_log";
@@ -47,20 +48,29 @@ public class ProfileTaskLogRecord extends Record {
     public static final String INSTANCE_ID = "instance_id";
     public static final String OPERATION_TYPE = "operation_type";
     public static final String OPERATION_TIME = "operation_time";
+    public static final String TIMESTAMP = "timestamp";
 
-    @Column(columnName = TASK_ID)
+    @Column(name = TASK_ID)
     private String taskId;
-    @Column(columnName = INSTANCE_ID)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = INSTANCE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
-    @Column(columnName = OPERATION_TYPE, storageOnly = true)
+    @Column(name = OPERATION_TYPE, storageOnly = true)
     private int operationType;
-    @Column(columnName = OPERATION_TIME)
+    @Column(name = OPERATION_TIME)
     private long operationTime;
+    @Getter
+    @Setter
+    @Column(name = TIMESTAMP)
+    private long timestamp;
 
     @Override
-    public String id() {
-        return getTaskId() + Const.ID_CONNECTOR + getInstanceId() + Const.ID_CONNECTOR + getOperationType() + Const.ID_CONNECTOR + getOperationTime();
+    public StorageID id() {
+        return new StorageID()
+            .append(TASK_ID, getTaskId())
+            .append(INSTANCE_ID, getInstanceId())
+            .append(OPERATION_TYPE, getOperationType())
+            .append(OPERATION_TIME, getOperationTime());
     }
 
     public static class Builder implements StorageBuilder<ProfileTaskLogRecord> {
@@ -72,6 +82,7 @@ public class ProfileTaskLogRecord extends Record {
             log.setOperationType(((Number) converter.get(OPERATION_TYPE)).intValue());
             log.setOperationTime(((Number) converter.get(OPERATION_TIME)).longValue());
             log.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            log.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             return log;
         }
 
@@ -82,6 +93,7 @@ public class ProfileTaskLogRecord extends Record {
             converter.accept(OPERATION_TYPE, storageData.getOperationType());
             converter.accept(OPERATION_TIME, storageData.getOperationTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(TIMESTAMP, storageData.getTimestamp());
         }
     }
 }
