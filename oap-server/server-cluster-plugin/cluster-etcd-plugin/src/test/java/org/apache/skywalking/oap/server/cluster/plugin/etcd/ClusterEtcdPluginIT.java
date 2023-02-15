@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
 
 @Slf4j
 @Testcontainers
-public class ITClusterEtcdPluginTest {
+public class ClusterEtcdPluginIT {
     private ClusterModuleEtcdConfig etcdConfig;
 
     private Client client;

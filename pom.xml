@@ -147,8 +147,8 @@
 
     <properties>
         <!-- Built in properties -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <powermock.version>2.0.9</powermock.version>
@@ -180,6 +180,7 @@
         <antlr.version>4.9.2</antlr.version>
 
         <!-- Plugin versions -->
+        <maven-failsafe-plugin.version>3.0.0-M8</maven-failsafe-plugin.version>
         <takari-maven-plugin.version>0.6.1</takari-maven-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <build-helper-maven-plugin.version>3.2.0</build-helper-maven-plugin.version>
@@ -189,7 +190,7 @@
         <assertj-core.version>3.20.2</assertj-core.version>
 
         <skipUTs>false</skipUTs>
-        <skipITs>true</skipITs>
+
         <system-stubs.version>2.0.2</system-stubs.version>
     </properties>
 
@@ -333,20 +334,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
-                        <skip>${skipITs}</skip>
-                        <!--
-                            Exclude time-consuming tests and run those tests separately in skywalking.yaml.
-                            TCIT means Time Consuming Integration Test.
-                        -->
-                        <excludes>
-                            <exclude>**/TCIT*.java</exclude>
-                        </excludes>
+                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     </configuration>
                     <executions>
                         <execution>
                             <goals>
                                 <goal>integration-test</goal>
-                                <goal>verify</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -360,18 +353,15 @@
                 <!--
                     maven-surefire-plugin will exclude integration tests (ITs)
                     and leave them for maven-failsafe-plugin to run, which is bound to the `verify` goal.
-                    If you want to run the ITs please set the property skipITs to false (-DskipITs=false),
-                    e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend clean verify -DskipITs=false`
+                    If you want to run the ITs please run ./mvnw integration-test,
+                    e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend clean integration-test`
                  -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <skip>${skipUTs}</skip>
-                        <excludes>
-                            <exclude>IT*.class</exclude>
-                            <exclude>ShardingIntegrationTest.class</exclude>
-                        </excludes>
+                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     </configuration>
                 </plugin>
 
@@ -397,6 +387,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
@@ -408,8 +399,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <!-- Build has not yet been updated for Java 9+ -->
-                                    <version>1.8</version>
+                                    <version>11</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -421,6 +411,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
@@ -432,6 +423,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>

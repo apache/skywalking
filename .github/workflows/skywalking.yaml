@@ -70,7 +70,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: "8"
+          java-version: "11"
           cache: "maven"
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -157,7 +157,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: "8"
+          java-version: "11"
           cache: "maven"
       - name: Build distribution tar
         run: |
@@ -181,7 +181,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [8, 11, 17]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -220,10 +220,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-        java-version: [8]
+        java-version: [11]
         include:
           - os: ubuntu
-            java-version: 11
+            java-version: 17
     steps:
       - uses: actions/checkout@v3
         with:
@@ -237,9 +237,9 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: adopt
+          distribution: temurin
       - name: Unit test
-        run: ./mvnw clean verify -q -B -D"checkstyle.skip" || ./mvnw clean verify -q -B -D"checkstyle.skip"
+        run: ./mvnw clean test -q -B -D"checkstyle.skip" || ./mvnw clean test -q -B -D"checkstyle.skip"
 
   integration-test:
     if: |
@@ -251,7 +251,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        java-version: [8, 11]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -265,18 +265,19 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: adopt
+          distribution: temurin
       - name: Integration test
         run: |
-          ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false || \
-          ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
+          # Exclude slow integration tests and run those tests separately below.
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow || \
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow
 
-  # Time consuming integration tests
-  tc-integration-test:
+  # Slow tests
+  slow-integration-test:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Time Consuming Integration Tests
+    name: Slow Integration Tests
     needs: [sanity-check, changes]
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -284,9 +285,9 @@ jobs:
       matrix:
         test:
           - name: ShardingSphere
-            class: org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.TCITShardingSphere
+            class: org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingSphereIT
           - name: ElasticSearch / OpenSearch
-            class: org.apache.skywalking.library.elasticsearch.TCITElasticSearch
+            class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:
       - uses: actions/checkout@v3
         with:
@@ -299,12 +300,12 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       - uses: actions/setup-java@v3
         with:
-          java-version: 8
-          distribution: adopt
+          java-version: 11
+          distribution: temurin
       - name: ${{ matrix.test.name }}
         run: |
-          ./mvnw clean test -Dtest=${{ matrix.test.class }} -DfailIfNoTests=false || \
-          ./mvnw clean test -Dtest=${{ matrix.test.class }} -DfailIfNoTests=false
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -DfailIfNoTests=false || \
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -DfailIfNoTests=false
 
   e2e-test:
     if: |
@@ -671,7 +672,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-8
+          name: docker-images-11
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
@@ -733,7 +734,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-8
+          name: docker-images-11
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
@@ -757,7 +758,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [8, 11, 17]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -772,7 +773,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: adopt
+          distribution: temurin
       - name: Prepare test services
         shell: bash
         run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
@@ -790,7 +791,7 @@ jobs:
       - dependency-license
       - unit-test
       - integration-test
-      - tc-integration-test
+      - slow-integration-test
       - e2e-test
       - e2e-test-istio
       - e2e-test-java-versions
@@ -809,7 +810,7 @@ jobs:
           depLicenseResults=${{ needs.dependency-license.result }}
           unitResults=${{ needs.unit-test.result }};
           integrationResults=${{ needs.integration-test.result }};
-          timeConsumingITResults=${{ needs.tc-integration-test.result }};
+          timeConsumingITResults=${{ needs.slow-integration-test.result }};
           e2eResults=${{ needs.e2e-test.result }};
           e2eIstioResults=${{ needs.e2e-test-istio.result }};
           e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};

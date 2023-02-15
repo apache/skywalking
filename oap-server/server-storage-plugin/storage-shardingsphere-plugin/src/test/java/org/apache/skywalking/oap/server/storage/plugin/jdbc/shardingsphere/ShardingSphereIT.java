@@ -102,7 +102,8 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @Slf4j
-public class TCITShardingSphere {
+@org.junit.jupiter.api.Tag("slow")
+public class ShardingSphereIT {
     private static MockedStatic<DefaultScopeDefine> DEFAULT_SCOPE_DEFINE_MOCKED_STATIC;
 
     @BeforeAll
@@ -158,7 +159,7 @@ public class TCITShardingSphere {
     }
 
     private void startEnv(String version, String dockerComposeName, int dsServicePort) {
-        environment = new DockerComposeContainer<>(new File(TCITShardingSphere.class
+        environment = new DockerComposeContainer<>(new File(ShardingSphereIT.class
                                                                 .getClassLoader()
                                                                 .getResource(dockerComposeName).getPath()))
             .withExposedService("sharding-proxy", 3307,
