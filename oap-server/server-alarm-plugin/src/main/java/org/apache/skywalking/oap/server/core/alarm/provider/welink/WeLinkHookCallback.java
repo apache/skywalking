@@ -22,87 +22,61 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.netty.handler.codec.http.HttpHeaderValues;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
+
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 /**
  * Use SkyWalking alarm WeLink webhook API.
  */
 @Slf4j
-public class WeLinkHookCallback implements AlarmCallback {
-
-    private static final int HTTP_CONNECT_TIMEOUT = 1000;
-    private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 1000;
-    private static final int HTTP_SOCKET_TIMEOUT = 10000;
+@RequiredArgsConstructor
+public class WeLinkHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
-    private final RequestConfig requestConfig;
-
-    public WeLinkHookCallback(final AlarmRulesWatcher alarmRulesWatcher) {
-        this.alarmRulesWatcher = alarmRulesWatcher;
-        this.requestConfig = RequestConfig.custom()
-                                          .setConnectTimeout(HTTP_CONNECT_TIMEOUT)
-                                          .setConnectionRequestTimeout(HTTP_CONNECTION_REQUEST_TIMEOUT)
-                                          .setSocketTimeout(HTTP_SOCKET_TIMEOUT)
-                                          .build();
-    }
 
     /**
      * Send alarm message if the settings not empty
      */
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) {
-        if (this.alarmRulesWatcher.getWeLinkSettings() == null || this.alarmRulesWatcher.getWeLinkSettings()
-                                                                                        .getWebhooks()
-                                                                                        .isEmpty()) {
+    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
+        if (alarmRulesWatcher.getWeLinkSettings() == null
+                || alarmRulesWatcher.getWeLinkSettings().getWebhooks().isEmpty()) {
             return;
         }
-        WeLinkSettings welinkSettings = this.alarmRulesWatcher.getWeLinkSettings();
-        welinkSettings.getWebhooks().forEach(webHookUrl -> {
-            String accessToken = getAccessToken(webHookUrl);
-            alarmMessages.forEach(alarmMessage -> {
-                String content = String.format(
-                    Locale.US,
-                    this.alarmRulesWatcher.getWeLinkSettings().getTextTemplate(),
+        final var welinkSettings = alarmRulesWatcher.getWeLinkSettings();
+        for (final var webHookUrl : welinkSettings.getWebhooks()) {
+            final var accessToken = getAccessToken(webHookUrl);
+            for (final var alarmMessage : alarmMessages) {
+                final var content = String.format(
+                    alarmRulesWatcher.getWeLinkSettings().getTextTemplate(),
                     alarmMessage.getAlarmMessage()
                 );
                 sendAlarmMessage(webHookUrl, accessToken, content);
-            });
-        });
+            }
+        }
     }
 
     /**
      * Send alarm message to remote endpoint
      */
-    private void sendAlarmMessage(WeLinkSettings.WebHookUrl webHookUrl, String accessToken, String content) {
-        JsonObject appServiceInfo = new JsonObject();
+    private void sendAlarmMessage(WeLinkSettings.WebHookUrl webHookUrl, String accessToken, String content) throws IOException, InterruptedException {
+        final var appServiceInfo = new JsonObject();
         appServiceInfo.addProperty("app_service_id", "1");
         appServiceInfo.addProperty("app_service_name", webHookUrl.getRobotName());
-        JsonArray groupIds = new JsonArray();
+        final var groupIds = new JsonArray();
         Arrays.stream(webHookUrl.getGroupIds().split(",")).forEach(groupIds::add);
-        JsonObject body = new JsonObject();
+        final var body = new JsonObject();
         body.add("app_service_info", appServiceInfo);
         body.addProperty("app_msg_id", UUID.randomUUID().toString());
         body.add("group_id", groupIds);
@@ -113,60 +87,28 @@ public class WeLinkHookCallback implements AlarmCallback {
         ));
         body.addProperty("content_type", 0);
         body.addProperty("client_app_id", "1");
-        sendPostRequest(
-            webHookUrl.getMessageUrl(), Collections.singletonMap("x-wlk-Authorization", accessToken), body.toString());
+        final var requestBody = body.toString();
+        post(URI.create(webHookUrl.getMessageUrl()), requestBody, Collections.singletonMap("x-wlk-Authorization", accessToken));
     }
 
     /**
      * Get access token from remote endpoint
      */
-    private String getAccessToken(WeLinkSettings.WebHookUrl webHookUrl) {
-        String accessTokenUrl = webHookUrl.getAccessTokenUrl();
-        String clientId = webHookUrl.getClientId();
-        String clientSecret = webHookUrl.getClientSecret();
-        String response = sendPostRequest(
-            accessTokenUrl, Collections.emptyMap(),
-            String.format(Locale.US, "{\"client_id\":%s,\"client_secret\":%s}", clientId, clientSecret)
+    private String getAccessToken(WeLinkSettings.WebHookUrl webHookUrl) throws IOException, InterruptedException {
+        final var accessTokenUrl = webHookUrl.getAccessTokenUrl();
+        final var clientId = webHookUrl.getClientId();
+        final var clientSecret = webHookUrl.getClientSecret();
+        final var response = post(
+            URI.create(accessTokenUrl),
+            String.format(Locale.US, "{\"client_id\":%s,\"client_secret\":%s}", clientId, clientSecret),
+            Collections.emptyMap()
         );
-        Gson gson = new Gson();
-        JsonObject responseJson = gson.fromJson(response, JsonObject.class);
+        final var gson = new Gson();
+        final var responseJson = gson.fromJson(response, JsonObject.class);
         return Optional.ofNullable(responseJson)
                        .map(r -> r.get("access_token"))
                        .map(JsonElement::getAsString)
                        .orElse("");
     }
 
-    /**
-     * Post rest invoke
-     */
-    private String sendPostRequest(String url, Map<String, String> headers, String requestBody) {
-        String response = "";
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(url);
-            post.setConfig(requestConfig);
-            post.setHeader(HttpHeaders.ACCEPT, HttpHeaderValues.APPLICATION_JSON.toString());
-            post.setHeader(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON.toString());
-            headers.forEach(post::setHeader);
-            StringEntity entity = new StringEntity(requestBody, ContentType.APPLICATION_JSON);
-            post.setEntity(entity);
-            try (CloseableHttpResponse httpResponse = httpClient.execute(post)) {
-                StatusLine statusLine = httpResponse.getStatusLine();
-                if (statusLine != null) {
-                    if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                        log.error("send to {} failure. Response code: {}, Response content: {}", url,
-                                  statusLine.getStatusCode(),
-                                  EntityUtils.toString(httpResponse.getEntity())
-                        );
-                    } else {
-                        response = EntityUtils.toString(httpResponse.getEntity(), StandardCharsets.UTF_8);
-                    }
-                }
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-            }
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
-        return response;
-    }
 }

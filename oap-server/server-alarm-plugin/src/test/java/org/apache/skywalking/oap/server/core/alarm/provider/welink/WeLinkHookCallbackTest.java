@@ -72,7 +72,7 @@ public class WeLinkHookCallbackTest {
     };
 
     @Test
-    public void testWeLinkDoAlarm() {
+    public void testWeLinkDoAlarm() throws Exception {
         List<WeLinkSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new WeLinkSettings.WebHookUrl("clientId", "clientSecret",
                                                    "http://127.0.0.1:" + SERVER.httpPort() + "/welinkhook/api/auth/v2/tickets",

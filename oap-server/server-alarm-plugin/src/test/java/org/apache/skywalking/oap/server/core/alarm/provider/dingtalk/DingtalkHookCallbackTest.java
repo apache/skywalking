@@ -75,7 +75,7 @@ public class DingtalkHookCallbackTest {
     };
 
     @Test
-    public void testDingtalkWebhookWithoutSign() {
+    public void testDingtalkWebhookWithoutSign() throws Exception {
         List<DingtalkSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new DingtalkSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/dingtalkhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
@@ -100,7 +100,7 @@ public class DingtalkHookCallbackTest {
     }
 
     @Test
-    public void testDingtalkWebhookWithSign() {
+    public void testDingtalkWebhookWithSign() throws Exception {
         CHECK_SIGN.set(true);
         List<DingtalkSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new DingtalkSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/dingtalkhook/receiveAlarm?token=dummy_token"));

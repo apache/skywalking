@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,7 +58,7 @@ public class WebhookCallbackTest {
     };
 
     @Test
-    public void testWebhook() {
+    public void testWebhook() throws IOException, InterruptedException {
         List<String> remoteEndpoints = new ArrayList<>();
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
         Rules rules = new Rules();

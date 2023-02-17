@@ -73,7 +73,7 @@ public class FeishuHookCallbackTest {
     };
 
     @Test
-    public void testFeishuWebhookWithoutSign() {
+    public void testFeishuWebhookWithoutSign() throws Exception {
         List<FeishuSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new FeishuSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
@@ -98,7 +98,7 @@ public class FeishuHookCallbackTest {
     }
 
     @Test
-    public void testFeishuWebhookWithSign() {
+    public void testFeishuWebhookWithSign() throws Exception {
         CHECK_SIGN.set(true);
         List<FeishuSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
@@ -124,7 +124,7 @@ public class FeishuHookCallbackTest {
     }
 
     @Test
-    public void testFeishuWebhookWithSignAndAt() {
+    public void testFeishuWebhookWithSignAndAt() throws Exception {
         CHECK_SIGN.set(true);
         List<FeishuSettings.WebHookUrl> webHooks = new ArrayList<>();
         webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
