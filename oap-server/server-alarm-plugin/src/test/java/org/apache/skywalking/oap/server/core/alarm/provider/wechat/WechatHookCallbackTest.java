@@ -65,7 +65,7 @@ public class WechatHookCallbackTest {
     };
 
     @Test
-    public void testWechatWebhook() {
+    public void testWechatWebhook() throws Exception {
         List<String> remoteEndpoints = new ArrayList<>();
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/wechathook/receiveAlarm");
         Rules rules = new Rules();

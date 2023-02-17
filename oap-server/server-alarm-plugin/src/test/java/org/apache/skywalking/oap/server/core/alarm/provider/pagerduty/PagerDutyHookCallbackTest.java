@@ -32,7 +32,7 @@ public class PagerDutyHookCallbackTest {
 
     @Test
     @Disabled
-    public void testWithRealAccount() {
+    public void testWithRealAccount() throws Exception {
         // replace this with your actual integration key(s) and run this test manually
         List<String> integrationKeys = Arrays.asList(
                 "dummy-integration-key"
