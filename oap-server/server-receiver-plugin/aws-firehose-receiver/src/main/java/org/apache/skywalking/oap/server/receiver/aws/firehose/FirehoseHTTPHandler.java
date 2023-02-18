@@ -17,9 +17,7 @@
 
 package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
-import com.google.gson.Gson;
 import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.util.JsonFormat;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
@@ -35,24 +33,20 @@ import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRe
 @Slf4j
 @AllArgsConstructor
 public class FirehoseHTTPHandler {
-
     private final OpenTelemetryMetricRequestProcessor openTelemetryMetricRequestProcessor;
 
     @Post("/aws/firehose/metrics")
     @ConsumesJson
     @ProducesJson
     public HttpResponse collectMetrics(final FirehoseReq firehoseReq) {
-        log.info("receiver--> " + new Gson().toJson(firehoseReq));
         try {
             for (RequestData record : firehoseReq.getRecords()) {
                 final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
                     Base64.getDecoder().decode(record.getData()));
                 ExportMetricsServiceRequest request;
                 while ((request = ExportMetricsServiceRequest.parseDelimitedFrom(byteArrayInputStream)) != null) {
-                    final io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest target = OtelMetricsConvertor.convertExportMetricsRequest(
-                        request);
-                    log.info("receiver otel -> " + JsonFormat.printer().print(target));
-                    openTelemetryMetricRequestProcessor.processMetricsRequest(target);
+                    openTelemetryMetricRequestProcessor.processMetricsRequest(
+                        OtelMetricsConvertor.convertExportMetricsRequest(request));
                 }
             }
         } catch (InvalidProtocolBufferException e) {
