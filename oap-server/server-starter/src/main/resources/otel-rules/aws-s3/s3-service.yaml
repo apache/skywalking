@@ -30,7 +30,7 @@
 # </pre>
 
 filter: "{ tags -> {tags.cloud_provider == 'aws' && tags.Namespace == 'AWS/S3' } }"
-expSuffix: tag({tags -> tags.bucket = 'aws-s3-buckets::' + tags.BucketName}).service(['bucket'], Layer.AWS_S3)
+expSuffix: tag({tags -> tags.bucket = 'aws-s3::' + tags.BucketName}).service(['bucket'], Layer.AWS_S3)
 metricPrefix: aws_s3
 metricsRules:
   - name: 4xx
