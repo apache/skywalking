@@ -1,0 +1,292 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "AWS_S3-service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "Downloaded (KB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_downloaded_bytes"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToKB"
+            }
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Uploaded (KB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_uploaded_bytes"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToKB"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "4xx Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_4xx"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "widget": {
+            "title": "5xx Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_4xx"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "widget": {
+            "title": "Request Average Latency (ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_request_latency"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "widget": {
+            "title": "First Byte Average Latency (ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_first_latency_bytes"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "9",
+          "type": "Widget",
+          "widget": {
+            "title": "All Request Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_all_requests"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "10",
+          "type": "Widget",
+          "widget": {
+            "title": "Get Request Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_get_requests"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "11",
+          "type": "Widget",
+          "widget": {
+            "title": "Put Request Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_put_requests"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 26,
+          "w": 6,
+          "h": 13,
+          "i": "12",
+          "type": "Widget",
+          "widget": {
+            "title": "Delete Request Count"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metrics": [
+            "aws_s3_delete_requests"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ]
+        }
+      ],
+
+      "layer": "AWS_S3",
+      "entity": "Service",
+      "name": "AWS_S3-service",
+      "id": "AWS_S3-service",
+      "isRoot": false
+    }
+  }
+]

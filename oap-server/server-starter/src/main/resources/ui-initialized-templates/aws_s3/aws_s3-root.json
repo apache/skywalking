@@ -17,7 +17,7 @@
 
 [
   {
-    "id": "AWS_EKS-Root",
+    "id": "AWS_S3-Root",
     "configuration": {
       "children": [
         {
@@ -32,7 +32,7 @@
           },
           "graph": {
             "type": "ServiceList",
-            "dashboardName": "AWS_EKS-cluster",
+            "dashboardName": "AWS_S3-service",
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
@@ -50,18 +50,18 @@
           "graph": {
             "fontColor":"blue",
             "backgroundColor":"white",
-            "content":"Provide AWS Cloud EKS monitoring through AWS Container Insights Receiver",
+            "content":"Provide AWS Cloud S3 monitoring through AWS FireHose Receiver",
             "fontSize":14,
             "textAlign":"left",
-            "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-eks-monitoring/"
+            "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-s3-monitoring/"
           },
           "moved": false
         }
       ],
-      "id": "AWS_EKS-Root",
-      "layer": "AWS_EKS",
+      "id": "AWS_S3-Root",
+      "layer": "AWS_S3",
       "entity": "All",
-      "name": "AWS_EKS-Root",
+      "name": "AWS_S3-Root",
       "isRoot": true
     }
   }

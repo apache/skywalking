@@ -43,5 +43,6 @@ for identification of the metric data.
 | Metrics of AWS Cloud EKS| otel-rules/aws-eks/eks-cluster.yaml |AWS Container Insights Receiver -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 | Metrics of AWS Cloud EKS| otel-rules/aws-eks/eks-service.yaml |AWS Container Insights Receiver -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
 | Metrics of AWS Cloud EKS| otel-rules/aws-eks/eks-node.yaml |AWS Container Insights Receiver -> OpenTelemetry Collector -- OC/OTLP exporter --> SkyWalking OAP Server |
+| Metrics of AWS Cloud S3 | otel-rules/aws-s3/s3-service.yaml | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
 
 **Note**: You can also use OpenTelemetry exporter to transport the metrics to SkyWalking OAP directly. See [OpenTelemetry Exporter](./backend-meter.md#opentelemetry-exporter).

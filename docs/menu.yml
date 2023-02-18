@@ -189,6 +189,8 @@ catalog:
             catalog:
               - name: "EKS Monitoring"
                 path: "/en/setup/backend/backend-aws-eks-monitoring"
+              - name: "S3 Monitoring"
+                path: "/en/setup/backend/backend-aws-s3-monitoring"
           - name: "Browser Monitoring"
             path: "/en/setup/service-agent/browser-agent"
           - name: "Gateway Monitoring"

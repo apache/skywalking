@@ -670,6 +670,8 @@ jobs:
             config: test/e2e-v2/cases/aws/eks/e2e.yaml
           - name: Windows
             config: test/e2e-v2/cases/win/e2e.yaml
+          - name: AWS Cloud S3
+            config: test/e2e-v2/cases/aws/s3/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
