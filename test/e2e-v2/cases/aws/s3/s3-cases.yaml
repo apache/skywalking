@@ -20,9 +20,9 @@
       expected: expected/service.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-          --name=aws_s3_4xx --service-name aws-s3-buckets::skywalking |yq e 'to_entries' -
+          --name=aws_s3_4xx --service-name aws-s3::skywalking |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-          --name=aws_s3_5xx --service-name aws-s3-buckets::skywalking |yq e 'to_entries' -
+          --name=aws_s3_5xx --service-name aws-s3::skywalking |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml

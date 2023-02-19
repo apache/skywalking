@@ -14,9 +14,9 @@
 # limitations under the License.
 
   {{- contains . }}
-- id: {{ b64enc "aws-s3-buckets::skywalking" }}.1
-  name: aws-s3-buckets::skywalking
-  group: aws-s3-buckets
+- id: {{ b64enc "aws-s3::skywalking" }}.1
+  name: aws-s3::skywalking
+  group: aws-s3
   shortname: skywalking
   normal: true
   layers:
