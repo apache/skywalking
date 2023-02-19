@@ -24,65 +24,97 @@
           "x": 0,
           "y": 0,
           "w": 6,
-          "h": 13,
-          "i": "3",
+          "h": 5,
+          "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Downloaded (KB)"
+            "title": "4xx Count"
           },
           "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
           "metrics": [
-            "aws_s3_downloaded_bytes"
+            "aws_s3_4xx"
           ],
           "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
-            }
+            "readMetricsValue"
           ]
         },
         {
           "x": 6,
           "y": 0,
           "w": 6,
-          "h": 13,
-          "i": "4",
+          "h": 5,
+          "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "Uploaded (KB)"
+            "title": "5xx Count"
           },
           "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": false,
-            "showXAxis": true,
-            "showYAxis": true
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
           "metrics": [
-            "aws_s3_uploaded_bytes"
+            "aws_s3_4xx"
           ],
           "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
-            }
+            "readMetricsValue"
           ]
         },
         {
           "x": 12,
           "y": 0,
+          "w": 6,
+          "h": 5,
+          "i": "3",
+          "type": "Widget",
+          "widget": {
+            "title": "All Request Count"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metrics": [
+            "aws_s3_all_requests"
+          ],
+          "metricTypes": [
+            "readMetricsValue"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 5,
+          "i": "4",
+          "type": "Widget",
+          "widget": {
+            "title": "Request Average Latency (ms)"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metrics": [
+            "aws_s3_request_latency"
+          ],
+          "metricTypes": [
+            "readMetricsValue"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 5,
           "w": 6,
           "h": 13,
           "i": "5",
@@ -106,8 +138,8 @@
           ]
         },
         {
-          "x": 18,
-          "y": 0,
+          "x": 6,
+          "y": 5,
           "w": 6,
           "h": 13,
           "i": "6",
@@ -131,8 +163,8 @@
           ]
         },
         {
-          "x": 0,
-          "y": 13,
+          "x": 12,
+          "y": 5,
           "w": 6,
           "h": 13,
           "i": "7",
@@ -156,8 +188,8 @@
           ]
         },
         {
-          "x": 6,
-          "y": 13,
+          "x": 18,
+          "y": 5,
           "w": 6,
           "h": 13,
           "i": "8",
@@ -181,8 +213,8 @@
           ]
         },
         {
-          "x": 12,
-          "y": 13,
+          "x": 0,
+          "y": 18,
           "w": 6,
           "h": 13,
           "i": "9",
@@ -206,8 +238,8 @@
           ]
         },
         {
-          "x": 18,
-          "y": 13,
+          "x": 6,
+          "y": 18,
           "w": 6,
           "h": 13,
           "i": "10",
@@ -231,8 +263,8 @@
           ]
         },
         {
-          "x": 0,
-          "y": 26,
+          "x": 12,
+          "y": 18,
           "w": 6,
           "h": 13,
           "i": "11",
@@ -256,8 +288,8 @@
           ]
         },
         {
-          "x": 6,
-          "y": 26,
+          "x": 18,
+          "y": 18,
           "w": 6,
           "h": 13,
           "i": "12",
@@ -279,9 +311,84 @@
           "metricTypes": [
             "readMetricsValues"
           ]
+        },
+        {
+          "x": 0,
+          "y": 41,
+          "w": 12,
+          "h": 13,
+          "i": "13",
+          "type": "Widget",
+          "widget": {
+            "title": "Downloaded (KB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "asTable": true,
+              "toTheRight": true,
+              "min": true,
+              "max": true,
+              "mean": true,
+              "total": true
+            }
+          },
+          "metrics": [
+            "aws_s3_downloaded_bytes"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToKB"
+            }
+          ]
+        },
+        {
+          "x": 12,
+          "y": 41,
+          "w": 12,
+          "h": 13,
+          "i": "14",
+          "type": "Widget",
+          "widget": {
+            "title": "Uploaded (KB)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "asTable": true,
+              "toTheRight": true,
+              "min": true,
+              "max": true,
+              "mean": true,
+              "total": true
+            }
+          },
+          "metrics": [
+            "aws_s3_uploaded_bytes"
+          ],
+          "metricTypes": [
+            "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "byteToKB"
+            }
+          ]
         }
       ],
-
       "layer": "AWS_S3",
       "entity": "Service",
       "name": "AWS_S3-service",
