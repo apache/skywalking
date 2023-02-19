@@ -95,6 +95,7 @@
 * Add Python HTTPX module component ID(7019).
 * Migrate tests from junit 4 to junit 5.
 * Refactor http-based alarm plugins and extract common logic to `HttpAlarmCallback`.
+* Support Amazon Simple Storage Service (Amazon S3) metrics monitoring
 
 #### UI
 

@@ -62,6 +62,7 @@ public class UITemplateInitializer {
         Layer.VIRTUAL_MQ.name(),
         Layer.AWS_EKS.name(),
         Layer.OS_WINDOWS.name(),
+        Layer.AWS_S3.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
