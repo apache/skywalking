@@ -29,7 +29,4 @@ public class AWSFirehoseReceiverModuleConfig extends ModuleConfig {
     private long idleTimeOut = 30000;
     private int acceptQueueSize = 0;
     private int maxRequestHeaderSize = 8192;
-    private boolean enableTLS = false;
-    private String tlsKeyPath;
-    private String tlsCertChainPath;
 }
