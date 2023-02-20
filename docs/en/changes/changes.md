@@ -131,6 +131,8 @@
 * Refactor: optimize the attached events visualization in the trace widget.
 * Update BanyanDB client to 0.3.0.
 * Add AWS DynamoDB menu.
+* Add period.
+* optimize menus and add Windows monitoring menu.
 
 #### Documentation
 
