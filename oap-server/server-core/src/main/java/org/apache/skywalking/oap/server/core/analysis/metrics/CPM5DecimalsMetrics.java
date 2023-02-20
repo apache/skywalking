@@ -25,7 +25,7 @@ public abstract class CPM5DecimalsMetrics extends CPMMetrics implements LongValu
 
     @Override
     public void calculate() {
-        this.setValue((this.getTotal() * 100000) / getDurationInMinute());
+        this.setValue((this.getTotal() * 100_000) / getDurationInMinute());
     }
 }
 

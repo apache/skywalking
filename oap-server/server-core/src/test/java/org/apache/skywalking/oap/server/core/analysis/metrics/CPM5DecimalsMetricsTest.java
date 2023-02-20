@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 
 public class CPM5DecimalsMetricsTest {
 
+    public static final long TIME_BUCKET = 2015_11_07_1130L;
+
     @Test
     public void testEntranceCombine() {
         CPM5DecimalsMetricsTest.CountMetricsImpl impl = new CountMetricsImpl();
@@ -32,10 +34,10 @@ public class CPM5DecimalsMetricsTest {
         impl.combine(6);
         impl.combine(7);
 
-        impl.setTimeBucket(202302201608L);
+        impl.setTimeBucket(TIME_BUCKET);
         impl.calculate();
 
-        Assertions.assertEquals(1800000, impl.getValue());
+        Assertions.assertEquals(1_800_000, impl.getValue());
     }
 
     @Test
@@ -51,23 +53,23 @@ public class CPM5DecimalsMetricsTest {
         impl2.combine(6);
         impl2.combine(7);
 
-        impl.setTimeBucket(202302201608L);
+        impl.setTimeBucket(2023_02_20_1608L);
         impl.combine(impl2);
 
         impl.calculate();
 
-        Assertions.assertEquals(3600000, impl.getValue());
+        Assertions.assertEquals(3_600_000, impl.getValue());
     }
 
     @Test
     public void testDownSampleCombine() {
         CPM5DecimalsMetricsTest.CountMetricsImpl impl = new CountMetricsImpl();
-        impl.setTimeBucket(202302201608L);
+        impl.setTimeBucket(2023_02_20_1608L);
         impl.combine(1);
 
         impl.calculate();
 
-        Assertions.assertEquals(100000, impl.getValue());
+        Assertions.assertEquals(100_000, impl.getValue());
 
         impl.setTimeBucket(impl.toTimeBucketInHour());
         impl.calculate();
