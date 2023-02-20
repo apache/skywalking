@@ -25,4 +25,4 @@ CloudWatch metrics with S3 -->  CloudWatch Metric Stream (OpenTelemetry formart)
 ## Notice
 
 1. Only OpenTelemetry format is supported (refer to [Metric streams output formats](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats.html))
-2. Only HTTPS could be accepted, you could directly enable TLS and set the receiver to listen 443, or put the receiver behind a gateway with HTTPS (refer to [Amazon Kinesis Data Firehose Delivery Stream HTTP Endpoint Delivery Specifications](https://docs.aws.amazon.com/firehose/latest/dev/httpdeliveryrequestresponse.html))
+2. A proxy(e.g. Nginx, Envoy) is required in front of OAP's Firehose receiver to accept HTTPS requests from AWS Firehose through port `443` (refer to [Amazon Kinesis Data Firehose Delivery Stream HTTP Endpoint Delivery Specifications](https://docs.aws.amazon.com/firehose/latest/dev/httpdeliveryrequestresponse.html).
