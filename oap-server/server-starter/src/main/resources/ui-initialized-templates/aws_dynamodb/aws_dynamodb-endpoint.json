@@ -1,23 +1,6 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
    {
-      "id":"30f0eaa5-b3bf-469a-a3bb-229155c5e9f6",
+      "id":"AWS-DynamoDB-Endpoint",
       "configuration":{
          "children":[
             {
@@ -32,8 +15,8 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_read_throttled_requests",
-                  "aws_dynamodb_write_throttled_requests"
+                  "aws_dynamodb_endpoint_read_throttled_requests",
+                  "aws_dynamodb_endpoint_write_throttled_requests"
                ],
                "graph":{
                   "type":"Line",
@@ -59,8 +42,8 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_read_throttle_events",
-                  "aws_dynamodb_write_throttle_events"
+                  "aws_dynamodb_endpoint_read_throttle_events",
+                  "aws_dynamodb_endpoint_write_throttle_events"
                ],
                "graph":{
                   "type":"Line",
@@ -86,8 +69,8 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_read_system_errors",
-                  "aws_dynamodb_write_system_errors"
+                  "aws_dynamodb_endpoint_read_system_errors",
+                  "aws_dynamodb_endpoint_write_system_errors"
                ],
                "graph":{
                   "type":"Line",
@@ -112,7 +95,7 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_user_errors"
+                  "aws_dynamodb_endpoint_user_errors"
                ],
                "graph":{
                   "type":"Line",
@@ -137,7 +120,7 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_conditional_check_failed_requests"
+                  "aws_dynamodb_endpoint_conditional_check_failed_requests"
                ],
                "graph":{
                   "type":"Line",
@@ -162,7 +145,7 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_transaction_conflict"
+                  "aws_dynamodb_endpoint_transaction_conflict"
                ],
                "graph":{
                   "type":"Line",
@@ -188,8 +171,8 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_provisioned_read_capacity_units",
-                  "aws_dynamodb_consumed_read_capacity_units"
+                  "aws_dynamodb_endpoint_provisioned_read_capacity_units",
+                  "aws_dynamodb_endpoint_consumed_read_capacity_units"
                ],
                "graph":{
                   "type":"Line",
@@ -215,8 +198,8 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_consumed_write_capacity_units",
-                  "aws_dynamodb_provisioned_write_capacity_units"
+                  "aws_dynamodb_endpoint_consumed_write_capacity_units",
+                  "aws_dynamodb_endpoint_provisioned_write_capacity_units"
                ],
                "graph":{
                   "type":"Line",
@@ -244,10 +227,10 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_get_successful_request_latency",
-                  "aws_dynamodb_put_successful_request_latency",
-                  "aws_dynamodb_query_successful_request_latency",
-                  "aws_dynamodb_scan_successful_request_latency"
+                  "aws_dynamodb_endpoint_get_successful_request_latency",
+                  "aws_dynamodb_endpoint_put_successful_request_latency",
+                  "aws_dynamodb_endpoint_query_successful_request_latency",
+                  "aws_dynamodb_endpoint_scan_successful_request_latency"
                ],
                "graph":{
                   "type":"Line",
@@ -272,7 +255,7 @@
                   "readMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_time_to_live_deleted_item_count"
+                  "aws_dynamodb_endpoint_time_to_live_deleted_item_count"
                ],
                "graph":{
                   "type":"Line",
@@ -297,7 +280,7 @@
                   "readLabeledMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_scan_returned_item_count"
+                  "aws_dynamodb_endpoint_scan_returned_item_count"
                ],
                "graph":{
                   "type":"Line",
@@ -322,7 +305,7 @@
                   "readLabeledMetricsValues"
                ],
                "metrics":[
-                  "aws_dynamodb_query_returned_item_count"
+                  "aws_dynamodb_endpoint_query_returned_item_count"
                ],
                "graph":{
                   "type":"Line",
@@ -338,9 +321,9 @@
             }
          ],
          "layer":"AWS_DYNAMODB",
-         "entity":"ServiceInstance",
-         "name":"AWS-DynamoDB-Instance",
-         "id":"30f0eaa5-b3bf-469a-a3bb-229155c5e9f6"
+         "entity":"Endpoint",
+         "name":"AWS-DynamoDB-Endpoint",
+         "id":"AWS-DynamoDB-Endpoint"
       }
    }
 ]
