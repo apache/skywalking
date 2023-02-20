@@ -114,13 +114,13 @@ public class PromQLApiHandler {
         @Param("limit") Optional<Integer> limit,
         @Param("metric") Optional<String> metric) throws JsonProcessingException {
         MetadataQueryRsp response = new MetadataQueryRsp();
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         String regex = metric.orElse("");
         List<MetricDefinition> definitionList = metricsQuery.listMetrics(regex);
         int maxNum = limit.orElse(definitionList.size());
         for (int i = 0; i < maxNum; i++) {
             List<MetricMetadata> metadataList = new ArrayList<>();
-            MetricMetadata metadata = new MetricMetadata(MetricType.gauge, "", "");
+            MetricMetadata metadata = new MetricMetadata(MetricType.GAUGE, "", "");
             metadataList.add(metadata);
             response.getData().put(definitionList.get(i).getName(), metadataList);
         }
@@ -145,8 +145,8 @@ public class PromQLApiHandler {
             try {
                 tree = parser.expression();
             } catch (ParseCancellationException e) {
-                response.setStatus(ResultStatus.error);
-                response.setErrorType(ErrorType.bad_data.name());
+                response.setStatus(ResultStatus.ERROR);
+                response.setErrorType(ErrorType.BAD_DATA);
                 response.setError(e.getMessage());
                 return jsonResponse(response);
             }
@@ -166,7 +166,7 @@ public class PromQLApiHandler {
                 response.getData().add(label);
             });
         }
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         return jsonResponse(response);
     }
 
@@ -179,20 +179,20 @@ public class PromQLApiHandler {
         @Param("start") Optional<String> start,
         @Param("end") Optional<String> end) throws IOException {
         LabelValuesQueryRsp response = new LabelValuesQueryRsp();
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
 
         switch (LabelName.valueOf(labelName)) {
-            case __name__:
+            case NAME:
                 metricsQuery.listMetrics("").forEach(definition -> {
                     response.getData().add(definition.getName());
                 });
                 break;
-            case layer:
+            case LAYER:
                 for (Layer layer : Layer.values()) {
                     response.getData().add(layer.name());
                 }
                 break;
-            case scope:
+            case SCOPE:
                 for (Scope scope : Scope.values()) {
                     response.getData().add(scope.name());
                 }
@@ -222,8 +222,8 @@ public class PromQLApiHandler {
         try {
             tree = parser.expression();
         } catch (ParseCancellationException e) {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(ErrorType.bad_data.name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(ErrorType.BAD_DATA);
             response.setError(e.getMessage());
             return jsonResponse(response);
         }
@@ -239,30 +239,30 @@ public class PromQLApiHandler {
             Column.ValueDataType dataType = metaData.getDataType();
             response.getData().add(buildMetaMetricInfo(metricName, scope, dataType));
         } else if (Objects.equals(metricName, ServiceTraffic.INDEX_NAME)) {
-            String serviceName = parseResult.getLabelMap().get(LabelName.service);
+            String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE);
             if (StringUtil.isNotBlank(serviceName)) {
                 Service service = metadataQuery.findService(serviceName);
                 response.getData().add(buildMetricInfoFromTraffic(metricName, service));
             } else {
                 List<Service> services = metadataQuery.listServices(
-                    parseResult.getLabelMap().get(LabelName.layer));
+                    parseResult.getLabelMap().get(LabelName.LAYER));
                 services.forEach(service -> {
                     response.getData().add(buildMetricInfoFromTraffic(metricName, service));
                 });
             }
         } else if (Objects.equals(metricName, InstanceTraffic.INDEX_NAME)) {
-            String serviceName = parseResult.getLabelMap().get(LabelName.service);
-            String layer = parseResult.getLabelMap().get(LabelName.layer);
+            String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE);
+            String layer = parseResult.getLabelMap().get(LabelName.LAYER);
             List<ServiceInstance> instances = metadataQuery.listInstances(
                 duration, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()));
             instances.forEach(instance -> {
                 response.getData().add(buildMetricInfoFromTraffic(metricName, instance));
             });
         } else if (Objects.equals(metricName, EndpointTraffic.INDEX_NAME)) {
-            String serviceName = parseResult.getLabelMap().get(LabelName.service);
-            String layer = parseResult.getLabelMap().get(LabelName.layer);
-            String keyword = parseResult.getLabelMap().getOrDefault(LabelName.keyword, "");
-            String limit = parseResult.getLabelMap().getOrDefault(LabelName.limit, "100");
+            String serviceName = parseResult.getLabelMap().get(LabelName.SERVICE);
+            String layer = parseResult.getLabelMap().get(LabelName.LAYER);
+            String keyword = parseResult.getLabelMap().getOrDefault(LabelName.KEYWORD, "");
+            String limit = parseResult.getLabelMap().getOrDefault(LabelName.LIMIT, "100");
             List<Endpoint> endpoints = metadataQuery.findEndpoint(
                 keyword, IDManager.ServiceID.buildId(serviceName, Layer.valueOf(layer).isNormal()),
                 Integer.parseInt(limit)
@@ -272,7 +272,7 @@ public class PromQLApiHandler {
             });
         }
 
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         return jsonResponse(response);
     }
 
@@ -301,8 +301,8 @@ public class PromQLApiHandler {
         try {
             tree = parser.expression();
         } catch (ParseCancellationException e) {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(ErrorType.bad_data.name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(ErrorType.BAD_DATA);
             response.setError(e.getMessage());
             return jsonResponse(response);
         }
@@ -311,8 +311,8 @@ public class PromQLApiHandler {
         ParseResult parseResult = visitor.visit(tree);
 
         if (parseResult == null) {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(ErrorType.bad_data.name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(ErrorType.BAD_DATA);
             response.setError("Bad expression, can not parse it.");
         } else if (StringUtil.isBlank(parseResult.getErrorInfo())) {
             //The expression include range, such as: metric_name[1m]
@@ -320,17 +320,17 @@ public class PromQLApiHandler {
                 buildMatrixRsp(parseResult, response);
             } else {
                 switch (parseResult.getResultType()) {
-                    case metrics_range:
+                    case METRICS_RANGE:
                         buildVectorRsp(parseResult, response);
                         break;
-                    case scalar:
+                    case SCALAR:
                         buildScalarRsp(parseResult, response);
                         break;
                 }
             }
         } else {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(parseResult.getErrorType().name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(parseResult.getErrorType());
             response.setError(parseResult.getErrorInfo());
         }
         return jsonResponse(response);
@@ -359,8 +359,8 @@ public class PromQLApiHandler {
         try {
             tree = parser.expression();
         } catch (ParseCancellationException e) {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(ErrorType.bad_data.name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(ErrorType.BAD_DATA);
             response.setError(e.getMessage());
             return jsonResponse(response);
         }
@@ -370,21 +370,21 @@ public class PromQLApiHandler {
         ParseResult parseResult = visitor.visit(tree);
 
         if (parseResult == null) {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(ErrorType.bad_data.name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(ErrorType.BAD_DATA);
             response.setError("Bad expression, can not parse it.");
         } else if (StringUtil.isBlank(parseResult.getErrorInfo())) {
             switch (parseResult.getResultType()) {
-                case metrics_range:
+                case METRICS_RANGE:
                     buildMatrixRsp(parseResult, response);
                     break;
-                case scalar:
+                case SCALAR:
                     buildScalarMatrixRsp(duration, parseResult, response);
                     break;
             }
         } else {
-            response.setStatus(ResultStatus.error);
-            response.setErrorType(parseResult.getErrorType().name());
+            response.setStatus(ResultStatus.ERROR);
+            response.setErrorType(parseResult.getErrorType());
             response.setError(parseResult.getErrorInfo());
         }
         return jsonResponse(response);
@@ -399,9 +399,9 @@ public class PromQLApiHandler {
     private void buildVectorRsp(ParseResult parseResult, ExprQueryRsp response) {
         MetricRspData exprRspData = new MetricRspData();
         response.setData(exprRspData);
-        exprRspData.setResultType(ResultType.vector);
+        exprRspData.setResultType(ResultType.VECTOR);
         MetricsRangeResult matrixResult = (MetricsRangeResult) parseResult;
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         matrixResult.getMetricDataList().forEach(rangData -> {
             List<TimeValuePair> values = rangData.getValues();
             if (values.size() > 0) {
@@ -416,9 +416,9 @@ public class PromQLApiHandler {
     private void buildScalarRsp(ParseResult parseResult, ExprQueryRsp response) {
         ScalarRspData scalarRspData = new ScalarRspData();
         response.setData(scalarRspData);
-        scalarRspData.setResultType(ResultType.scalar);
+        scalarRspData.setResultType(ResultType.SCALAR);
         ScalarResult scalarResult = (ScalarResult) parseResult;
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         //need return int type
         scalarRspData.setResult(
             new TimeValuePair(
@@ -429,19 +429,19 @@ public class PromQLApiHandler {
 
     private void buildMatrixRsp(ParseResult parseResult, ExprQueryRsp response) {
         MetricRspData responseData = new MetricRspData();
-        responseData.setResultType(ResultType.matrix);
+        responseData.setResultType(ResultType.MATRIX);
         response.setData(responseData);
         MetricsRangeResult matrixResult = (MetricsRangeResult) parseResult;
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         responseData.getResult().addAll(matrixResult.getMetricDataList());
     }
 
     private void buildScalarMatrixRsp(Duration duration, ParseResult parseResult, ExprQueryRsp response) {
         MetricRspData responseData = new MetricRspData();
-        responseData.setResultType(ResultType.matrix);
+        responseData.setResultType(ResultType.MATRIX);
         response.setData(responseData);
         ScalarResult scalarResult = (ScalarResult) parseResult;
-        response.setStatus(ResultStatus.success);
+        response.setStatus(ResultStatus.SUCCESS);
         MetricRangeData metricData = new MetricRangeData();
         metricData.setValues(
             PromOpUtils.buildMatrixValues(duration, formatDoubleValue(scalarResult.getValue())));
@@ -455,22 +455,22 @@ public class PromQLApiHandler {
     private List<LabelName> buildLabelNames(Scope scope,
                                             Column.ValueDataType dataType) {
         List<LabelName> labelNames = new ArrayList<>();
-        labelNames.add(LabelName.layer);
-        labelNames.add(LabelName.scope);
-        labelNames.add(LabelName.top_n);
-        labelNames.add(LabelName.order);
+        labelNames.add(LabelName.LAYER);
+        labelNames.add(LabelName.SCOPE);
+        labelNames.add(LabelName.TOP_N);
+        labelNames.add(LabelName.ORDER);
         if (Column.ValueDataType.LABELED_VALUE == dataType) {
-            labelNames.add(LabelName.labels);
-            labelNames.add(LabelName.relabels);
+            labelNames.add(LabelName.LABELS);
+            labelNames.add(LabelName.RELABELS);
         }
         switch (scope) {
             case ServiceInstance:
-                labelNames.add(LabelName.service_instance);
-                labelNames.add(LabelName.parent_service);
+                labelNames.add(LabelName.SERVICE_INSTANCE);
+                labelNames.add(LabelName.PARENT_SERVICE);
                 break;
             case Endpoint:
-                labelNames.add(LabelName.endpoint);
-                labelNames.add(LabelName.parent_service);
+                labelNames.add(LabelName.ENDPOINT);
+                labelNames.add(LabelName.PARENT_SERVICE);
                 break;
         }
         return labelNames;
@@ -481,28 +481,28 @@ public class PromQLApiHandler {
                                            Scope scope,
                                            Column.ValueDataType dataType) {
         MetricInfo metricInfo = new MetricInfo(metricName);
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.layer, ""));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.top_n, ""));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.order, ""));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.LAYER, ""));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.TOP_N, ""));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.ORDER, ""));
 
         if (Column.ValueDataType.LABELED_VALUE == dataType) {
-            metricInfo.getLabels().add(new LabelValuePair(LabelName.labels, ""));
-            metricInfo.getLabels().add(new LabelValuePair(LabelName.relabels, ""));
+            metricInfo.getLabels().add(new LabelValuePair(LabelName.LABELS, ""));
+            metricInfo.getLabels().add(new LabelValuePair(LabelName.RELABELS, ""));
         }
         switch (scope) {
             case Service:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.Service.name()));
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.service, ""));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Service.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE, ""));
                 break;
             case ServiceInstance:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.ServiceInstance.name()));
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.service_instance, ""));
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.parent_service, ""));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.ServiceInstance.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE_INSTANCE, ""));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.PARENT_SERVICE, ""));
                 break;
             case Endpoint:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.Endpoint.name()));
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.endpoint, ""));
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.parent_service, ""));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Endpoint.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.ENDPOINT, ""));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.PARENT_SERVICE, ""));
                 break;
         }
         return metricInfo;
@@ -510,24 +510,24 @@ public class PromQLApiHandler {
 
     private MetricInfo buildMetricInfoFromTraffic(String metricName, Service service) {
         MetricInfo metricInfo = new MetricInfo(metricName);
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.service, service.getName()));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.Service.name()));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.layer, service.getLayers().iterator().next()));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE, service.getName()));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Service.name()));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.LAYER, service.getLayers().iterator().next()));
         return metricInfo;
     }
 
     private MetricInfo buildMetricInfoFromTraffic(String metricName, ServiceInstance instance) {
         MetricInfo metricInfo = new MetricInfo(metricName);
         metricInfo.getLabels()
-                  .add(new LabelValuePair(LabelName.service_instance, instance.getName()));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.ServiceInstance.name()));
+                  .add(new LabelValuePair(LabelName.SERVICE_INSTANCE, instance.getName()));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.ServiceInstance.name()));
         return metricInfo;
     }
 
     private MetricInfo buildMetricInfoFromTraffic(String metricName, Endpoint endpoint) {
         MetricInfo metricInfo = new MetricInfo(metricName);
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.endpoint, endpoint.getName()));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.Endpoint.name()));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.ENDPOINT, endpoint.getName()));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Endpoint.name()));
         return metricInfo;
     }
 

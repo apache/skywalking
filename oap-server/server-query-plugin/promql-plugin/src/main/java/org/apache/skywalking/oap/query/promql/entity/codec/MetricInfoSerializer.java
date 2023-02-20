@@ -36,7 +36,7 @@ public class MetricInfoSerializer extends JsonSerializer<MetricInfo> {
         {
             gen.writeStringField("__name__", value.getName());
             for (LabelValuePair label: value.getLabels()) {
-                gen.writeStringField(label.getLabelName().name(), label.getLabelValue());
+                gen.writeStringField(label.getLabelName().getLabel(), label.getLabelValue());
             }
         }
         gen.writeEndObject();

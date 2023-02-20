@@ -18,7 +18,25 @@
 
 package org.apache.skywalking.oap.query.promql.entity;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum ResultStatus {
-    success,
-    error
+    SUCCESS("success"),
+    ERROR("error");
+
+    final String value;
+
+    ResultStatus(final String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

@@ -217,7 +217,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>prometheus-query-plugin</artifactId>
+            <artifactId>promql-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- queryBuild module -->

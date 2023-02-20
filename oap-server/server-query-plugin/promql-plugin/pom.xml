@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>prometheus-query-plugin</artifactId>
+    <artifactId>promql-plugin</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>

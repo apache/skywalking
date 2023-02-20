@@ -18,8 +18,25 @@
 
 package org.apache.skywalking.oap.query.promql.entity;
 
-public enum ErrorType {
-    bad_data,
-    internal
+import com.fasterxml.jackson.annotation.JsonValue;
 
+public enum ErrorType {
+    BAD_DATA("bad_data"),
+    INTERNAL("internal");
+
+    final String value;
+
+    ErrorType(final String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

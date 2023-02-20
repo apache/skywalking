@@ -32,7 +32,7 @@ public class PromQLMatchVisitor extends PromQLParserBaseVisitor<MatcherSetResult
     public MatcherSetResult visitMetricInstant(PromQLParser.MetricInstantContext ctx) {
         String metricName = ctx.metricName().getText();
         MatcherSetResult result = new MatcherSetResult();
-        result.setResultType(ParseResultType.match);
+        result.setResultType(ParseResultType.MATCH);
         result.setMetricName(metricName);
         Map<LabelName, String> labelMap = result.getLabelMap();
         if (ctx.labelList() != null) {
@@ -41,10 +41,10 @@ public class PromQLMatchVisitor extends PromQLParserBaseVisitor<MatcherSetResult
                 String labelValue = labelCtx.labelValue().getText();
                 String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
                 try {
-                    labelMap.put(LabelName.valueOf(labelName), labelValueTrim);
+                    labelMap.put(LabelName.labelOf(labelName), labelValueTrim);
                 } catch (IllegalArgumentException e) {
-                    result.setErrorType(ErrorType.bad_data);
-                    result.setErrorInfo(e.getMessage());
+                    result.setErrorType(ErrorType.BAD_DATA);
+                    result.setErrorInfo("Label:[" + labelName + "] is illegal.");
                     return result;
                 }
             }

@@ -66,7 +66,7 @@ public class PromOpUtils {
 
     static MetricsRangeResult matrixScalarBinaryOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
         MetricsRangeResult result = new MetricsRangeResult();
-        result.setResultType(ParseResultType.metrics_range);
+        result.setResultType(ParseResultType.METRICS_RANGE);
         matrix.getMetricDataList().forEach(metricData -> {
             MetricRangeData newData = new MetricRangeData();
             result.getMetricDataList().add(newData);
@@ -88,7 +88,7 @@ public class PromOpUtils {
                                              MetricsRangeResult matrixRight,
                                              int opType) throws IllegalExpressionException {
         MetricsRangeResult result = new MetricsRangeResult();
-        result.setResultType(ParseResultType.metrics_range);
+        result.setResultType(ParseResultType.METRICS_RANGE);
         for (int i = 0; i < matrixLeft.getMetricDataList().size(); i++) {
             MetricRangeData dataLeft = matrixLeft.getMetricDataList().get(i);
             MetricRangeData dataRight = matrixRight.getMetricDataList().get(i);
@@ -170,7 +170,7 @@ public class PromOpUtils {
 
     static MetricsRangeResult matrixScalarCompareOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
         MetricsRangeResult result = new MetricsRangeResult();
-        result.setResultType(ParseResultType.metrics_range);
+        result.setResultType(ParseResultType.METRICS_RANGE);
         matrix.getMetricDataList().forEach(metricData -> {
             MetricRangeData newData = new MetricRangeData();
             result.getMetricDataList().add(newData);
@@ -192,7 +192,7 @@ public class PromOpUtils {
                                               MetricsRangeResult matrixRight,
                                               int opType) throws IllegalExpressionException {
         MetricsRangeResult result = new MetricsRangeResult();
-        result.setResultType(ParseResultType.metrics_range);
+        result.setResultType(ParseResultType.METRICS_RANGE);
         for (int i = 0; i < matrixLeft.getMetricDataList().size(); i++) {
             MetricRangeData dataLeft = matrixLeft.getMetricDataList().get(i);
             MetricRangeData dataRight = matrixRight.getMetricDataList().get(i);

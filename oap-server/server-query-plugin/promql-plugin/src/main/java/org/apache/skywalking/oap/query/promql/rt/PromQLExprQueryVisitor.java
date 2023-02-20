@@ -128,7 +128,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
 
     private ParseResult compareOp(ParseResult left, ParseResult right, int opType, boolean boolModifier) {
         try {
-            if (left.getResultType() == ParseResultType.scalar && right.getResultType() == ParseResultType.scalar) {
+            if (left.getResultType() == ParseResultType.SCALAR && right.getResultType() == ParseResultType.SCALAR) {
                 if (!boolModifier) {
                     throw new IllegalExpressionException("Comparisons between scalars must use BOOL modifier.");
                 } else {
@@ -137,26 +137,26 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                     int value = scalarCompareOp(scalarLeft.getValue(), scalarRight.getValue(), opType);
                     ScalarResult scalarResult = new ScalarResult();
                     scalarResult.setValue(value);
-                    scalarResult.setResultType(ParseResultType.scalar);
+                    scalarResult.setResultType(ParseResultType.SCALAR);
                     return scalarResult;
                 }
-            } else if (left.getResultType() == ParseResultType.metrics_range && right.getResultType() == ParseResultType.scalar) {
+            } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.SCALAR) {
                 return matrixScalarCompareOp((MetricsRangeResult) left, (ScalarResult) right, opType);
-            } else if (left.getResultType() == ParseResultType.scalar && right.getResultType() == ParseResultType.metrics_range) {
+            } else if (left.getResultType() == ParseResultType.SCALAR && right.getResultType() == ParseResultType.METRICS_RANGE) {
                 return matrixScalarCompareOp((MetricsRangeResult) right, (ScalarResult) left, opType);
-            } else if (left.getResultType() == ParseResultType.metrics_range && right.getResultType() == ParseResultType.metrics_range) {
+            } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.METRICS_RANGE) {
                 try {
                     return matrixCompareOp((MetricsRangeResult) left, (MetricsRangeResult) right, opType);
                 } catch (IllegalExpressionException e) {
                     MetricsRangeResult result = new MetricsRangeResult();
-                    result.setErrorType(ErrorType.bad_data);
+                    result.setErrorType(ErrorType.BAD_DATA);
                     result.setErrorInfo(e.getMessage());
                     return result;
                 }
             }
         } catch (IllegalExpressionException e) {
             MetricsRangeResult result = new MetricsRangeResult();
-            result.setErrorType(ErrorType.bad_data);
+            result.setErrorType(ErrorType.BAD_DATA);
             result.setErrorInfo(e.getMessage());
             return result;
         }
@@ -168,7 +168,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         ScalarResult result = new ScalarResult();
         double value = Double.parseDouble(ctx.NUMBER().getText());
         result.setValue(value);
-        result.setResultType(ParseResultType.scalar);
+        result.setResultType(ParseResultType.SCALAR);
         return result;
     }
 
@@ -179,12 +179,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
             String metricName = ctx.metricName().getText();
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = getValueColumn(metricName);
             if (!valueColumn.isPresent()) {
-                result.setErrorType(ErrorType.bad_data);
+                result.setErrorType(ErrorType.BAD_DATA);
                 result.setErrorInfo("Metric: [" + metricName + "] dose not exist.");
                 return result;
             }
             if (ctx.labelList() == null) {
-                result.setErrorType(ErrorType.bad_data);
+                result.setErrorType(ErrorType.BAD_DATA);
                 result.setErrorInfo("No labels found in the expression.");
                 return result;
             }
@@ -194,25 +194,25 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 String labelValue = labelCtx.labelValue().getText();
                 String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
                 try {
-                    labelMap.put(LabelName.valueOf(labelName), labelValueTrim);
+                    labelMap.put(LabelName.labelOf(labelName), labelValueTrim);
                 } catch (IllegalArgumentException e) {
                     throw new IllegalExpressionException("Label:[" + labelName + "] is illegal.");
                 }
             }
             final Layer layer;
-            checkLabels(labelMap, LabelName.layer);
+            checkLabels(labelMap, LabelName.LAYER);
             try {
-                layer = Layer.valueOf(labelMap.get(LabelName.layer));
+                layer = Layer.valueOf(labelMap.get(LabelName.LAYER));
             } catch (IllegalArgumentException e) {
                 throw new IllegalExpressionException(
-                    "Layer:[" + labelMap.get(LabelName.layer) + "] is missing or illegal.");
+                    "Layer:[" + labelMap.get(LabelName.LAYER) + "] is missing or illegal.");
             }
             ValueColumnMetadata.ValueColumn metaData = valueColumn.get();
             Scope scope = Scope.Finder.valueOf(metaData.getScopeId());
             Column.ValueDataType dataType = metaData.getDataType();
             MetricsRangeResult matrixResult = new MetricsRangeResult();
-            matrixResult.setResultType(ParseResultType.metrics_range);
-            if (StringUtil.isNotBlank(labelMap.get(LabelName.top_n))) {
+            matrixResult.setResultType(ParseResultType.METRICS_RANGE);
+            if (StringUtil.isNotBlank(labelMap.get(LabelName.TOP_N))) {
                 if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
                     queryRecords(metricName, layer, scope, labelMap, matrixResult);
                 } else {
@@ -227,11 +227,11 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
             }
             return matrixResult;
         } catch (IllegalExpressionException e) {
-            result.setErrorType(ErrorType.bad_data);
+            result.setErrorType(ErrorType.BAD_DATA);
             result.setErrorInfo(e.getMessage());
             return result;
         } catch (IOException e) {
-            result.setErrorType(ErrorType.internal);
+            result.setErrorType(ErrorType.INTERNAL);
             result.setErrorInfo("Internal IO exception.");
             log.error("Query metrics error.", e);
             return result;
@@ -242,7 +242,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
     public ParseResult visitMetricRange(PromQLParser.MetricRangeContext ctx) {
         if (PromQLApiHandler.QueryType.RANGE == queryType) {
             ParseResult result = new ParseResult();
-            result.setErrorType(ErrorType.bad_data);
+            result.setErrorType(ErrorType.BAD_DATA);
             result.setErrorInfo("Range expression should use instant query.");
             return result;
         }
@@ -260,7 +260,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                              LabelName... labelNames) throws IllegalExpressionException {
         StringBuilder missLabels = new StringBuilder();
         for (int i = 0; i < labelNames.length; i++) {
-            String labelName = labelNames[i].name();
+            String labelName = labelNames[i].toString();
             if (labelMap.get(labelNames[i]) == null) {
                 if (i == 0) {
                     missLabels.append(labelName);
@@ -336,12 +336,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                            MetricsRangeResult matrixResult) throws IOException, IllegalExpressionException {
         MetricsCondition metricsCondition = buildMetricsCondition(metricName, layer, scope, labelMap);
         Map<String, String> relabelMap = new HashMap<>();
-        String queryLabels = labelMap.get(LabelName.labels);
+        String queryLabels = labelMap.get(LabelName.LABELS);
         List<String> queryLabelList = Collections.EMPTY_LIST;
         if (StringUtil.isNotBlank(queryLabels)) {
             queryLabelList = Arrays.asList(queryLabels.split(Const.COMMA));
 
-            String relabels = labelMap.get(LabelName.relabels);
+            String relabels = labelMap.get(LabelName.RELABELS);
             List<String> relabelList = Collections.EMPTY_LIST;
             if (StringUtil.isNotBlank(relabels)) {
                 relabelList = Arrays.asList(relabels.split(Const.COMMA));
@@ -375,24 +375,24 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
     }
 
     private ParseResult binaryOp(ParseResult left, ParseResult right, int opType) {
-        if (left.getResultType() == ParseResultType.scalar && right.getResultType() == ParseResultType.scalar) {
+        if (left.getResultType() == ParseResultType.SCALAR && right.getResultType() == ParseResultType.SCALAR) {
             ScalarResult scalarLeft = (ScalarResult) left;
             ScalarResult scalarRight = (ScalarResult) right;
             double value = scalarBinaryOp(scalarLeft.getValue(), scalarRight.getValue(), opType);
             ScalarResult scalarResult = new ScalarResult();
             scalarResult.setValue(value);
-            scalarResult.setResultType(ParseResultType.scalar);
+            scalarResult.setResultType(ParseResultType.SCALAR);
             return scalarResult;
-        } else if (left.getResultType() == ParseResultType.metrics_range && right.getResultType() == ParseResultType.scalar) {
+        } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.SCALAR) {
             return matrixScalarBinaryOp((MetricsRangeResult) left, (ScalarResult) right, opType);
-        } else if (left.getResultType() == ParseResultType.scalar && right.getResultType() == ParseResultType.metrics_range) {
+        } else if (left.getResultType() == ParseResultType.SCALAR && right.getResultType() == ParseResultType.METRICS_RANGE) {
             return matrixScalarBinaryOp((MetricsRangeResult) right, (ScalarResult) left, opType);
-        } else if (left.getResultType() == ParseResultType.metrics_range && right.getResultType() == ParseResultType.metrics_range) {
+        } else if (left.getResultType() == ParseResultType.METRICS_RANGE && right.getResultType() == ParseResultType.METRICS_RANGE) {
             try {
                 return matrixBinaryOp((MetricsRangeResult) left, (MetricsRangeResult) right, opType);
             } catch (IllegalExpressionException e) {
                 MetricsRangeResult result = new MetricsRangeResult();
-                result.setErrorType(ErrorType.bad_data);
+                result.setErrorType(ErrorType.BAD_DATA);
                 result.setErrorInfo(e.getMessage());
                 return result;
             }
@@ -410,12 +410,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         entity.setServiceName(serviceName);
         switch (scope) {
             case ServiceInstance:
-                checkLabels(labelMap, LabelName.service_instance);
-                entity.setServiceInstanceName(labelMap.get(LabelName.service_instance));
+                checkLabels(labelMap, LabelName.SERVICE_INSTANCE);
+                entity.setServiceInstanceName(labelMap.get(LabelName.SERVICE_INSTANCE));
                 break;
             case Endpoint:
-                checkLabels(labelMap, LabelName.endpoint);
-                entity.setEndpointName(labelMap.get(LabelName.endpoint));
+                checkLabels(labelMap, LabelName.ENDPOINT);
+                entity.setEndpointName(labelMap.get(LabelName.ENDPOINT));
                 break;
         }
         return entity;
@@ -425,12 +425,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                              Layer layer,
                                              Scope scope,
                                              Map<LabelName, String> labelMap) throws IllegalExpressionException {
-        checkLabels(labelMap, LabelName.top_n, LabelName.parent_service, LabelName.order);
+        checkLabels(labelMap, LabelName.TOP_N, LabelName.PARENT_SERVICE, LabelName.ORDER);
         TopNCondition topNCondition = new TopNCondition();
         topNCondition.setName(metricName);
-        topNCondition.setParentService(labelMap.get(LabelName.parent_service));
-        topNCondition.setTopN(Integer.parseInt(labelMap.get(LabelName.top_n)));
-        topNCondition.setOrder(Order.valueOf(labelMap.get(LabelName.order)));
+        topNCondition.setParentService(labelMap.get(LabelName.PARENT_SERVICE));
+        topNCondition.setTopN(Integer.parseInt(labelMap.get(LabelName.TOP_N)));
+        topNCondition.setOrder(Order.valueOf(labelMap.get(LabelName.ORDER)));
         topNCondition.setNormal(layer.isNormal());
         topNCondition.setScope(scope);
         return topNCondition;
@@ -440,13 +440,13 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                                  Layer layer,
                                                  Scope scope,
                                                  Map<LabelName, String> labelMap) throws IllegalExpressionException {
-        checkLabels(labelMap, LabelName.top_n, LabelName.parent_service, LabelName.order);
-        String parentServiceName = labelMap.get(LabelName.parent_service);
+        checkLabels(labelMap, LabelName.TOP_N, LabelName.PARENT_SERVICE, LabelName.ORDER);
+        String parentServiceName = labelMap.get(LabelName.PARENT_SERVICE);
         RecordCondition recordCondition = new RecordCondition();
         recordCondition.setName(metricName);
         recordCondition.setParentEntity(buildEntity(layer, scope, parentServiceName, labelMap));
-        recordCondition.setTopN(Integer.parseInt(labelMap.get(LabelName.top_n)));
-        recordCondition.setOrder(Order.valueOf(labelMap.get(LabelName.order)));
+        recordCondition.setTopN(Integer.parseInt(labelMap.get(LabelName.TOP_N)));
+        recordCondition.setOrder(Order.valueOf(labelMap.get(LabelName.ORDER)));
         return recordCondition;
     }
 
@@ -454,8 +454,8 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                                    Layer layer,
                                                    Scope scope,
                                                    Map<LabelName, String> labelMap) throws IllegalExpressionException {
-        checkLabels(labelMap, LabelName.service);
-        String serviceName = labelMap.get(LabelName.service);
+        checkLabels(labelMap, LabelName.SERVICE);
+        String serviceName = labelMap.get(LabelName.SERVICE);
         MetricsCondition metricsCondition = new MetricsCondition();
         metricsCondition.setEntity(buildEntity(layer, scope, serviceName, labelMap));
         metricsCondition.setName(metricName);
@@ -471,46 +471,46 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                        Optional<String> recordName) throws IllegalExpressionException {
 
         MetricInfo metricInfo = new MetricInfo(metricName);
-        valueLabel.ifPresent(s -> metricInfo.getLabels().add(new LabelValuePair(LabelName.label, s)));
-        metricInfo.getLabels().add(new LabelValuePair(LabelName.layer, layer.name()));
+        valueLabel.ifPresent(s -> metricInfo.getLabels().add(new LabelValuePair(LabelName.LABEL, s)));
+        metricInfo.getLabels().add(new LabelValuePair(LabelName.LAYER, layer.name()));
         switch (scope) {
             case Service:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.Service.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Service.name()));
                 if (topNEntityName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.service, topNEntityName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE, topNEntityName.get()));
                 } else if (recordName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.record, recordName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.service);
+                    checkLabels(labelMap, LabelName.SERVICE);
                     metricInfo.getLabels()
-                              .add(new LabelValuePair(LabelName.service, labelMap.get(LabelName.service)));
+                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
                 }
                 break;
             case ServiceInstance:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.ServiceInstance.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.ServiceInstance.name()));
                 if (topNEntityName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.service_instance, topNEntityName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE_INSTANCE, topNEntityName.get()));
                 } else if (recordName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.record, recordName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.service_instance);
+                    checkLabels(labelMap, LabelName.SERVICE_INSTANCE);
                     metricInfo.getLabels()
                               .add(new LabelValuePair(
-                                  LabelName.service_instance,
-                                  labelMap.get(LabelName.service_instance)
+                                  LabelName.SERVICE_INSTANCE,
+                                  labelMap.get(LabelName.SERVICE_INSTANCE)
                               ));
                 }
                 break;
             case Endpoint:
-                metricInfo.getLabels().add(new LabelValuePair(LabelName.scope, Scope.Endpoint.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Endpoint.name()));
                 if (topNEntityName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.endpoint, topNEntityName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.ENDPOINT, topNEntityName.get()));
                 } else if (recordName.isPresent()) {
-                    metricInfo.getLabels().add(new LabelValuePair(LabelName.record, recordName.get()));
+                    metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.endpoint);
+                    checkLabels(labelMap, LabelName.ENDPOINT);
                     metricInfo.getLabels()
-                              .add(new LabelValuePair(LabelName.endpoint, labelMap.get(LabelName.endpoint)));
+                              .add(new LabelValuePair(LabelName.ENDPOINT, labelMap.get(LabelName.ENDPOINT)));
                 }
                 break;
         }

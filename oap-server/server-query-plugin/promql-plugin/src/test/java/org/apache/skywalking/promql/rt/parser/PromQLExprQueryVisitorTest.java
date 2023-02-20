@@ -65,42 +65,42 @@ public class PromQLExprQueryVisitorTest {
                 "ScalarBinaryOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "200 / 2 - 2 * 6 + 2 * 6",
-                ParseResultType.scalar,
+                ParseResultType.SCALAR,
                 "100"
             },
             {
                 "ScalarCompareOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "2 > bool 1",
-                ParseResultType.scalar,
+                ParseResultType.SCALAR,
                 "1"
             },
             {
                 "Metrics",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'}",
-                ParseResultType.metrics_range,
+                ParseResultType.METRICS_RANGE,
                 "[MetricRangeData(values=[TimeValuePair(time=1676858400, value=0), TimeValuePair(time=1676862000, value=1), TimeValuePair(time=1676865600, value=2)])]"
             },
             {
                 "MetricsScalarBinaryOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} + 100",
-                ParseResultType.metrics_range,
+                ParseResultType.METRICS_RANGE,
                 "[MetricRangeData(values=[TimeValuePair(time=1676858400, value=100), TimeValuePair(time=1676862000, value=101), TimeValuePair(time=1676865600, value=102)])]"
             },
             {
                 "MetricsBinaryOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} + service_cpm{service='serviceA', layer='GENERAL'}",
-                ParseResultType.metrics_range,
+                ParseResultType.METRICS_RANGE,
                 "[MetricRangeData(values=[TimeValuePair(time=1676858400, value=0), TimeValuePair(time=1676862000, value=2), TimeValuePair(time=1676865600, value=4)])]"
             },
             {
                 "MetricsScalarCompareOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} > 1",
-                ParseResultType.metrics_range,
+                ParseResultType.METRICS_RANGE,
                 "[MetricRangeData(values=[TimeValuePair(time=1676865600, value=2)])]"
             }
         });
@@ -151,14 +151,14 @@ public class PromQLExprQueryVisitorTest {
         ParseResult parseResult = visitor.visit(tree);
         Assertions.assertEquals(wantType, parseResult.getResultType());
         switch (parseResult.getResultType()) {
-            case scalar:
+            case SCALAR:
                 ScalarResult scalarResult = (ScalarResult) parseResult;
                 Assertions.assertEquals(
                     Double.valueOf(wantResultValues),
                     scalarResult.getValue()
                 );
                 break;
-            case metrics_range:
+            case METRICS_RANGE:
                 MetricsRangeResult metricsRangeResult = (MetricsRangeResult) parseResult;
                 Assertions.assertEquals(
                     wantResultValues,

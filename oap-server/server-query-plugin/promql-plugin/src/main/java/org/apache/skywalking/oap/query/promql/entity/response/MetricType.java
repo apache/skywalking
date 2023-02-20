@@ -18,6 +18,24 @@
 
 package org.apache.skywalking.oap.query.promql.entity.response;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum MetricType {
-    gauge
+    GAUGE("gauge");
+
+    final String value;
+
+    MetricType(final String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

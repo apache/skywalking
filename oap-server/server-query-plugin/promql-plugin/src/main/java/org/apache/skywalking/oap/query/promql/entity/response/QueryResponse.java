@@ -20,13 +20,14 @@ package org.apache.skywalking.oap.query.promql.entity.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.apache.skywalking.oap.query.promql.entity.ErrorType;
 import org.apache.skywalking.oap.query.promql.entity.ResultStatus;
 
 @Data
 public class QueryResponse {
     private ResultStatus status;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private String errorType;
+    private ErrorType errorType;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String error;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)

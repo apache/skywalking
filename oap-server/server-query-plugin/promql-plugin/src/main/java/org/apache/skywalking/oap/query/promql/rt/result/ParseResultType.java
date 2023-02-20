@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.query.promql.rt.result;
 
 public enum ParseResultType {
-    scalar,
-    metrics_range,
-    match
+    SCALAR,
+    METRICS_RANGE,
+    MATCH
 }

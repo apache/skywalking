@@ -18,10 +18,28 @@
 
 package org.apache.skywalking.oap.query.promql.entity.response;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum ResultType {
-    none,
-    vector,
-    scalar,
-    matrix,
-    string
+    NONE("none"),
+    VECTOR("vector"),
+    SCALAR("scalar"),
+    MATRIX("matrix"),
+    STRING("string");
+
+    final String value;
+
+    ResultType(final String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }
