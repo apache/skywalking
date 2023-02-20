@@ -48,7 +48,8 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 
-import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_CUMULATIVE;
+import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA;
+import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -180,8 +181,22 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         if (metric.hasSum()) {
             final Sum sum = metric.getSum();
             if (sum
-                .getAggregationTemporality() != AGGREGATION_TEMPORALITY_CUMULATIVE) {
+                .getAggregationTemporality() == AGGREGATION_TEMPORALITY_UNSPECIFIED) {
                 return Stream.empty();
+            }
+            if (sum
+                .getAggregationTemporality() == AGGREGATION_TEMPORALITY_DELTA) {
+                return sum.getDataPointsList().stream()
+                        .map(point -> new Gauge(
+                                metric.getName(),
+                                mergeLabels(
+                                    nodeLabels,
+                                    buildLabels(point.getAttributesList())
+                                ),
+                                point.hasAsDouble() ? point.getAsDouble()
+                                    : point.getAsInt(),
+                                point.getTimeUnixNano() / 1000000
+                        ));
             }
             if (sum.getIsMonotonic()) {
                 return sum.getDataPointsList().stream()

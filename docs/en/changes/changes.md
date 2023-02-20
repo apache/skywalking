@@ -87,7 +87,9 @@
 * [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
 * Enhance OAP HTTP server to support HTTPS
 * Remove handler scan in otel receiver, manual initialization instead
-* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
+* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format). Notice, no HTTPS/TLS setup
+  support. By following AWS Firehose request, it uses [proxy request](https://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers)
+  (`https://...` instead of `/aws/firehose/metrics`), there must be a proxy(Nginx, Envoy, etc.).
 * Avoid Antlr dependencies' versions might be different in compile time and runtime.
 * Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
 * Add missing TCP throughput metrics.
@@ -95,6 +97,8 @@
 * Add Python HTTPX module component ID(7019).
 * Migrate tests from junit 4 to junit 5.
 * Refactor http-based alarm plugins and extract common logic to `HttpAlarmCallback`.
+* Support Amazon Simple Storage Service (Amazon S3) metrics monitoring
+* Support process Sum metrics with AGGREGATION_TEMPORALITY_DELTA case
 
 #### UI
 
