@@ -32,6 +32,7 @@ public class CPM5DecimalsMetricsTest {
         impl.combine(6);
         impl.combine(7);
 
+        impl.setTimeBucket(202302201608L);
         impl.calculate();
 
         Assertions.assertEquals(1800000, impl.getValue());
@@ -40,6 +41,7 @@ public class CPM5DecimalsMetricsTest {
     @Test
     public void testSelfCombine() {
         CPM5DecimalsMetricsTest.CountMetricsImpl impl = new CountMetricsImpl();
+
         impl.combine(5);
         impl.combine(6);
         impl.combine(7);
@@ -49,6 +51,7 @@ public class CPM5DecimalsMetricsTest {
         impl2.combine(6);
         impl2.combine(7);
 
+        impl.setTimeBucket(202302201608L);
         impl.combine(impl2);
 
         impl.calculate();
