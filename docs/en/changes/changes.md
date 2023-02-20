@@ -129,6 +129,7 @@
 * Fix: remove duplicate popup message for query result.
 * Add logo for HTTPX.
 * Refactor: optimize the attached events visualization in the trace widget.
+* Update BanyanDB client to 0.3.0.
 
 #### Documentation
 
