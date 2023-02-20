@@ -29,24 +29,6 @@
           "type":"Tab",
           "children":[
             {
-              "name":"Tables",
-              "children":[
-                {
-                  "x":0,
-                  "y":0,
-                  "w":24,
-                  "h":29,
-                  "i":"0",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"EndpointList",
-                    "dashboardName":"AWS-DynamoDB-Endpoint",
-                    "fontSize":12
-                  }
-                }
-              ]
-            },
-            {
               "name":"Inspections",
               "children":[
                 {
@@ -445,6 +427,24 @@
                   },
                   "widget":{
                     "title":"Account Max Reads / Writes"
+                  }
+                }
+              ]
+            },
+            {
+              "name":"Tables",
+              "children":[
+                {
+                  "x":0,
+                  "y":0,
+                  "w":24,
+                  "h":29,
+                  "i":"0",
+                  "type":"Widget",
+                  "graph":{
+                    "type":"EndpointList",
+                    "dashboardName":"AWS-DynamoDB-Endpoint",
+                    "fontSize":12
                   }
                 }
               ]

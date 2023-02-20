@@ -6,13 +6,10 @@ SkyWalking leverages Amazon Kinesis Data Filehose with [Amazon CloudWatch](https
 2. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ### Set up
-1. Enable [AWS CloudWatch](https://aws.amazon.com/cn/cloudwatch/)
-2. Create [Amazon Kinesis Data Filehose](https://aws.amazon.com/cn/kinesis/data-firehose/), set source to `Direct PUT`, set destination to  `HTTP Endpoint`, and set `HTTP EndPoint url` to `aws-firehose-receiver`'s port (refer to [aws-firehose-receiver](aws-firehose-receiver.md))
-
-   Note that AWS requires that the `HTTP Endpoint URL` must be through HTTPS listening at 443, therefore need to load the certificate in [aws-firehose-receiver](aws-firehose-receiver.md) and set the port to 443.
-   Or, you can use another gateway to accept the requests and route them to `aws-filehose-receiver`.
-3. Create a [metric stream](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Metric-Streams.html), set namespace to DynanoDB, and set `Kinesis Data Firehose` to the firehose you just created.
-4. Config [aws-firehose-receiver](aws-firehose-receiver.md) to receive data.
+1. Create CloudWatch metrics configuration for DynamoDB, refer to [DynamoDB metrics configuration](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/monitoring-cloudwatch.html)
+   Create an Amazon Kinesis Data Firehose Delivery Stream, and set [AWS Kinesis Data Firehose receiver](./aws-firehose-receiver.md)'s address as HTTP(s) Destination, refer to [Create Delivery Stream](https://docs.aws.amazon.com/firehose/latest/dev/basic-create.html)3. Create a [metric stream](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Metric-Streams.html), set namespace to DynanoDB, and set `Kinesis Data Firehose` to the firehose you just created.
+2. Config [aws-firehose-receiver](aws-firehose-receiver.md) to receive data.
+3. Create CloudWatch metric stream, and select the Firehose Delivery Stream which has been created above, set `Select namespaces` to `AWS/DynamoDB`, `Select output format` to `OpenTelemetry 0.7`. refer to [CloudWatch Metric Streams](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Metric-Streams.html)
 
 ### DynamoDB Monitoring
 DynamoDB monitoring provides monitoring of the status and resources of the DynamoDB server. AWS user id is cataloged as a `Layer: AWS_DYNAMODB` `Service` in OAP.
