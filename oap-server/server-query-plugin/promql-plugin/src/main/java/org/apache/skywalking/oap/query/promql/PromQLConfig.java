@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.query.prometheus;
+package org.apache.skywalking.oap.query.promql;
 
 import lombok.Getter;
 import lombok.Setter;
