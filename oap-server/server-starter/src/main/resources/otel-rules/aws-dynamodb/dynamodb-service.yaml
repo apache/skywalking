@@ -56,18 +56,15 @@ metricsRules:
     exp: amazonaws_com_AWS_DynamoDB_AccountProvisionedWriteCapacityUtilization
 
   # table metrics
-  # The number of write capacity units consumed over the specified time period , sum
   - name: consumed_write_capacity_units
     exp: amazonaws_com_AWS_DynamoDB_ConsumedWriteCapacityUnits
 
-  # The number of write capacity units consumed over the specified time period , sum
   - name: consumed_read_capacity_units
     exp: amazonaws_com_AWS_DynamoDB_ConsumedReadCapacityUnits
 
-  # The number of provisioned read capacity units for a table or a global secondary index. min max avg
   - name: provisioned_read_capacity_units
     exp: amazonaws_com_AWS_DynamoDB_ProvisionedReadCapacityUnits
-  # The number of provisioned write capacity units for a table or a global secondary index. min max avg
+
   - name: provisioned_write_capacity_units
     exp: amazonaws_com_AWS_DynamoDB_ProvisionedWriteCapacityUnits
 
@@ -75,13 +72,6 @@ metricsRules:
 
 
   # table operation metrics
-
-  # The latency of successful requests to DynamoDB or Amazon DynamoDB Streams during the specified time period.
-  # SuccessfulRequestLatency can provide two different kinds of information:
-  #
-  #The elapsed time for successful requests (Minimum, Maximum, Sum, or Average).
-  #
-  #The number of successful requests (SampleCount).
   - name: get_successful_request_latency
     exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagMatch('Operation','GetItem|BatchGetItem')
   - name: put_successful_request_latency
@@ -90,7 +80,6 @@ metricsRules:
     exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagEqual('Operation','Query')
   - name: scan_successful_request_latency
     exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagEqual('Operation','Scan')
-  # The number of items returned by Query, Scan or ExecuteStatement (select) operations during the specified time period.
   - name: scan_returned_item_count
     exp: amazonaws_com_AWS_DynamoDB_ReturnedItemCount.tagEqual('Operation','Scan')
   - name: query_returned_item_count

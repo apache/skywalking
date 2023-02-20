@@ -662,6 +662,8 @@ jobs:
             config: test/e2e-v2/cases/virtual-mq/e2e.yaml
           - name: AWS Cloud EKS
             config: test/e2e-v2/cases/aws/eks/e2e.yaml
+          - name: AWS Cloud DynamoDB
+            config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

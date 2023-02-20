@@ -54,3 +54,28 @@ cases:
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
         --name=time_to_live_deleted_item_count --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=user_errors --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=system_errors --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=scan_returned_item_count --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=query_returned_item_count --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=read_throttled_requests --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=write_throttled_requests --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml

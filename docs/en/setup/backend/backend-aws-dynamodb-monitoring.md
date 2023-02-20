@@ -9,13 +9,14 @@ SkyWalking leverages Amazon Kinesis Data Filehose with [Amazon CloudWatch](https
 1. Enable [AWS CloudWatch](https://aws.amazon.com/cn/cloudwatch/)
 2. Create [Amazon Kinesis Data Filehose](https://aws.amazon.com/cn/kinesis/data-firehose/), set source to `Direct PUT`, set destination to  `HTTP Endpoint`, and set `HTTP EndPoint url` to `aws-firehose-receiver`'s port (refer to [aws-firehose-receiver](aws-firehose-receiver.md))
 
-   Note that AWS requires that the `HTTP Endpoint url` must be HTTPS and the port needs to be 443, so you can load the certificate in [aws-firehose-receiver](aws-firehose-receiver.md) and set the port to 443. Also, you can use another gateway to accept the request and route it to `aws-filehose-receiver`.
+   Note that AWS requires that the `HTTP Endpoint URL` must be through HTTPS listening at 443, therefore need to load the certificate in [aws-firehose-receiver](aws-firehose-receiver.md) and set the port to 443.
+   Or, you can use another gateway to accept the requests and route them to `aws-filehose-receiver`.
 3. Create a [metric stream](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Metric-Streams.html), set namespace to DynanoDB, and set `Kinesis Data Firehose` to the firehose you just created.
 4. Config [aws-firehose-receiver](aws-firehose-receiver.md) to receive data.
 
 ### DynamoDB Monitoring
 DynamoDB monitoring provides monitoring of the status and resources of the DynamoDB server. AWS user id is cataloged as a `Layer: AWS_DYNAMODB` `Service` in OAP.
-Each DynamoDB table is cataloged as an `Instance` in OAP.
+Each DynamoDB table is cataloged as an `Endpoint` in OAP.
 
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
