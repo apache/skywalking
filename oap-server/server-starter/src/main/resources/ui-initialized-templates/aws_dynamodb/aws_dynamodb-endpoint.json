@@ -294,7 +294,7 @@
           "i":"11",
           "type":"Widget",
           "metricTypes":[
-            "readLabeledMetricsValues"
+            "readMetricsValues"
           ],
           "metrics":[
             "aws_dynamodb_endpoint_scan_returned_item_count"
@@ -319,7 +319,7 @@
           "i":"12",
           "type":"Widget",
           "metricTypes":[
-            "readLabeledMetricsValues"
+            "readMetricsValues"
           ],
           "metrics":[
             "aws_dynamodb_endpoint_query_returned_item_count"
