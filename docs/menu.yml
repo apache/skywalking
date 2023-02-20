@@ -191,6 +191,8 @@ catalog:
                 path: "/en/setup/backend/backend-aws-eks-monitoring"
               - name: "S3 Monitoring"
                 path: "/en/setup/backend/backend-aws-s3-monitoring"
+              - name: "AWS DynamoDB"
+                path: "/en/setup/backend/backend-aws-dynamodb-monitoring"
           - name: "Browser Monitoring"
             path: "/en/setup/service-agent/browser-agent"
           - name: "Gateway Monitoring"
@@ -203,6 +205,8 @@ catalog:
                 path: "/en/setup/backend/backend-mysql-monitoring"
               - name: "PostgreSQL Server"
                 path: "/en/setup/backend/backend-postgresql-monitoring"
+              - name: "AWS DynamoDB"
+                path: "/en/setup/backend/backend-aws-dynamodb-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"
