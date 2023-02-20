@@ -16,31 +16,44 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+lexer grammar PromQLLexer;
 
-import io.vavr.collection.Stream;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Getter;
+// Keywords
+BOOL options { caseInsensitive=true; }: 'bool';
 
-public class IntValues {
-    @Getter
-    private List<KVInt> values = new ArrayList<>();
+// Constructors symbols
+DOT:         '.';
+COMMA:       ',';
+L_PAREN:     '(';
+R_PAREN:     ')';
+L_BRACKET:   '[';
+R_BRACKET:   ']';
+L_BRACE:     '{';
+R_BRACE:     '}';
+EQ:          '=';
 
-    public void addKVInt(KVInt e) {
-        values.add(e);
-    }
+// Scalar Binary operators
+SUB:         '-';
+ADD:         '+';
+MUL:         '*';
+DIV:         '/';
+MOD:         '%';
+DEQ:         '==';
+NEQ:         '!=';
+LTE:         '<=';
+LT:          '<';
+GTE:         '>=';
+GT:          '>';
 
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
-            }
-        }
-        return defaultValue;
-    }
+// Literals
+NUMBER: Digit+ (DOT Digit+)?;
+DURATION: Digit+ ('s' | 'm' | 'h' | 'd' | 'w' | 'y');
+NAME_STRING: NameLetter+;
+VALUE_STRING: '\'' .*? '\'' | '"' .*? '"';
 
-    public long latestValue(int defaultValue) {
-        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
-    }
-}
+
+// Fragments
+fragment Digit: [0-9];
+fragment NameLetter: [a-zA-Z0-9_];
+
+WS : [ \t\r\n]+ -> skip;

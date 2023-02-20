@@ -16,31 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.prometheus.rt.result;
 
-import io.vavr.collection.Stream;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Getter;
+import lombok.Data;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.oap.query.prometheus.entity.ErrorType;
 
-public class IntValues {
-    @Getter
-    private List<KVInt> values = new ArrayList<>();
-
-    public void addKVInt(KVInt e) {
-        values.add(e);
-    }
-
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
-            }
-        }
-        return defaultValue;
-    }
-
-    public long latestValue(int defaultValue) {
-        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
-    }
+@Data
+public class ParseResult {
+    private ParseTree parseTree;
+    private ParseResultType resultType;
+    private boolean rangeExpression = false;
+    private ErrorType errorType;
+    private String errorInfo;
 }

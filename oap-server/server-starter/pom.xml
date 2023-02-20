@@ -215,6 +215,11 @@
             <artifactId>query-graphql-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>prometheus-query-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- queryBuild module -->
 
         <!-- alarm module -->

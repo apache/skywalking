@@ -30,5 +30,6 @@
     <modules>
         <module>query-graphql-plugin</module>
         <module>zipkin-query-plugin</module>
+        <module>prometheus-query-plugin</module>
     </modules>
 </project>

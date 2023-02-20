@@ -16,31 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.prometheus.entity;
 
-import io.vavr.collection.Stream;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 
-public class IntValues {
-    @Getter
-    private List<KVInt> values = new ArrayList<>();
-
-    public void addKVInt(KVInt e) {
-        values.add(e);
-    }
-
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
-            }
-        }
-        return defaultValue;
-    }
-
-    public long latestValue(int defaultValue) {
-        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
-    }
+@Data
+public class MetricData {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private MetricInfo metric;
 }

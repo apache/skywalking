@@ -99,6 +99,7 @@
 * Refactor http-based alarm plugins and extract common logic to `HttpAlarmCallback`.
 * Support Amazon Simple Storage Service (Amazon S3) metrics monitoring
 * Support process Sum metrics with AGGREGATION_TEMPORALITY_DELTA case
+* Support prometheus HTTP API and promQL.
 
 #### UI
 

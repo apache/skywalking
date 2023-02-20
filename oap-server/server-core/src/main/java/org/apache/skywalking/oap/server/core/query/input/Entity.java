@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.query.input;
 
 import java.util.Objects;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -31,7 +30,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
  * @since 8.0.0
  */
 @Setter
-@Getter(AccessLevel.PRIVATE)
+@Getter
 public class Entity {
     /**
      * <pre>

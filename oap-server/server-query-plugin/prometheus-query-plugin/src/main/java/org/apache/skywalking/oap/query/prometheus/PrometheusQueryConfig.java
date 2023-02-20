@@ -16,31 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.prometheus;
 
-import io.vavr.collection.Stream;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
-public class IntValues {
-    @Getter
-    private List<KVInt> values = new ArrayList<>();
-
-    public void addKVInt(KVInt e) {
-        values.add(e);
-    }
-
-    public long findValue(String id, int defaultValue) {
-        for (KVInt value : values) {
-            if (value.getId().equals(id)) {
-                return value.getValue();
-            }
-        }
-        return defaultValue;
-    }
-
-    public long latestValue(int defaultValue) {
-        return Stream.ofAll(values).map(KVInt::getValue).findLast(v -> v != defaultValue).getOrElse((long) defaultValue);
-    }
+@Setter
+@Getter
+public class PrometheusQueryConfig extends ModuleConfig {
+    private String restHost;
+    private int restPort;
+    private String restContextPath;
+    private int restMaxThreads = 200;
+    private long restIdleTimeOut = 30000;
+    private int restAcceptQueueSize = 0;
 }
