@@ -323,7 +323,7 @@
                   "i":"11",
                   "type":"Widget",
                   "metricTypes":[
-                    "readLabeledMetricsValues"
+                    "readMetricsValues"
                   ],
                   "metrics":[
                     "aws_dynamodb_scan_returned_item_count"
