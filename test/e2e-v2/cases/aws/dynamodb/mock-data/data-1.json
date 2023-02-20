@@ -1,0 +1,650 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "cloud.provider",
+            "value": {
+              "stringValue": "aws"
+            }
+          },
+          {
+            "key": "cloud.account.id",
+            "value": {
+              "stringValue": "xxxxxxxx"
+            }
+          },
+          {
+            "key": "cloud.region",
+            "value": {
+              "stringValue": "ap-northeast-1"
+            }
+          },
+          {
+            "key": "aws.exporter.arn",
+            "value": {
+              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:xxxxxxxx:metric-stream/CustomFull-CmHV2P"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/ProvisionedWriteCapacityUnits",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809020000000000",
+                    "timeUnixNano": "1676809080000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                        "value": 2.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 2.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ProvisionedWriteCapacityUnits"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/AccountMaxTableLevelWrites",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809080000000000",
+                    "timeUnixNano": "1676809140000000000",
+                    "count": "1",
+                    "sum": "40000.0",
+                    "quantileValues": [
+                      {
+                        "value": 40000.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 40000.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "AccountMaxTableLevelWrites"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/AccountProvisionedWriteCapacityUtilization",
+              "unit": "%",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809080000000000",
+                    "timeUnixNano": "1676809140000000000",
+                    "count": "1",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "AccountProvisionedWriteCapacityUtilization"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/AccountProvisionedReadCapacityUtilization",
+              "unit": "%",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809080000000000",
+                    "timeUnixNano": "1676809140000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                        "value": 2.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 2.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ProvisionedReadCapacityUnits"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/MaxProvisionedTableWriteCapacityUtilization",
+              "unit": "%",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809320000000000",
+                    "timeUnixNano": "1676809380000000000",
+                    "count": "1",
+                    "sum": "0.01",
+                    "quantileValues": [
+                      {
+                        "value": 0.01
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 0.01
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "MaxProvisionedTableWriteCapacityUtilization"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/AccountMaxTableLevelReads",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809320000000000",
+                    "timeUnixNano": "1676809380000000000",
+                    "count": "1",
+                    "sum": "40000.0",
+                    "quantileValues": [
+                      {
+                        "value": 40000.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 40000.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "AccountMaxTableLevelReads"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/AccountMaxWrites",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809320000000000",
+                    "timeUnixNano": "1676809380000000000",
+                    "count": "1",
+                    "sum": "80000.0",
+                    "quantileValues": [
+                      {
+                        "value": 80000.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 80000.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "AccountMaxWrites"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/MaxProvisionedTableReadCapacityUtilization",
+              "unit": "%",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809320000000000",
+                    "timeUnixNano": "1676809380000000000",
+                    "count": "1",
+                    "sum": "0.01",
+                    "quantileValues": [
+                      {
+                        "value": 0.01
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 0.01
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "MaxProvisionedTableReadCapacityUtilization"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/TimeToLiveDeletedItemCount",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "TimeToLiveDeletedItemCount"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/ReturnedItemCount",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ReturnedItemCount"
+                        }
+                      },
+                      {
+                        "key": "Operation",
+                        "value": {
+                          "stringValue": "Scan"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/ReturnedItemCount",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ReturnedItemCount"
+                        }
+                      },
+                      {
+                        "key": "Operation",
+                        "value": {
+                          "stringValue": "Query"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/ThrottledRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ThrottledRequests"
+                        }
+                      },
+                      {
+                        "key": "Operation",
+                        "value": {
+                          "stringValue": "Query"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/ThrottledRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ThrottledRequests"
+                        }
+                      },
+                      {
+                        "key": "Operation",
+                        "value": {
+                          "stringValue": "PutItem"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/UserErrors",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "UserErrors"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/SystemErrors",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                      },
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "SystemErrors"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
