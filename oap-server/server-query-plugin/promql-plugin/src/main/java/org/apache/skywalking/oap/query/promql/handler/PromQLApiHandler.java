@@ -25,7 +25,6 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.common.ResponseHeaders;
-import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Path;
@@ -43,7 +42,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
-import org.apache.skywalking.oap.query.promql.PromQLConfig;
 import org.apache.skywalking.oap.query.promql.entity.ErrorType;
 import org.apache.skywalking.oap.query.promql.entity.LabelName;
 import org.apache.skywalking.oap.query.promql.entity.LabelValuePair;
@@ -93,15 +91,12 @@ import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.formatDouble
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.timestamp2Duration;
 
 public class PromQLApiHandler {
-    private final PromQLConfig config;
     private final MetadataQueryV2 metadataQuery;
     private final MetricsQuery metricsQuery;
     private final RecordsQuery recordsQuery;
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public PromQLApiHandler(final PromQLConfig config,
-                            ModuleManager moduleManager) {
-        this.config = config;
+    public PromQLApiHandler(ModuleManager moduleManager) {
         this.metadataQuery = new MetadataQueryV2(moduleManager);
         this.metricsQuery = new MetricsQuery(moduleManager);
         this.recordsQuery = new RecordsQuery(moduleManager);
@@ -127,6 +122,10 @@ public class PromQLApiHandler {
         return jsonResponse(response);
     }
 
+    /**
+     * OAP doesn't support query label by start/end,
+     * reserve these param to keep consistent with API protocol.
+     */
     @Get
     @Post
     @Path("/api/v1/labels")
@@ -170,6 +169,10 @@ public class PromQLApiHandler {
         return jsonResponse(response);
     }
 
+    /**
+     * OAP doesn't support query label value by match/start/end,
+     * reserve these param to keep consistent with API protocol.
+     */
     @Get
     @Post
     @Path("/api/v1/label/{label_name}/values")
@@ -181,7 +184,7 @@ public class PromQLApiHandler {
         LabelValuesQueryRsp response = new LabelValuesQueryRsp();
         response.setStatus(ResultStatus.SUCCESS);
 
-        switch (LabelName.valueOf(labelName)) {
+        switch (LabelName.labelOf(labelName)) {
             case NAME:
                 metricsQuery.listMetrics("").forEach(definition -> {
                     response.getData().add(definition.getName());
@@ -279,7 +282,6 @@ public class PromQLApiHandler {
     @Get
     @Post
     @Path("/api/v1/query")
-    @Blocking
     public HttpResponse query(
         @Param("query") String query,
         @Param("time") Optional<String> time,
@@ -336,10 +338,13 @@ public class PromQLApiHandler {
         return jsonResponse(response);
     }
 
+    /**
+     * OAP adopt time step by start/end,
+     * reserve step/timeout param to keep consistent with API protocol.
+     */
     @Get
     @Post
     @Path("/api/v1/query_range")
-    @Blocking
     public HttpResponse query_range(
         @Param("query") String query,
         @Param("start") String start,

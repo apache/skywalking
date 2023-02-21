@@ -79,7 +79,7 @@ public class PromQLProvider extends ModuleProvider {
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
         httpServer.addHandler(
-            new PromQLApiHandler(config, getManager()),
+            new PromQLApiHandler(getManager()),
             Arrays.asList(HttpMethod.POST, HttpMethod.GET)
         );
     }

@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.query.promql.rt.result.MetricsRangeResult;
 import org.apache.skywalking.oap.query.promql.rt.result.ParseResult;
 import org.apache.skywalking.oap.query.promql.rt.PromQLExprQueryVisitor;
 import org.apache.skywalking.oap.query.promql.rt.result.ScalarResult;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -59,6 +60,15 @@ public class PromQLExprQueryVisitorTest {
     private MetricsQuery metricsQuery;
     private RecordsQuery recordsQuery;
     private Duration duration;
+    private static final long TIME_2023022010 = DurationUtils.INSTANCE.parseToDateTime(
+                                                           Step.HOUR, 2023022010)
+                                                                .getMillis() / 1000;
+    private static final long TIME_2023022011 = DurationUtils.INSTANCE.parseToDateTime(
+                                                           Step.HOUR, 2023022011)
+                                                                .getMillis() / 1000;
+    private static final long TIME_2023022012 = DurationUtils.INSTANCE.parseToDateTime(
+                                                                Step.HOUR, 2023022012)
+                                                                     .getMillis() / 1000;
 
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
@@ -81,31 +91,31 @@ public class PromQLExprQueryVisitorTest {
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'}",
                 ParseResultType.METRICS_RANGE,
-                List.of(new TimeValuePair(1676858400, "0"), new TimeValuePair(1676862000, "1"),
-                        new TimeValuePair(1676865600, "2"))
+                List.of(new TimeValuePair(TIME_2023022010, "0"), new TimeValuePair(TIME_2023022011, "1"),
+                        new TimeValuePair(TIME_2023022012, "2"))
             },
             {
                 "MetricsScalarBinaryOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} + 100",
                 ParseResultType.METRICS_RANGE,
-                List.of(new TimeValuePair(1676858400, "100"), new TimeValuePair(1676862000, "101"),
-                        new TimeValuePair(1676865600, "102"))
+                List.of(new TimeValuePair(TIME_2023022010, "100"), new TimeValuePair(TIME_2023022011, "101"),
+                        new TimeValuePair(TIME_2023022012, "102"))
             },
             {
                 "MetricsBinaryOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} + service_cpm{service='serviceA', layer='GENERAL'}",
                 ParseResultType.METRICS_RANGE,
-                List.of(new TimeValuePair(1676858400, "0"), new TimeValuePair(1676862000, "2"),
-                        new TimeValuePair(1676865600, "4"))
+                List.of(new TimeValuePair(TIME_2023022010, "0"), new TimeValuePair(TIME_2023022011, "2"),
+                        new TimeValuePair(TIME_2023022012, "4"))
             },
             {
                 "MetricsScalarCompareOp",
                 PromQLApiHandler.QueryType.RANGE,
                 "service_cpm{service='serviceA', layer='GENERAL'} > 1",
                 ParseResultType.METRICS_RANGE,
-                List.of(new TimeValuePair(1676865600, "2"))
+                List.of(new TimeValuePair(TIME_2023022012, "2"))
             }
         });
     }
