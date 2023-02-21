@@ -229,11 +229,12 @@ public class MetricsQuery implements GraphQLQueryResolver {
      */
     @Deprecated
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
-        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
             return Collections.emptyList();
         }
-        final List<Record> records = getRecordQueryService().readRecords(new RecordCondition(condition), duration);
+        RecordCondition recordCondition = new RecordCondition(condition);
+        recordCondition.senseScope();
+        final List<Record> records = getRecordQueryService().readRecords(recordCondition, duration);
         return records.stream().filter(Objects::nonNull).map(Record::toSelectedRecord).collect(Collectors.toList());
     }
 }

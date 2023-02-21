@@ -23,7 +23,6 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Top N query condition.
@@ -56,13 +55,9 @@ public class TopNCondition {
     private Order order;
 
     /**
-     * Sense Scope through metric name, if parentService is blank set `Scope.All`.
+     * Sense Scope through metric name.
      */
     public void senseScope() {
-        if (StringUtil.isBlank(parentService)) {
-            scope = Scope.All;
-        } else {
-            scope = ValueColumnMetadata.INSTANCE.getScope(name);
-        }
+        scope = ValueColumnMetadata.INSTANCE.getScope(name);
     }
 }

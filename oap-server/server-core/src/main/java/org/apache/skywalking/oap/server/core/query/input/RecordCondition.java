@@ -61,13 +61,9 @@ public class RecordCondition {
     }
 
     /**
-     * Sense Scope through metric name, if parentService is blank set `Scope.All`.
+     * Sense Scope through metric name.
      */
     public void senseScope() {
-        if (StringUtil.isBlank(parentEntity.getServiceName())) {
-            parentEntity.setScope(Scope.All);
-        } else {
-            parentEntity.setScope(ValueColumnMetadata.INSTANCE.getScope(name));
-        }
+        parentEntity.setScope(ValueColumnMetadata.INSTANCE.getScope(name));
     }
 }
