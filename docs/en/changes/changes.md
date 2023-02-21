@@ -100,6 +100,7 @@
 * Support Amazon Simple Storage Service (Amazon S3) metrics monitoring
 * Support process Sum metrics with AGGREGATION_TEMPORALITY_DELTA case
 * Support Amazon DynamoDB monitoring.
+* Storage-elasticsearch-plugin supports query of selected fields.
 
 #### UI
 

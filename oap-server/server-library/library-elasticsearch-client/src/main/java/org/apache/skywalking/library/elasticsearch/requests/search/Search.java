@@ -17,11 +17,14 @@
 
 package org.apache.skywalking.library.elasticsearch.requests.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
+
+import java.util.Set;
 
 /**
  * Represents the criteria when searching documents in ElasticSearch.
@@ -36,6 +39,8 @@ public final class Search {
     private final Query query;
     private final Sorts sort;
     private final ImmutableMap<String, Aggregation> aggregations;
+    @JsonProperty("_source")
+    private final Set<String> source;
 
     public static SearchBuilder builder() {
         return new SearchBuilder();

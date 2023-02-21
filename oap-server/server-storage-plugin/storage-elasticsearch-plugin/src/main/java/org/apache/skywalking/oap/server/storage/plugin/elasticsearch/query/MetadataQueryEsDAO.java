@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -71,6 +72,9 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private String endpointTrafficNameAlias;
     private boolean aliasNameInit = false;
     private final int layerSize;
+
+    private static final Set<String> INSTANCE_TRAFFIC_COMPACT_TAGS = ImmutableSet.of(InstanceTraffic.NAME,
+            InstanceTraffic.PROPERTIES);
 
     public MetadataQueryEsDAO(
         ElasticSearchClient client,
@@ -189,7 +193,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final BoolQueryBuilder query =
             Query.bool()
                  .must(Query.term("_id", id));
-        final SearchBuilder search = Search.builder().query(query).size(1);
+        final SearchBuilder search = Search.builder().query(query).size(1)
+                .source(INSTANCE_TRAFFIC_COMPACT_TAGS);
 
         final SearchResponse response = getClient().search(index, search.build());
         final List<ServiceInstance> instances = buildInstances(response);

@@ -23,6 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.AggregationBuilder;
 
+import java.util.Set;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
@@ -32,9 +34,17 @@ public final class SearchBuilder {
     private Integer size;
     private QueryBuilder queryBuilder;
     private ImmutableList.Builder<Sort> sort;
+    private Set<String> source;
     private ImmutableMap.Builder<String, Aggregation> aggregations;
 
     SearchBuilder() {
+    }
+
+    public SearchBuilder source(Set<String> source) {
+        requireNonNull(source, "source");
+        checkArgument(source.size() > 0, "source size must be > 0, but was %s", source.size());
+        this.source = source;
+        return this;
     }
 
     public SearchBuilder from(Integer from) {
@@ -97,7 +107,7 @@ public final class SearchBuilder {
         }
 
         return new Search(
-            from, size, query, sorts, aggregations
+            from, size, query, sorts, aggregations, source
         );
     }
 
