@@ -23,14 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -51,6 +43,13 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
@@ -82,14 +81,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildServices(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildServices, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -101,13 +93,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         condition.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]));
-            return buildServices(resultSet);
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildServices, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -124,14 +110,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         condition.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]));
-            return buildInstances(resultSet);
-
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildInstances, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -143,14 +122,10 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         condition.add(instanceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]));
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
             final List<ServiceInstance> instances = buildInstances(resultSet);
             return instances.size() > 0 ? instances.get(0) : null;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -166,10 +141,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         }
         sql.append(" limit ").append(limit);
 
-        List<Endpoint> endpoints = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
+        return jdbcClient.executeQuery(
+            sql.toString(), resultSet -> {
+                List<Endpoint> endpoints = new ArrayList<>();
 
                 while (resultSet.next()) {
                     Endpoint endpoint = new Endpoint();
@@ -177,11 +151,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                     endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
                     endpoints.add(endpoint);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return endpoints;
+                return endpoints;
+            }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -192,14 +163,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         appendProcessWhereQuery(sql, condition, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket, false);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildProcesses(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -212,14 +176,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         appendProcessWhereQuery(sql, condition, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket, includeVirtual);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildProcesses(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -230,14 +187,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0, false);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildProcesses(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -248,17 +198,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         appendProcessWhereQuery(sql, condition, serviceId, null, null, profilingSupportStatus,
             lastPingStartTimeBucket, lastPingEndTimeBucket, false);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                if (!resultSet.next()) {
-                    return 0;
-                }
-                return resultSet.getLong("total");
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            if (!resultSet.next()) {
+                return 0L;
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+            return resultSet.getLong("total");
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -268,17 +213,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
         appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0, false);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                if (!resultSet.next()) {
-                    return 0;
-                }
-                return resultSet.getLong("total");
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            if (!resultSet.next()) {
+                return 0L;
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+            return resultSet.getLong("total");
+        }, condition.toArray(new Object[0]));
     }
 
     private List<Service> buildServices(ResultSet resultSet) throws SQLException {
@@ -385,14 +325,11 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         condition.add(processId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]));
-            final List<Process> processes = buildProcesses(resultSet);
-            return processes.size() > 0 ? processes.get(0) : null;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(
+            sql.toString(), resultSet -> {
+                final List<Process> processes = buildProcesses(resultSet);
+                return processes.size() > 0 ? processes.get(0) : null;
+            }, condition.toArray(new Object[0]));
     }
 
     private List<Process> buildProcesses(ResultSet resultSet) throws SQLException {

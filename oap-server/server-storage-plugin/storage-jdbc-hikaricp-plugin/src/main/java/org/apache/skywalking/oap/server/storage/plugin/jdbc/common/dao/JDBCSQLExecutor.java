@@ -18,18 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
+import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
@@ -37,69 +32,62 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class JDBCSQLExecutor {
     protected <T extends StorageData> List<StorageData> getByIDs(JDBCHikariCPClient h2Client,
                                                                  String modelName,
-                                                                 String[] ids,
-                                                                 StorageBuilder<T> storageBuilder) throws IOException {
+                                                                 List<String> ids,
+                                                                 StorageBuilder<T> storageBuilder) throws Exception {
+        final var tables = getModelTables(h2Client, modelName);
+        final var storageDataList = new ArrayList<StorageData>();
 
-        try (Connection connection = h2Client.getConnection()) {
-            SQLBuilder sql = new SQLBuilder("SELECT * FROM " + modelName + " WHERE id in (");
-            List<Object> parameters = new ArrayList<>(ids.length);
-            for (int i = 0; i < ids.length; i++) {
-                if (i == 0) {
-                    sql.append("?");
-                } else {
-                    sql.append(",?");
-                }
-                parameters.add(ids[i]);
-            }
-            sql.append(")");
-            try (ResultSet rs = h2Client.executeQuery(connection, sql.toString(), parameters.toArray(new Object[0]))) {
+        for (var table : tables) {
+            final var sql = new SQLBuilder("SELECT * FROM " + table + " WHERE id in ")
+                .append(ids.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")));
+            h2Client.executeQuery(sql.toString(), resultSet -> {
                 StorageData storageData;
-                List<StorageData> storageDataList = new ArrayList<>();
-                do {
-                    storageData = toStorageData(rs, modelName, storageBuilder);
-                    if (storageData != null) {
-                        storageDataList.add(storageData);
-                    }
+                while ((storageData = toStorageData(resultSet, modelName, storageBuilder)) != null) {
+                    storageDataList.add(storageData);
                 }
-                while (storageData != null);
 
-                return storageDataList;
-            }
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e.getMessage(), e);
+                return null;
+            }, ids.stream().map(it -> modelName + Const.UNDERSCORE + it).toArray());
         }
+        return storageDataList;
     }
 
+    @SneakyThrows
     protected <T extends StorageData> StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
-                                                          StorageBuilder<T> storageBuilder) throws IOException {
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(connection, "SELECT * FROM " + modelName + " WHERE id = ?", id)) {
-            return toStorageData(rs, modelName, storageBuilder);
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e.getMessage(), e);
+                                                          StorageBuilder<T> storageBuilder) {
+        final var tables = getModelTables(h2Client, modelName);
+        for (var table : tables) {
+            final var result = h2Client.executeQuery(
+                "SELECT * FROM " + table + " WHERE id = ?",
+                resultSet -> toStorageData(resultSet, modelName, storageBuilder),
+                id
+            );
+            if (result != null) {
+                return result;
+            }
         }
-    }
-
-    protected StorageData getByColumn(JDBCHikariCPClient h2Client, String modelName, String columnName, Object value,
-                                      StorageBuilder<? extends StorageData> storageBuilder) throws IOException {
-        try (Connection connection = h2Client.getConnection();
-             ResultSet rs = h2Client.executeQuery(
-                 connection, "SELECT * FROM " + modelName + " WHERE " + columnName + " = ?", value)) {
-            return toStorageData(rs, modelName, storageBuilder);
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+        return null;
     }
 
     protected StorageData toStorageData(ResultSet rs, String modelName,
@@ -115,11 +103,11 @@ public class JDBCSQLExecutor {
         return null;
     }
 
-    protected <T extends StorageData> SQLExecutor getInsertExecutor(String modelName, T metrics,
+    protected <T extends StorageData> SQLExecutor getInsertExecutor(Model model, T metrics,
+                                                                    long timeBucket,
                                                                     StorageBuilder<T> storageBuilder,
                                                                     Convert2Storage<Map<String, Object>> converter,
                                                                     SessionCacheCallback callback) throws IOException {
-        Model model = TableMetaInfo.get(modelName);
         storageBuilder.entity2Storage(metrics, converter);
         Map<String, Object> objectMap = converter.obtain();
         //build main table sql
@@ -128,11 +116,9 @@ public class JDBCSQLExecutor {
             mainEntity.put(column.getColumnName().getName(), objectMap.get(column.getColumnName().getName()));
         });
         SQLExecutor sqlExecutor = buildInsertExecutor(
-            modelName, model.getColumns(), metrics, mainEntity, callback);
+            model, metrics, timeBucket, mainEntity, callback);
         //build additional table sql
-        for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
-                                                                              .getAdditionalTables()
-                                                                              .values()) {
+        for (final var additionalTable : model.getSqlDBModelExtension().getAdditionalTables().values()) {
             Map<String, Object> additionalEntity = new HashMap<>();
             additionalTable.getColumns().forEach(column -> {
                 additionalEntity.put(column.getColumnName().getName(), objectMap.get(column.getColumnName().getName()));
@@ -146,31 +132,41 @@ public class JDBCSQLExecutor {
         return sqlExecutor;
     }
 
-    private <T extends StorageData> SQLExecutor buildInsertExecutor(String tableName,
-                                                                    List<ModelColumn> columns,
+    private <T extends StorageData> SQLExecutor buildInsertExecutor(Model model,
                                                                     T metrics,
+                                                                    long timeBucket,
                                                                     Map<String, Object> objectMap,
-                                                                    SessionCacheCallback onCompleteCallback) throws IOException {
-        SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + tableName + " VALUES");
-        List<Object> param = new ArrayList<>();
-        sqlBuilder.append("(?,");
-        param.add(metrics.id().build());
-        for (int i = 0; i < columns.size(); i++) {
-            ModelColumn column = columns.get(i);
-            sqlBuilder.append("?");
+                                                                    SessionCacheCallback onCompleteCallback) {
+        final var table = writeTableName(model, timeBucket);
+        final var sqlBuilder = new SQLBuilder("INSERT INTO " + table);
+        final var columns = model.getColumns();
+        final var columnNames =
+            Stream.concat(
+                      Stream.of(H2TableInstaller.ID_COLUMN, H2TableInstaller.TABLE_COLUMN),
+                      columns
+                          .stream()
+                          .map(ModelColumn::getColumnName)
+                          .map(ColumnName::getStorageName))
+                  .collect(Collectors.toList());
+        sqlBuilder.append(columnNames.stream().collect(Collectors.joining(",", "(", ")")));
+        sqlBuilder.append(" VALUES ");
+        sqlBuilder.append(columnNames.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")));
 
-            Object value = objectMap.get(column.getColumnName().getName());
-            if (value instanceof StorageDataComplexObject) {
-                param.add(((StorageDataComplexObject) value).toStorageData());
-            } else {
-                param.add(value);
-            }
-
-            if (i != columns.size() - 1) {
-                sqlBuilder.append(",");
-            }
-        }
-        sqlBuilder.append(")");
+        final var param =
+            Stream.concat(
+                      Stream.of((model.isTimeSeries() ? (model.getName() + Const.UNDERSCORE) : "") + metrics.id().build(), model.getName()),
+                      columns
+                          .stream()
+                          .map(ModelColumn::getColumnName)
+                          .map(ColumnName::getName)
+                          .map(objectMap::get)
+                          .map(it -> {
+                              if (it instanceof StorageDataComplexObject) {
+                                  return ((StorageDataComplexObject) it).toStorageData();
+                              }
+                              return it;
+                          }))
+                  .collect(Collectors.toList());
 
         return new SQLExecutor(sqlBuilder.toString(), param, onCompleteCallback);
     }
@@ -179,7 +175,7 @@ public class JDBCSQLExecutor {
                                                                                     List<ModelColumn> columns,
                                                                                     T metrics,
                                                                                     Map<String, Object> objectMap,
-                                                                                    SessionCacheCallback callback) throws IOException {
+                                                                                    SessionCacheCallback callback) {
 
         List<SQLExecutor> sqlExecutors = new ArrayList<>();
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + tableName + " VALUES");
@@ -224,20 +220,20 @@ public class JDBCSQLExecutor {
         return sqlExecutors;
     }
 
-    protected <T extends StorageData> SQLExecutor getUpdateExecutor(String modelName, T metrics,
+    protected <T extends StorageData> SQLExecutor getUpdateExecutor(Model model, T metrics,
+                                                                    long timeBucket,
                                                                     StorageBuilder<T> storageBuilder,
-                                                                    SessionCacheCallback callback) throws IOException {
-        final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
+                                                                    SessionCacheCallback callback) {
+        final var toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(metrics, toStorage);
-        Map<String, Object> objectMap = toStorage.obtain();
-
-        StringBuilder sqlBuilder = new StringBuilder("UPDATE " + modelName + " SET ");
-        Model model = TableMetaInfo.get(modelName);
-        List<ModelColumn> columns = model.getColumns();
-        List<Object> param = new ArrayList<>();
-        for (int i = 0; i < columns.size(); i++) {
-            ModelColumn column = columns.get(i);
-            String columnName = column.getColumnName().getName();
+        final var objectMap = toStorage.obtain();
+        final var table = writeTableName(model, timeBucket);
+        final var sqlBuilder = new StringBuilder("UPDATE " + table + " SET ");
+        final var columns = model.getColumns();
+        final var queries = new ArrayList<String>();
+        final var param = new ArrayList<>();
+        for (final var column : columns) {
+            final var columnName = column.getColumnName().getName();
             if (model.getSqlDBModelExtension().isShardingTable()) {
                 SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
                     () -> new UnexpectedException("Sharding should not be empty."));
@@ -246,19 +242,61 @@ public class JDBCSQLExecutor {
                     continue;
                 }
             }
-            sqlBuilder.append(column.getColumnName().getStorageName()).append("= ?,");
+            queries.add(column.getColumnName().getStorageName() + " = ?");
 
-            Object value = objectMap.get(columnName);
+            final var value = objectMap.get(columnName);
             if (value instanceof StorageDataComplexObject) {
                 param.add(((StorageDataComplexObject) value).toStorageData());
             } else {
                 param.add(value);
             }
         }
-        sqlBuilder.replace(sqlBuilder.length() - 1, sqlBuilder.length(), "");
+        sqlBuilder.append(queries.stream().collect(Collectors.joining(", ")));
         sqlBuilder.append(" WHERE id = ?");
         param.add(metrics.id().build());
 
         return new SQLExecutor(sqlBuilder.toString(), param, callback);
     }
+
+    private static ArrayList<String> getModelTables(JDBCHikariCPClient h2Client, String modelName) throws Exception {
+        final var model = TableMetaInfo.get(modelName);
+        final var tableNamePattern = (
+            model.isMetric() ? "metrics_all" :
+                model.isRecord() && !model.isSuperDataset() ? "records_all"
+                    : model.getName()
+        ) + "%";
+        final var tables = new ArrayList<String>();
+        try (final var connection = h2Client.getConnection();
+             final var resultSet = connection.getMetaData().getTables(connection.getCatalog(), null, tableNamePattern, new String[]{"TABLE"})) {
+            while (resultSet.next()) {
+                tables.add(resultSet.getString("TABLE_NAME"));
+            }
+        }
+        return tables;
+    }
+
+    static String writeTableName(Model model, long timeBucket) {
+        var tableName =
+            model.isMetric() ? "metrics_all" :
+                model.isRecord() && !model.isSuperDataset() ? "records_all"
+                    : model.getName();
+        if (model.isRecord() && model.isSuperDataset()) {
+            return tableName + Const.UNDERSCORE + timeBucket / 1000000;
+        }
+        switch (model.getDownsampling()) {
+            case None:
+                return tableName;
+            case Hour:
+                return tableName + Const.UNDERSCORE + timeBucket / 100;
+            case Minute:
+                return tableName + Const.UNDERSCORE + timeBucket / 10000;
+            case Day:
+                return tableName + Const.UNDERSCORE + timeBucket;
+            case Second:
+                return tableName + Const.UNDERSCORE + timeBucket / 1000000;
+            default:
+                throw new UnexpectedException("Unexpected down sampling value, " + model.getDownsampling());
+        }
+    }
+
 }

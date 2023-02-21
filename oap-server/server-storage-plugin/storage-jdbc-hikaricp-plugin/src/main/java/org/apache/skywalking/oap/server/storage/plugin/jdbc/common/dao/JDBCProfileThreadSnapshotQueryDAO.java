@@ -20,16 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
@@ -38,6 +28,13 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThr
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
@@ -58,16 +55,13 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
            .append(ProfileThreadSnapshotRecord.SEQUENCE)
            .append(" = 0");
 
-        final LinkedList<String> segments = new LinkedList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), taskId)) {
-                while (resultSet.next()) {
-                    segments.add(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
-                }
+        final var segments = jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            final var results = new ArrayList<String>();
+            while (resultSet.next()) {
+                results.add(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+            return results;
+        }, taskId);
 
         if (CollectionUtils.isEmpty(segments)) {
             return Collections.emptyList();
@@ -81,11 +75,11 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
         }
         sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
 
-        ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
-        try (Connection connection = jdbcClient.getConnection()) {
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), segments.toArray(new String[segments.size()]))) {
+        return jdbcClient.executeQuery(
+            sql.toString(),
+            resultSet -> {
+                ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -102,11 +96,9 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
 
                     result.add(basicTrace);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return result;
+                return result;
+            },
+            segments.toArray(new String[segments.size()]));
     }
 
     @Override
@@ -136,40 +128,32 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
             maxSequence
         };
 
-        ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
-        try (Connection connection = jdbcClient.getConnection()) {
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), params)) {
-                while (resultSet.next()) {
-                    ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
+            while (resultSet.next()) {
+                ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
 
-                    record.setTaskId(resultSet.getString(ProfileThreadSnapshotRecord.TASK_ID));
-                    record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
-                    record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
-                    record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
-                    String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
-                    if (StringUtil.isNotEmpty(dataBinaryBase64)) {
-                        record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
-                    }
-
-                    result.add(record);
+                record.setTaskId(resultSet.getString(ProfileThreadSnapshotRecord.TASK_ID));
+                record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
+                record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
+                record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
+                String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
+                if (StringUtil.isNotEmpty(dataBinaryBase64)) {
+                    record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
 
-        return result;
+                result.add(record);
+            }
+            return result;
+        }, params);
     }
 
     @Override
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        try (Connection connection = jdbcClient.getConnection()) {
-
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?",
-                segmentId
-            )) {
+        return jdbcClient.executeQuery(
+            "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?",
+            resultSet -> {
                 if (resultSet.next()) {
                     SegmentRecord segmentRecord = new SegmentRecord();
                     segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
@@ -185,12 +169,10 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                     }
                     return segmentRecord;
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-
-        return null;
+                return null;
+            },
+            segmentId
+        );
     }
 
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
@@ -213,17 +195,12 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
             end
         };
 
-        try (Connection connection = jdbcClient.getConnection()) {
-
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), params)) {
-                while (resultSet.next()) {
-                    return resultSet.getInt(1);
-                }
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return -1;
+            return -1;
+        } ,params);
     }
 
 }

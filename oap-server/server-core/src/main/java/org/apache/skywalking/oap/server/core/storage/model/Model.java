@@ -18,52 +18,42 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
+
+import java.util.List;
 
 /**
  * The model definition of a logic entity.
  */
 @Getter
 @EqualsAndHashCode
+@RequiredArgsConstructor
 public class Model {
     private final String name;
     private final List<ModelColumn> columns;
     private final int scopeId;
     private final DownSampling downsampling;
-    private final boolean record;
     private final boolean superDataset;
-    private final boolean isTimeSeries;
     private final Class<?> streamClass;
     private final boolean timeRelativeID;
     private final SQLDatabaseModelExtension sqlDBModelExtension;
     private final BanyanDBModelExtension banyanDBModelExtension;
     private final ElasticSearchModelExtension elasticSearchModelExtension;
 
-    public Model(final String name,
-                 final List<ModelColumn> columns,
-                 final int scopeId,
-                 final DownSampling downsampling,
-                 final boolean record,
-                 final boolean superDataset,
-                 final Class<?> streamClass,
-                 boolean timeRelativeID,
-                 final SQLDatabaseModelExtension sqlDBModelExtension,
-                 final BanyanDBModelExtension banyanDBModelExtension,
-                 final ElasticSearchModelExtension elasticSearchModelExtension) {
-        this.name = name;
-        this.columns = columns;
-        this.scopeId = scopeId;
-        this.downsampling = downsampling;
-        this.isTimeSeries = !DownSampling.None.equals(downsampling);
-        this.record = record;
-        this.superDataset = superDataset;
-        this.streamClass = streamClass;
-        this.timeRelativeID = timeRelativeID;
-        this.sqlDBModelExtension = sqlDBModelExtension;
-        this.banyanDBModelExtension = banyanDBModelExtension;
-        this.elasticSearchModelExtension = elasticSearchModelExtension;
+    public boolean isTimeSeries() {
+        return !DownSampling.None.equals(downsampling);
+    }
+
+    public boolean isMetric() {
+        return Metrics.class.isAssignableFrom(getStreamClass());
+    }
+
+    public boolean isRecord() {
+        return Record.class.isAssignableFrom(getStreamClass());
     }
 }

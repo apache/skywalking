@@ -18,21 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql;
 
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.google.gson.JsonObject;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
-import com.google.gson.JsonObject;
-import lombok.extern.slf4j.Slf4j;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Extend H2TableInstaller but match MySQL SQL syntax.
@@ -53,16 +53,15 @@ public class MySQLTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    public void createTable(
-        JDBCHikariCPClient client,
-        Connection connection,
-        String tableName,
+    @SneakyThrows
+    public void createOrUpdateTable(
+        String table,
         List<ModelColumn> columns,
-        boolean additionalTable) throws JDBCClientException {
+        boolean isAdditionalTable) {
         SQLBuilder tableCreateSQL =
-            new SQLBuilder("CREATE TABLE IF NOT EXISTS " + tableName + " (");
+            new SQLBuilder("CREATE TABLE IF NOT EXISTS " + table + " (");
         tableCreateSQL.append(ID_COLUMN).append(" VARCHAR(512) ");
-        if (!additionalTable) {
+        if (!isAdditionalTable) {
             tableCreateSQL.appendLine("PRIMARY KEY, ");
         } else {
             tableCreateSQL.appendLine(", ");
@@ -70,7 +69,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
         for (int i = 0; i < columns.size(); i++) {
             ModelColumn column = columns.get(i);
             tableCreateSQL.appendLine(
-                getColumn(column) + (i != columns.size() ? "," : ""));
+                getColumnDefinition(column) + (i != columns.size() ? "," : ""));
         }
 
         int indexSeq = 0;
@@ -85,7 +84,7 @@ public class MySQLTableInstaller extends H2TableInstaller {
                                                                             .getIndices()) {
                 final String[] multiColumns = index.getColumns();
                 // Create MultiColumnsIndex on the additional table only when it contains all need columns.
-                if (additionalTable && !columnList.containsAll(Arrays.asList(multiColumns))) {
+                if (isAdditionalTable && !columnList.containsAll(Arrays.asList(multiColumns))) {
                     continue;
                 }
                 tableCreateSQL.append("KEY K")
@@ -111,25 +110,19 @@ public class MySQLTableInstaller extends H2TableInstaller {
         }
         tableCreateSQL.appendLine(")");
 
-        if (log.isDebugEnabled()) {
-            log.debug("creating table: " + tableCreateSQL.toStringInNewLine());
-        }
-
-        client.execute(connection, tableCreateSQL.toString());
+        executeSQL(tableCreateSQL);
     }
 
     @Override
-    public void createTableIndexes(
-        JDBCHikariCPClient client,
-        Connection connection,
+    public void createOrUpdateTableIndexes(
         String tableName, List<ModelColumn> columns,
-        boolean additionalTable)
+        boolean isAdditionalTable)
         throws JDBCClientException {
         // Do nothing, indexes have been created inside create tables.
     }
 
     @Override
-    public String getColumn(final ModelColumn column) {
+    public String getColumnDefinition(final ModelColumn column) {
         final String storageName = column.getColumnName().getStorageName();
         final Class<?> type = column.getType();
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {
@@ -147,6 +140,6 @@ public class MySQLTableInstaller extends H2TableInstaller {
                 return storageName + " VARCHAR(" + column.getLength() + ")";
             }
         }
-        return super.getColumn(column);
+        return super.getColumnDefinition(column);
     }
 }

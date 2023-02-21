@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,14 +50,7 @@ public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
             sql.append(" where ").append(conditionSql);
         }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildDataList(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildDataList, condition.toArray(new Object[0]));
     }
 
     private List<EBPFProfilingDataRecord> buildDataList(ResultSet resultSet) throws SQLException {

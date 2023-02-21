@@ -18,20 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
@@ -40,8 +38,8 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     @Override
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
                                          Long endTimeBucket, Integer limit) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(4);
+        final var sql = new StringBuilder();
+        final var condition = new ArrayList<>(4);
         sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where 1=1 ");
 
         if (startTimeBucket != null) {
@@ -70,18 +68,16 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             sql.append(" LIMIT ").append(limit);
         }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final LinkedList<ProfileTask> tasks = new LinkedList<>();
+        return jdbcClient.executeQuery(
+            sql.toString(),
+            resultSet -> {
+                final var tasks = new ArrayList<ProfileTask>();
                 while (resultSet.next()) {
                     tasks.add(parseTask(resultSet));
                 }
                 return tasks;
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+            },
+            condition.toArray(new Object[0]));
     }
 
     @Override
@@ -96,17 +92,15 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             .append(" where " + ProfileTaskRecord.TASK_ID + "=? LIMIT 1");
         condition.add(id);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
+        return jdbcClient.executeQuery(
+            sql.toString(),
+            resultSet -> {
                 if (resultSet.next()) {
                     return parseTask(resultSet);
                 }
-            }
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e);
-        }
-        return null;
+                return null;
+            },
+            condition.toArray(new Object[0]));
     }
 
     /**

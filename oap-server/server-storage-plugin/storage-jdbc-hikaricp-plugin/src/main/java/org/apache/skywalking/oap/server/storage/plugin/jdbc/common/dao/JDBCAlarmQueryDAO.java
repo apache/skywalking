@@ -19,14 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
@@ -40,6 +32,12 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
@@ -119,32 +117,28 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
         }
         sql.append(" order by ").append(AlarmRecord.START_TIME).append(" desc ");
 
-        Alarms alarms = new Alarms();
-        try (Connection connection = jdbcClient.getConnection()) {
+        buildLimit(sql, from, limit);
 
-            this.buildLimit(sql, from, limit);
+        return jdbcClient.executeQuery("select * " + sql, resultSet -> {
+            final var alarms = new Alarms();
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
-                while (resultSet.next()) {
-                    AlarmMessage message = new AlarmMessage();
-                    message.setId(resultSet.getString(AlarmRecord.ID0));
-                    message.setId1(resultSet.getString(AlarmRecord.ID1));
-                    message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
-                    message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
-                    message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
-                    message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
-                    String dataBinaryBase64 = resultSet.getString(AlarmRecord.TAGS_RAW_DATA);
-                    if (!com.google.common.base.Strings.isNullOrEmpty(dataBinaryBase64)) {
-                        parserDataBinaryBase64(dataBinaryBase64, message.getTags());
-                    }
-                    alarms.getMsgs().add(message);
+            while (resultSet.next()) {
+                final var message = new AlarmMessage();
+                message.setId(resultSet.getString(AlarmRecord.ID0));
+                message.setId1(resultSet.getString(AlarmRecord.ID1));
+                message.setMessage(resultSet.getString(AlarmRecord.ALARM_MESSAGE));
+                message.setStartTime(resultSet.getLong(AlarmRecord.START_TIME));
+                message.setScope(Scope.Finder.valueOf(resultSet.getInt(AlarmRecord.SCOPE)));
+                message.setScopeId(resultSet.getInt(AlarmRecord.SCOPE));
+                String dataBinaryBase64 = resultSet.getString(AlarmRecord.TAGS_RAW_DATA);
+                if (!com.google.common.base.Strings.isNullOrEmpty(dataBinaryBase64)) {
+                    parserDataBinaryBase64(dataBinaryBase64, message.getTags());
                 }
+                alarms.getMsgs().add(message);
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
 
-        return alarms;
+            return alarms;
+        }, parameters.toArray(new Object[0]));
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {

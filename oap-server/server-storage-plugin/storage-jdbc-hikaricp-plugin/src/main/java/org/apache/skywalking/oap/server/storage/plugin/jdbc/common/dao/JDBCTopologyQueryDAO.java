@@ -18,12 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
@@ -39,6 +33,12 @@ import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
@@ -154,22 +154,20 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
             }
             serviceIdMatchSql.append(")");
         }
-        List<Call.CallDetail> calls = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection,
-                "select " + Metrics.ENTITY_ID + ", " + ServiceRelationServerSideMetrics.COMPONENT_IDS
-                    + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and "
-                    + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
-                    .toString() +
-                    " group by " + Metrics.ENTITY_ID + "," + ServiceRelationServerSideMetrics.COMPONENT_IDS, conditions
-            )) {
+        return jdbcClient.executeQuery(
+            "select " + Metrics.ENTITY_ID + ", " + ServiceRelationServerSideMetrics.COMPONENT_IDS
+                + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and "
+                + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
+                .toString() +
+                " group by " + Metrics.ENTITY_ID + "," + ServiceRelationServerSideMetrics.COMPONENT_IDS,
+            resultSet -> {
+                List<Call.CallDetail> calls = new ArrayList<>();
+
                 buildServiceCalls(resultSet, calls, detectPoint);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return calls;
+                return calls;
+            },
+            conditions
+        );
     }
 
     private List<Call.CallDetail> loadServiceInstanceCalls(String tableName,
@@ -197,21 +195,17 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
                                                                      .append(descCName)
                                                                      .append("=?")
                                                                      .append("))");
-        List<Call.CallDetail> calls = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection,
-                "select " + Metrics.ENTITY_ID
-                    + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
-                    .toString() + " group by " + Metrics.ENTITY_ID,
-                conditions
-            )) {
+        return jdbcClient.executeQuery(
+            "select " + Metrics.ENTITY_ID
+                + " from " + tableName + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql
+                .toString() + " group by " + Metrics.ENTITY_ID,
+            resultSet -> {
+                List<Call.CallDetail> calls = new ArrayList<>();
                 buildInstanceCalls(resultSet, calls, detectPoint);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return calls;
+                return calls;
+            },
+            conditions
+        );
     }
 
     private List<Call.CallDetail> loadEndpointFromSide(String tableName,
@@ -224,22 +218,18 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         conditions[0] = duration.getStartTimeBucket();
         conditions[1] = duration.getEndTimeBucket();
         conditions[2] = id;
-        List<Call.CallDetail> calls = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection,
-                "select " + Metrics.ENTITY_ID + " from " + tableName
-                    + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
-                    + (isSourceId ? sourceCName : destCName) + "=?"
-                    + " group by " + Metrics.ENTITY_ID,
-                conditions
-            )) {
+        return jdbcClient.executeQuery(
+            "select " + Metrics.ENTITY_ID + " from " + tableName
+                + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
+                + (isSourceId ? sourceCName : destCName) + "=?"
+                + " group by " + Metrics.ENTITY_ID,
+            resultSet -> {
+                List<Call.CallDetail> calls = new ArrayList<>();
                 buildEndpointCalls(resultSet, calls, DetectPoint.SERVER);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return calls;
+                return calls;
+            },
+            conditions
+        );
     }
 
     private List<Call.CallDetail> loadProcessFromSide(Duration duration,
@@ -249,23 +239,19 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         conditions[0] = duration.getStartTimeBucket();
         conditions[1] = duration.getEndTimeBucket();
         conditions[2] = instanceId;
-        List<Call.CallDetail> calls = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection,
-                "select " + Metrics.ENTITY_ID +  ", " + ProcessRelationServerSideMetrics.COMPONENT_ID
-                    + " from " + (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME)
-                    + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
-                    + ProcessRelationClientSideMetrics.SERVICE_INSTANCE_ID + "=?"
-                    + " group by " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID,
-                conditions
-            )) {
+        return jdbcClient.executeQuery(
+            "select " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID
+                + " from " + (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME)
+                + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
+                + ProcessRelationClientSideMetrics.SERVICE_INSTANCE_ID + "=?"
+                + " group by " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID,
+            resultSet -> {
+                List<Call.CallDetail> calls = new ArrayList<>();
                 buildProcessCalls(resultSet, calls, detectPoint);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return calls;
+                return calls;
+            },
+            conditions
+        );
     }
 
     private void buildServiceCalls(ResultSet resultSet, List<Call.CallDetail> calls,

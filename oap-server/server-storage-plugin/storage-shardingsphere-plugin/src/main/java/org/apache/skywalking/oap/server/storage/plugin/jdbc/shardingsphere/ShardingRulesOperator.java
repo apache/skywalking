@@ -18,15 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -37,6 +28,15 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public enum ShardingRulesOperator {
     INSTANCE;
@@ -113,8 +113,7 @@ public enum ShardingRulesOperator {
 
     private void initShardingRules(JDBCHikariCPClient client) throws IOException {
         SQLBuilder sql = new SQLBuilder("SHOW SHARDING TABLE RULES");
-        try (Connection connection = client.getConnection()) {
-            ResultSet resultSet = client.executeQuery(connection, sql.toString());
+        client.executeQuery(sql.toString(), resultSet -> {
             while (resultSet.next()) {
                 ShardingRule.ShardingRuleBuilder builder = ShardingRule.builder();
                 builder.table(resultSet.getString("TABLE"));
@@ -137,9 +136,8 @@ public enum ShardingRulesOperator {
                 ShardingRule shardingRule = builder.build();
                 modelShardingRules.put(shardingRule.getTable(), shardingRule);
             }
-        } catch (JDBCClientException | SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+            return null;
+        });
     }
 
     private void registerShardingRule(String tableName, ShardingRule rule) {
@@ -272,7 +270,7 @@ public enum ShardingRulesOperator {
 
         try (Connection connection = client.getConnection()) {
             SQLBuilder ruleSQL = new SQLBuilder(shardingRuleSQL);
-            client.execute(connection, ruleSQL.toString());
+            client.execute(ruleSQL.toString());
             registerShardingRule(tableName, shardingRule);
         } catch (JDBCClientException | SQLException e) {
             throw new StorageException(e.getMessage(), e);

@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
@@ -33,17 +38,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.base.Strings;
-import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class StorageEsInstaller extends ModelInstaller {
@@ -267,7 +268,7 @@ public class StorageEsInstaller extends ModelInstaller {
     private Map getAnalyzerSetting(Model model) throws StorageException {
         if (config.isLogicSharding() || !model.isTimeSeries()) {
             return getAnalyzerSettingByColumn(model);
-        } else if (IndexController.INSTANCE.isRecordModel(model) && model.isSuperDataset()) {
+        } else if (model.isRecord() && model.isSuperDataset()) {
             //SuperDataset doesn't merge index, the analyzer follow the column config.
             return getAnalyzerSettingByColumn(model);
         } else {
@@ -338,13 +339,13 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
 
-        if ((IndexController.INSTANCE.isMetricModel(model) && !config.isLogicSharding())
+        if ((model.isMetric() && !config.isLogicSharding())
             || (config.isLogicSharding() && IndexController.INSTANCE.isFunctionMetric(model))) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
             properties.put(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, column);
         }
-        if (!config.isLogicSharding() && IndexController.INSTANCE.isRecordModel(model) && !model.isSuperDataset()) {
+        if (!config.isLogicSharding() && model.isRecord() && !model.isSuperDataset()) {
             Map<String, Object> column = new HashMap<>();
             column.put("type", "keyword");
             properties.put(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, column);

@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -31,6 +28,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ShardingMetricsQueryDAO extends JDBCMetricsQueryDAO {
 
@@ -83,7 +84,7 @@ public class ShardingMetricsQueryDAO extends JDBCMetricsQueryDAO {
     }
 
     @Override
-    protected void buildShardingCondition(StringBuilder sql, List<Object> parameters, String entityId) {
+    protected void buildShardingCondition(StringBuilder sql, List<String> parameters, String entityId) {
         sql.append(" and ");
         sql.append(Metrics.ENTITY_ID + " = ?");
         parameters.add(entityId);

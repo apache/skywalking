@@ -283,7 +283,7 @@ public class ShardingSphereIT {
         StorageModels models = new StorageModels();
         models.add(
             EndpointTraffic.class, DefaultScopeDefine.SERVICE,
-            new Storage(EndpointTraffic.INDEX_NAME, false, DownSampling.Minute), false
+            new Storage(EndpointTraffic.INDEX_NAME, false, DownSampling.Minute)
         );
         Model model = models.allModels().get(0);
         TableMetaInfo.addModel(model);
@@ -325,7 +325,7 @@ public class ShardingSphereIT {
         StorageModels models = new StorageModels();
         models.add(
             ServiceCpmMetrics.class, DefaultScopeDefine.SERVICE,
-            new Storage(ServiceCpmMetrics.INDEX_NAME, true, DownSampling.Minute), false
+            new Storage(ServiceCpmMetrics.INDEX_NAME, true, DownSampling.Minute)
         );
         Model model = models.allModels().get(0);
         TableMetaInfo.addModel(model);
@@ -384,7 +384,7 @@ public class ShardingSphereIT {
         StorageModels models = new StorageModels();
         models.add(
             TagAutocompleteData.class, DefaultScopeDefine.SEGMENT,
-            new Storage(TagAutocompleteData.INDEX_NAME, true, DownSampling.Minute), false
+            new Storage(TagAutocompleteData.INDEX_NAME, true, DownSampling.Minute)
         );
         Model model = models.allModels().get(0);
         TableMetaInfo.addModel(model);
@@ -409,11 +409,11 @@ public class ShardingSphereIT {
         insertMetrics(model, Arrays.asList(tagData1, tagData2, tagData3));
 
         //Test total count
-        try (Connection ssConn = ssClient.getConnection()) {
-            ResultSet rs = ssClient.executeQuery(ssConn, countQuery + TagAutocompleteData.INDEX_NAME);
+        ssClient.executeQuery(countQuery + TagAutocompleteData.INDEX_NAME, rs -> {
             rs.next();
             Assertions.assertEquals(3, rs.getInt("rc"));
-        }
+            return null;
+        });
 
         // Test query
         JDBCTagAutoCompleteQueryDAO tagQueryDAO = new JDBCTagAutoCompleteQueryDAO(ssClient);
@@ -424,11 +424,11 @@ public class ShardingSphereIT {
 
         // Test TTL
         historyDelete(model);
-        try (Connection ssConn = ssClient.getConnection()) {
-            ResultSet rs = ssClient.executeQuery(ssConn, countQuery + TagAutocompleteData.INDEX_NAME);
+        ssClient.executeQuery(countQuery + TagAutocompleteData.INDEX_NAME, rs -> {
             rs.next();
             Assertions.assertEquals(2, rs.getInt("rc"));
-        }
+            return null;
+        });
         log.info("Tag auto complete data test passed.");
     }
 
@@ -442,7 +442,7 @@ public class ShardingSphereIT {
         StorageModels models = new StorageModels();
         models.add(
             SegmentRecord.class, DefaultScopeDefine.SEGMENT,
-            new Storage(SegmentRecord.INDEX_NAME, false, DownSampling.Second), true
+            new Storage(SegmentRecord.INDEX_NAME, false, DownSampling.Second)
         );
         Model model = models.allModels().get(0);
         TableMetaInfo.addModel(model);
@@ -497,11 +497,11 @@ public class ShardingSphereIT {
         StorageModels models = new StorageModels();
         models.add(
             ServiceRelationServerSideMetrics.class, DefaultScopeDefine.SERVICE_RELATION,
-            new Storage(ServiceRelationServerSideMetrics.INDEX_NAME, true, DownSampling.Minute), false
+            new Storage(ServiceRelationServerSideMetrics.INDEX_NAME, true, DownSampling.Minute)
         );
         models.add(
             ServiceRelationClientSideMetrics.class, DefaultScopeDefine.SERVICE_RELATION,
-            new Storage(ServiceRelationClientSideMetrics.INDEX_NAME, true, DownSampling.Minute), false
+            new Storage(ServiceRelationClientSideMetrics.INDEX_NAME, true, DownSampling.Minute)
         );
         Model serverModel = models.allModels().get(0);
         Model clientModel = models.allModels().get(1);
@@ -653,44 +653,48 @@ public class ShardingSphereIT {
 
     @SneakyThrows
     private void testDataSharding(StorageData data) {
-        try (Connection ssConn = ssClient.getConnection();
-             Connection ds0Conn = dsClient0.getConnection();
-             Connection ds1Conn = dsClient1.getConnection()) {
+        String logicIndex = data.getClass().getAnnotation(Stream.class).name();
+        String physicalIndex = logicIndex + "_" + timeBucketDay;
 
-            String logicIndex = data.getClass().getAnnotation(Stream.class).name();
-            String physicalIndex = logicIndex + "_" + timeBucketDay;
-
-            ResultSet logicSet = ssClient.executeQuery(ssConn, countQuery + logicIndex);
+        ssClient.executeQuery(countQuery + logicIndex, logicSet -> {
             logicSet.next();
             Assertions.assertEquals(2, logicSet.getInt("rc"));
+            return null;
+        });
 
-            ResultSet physicalSet0 = dsClient0.executeQuery(ds0Conn, countQuery + physicalIndex);
+        dsClient0.executeQuery(countQuery + physicalIndex, physicalSet0 -> {
             physicalSet0.next();
             Assertions.assertEquals(1, physicalSet0.getInt("rc"));
+            return null;
+        });
 
-            ResultSet physicalSet1 = dsClient1.executeQuery(ds1Conn, countQuery + physicalIndex);
+        dsClient1.executeQuery(countQuery + physicalIndex, physicalSet1 -> {
             physicalSet1.next();
             Assertions.assertEquals(1, physicalSet1.getInt("rc"));
+            return null;
+        });
 
-            if (data.getClass().isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)) {
-                String additionalLogicIndex = data.getClass().getAnnotation(Stream.class).name();
-                String additionalPhysicalIndex = logicIndex + "_" + timeBucketDay;
+        if (data.getClass().isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)) {
+            String additionalLogicIndex = data.getClass().getAnnotation(Stream.class).name();
+            String additionalPhysicalIndex = logicIndex + "_" + timeBucketDay;
 
-                ResultSet additionalLogicSet = ssClient.executeQuery(
-                    ssConn, countQuery + additionalLogicIndex);
+            ssClient.executeQuery(countQuery + additionalLogicIndex, additionalLogicSet -> {
                 additionalLogicSet.next();
                 Assertions.assertEquals(2, additionalLogicSet.getInt("rc"));
+                return null;
+            });
 
-                ResultSet additionalPhysicalSet0 = dsClient0.executeQuery(
-                    ds0Conn, countQuery + additionalPhysicalIndex);
+            dsClient0.executeQuery(countQuery + additionalPhysicalIndex, additionalPhysicalSet0 -> {
                 additionalPhysicalSet0.next();
                 Assertions.assertEquals(1, additionalPhysicalSet0.getInt("rc"));
+                return null;
+            });
 
-                ResultSet additionalPhysicalSet1 = dsClient1.executeQuery(
-                    ds1Conn, countQuery + additionalPhysicalIndex);
+            dsClient1.executeQuery(countQuery + additionalPhysicalIndex, additionalPhysicalSet1 -> {
                 additionalPhysicalSet1.next();
                 Assertions.assertEquals(1, additionalPhysicalSet1.getInt("rc"));
-            }
+                return null;
+            });
         }
     }
 

@@ -18,17 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
@@ -37,6 +28,12 @@ import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.BatchSQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class JDBCBatchDAO implements IBatchDAO {
@@ -52,7 +49,7 @@ public class JDBCBatchDAO implements IBatchDAO {
         }
         this.maxBatchSqlSize = maxBatchSqlSize;
         this.dataCarrier = new DataCarrier<>(name, asyncBatchPersistentPoolSize, 10000);
-        this.dataCarrier.consume(new JDBCBatchDAO.H2BatchConsumer(this), asyncBatchPersistentPoolSize, 20);
+        this.dataCarrier.consume(new H2BatchConsumer(this), asyncBatchPersistentPoolSize, 20);
     }
 
     @Override
@@ -74,22 +71,16 @@ public class JDBCBatchDAO implements IBatchDAO {
             log.debug("to execute sql statements execute, data size: {}, maxBatchSqlSize: {}", sqls.size(), maxBatchSqlSize);
         }
 
-        final Map<PrepareRequest, List<PrepareRequest>> batchRequestMap =
-            sqls.stream().collect(Collectors.groupingBy(Function.identity()));
-        try (Connection connection = jdbcClient.getConnection()) {
-            batchRequestMap.forEach((key, requests) -> {
-                try {
-                    BatchSQLExecutor batchSQLExecutor =
-                            new BatchSQLExecutor(requests);
-                    batchSQLExecutor.invoke(connection, maxBatchSqlSize);
-                } catch (SQLException e) {
-                    // Just avoid one execution failure makes the rest of batch failure.
-                    log.error(e.getMessage(), e);
-                }
-            });
-        } catch (SQLException | JDBCClientException e) {
-            log.warn("execute sql failed, discard data size: {}", prepareRequests.size(), e);
-        }
+        final var batchRequestsOfSql = sqls.stream().collect(Collectors.groupingBy(Function.identity()));
+        batchRequestsOfSql.forEach((sql, requests) -> {
+            try {
+                final var batchSQLExecutor = new BatchSQLExecutor(jdbcClient, requests);
+                batchSQLExecutor.invoke(maxBatchSqlSize);
+            } catch (Exception e) {
+                // Just to avoid one execution failure makes the rest of batch failure.
+                log.error(e.getMessage(), e);
+            }
+        });
         if (log.isDebugEnabled()) {
             log.debug("execute sql statements done, data size: {}, maxBatchSqlSize: {}", prepareRequests.size(), maxBatchSqlSize);
         }
@@ -101,7 +92,7 @@ public class JDBCBatchDAO implements IBatchDAO {
         this.dataCarrier.produce(insertRequest);
     }
 
-    private class H2BatchConsumer implements IConsumer<PrepareRequest> {
+    private static class H2BatchConsumer implements IConsumer<PrepareRequest> {
 
         private final JDBCBatchDAO h2BatchDAO;
 

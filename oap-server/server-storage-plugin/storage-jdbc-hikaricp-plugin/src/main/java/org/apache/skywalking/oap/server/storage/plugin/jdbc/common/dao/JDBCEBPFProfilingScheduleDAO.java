@@ -24,8 +24,8 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -48,14 +48,7 @@ public class JDBCEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
             sql.append(" where ").append(conditionSql);
         }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildSchedules(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildSchedules, condition.toArray(new Object[0]));
     }
 
     private List<EBPFProfilingSchedule> buildSchedules(ResultSet resultSet) throws SQLException {

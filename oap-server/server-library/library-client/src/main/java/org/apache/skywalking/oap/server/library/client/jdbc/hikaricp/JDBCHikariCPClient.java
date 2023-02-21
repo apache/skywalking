@@ -20,26 +20,26 @@ package org.apache.skywalking.oap.server.library.client.jdbc.hikaricp;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
 import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.util.HealthChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * JDBC Client uses HikariCP connection management lib to execute SQL.
  */
+@Slf4j
 public class JDBCHikariCPClient implements Client, HealthCheckable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JDBCHikariCPClient.class);
-
     private final HikariConfig hikariConfig;
     private final DelegatedHealthChecker healthChecker;
     private HikariDataSource dataSource;
@@ -76,9 +76,13 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
         }
     }
 
-    public void execute(Connection connection, String sql) throws JDBCClientException {
-        LOGGER.debug("execute sql: {}", sql);
-        try (Statement statement = connection.createStatement()) {
+    public void execute(String sql) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("Executing SQL: {}", sql);
+        }
+
+        try (final var connection = getConnection();
+             final var statement = connection.createStatement()) {
             statement.execute(sql);
             healthChecker.health();
         } catch (SQLException e) {
@@ -87,52 +91,41 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
         }
     }
 
-    public int executeUpdate(Connection connection, String sql, Object... params) throws JDBCClientException {
-        LOGGER.debug("execute query with result: {}", sql);
-        int result;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
+    public int executeUpdate(String sql, Object... params) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("Executing SQL: {}", sql);
+            log.debug("SQL parameters: {}", params);
+        }
+
+        try (final var connection = getConnection();
+             final var statement = connection.prepareStatement(sql)) {
             setStatementParam(statement, params);
-            result = statement.executeUpdate();
+            int result = statement.executeUpdate();
             statement.closeOnCompletion();
             healthChecker.health();
+            return result;
         } catch (SQLException e) {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e1) {
-                }
-            }
             healthChecker.unHealth(e);
             throw new JDBCClientException(e.getMessage(), e);
         }
-
-        return result;
     }
 
-    public ResultSet executeQuery(Connection connection, String sql, Object... params) throws JDBCClientException {
-        LOGGER.debug("execute query with result: {}", sql);
-        ResultSet rs;
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(sql);
+    public <T> T executeQuery(String sql, ResultHandler<T> resultHandler, Object... params) throws JDBCClientException {
+        if (log.isDebugEnabled()) {
+            log.debug("Executing SQL: {}", sql);
+            log.debug("SQL parameters: {}", Arrays.toString(params));
+        }
+        try (final var connection = getConnection();
+             final var statement = connection.prepareStatement(sql)) {
             setStatementParam(statement, params);
-            rs = statement.executeQuery();
-            statement.closeOnCompletion();
-            healthChecker.health();
-        } catch (SQLException e) {
-            if (statement != null) {
-                try {
-                    statement.close();
-                } catch (SQLException e1) {
-                }
+            try (final var rs = statement.executeQuery()) {
+                healthChecker.health();
+                return resultHandler.handle(rs);
             }
+        } catch (IOException | SQLException e) {
             healthChecker.unHealth(e);
             throw new JDBCClientException(sql, e);
         }
-
-        return rs;
     }
 
     private void setStatementParam(PreparedStatement statement,
@@ -157,5 +150,10 @@ public class JDBCHikariCPClient implements Client, HealthCheckable {
 
     @Override public void registerChecker(HealthChecker healthChecker) {
         this.healthChecker.register(healthChecker);
+    }
+
+    @FunctionalInterface
+    public interface ResultHandler<T> {
+        T handle(ResultSet resultSet) throws SQLException, IOException;
     }
 }

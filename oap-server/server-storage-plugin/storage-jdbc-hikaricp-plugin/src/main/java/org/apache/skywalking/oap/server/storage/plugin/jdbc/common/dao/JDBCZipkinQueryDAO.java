@@ -22,17 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
-import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
@@ -45,6 +34,18 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
 
 @RequiredArgsConstructor
 public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
@@ -59,16 +60,13 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
         sql.append(" where ").append("1=1");
         sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString());
+        return h2Client.executeQuery(sql.toString(), resultSet -> {
             List<String> services = new ArrayList<>();
             while (resultSet.next()) {
                 services.add(resultSet.getString(ZipkinServiceTraffic.SERVICE_NAME));
             }
             return services;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        });
     }
 
     @Override
@@ -81,16 +79,13 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         sql.append(ZipkinServiceRelationTraffic.SERVICE_NAME).append(" = ?");
         sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
         condition.add(serviceName);
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+        return h2Client.executeQuery(sql.toString(), resultSet -> {
             List<String> remoteServices = new ArrayList<>();
             while (resultSet.next()) {
                 remoteServices.add(resultSet.getString(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME));
             }
             return remoteServices;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -103,16 +98,13 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         sql.append(ZipkinServiceSpanTraffic.SERVICE_NAME).append(" = ?");
         sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
         condition.add(serviceName);
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+        return h2Client.executeQuery(sql.toString(), resultSet -> {
             List<String> spanNames = new ArrayList<>();
             while (resultSet.next()) {
                 spanNames.add(resultSet.getString(ZipkinServiceSpanTraffic.SPAN_NAME));
             }
             return spanNames;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -123,16 +115,13 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         sql.append(" where ");
         sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
         condition.add(traceId);
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+        return h2Client.executeQuery(sql.toString(), resultSet -> {
             List<Span> trace = new ArrayList<>();
             while (resultSet.next()) {
                 trace.add(buildSpan(resultSet));
             }
             return trace;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -210,16 +199,13 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         sql.append(" group by ").append(ZipkinSpanRecord.TRACE_ID);
         sql.append(" order by min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
         sql.append(" limit ").append(request.limit());
-        Set<String> traceIds = new HashSet<>();
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+        return h2Client.executeQuery(sql.toString(), resultSet -> {
+            final var traceIds = new HashSet<String>();
             while (resultSet.next()) {
                 traceIds.add(resultSet.getString(ZipkinSpanRecord.TRACE_ID));
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return getTraces(traceIds);
+            return getTraces(traceIds);
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -246,12 +232,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
 
         sql.append(" order by ").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" desc");
 
-        try (Connection connection = h2Client.getConnection()) {
-            ResultSet resultSet = h2Client.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
-            return buildTraces(resultSet);
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return h2Client.executeQuery(sql.toString(), this::buildTraces, condition.toArray(new Object[0]));
     }
 
     private List<List<Span>> buildTraces(ResultSet resultSet) throws SQLException {

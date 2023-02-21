@@ -17,15 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -35,6 +28,15 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.annotation.SuperDataset;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -52,7 +54,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     }
 
     @Override
-    public Model add(Class<?> aClass, int scopeId, Storage storage, boolean record) throws StorageException {
+    public Model add(Class<?> aClass, int scopeId, Storage storage) throws StorageException {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
@@ -61,7 +63,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         SQLDatabaseModelExtension sqlDBModelExtension = new SQLDatabaseModelExtension();
         BanyanDBModelExtension banyanDBModelExtension = new BanyanDBModelExtension();
         ElasticSearchModelExtension elasticSearchModelExtension = new ElasticSearchModelExtension();
-        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, record);
+        retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension);
         // Add extra column for additional entities
         if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
             || aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
@@ -107,7 +109,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             modelColumns,
             scopeId,
             storage.getDownsampling(),
-            record,
             isSuperDatasetModel(aClass),
             aClass,
             storage.isTimeRelativeID(),
@@ -130,7 +131,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     }
 
     /**
-     * CreatingListener listener could react when {@link #add(Class, int, Storage, boolean)} model happens. Also, the
+     * CreatingListener listener could react when {@link ModelCreator#add(Class, int, Storage)} model happens. Also, the
      * added models are being notified in this add operation.
      */
     @Override
@@ -149,8 +150,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                            final List<ModelColumn> modelColumns,
                            final int scopeId,
                            ShardingKeyChecker checker,
-                           final SQLDatabaseModelExtension sqlDBModelExtension,
-                           boolean record) {
+                           final SQLDatabaseModelExtension sqlDBModelExtension) {
         if (log.isDebugEnabled()) {
             log.debug("Analysis {} to generate Model.", clazz.getName());
         }
@@ -160,7 +160,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         for (Field field : fields) {
             if (field.isAnnotationPresent(Column.class)) {
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
-                    if (!record) {
+                    if (!Record.class.isAssignableFrom(clazz)) {
                         throw new IllegalStateException(
                             "Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
                     }
@@ -173,14 +173,14 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 // SQL Database extension
                 SQLDatabaseExtension sqlDatabaseExtension = new SQLDatabaseExtension();
-                List<SQLDatabase.QueryUnifiedIndex> indexDefinitions = new ArrayList<>();
-                if (field.isAnnotationPresent(SQLDatabase.QueryUnifiedIndex.class)) {
-                    indexDefinitions.add(field.getAnnotation(SQLDatabase.QueryUnifiedIndex.class));
+                List<SQLDatabase.CompositeIndex> indexDefinitions = new ArrayList<>();
+                if (field.isAnnotationPresent(SQLDatabase.CompositeIndex.class)) {
+                    indexDefinitions.add(field.getAnnotation(SQLDatabase.CompositeIndex.class));
                 }
 
-                if (field.isAnnotationPresent(SQLDatabase.MultipleQueryUnifiedIndex.class)) {
+                if (field.isAnnotationPresent(SQLDatabase.CompositeIndices.class)) {
                     Collections.addAll(
-                        indexDefinitions, field.getAnnotation(SQLDatabase.MultipleQueryUnifiedIndex.class).value());
+                        indexDefinitions, field.getAnnotation(SQLDatabase.CompositeIndices.class).value());
                 }
 
                 indexDefinitions.forEach(indexDefinition -> {
@@ -239,11 +239,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
 
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
-                    String[] tableNames = field.getAnnotation(SQLDatabase.AdditionalEntity.class).additionalTables();
-                    for (final String tableName : tableNames) {
+                    final var additionalEntity = field.getAnnotation(SQLDatabase.AdditionalEntity.class);
+                    final var additionalTableNames = additionalEntity.additionalTables();
+                    for (final var tableName : additionalTableNames) {
                         sqlDBModelExtension.appendAdditionalTable(tableName, modelColumn);
                     }
-                    if (!field.getAnnotation(SQLDatabase.AdditionalEntity.class).reserveOriginalColumns()) {
+                    if (!additionalEntity.reserveOriginalColumns()) {
                         sqlDBModelExtension.appendExcludeColumns(modelColumn);
                     }
                 }
@@ -262,7 +263,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         // For the annotation need to be declared on the superclass, the other annotation should be declared on the subclass.
-        if (!sqlDBModelExtension.getSharding().isPresent() && clazz.isAnnotationPresent(SQLDatabase.Sharding.class)) {
+        if (sqlDBModelExtension.getSharding().isEmpty() && clazz.isAnnotationPresent(SQLDatabase.Sharding.class)) {
             SQLDatabase.Sharding sharding = clazz.getAnnotation(SQLDatabase.Sharding.class);
             sqlDBModelExtension.setSharding(
                 Optional.of(new SQLDatabaseModelExtension.Sharding(
@@ -273,7 +274,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
-            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker, sqlDBModelExtension, record);
+            retrieval(clazz.getSuperclass(), modelName, modelColumns, scopeId, checker, sqlDBModelExtension);
         }
     }
 

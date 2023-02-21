@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,14 +66,7 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
             sql.append(" where ").append(conditionSql);
         }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildTasks(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildTasks, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -106,14 +98,7 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
             sql.append(" where ").append(conditionSql);
         }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildTasks(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(sql.toString(), this::buildTasks, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -122,21 +107,17 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME)
             .append(" where ").append(EBPFProfilingTaskRecord.LOGICAL_ID).append("=?");
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), id)) {
-                final List<EBPFProfilingTask> tasks = buildTasks(resultSet);
-                if (CollectionUtils.isEmpty(tasks)) {
-                    return null;
-                }
-                EBPFProfilingTask result = tasks.get(0);
-                for (int i = 1; i < tasks.size(); i++) {
-                    result = result.combine(tasks.get(i));
-                }
-                return result;
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            final List<EBPFProfilingTask> tasks = buildTasks(resultSet);
+            if (CollectionUtils.isEmpty(tasks)) {
+                return null;
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+            EBPFProfilingTask result = tasks.get(0);
+            for (int i = 1; i < tasks.size(); i++) {
+                result = result.combine(tasks.get(i));
+            }
+            return result;
+        }, id);
     }
 
     private List<EBPFProfilingTask> buildTasks(ResultSet resultSet) throws SQLException {

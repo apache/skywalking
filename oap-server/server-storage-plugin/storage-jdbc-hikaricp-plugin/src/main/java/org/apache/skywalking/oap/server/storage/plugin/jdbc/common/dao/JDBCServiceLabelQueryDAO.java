@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabe
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,14 +41,8 @@ public class JDBCServiceLabelQueryDAO implements IServiceLabelDAO {
                 .append(" where ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
         condition.add(serviceId);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return parseLabels(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return jdbcClient.executeQuery(
+            sql.toString(), this::parseLabels, condition.toArray(new Object[0]));
     }
 
     private List<String> parseLabels(ResultSet resultSet) throws SQLException {

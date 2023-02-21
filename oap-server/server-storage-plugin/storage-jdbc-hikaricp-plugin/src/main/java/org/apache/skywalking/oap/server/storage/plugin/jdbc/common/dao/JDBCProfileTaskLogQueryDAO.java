@@ -18,19 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
@@ -44,17 +43,13 @@ public class JDBCProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
 
         sql.append("ORDER BY ").append(ProfileTaskLogRecord.OPERATION_TIME).append(" DESC ");
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final List<ProfileTaskLog> tasks = new ArrayList<>();
-                while (resultSet.next()) {
-                    tasks.add(parseLog(resultSet));
-                }
-                return tasks;
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            final List<ProfileTaskLog> tasks = new ArrayList<>();
+            while (resultSet.next()) {
+                tasks.add(parseLog(resultSet));
             }
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e);
-        }
+            return tasks;
+        }, condition.toArray(new Object[0]));
     }
 
     private ProfileTaskLog parseLog(ResultSet data) throws SQLException {

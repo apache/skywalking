@@ -20,23 +20,13 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.Span;
@@ -47,6 +37,14 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
@@ -163,19 +161,18 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                 break;
         }
 
-        TraceBrief traceBrief = new TraceBrief();
-        try (Connection connection = jdbcClient.getConnection()) {
+        buildLimit(sql, from, limit);
 
-            buildLimit(sql, from, limit);
-
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, "select " +
-                    SegmentRecord.SEGMENT_ID + ", " +
-                    SegmentRecord.START_TIME + ", " +
-                    SegmentRecord.ENDPOINT_ID + ", " +
-                    SegmentRecord.LATENCY + ", " +
-                    SegmentRecord.IS_ERROR + ", " +
-                    SegmentRecord.TRACE_ID + " " + sql, parameters.toArray(new Object[0]))) {
+        return jdbcClient.executeQuery(
+            "select " +
+                SegmentRecord.SEGMENT_ID + ", " +
+                SegmentRecord.START_TIME + ", " +
+                SegmentRecord.ENDPOINT_ID + ", " +
+                SegmentRecord.LATENCY + ", " +
+                SegmentRecord.IS_ERROR + ", " +
+                SegmentRecord.TRACE_ID + " " + sql,
+            resultSet -> {
+                TraceBrief traceBrief = new TraceBrief();
                 while (resultSet.next()) {
                     BasicTrace basicTrace = new BasicTrace();
 
@@ -191,12 +188,9 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                     basicTrace.getTraceIds().add(traceIds);
                     traceBrief.getTraces().add(basicTrace);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-
-        return traceBrief;
+                return traceBrief;
+            },
+            parameters.toArray(new Object[0]));
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
@@ -206,20 +200,19 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
     @Override
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        List<SegmentRecord> segmentRecords = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
+        return jdbcClient.executeQuery(
+            "select " + SegmentRecord.SEGMENT_ID + ", " +
+                SegmentRecord.TRACE_ID + ", " +
+                SegmentRecord.SERVICE_ID + ", " +
+                SegmentRecord.SERVICE_INSTANCE_ID + ", " +
+                SegmentRecord.START_TIME + ", " +
+                SegmentRecord.LATENCY + ", " +
+                SegmentRecord.IS_ERROR + ", " +
+                SegmentRecord.DATA_BINARY + " from " +
+                SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?",
+            resultSet -> {
+                List<SegmentRecord> segmentRecords = new ArrayList<>();
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, "select " + SegmentRecord.SEGMENT_ID + ", " +
-                    SegmentRecord.TRACE_ID + ", " +
-                    SegmentRecord.SERVICE_ID + ", " +
-                    SegmentRecord.SERVICE_INSTANCE_ID + ", " +
-                    SegmentRecord.START_TIME + ", " +
-                    SegmentRecord.LATENCY + ", " +
-                    SegmentRecord.IS_ERROR + ", " +
-                    SegmentRecord.DATA_BINARY + " from " +
-                    SegmentRecord.INDEX_NAME + " where " + SegmentRecord.TRACE_ID + " = ?", traceId
-            )) {
                 while (resultSet.next()) {
                     SegmentRecord segmentRecord = new SegmentRecord();
                     segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
@@ -235,13 +228,11 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                     }
                     segmentRecords.add(segmentRecord);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return segmentRecords;
+                return segmentRecords;
+            },
+            traceId
+        );
     }
-
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();

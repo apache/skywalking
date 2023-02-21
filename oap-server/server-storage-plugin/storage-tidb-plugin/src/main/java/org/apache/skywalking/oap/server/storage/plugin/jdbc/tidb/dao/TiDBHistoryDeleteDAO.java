@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.tidb.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
@@ -28,7 +26,8 @@ import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
@@ -42,7 +41,7 @@ public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
             .append(timeBucketColumnName).append(">= ? ")
             .append(" limit 10000");
 
-        try (Connection connection = client.getConnection()) {
+        try {
             long deadline;
             long minTime;
             if (model.isRecord()) {
@@ -66,7 +65,7 @@ public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
                         return;
                 }
             }
-            while (client.executeUpdate(connection, dataDeleteSQL.toString(), deadline, minTime) > 0) {
+            while (client.executeUpdate(dataDeleteSQL.toString(), deadline, minTime) > 0) {
             }
             //delete additional tables
             for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
@@ -77,10 +76,10 @@ public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
                     .append(" and ")
                     .append(timeBucketColumnName).append(">= ? ")
                     .append(" limit 10000");
-                while (client.executeUpdate(connection, additionalTableDeleteSQL.toString(), deadline, minTime) > 0) {
+                while (client.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime) > 0) {
                 }
             }
-        } catch (JDBCClientException | SQLException e) {
+        } catch (JDBCClientException e) {
             throw new IOException(e.getMessage(), e);
         }
     }

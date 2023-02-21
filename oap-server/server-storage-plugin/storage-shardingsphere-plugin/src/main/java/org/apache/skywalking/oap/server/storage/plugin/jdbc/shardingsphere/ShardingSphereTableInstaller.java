@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -34,6 +30,10 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+
+import java.sql.ResultSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * ShardingSphere table installer delegates all the works to
@@ -68,18 +68,11 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
         return isTableExist && !isRuleExecuted;
     }
 
-    private boolean isTableExists(Model model) throws StorageException {
+    @SneakyThrows
+    private boolean isTableExists(Model model) {
         TableMetaInfo.addModel(model);
-        JDBCHikariCPClient jdbcClient = (JDBCHikariCPClient) client;
-        try (Connection conn = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(conn, String.format("SHOW LOGICAL TABLES LIKE '%s'", model.getName()));
-            if (resultSet.next()) {
-                return true;
-            }
-        } catch (SQLException | JDBCClientException e) {
-            throw new StorageException(e.getMessage(), e);
-        }
-        return false;
+        final var jdbcClient = (JDBCHikariCPClient) client;
+        return jdbcClient.executeQuery(String.format("SHOW LOGICAL TABLES LIKE '%s'", model.getName()), ResultSet::next);
     }
 
     @Override
@@ -88,27 +81,23 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    public void createTable(
-        JDBCHikariCPClient client,
-        Connection connection,
-        String tableName,
+    public void createOrUpdateTable(
+        String table,
         List<ModelColumn> columns,
-        boolean additionalTable) throws JDBCClientException {
-        delegatee.createTable(client, connection, tableName, columns, additionalTable);
+        boolean isAdditionalTable) {
+        delegatee.createOrUpdateTable(table, columns, isAdditionalTable);
     }
 
     @Override
-    public void createTableIndexes(
-        JDBCHikariCPClient client,
-        Connection connection,
+    public void createOrUpdateTableIndexes(
         String tableName,
         List<ModelColumn> columns,
-        boolean additionalTable) throws JDBCClientException {
-        delegatee.createTableIndexes(client, connection, tableName, columns, additionalTable);
+        boolean isAdditionalTable) throws JDBCClientException {
+        delegatee.createOrUpdateTableIndexes(tableName, columns, isAdditionalTable);
     }
 
     @Override
-    public String getColumn(ModelColumn column) {
-        return delegatee.getColumn(column);
+    public String getColumnDefinition(ModelColumn column) {
+        return delegatee.getColumnDefinition(column);
     }
 }

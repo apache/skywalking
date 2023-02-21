@@ -18,17 +18,15 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,31 +35,27 @@ public class JDBCNetworkAddressAliasDAO extends JDBCSQLExecutor implements INetw
 
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long lastUpdateTime) {
-        List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("select * from ");
+        sql.append(NetworkAddressAlias.INDEX_NAME);
+        sql.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(">?");
 
         try {
-            StringBuilder sql = new StringBuilder("select * from ");
-            sql.append(NetworkAddressAlias.INDEX_NAME);
-            sql.append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(">?");
-
-            try (Connection connection = jdbcClient.getConnection()) {
-                try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), lastUpdateTime)) {
-                    NetworkAddressAlias networkAddressAlias;
-                    do {
-                        networkAddressAlias = (NetworkAddressAlias) toStorageData(
-                            resultSet, NetworkAddressAlias.INDEX_NAME, new NetworkAddressAlias.Builder());
-                        if (networkAddressAlias != null) {
-                            networkAddressAliases.add(networkAddressAlias);
-                        }
+            return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
+                NetworkAddressAlias networkAddressAlias;
+                do {
+                    networkAddressAlias = (NetworkAddressAlias) toStorageData(
+                        resultSet, NetworkAddressAlias.INDEX_NAME, new NetworkAddressAlias.Builder());
+                    if (networkAddressAlias != null) {
+                        networkAddressAliases.add(networkAddressAlias);
                     }
-                    while (networkAddressAlias != null);
                 }
-            } catch (SQLException e) {
-                throw new IOException(e);
-            }
+                while (networkAddressAlias != null);
+                return networkAddressAliases;
+            }, lastUpdateTime);
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
         }
-        return networkAddressAliases;
+        return Collections.emptyList();
     }
 }

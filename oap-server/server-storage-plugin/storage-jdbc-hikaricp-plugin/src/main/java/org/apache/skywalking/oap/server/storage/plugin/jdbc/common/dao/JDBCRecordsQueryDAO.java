@@ -18,12 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -32,7 +27,10 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
@@ -59,10 +57,10 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
         }
         sql.append(" limit ").append(condition.getTopN());
 
-        List<Record> results = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), parameters.toArray(new Object[0]))) {
+        return jdbcClient.executeQuery(
+            sql.toString(),
+            resultSet -> {
+                List<Record> results = new ArrayList<>();
                 while (resultSet.next()) {
                     Record record = new Record();
                     record.setName(resultSet.getString(TopN.STATEMENT));
@@ -72,12 +70,9 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
                     record.setValue(resultSet.getString(valueColumnName));
                     results.add(record);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-
-        return results;
+                return results;
+            },
+            parameters.toArray(new Object[0]));
     }
 
 }

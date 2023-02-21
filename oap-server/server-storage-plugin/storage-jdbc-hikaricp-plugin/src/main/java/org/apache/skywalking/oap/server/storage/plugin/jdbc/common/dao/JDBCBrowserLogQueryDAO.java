@@ -17,21 +17,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.Objects.nonNull;
 
@@ -85,15 +83,13 @@ public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
 
         sql.append(" order by ").append(BrowserErrorLogRecord.TIMESTAMP).append(" DESC ");
 
-        BrowserErrorLogs logs = new BrowserErrorLogs();
-        try (Connection connection = jdbcClient.getConnection()) {
+        buildLimit(sql, from, limit);
 
-            buildLimit(sql, from, limit);
+        return jdbcClient.executeQuery(
+            "select " + BrowserErrorLogRecord.DATA_BINARY + " " + sql,
+            resultSet -> {
+                final var logs = new BrowserErrorLogs();
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, "select " + BrowserErrorLogRecord.DATA_BINARY + " " + sql.toString(),
-                parameters.toArray(new Object[0])
-            )) {
                 while (resultSet.next()) {
                     String dataBinaryBase64 = resultSet.getString(BrowserErrorLogRecord.DATA_BINARY);
                     if (nonNull(dataBinaryBase64)) {
@@ -101,11 +97,11 @@ public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
                         logs.getLogs().add(log);
                     }
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return logs;
+
+                return logs;
+            },
+            parameters.toArray(new Object[0])
+        );
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {

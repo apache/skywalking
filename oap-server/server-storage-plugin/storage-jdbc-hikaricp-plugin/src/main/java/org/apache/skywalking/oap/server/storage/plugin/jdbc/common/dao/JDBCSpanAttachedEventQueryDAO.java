@@ -26,9 +26,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariC
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -57,10 +54,10 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
         sql.append(" order by ").append(SpanAttachedEventRecord.START_TIME_SECOND)
                 .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
 
-        List<SpanAttachedEventRecord> results = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), parameters.toArray(new Object[0]))) {
+        return jdbcClient.executeQuery(
+            sql.toString(),
+            resultSet -> {
+                List<SpanAttachedEventRecord> results = new ArrayList<>();
                 while (resultSet.next()) {
                     SpanAttachedEventRecord record = new SpanAttachedEventRecord();
                     record.setStartTimeSecond(resultSet.getLong(SpanAttachedEventRecord.START_TIME_SECOND));
@@ -78,11 +75,9 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
                     }
                     results.add(record);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
 
-        return results;
+                return results;
+            },
+            parameters.toArray(new Object[0]));
     }
 }

@@ -18,17 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.joda.time.DateTime;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
@@ -36,48 +31,47 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
 
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
-        SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
-            .append(timeBucketColumnName).append("<= ? ")
-            .append(" and ")
-            .append(timeBucketColumnName).append(">= ? ");
-
-        try (Connection connection = jdbcClient.getConnection()) {
-            long deadline;
-            long minTime;
-            if (model.isRecord()) {
-                deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
-                minTime = 1000_00_00_00_00_00L;
-            } else {
-                switch (model.getDownsampling()) {
-                    case Minute:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
-                        minTime = 1000_00_00_00_00L;
-                        break;
-                    case Hour:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
-                        minTime = 1000_00_00_00L;
-                        break;
-                    case Day:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
-                        minTime = 1000_00_00L;
-                        break;
-                    default:
-                        return;
-                }
-            }
-            jdbcClient.executeUpdate(connection, dataDeleteSQL.toString(), deadline, minTime);
-            // Delete additional tables
-            for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
-                                                                                  .getAdditionalTables()
-                                                                                  .values()) {
-                SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
-                    .append(timeBucketColumnName).append("<= ? ")
-                    .append(" and ")
-                    .append(timeBucketColumnName).append(">= ? ");
-                jdbcClient.executeUpdate(connection, additionalTableDeleteSQL.toString(), deadline, minTime);
-            }
-        } catch (JDBCClientException | SQLException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+        // TODO delete old and create new tables
+//        SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
+//            .append(timeBucketColumnName).append("<= ? ")
+//            .append(" and ")
+//            .append(timeBucketColumnName).append(">= ? ");
+//
+//        try {
+//            long deadline;
+//            long minTime;
+//            if (model.isRecord()) {
+//                deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
+//                minTime = 1000_00_00_00_00_00L;
+//            } else {
+//                switch (model.getDownsampling()) {
+//                    case Minute:
+//                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
+//                        minTime = 1000_00_00_00_00L;
+//                        break;
+//                    case Hour:
+//                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
+//                        minTime = 1000_00_00_00L;
+//                        break;
+//                    case Day:
+//                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
+//                        minTime = 1000_00_00L;
+//                        break;
+//                    default:
+//                        return;
+//                }
+//            }
+//            jdbcClient.executeUpdate(dataDeleteSQL.toString(), deadline, minTime);
+//            // Delete additional tables
+//            for (final var additionalTable : model.getSqlDBModelExtension().getAdditionalTables().values()) {
+//                SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
+//                    .append(timeBucketColumnName).append("<= ? ")
+//                    .append(" and ")
+//                    .append(timeBucketColumnName).append(">= ? ");
+//                jdbcClient.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime);
+//            }
+//        } catch (JDBCClientException e) {
+//            throw new IOException(e.getMessage(), e);
+//        }
     }
 }

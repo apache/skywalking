@@ -18,12 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -33,6 +27,10 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
@@ -59,20 +57,17 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
            .append(metrics.getOrder().equals(Order.ASC) ? " asc" : " desc")
            .append(" limit ")
            .append(metrics.getTopN());
-        List<SelectedRecord> topNEntities = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection();
-             ResultSet resultSet = jdbcClient.executeQuery(
-                 connection, sql.toString(), conditions.toArray(new Object[0]))) {
+
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            final var topNEntities = new ArrayList<SelectedRecord>();
             while (resultSet.next()) {
-                SelectedRecord topNEntity = new SelectedRecord();
+                final var topNEntity = new SelectedRecord();
                 topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
                 topNEntity.setValue(resultSet.getString("result"));
                 topNEntities.add(topNEntity);
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return topNEntities;
+            return topNEntities;
+        }, conditions.toArray(new Object[0]));
     }
 
     protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {

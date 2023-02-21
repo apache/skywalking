@@ -20,15 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -37,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
@@ -45,6 +37,13 @@ import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
@@ -159,13 +158,12 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
            .append(" ")
            .append(Order.DES.equals(queryOrder) ? "desc" : "asc");
 
-        Logs logs = new Logs();
-        try (Connection connection = jdbcClient.getConnection()) {
+        buildLimit(sql, from, limit);
 
-            buildLimit(sql, from, limit);
+        return jdbcClient.executeQuery(
+            "select * " + sql, resultSet -> {
+                Logs logs = new Logs();
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, "select * " + sql.toString(), parameters.toArray(new Object[0]))) {
                 while (resultSet.next()) {
                     Log log = new Log();
                     log.setServiceId(resultSet.getString(SERVICE_ID));
@@ -184,12 +182,9 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
                     }
                     logs.getLogs().add(log);
                 }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
 
-        return logs;
+                return logs;
+            }, parameters.toArray(new Object[0]));
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {

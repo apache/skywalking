@@ -18,20 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
@@ -51,16 +49,13 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
         sql.append(" 1=1 ");
         appendTagAutocompleteCondition(tagType, duration, sql, condition);
         sql.append(" limit ").append(limit);
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
             Set<String> tagKeys = new HashSet<>();
             while (resultSet.next()) {
                 tagKeys.add(resultSet.getString(TagAutocompleteData.TAG_KEY));
             }
             return tagKeys;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        }, condition.toArray(new Object[0]));
     }
 
     @Override
@@ -76,16 +71,13 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
         appendTagAutocompleteCondition(tagType, duration, sql, condition);
         sql.append(" limit ").append(limit);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
             Set<String> tagValues = new HashSet<>();
             while (resultSet.next()) {
                 tagValues.add(resultSet.getString(TagAutocompleteData.TAG_VALUE));
             }
             return tagValues;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        }, condition.toArray(new Object[0]));
     }
 
     private void appendTagAutocompleteCondition(final TagType tagType,

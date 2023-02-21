@@ -18,10 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
@@ -31,7 +28,11 @@ import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
@@ -39,10 +40,10 @@ public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
     private final StorageBuilder<Metrics> storageBuilder;
 
     @Override
-    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
-        String[] ids = metrics.stream().map(m -> m.id().build()).collect(Collectors.toList()).toArray(new String[] {});
-        List<StorageData> storageDataList = getByIDs(jdbcClient, model.getName(), ids, storageBuilder);
-        List<Metrics> result = new ArrayList<>(storageDataList.size());
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws Exception {
+        final var ids = metrics.stream().map(m -> m.id().build()).collect(Collectors.toList());
+        final var storageDataList = getByIDs(jdbcClient, model.getName(), ids, storageBuilder);
+        final var result = new ArrayList<Metrics>(storageDataList.size());
         for (StorageData storageData : storageDataList) {
             result.add((Metrics) storageData);
         }
@@ -51,11 +52,11 @@ public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
 
     @Override
     public SQLExecutor prepareBatchInsert(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException {
-        return getInsertExecutor(model.getName(), metrics, storageBuilder, new HashMapConverter.ToStorage(), callback);
+        return getInsertExecutor(model, metrics, metrics.getTimeBucket(), storageBuilder, new HashMapConverter.ToStorage(), callback);
     }
 
     @Override
-    public SQLExecutor prepareBatchUpdate(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException {
-        return getUpdateExecutor(model.getName(), metrics, storageBuilder, callback);
+    public SQLExecutor prepareBatchUpdate(Model model, Metrics metrics, SessionCacheCallback callback) {
+        return getUpdateExecutor(model, metrics, metrics.getTimeBucket(), storageBuilder, callback);
     }
 }

@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import java.sql.Connection;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
+import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
-import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 
 /**
  * A Batch SQL executor.
@@ -36,26 +37,27 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 @Slf4j
 @RequiredArgsConstructor
 public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
-
+    private final JDBCHikariCPClient jdbcClient;
     private final List<PrepareRequest> prepareRequests;
 
-    public void invoke(Connection connection, int maxBatchSqlSize) throws SQLException {
+    public void invoke(int maxBatchSqlSize) throws Exception {
         if (log.isDebugEnabled()) {
             log.debug("execute sql batch. sql by key size: {}", prepareRequests.size());
         }
         if (prepareRequests.size() == 0) {
             return;
         }
-        String sql = prepareRequests.get(0).toString();
-        List<PrepareRequest> bulkRequest = new ArrayList<>(maxBatchSqlSize);
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            int pendingCount = 0;
-            for (int k = 0; k < prepareRequests.size(); k++) {
-                SQLExecutor sqlExecutor = (SQLExecutor) prepareRequests.get(k);
+        final var sql = prepareRequests.get(0).toString();
+        final var bulkRequest = new ArrayList<PrepareRequest>(maxBatchSqlSize);
+        try (final var connection = jdbcClient.getConnection();
+             final var preparedStatement = connection.prepareStatement(sql)) {
+            var pendingCount = 0;
+            for (final var prepareRequest : prepareRequests) {
+                final var sqlExecutor = (SQLExecutor) prepareRequest;
                 sqlExecutor.setParameters(preparedStatement);
                 preparedStatement.addBatch();
                 bulkRequest.add(sqlExecutor);
-                if (k > 0 && k % maxBatchSqlSize == 0) {
+                if (bulkRequest.size() == maxBatchSqlSize) {
                     executeBatch(preparedStatement, maxBatchSqlSize, sql, bulkRequest);
                     bulkRequest.clear();
                     pendingCount = 0;
@@ -74,9 +76,9 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
                               int pendingCount,
                               String sql,
                               List<PrepareRequest> bulkRequest) throws SQLException {
-        long start = System.currentTimeMillis();
-        final int[] executeBatchResults = preparedStatement.executeBatch();
-        boolean isInsert = bulkRequest.get(0) instanceof InsertRequest;
+        final var start = System.currentTimeMillis();
+        final var executeBatchResults = preparedStatement.executeBatch();
+        final var isInsert = bulkRequest.get(0) instanceof InsertRequest;
         for (int i = 0; i < executeBatchResults.length; i++) {
             if (executeBatchResults[i] == 1 && isInsert) {
                 // Insert successfully.

@@ -22,7 +22,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc;
  * SQLBuilder
  */
 public class SQLBuilder {
-    private static String LINE_END = System.lineSeparator();
+    private static final String LINE_END = System.lineSeparator();
 
     private StringBuilder text;
 
@@ -43,10 +43,6 @@ public class SQLBuilder {
     public SQLBuilder appendLine(String line) {
         text.append(line).append(LINE_END);
         return this;
-    }
-
-    public String toStringInNewLine() {
-        return LINE_END + toString();
     }
 
     @Override

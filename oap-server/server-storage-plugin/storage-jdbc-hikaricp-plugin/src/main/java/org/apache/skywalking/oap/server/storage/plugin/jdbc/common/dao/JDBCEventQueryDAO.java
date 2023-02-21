@@ -20,15 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -36,13 +31,17 @@ import org.apache.skywalking.oap.server.core.query.type.event.EventQueryConditio
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 
-import static java.util.Objects.isNull;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.isNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,29 +55,27 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
         final Object[] parameters = conditionsParametersPair._2().toArray();
         final String whereClause = conditions.collect(Collectors.joining(" and ", " where ", ""));
 
-        final Events result = new Events();
 
-        try (final Connection connection = jdbcClient.getConnection()) {
-            final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
-            final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            String sql = "select * from " + Event.INDEX_NAME + whereClause;
-            if (Order.DES.equals(queryOrder)) {
-                sql += " order by " + Event.START_TIME + " desc";
-            } else {
-                sql += " order by " + Event.START_TIME + " asc";
-            }
-            sql += " limit " + page.getLimit() + " offset " + page.getFrom();
-            if (log.isDebugEnabled()) {
-                log.debug("Query SQL: {}, parameters: {}", sql, parameters);
-            }
-            try (final ResultSet resultSet = jdbcClient.executeQuery(connection, sql, parameters)) {
-                while (resultSet.next()) {
-                    result.getEvents().add(parseResultSet(resultSet));
-                }
-            }
+        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        String sql = "select * from " + Event.INDEX_NAME + whereClause;
+        if (Order.DES.equals(queryOrder)) {
+            sql += " order by " + Event.START_TIME + " desc";
+        } else {
+            sql += " order by " + Event.START_TIME + " asc";
+        }
+        sql += " limit " + page.getLimit() + " offset " + page.getFrom();
+        if (log.isDebugEnabled()) {
+            log.debug("Query SQL: {}, parameters: {}", sql, parameters);
         }
 
-        return result;
+        return jdbcClient.executeQuery(sql, resultSet -> {
+            final Events result = new Events();
+            while (resultSet.next()) {
+                result.getEvents().add(parseResultSet(resultSet));
+            }
+            return result;
+        }, parameters);
     }
 
     @Override
@@ -95,28 +92,29 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
                                                        .map(it -> it.collect(Collectors.joining(" and ")))
                                                        .collect(Collectors.joining(" or ", " where ", ""));
 
-        final Events result = new Events();
-        try (final Connection connection = jdbcClient.getConnection()) {
-            EventQueryCondition condition = conditions.get(0);
-            final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
-            final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            String sql = "select * from " + Event.INDEX_NAME + whereClause;
-            if (Order.DES.equals(queryOrder)) {
-                sql += " order by " + Event.START_TIME + " desc";
-            } else {
-                sql += " order by " + Event.START_TIME + " asc";
-            }
-            sql += " limit " + page.getLimit() + " offset " + page.getFrom();
-            if (log.isDebugEnabled()) {
-                log.debug("Query SQL: {}, parameters: {}", sql, parameters);
-            }
-            try (final ResultSet resultSet = jdbcClient.executeQuery(connection, sql, parameters)) {
-                while (resultSet.next()) {
-                    result.getEvents().add(parseResultSet(resultSet));
-                }
-            }
+        EventQueryCondition condition = conditions.get(0);
+        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        String sql = "select * from " + Event.INDEX_NAME + whereClause;
+        if (Order.DES.equals(queryOrder)) {
+            sql += " order by " + Event.START_TIME + " desc";
+        } else {
+            sql += " order by " + Event.START_TIME + " asc";
         }
-        return result;
+        sql += " limit " + page.getLimit() + " offset " + page.getFrom();
+        if (log.isDebugEnabled()) {
+            log.debug("Query SQL: {}, parameters: {}", sql, parameters);
+        }
+        return jdbcClient.executeQuery(sql, resultSet -> {
+            final Events result = new Events();
+
+            while (resultSet.next()) {
+                result.getEvents().add(parseResultSet(resultSet));
+            }
+
+            return result;
+        }, parameters);
+
     }
 
     protected org.apache.skywalking.oap.server.core.query.type.event.Event parseResultSet(final ResultSet resultSet) throws SQLException {
