@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -37,8 +38,7 @@ public class RecordCondition {
      */
     private String name;
     /**
-     * Follow {@link Entity} definition description.
-     * The owner of the sampled records.
+     * Follow {@link Entity} definition description. The owner of the sampled records.
      */
     private Entity parentEntity;
     private int topN;
@@ -58,5 +58,16 @@ public class RecordCondition {
         }
         this.topN = condition.getTopN();
         this.order = condition.getOrder();
+    }
+
+    /**
+     * Sense Scope through metric name, if parentService is blank set `Scope.All`.
+     */
+    public void senseScope() {
+        if (StringUtil.isBlank(parentEntity.getServiceName())) {
+            parentEntity.setScope(Scope.All);
+        } else {
+            parentEntity.setScope(ValueColumnMetadata.INSTANCE.getScope(name));
+        }
     }
 }

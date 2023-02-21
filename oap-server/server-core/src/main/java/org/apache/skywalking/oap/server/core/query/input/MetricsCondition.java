@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
 /**
  * @since 8.0.0
@@ -35,4 +36,11 @@ public class MetricsCondition {
      * See {@link Entity}
      */
     private Entity entity;
+
+    /**
+     * Sense Scope through metric name.
+     */
+    public void senseScope() {
+        entity.setScope(ValueColumnMetadata.INSTANCE.getScope(name));
+    }
 }

@@ -44,7 +44,6 @@ import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -120,7 +119,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read metrics single value in the duration of required metrics
      */
     public long readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
-        condition.getEntity().setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             return 0;
         }
@@ -131,7 +130,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read time-series values in the duration of required metrics
      */
     public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
-        condition.getEntity().setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
             MetricsValues values = new MetricsValues();
@@ -153,7 +152,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read entity list of required metrics and parent entity type.
      */
     public List<SelectedRecord> sortMetrics(TopNCondition condition, Duration duration) throws IOException {
-        condition.setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
             return Collections.emptyList();
         }
@@ -168,7 +167,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
                                                         List<String> labels,
                                                         Duration duration) throws IOException {
-        condition.getEntity().setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
 
@@ -205,7 +204,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * </pre>
      */
     public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
-        condition.getEntity().setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName())) || !condition.getEntity().isValid()) {
             DataTable emptyData = new DataTable();
             emptyData.put("0", 0L);
@@ -230,7 +229,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      */
     @Deprecated
     public List<SelectedRecord> readSampledRecords(TopNCondition condition, Duration duration) throws IOException {
-        condition.setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         if (MetricsType.UNKNOWN.equals(typeOfMetrics(condition.getName()))) {
             return Collections.emptyList();
         }

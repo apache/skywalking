@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
@@ -48,7 +47,7 @@ public class RecordsQuery implements GraphQLQueryResolver {
     }
 
     public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
-        condition.getParentEntity().setScope(ValueColumnMetadata.INSTANCE.getScope(condition.getName()));
+        condition.senseScope();
         return getRecordQueryService().readRecords(condition, duration);
     }
 }
