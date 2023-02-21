@@ -1,0 +1,108 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+
+filter: "{ tags -> tags.Namespace == 'AWS/DynamoDB' }" # The OpenTelemetry job name
+expPrefix: tag({tags -> tags.host_name = 'aws-dynamodb::' + tags.cloud_account_id})
+expSuffix: service(['host_name'], Layer.AWS_DYNAMODB)
+metricPrefix: aws_dynamodb
+metricsRules:
+  # account metrics
+  - name: account_max_writes
+    exp: amazonaws_com_AWS_DynamoDB_AccountMaxWrites
+  - name: account_max_reads
+    exp: amazonaws_com_AWS_DynamoDB_AccountMaxReads
+
+  - name: account_max_table_level_writes
+    exp: amazonaws_com_AWS_DynamoDB_AccountMaxTableLevelWrites
+  - name: account_max_table_level_reads
+    exp: amazonaws_com_AWS_DynamoDB_AccountMaxTableLevelReads
+
+  - name: max_provisioned_write_capacity_utilization
+    exp: amazonaws_com_AWS_DynamoDB_MaxProvisionedTableWriteCapacityUtilization
+  - name: max_provisioned_read_capacity_utilization
+    exp: amazonaws_com_AWS_DynamoDB_MaxProvisionedTableReadCapacityUtilization
+
+  - name: account_provisioned_read_capacity_utilization
+    exp: amazonaws_com_AWS_DynamoDB_AccountProvisionedReadCapacityUtilization
+  - name: account_provisioned_write_capacity_utilization
+    exp: amazonaws_com_AWS_DynamoDB_AccountProvisionedWriteCapacityUtilization
+
+  # table metrics
+  - name: consumed_write_capacity_units
+    exp: amazonaws_com_AWS_DynamoDB_ConsumedWriteCapacityUnits
+
+  - name: consumed_read_capacity_units
+    exp: amazonaws_com_AWS_DynamoDB_ConsumedReadCapacityUnits
+
+  - name: provisioned_read_capacity_units
+    exp: amazonaws_com_AWS_DynamoDB_ProvisionedReadCapacityUnits
+
+  - name: provisioned_write_capacity_units
+    exp: amazonaws_com_AWS_DynamoDB_ProvisionedWriteCapacityUnits
+
+  # table operation metrics
+  - name: get_successful_request_latency
+    exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagMatch('Operation','GetItem|BatchGetItem')
+  - name: put_successful_request_latency
+    exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagMatch('Operation','PutItem|BatchWriteItem')
+  - name: query_successful_request_latency
+    exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagEqual('Operation','Query')
+  - name: scan_successful_request_latency
+    exp: amazonaws_com_AWS_DynamoDB_SuccessfulRequestLatency.tagEqual('Operation','Scan')
+  - name: scan_returned_item_count
+    exp: amazonaws_com_AWS_DynamoDB_ReturnedItemCount.tagEqual('Operation','Scan')
+  - name: query_returned_item_count
+    exp: amazonaws_com_AWS_DynamoDB_ReturnedItemCount.tagEqual('Operation','Query')
+
+  - name: time_to_live_deleted_item_count
+    exp: amazonaws_com_AWS_DynamoDB_TimeToLiveDeletedItemCount
+
+  - name: read_throttled_requests
+    exp: amazonaws_com_AWS_DynamoDB_ThrottledRequests.tagMatch('Operation','GetItem|Scan|Query|BatchGetItem')
+  - name: write_throttled_requests
+    exp: amazonaws_com_AWS_DynamoDB_ThrottledRequests.tagMatch('Operation','PutItem|UpdateItem|DeleteItem|BatchWriteItem')
+
+  - name: read_throttle_events
+    exp: amazonaws_com_AWS_DynamoDB_ReadThrottleEvents
+  - name: write_throttle_events
+    exp: amazonaws_com_AWS_DynamoDB_WriteThrottleEvents
+  - name: read_system_errors
+    exp: amazonaws_com_AWS_DynamoDB_SystemErrors.tagMatch('Operation','GetItem|Scan|Query|BatchGetItem|TransactGetItems')
+  - name: write_system_errors
+    exp: amazonaws_com_AWS_DynamoDB_SystemErrors.tagMatch('Operation','PutItem|UpdateItem|DeleteItem|BatchWriteItem|TransactWriteItems')
+  - name: user_errors
+    exp: amazonaws_com_AWS_DynamoDB_UserErrors
+  - name: conditional_check_failed_requests
+    exp: amazonaws_com_AWS_DynamoDB_ConditionalCheckFailedRequests
+  - name: transaction_conflict
+    exp: amazonaws_com_AWS_DynamoDB_TransactionConflict
+
+
