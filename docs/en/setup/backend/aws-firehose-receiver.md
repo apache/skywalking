@@ -19,6 +19,8 @@ CloudWatch metrics with S3 -->  CloudWatch Metric Stream (OpenTelemetry formart)
 | Description                             | Configuration File                  | Data Source                                                                                                                                       |
 |-----------------------------------------|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | Metrics of AWS Cloud S3                 | otel-rules/aws-s3/s3-service.yaml   | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
+| Metrics of AWS DynamoDB | otel-rules/aws-dynamodb/dynamodb-service.yaml  | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
+| Metrics of AWS DynamoDB | otel-rules/aws-dynamodb/dynamodb-endpoint.yaml | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
 
 ## Notice
 
