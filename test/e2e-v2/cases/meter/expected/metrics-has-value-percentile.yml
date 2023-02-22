@@ -18,30 +18,30 @@
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 0 }}
+    value: {{ gt .value 0 }}
   {{- end }}
 - key: 1
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 0 }}
+    value: {{ gt .value 0 }}
   {{- end }}
 - key: 2
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 0 }}
+    value: {{ gt .value 0 }}
   {{- end }}
 - key: 3
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 0 }}
+    value: {{ gt .value 0 }}
   {{- end }}
 - key: 4
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 0 }}
+    value: {{ gt .value 0 }}
   {{- end }}
 {{- end }}

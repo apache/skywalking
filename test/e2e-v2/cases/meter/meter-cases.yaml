@@ -35,7 +35,7 @@
     # virtual cache
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_read_resp_time  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
-      expected: expected/metrics-has-value0.yml
+      expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=cache_write_sla  --service-id=R3VhdmFDYWNoZS1sb2NhbA==.0  | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
@@ -48,4 +48,4 @@
       # virtual database
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=database_access_resp_time  --service-id=bG9jYWxob3N0Oi0x.0  | yq e 'to_entries' -
-      expected: expected/metrics-has-value0.yml
+      expected: expected/metrics-has-value.yml
