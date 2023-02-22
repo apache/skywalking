@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.joining;
@@ -77,11 +76,6 @@ public class JDBCTableInstaller extends ModelInstaller {
             return false;
         }
 
-        final var viewName = model.getName();
-        if (!isTableExisted(viewName)) {
-            return false;
-        }
-
         final var databaseColumns = getDatabaseColumns(tableName);
         final var isAnyColumnNotCreated =
             model
@@ -104,7 +98,6 @@ public class JDBCTableInstaller extends ModelInstaller {
         createOrUpdateTable(tableName, model.getColumns(), false);
         createOrUpdateTableIndexes(tableName, model.getColumns(), false);
         createAdditionalTable(model);
-        createOrUpdateView(model, tableName);
     }
 
     public String getColumnDefinition(ModelColumn column) {
@@ -282,27 +275,6 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .append(columnDefinitions.stream().collect(joining(", ", " (", ");")));
 
         executeSQL(sql);
-    }
-
-    private void createOrUpdateView(Model model, String tableName) throws SQLException {
-        if (model.isTimeSeries()) {
-            final var viewSql =
-                new SQLBuilder("CREATE OR REPLACE VIEW ")
-                    .append(model.getName())
-                    .append(" AS SELECT ")
-                    .append(
-                        Stream.concat(
-                                  Stream.of(ID_COLUMN),
-                                  model
-                                      .getColumns()
-                                      .stream()
-                                      .map(ModelColumn::getColumnName)
-                                      .map(ColumnName::getStorageName))
-                              .collect(joining(", ")))
-                    .append(" FROM ").append(tableName)
-                    .append(" WHERE ").append(TABLE_COLUMN).append(" = '").append(model.getName()).append("'");
-            executeSQL(viewSql);
-        }
     }
 
     private String tableNameOf(Model model) {

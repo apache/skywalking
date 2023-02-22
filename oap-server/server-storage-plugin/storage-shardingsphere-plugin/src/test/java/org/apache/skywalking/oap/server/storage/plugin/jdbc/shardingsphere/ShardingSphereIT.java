@@ -50,7 +50,6 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -86,6 +85,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -578,7 +578,7 @@ public class ShardingSphereIT {
         Assertions.assertEquals(inputRule.toShardingRuleSQL().replaceAll("\"", ""), outPutRule.toShardingRuleSQL());
     }
 
-    private void updateShardingRuleTest(Model model) throws StorageException {
+    private void updateShardingRuleTest(Model model) throws SQLException {
         ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, dataSources, ttlTestCreate);
         Map<String, ShardingRule> shardingRules = Whitebox.getInternalState(
             ShardingRulesOperator.INSTANCE, "modelShardingRules");

@@ -30,7 +30,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,7 +78,7 @@ public enum ShardingRulesOperator {
         initShardingRules(client);
     }
 
-    public boolean createOrUpdateShardingRule(JDBCClient client, Model model, Set<String> dataSources, int ttl) throws StorageException {
+    public boolean createOrUpdateShardingRule(JDBCClient client, Model model, Set<String> dataSources, int ttl) throws SQLException {
         boolean isExecuted;
         ShardingRule.ShardingRuleBuilder builder = ShardingRule.builder();
         builder.table(model.getName());
@@ -251,7 +250,7 @@ public enum ShardingRulesOperator {
 
     private boolean executeShardingRule(ShardingRule.ShardingRuleBuilder builder,
                                      JDBCClient client,
-                                     String tableName) throws StorageException {
+                                     String tableName) throws SQLException {
         ShardingRule existRule = modelShardingRules.get(tableName);
         ShardingRule shardingRule;
         String shardingRuleSQL;
@@ -269,13 +268,9 @@ public enum ShardingRulesOperator {
             }
         }
 
-        try (Connection connection = client.getConnection()) {
-            SQLBuilder ruleSQL = new SQLBuilder(shardingRuleSQL);
-            client.execute(ruleSQL.toString());
-            registerShardingRule(tableName, shardingRule);
-        } catch (SQLException e) {
-            throw new StorageException(e.getMessage(), e);
-        }
+        SQLBuilder ruleSQL = new SQLBuilder(shardingRuleSQL);
+        client.execute(ruleSQL.toString());
+        registerShardingRule(tableName, shardingRule);
 
         return true;
     }

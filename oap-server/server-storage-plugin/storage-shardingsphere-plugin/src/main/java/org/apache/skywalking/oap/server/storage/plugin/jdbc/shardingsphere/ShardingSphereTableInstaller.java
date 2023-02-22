@@ -21,14 +21,13 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,7 +40,7 @@ import java.util.Set;
  * the table installer (e.g. H2TableInstaller, MySQLTableInstaller)
  * of the backed storage (e.g. H2, MySQL), and then add sharding rules.
  */
-public class ShardingSphereTableInstaller extends JDBCTableInstaller {
+public class ShardingSphereTableInstaller extends MySQLTableInstaller {
     private final H2TableInstaller delegatee;
     private final Set<String> dataSources;
     private final ModuleManager moduleManager;
@@ -57,9 +56,10 @@ public class ShardingSphereTableInstaller extends JDBCTableInstaller {
     }
 
     @Override
-    public boolean isExists(Model model) throws StorageException {
+    @SneakyThrows
+    public boolean isExists(Model model) {
         boolean isRuleExecuted = false;
-        boolean isTableExist = super.isExists(model);
+        boolean isTableExist = super.isExists(model) && this.isTableExists(model);
         JDBCClient jdbcClient = (JDBCClient) client;
         ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         int ttl = model.isRecord() ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
