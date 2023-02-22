@@ -40,8 +40,9 @@ public class MySQLTableInstaller extends H2TableInstaller {
         /*
          * Override column because the default column names in core have syntax conflict with MySQL.
          */
-        this.overrideColumnName("precision", "cal_precision");
-        this.overrideColumnName("match", "match_num");
+        overrideColumnName("value", "value_");
+        overrideColumnName("precision", "cal_precision");
+        overrideColumnName("match", "match_num");
     }
 
     @Override

@@ -24,13 +24,13 @@ import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class PostgreSQLTableInstaller extends H2TableInstaller {
+public class PostgreSQLTableInstaller extends JDBCTableInstaller {
     public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
     }
@@ -40,12 +40,13 @@ public class PostgreSQLTableInstaller extends H2TableInstaller {
         /*
          * Override column because the default column names in core are reserved in PostgreSQL.
          */
-        this.overrideColumnName("precision", "cal_precision");
-        this.overrideColumnName("match", "match_num");
+        overrideColumnName("value", "value_");
+        overrideColumnName("precision", "cal_precision");
+        overrideColumnName("match", "match_num");
     }
 
     @Override
-    protected String transform(ModelColumn column, Class<?> type, Type genericType) {
+    protected String getColumnDefinition(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
         if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
             return storageName + " INT";
@@ -67,7 +68,7 @@ public class PostgreSQLTableInstaller extends H2TableInstaller {
             }
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            return transform(column, (Class<?>) elementType, elementType);
+            return getColumnDefinition(column, (Class<?>) elementType, elementType);
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }

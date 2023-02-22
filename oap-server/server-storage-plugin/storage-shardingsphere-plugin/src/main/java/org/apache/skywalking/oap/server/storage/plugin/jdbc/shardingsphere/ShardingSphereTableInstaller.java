@@ -23,16 +23,17 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ import java.util.Set;
  * the table installer (e.g. H2TableInstaller, MySQLTableInstaller)
  * of the backed storage (e.g. H2, MySQL), and then add sharding rules.
  */
-public class ShardingSphereTableInstaller extends H2TableInstaller {
+public class ShardingSphereTableInstaller extends JDBCTableInstaller {
     private final H2TableInstaller delegatee;
     private final Set<String> dataSources;
     private final ModuleManager moduleManager;
@@ -58,7 +59,7 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     @Override
     public boolean isExists(Model model) throws StorageException {
         boolean isRuleExecuted = false;
-        boolean isTableExist = isTableExists(model);
+        boolean isTableExist = super.isExists(model);
         JDBCClient jdbcClient = (JDBCClient) client;
         ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         int ttl = model.isRecord() ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
@@ -76,28 +77,43 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     }
 
     @Override
-    public void start() {
-        delegatee.start();
+    protected Set<String> getDatabaseColumns(String table) throws SQLException {
+        final var jdbcClient = (JDBCClient) client;
+        if (!isTableExisted(table)) {
+            return Collections.emptySet();
+        }
+        return jdbcClient.executeQuery("show columns from " + table, resultSet -> {
+            final var columns = new HashSet<String>();
+            while (resultSet.next()) {
+                columns.add(resultSet.getString("Field"));
+            }
+            return columns;
+        });
     }
 
     @Override
-    public void createOrUpdateTable(
-        String table,
-        List<ModelColumn> columns,
-        boolean isAdditionalTable) {
-        delegatee.createOrUpdateTable(table, columns, isAdditionalTable);
+    protected boolean isTableExisted(String table) throws SQLException {
+        final var jdbcClient = (JDBCClient) client;
+        return jdbcClient.executeQuery("show tables", resultSet -> {
+            while (resultSet.next()) {
+                if (table.equals(resultSet.getString(1))) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     @Override
-    public void createOrUpdateTableIndexes(
-        String tableName,
-        List<ModelColumn> columns,
-        boolean isAdditionalTable) throws SQLException {
-        delegatee.createOrUpdateTableIndexes(tableName, columns, isAdditionalTable);
-    }
-
-    @Override
-    public String getColumnDefinition(ModelColumn column) {
-        return delegatee.getColumnDefinition(column);
+    protected boolean isIndexExisted(String table, String index) throws SQLException {
+        final var jdbcClient = (JDBCClient) client;
+        return jdbcClient.executeQuery("show index from " + table, resultSet -> {
+            while (resultSet.next()) {
+                if (index.equals(resultSet.getString("Key_name"))) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 }
