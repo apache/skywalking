@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -36,7 +34,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLStorageProvider;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingRulesOperator;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingSphereTableInstaller;
@@ -49,6 +46,9 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.S
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingZipkinQueryDAO;
 
+import java.io.IOException;
+import java.sql.SQLException;
+
 public class MySQLShardingStorageProvider extends MySQLStorageProvider {
     @Override
     public String name() {
@@ -60,8 +60,7 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
         return new ShardingSphereTableInstaller(
             jdbcClient,
             getManager(),
-            ((MySQLShardingStorageConfig) config).getDataSources(),
-            new MySQLTableInstaller(jdbcClient, getManager()));
+            ((MySQLShardingStorageConfig) config).getDataSources());
     }
 
     @Override

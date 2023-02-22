@@ -53,12 +53,8 @@ public class ShardingRule {
         ruleSQL.append("SHARDING_COLUMN=").append(databaseShardingColumn).appendLine(",");
         ruleSQL.append("SHARDING_ALGORITHM(TYPE(NAME=").append(databaseShardingAlgorithmType).appendLine(",");
         ruleSQL.append("PROPERTIES(").append(databaseShardingAlgorithmProps);
-        ruleSQL.appendLine(")))),");
-        ruleSQL.append("TABLE_STRATEGY(TYPE=").append(tableStrategyType).appendLine(",");
-        ruleSQL.append("SHARDING_COLUMN=").append(tableShardingColumn).appendLine(",");
-        ruleSQL.append("SHARDING_ALGORITHM(TYPE(NAME=").append(tableShardingAlgorithmType).appendLine(",");
-        ruleSQL.append("PROPERTIES(").append(tableShardingAlgorithmProps);
-        ruleSQL.append(")))))");
+        ruleSQL.append("))))");
+        ruleSQL.append(")");
         return ruleSQL.toString();
     }
 }

@@ -26,7 +26,6 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 
 import java.sql.ResultSet;
@@ -41,17 +40,14 @@ import java.util.Set;
  * of the backed storage (e.g. H2, MySQL), and then add sharding rules.
  */
 public class ShardingSphereTableInstaller extends MySQLTableInstaller {
-    private final H2TableInstaller delegatee;
     private final Set<String> dataSources;
     private final ModuleManager moduleManager;
 
     public ShardingSphereTableInstaller(Client client,
                                         ModuleManager moduleManager,
-                                        Set<String> dataSources,
-                                        H2TableInstaller delegatee) {
+                                        Set<String> dataSources) {
         super(client, moduleManager);
         this.dataSources = dataSources;
-        this.delegatee = delegatee;
         this.moduleManager = moduleManager;
     }
 

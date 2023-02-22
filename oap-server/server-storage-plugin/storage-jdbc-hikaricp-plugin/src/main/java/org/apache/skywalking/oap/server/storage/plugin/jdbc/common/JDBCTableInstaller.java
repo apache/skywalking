@@ -134,7 +134,7 @@ public class JDBCTableInstaller extends ModelInstaller {
 
         // Additional table's id follow the main table can not be primary key
         if (isAdditionalTable) {
-            final var indexName = tableName.toUpperCase() + "_id";
+            final var indexName = tableName + "_id";
             if (!isIndexExisted(tableName, indexName)) {
                 final var tableIndexSQL = new SQLBuilder("CREATE INDEX ")
                     .append(indexName)
@@ -145,7 +145,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         }
 
         if (!isAdditionalTable) {
-            final var indexName = tableName.toUpperCase() + "_" + JDBCTableInstaller.TABLE_COLUMN;
+            final var indexName = tableName + "_" + JDBCTableInstaller.TABLE_COLUMN;
             if (!isIndexExisted(tableName, indexName)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -168,7 +168,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .map(ColumnName::getStorageName)
                 .collect(toList());
         for (var column : c) {
-            final var indexName = tableName.toUpperCase() + "_" + column;
+            final var indexName = tableName + "_" + Math.abs(column.hashCode());
             if (!isIndexExisted(tableName, indexName)) {
                 final var sql = new SQLBuilder("CREATE INDEX ")
                     .append(indexName)
@@ -187,7 +187,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 if (isAdditionalTable && !columnList.containsAll(multiColumns)) {
                     continue;
                 }
-                final var indexName = tableName.toUpperCase() + "_" + String.join("_", multiColumns);
+                final var indexName = tableName + "_" + Math.abs(String.join("_", multiColumns).hashCode());
                 if (isIndexExisted(tableName, indexName)) {
                     continue;
                 }

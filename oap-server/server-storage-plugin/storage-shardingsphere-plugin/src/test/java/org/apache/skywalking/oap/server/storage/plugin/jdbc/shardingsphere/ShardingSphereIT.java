@@ -229,8 +229,7 @@ public class ShardingSphereIT {
             .thenReturn(configService);
         mySQLTableInstaller = new MySQLTableInstaller(ssClient, moduleManager);
         installer = new ShardingSphereTableInstaller(ssClient, moduleManager,
-                                                     dataSources,
-                                                     mySQLTableInstaller
+                                                     dataSources
         );
 
         durationWithinTTL.setConfigService(configService);

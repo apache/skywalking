@@ -27,13 +27,10 @@ import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExten
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
-import org.joda.time.Days;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -155,23 +152,23 @@ public enum ShardingRulesOperator {
         buildDataNodes(builder, tableName, dataSources, ttl, currentDate);
         buildDatabaseStrategy(builder, dsShardingColumn, dataSources.size());
 
-        switch (shardingAlgorithm) {
-            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
-                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
-                break;
-            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
-                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
-                break;
-            case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
-                buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
-                                             TIME_RELATIVE_ID_SHARDING_EXPRESSION);
-                break;
-            case TIME_BUCKET_SHARDING_ALGORITHM:
-                buildExpressionTableStrategy(builder, tableName, tableShardingColumn, TIME_BUCKET_SHARDING_EXPRESSION);
-                break;
-            default:
-                throw new UnexpectedException("Unsupported sharding algorithm " + shardingAlgorithm);
-        }
+//        switch (shardingAlgorithm) {
+//            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
+//                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
+//                break;
+//            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
+//                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
+//                break;
+//            case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
+//                buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
+//                                             TIME_RELATIVE_ID_SHARDING_EXPRESSION);
+//                break;
+//            case TIME_BUCKET_SHARDING_ALGORITHM:
+//                buildExpressionTableStrategy(builder, tableName, tableShardingColumn, TIME_BUCKET_SHARDING_EXPRESSION);
+//                break;
+//            default:
+//                throw new UnexpectedException("Unsupported sharding algorithm " + shardingAlgorithm);
+//        }
         return builder;
     }
 
@@ -180,25 +177,14 @@ public enum ShardingRulesOperator {
                                 Set<String> dataSources,
                                 int ttl,
                                 DateTime currentDate) {
-        DateTime startDateTime = currentDate.plusDays(1 - ttl);
-        DateTime endDate = currentDate.plusDays(1);
-        int days = Days.daysBetween(startDateTime, endDate).getDays();
-        List<DateTime> timeRanges = new ArrayList<>();
         StringBuilder nodesBuilder = new StringBuilder();
-        for (int i = 0; i <= days; i++) {
-            timeRanges.add(startDateTime.plusDays(i));
-        }
         dataSources.forEach(dataSource -> {
-            timeRanges.forEach(dateTime -> {
-                nodesBuilder.append("\"")
-                            .append(dataSource)
-                            .append(".")
-                            .append(tableName)
-                            .append("_")
-                            .append(dateTime.toString("yyyyMMdd"))
-                            .append("\"")
-                            .append(",");
-            });
+            nodesBuilder.append("\"")
+                        .append(dataSource)
+                        .append(".")
+                        .append(tableName)
+                        .append("\"")
+                        .append(",");
         });
         builder.actualDataNodes(nodesBuilder.substring(0, nodesBuilder.length() - 1));
     }
