@@ -177,7 +177,7 @@
           in a single place. Upgrading Antlr version here requires recompiling the oal-rt/oal-rt modules so users
           won't face error like "ANTLR Tool version 4.9.3 used for code generation does not match the current runtime version 4.7.1".
         -->
-        <antlr.version>4.9.2</antlr.version>
+        <antlr.version>4.11.1</antlr.version>
 
         <!-- Plugin versions -->
         <maven-failsafe-plugin.version>3.0.0-M8</maven-failsafe-plugin.version>

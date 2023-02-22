@@ -100,6 +100,8 @@
 * Support Amazon Simple Storage Service (Amazon S3) metrics monitoring
 * Support process Sum metrics with AGGREGATION_TEMPORALITY_DELTA case
 * Support Amazon DynamoDB monitoring.
+* Support prometheus HTTP API and promQL.
+* `Scope` in the Entity of Metrics query v1 protocol is not required and automatical correction. The scope is determined based on the metric itself.
 
 #### UI
 

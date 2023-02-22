@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 
 /**
@@ -82,6 +83,10 @@ public enum ValueColumnMetadata {
      */
     public Map<String, ValueColumn> getAllMetadata() {
         return mapping;
+    }
+
+    public Scope getScope(String metricsName) {
+        return Scope.Finder.valueOf(findColumn(metricsName).scopeId);
     }
 
     private ValueColumn findColumn(String metricsName) {

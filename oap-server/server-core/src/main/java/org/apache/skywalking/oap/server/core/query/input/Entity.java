@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.query.input;
 
 import java.util.Objects;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -31,7 +30,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
  * @since 8.0.0
  */
 @Setter
-@Getter(AccessLevel.PRIVATE)
+@Getter
 public class Entity {
     /**
      * <pre>
@@ -42,6 +41,11 @@ public class Entity {
      *    estServiceName/destServiceInstanceName/destEndpointName is/are destination(s)
      *    set necessary names of sources and destinations.
      * </pre>
+     *
+     * @see MetricsCondition
+     * @see RecordCondition
+     * @see TopNCondition
+     * @since 9.4.0 Scope could be sensed automatically through query condition's metric name.
      */
     private Scope scope;
 
@@ -147,12 +151,16 @@ public class Entity {
             case ProcessRelation:
                 return IDManager.ProcessID.buildRelationId(
                     new IDManager.ProcessID.ProcessRelationDefine(
-                        IDManager.ProcessID.buildId(IDManager.ServiceInstanceID.buildId(
-                            IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName),
-                            processName),
-                        IDManager.ProcessID.buildId(IDManager.ServiceInstanceID.buildId(
-                            IDManager.ServiceID.buildId(destServiceName, destNormal), destServiceInstanceName),
-                            destProcessName)
+                        IDManager.ProcessID.buildId(
+                            IDManager.ServiceInstanceID.buildId(
+                                IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName),
+                            processName
+                        ),
+                        IDManager.ProcessID.buildId(
+                            IDManager.ServiceInstanceID.buildId(
+                                IDManager.ServiceID.buildId(destServiceName, destNormal), destServiceInstanceName),
+                            destProcessName
+                        )
                     )
                 );
             default:

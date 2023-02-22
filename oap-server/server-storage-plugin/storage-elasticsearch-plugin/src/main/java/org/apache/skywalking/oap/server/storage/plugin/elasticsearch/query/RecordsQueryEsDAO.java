@@ -58,10 +58,7 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
         if (IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, condition.getName()));
         }
-
-        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
-            query.must(Query.term(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
-        }
+        query.must(Query.term(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
 
         final SearchBuilder search =
             Search.builder()
