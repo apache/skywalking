@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final StorageBuilder<Metrics> storageBuilder;
 
     @Override

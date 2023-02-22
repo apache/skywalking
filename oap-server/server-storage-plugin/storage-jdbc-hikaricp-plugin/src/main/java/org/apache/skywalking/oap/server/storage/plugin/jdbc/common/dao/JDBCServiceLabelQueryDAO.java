@@ -18,11 +18,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,10 +30,11 @@ import java.util.List;
 
 @AllArgsConstructor
 public class JDBCServiceLabelQueryDAO implements IServiceLabelDAO {
-    private JDBCHikariCPClient jdbcClient;
+    private JDBCClient jdbcClient;
 
     @Override
-    public List<String> queryAllLabels(String serviceId) throws IOException {
+    @SneakyThrows
+    public List<String> queryAllLabels(String serviceId) {
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(1);
         sql.append("select " + ServiceLabelRecord.LABEL + " from ")

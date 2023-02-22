@@ -19,13 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,12 +35,13 @@ import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
+    @SneakyThrows
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
                                                 final int limit,
-                                                final Duration duration) throws IOException {
+                                                final Duration duration) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(2);
 
@@ -59,10 +60,11 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
     }
 
     @Override
+    @SneakyThrows
     public Set<String> queryTagAutocompleteValues(final TagType tagType,
                                                   final String tagKey,
                                                   final int limit,
-                                                  final Duration duration) throws IOException {
+                                                  final Duration duration) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
         sql.append("select * from ").append(TagAutocompleteData.INDEX_NAME).append(" where ");

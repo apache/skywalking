@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -38,10 +39,11 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
-    public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
+    @SneakyThrows
+    public List<BasicTrace> queryProfiledSegments(String taskId) {
         // search segment id list
         StringBuilder sql = new StringBuilder();
         sql.append("select ")
@@ -112,6 +114,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     }
 
     @Override
+    @SneakyThrows
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId,
                                                           int minSequence,
                                                           int maxSequence) throws IOException {
@@ -150,6 +153,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     }
 
     @Override
+    @SneakyThrows
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
         return jdbcClient.executeQuery(
             "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?",
@@ -175,6 +179,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
         );
     }
 
+    @SneakyThrows
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
         StringBuilder sql = new StringBuilder();
         sql.append("select ")

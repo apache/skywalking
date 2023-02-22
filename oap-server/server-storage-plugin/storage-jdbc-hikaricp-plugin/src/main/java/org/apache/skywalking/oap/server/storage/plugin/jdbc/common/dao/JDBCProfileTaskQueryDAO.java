@@ -19,13 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,11 +33,12 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
+    @SneakyThrows
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
-                                         Long endTimeBucket, Integer limit) throws IOException {
+                                         Long endTimeBucket, Integer limit) {
         final var sql = new StringBuilder();
         final var condition = new ArrayList<>(4);
         sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where 1=1 ");
@@ -81,7 +82,8 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     }
 
     @Override
-    public ProfileTask getById(String id) throws IOException {
+    @SneakyThrows
+    public ProfileTask getById(String id) {
         if (StringUtil.isEmpty(id)) {
             return null;
         }

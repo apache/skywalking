@@ -20,23 +20,15 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql;
 
 import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 public class PostgreSQLTableInstaller extends H2TableInstaller {
     public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager) {
@@ -50,70 +42,6 @@ public class PostgreSQLTableInstaller extends H2TableInstaller {
          */
         this.overrideColumnName("precision", "cal_precision");
         this.overrideColumnName("match", "match_num");
-    }
-
-    @Override
-    public void createOrUpdateTableIndexes(
-        String tableName,
-        List<ModelColumn> columns,
-        boolean isAdditionalTable) throws JDBCClientException {
-        // Additional table's id follow the main table can not be primary key
-        if (isAdditionalTable) {
-            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX IF NOT EXISTS ");
-            tableIndexSQL.append(tableName.toUpperCase()).append("_id_IDX");
-            tableIndexSQL.append(" ON ").append(tableName).append("(").append(ID_COLUMN).append(")");
-            executeSQL(tableIndexSQL);
-        }
-
-        executeSQL(
-            new SQLBuilder("CREATE INDEX IF NOT EXISTS ")
-                .append(tableName.toUpperCase())
-                .append("_")
-                .append(H2TableInstaller.TABLE_COLUMN)
-                .append(" ON ")
-                .append(tableName)
-                .append("(")
-                .append(H2TableInstaller.TABLE_COLUMN)
-                .append(")")
-        );
-
-        final var c =
-            columns
-                .stream()
-                .filter(ModelColumn::shouldIndex)
-                .filter(it -> it.getLength() < 256)
-                .map(ModelColumn::getColumnName)
-                .map(ColumnName::getStorageName)
-                .collect(toList());
-        for (var column : c) {
-            final var sql = new SQLBuilder("CREATE INDEX IF NOT EXISTS ");
-            sql.append(tableName.toUpperCase())
-               .append("_")
-               .append(column)
-               .append(" ON ").append(tableName).append("(")
-               .append(column)
-               .append(")");
-            executeSQL(sql);
-        }
-
-        final var columnList = columns.stream().map(ModelColumn::getColumnName).map(ColumnName::getStorageName).collect(toSet());
-        for (final var modelColumn : columns) {
-            for (final var index : modelColumn.getSqlDatabaseExtension().getIndices()) {
-                final var multiColumns = Arrays.asList(index.getColumns());
-                // Don't create composite index on the additional table if it doesn't contain all needed columns.
-                if (isAdditionalTable && !columnList.containsAll(multiColumns)) {
-                    continue;
-                }
-                final var sql = new SQLBuilder("CREATE INDEX IF NOT EXISTS ");
-                sql.append(tableName.toUpperCase())
-                   .append("_")
-                   .append(String.join("_", multiColumns))
-                   .append(" ON ")
-                   .append(tableName);
-                sql.append(multiColumns.stream().collect(Collectors.joining(", ", " (", ")")));
-                executeSQL(sql);
-            }
-        }
     }
 
     @Override

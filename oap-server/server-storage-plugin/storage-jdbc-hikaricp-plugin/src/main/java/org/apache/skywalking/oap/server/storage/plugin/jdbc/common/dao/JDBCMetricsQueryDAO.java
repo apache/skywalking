@@ -19,10 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -31,9 +31,8 @@ import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,12 +41,13 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
+    @SneakyThrows
     public long readMetricsValue(final MetricsCondition condition,
                                 String valueColumnName,
-                                final Duration duration) throws IOException {
+                                final Duration duration) {
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
         final var ids =
@@ -97,9 +97,10 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     }
 
     @Override
+    @SneakyThrows
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
-                                           final Duration duration) throws IOException {
+                                           final Duration duration) {
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
         final var ids =
@@ -108,14 +109,13 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                 .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
                 .collect(Collectors.toList());
 
-        final var sql = new StringBuilder(
-            "select id, " + valueColumnName + " from " + condition.getName() + " where id in");
-        sql.append(
-            ids
-                .stream()
-                .map(it -> "?")
-                .collect(Collectors.joining(", ", "(", ")"))
-        );
+        final var sql = new StringBuilder("select id, " + valueColumnName + " from " + condition.getName())
+            .append(" where id in ")
+            .append(
+                ids.stream()
+                   .map(it -> "?")
+                   .collect(Collectors.joining(", ", "(", ")"))
+            );
 
         buildShardingCondition(sql, ids, entityId);
 
@@ -142,10 +142,11 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     }
 
     @Override
+    @SneakyThrows
     public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
                                                         final List<String> labels,
-                                                        final Duration duration) throws IOException {
+                                                        final Duration duration) {
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
         final var ids =
@@ -154,14 +155,12 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                 .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
                 .collect(Collectors.toList());
 
-        final var sql = new StringBuilder(
-            "select id, " + valueColumnName + " from " + condition.getName() + " where id in ");
-        sql.append(
-            ids
-                .stream()
-                .map(it -> "?")
-                .collect(Collectors.joining(", ", "(", ")"))
-        );
+        final var sql = new StringBuilder("select id, " + valueColumnName + " from " + condition.getName())
+            .append(" where id in ")
+            .append(
+                ids.stream().map(it -> "?")
+                   .collect(Collectors.joining(", ", "(", ")"))
+            );
 
         buildShardingCondition(sql, ids, entityId);
 
@@ -189,24 +188,27 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     }
 
     @Override
+    @SneakyThrows
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
-                               final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        final String entityId = condition.getEntity().buildId();
-        pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(entityId));
-        });
-
-        final var sql = new StringBuilder(
-            "select id, " + valueColumnName + " dataset, id from " + condition.getName() + " where id in ");
-        sql.append(
-            ids
+                               final Duration duration) {
+        final var pointOfTimes = duration.assembleDurationPoints();
+        final var entityId = condition.getEntity().buildId();
+        final var ids =
+            pointOfTimes
                 .stream()
-                .map(it -> "?")
-                .collect(Collectors.joining(", ", "(", ")"))
-        );
+                .map(pointOfTime ->
+                    condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId)
+                )
+                .collect(Collectors.toList());
+
+        final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + condition.getName())
+            .append(" where id in ")
+            .append(
+                ids.stream()
+                   .map(it -> "?")
+                   .collect(Collectors.joining(", ", "(", ")"))
+            );
 
         buildShardingCondition(sql, ids, entityId);
 

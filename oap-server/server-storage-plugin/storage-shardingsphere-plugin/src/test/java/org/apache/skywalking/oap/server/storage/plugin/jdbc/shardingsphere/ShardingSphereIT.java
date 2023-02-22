@@ -55,7 +55,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -127,9 +127,9 @@ public class ShardingSphereIT {
     }
 
     public  DockerComposeContainer<?> environment;
-    private JDBCHikariCPClient ssClient;
-    private JDBCHikariCPClient dsClient0;
-    private JDBCHikariCPClient dsClient1;
+    private JDBCClient ssClient;
+    private JDBCClient dsClient0;
+    private JDBCClient dsClient1;
     private final Set<String> dataSources = new HashSet<>(Arrays.asList("ds_0", "ds_1"));
     private final int ttlTestCreate = 3;
     private final int ttlTestDrop = 2;
@@ -207,9 +207,9 @@ public class ShardingSphereIT {
         propertiesDs1.setProperty("dataSource.user", dsUserName);
         propertiesDs1.setProperty("dataSource.password", dsPassword);
 
-        ssClient = new JDBCHikariCPClient(properties);
-        dsClient0 = new JDBCHikariCPClient(propertiesDs0);
-        dsClient1 = new JDBCHikariCPClient(propertiesDs1);
+        ssClient = new JDBCClient(properties);
+        dsClient0 = new JDBCClient(propertiesDs0);
+        dsClient1 = new JDBCClient(propertiesDs1);
 
         ssClient.connect();
         dsClient0.connect();
@@ -608,7 +608,7 @@ public class ShardingSphereIT {
     }
 
     @SneakyThrows
-    private void existsTest(JDBCHikariCPClient dsClient, Model model) {
+    private void existsTest(JDBCClient dsClient, Model model) {
         //TTL is 3 so just test 4 tables
         List<String> tables = new ArrayList<>();
         tables.add(model.getName() + "_" + DateTime.now().minusDays(2).toString("yyyyMMdd"));

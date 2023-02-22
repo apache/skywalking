@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere;
 
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -75,11 +75,11 @@ public enum ShardingRulesOperator {
         "if (10000000000000L < time_bucket && time_bucket < 99999999999999L) {return time_bucket.intdiv(100*100*100);};" +
         "}";
 
-    public void start(JDBCHikariCPClient client) throws IOException, SQLException, StorageException {
+    public void start(JDBCClient client) throws IOException, SQLException, StorageException {
         initShardingRules(client);
     }
 
-    public boolean createOrUpdateShardingRule(JDBCHikariCPClient client, Model model, Set<String> dataSources, int ttl) throws StorageException {
+    public boolean createOrUpdateShardingRule(JDBCClient client, Model model, Set<String> dataSources, int ttl) throws StorageException {
         boolean isExecuted;
         ShardingRule.ShardingRuleBuilder builder = ShardingRule.builder();
         builder.table(model.getName());
@@ -111,7 +111,8 @@ public enum ShardingRulesOperator {
         return isExecuted;
     }
 
-    private void initShardingRules(JDBCHikariCPClient client) throws IOException {
+    @SneakyThrows
+    private void initShardingRules(JDBCClient client) {
         SQLBuilder sql = new SQLBuilder("SHOW SHARDING TABLE RULES");
         client.executeQuery(sql.toString(), resultSet -> {
             while (resultSet.next()) {
@@ -249,7 +250,7 @@ public enum ShardingRulesOperator {
     }
 
     private boolean executeShardingRule(ShardingRule.ShardingRuleBuilder builder,
-                                     JDBCHikariCPClient client,
+                                     JDBCClient client,
                                      String tableName) throws StorageException {
         ShardingRule existRule = modelShardingRules.get(tableName);
         ShardingRule shardingRule;
@@ -272,7 +273,7 @@ public enum ShardingRulesOperator {
             SQLBuilder ruleSQL = new SQLBuilder(shardingRuleSQL);
             client.execute(ruleSQL.toString());
             registerShardingRule(tableName, shardingRule);
-        } catch (JDBCClientException | SQLException e) {
+        } catch (SQLException e) {
             throw new StorageException(e.getMessage(), e);
         }
 

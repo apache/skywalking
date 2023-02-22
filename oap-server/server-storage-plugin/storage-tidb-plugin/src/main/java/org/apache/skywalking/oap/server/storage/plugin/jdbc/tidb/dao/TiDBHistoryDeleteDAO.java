@@ -19,68 +19,63 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.tidb.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.joda.time.DateTime;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
 public class TiDBHistoryDeleteDAO implements IHistoryDeleteDAO {
-    private final JDBCHikariCPClient client;
+    private final JDBCClient client;
 
     @Override
-    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
+    @SneakyThrows
+    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
         SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
             .append(timeBucketColumnName).append("<= ? ")
             .append(" and ")
             .append(timeBucketColumnName).append(">= ? ")
             .append(" limit 10000");
 
-        try {
-            long deadline;
-            long minTime;
-            if (model.isRecord()) {
-                deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
-                minTime = 1000_00_00_00_00_00L;
-            } else {
-                switch (model.getDownsampling()) {
-                    case Minute:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
-                        minTime = 1000_00_00_00_00L;
-                        break;
-                    case Hour:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
-                        minTime = 1000_00_00_00L;
-                        break;
-                    case Day:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
-                        minTime = 1000_00_00L;
-                        break;
-                    default:
-                        return;
-                }
+        long deadline;
+        long minTime;
+        if (model.isRecord()) {
+            deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
+            minTime = 1000_00_00_00_00_00L;
+        } else {
+            switch (model.getDownsampling()) {
+                case Minute:
+                    deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
+                    minTime = 1000_00_00_00_00L;
+                    break;
+                case Hour:
+                    deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
+                    minTime = 1000_00_00_00L;
+                    break;
+                case Day:
+                    deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
+                    minTime = 1000_00_00L;
+                    break;
+                default:
+                    return;
             }
-            while (client.executeUpdate(dataDeleteSQL.toString(), deadline, minTime) > 0) {
+        }
+        while (client.executeUpdate(dataDeleteSQL.toString(), deadline, minTime) > 0) {
+        }
+        //delete additional tables
+        for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
+                                                                              .getAdditionalTables()
+                                                                              .values()) {
+            SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
+                .append(timeBucketColumnName).append("<= ? ")
+                .append(" and ")
+                .append(timeBucketColumnName).append(">= ? ")
+                .append(" limit 10000");
+            while (client.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime) > 0) {
             }
-            //delete additional tables
-            for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
-                                                                                  .getAdditionalTables()
-                                                                                  .values()) {
-                SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
-                    .append(timeBucketColumnName).append("<= ? ")
-                    .append(" and ")
-                    .append(timeBucketColumnName).append(">= ? ")
-                    .append(" limit 10000");
-                while (client.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime) > 0) {
-                }
-            }
-        } catch (JDBCClientException e) {
-            throw new IOException(e.getMessage(), e);
         }
     }
 }

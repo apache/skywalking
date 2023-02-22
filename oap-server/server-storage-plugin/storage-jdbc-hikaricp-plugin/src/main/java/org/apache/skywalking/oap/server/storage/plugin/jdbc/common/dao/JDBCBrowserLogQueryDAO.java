@@ -18,16 +18,16 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,16 +35,17 @@ import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
+    @SneakyThrows
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId,
                                                   String serviceVersionId,
                                                   String pagePathId,
                                                   BrowserErrorCategory category,
                                                   Duration duration,
                                                   int limit,
-                                                  int from) throws IOException {
+                                                  int from) {
         long startSecondTB = 0, endSecondTB = 0;
         if (nonNull(duration)) {
             startSecondTB = duration.getStartTimeBucketInSec();

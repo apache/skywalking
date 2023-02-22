@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql.dao;
 
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetricsQueryDAO;
 
 public class PostgreSQLMetricsQueryDAO extends JDBCMetricsQueryDAO {
 
-    public PostgreSQLMetricsQueryDAO(JDBCHikariCPClient h2Client) {
+    public PostgreSQLMetricsQueryDAO(JDBCClient h2Client) {
         super(h2Client);
     }
 

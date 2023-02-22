@@ -32,7 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -51,7 +51,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class JDBCSQLExecutor {
-    protected <T extends StorageData> List<StorageData> getByIDs(JDBCHikariCPClient h2Client,
+    protected <T extends StorageData> List<StorageData> getByIDs(JDBCClient h2Client,
                                                                  String modelName,
                                                                  List<String> ids,
                                                                  StorageBuilder<T> storageBuilder) throws Exception {
@@ -74,7 +74,7 @@ public class JDBCSQLExecutor {
     }
 
     @SneakyThrows
-    protected <T extends StorageData> StorageData getByID(JDBCHikariCPClient h2Client, String modelName, String id,
+    protected <T extends StorageData> StorageData getByID(JDBCClient h2Client, String modelName, String id,
                                                           StorageBuilder<T> storageBuilder) {
         final var tables = getModelTables(h2Client, modelName);
         for (var table : tables) {
@@ -258,7 +258,7 @@ public class JDBCSQLExecutor {
         return new SQLExecutor(sqlBuilder.toString(), param, callback);
     }
 
-    private static ArrayList<String> getModelTables(JDBCHikariCPClient h2Client, String modelName) throws Exception {
+    private static ArrayList<String> getModelTables(JDBCClient h2Client, String modelName) throws Exception {
         final var model = TableMetaInfo.get(modelName);
         final var tableNamePattern = (
             model.isMetric() ? "metrics_all" :

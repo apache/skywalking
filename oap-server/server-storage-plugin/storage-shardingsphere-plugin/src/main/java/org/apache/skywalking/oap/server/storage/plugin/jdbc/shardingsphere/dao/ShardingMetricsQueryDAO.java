@@ -25,31 +25,30 @@ import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShardingMetricsQueryDAO extends JDBCMetricsQueryDAO {
 
-    public ShardingMetricsQueryDAO(JDBCHikariCPClient h2Client) {
+    public ShardingMetricsQueryDAO(JDBCClient h2Client) {
         super(h2Client);
     }
 
     @Override
     public long readMetricsValue(final MetricsCondition condition,
                                  String valueColumnName,
-                                 final Duration duration) throws IOException {
+                                 final Duration duration) {
         return super.readMetricsValue(condition, valueColumnName, DurationWithinTTL.INSTANCE.getMetricDurationWithinTTL(duration));
     }
 
     @Override
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
-                                           final Duration duration) throws IOException {
+                                           final Duration duration) {
 
         MetricsValues result = super.readMetricsValues(condition, valueColumnName,
                                                        DurationWithinTTL.INSTANCE.getMetricDurationWithinTTL(duration));
@@ -64,7 +63,7 @@ public class ShardingMetricsQueryDAO extends JDBCMetricsQueryDAO {
     public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
                                                         final List<String> labels,
-                                                        final Duration duration) throws IOException {
+                                                        final Duration duration) {
         List<MetricsValues> result = super.readLabeledMetricsValues(condition, valueColumnName, labels,
                                                                     DurationWithinTTL.INSTANCE.getMetricDurationWithinTTL(duration));
 
@@ -75,7 +74,7 @@ public class ShardingMetricsQueryDAO extends JDBCMetricsQueryDAO {
     @Override
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
-                               final Duration duration) throws IOException {
+                               final Duration duration) {
         HeatMap result = super.readHeatMap(condition, valueColumnName,
                                            DurationWithinTTL.INSTANCE.getMetricDurationWithinTTL(duration));
         result.fixMissingColumns(getOriginIds(condition, duration),

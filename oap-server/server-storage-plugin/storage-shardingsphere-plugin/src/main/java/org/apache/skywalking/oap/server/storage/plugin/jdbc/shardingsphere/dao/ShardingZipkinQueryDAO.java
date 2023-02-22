@@ -18,24 +18,24 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCZipkinQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
+import java.util.List;
+
 public class ShardingZipkinQueryDAO extends JDBCZipkinQueryDAO {
-    public ShardingZipkinQueryDAO(final JDBCHikariCPClient h2Client) {
+    public ShardingZipkinQueryDAO(final JDBCClient h2Client) {
         super(h2Client);
     }
 
     @Override
-    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
+    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) {
         return super.getTraces(request,
                                DurationWithinTTL.INSTANCE.getRecordDurationWithinTTL(duration));
     }

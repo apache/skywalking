@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.endpoint.EndpointRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
@@ -32,7 +33,7 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 
 import java.io.IOException;
 import java.sql.ResultSet;
@@ -42,7 +43,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration,
@@ -132,12 +133,13 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         return loadProcessFromSide(duration, serviceInstanceId, DetectPoint.SERVER);
     }
 
+    @SneakyThrows
     private List<Call.CallDetail> loadServiceCalls(String tableName,
                                                    Duration duration,
                                                    String sourceCName,
                                                    String destCName,
                                                    List<String> serviceIds,
-                                                   DetectPoint detectPoint) throws IOException {
+                                                   DetectPoint detectPoint) {
         Object[] conditions = new Object[serviceIds.size() * 2 + 2];
         conditions[0] = duration.getStartTimeBucket();
         conditions[1] = duration.getEndTimeBucket();
@@ -170,6 +172,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         );
     }
 
+    @SneakyThrows
     private List<Call.CallDetail> loadServiceInstanceCalls(String tableName,
                                                            Duration duration,
                                                            String sourceCName,
@@ -208,6 +211,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         );
     }
 
+    @SneakyThrows
     private List<Call.CallDetail> loadEndpointFromSide(String tableName,
                                                        Duration duration,
                                                        String sourceCName,
@@ -232,6 +236,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         );
     }
 
+    @SneakyThrows
     private List<Call.CallDetail> loadProcessFromSide(Duration duration,
                                                        String instanceId,
                                                        DetectPoint detectPoint) throws IOException {

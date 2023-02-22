@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -26,21 +27,21 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
-    protected final JDBCHikariCPClient jdbcClient;
+    protected final JDBCClient jdbcClient;
 
     @Override
+    @SneakyThrows
     public List<SelectedRecord> sortMetrics(final TopNCondition metrics,
                                             final String valueColumnName,
                                             final Duration duration,
-                                            List<KeyValue> additionalConditions) throws IOException {
+                                            List<KeyValue> additionalConditions) {
         List<Object> conditions = new ArrayList<>(10);
         StringBuilder sql = buildMetricsValueSql(valueColumnName, metrics.getName());
         sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");

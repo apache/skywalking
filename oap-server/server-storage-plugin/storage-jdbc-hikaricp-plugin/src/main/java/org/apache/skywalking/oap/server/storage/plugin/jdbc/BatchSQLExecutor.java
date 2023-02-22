@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
@@ -37,7 +37,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final List<PrepareRequest> prepareRequests;
 
     public void invoke(int maxBatchSqlSize) throws Exception {

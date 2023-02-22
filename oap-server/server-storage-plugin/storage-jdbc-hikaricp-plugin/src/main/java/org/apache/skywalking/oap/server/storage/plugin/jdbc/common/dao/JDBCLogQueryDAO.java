@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -34,12 +35,11 @@ import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,11 +59,12 @@ import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableIns
 
 @RequiredArgsConstructor
 public class JDBCLogQueryDAO implements ILogQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final ModuleManager manager;
     private List<String> searchableTagKeys;
 
     @Override
+    @SneakyThrows
     public Logs queryLogs(String serviceId,
                           String serviceInstanceId,
                           String endpointId,
@@ -74,7 +75,7 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
                           final Duration duration,
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
-                          final List<String> excludingKeywordsOfContent) throws IOException {
+                          final List<String> excludingKeywordsOfContent) {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(duration)) {

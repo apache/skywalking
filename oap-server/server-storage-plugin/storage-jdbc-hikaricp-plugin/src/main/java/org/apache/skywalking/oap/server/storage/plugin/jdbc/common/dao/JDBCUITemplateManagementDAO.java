@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -26,8 +27,7 @@ import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
@@ -42,10 +42,11 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITemplateManagementDAO {
-    private final JDBCHikariCPClient h2Client;
+    private final JDBCClient h2Client;
 
     @Override
-    public DashboardConfiguration getTemplate(final String id) throws IOException {
+    @SneakyThrows
+    public DashboardConfiguration getTemplate(final String id) {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
@@ -65,7 +66,8 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
     }
 
     @Override
-    public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
+    @SneakyThrows
+    public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) {
         final StringBuilder sql = new StringBuilder();
         final ArrayList<Object> condition = new ArrayList<>(1);
         sql.append("select * from ").append(UITemplate.INDEX_NAME).append(" where 1=1 ");
@@ -98,7 +100,7 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
         try (Connection connection = h2Client.getConnection()) {
             insertExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
-        } catch (SQLException | JDBCClientException e) {
+        } catch (SQLException e) {
             log.error(e.getMessage(), e);
             return TemplateChangeStatus.builder()
                                        .status(false)
@@ -132,7 +134,7 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
         try (Connection connection = h2Client.getConnection()) {
             updateExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
-        } catch (SQLException | JDBCClientException e) {
+        } catch (SQLException e) {
             log.error(e.getMessage(), e);
             return TemplateChangeStatus.builder()
                                        .status(false)

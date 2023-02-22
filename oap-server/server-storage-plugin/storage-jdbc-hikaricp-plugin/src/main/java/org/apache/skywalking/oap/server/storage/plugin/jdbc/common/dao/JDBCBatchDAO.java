@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class JDBCBatchDAO implements IBatchDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final DataCarrier<PrepareRequest> dataCarrier;
     private final int maxBatchSqlSize;
 
-    public JDBCBatchDAO(JDBCHikariCPClient jdbcClient, int maxBatchSqlSize, int asyncBatchPersistentPoolSize) {
+    public JDBCBatchDAO(JDBCClient jdbcClient, int maxBatchSqlSize, int asyncBatchPersistentPoolSize) {
         this.jdbcClient = jdbcClient;
         String name = "H2_ASYNCHRONOUS_BATCH_PERSISTENT";
         if (log.isDebugEnabled()) {

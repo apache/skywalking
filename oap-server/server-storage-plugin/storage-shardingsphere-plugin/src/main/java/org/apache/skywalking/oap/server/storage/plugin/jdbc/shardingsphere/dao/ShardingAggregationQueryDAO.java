@@ -18,19 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAggregationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
+import java.util.List;
+
 public class ShardingAggregationQueryDAO extends JDBCAggregationQueryDAO {
 
-    public ShardingAggregationQueryDAO(JDBCHikariCPClient h2Client) {
+    public ShardingAggregationQueryDAO(JDBCClient h2Client) {
         super(h2Client);
     }
 
@@ -38,7 +38,7 @@ public class ShardingAggregationQueryDAO extends JDBCAggregationQueryDAO {
     public List<SelectedRecord> sortMetrics(final TopNCondition metrics,
                                             final String valueColumnName,
                                             final Duration duration,
-                                            List<KeyValue> additionalConditions) throws IOException {
+                                            List<KeyValue> additionalConditions) {
 
         return super.sortMetrics(
             metrics,

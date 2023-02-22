@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.Durat
 public class ShardingTraceQueryDAO extends JDBCTraceQueryDAO {
 
     public ShardingTraceQueryDAO(ModuleManager manager,
-                                 JDBCHikariCPClient h2Client) {
+                                 JDBCClient h2Client) {
         super(manager, h2Client);
     }
 

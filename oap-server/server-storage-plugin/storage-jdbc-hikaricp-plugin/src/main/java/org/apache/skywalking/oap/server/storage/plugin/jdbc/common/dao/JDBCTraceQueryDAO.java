@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -33,7 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -52,11 +53,12 @@ import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableIns
 @RequiredArgsConstructor
 public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     private final ModuleManager manager;
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     private List<String> searchableTagKeys;
 
     @Override
+    @SneakyThrows
     public TraceBrief queryBasicTraces(Duration duration,
                                        long minDuration,
                                        long maxDuration,
@@ -199,6 +201,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     }
 
     @Override
+    @SneakyThrows
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
         return jdbcClient.executeQuery(
             "select " + SegmentRecord.SEGMENT_ID + ", " +

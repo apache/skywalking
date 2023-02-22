@@ -62,7 +62,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     public static final String END_TIME = "end_time";
     public static final String EBPF_PROFILING_SCHEDULE_ID = "ebpf_profiling_schedule_id";
 
-    @Column(name = TASK_ID, length = 600)
+    @Column(name = TASK_ID)
     private String taskId;
     @Column(name = PROCESS_ID, length = 600)
     private String processId;

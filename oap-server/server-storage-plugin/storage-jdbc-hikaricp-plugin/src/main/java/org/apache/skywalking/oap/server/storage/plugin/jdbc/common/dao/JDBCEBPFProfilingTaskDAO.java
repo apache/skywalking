@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
@@ -27,11 +28,10 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,10 +42,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     private static final Gson GSON = new Gson();
-    private JDBCHikariCPClient jdbcClient;
+    private JDBCClient jdbcClient;
 
     @Override
-    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) throws IOException {
+    @SneakyThrows
+    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) {
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME);
@@ -70,7 +71,8 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     }
 
     @Override
-    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes, long taskStartTime, long latestUpdateTime) throws IOException {
+    @SneakyThrows
+    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes, long taskStartTime, long latestUpdateTime) {
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME);
@@ -102,7 +104,8 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     }
 
     @Override
-    public EBPFProfilingTask queryById(String id) throws IOException {
+    @SneakyThrows
+    public EBPFProfilingTask queryById(String id) {
         final StringBuilder sql = new StringBuilder();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME)
             .append(" where ").append(EBPFProfilingTaskRecord.LOGICAL_ID).append("=?");

@@ -25,13 +25,13 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -59,7 +59,7 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     public boolean isExists(Model model) throws StorageException {
         boolean isRuleExecuted = false;
         boolean isTableExist = isTableExists(model);
-        JDBCHikariCPClient jdbcClient = (JDBCHikariCPClient) client;
+        JDBCClient jdbcClient = (JDBCClient) client;
         ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         int ttl = model.isRecord() ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
         if (model.getSqlDBModelExtension().isShardingTable()) {
@@ -71,7 +71,7 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     @SneakyThrows
     private boolean isTableExists(Model model) {
         TableMetaInfo.addModel(model);
-        final var jdbcClient = (JDBCHikariCPClient) client;
+        final var jdbcClient = (JDBCClient) client;
         return jdbcClient.executeQuery(String.format("SHOW LOGICAL TABLES LIKE '%s'", model.getName()), ResultSet::next);
     }
 
@@ -92,7 +92,7 @@ public class ShardingSphereTableInstaller extends H2TableInstaller {
     public void createOrUpdateTableIndexes(
         String tableName,
         List<ModelColumn> columns,
-        boolean isAdditionalTable) throws JDBCClientException {
+        boolean isAdditionalTable) throws SQLException {
         delegatee.createOrUpdateTableIndexes(tableName, columns, isAdditionalTable);
     }
 

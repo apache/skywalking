@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
 
     @Override
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {

@@ -22,20 +22,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -52,10 +52,11 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     private final static int NAME_QUERY_MAX_SIZE = Integer.MAX_VALUE;
     private static final Gson GSON = new Gson();
 
-    private final JDBCHikariCPClient h2Client;
+    private final JDBCClient h2Client;
 
     @Override
-    public List<String> getServiceNames() throws IOException {
+    @SneakyThrows
+    public List<String> getServiceNames() {
         StringBuilder sql = new StringBuilder();
         sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
         sql.append(" where ").append("1=1");
@@ -70,7 +71,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
+    @SneakyThrows
+    public List<String> getRemoteServiceNames(final String serviceName) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(1);
         sql.append("select ").append(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME).append(" from ")
@@ -89,7 +91,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<String> getSpanNames(final String serviceName) throws IOException {
+    @SneakyThrows
+    public List<String> getSpanNames(final String serviceName) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(1);
         sql.append("select ").append(ZipkinServiceSpanTraffic.SPAN_NAME).append(" from ")
@@ -108,7 +111,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<Span> getTrace(final String traceId) throws IOException {
+    @SneakyThrows
+    public List<Span> getTrace(final String traceId) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(1);
         sql.append("select * from ").append(ZipkinSpanRecord.INDEX_NAME);
@@ -125,7 +129,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) throws IOException {
+    @SneakyThrows
+    public List<List<Span>> getTraces(final QueryRequest request, Duration duration) {
         final long startTimeMillis = duration.getStartTimestamp();
         final long endTimeMillis = duration.getEndTimestamp();
         StringBuilder sql = new StringBuilder();
@@ -209,7 +214,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     }
 
     @Override
-    public List<List<Span>> getTraces(final Set<String> traceIds) throws IOException {
+    @SneakyThrows
+    public List<List<Span>> getTraces(final Set<String> traceIds) {
         if (CollectionUtils.isEmpty(traceIds)) {
             return new ArrayList<>();
         }

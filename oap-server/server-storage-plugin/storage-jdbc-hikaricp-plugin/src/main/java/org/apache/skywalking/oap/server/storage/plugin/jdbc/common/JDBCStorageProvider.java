@@ -49,7 +49,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -86,7 +86,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 public abstract class JDBCStorageProvider extends ModuleProvider {
     protected JDBCStorageConfig config;
-    protected JDBCHikariCPClient jdbcClient;
+    protected JDBCClient jdbcClient;
     protected ModelInstaller modelInstaller;
 
     /**
@@ -117,7 +117,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        jdbcClient = new JDBCHikariCPClient(config.getProperties());
+        jdbcClient = new JDBCClient(config.getProperties());
         modelInstaller = createModelInstaller();
 
         this.registerServiceImplementation(

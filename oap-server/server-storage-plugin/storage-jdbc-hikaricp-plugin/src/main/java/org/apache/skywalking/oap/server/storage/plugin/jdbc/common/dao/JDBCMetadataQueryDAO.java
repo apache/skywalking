@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -40,7 +41,7 @@ import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
@@ -55,11 +56,12 @@ import java.util.Map;
 public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
 
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final int metadataQueryMaxSize;
 
     @Override
-    public List<Service> listServices(final String layer, final String group) throws IOException {
+    @SneakyThrows
+    public List<Service> listServices(final String layer, final String group) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME);
@@ -85,7 +87,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> getServices(final String serviceId) throws IOException {
+    @SneakyThrows
+    public List<Service> getServices(final String serviceId) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
@@ -97,8 +100,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
+    @SneakyThrows
     public List<ServiceInstance> listInstances(Duration duration,
-                                               String serviceId) throws IOException {
+                                               String serviceId) {
         final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
 
         StringBuilder sql = new StringBuilder();
@@ -114,7 +118,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public ServiceInstance getInstance(final String instanceId) throws IOException {
+    @SneakyThrows
+    public ServiceInstance getInstance(final String instanceId) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
@@ -129,7 +134,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
+    @SneakyThrows
+    public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
@@ -156,7 +162,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
+    @SneakyThrows
+    public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
@@ -167,7 +174,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) throws IOException {
+    @SneakyThrows
+    public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) {
         long lastPingStartTimeBucket = duration.getStartTimeBucket();
         long lastPingEndTimeBucket = duration.getEndTimeBucket();
         StringBuilder sql = new StringBuilder();
@@ -180,7 +188,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Process> listProcesses(String agentId) throws IOException {
+    @SneakyThrows
+    public List<Process> listProcesses(String agentId) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(2);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
@@ -191,6 +200,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
+    @SneakyThrows
     public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
@@ -207,6 +217,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
+    @SneakyThrows
     public long getProcessCount(String instanceId) throws IOException {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
@@ -317,7 +328,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public Process getProcess(String processId) throws IOException {
+    @SneakyThrows
+    public Process getProcess(String processId) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(5);
         sql.append("select * from ").append(ProcessTraffic.INDEX_NAME).append(" where ");

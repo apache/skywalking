@@ -19,12 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,10 +33,11 @@ import java.util.List;
 
 @AllArgsConstructor
 public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
-    private JDBCHikariCPClient jdbcClient;
+    private JDBCClient jdbcClient;
 
     @Override
-    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
+    @SneakyThrows
+    public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) {
         final StringBuilder sql = new StringBuilder();
         final StringBuilder conditionSql = new StringBuilder();
         List<Object> condition = new ArrayList<>(scheduleIdList.size() + 2);

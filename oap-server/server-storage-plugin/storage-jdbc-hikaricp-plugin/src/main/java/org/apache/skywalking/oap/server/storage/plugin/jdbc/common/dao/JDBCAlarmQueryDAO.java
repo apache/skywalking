@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Strings;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
@@ -29,11 +30,10 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,21 +43,22 @@ import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
 
 public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
-    protected final JDBCHikariCPClient jdbcClient;
+    protected final JDBCClient jdbcClient;
 
     private final ModuleManager manager;
 
     private List<String> searchableTagKeys;
 
-    public JDBCAlarmQueryDAO(final JDBCHikariCPClient jdbcClient,
+    public JDBCAlarmQueryDAO(final JDBCClient jdbcClient,
                              final ModuleManager manager) {
         this.jdbcClient = jdbcClient;
         this.manager = manager;
     }
 
     @Override
+    @SneakyThrows
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from,
-                           Duration duration, final List<Tag> tags) throws IOException {
+                           Duration duration, final List<Tag> tags) {
         long startTB = 0;
         long endTB = 0;
         if (nonNull(duration)) {

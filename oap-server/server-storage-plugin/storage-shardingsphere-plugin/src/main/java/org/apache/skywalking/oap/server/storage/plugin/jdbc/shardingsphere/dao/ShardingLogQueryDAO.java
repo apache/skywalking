@@ -18,21 +18,21 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
+import java.util.List;
+
 public class ShardingLogQueryDAO extends JDBCLogQueryDAO {
 
-    public ShardingLogQueryDAO(final JDBCHikariCPClient h2Client,
+    public ShardingLogQueryDAO(final JDBCClient h2Client,
                                final ModuleManager manager) {
         super(h2Client, manager);
     }
@@ -48,7 +48,7 @@ public class ShardingLogQueryDAO extends JDBCLogQueryDAO {
                           final Duration duration,
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
-                          final List<String> excludingKeywordsOfContent) throws IOException {
+                          final List<String> excludingKeywordsOfContent) {
         return super.queryLogs(
             serviceId,
             serviceInstanceId,
