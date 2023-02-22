@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import java.util.Collections;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
@@ -49,9 +48,6 @@ public class RecordQueryService implements Service {
     }
 
     public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
-        if (!condition.getParentEntity().isValid()) {
-            return Collections.EMPTY_LIST;
-        }
         return getRecordsQueryDAO().readRecords(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }
