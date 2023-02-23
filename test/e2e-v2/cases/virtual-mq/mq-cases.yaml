@@ -22,7 +22,7 @@
       expected: expected/service-endpoint.yml
     # endpoint metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=mq_service_consume_latency --service-id=a2Fma2E6OTA5Mg==.0 |yq e 'to_entries' -
-      expected: expected/metrics-has-value0.yml
+      expected: expected/metrics-has-value.yml
     # endpoint metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=mq_endpoint_consume_cpm --endpoint-name='topic' --service-id=a2Fma2E6OTA5Mg==.0 |yq e 'to_entries' -
-      expected: expected/metrics-has-value0.yml
+      expected: expected/metrics-has-value.yml

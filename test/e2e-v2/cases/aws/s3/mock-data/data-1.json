@@ -41,6 +41,7 @@
                     "startTimeUnixNano": "1674547500000000000",
                     "timeUnixNano": "1674547560000000000",
                     "count": "1",
+                    "sum": "5",
                     "quantileValues": [
                       {
                       },
@@ -87,6 +88,7 @@
                     "startTimeUnixNano": "1674547500000000000",
                     "timeUnixNano": "1674547560000000000",
                     "count": "1",
+                    "sum": "5",
                     "quantileValues": [
                       {
                       },
