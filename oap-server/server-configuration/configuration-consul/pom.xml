@@ -28,10 +28,6 @@
 
     <artifactId>configuration-consul</artifactId>
 
-    <properties>
-        <consul.client.version>1.2.6</consul.client.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
@@ -48,7 +44,6 @@
         <dependency>
             <groupId>com.orbitz.consul</groupId>
             <artifactId>consul-client</artifactId>
-            <version>${consul.client.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.guava</groupId>
