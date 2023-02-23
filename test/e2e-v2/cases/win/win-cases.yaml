@@ -18,5 +18,5 @@
   cases:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/service.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_cpu_total_percentage --service-name=10.211.55.3 | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_win_memory_swap_total --service-name=10.211.55.3 | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
