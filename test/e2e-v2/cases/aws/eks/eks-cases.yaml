@@ -22,7 +22,7 @@
       expected:  expected/instance.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=aws-eks-cluster::SkyWalking
       expected:  expected/endpoint.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=eks_cluster_node_memory_utilization --service-name=aws-eks-cluster::SkyWalking --instance-name=ip-172-31-23-33.ap-northeast-1.compute.internal | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=eks_cluster_node_memory_utilization --service-name=aws-eks-cluster::SkyWalking --instance-name=ip-172-31-10-158.ap-northeast-1.compute.internal | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=eks_cluster_service_pod_net_rx_bytes --service-name=aws-eks-cluster::SkyWalking --endpoint-name=kube-dns  | yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
