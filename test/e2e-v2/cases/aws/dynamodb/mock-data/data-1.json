@@ -340,12 +340,14 @@
                     "startTimeUnixNano": "1676809260000000000",
                     "timeUnixNano": "1676809320000000000",
                     "count": "1",
-                    "sum": "2.0",
+                    "sum": "1.0",
                     "quantileValues": [
                       {
+                        "value": 1.0
                       },
                       {
-                        "quantile": 1.0
+                        "quantile": 1.0,
+                        "value": 1.0
                       }
                     ],
                     "attributes": [
@@ -381,12 +383,14 @@
                     "startTimeUnixNano": "1676809260000000000",
                     "timeUnixNano": "1676809320000000000",
                     "count": "1",
-                    "sum": "2.0",
+                    "sum": "5.0",
                     "quantileValues": [
                       {
+                        "value": 5.0
                       },
                       {
-                        "quantile": 1.0
+                        "quantile": 1.0,
+                        "value": 5.0
                       }
                     ],
                     "attributes": [
@@ -428,12 +432,14 @@
                     "startTimeUnixNano": "1676809260000000000",
                     "timeUnixNano": "1676809320000000000",
                     "count": "1",
-                    "sum": "2.0",
+                    "sum": "5.0",
                     "quantileValues": [
                       {
+                        "value": 5.0
                       },
                       {
-                        "quantile": 1.0
+                        "quantile": 1.0,
+                        "value": 5.0
                       }
                     ],
                     "attributes": [
@@ -467,6 +473,104 @@
               }
             },
             {
+              "name": "amazonaws.com/AWS/DynamoDB/ThrottledRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                        "value": 2.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 2.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ThrottledRequests"
+                        }
+                      },
+                      {
+                        "key": "Operation",
+                        "value": {
+                          "stringValue": "Query"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/DynamoDB/ThrottledRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676809260000000000",
+                    "timeUnixNano": "1676809320000000000",
+                    "count": "1",
+                    "sum": "2.0",
+                    "quantileValues": [
+                      {
+                        "value": 2.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 2.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/DynamoDB"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "ThrottledRequests"
+                        }
+                      },
+                      {
+                        "key": "Operation",
+                        "value": {
+                          "stringValue": "PutItem"
+                        }
+                      },
+                      {
+                        "key": "TableName",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
               "name": "amazonaws.com/AWS/DynamoDB/UserErrors",
               "unit": "{Count}",
               "summary": {
@@ -478,9 +582,11 @@
                     "sum": "2.0",
                     "quantileValues": [
                       {
+                        "value": 2.0
                       },
                       {
-                        "quantile": 1.0
+                        "quantile": 1.0,
+                        "value": 2.0
                       }
                     ],
                     "attributes": [
@@ -519,9 +625,11 @@
                     "sum": "2.0",
                     "quantileValues": [
                       {
+                        "value": 2.0
                       },
                       {
-                        "quantile": 1.0
+                        "quantile": 1.0,
+                        "value": 2.0
                       }
                     ],
                     "attributes": [
