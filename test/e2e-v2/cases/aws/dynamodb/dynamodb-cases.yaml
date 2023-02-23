@@ -48,7 +48,11 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-        --name=aws_dynamodb_system_errors --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+        --name=aws_dynamodb_read_system_errors --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: |
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+        --name=aws_dynamodb_write_system_errors --service-name aws-dynamodb::xxxxxxxx |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
   - query: |
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
