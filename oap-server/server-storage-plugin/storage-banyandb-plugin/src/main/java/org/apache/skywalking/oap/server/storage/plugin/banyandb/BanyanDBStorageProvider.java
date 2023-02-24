@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
+import org.apache.skywalking.banyandb.v1.client.metadata.Catalog;
+import org.apache.skywalking.banyandb.v1.client.metadata.Group;
+import org.apache.skywalking.banyandb.v1.client.metadata.IntervalRule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -81,6 +87,8 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     private BanyanDBStorageConfig config;
     private BanyanDBStorageClient client;
     private ModelInstaller modelInstaller;
+
+    private IntervalRule bypass = IntervalRule.create(IntervalRule.Unit.UNSPECIFIED, 0);
 
     @Override
     public String name() {
@@ -166,6 +174,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.client.registerChecker(healthChecker);
         try {
             this.client.connect();
+            this.client.defineIfEmpty(Group.create(BanyanDBUITemplateManagementDAO.GROUP));
             this.modelInstaller.start();
 
             getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);
