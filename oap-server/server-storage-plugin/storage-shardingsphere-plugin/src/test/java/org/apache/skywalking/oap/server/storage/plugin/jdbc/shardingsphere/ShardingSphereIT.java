@@ -60,6 +60,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetricsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCRecordDAO;
@@ -308,7 +309,7 @@ public class ShardingSphereIT {
         ttlDropTest(model);
 
         //Test traffic query
-        JDBCMetadataQueryDAO metadataQueryDAO = new JDBCMetadataQueryDAO(ssClient, 100);
+        JDBCMetadataQueryDAO metadataQueryDAO = new JDBCMetadataQueryDAO(ssClient, 100, moduleManager);
         List<Endpoint> endpoints = metadataQueryDAO.findEndpoint("", endpointTrafficA.getServiceId(), 100);
         Assertions.assertEquals(endpointTrafficA.getName(), endpoints.get(0).getName());
         log.info("Traffic test passed.");
@@ -350,7 +351,7 @@ public class ShardingSphereIT {
         ttlDropTest(model);
 
         //Test topN
-        ShardingAggregationQueryDAO aggregationQueryDAO = new ShardingAggregationQueryDAO(ssClient);
+        ShardingAggregationQueryDAO aggregationQueryDAO = new ShardingAggregationQueryDAO(ssClient, new TableHelper(moduleManager, ssClient));
         TopNCondition topNCondition = new TopNCondition();
         topNCondition.setName(ServiceCpmMetrics.INDEX_NAME);
         topNCondition.setTopN(1);
@@ -361,7 +362,7 @@ public class ShardingSphereIT {
         Assertions.assertEquals("200.0000", top1Record.getValue());
 
         //Test metrics query
-        ShardingMetricsQueryDAO metricsQueryDAO = new ShardingMetricsQueryDAO(ssClient);
+        ShardingMetricsQueryDAO metricsQueryDAO = new ShardingMetricsQueryDAO(ssClient, new TableHelper(moduleManager, ssClient));
         MetricsCondition metricsCondition = new MetricsCondition();
 
         metricsCondition.setName(ServiceCpmMetrics.INDEX_NAME);

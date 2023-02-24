@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -28,47 +29,66 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparingDouble;
 
 @RequiredArgsConstructor
 public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
     protected final JDBCClient jdbcClient;
+    protected final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<SelectedRecord> sortMetrics(final TopNCondition metrics,
                                             final String valueColumnName,
                                             final Duration duration,
-                                            List<KeyValue> additionalConditions) {
-        List<Object> conditions = new ArrayList<>(10);
-        StringBuilder sql = buildMetricsValueSql(valueColumnName, metrics.getName());
-        sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
-        conditions.add(duration.getStartTimeBucket());
-        conditions.add(duration.getEndTimeBucket());
-        if (additionalConditions != null) {
-            additionalConditions.forEach(condition -> {
-                sql.append(" and ").append(condition.getKey()).append("=?");
-                conditions.add(condition.getValue());
-            });
-        }
-        sql.append(" group by ").append(Metrics.ENTITY_ID);
-        sql.append(")  as T order by result")
-           .append(metrics.getOrder().equals(Order.ASC) ? " asc" : " desc")
-           .append(" limit ")
-           .append(metrics.getTopN());
+                                            final List<KeyValue> additionalConditions) {
+        final var results = new ArrayList<SelectedRecord>();
+        final var tables = tableHelper.getTablesForRead(metrics.getName());
 
-        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            final var topNEntities = new ArrayList<SelectedRecord>();
-            while (resultSet.next()) {
-                final var topNEntity = new SelectedRecord();
-                topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                topNEntity.setValue(resultSet.getString("result"));
-                topNEntities.add(topNEntity);
+        for (final var table : tables) {
+            final var conditions = new ArrayList<>(10);
+            final var sql = buildMetricsValueSql(valueColumnName, table);
+            sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
+            conditions.add(duration.getStartTimeBucket());
+            conditions.add(duration.getEndTimeBucket());
+            sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            conditions.add(metrics.getName());
+            if (additionalConditions != null) {
+                additionalConditions.forEach(condition -> {
+                    sql.append(" and ").append(condition.getKey()).append("=?");
+                    conditions.add(condition.getValue());
+                });
             }
-            return topNEntities;
-        }, conditions.toArray(new Object[0]));
+            sql.append(" group by ").append(Metrics.ENTITY_ID);
+            sql.append(")  as T order by result")
+               .append(metrics.getOrder().equals(Order.ASC) ? " asc" : " desc")
+               .append(" limit ")
+               .append(metrics.getTopN());
+
+            results.addAll(
+                jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                    final var topNEntities = new ArrayList<SelectedRecord>();
+                    while (resultSet.next()) {
+                        final var topNEntity = new SelectedRecord();
+                        topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
+                        topNEntity.setValue(resultSet.getString("result"));
+                        topNEntities.add(topNEntity);
+                    }
+                    return topNEntities;
+                }, conditions.toArray(new Object[0])));
+        }
+        return results
+            .stream()
+            .filter(it -> !Strings.isNullOrEmpty(it.getValue()))
+            .sorted(comparingDouble(it -> Double.parseDouble(it.getValue())))
+            .collect(Collectors.toList());
     }
 
     protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {

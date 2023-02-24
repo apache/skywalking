@@ -22,12 +22,8 @@ import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -59,7 +55,7 @@ import static java.util.stream.Collectors.toSet;
 @Slf4j
 public class JDBCTableInstaller extends ModelInstaller {
     public static final String ID_COLUMN = Metrics.ID;
-    public static final String TABLE_COLUMN = "TABLE_NAME";
+    public static final String TABLE_COLUMN = "table_name";
 
     public JDBCTableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
@@ -67,36 +63,33 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     @Override
     @SneakyThrows
-    public boolean isExists(Model model) throws StorageException {
+    public boolean isExists(Model model) {
         TableMetaInfo.addModel(model);
 
-        final var tableName = tableNameOf(model);
+        final var table = TableHelper.getTableForWrite(model);
 
-        if (!isTableExisted(tableName)) {
+        if (!isTableExisted(table)) {
             return false;
         }
 
-        final var databaseColumns = getDatabaseColumns(tableName);
+        final var databaseColumns = getDatabaseColumns(table);
         final var isAnyColumnNotCreated =
             model
                 .getColumns().stream()
                 .map(ModelColumn::getColumnName)
                 .map(ColumnName::getStorageName)
                 .anyMatch(not(databaseColumns::contains));
-        if (isAnyColumnNotCreated) {
-            return false;
-        }
 
-        return true;
+        return !isAnyColumnNotCreated;
     }
 
     @Override
     @SneakyThrows
     public void createTable(Model model) {
-        final var tableName = tableNameOf(model);
+        final var table = TableHelper.getTableForWrite(model);
 
-        createOrUpdateTable(tableName, model.getColumns(), false);
-        createOrUpdateTableIndexes(tableName, model.getColumns(), false);
+        createOrUpdateTable(table, model.getColumns(), false);
+        createOrUpdateTableIndexes(table, model.getColumns(), false);
         createAdditionalTable(model);
     }
 
@@ -128,30 +121,32 @@ public class JDBCTableInstaller extends ModelInstaller {
         }
     }
 
-    public void createOrUpdateTableIndexes(String tableName, List<ModelColumn> columns,
+    public void createOrUpdateTableIndexes(String table, List<ModelColumn> columns,
                                            boolean isAdditionalTable) throws SQLException {
-        final var jdbcClient = (JDBCClient) client;
-
-        // Additional table's id follow the main table can not be primary key
+        // Additional table's id is a many-to-one relation to the main table's id,
+        // and thus can not be primary key, but a simple index.
         if (isAdditionalTable) {
-            final var indexName = tableName + "_id";
-            if (!isIndexExisted(tableName, indexName)) {
-                final var tableIndexSQL = new SQLBuilder("CREATE INDEX ")
-                    .append(indexName)
-                    .append(" ON ").append(tableName)
-                    .append("(").append(ID_COLUMN).append(")");
-                executeSQL(tableIndexSQL);
+            final var index = table + "_" + JDBCTableInstaller.ID_COLUMN;
+            if (!isIndexExisted(table, index)) {
+                executeSQL(
+                    new SQLBuilder("CREATE INDEX ")
+                        .append(index)
+                        .append(" ON ").append(table)
+                        .append("(")
+                        .append(ID_COLUMN)
+                        .append(")")
+                );
             }
         }
 
         if (!isAdditionalTable) {
-            final var indexName = tableName + "_" + JDBCTableInstaller.TABLE_COLUMN;
-            if (!isIndexExisted(tableName, indexName)) {
+            final var index = table + "_" + JDBCTableInstaller.TABLE_COLUMN;
+            if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
-                        .append(indexName)
+                        .append(index)
                         .append(" ON ")
-                        .append(tableName)
+                        .append(table)
                         .append("(")
                         .append(JDBCTableInstaller.TABLE_COLUMN)
                         .append(")")
@@ -159,7 +154,7 @@ public class JDBCTableInstaller extends ModelInstaller {
             }
         }
 
-        final var c =
+        final var columnsMissingIndex =
             columns
                 .stream()
                 .filter(ModelColumn::shouldIndex)
@@ -167,36 +162,43 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .map(ModelColumn::getColumnName)
                 .map(ColumnName::getStorageName)
                 .collect(toList());
-        for (var column : c) {
-            final var indexName = tableName + "_" + Math.abs(column.hashCode());
-            if (!isIndexExisted(tableName, indexName)) {
-                final var sql = new SQLBuilder("CREATE INDEX ")
-                    .append(indexName)
-                    .append(" ON ").append(tableName).append("(")
-                    .append(column)
-                    .append(")");
-                executeSQL(sql);
+        for (var column : columnsMissingIndex) {
+            final var index = table + "_" + Math.abs(column.hashCode());
+            if (!isIndexExisted(table, index)) {
+                executeSQL(
+                    new SQLBuilder("CREATE INDEX ")
+                        .append(index)
+                        .append(" ON ").append(table).append("(")
+                        .append(column)
+                        .append(")")
+                );
             }
         }
 
-        final var columnList = columns.stream().map(ModelColumn::getColumnName).map(ColumnName::getStorageName).collect(toSet());
+        final var columnNames =
+            columns
+                .stream()
+                .map(ModelColumn::getColumnName)
+                .map(ColumnName::getStorageName)
+                .collect(toSet());
         for (final var modelColumn : columns) {
-            for (final var index : modelColumn.getSqlDatabaseExtension().getIndices()) {
-                final var multiColumns = Arrays.asList(index.getColumns());
+            for (final var compositeIndex : modelColumn.getSqlDatabaseExtension().getIndices()) {
+                final var multiColumns = Arrays.asList(compositeIndex.getColumns());
                 // Don't create composite index on the additional table if it doesn't contain all needed columns.
-                if (isAdditionalTable && !columnList.containsAll(multiColumns)) {
+                if (isAdditionalTable && !columnNames.containsAll(multiColumns)) {
                     continue;
                 }
-                final var indexName = tableName + "_" + Math.abs(String.join("_", multiColumns).hashCode());
-                if (isIndexExisted(tableName, indexName)) {
+                final var index = table + "_" + Math.abs(String.join("_", multiColumns).hashCode());
+                if (isIndexExisted(table, index)) {
                     continue;
                 }
-                final var sql = new SQLBuilder("CREATE INDEX ")
-                    .append(indexName)
-                    .append(" ON ")
-                    .append(tableName)
-                    .append(multiColumns.stream().collect(joining(", ", " (", ")")));
-                executeSQL(sql);
+                executeSQL(
+                    new SQLBuilder("CREATE INDEX ")
+                        .append(index)
+                        .append(" ON ")
+                        .append(table)
+                        .append(multiColumns.stream().collect(joining(", ", " (", ")")))
+                );
             }
         }
     }
@@ -275,22 +277,5 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .append(columnDefinitions.stream().collect(joining(", ", " (", ");")));
 
         executeSQL(sql);
-    }
-
-    private String tableNameOf(Model model) {
-        if (!model.isTimeSeries()) {
-            return model.getName();
-        }
-
-        var tableName =
-            model.isMetric() ? "metrics_all" :
-                model.isRecord() && !model.isSuperDataset() ? "records_all"
-                    : model.getName();
-        if (model.getDownsampling() != DownSampling.None) {
-            final var dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
-            tableName = tableName + Const.UNDERSCORE + dayTimeBucket;
-        }
-
-        return tableName;
     }
 }

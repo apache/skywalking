@@ -32,22 +32,26 @@ import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQueryDAO {
     private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public long readMetricsValue(final MetricsCondition condition,
                                 String valueColumnName,
                                 final Duration duration) {
+        final var tables = tableHelper.getTablesForRead(condition.getName());
+
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
         final var ids =
@@ -68,27 +72,37 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
             default:
                 op = "sum";
         }
-        final var sql = buildMetricsValueSql(op, valueColumnName, condition.getName());
-        final var parameters = new ArrayList<>();
-        if (entityId != null) {
-            sql.append(Metrics.ENTITY_ID + " = ? and ");
-            parameters.add(entityId);
-        }
-        sql.append("id in ");
-        sql.append(ids.stream().map(it -> "?").collect(Collectors.joining(", ", "(", ")")));
-        parameters.addAll(ids);
-        sql.append(" group by " + Metrics.ENTITY_ID);
 
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                if (resultSet.next()) {
-                    return resultSet.getLong("result");
-                }
-                return (long) defaultValue;
-            },
-            parameters.toArray(new Object[0])
-        );
+        final var results = new ArrayList<Long>();
+        for (String table : tables) {
+            final var sql = buildMetricsValueSql(op, valueColumnName, table);
+            final var parameters = new ArrayList<>();
+            if (entityId != null) {
+                sql.append(Metrics.ENTITY_ID + " = ? and ");
+                parameters.add(entityId);
+            }
+            sql.append("id in ");
+            sql.append(ids.stream().map(it -> "?").collect(Collectors.joining(", ", "(", ")")));
+            parameters.addAll(ids);
+            sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            parameters.add(condition.getName());
+            sql.append(" group by " + Metrics.ENTITY_ID);
+
+            results.add(jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return resultSet.getLong("result");
+                    }
+                    return (long) defaultValue;
+                },
+                parameters.toArray(new Object[0])
+            ));
+        }
+        if (op.equals("avg")) {
+            return results.stream().mapToLong(it -> it).sum() / results.size();
+        }
+        return results.stream().mapToLong(it -> it).sum();
     }
 
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
@@ -101,6 +115,12 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
                                            final Duration duration) {
+        final var metricsValues = new MetricsValues();
+        // Label is null, because in readMetricsValues, no label parameter.
+        final var intValues = metricsValues.getValues();
+
+        final var tables = tableHelper.getTablesForRead(condition.getName());
+
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
         final var ids =
@@ -109,36 +129,35 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                 .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
                 .collect(Collectors.toList());
 
-        final var sql = new StringBuilder("select id, " + valueColumnName + " from " + condition.getName())
-            .append(" where id in ")
-            .append(
-                ids.stream()
-                   .map(it -> "?")
-                   .collect(Collectors.joining(", ", "(", ")"))
-            );
-
-        buildShardingCondition(sql, ids, entityId);
-
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                final var metricsValues = new MetricsValues();
-                // Label is null, because in readMetricsValues, no label parameter.
-                final var intValues = metricsValues.getValues();
-
-                while (resultSet.next()) {
-                    final var kv = new KVInt();
-                    kv.setId(resultSet.getString("id"));
-                    kv.setValue(resultSet.getLong(valueColumnName));
-                    intValues.addKVInt(kv);
-                }
-
-                metricsValues.setValues(
-                    Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
+        for (final var table : tables) {
+            final var sql = new StringBuilder("select id, " + valueColumnName + " from " + table)
+                .append(" where id in ")
+                .append(
+                    ids.stream()
+                       .map(it -> "?")
+                       .collect(Collectors.joining(", ", "(", ")"))
                 );
-                return metricsValues;
-            },
-            ids.toArray(new Object[0]));
+
+            buildShardingCondition(sql, ids, entityId);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        final var kv = new KVInt();
+                        kv.setId(resultSet.getString("id"));
+                        kv.setValue(resultSet.getLong(valueColumnName));
+                        intValues.addKVInt(kv);
+                    }
+                    return null;
+                },
+                ids.toArray(new Object[0]));
+        }
+
+        metricsValues.setValues(
+            Util.sortValues(intValues, ids, ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()))
+        );
+        return metricsValues;
     }
 
     @Override
@@ -147,6 +166,9 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                                                         final String valueColumnName,
                                                         final List<String> labels,
                                                         final Duration duration) {
+        final var idMap = new HashMap<String, DataTable>();
+        final var tables = tableHelper.getTablesForRead(condition.getName());
+
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
         final var ids =
@@ -155,36 +177,37 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                 .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
                 .collect(Collectors.toList());
 
-        final var sql = new StringBuilder("select id, " + valueColumnName + " from " + condition.getName())
-            .append(" where id in ")
-            .append(
-                ids.stream().map(it -> "?")
-                   .collect(Collectors.joining(", ", "(", ")"))
-            );
-
-        buildShardingCondition(sql, ids, entityId);
-
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                Map<String, DataTable> idMap = new HashMap<>();
-
-                while (resultSet.next()) {
-                    String id = resultSet.getString("id");
-
-                    DataTable multipleValues = new DataTable(5);
-                    multipleValues.toObject(resultSet.getString(valueColumnName));
-
-                    idMap.put(id, multipleValues);
-                }
-
-                return Util.sortValues(
-                    Util.composeLabelValue(condition, labels, ids, idMap),
-                    ids,
-                    ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        for (final var table : tables) {
+            final var sql = new StringBuilder("select id, " + valueColumnName + " from " + table)
+                .append(" where id in ")
+                .append(
+                    ids.stream().map(it -> "?")
+                       .collect(Collectors.joining(", ", "(", ")"))
                 );
-            },
-            ids.toArray(new Object[0]));
+
+            buildShardingCondition(sql, ids, entityId);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        String id = resultSet.getString("id");
+
+                        DataTable multipleValues = new DataTable(5);
+                        multipleValues.toObject(resultSet.getString(valueColumnName));
+
+                        idMap.put(id, multipleValues);
+                    }
+                    return null;
+                },
+                ids.toArray(new Object[0]));
+        }
+
+        return Util.sortValues(
+            Util.composeLabelValue(condition, labels, ids, idMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
     }
 
     @Override

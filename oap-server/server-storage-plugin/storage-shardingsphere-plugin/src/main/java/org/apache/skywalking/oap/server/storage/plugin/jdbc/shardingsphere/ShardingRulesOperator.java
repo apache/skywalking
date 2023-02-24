@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 public enum ShardingRulesOperator {
     INSTANCE;
@@ -75,22 +76,21 @@ public enum ShardingRulesOperator {
         initShardingRules(client);
     }
 
-    public boolean createOrUpdateShardingRule(JDBCClient client, Model model, Set<String> dataSources, int ttl) throws SQLException {
+    public boolean createOrUpdateShardingRule(JDBCClient client, Model model, String table, Set<String> dataSources, int ttl) throws SQLException {
         boolean isExecuted;
         ShardingRule.ShardingRuleBuilder builder = ShardingRule.builder();
-        builder.table(model.getName());
-        String tableName = model.getName();
+        builder.table(table);
         SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
             () -> new UnexpectedException("Sharding should not be empty."));
         isExecuted = executeShardingRule(
-            buildShardingRule(builder, tableName, dataSources, sharding.getShardingAlgorithm(),
+            buildShardingRule(builder, table, dataSources, sharding.getShardingAlgorithm(),
                                sharding.getTableShardingColumn(),
                                sharding.getDataSourceShardingColumn(),
                                ttl,
                                DateTime.now()
             ),
             client,
-            tableName
+            table
         );
         // additional tables
         for (String additionalTable : model.getSqlDBModelExtension().getAdditionalTables().keySet()) {
@@ -152,23 +152,23 @@ public enum ShardingRulesOperator {
         buildDataNodes(builder, tableName, dataSources, ttl, currentDate);
         buildDatabaseStrategy(builder, dsShardingColumn, dataSources.size());
 
-//        switch (shardingAlgorithm) {
-//            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
-//                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
-//                break;
-//            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
-//                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
-//                break;
-//            case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
-//                buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
-//                                             TIME_RELATIVE_ID_SHARDING_EXPRESSION);
-//                break;
-//            case TIME_BUCKET_SHARDING_ALGORITHM:
-//                buildExpressionTableStrategy(builder, tableName, tableShardingColumn, TIME_BUCKET_SHARDING_EXPRESSION);
-//                break;
-//            default:
-//                throw new UnexpectedException("Unsupported sharding algorithm " + shardingAlgorithm);
-//        }
+        switch (shardingAlgorithm) {
+            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
+                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
+                break;
+            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
+                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
+                break;
+            case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
+                buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
+                                             TIME_RELATIVE_ID_SHARDING_EXPRESSION);
+                break;
+            case TIME_BUCKET_SHARDING_ALGORITHM:
+                buildExpressionTableStrategy(builder, tableName, tableShardingColumn, TIME_BUCKET_SHARDING_EXPRESSION);
+                break;
+            default:
+                throw new UnexpectedException("Unsupported sharding algorithm " + shardingAlgorithm);
+        }
         return builder;
     }
 
@@ -179,12 +179,16 @@ public enum ShardingRulesOperator {
                                 DateTime currentDate) {
         StringBuilder nodesBuilder = new StringBuilder();
         dataSources.forEach(dataSource -> {
-            nodesBuilder.append("\"")
-                        .append(dataSource)
-                        .append(".")
-                        .append(tableName)
-                        .append("\"")
-                        .append(",");
+            IntStream.range(0, 5).forEach(shard -> {
+                nodesBuilder.append("\"")
+                            .append(dataSource)
+                            .append(".")
+                            .append(tableName)
+                            .append("_")
+                            .append(shard)
+                            .append("\"")
+                            .append(",");
+            });
         });
         builder.actualDataNodes(nodesBuilder.substring(0, nodesBuilder.length() - 1));
     }

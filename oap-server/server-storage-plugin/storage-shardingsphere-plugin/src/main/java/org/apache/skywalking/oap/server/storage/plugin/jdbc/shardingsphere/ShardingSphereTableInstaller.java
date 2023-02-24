@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.mysql.MySQLTableInstaller;
 
 import java.sql.ResultSet;
@@ -59,8 +60,9 @@ public class ShardingSphereTableInstaller extends MySQLTableInstaller {
         JDBCClient jdbcClient = (JDBCClient) client;
         ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
         int ttl = model.isRecord() ? configService.getRecordDataTTL() : configService.getMetricsDataTTL();
+        final var tableName = TableHelper.getTableForWrite(model);
         if (model.getSqlDBModelExtension().isShardingTable()) {
-            isRuleExecuted = ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(jdbcClient, model, this.dataSources, ttl);
+            isRuleExecuted = ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(jdbcClient, model, tableName, this.dataSources, ttl);
         }
         return isTableExist && !isRuleExecuted;
     }

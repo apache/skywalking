@@ -22,7 +22,6 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -42,7 +41,10 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.io.IOException;
@@ -51,39 +53,56 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@RequiredArgsConstructor
 public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
 
     private final JDBCClient jdbcClient;
     private final int metadataQueryMaxSize;
+    private final TableHelper tableHelper;
+
+    public JDBCMetadataQueryDAO(JDBCClient jdbcClient, int metadataQueryMaxSize, ModuleManager moduleManager) {
+        this.jdbcClient = jdbcClient;
+        this.metadataQueryMaxSize = metadataQueryMaxSize;
+        this.tableHelper = new TableHelper(moduleManager, jdbcClient);
+    }
 
     @Override
     @SneakyThrows
     public List<Service> listServices(final String layer, final String group) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(ServiceTraffic.INDEX_NAME);
-        if (StringUtil.isNotEmpty(layer) || StringUtil.isNotEmpty(group)) {
-            sql.append(" where ");
-        }
+        final var results = new ArrayList<Service>();
+        final var tables = tableHelper.getTablesForRead(ServiceTraffic.INDEX_NAME);
 
-        if (StringUtil.isNotEmpty(layer)) {
-            sql.append(ServiceTraffic.LAYER).append("=?");
-            condition.add(Layer.valueOf(layer).value());
-        }
-        if (StringUtil.isNotEmpty(layer) && StringUtil.isNotEmpty(group)) {
-            sql.append(" and ");
-        }
-        if (StringUtil.isNotEmpty(group)) {
-            sql.append(ServiceTraffic.GROUP).append("=?");
-            condition.add(group);
-        }
+        for (final var table : tables) {
+            final var sql = new StringBuilder();
+            final var condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table);
+            if (StringUtil.isNotEmpty(layer) || StringUtil.isNotEmpty(group)) {
+                sql.append(" where ");
+            }
 
-        sql.append(" limit ").append(metadataQueryMaxSize);
+            if (StringUtil.isNotEmpty(layer)) {
+                sql.append(ServiceTraffic.LAYER).append(" = ?");
+                condition.add(Layer.valueOf(layer).value());
+            }
+            if (StringUtil.isNotEmpty(layer) && StringUtil.isNotEmpty(group)) {
+                sql.append(" and ");
+            }
+            if (StringUtil.isNotEmpty(group)) {
+                sql.append(ServiceTraffic.GROUP).append(" = ?");
+                condition.add(group);
+            }
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildServices, condition.toArray(new Object[0]));
+            sql.append(" limit ").append(metadataQueryMaxSize);
+
+            results.addAll(jdbcClient.executeQuery(
+                sql.toString(),
+                this::buildServices,
+                condition.toArray(new Object[0]))
+            );
+        }
+        return results;
     }
 
     @Override
@@ -103,18 +122,28 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @SneakyThrows
     public List<ServiceInstance> listInstances(Duration duration,
                                                String serviceId) {
-        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+        final var results = new ArrayList<ServiceInstance>();
 
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
-        sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
-        condition.add(minuteTimeBucket);
-        sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
-        condition.add(serviceId);
-        sql.append(" limit ").append(metadataQueryMaxSize);
+        final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildInstances, condition.toArray(new Object[0]));
+        final var tables = tableHelper.getTablesForRead(InstanceTraffic.INDEX_NAME);
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table).append(" where ");
+            sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+            condition.add(minuteTimeBucket);
+            sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
+            condition.add(serviceId);
+            sql.append(" limit ").append(metadataQueryMaxSize);
+
+            results.addAll(
+                jdbcClient.executeQuery(sql.toString(), this::buildInstances, condition.toArray(new Object[0]))
+            );
+        }
+
+        return results;
     }
 
     @Override
@@ -136,29 +165,38 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(EndpointTraffic.INDEX_NAME).append(" where ");
-        sql.append(EndpointTraffic.SERVICE_ID).append("=?");
-        condition.add(serviceId);
-        if (!Strings.isNullOrEmpty(keyword)) {
-            sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
-            condition.add(keyword);
+        final var results = new ArrayList<Endpoint>();
+        final var tables = tableHelper.getTablesForRead(EndpointTraffic.INDEX_NAME);
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table).append(" where ");
+            sql.append(EndpointTraffic.SERVICE_ID).append("=?");
+            condition.add(serviceId);
+            sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(EndpointTraffic.NAME);
+            if (!Strings.isNullOrEmpty(keyword)) {
+                sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
+                condition.add(keyword);
+            }
+            sql.append(" limit ").append(limit);
+
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sql.toString(), resultSet -> {
+                        List<Endpoint> endpoints = new ArrayList<>();
+
+                        while (resultSet.next()) {
+                            Endpoint endpoint = new Endpoint();
+                            endpoint.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
+                            endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
+                            endpoints.add(endpoint);
+                        }
+                        return endpoints;
+                    }, condition.toArray(new Object[0])));
         }
-        sql.append(" limit ").append(limit);
-
-        return jdbcClient.executeQuery(
-            sql.toString(), resultSet -> {
-                List<Endpoint> endpoints = new ArrayList<>();
-
-                while (resultSet.next()) {
-                    Endpoint endpoint = new Endpoint();
-                    endpoint.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-                    endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
-                    endpoints.add(endpoint);
-                }
-                return endpoints;
-            }, condition.toArray(new Object[0]));
+        return results.stream().limit(limit).collect(Collectors.toList());
     }
 
     @Override

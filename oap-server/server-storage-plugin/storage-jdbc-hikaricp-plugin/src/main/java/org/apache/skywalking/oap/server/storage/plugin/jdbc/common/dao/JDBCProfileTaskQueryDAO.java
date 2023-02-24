@@ -18,67 +18,81 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
+
+    public JDBCProfileTaskQueryDAO(JDBCClient jdbcClient, ModuleManager moduleManager) {
+        this.jdbcClient = jdbcClient;
+        this.tableHelper = new TableHelper(moduleManager, jdbcClient);
+    }
 
     @Override
     @SneakyThrows
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
                                          Long endTimeBucket, Integer limit) {
-        final var sql = new StringBuilder();
-        final var condition = new ArrayList<>(4);
-        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where 1=1 ");
+        final var results = new ArrayList<ProfileTask>();
+        final var tables = tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME);
+        for (final var table : tables) {
+            final var condition = new ArrayList<>(4);
+            final var sql = new StringBuilder()
+                .append("select * from ").append(table)
+                .append(" where 1 = 1");
 
-        if (startTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ? ");
-            condition.add(startTimeBucket);
+            if (startTimeBucket != null) {
+                sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ? ");
+                condition.add(startTimeBucket);
+            }
+
+            if (endTimeBucket != null) {
+                sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" <= ? ");
+                condition.add(endTimeBucket);
+            }
+
+            if (StringUtil.isNotEmpty(serviceId)) {
+                sql.append(" and ").append(ProfileTaskRecord.SERVICE_ID).append("=? ");
+                condition.add(serviceId);
+            }
+
+            if (StringUtil.isNotEmpty(endpointName)) {
+                sql.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append("=?");
+                condition.add(endpointName);
+            }
+
+            sql.append(" ORDER BY ").append(ProfileTaskRecord.START_TIME).append(" DESC ");
+
+            if (limit != null) {
+                sql.append(" LIMIT ").append(limit);
+            }
+
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sql.toString(),
+                    resultSet -> {
+                        final var tasks = new ArrayList<ProfileTask>();
+                        while (resultSet.next()) {
+                            tasks.add(parseTask(resultSet));
+                        }
+                        return tasks;
+                    },
+                    condition.toArray(new Object[0]))
+            );
         }
-
-        if (endTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" <= ? ");
-            condition.add(endTimeBucket);
-        }
-
-        if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(ProfileTaskRecord.SERVICE_ID).append("=? ");
-            condition.add(serviceId);
-        }
-
-        if (StringUtil.isNotEmpty(endpointName)) {
-            sql.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append("=?");
-            condition.add(endpointName);
-        }
-
-        sql.append(" ORDER BY ").append(ProfileTaskRecord.START_TIME).append(" DESC ");
-
-        if (limit != null) {
-            sql.append(" LIMIT ").append(limit);
-        }
-
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                final var tasks = new ArrayList<ProfileTask>();
-                while (resultSet.next()) {
-                    tasks.add(parseTask(resultSet));
-                }
-                return tasks;
-            },
-            condition.toArray(new Object[0]));
+        return results;
     }
 
     @Override

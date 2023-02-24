@@ -88,6 +88,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
     protected JDBCStorageConfig config;
     protected JDBCClient jdbcClient;
     protected ModelInstaller modelInstaller;
+    protected TableHelper tableHelper;
 
     /**
      * Different storage implementations have different ways to create the tables/indices,
@@ -119,6 +120,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         jdbcClient = new JDBCClient(config.getProperties());
         modelInstaller = createModelInstaller();
+        tableHelper = new TableHelper(getManager(), jdbcClient);
 
         this.registerServiceImplementation(
             StorageBuilderFactory.class,
@@ -136,14 +138,14 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(
             INetworkAddressAliasDAO.class,
-            new JDBCNetworkAddressAliasDAO(jdbcClient));
+            new JDBCNetworkAddressAliasDAO(jdbcClient, getManager()));
 
         this.registerServiceImplementation(
             ITopologyQueryDAO.class,
             new JDBCTopologyQueryDAO(jdbcClient));
         this.registerServiceImplementation(
             IMetricsQueryDAO.class,
-            new JDBCMetricsQueryDAO(jdbcClient));
+            new JDBCMetricsQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
             new JDBCTraceQueryDAO(getManager(), jdbcClient));
@@ -152,10 +154,10 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCBrowserLogQueryDAO(jdbcClient));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class,
-            new JDBCMetadataQueryDAO(jdbcClient, config.getMetadataQueryMaxSize()));
+            new JDBCMetadataQueryDAO(jdbcClient, config.getMetadataQueryMaxSize(), getManager()));
         this.registerServiceImplementation(
             IAggregationQueryDAO.class,
-            new JDBCAggregationQueryDAO(jdbcClient));
+            new JDBCAggregationQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IAlarmQueryDAO.class,
             new JDBCAlarmQueryDAO(jdbcClient, getManager()));
@@ -171,7 +173,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(
             IProfileTaskQueryDAO.class,
-            new JDBCProfileTaskQueryDAO(jdbcClient));
+            new JDBCProfileTaskQueryDAO(jdbcClient, getManager()));
         this.registerServiceImplementation(
             IProfileTaskLogQueryDAO.class,
             new JDBCProfileTaskLogQueryDAO(jdbcClient));
@@ -184,7 +186,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(
             IEventQueryDAO.class,
-            new JDBCEventQueryDAO(jdbcClient));
+            new JDBCEventQueryDAO(jdbcClient, tableHelper));
 
         this.registerServiceImplementation(
             IEBPFProfilingTaskDAO.class,
