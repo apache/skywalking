@@ -58,6 +58,7 @@ import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.apache.skywalking.promql.rt.grammar.PromQLParserBaseVisitor;
 
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.buildMatrixValues;
+import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.formatDuration;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixBinaryOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixCompareOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixScalarBinaryOp;
@@ -247,9 +248,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
             return result;
         }
 
-        String timeRange = "PT" + ctx.DURATION().getText().toUpperCase();
+        String timeRange = ctx.DURATION().getText().toUpperCase();
         long endTS = System.currentTimeMillis();
-        long startTS = endTS - java.time.Duration.parse(timeRange).toMillis();
+        long startTS = endTS - formatDuration(timeRange).getMillis();
         duration = timestamp2Duration(startTS, endTS);
         ParseResult result = visit(ctx.metricInstant());
         result.setRangeExpression(true);

@@ -103,7 +103,6 @@ public class PromQLApiHandler {
     }
 
     @Get
-    @Post
     @Path("/api/v1/metadata")
     public HttpResponse metadata(
         @Param("limit") Optional<Integer> limit,
@@ -174,7 +173,6 @@ public class PromQLApiHandler {
      * reserve these param to keep consistent with API protocol.
      */
     @Get
-    @Post
     @Path("/api/v1/label/{label_name}/values")
     public HttpResponse labelValues(
         @Param("label_name") String labelName,
