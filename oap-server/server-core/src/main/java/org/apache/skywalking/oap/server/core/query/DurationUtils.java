@@ -88,6 +88,9 @@ public enum DurationUtils {
 
         List<PointOfTime> durations = new LinkedList<>();
         durations.add(new PointOfTime(startTimeBucket));
+        if (startTimeBucket == endTimeBucket) {
+            return durations;
+        }
 
         int i = 0;
         do {
