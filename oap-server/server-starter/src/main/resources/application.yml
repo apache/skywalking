@@ -435,6 +435,18 @@ query-zipkin:
     # Default look back on the UI for search traces, 15 minutes in millis
     uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
 
+#This module is for PromQL API.
+promql:
+  selector: ${SW_PROMQL:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_PROMQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_PROMQL_REST_PORT:9090}
+    restContextPath: ${SW_PROMQL_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
+
 alarm:
   selector: ${SW_ALARM:default}
   default:

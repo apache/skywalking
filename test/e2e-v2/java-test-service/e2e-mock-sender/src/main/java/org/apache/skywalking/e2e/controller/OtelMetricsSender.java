@@ -89,7 +89,7 @@ public class OtelMetricsSender {
     }
 
     private String rewriteTimeField(File file) throws IOException {
-        final long nanoTime = System.nanoTime();
+        final long nanoTime = System.currentTimeMillis() * 1000000L;
         final Configuration configuration = Configuration.builder()
                                                          .options(Option.SUPPRESS_EXCEPTIONS)
                                                          .evaluationListener(found -> {

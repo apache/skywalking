@@ -55,9 +55,7 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
                 timestampRange, new QueryBuilder<StreamQuery>() {
                     @Override
                     protected void apply(StreamQuery query) {
-                        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
-                            query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
-                        }
+                        query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
                         if (condition.getOrder() == Order.DES) {
                             query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.DESC));
                         } else {
