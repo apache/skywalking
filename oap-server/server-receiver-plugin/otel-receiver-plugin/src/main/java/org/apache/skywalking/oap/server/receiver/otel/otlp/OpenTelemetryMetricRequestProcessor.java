@@ -24,12 +24,14 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Sum;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
 import io.vavr.Function1;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
@@ -62,13 +64,13 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
     private final OtelMetricReceiverConfig config;
 
     private static final Map<String, String> LABEL_MAPPINGS =
-        ImmutableMap
-            .<String, String>builder()
-            .put("net.host.name", "node_identifier_host_name")
-            .put("host.name", "node_identifier_host_name")
-            .put("job", "job_name")
-            .put("service.name", "job_name")
-            .build();
+            ImmutableMap
+                    .<String, String>builder()
+                    .put("net.host.name", "node_identifier_host_name")
+                    .put("host.name", "node_identifier_host_name")
+                    .put("job", "job_name")
+                    .put("service.name", "job_name")
+                    .build();
     private List<PrometheusMetricConverter> converters;
 
     public void processMetricsRequest(final ExportMetricsServiceRequest requests) {
@@ -78,39 +80,39 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             }
 
             final Map<String, String> nodeLabels =
-                request
-                    .getResource()
-                    .getAttributesList()
-                    .stream()
-                    .collect(toMap(
-                        it -> LABEL_MAPPINGS
-                            .getOrDefault(it.getKey(), it.getKey())
-                            .replaceAll("\\.", "_"),
-                        it -> it.getValue().getStringValue(),
-                        (v1, v2) -> v1
-                    ));
+                    request
+                            .getResource()
+                            .getAttributesList()
+                            .stream()
+                            .collect(toMap(
+                                    it -> LABEL_MAPPINGS
+                                            .getOrDefault(it.getKey(), it.getKey())
+                                            .replaceAll("\\.", "_"),
+                                    it -> it.getValue().getStringValue(),
+                                    (v1, v2) -> v1
+                            ));
 
             converters
-                .forEach(convert -> convert.toMeter(
-                    request
-                        .getScopeMetricsList().stream()
-                        .flatMap(scopeMetrics -> scopeMetrics
-                            .getMetricsList().stream()
-                            .flatMap(metric -> adaptMetrics(nodeLabels, metric))
-                            .map(Function1.liftTry(Function.identity()))
-                            .flatMap(tryIt -> MetricConvert.log(
-                                tryIt,
-                                "Convert OTEL metric to prometheus metric"
-                            )))));
+                    .forEach(convert -> convert.toMeter(
+                            request
+                                    .getScopeMetricsList().stream()
+                                    .flatMap(scopeMetrics -> scopeMetrics
+                                            .getMetricsList().stream()
+                                            .flatMap(metric -> adaptMetrics(nodeLabels, metric))
+                                            .map(Function1.liftTry(Function.identity()))
+                                            .flatMap(tryIt -> MetricConvert.log(
+                                                    tryIt,
+                                                    "Convert OTEL metric to prometheus metric"
+                                            )))));
         });
 
     }
 
     public void start() throws ModuleStartException {
         final List<String> enabledRules =
-            Splitter.on(",")
-                    .omitEmptyStrings()
-                    .splitToList(config.getEnabledOtelRules());
+                Splitter.on(",")
+                        .omitEmptyStrings()
+                        .splitToList(config.getEnabledOtelRules());
         final List<Rule> rules;
         try {
             rules = Rules.loadRules("otel-rules", enabledRules);
@@ -124,23 +126,23 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
 
         converters = rules
-            .stream()
-            .map(r -> new PrometheusMetricConverter(r, meterSystem))
-            .collect(toList());
+                .stream()
+                .map(r -> new PrometheusMetricConverter(r, meterSystem))
+                .collect(toList());
     }
 
     private static Map<String, String> buildLabels(List<KeyValue> kvs) {
         return kvs
-            .stream()
-            .collect(toMap(
-                KeyValue::getKey,
-                it -> it.getValue().getStringValue()
-            ));
+                .stream()
+                .collect(toMap(
+                        KeyValue::getKey,
+                        it -> it.getValue().getStringValue()
+                ));
     }
 
     private static Map<String, String> mergeLabels(
-        final Map<String, String> nodeLabels,
-        final Map<String, String> pointLabels) {
+            final Map<String, String> nodeLabels,
+            final Map<String, String> pointLabels) {
 
         // data point labels should have higher precedence and override the one in node labels
 
@@ -150,8 +152,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
     }
 
     private static Map<Double, Long> buildBuckets(
-        final List<Long> bucketCounts,
-        final List<Double> explicitBounds) {
+            final List<Long> bucketCounts,
+            final List<Double> explicitBounds) {
 
         final Map<Double, Long> result = new HashMap<>();
         for (int i = 0; i < explicitBounds.size(); i++) {
@@ -161,103 +163,141 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return result;
     }
 
+    private static Map<Double, Long> buildBucketsFromExponentialHistogram(
+            int positiveOffset, final List<Long> positiveBucketCounts,
+            int negativeOffset, final List<Long> negativeBucketCounts, int scale) {
+
+        final Map<Double, Long> result = new HashMap<>();
+        double base = Math.pow(2.0, Math.pow(2.0, -scale));
+        double upperBound;
+        for (int i = 0; i < negativeBucketCounts.size(); i++) {
+            upperBound = -Math.pow(base, negativeOffset + i);
+            result.put(upperBound, negativeBucketCounts.get(i));
+        }
+        for (int i = 0; i < positiveBucketCounts.size(); i++) {
+            upperBound = Math.pow(base, positiveOffset + i + 1);
+            result.put(upperBound, positiveBucketCounts.get(i));
+        }
+        return result;
+    }
+
     // Adapt the OpenTelemetry metrics to SkyWalking metrics
     private Stream<? extends Metric> adaptMetrics(
-        final Map<String, String> nodeLabels,
-        final io.opentelemetry.proto.metrics.v1.Metric metric) {
+            final Map<String, String> nodeLabels,
+            final io.opentelemetry.proto.metrics.v1.Metric metric) {
         if (metric.hasGauge()) {
             return metric.getGauge().getDataPointsList().stream()
-                         .map(point -> new Gauge(
-                             metric.getName(),
-                             mergeLabels(
-                                 nodeLabels,
-                                 buildLabels(point.getAttributesList())
-                             ),
-                             point.hasAsDouble() ? point.getAsDouble()
-                                 : point.getAsInt(),
-                             point.getTimeUnixNano() / 1000000
-                         ));
+                    .map(point -> new Gauge(
+                            metric.getName(),
+                            mergeLabels(
+                                    nodeLabels,
+                                    buildLabels(point.getAttributesList())
+                            ),
+                            point.hasAsDouble() ? point.getAsDouble()
+                                    : point.getAsInt(),
+                            point.getTimeUnixNano() / 1000000
+                    ));
         }
         if (metric.hasSum()) {
             final Sum sum = metric.getSum();
             if (sum
-                .getAggregationTemporality() == AGGREGATION_TEMPORALITY_UNSPECIFIED) {
+                    .getAggregationTemporality() == AGGREGATION_TEMPORALITY_UNSPECIFIED) {
                 return Stream.empty();
             }
             if (sum
-                .getAggregationTemporality() == AGGREGATION_TEMPORALITY_DELTA) {
+                    .getAggregationTemporality() == AGGREGATION_TEMPORALITY_DELTA) {
                 return sum.getDataPointsList().stream()
                         .map(point -> new Gauge(
                                 metric.getName(),
                                 mergeLabels(
-                                    nodeLabels,
-                                    buildLabels(point.getAttributesList())
+                                        nodeLabels,
+                                        buildLabels(point.getAttributesList())
                                 ),
                                 point.hasAsDouble() ? point.getAsDouble()
-                                    : point.getAsInt(),
+                                        : point.getAsInt(),
                                 point.getTimeUnixNano() / 1000000
                         ));
             }
             if (sum.getIsMonotonic()) {
                 return sum.getDataPointsList().stream()
-                          .map(point -> new Counter(
-                              metric.getName(),
-                              mergeLabels(
-                                  nodeLabels,
-                                  buildLabels(point.getAttributesList())
-                              ),
-                              point.hasAsDouble() ? point.getAsDouble()
-                                  : point.getAsInt(),
-                              point.getTimeUnixNano() / 1000000
-                          ));
+                        .map(point -> new Counter(
+                                metric.getName(),
+                                mergeLabels(
+                                        nodeLabels,
+                                        buildLabels(point.getAttributesList())
+                                ),
+                                point.hasAsDouble() ? point.getAsDouble()
+                                        : point.getAsInt(),
+                                point.getTimeUnixNano() / 1000000
+                        ));
             } else {
                 return sum.getDataPointsList().stream()
-                          .map(point -> new Gauge(
-                              metric.getName(),
-                              mergeLabels(
-                                  nodeLabels,
-                                  buildLabels(point.getAttributesList())
-                              ),
-                              point.hasAsDouble() ? point.getAsDouble()
-                                  : point.getAsInt(),
-                              point.getTimeUnixNano() / 1000000
-                          ));
+                        .map(point -> new Gauge(
+                                metric.getName(),
+                                mergeLabels(
+                                        nodeLabels,
+                                        buildLabels(point.getAttributesList())
+                                ),
+                                point.hasAsDouble() ? point.getAsDouble()
+                                        : point.getAsInt(),
+                                point.getTimeUnixNano() / 1000000
+                        ));
             }
         }
         if (metric.hasHistogram()) {
             return metric.getHistogram().getDataPointsList().stream()
-                         .map(point -> new Histogram(
-                             metric.getName(),
-                             mergeLabels(
-                                 nodeLabels,
-                                 buildLabels(point.getAttributesList())
-                             ),
-                             point.getCount(),
-                             point.getSum(),
-                             buildBuckets(
-                                 point.getBucketCountsList(),
-                                 point.getExplicitBoundsList()
-                             ),
-                             point.getTimeUnixNano() / 1000000
-                         ));
+                    .map(point -> new Histogram(
+                            metric.getName(),
+                            mergeLabels(
+                                    nodeLabels,
+                                    buildLabels(point.getAttributesList())
+                            ),
+                            point.getCount(),
+                            point.getSum(),
+                            buildBuckets(
+                                    point.getBucketCountsList(),
+                                    point.getExplicitBoundsList()
+                            ),
+                            point.getTimeUnixNano() / 1000000
+                    ));
+        }
+        if (metric.hasExponentialHistogram()) {
+            return metric.getExponentialHistogram().getDataPointsList().stream()
+                    .map(point -> new Histogram(
+                            metric.getName(),
+                            mergeLabels(
+                                    nodeLabels,
+                                    buildLabels(point.getAttributesList())
+                            ),
+                            point.getCount(),
+                            point.getSum(),
+                            buildBucketsFromExponentialHistogram(
+                                    point.getPositive().getOffset(),
+                                    point.getPositive().getBucketCountsList(),
+                                    point.getNegative().getOffset(),
+                                    point.getNegative().getBucketCountsList(),
+                                    point.getScale()
+                            ),
+                            point.getTimeUnixNano() / 1000000
+                    ));
         }
         if (metric.hasSummary()) {
             return metric.getSummary().getDataPointsList().stream()
-                         .map(point -> new Summary(
-                             metric.getName(),
-                             mergeLabels(
-                                 nodeLabels,
-                                 buildLabels(point.getAttributesList())
-                             ),
-                             point.getCount(),
-                             point.getSum(),
-                             point.getQuantileValuesList().stream().collect(
-                                 toMap(
-                                     SummaryDataPoint.ValueAtQuantile::getQuantile,
-                                     SummaryDataPoint.ValueAtQuantile::getValue
-                                 )),
-                             point.getTimeUnixNano() / 1000000
-                         ));
+                    .map(point -> new Summary(
+                            metric.getName(),
+                            mergeLabels(
+                                    nodeLabels,
+                                    buildLabels(point.getAttributesList())
+                            ),
+                            point.getCount(),
+                            point.getSum(),
+                            point.getQuantileValuesList().stream().collect(
+                                    toMap(
+                                            SummaryDataPoint.ValueAtQuantile::getQuantile,
+                                            SummaryDataPoint.ValueAtQuantile::getValue
+                                    )),
+                            point.getTimeUnixNano() / 1000000
+                    ));
         }
         throw new UnsupportedOperationException("Unsupported type");
     }
