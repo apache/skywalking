@@ -175,18 +175,19 @@ public enum MetadataRegistry {
             schemaBuilder.field(field.getName());
         }
         // parse TopN
-        schemaBuilder.topNSpec(parseTopNSpec(model, tagsAndFields));
+        schemaBuilder.topNSpec(parseTopNSpec(schemaMetadata.name(), tagsAndFields));
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return builder.build();
     }
 
-    private TopNSpec parseTopNSpec(final Model model, final MeasureMetadata tagsAndFields) {
+    private TopNSpec parseTopNSpec(final String measureName, final MeasureMetadata tagsAndFields) {
         if (CollectionUtils.isEmpty(tagsAndFields.fields)) {
             return null;
         }
         // TODO: how to configure parameters?
         return TopNSpec.builder()
+                .name(measureName + "_topn")
                 .lruSize(5)
                 .countersNumber(10)
                 .fieldName(tagsAndFields.fields.get(0).getName())
@@ -670,6 +671,10 @@ public enum MetadataRegistry {
             return this.specs.get(columnName);
         }
 
+        public boolean hasTopNAggregation() {
+            return topNSpec != null;
+        }
+
         public void installTopNAggregation(BanyanDBClient client) throws BanyanDBException {
             if (this.topNSpec == null) {
                 if (this.metadata.kind == Kind.MEASURE) {
@@ -690,7 +695,9 @@ public enum MetadataRegistry {
 
     @Builder
     @EqualsAndHashCode
+    @Getter
     public static class TopNSpec {
+        private final String name;
         @Singular
         private final List<String> groupByTagNames;
         private final String fieldName;

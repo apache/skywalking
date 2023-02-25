@@ -28,6 +28,8 @@ import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.banyandb.v1.client.TopNQuery;
+import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -73,6 +75,22 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
     protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
                                          QueryBuilder<MeasureQuery> builder) throws IOException {
         return this.query(measureModelName, tags, fields, null, builder);
+    }
+
+    protected TopNQueryResponse topN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number) throws IOException {
+        final TopNQuery q = new TopNQuery(schema.getMetadata().getGroup(), schema.getTopNSpec().getName(),
+                timestampRange,
+                number, AbstractQuery.Sort.DESC);
+        q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
+        return getClient().query(q);
+    }
+
+    protected TopNQueryResponse bottomN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number) throws IOException {
+        final TopNQuery q = new TopNQuery(schema.getMetadata().getGroup(), schema.getTopNSpec().getName(),
+                timestampRange,
+                number, AbstractQuery.Sort.ASC);
+        q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
+        return getClient().query(q);
     }
 
     protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,

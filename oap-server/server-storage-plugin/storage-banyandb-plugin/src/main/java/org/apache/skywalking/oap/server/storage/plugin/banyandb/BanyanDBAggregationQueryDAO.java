@@ -23,6 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -51,6 +52,43 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
+        // fast-path: BanyanDB server-side TopN support
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+
+        MetadataRegistry.ColumnSpec spec = schema.getSpec(valueColumnName);
+        if (spec == null) {
+            throw new IOException("field spec is not registered");
+        }
+
+        if (schema.hasTopNAggregation()) {
+            TopNQueryResponse resp = null;
+            if (condition.getOrder() == Order.DES) {
+                resp = topN(schema, timestampRange, condition.getTopN());
+            } else {
+                resp = bottomN(schema, timestampRange, condition.getTopN());
+            }
+
+            if (resp.getTopNLists().isEmpty()) {
+                return Collections.emptyList();
+            } else if (resp.getTopNLists().size() > 1) { // since we have done aggregation, i.e. MEAN
+                throw new IOException("invalid TopN response");
+            }
+
+            final List<SelectedRecord> topNList = new ArrayList<>();
+            for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
+                SelectedRecord record = new SelectedRecord();
+                record.setId(item.getName());
+                record.setValue(extractFieldValueAsString(spec, item.getValue()));
+                topNList.add(record);
+            }
+
+            return topNList;
+        }
+
+        // slow-path: TopN using vanilla Measure query
         MeasureQueryResponse resp = query(modelName, TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -75,16 +113,6 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             return Collections.emptyList();
         }
 
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
-        if (schema == null) {
-            throw new IOException("schema is not registered");
-        }
-
-        MetadataRegistry.ColumnSpec spec = schema.getSpec(valueColumnName);
-        if (spec == null) {
-            throw new IOException("field spec is not registered");
-        }
-
         final List<SelectedRecord> topNList = new ArrayList<>();
         for (DataPoint dataPoint : resp.getDataPoints()) {
             SelectedRecord record = new SelectedRecord();
@@ -96,13 +124,17 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return topNList;
     }
 
-    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
+    private static String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
+        return extractFieldValueAsString(spec, dataPoint.getFieldValue(fieldName));
+    }
+
+    private static String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, Object fieldValue) throws IOException {
         if (double.class.equals(spec.getColumnClass())) {
-            return String.valueOf(ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName)).longValue());
+            return String.valueOf(ByteUtil.bytes2Double((byte[]) fieldValue).longValue());
         } else if (String.class.equals(spec.getColumnClass())) {
-            return dataPoint.getFieldValue(fieldName);
+            return (String) fieldValue;
         } else {
-            return String.valueOf(((Number) dataPoint.getFieldValue(fieldName)).longValue());
+            return String.valueOf(((Number) fieldValue).longValue());
         }
     }
 }
