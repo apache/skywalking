@@ -88,12 +88,17 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             } else { // measure
                 Measure measure = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                 if (measure != null) {
-                    log.info("install measure schema {}", model.getName());
+                    log.info("install measure schema {}", measure.name());
                     ((BanyanDBStorageClient) client).define(measure);
+                    final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
+                    MetadataRegistry.INSTANCE.findMetadata(model).installTopNAggregation(c);
+                    log.info("installed TopN schema for measure {}", measure.name());
                 }
             }
         } catch (IOException ex) {
             throw new StorageException("fail to install schema", ex);
+        } catch (BanyanDBException ex) {
+            throw new StorageException("fail to install TopN schema", ex);
         }
     }
 }
