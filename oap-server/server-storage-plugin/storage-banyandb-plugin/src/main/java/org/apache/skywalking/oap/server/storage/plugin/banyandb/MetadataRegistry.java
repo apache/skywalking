@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import io.grpc.Status;
 
@@ -63,18 +62,15 @@ import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
-import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -676,19 +672,19 @@ public enum MetadataRegistry {
         }
 
         public void installTopNAggregation(BanyanDBClient client) throws BanyanDBException {
-            if (this.topNSpec == null) {
+            if (this.getTopNSpec() == null) {
                 if (this.metadata.kind == Kind.MEASURE) {
                     log.debug("skip null TopN Schema for [{}]", metadata.getModelName());
                 }
                 return;
             }
-            client.define(TopNAggregation.create(getMetadata().getGroup(), getMetadata().name() + "_topn")
+            client.define(TopNAggregation.create(getMetadata().getGroup(), this.getTopNSpec().getName())
                     .setSourceMeasureName(getMetadata().name())
-                    .setFieldValueSort(topNSpec.sort)
-                    .setFieldName(topNSpec.fieldName)
-                    .setGroupByTagNames(topNSpec.groupByTagNames)
-                    .setCountersNumber(topNSpec.countersNumber)
-                    .setLruSize(topNSpec.lruSize)
+                    .setFieldValueSort(this.getTopNSpec().getSort())
+                    .setFieldName(this.getTopNSpec().getFieldName())
+                    .setGroupByTagNames(this.getTopNSpec().getGroupByTagNames())
+                    .setCountersNumber(this.getTopNSpec().getCountersNumber())
+                    .setLruSize(this.getTopNSpec().getLruSize())
                     .build());
         }
     }
