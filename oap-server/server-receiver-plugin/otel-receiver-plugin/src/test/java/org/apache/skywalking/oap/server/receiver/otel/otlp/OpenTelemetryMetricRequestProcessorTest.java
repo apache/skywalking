@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogram;
@@ -102,7 +103,7 @@ public class OpenTelemetryMetricRequestProcessorTest {
 
         Stream<Histogram> stream = (Stream<Histogram>) adaptMetricsMethod.invoke(
             metricRequestProcessor, nodeLabels, metric);
-        List<Histogram> list = stream.toList();
+        List<Histogram> list = stream.collect(Collectors.toList());
         Histogram histogramMetric = list.get(0);
         assertEquals("test_metric", histogramMetric.getName());
         assertEquals(1, histogramMetric.getTimestamp());
