@@ -66,9 +66,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
-            resp = topN(schema, timestampRange, condition.getTopN());
+            resp = topN(schema, timestampRange, condition.getTopN(), additionalConditions);
         } else {
-            resp = bottomN(schema, timestampRange, condition.getTopN());
+            resp = bottomN(schema, timestampRange, condition.getTopN(), additionalConditions);
         }
 
         if (resp.size() == 0) {
@@ -80,7 +80,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         final List<SelectedRecord> topNList = new ArrayList<>();
         for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
             SelectedRecord record = new SelectedRecord();
-            record.setId(item.getName());
+            record.setId(item.getGroupByTagValues().get(0)); // 0 -> ENTITY_ID
             record.setValue(extractFieldValueAsString(spec, item.getValue()));
             topNList.add(record);
         }

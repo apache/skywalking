@@ -31,12 +31,14 @@ import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -77,19 +79,29 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return this.query(measureModelName, tags, fields, null, builder);
     }
 
-    protected TopNQueryResponse topN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number) throws IOException {
-        final TopNQuery q = new TopNQuery(schema.getMetadata().getGroup(), schema.getTopNSpec().getName(),
-                timestampRange,
-                number, AbstractQuery.Sort.DESC);
-        q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
-        return getClient().query(q);
+    protected TopNQueryResponse topN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
+                                     List<KeyValue> additionalConditions) throws IOException {
+        return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.DESC, additionalConditions);
     }
 
-    protected TopNQueryResponse bottomN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number) throws IOException {
+    protected TopNQueryResponse bottomN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
+                                        List<KeyValue> additionalConditions) throws IOException {
+        return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.ASC, additionalConditions);
+    }
+
+    private TopNQueryResponse topNQuery(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
+                                        AbstractQuery.Sort sort, List<KeyValue> additionalConditions) throws IOException {
         final TopNQuery q = new TopNQuery(schema.getMetadata().getGroup(), schema.getTopNSpec().getName(),
                 timestampRange,
-                number, AbstractQuery.Sort.ASC);
+                number, sort);
         q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
+        if (!additionalConditions.isEmpty()) {
+            List<PairQueryCondition<?>> conditions = new ArrayList<>(additionalConditions.size());
+            for (final KeyValue kv : additionalConditions) {
+                conditions.add(PairQueryCondition.StringQueryCondition.eq(kv.getKey(), kv.getValue()));
+            }
+            q.setConditions(conditions);
+        }
         return getClient().query(q);
     }
 
