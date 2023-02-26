@@ -163,19 +163,54 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return result;
     }
 
+    /**
+     * ExponentialHistogram data points are an alternate representation to the Histogram data point in OpenTelemetry
+     * metric format(https://opentelemetry.io/docs/reference/specification/metrics/data-model/#exponentialhistogram).
+     * It uses scale, offset and bucket index to calculate the bound. Firstly, calculate the base using scale by
+     * formula: base = 2**(2**(-scale)). Then the upperBound of specific bucket can be calculated by formula:
+     * base**(offset+index+1). Above calculation way is about positive buckets. For the negative case, we just
+     * map them by their absolute value into the negative range using the same scale as the positive range. So the
+     * upperBound should be calculated as -base**(offset+index).
+     *
+     * @param positiveOffset       corresponding to positive Buckets' offset in ExponentialHistogramDataPoint
+     * @param positiveBucketCounts corresponding to positive Buckets' bucket_counts in ExponentialHistogramDataPoint
+     * @param negativeOffset       corresponding to negative Buckets' offset in ExponentialHistogramDataPoint
+     * @param negativeBucketCounts corresponding to negative Buckets' bucket_counts in ExponentialHistogramDataPoint
+     * @param scale                corresponding to scale in ExponentialHistogramDataPoint
+     * @return The map is a bucket set for histogram, the key is specific bucket's upperBound, the value is item count
+     * in this bucket lower than or equals to key(upperBound)
+     */
     private static Map<Double, Long> buildBucketsFromExponentialHistogram(
         int positiveOffset, final List<Long> positiveBucketCounts,
         int negativeOffset, final List<Long> negativeBucketCounts, int scale) {
 
         final Map<Double, Long> result = new HashMap<>();
         double base = Math.pow(2.0, Math.pow(2.0, -scale));
+        if (base == Double.POSITIVE_INFINITY) {
+            if (log.isDebugEnabled()) {
+                log.warn("Receive and reject out-of-range ExponentialHistogram data");
+            }
+            return result;
+        }
         double upperBound;
         for (int i = 0; i < negativeBucketCounts.size(); i++) {
             upperBound = -Math.pow(base, negativeOffset + i);
+            if (upperBound == Double.NEGATIVE_INFINITY) {
+                if (log.isDebugEnabled()) {
+                    log.warn("Receive and reject out-of-range ExponentialHistogram data");
+                }
+                break;
+            }
             result.put(upperBound, negativeBucketCounts.get(i));
         }
         for (int i = 0; i < positiveBucketCounts.size() - 1; i++) {
             upperBound = Math.pow(base, positiveOffset + i + 1);
+            if (upperBound == Double.POSITIVE_INFINITY) {
+                if (log.isDebugEnabled()) {
+                    log.warn("Receive and reject out-of-range ExponentialHistogram data");
+                }
+                break;
+            }
             result.put(upperBound, positiveBucketCounts.get(i));
         }
         result.put(Double.POSITIVE_INFINITY, positiveBucketCounts.get(positiveBucketCounts.size() - 1));
