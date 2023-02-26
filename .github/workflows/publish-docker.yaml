@@ -50,6 +50,7 @@ jobs:
         run: |
           if [[ ${{ github.event_name }} != "release" ]]; then
             echo "HUB=apache" >> $GITHUB_ENV
+            echo "DOCKER_REGISTRY=docker.io" >> $GITHUB_ENV
             echo "DOCKER_USERNAME=${{ secrets.DOCKERHUB_USER }}" >> $GITHUB_ENV
             echo "DOCKER_PASSWORD=${{ secrets.DOCKERHUB_TOKEN }}" >> $GITHUB_ENV
           else
