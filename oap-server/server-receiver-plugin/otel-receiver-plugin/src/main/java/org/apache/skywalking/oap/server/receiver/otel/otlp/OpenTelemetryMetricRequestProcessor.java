@@ -174,10 +174,11 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             upperBound = -Math.pow(base, negativeOffset + i);
             result.put(upperBound, negativeBucketCounts.get(i));
         }
-        for (int i = 0; i < positiveBucketCounts.size(); i++) {
+        for (int i = 0; i < positiveBucketCounts.size() - 1; i++) {
             upperBound = Math.pow(base, positiveOffset + i + 1);
             result.put(upperBound, positiveBucketCounts.get(i));
         }
+        result.put(Double.POSITIVE_INFINITY, positiveBucketCounts.get(positiveBucketCounts.size() - 1));
         return result;
     }
 
