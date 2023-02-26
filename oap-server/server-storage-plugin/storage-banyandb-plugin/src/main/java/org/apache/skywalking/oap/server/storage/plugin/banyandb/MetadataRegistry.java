@@ -26,6 +26,7 @@ import io.grpc.Status;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -185,8 +186,9 @@ public enum MetadataRegistry {
         return TopNSpec.builder()
                 .name(measureName + "_topn")
                 .lruSize(5)
-                .countersNumber(10)
+                .countersNumber(100)
                 .fieldName(tagsAndFields.fields.get(0).getName())
+                .groupByTagNames(Collections.singletonList(Metrics.ENTITY_ID)) // use entity_id as the only groupBy field
                 .sort(AbstractQuery.Sort.UNSPECIFIED) // include both TopN and BottomN
                 .build();
     }
@@ -665,10 +667,6 @@ public enum MetadataRegistry {
 
         public ColumnSpec getSpec(String columnName) {
             return this.specs.get(columnName);
-        }
-
-        public boolean hasTopNAggregation() {
-            return topNSpec != null;
         }
 
         public void installTopNAggregation(BanyanDBClient client) throws BanyanDBException {

@@ -20,8 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
-import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -31,7 +29,6 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
@@ -63,61 +60,28 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             throw new IOException("field spec is not registered");
         }
 
-        if (schema.hasTopNAggregation()) {
-            TopNQueryResponse resp = null;
-            if (condition.getOrder() == Order.DES) {
-                resp = topN(schema, timestampRange, condition.getTopN());
-            } else {
-                resp = bottomN(schema, timestampRange, condition.getTopN());
-            }
-
-            if (resp.getTopNLists().isEmpty()) {
-                return Collections.emptyList();
-            } else if (resp.getTopNLists().size() > 1) { // since we have done aggregation, i.e. MEAN
-                throw new IOException("invalid TopN response");
-            }
-
-            final List<SelectedRecord> topNList = new ArrayList<>();
-            for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
-                SelectedRecord record = new SelectedRecord();
-                record.setId(item.getName());
-                record.setValue(extractFieldValueAsString(spec, item.getValue()));
-                topNList.add(record);
-            }
-
-            return topNList;
+        if (schema.getTopNSpec() == null) {
+            throw new IOException("TopN spec is registered");
         }
 
-        // slow-path: TopN using vanilla Measure query
-        MeasureQueryResponse resp = query(modelName, TAGS, Collections.singleton(valueColumnName),
-                timestampRange, new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
-                        if (condition.getOrder() == Order.DES) {
-                            query.topN(condition.getTopN(), valueColumnName);
-                        } else {
-                            query.bottomN(condition.getTopN(), valueColumnName);
-                        }
-                        if (CollectionUtils.isNotEmpty(additionalConditions)) {
-                            additionalConditions.forEach(additionalCondition -> query
-                                    .and(eq(
-                                            additionalCondition.getKey(),
-                                            additionalCondition.getValue()
-                                    )));
-                        }
-                    }
-                });
+        TopNQueryResponse resp = null;
+        if (condition.getOrder() == Order.DES) {
+            resp = topN(schema, timestampRange, condition.getTopN());
+        } else {
+            resp = bottomN(schema, timestampRange, condition.getTopN());
+        }
 
         if (resp.size() == 0) {
             return Collections.emptyList();
+        } else if (resp.size() > 1) { // since we have done aggregation, i.e. MEAN
+            throw new IOException("invalid TopN response");
         }
 
         final List<SelectedRecord> topNList = new ArrayList<>();
-        for (DataPoint dataPoint : resp.getDataPoints()) {
+        for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
             SelectedRecord record = new SelectedRecord();
-            record.setId(dataPoint.getTagValue(Metrics.ENTITY_ID));
-            record.setValue(extractFieldValueAsString(spec, valueColumnName, dataPoint));
+            record.setId(item.getName());
+            record.setValue(extractFieldValueAsString(spec, item.getValue()));
             topNList.add(record);
         }
 
