@@ -31,6 +31,7 @@ public class BanyanDBModelExtension {
     /**
      * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
      * BanyanDB stream requires a timestamp in milliseconds
+     *
      * @since 9.3.0
      */
     @Getter
@@ -45,4 +46,23 @@ public class BanyanDBModelExtension {
     @Setter
     private boolean storeIDTag;
 
+    /**
+     * lru_size defines how many snapshots are allowed to be maintained in the memory.
+     * The default value is 2 in the BanyanDB if not set.
+     *
+     * @since 9.4.0
+     */
+    @Getter
+    @Setter
+    private int lruSize = 2;
+
+    /**
+     * counters_number defines the max number of entries to be tracked during the pre-aggregation.
+     * The default value is 1000 in the BanyanDB if not set.
+     *
+     * @since 9.4.0
+     */
+    @Getter
+    @Setter
+    private int countersNumber = 1000;
 }

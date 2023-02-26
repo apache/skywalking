@@ -163,4 +163,15 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @interface StoreIDAsTag {
     }
+
+    /**
+     * TopNAggregation contains parameters for TopNAggregation
+     * @since 9.4.0
+     */
+    @Target({ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface TopNAggregation {
+        int lruSize() default 2;
+        int countersNumber() default 1000;
+    }
 }

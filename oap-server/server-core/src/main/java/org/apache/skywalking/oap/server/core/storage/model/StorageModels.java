@@ -98,6 +98,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         if (aClass.isAnnotationPresent(BanyanDB.StoreIDAsTag.class)) {
             banyanDBModelExtension.setStoreIDTag(true);
         }
+
+        if (aClass.isAnnotationPresent(BanyanDB.TopNAggregation.class)) {
+            banyanDBModelExtension.setLruSize(aClass.getAnnotation(BanyanDB.TopNAggregation.class).lruSize());
+            banyanDBModelExtension.setLruSize(aClass.getAnnotation(BanyanDB.TopNAggregation.class).countersNumber());
+        }
+
         // Set routing rules for ElasticSearch
         elasticSearchModelExtension.setRouting(storage.getModelName(), modelColumns);
         

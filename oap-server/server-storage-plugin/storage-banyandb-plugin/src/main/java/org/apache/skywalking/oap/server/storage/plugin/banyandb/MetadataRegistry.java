@@ -26,7 +26,6 @@ import io.grpc.Status;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +63,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -76,7 +76,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
@@ -173,24 +172,31 @@ public enum MetadataRegistry {
             schemaBuilder.field(field.getName());
         }
         // parse TopN
-        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name()));
+        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name(), tagsAndFields));
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return builder.build();
     }
 
-    private TopNSpec parseTopNSpec(final Model model, final String measureName) {
-        final String valueCName = ValueColumnMetadata.INSTANCE.getValueCName(model.getName());
-        if (StringUtil.isEmpty(valueCName)) {
+    private TopNSpec parseTopNSpec(final Model model, final String measureName, MeasureMetadata tagsAndFields) {
+        final Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(model.getName());
+        if (valueColumnOpt.isEmpty()) {
             return null;
         }
-        // TODO: how to configure parameters?
+
+        List<String> groupByTagNames = new ArrayList<>();
+        groupByTagNames.add(Metrics.ENTITY_ID);
+        for (final TagMetadata tagSpec : tagsAndFields.tags) {
+            if (tagSpec.getTagSpec().getTagName().equals(InstanceTraffic.SERVICE_ID)) {
+                groupByTagNames.add(InstanceTraffic.SERVICE_ID);
+            }
+        }
         return TopNSpec.builder()
                 .name(measureName + "_topn")
-                .lruSize(5)
-                .countersNumber(100)
-                .fieldName(valueCName)
-                .groupByTagNames(Collections.singletonList(Metrics.ENTITY_ID)) // use entity_id as the only groupBy field
+                .lruSize(model.getBanyanDBModelExtension().getLruSize())
+                .countersNumber(model.getBanyanDBModelExtension().getCountersNumber())
+                .fieldName(valueColumnOpt.get().getValueCName())
+                .groupByTagNames(groupByTagNames) // use entity_id as the only groupBy field
                 .sort(AbstractQuery.Sort.UNSPECIFIED) // include both TopN and BottomN
                 .build();
     }
