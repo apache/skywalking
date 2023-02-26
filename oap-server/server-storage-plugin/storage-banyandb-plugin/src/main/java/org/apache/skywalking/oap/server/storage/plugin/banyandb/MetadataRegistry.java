@@ -72,6 +72,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -172,14 +173,15 @@ public enum MetadataRegistry {
             schemaBuilder.field(field.getName());
         }
         // parse TopN
-        schemaBuilder.topNSpec(parseTopNSpec(schemaMetadata.name(), tagsAndFields));
+        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name()));
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return builder.build();
     }
 
-    private TopNSpec parseTopNSpec(final String measureName, final MeasureMetadata tagsAndFields) {
-        if (CollectionUtils.isEmpty(tagsAndFields.fields)) {
+    private TopNSpec parseTopNSpec(final Model model, final String measureName) {
+        final String valueCName = ValueColumnMetadata.INSTANCE.getValueCName(model.getName());
+        if (StringUtil.isEmpty(valueCName)) {
             return null;
         }
         // TODO: how to configure parameters?
@@ -187,7 +189,7 @@ public enum MetadataRegistry {
                 .name(measureName + "_topn")
                 .lruSize(5)
                 .countersNumber(100)
-                .fieldName(tagsAndFields.fields.get(0).getName())
+                .fieldName(valueCName)
                 .groupByTagNames(Collections.singletonList(Metrics.ENTITY_ID)) // use entity_id as the only groupBy field
                 .sort(AbstractQuery.Sort.UNSPECIFIED) // include both TopN and BottomN
                 .build();
