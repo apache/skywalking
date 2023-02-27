@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.sql.ResultSet;
@@ -31,25 +33,43 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JDBCEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
-    private JDBCClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<EBPFProfilingSchedule> querySchedules(String taskId) {
-        final StringBuilder sql = new StringBuilder();
-        final StringBuilder conditionSql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(EBPFProfilingScheduleRecord.INDEX_NAME);
-
-        appendCondition(conditionSql, condition, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
-
-        if (conditionSql.length() > 0) {
-            sql.append(" where ").append(conditionSql);
+        final var tables = tableHelper.getTablesForRead(EBPFProfilingScheduleRecord.INDEX_NAME);
+        final var schedules = new ArrayList<EBPFProfilingSchedule>();
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL(taskId, table);
+            schedules.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildSchedules,
+                    sqlAndParameters.parameters()
+                )
+            );
         }
+        return schedules;
+    }
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildSchedules, condition.toArray(new Object[0]));
+    protected SQLAndParameters buildSQL(
+        final String taskId,
+        final String table) {
+        final var sql = new StringBuilder();
+        final var conditions = new StringBuilder();
+        final var parameters = new ArrayList<>(4);
+        sql.append("select * from ").append(table);
+
+        appendCondition(conditions, parameters, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
+
+        if (conditions.length() > 0) {
+            sql.append(" where ").append(conditions);
+        }
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     private List<EBPFProfilingSchedule> buildSchedules(ResultSet resultSet) throws SQLException {

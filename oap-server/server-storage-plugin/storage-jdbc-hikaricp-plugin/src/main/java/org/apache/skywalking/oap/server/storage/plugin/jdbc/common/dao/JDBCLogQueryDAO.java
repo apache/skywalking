@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -39,12 +40,22 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static java.util.function.Predicate.not;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.CONTENT_TYPE;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.ENDPOINT_ID;
@@ -57,11 +68,13 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JDBCLogQueryDAO implements ILogQueryDAO {
     private final JDBCClient jdbcClient;
     private final ModuleManager manager;
-    private List<String> searchableTagKeys;
+    private final TableHelper tableHelper;
+    private Set<String> searchableTagKeys;
 
     @Override
     @SneakyThrows
@@ -76,22 +89,100 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
                           final List<Tag> tags,
                           final List<String> keywordsOfContent,
                           final List<String> excludingKeywordsOfContent) {
+        if (searchableTagKeys == null) {
+            final ConfigService configService = manager.find(CoreModule.NAME)
+                                                       .provider()
+                                                       .getService(ConfigService.class);
+            searchableTagKeys = new HashSet<>(Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA)));
+        }
+        if (tags != null && !searchableTagKeys.containsAll(tags.stream().map(Tag::getKey).collect(toSet()))) {
+            log.warn(
+                "Searching tags that are not searchable: {}",
+                tags.stream().map(Tag::getKey).filter(not(searchableTagKeys::contains)).collect(toSet()));
+            return new Logs();
+        }
+
+        final var tables = tableHelper.getTablesForRead(
+            LogRecord.INDEX_NAME,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var logs = new ArrayList<Log>();
+
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL(
+                serviceId, serviceInstanceId, endpointId, relatedTrace, queryOrder,
+                from, limit, duration, tags, keywordsOfContent, excludingKeywordsOfContent, table);
+
+            logs.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::parseResults,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+        final var comparator = Order.DES.equals(queryOrder) ?
+            comparing(Log::getTimestamp) :
+            comparing(Log::getTimestamp).reversed();
+
+        return new Logs(
+            logs
+                .stream()
+                .sorted(comparator)
+                .skip(from)
+                .limit(limit)
+                .collect(toList())
+        );
+    }
+
+    protected ArrayList<Log> parseResults(ResultSet resultSet) throws SQLException {
+        final var logs = new ArrayList<Log>();
+        while (resultSet.next()) {
+            Log log = new Log();
+            log.setServiceId(resultSet.getString(SERVICE_ID));
+            log.setServiceInstanceId(resultSet.getString(SERVICE_INSTANCE_ID));
+            log.setEndpointId(resultSet.getString(ENDPOINT_ID));
+            if (log.getEndpointId() != null) {
+                log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
+            }
+            log.setTraceId(resultSet.getString(TRACE_ID));
+            log.setTimestamp(resultSet.getLong(TIMESTAMP));
+            log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
+            log.setContent(resultSet.getString(CONTENT));
+            String dataBinaryBase64 = resultSet.getString(TAGS_RAW_DATA);
+            if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                parserDataBinary(dataBinaryBase64, log.getTags());
+            }
+            logs.add(log);
+        }
+
+        return logs;
+    }
+
+    protected SQLAndParameters buildSQL(
+        String serviceId,
+        String serviceInstanceId,
+        String endpointId,
+        TraceScopeCondition relatedTrace,
+        Order queryOrder,
+        int from,
+        int limit,
+        final Duration duration,
+        final List<Tag> tags,
+        final List<String> keywordsOfContent,
+        final List<String> excludingKeywordsOfContent,
+        final String table) {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(duration)) {
             startSecondTB = duration.getStartTimeBucketInSec();
             endSecondTB = duration.getEndTimeBucketInSec();
         }
-        if (searchableTagKeys == null) {
-            final ConfigService configService = manager.find(CoreModule.NAME)
-                                                       .provider()
-                                                       .getService(ConfigService.class);
-            searchableTagKeys = Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA));
-        }
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(10);
 
-        sql.append("from ").append(LogRecord.INDEX_NAME);
+        sql.append("select * from ").append(table);
         /**
          * This is an AdditionalEntity feature, see:
          * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
@@ -100,21 +191,21 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
             for (int i = 0; i < tags.size(); i++) {
                 sql.append(" inner join ").append(AbstractLogRecord.ADDITIONAL_TAG_TABLE).append(" ");
                 sql.append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i);
-                sql.append(" on ").append(LogRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
+                sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
                 sql.append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
         sql.append(" where ");
         sql.append(" 1=1 ");
         if (startSecondTB != 0 && endSecondTB != 0) {
-            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" >= ?");
+            sql.append(" and ").append(table).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startSecondTB);
-            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" <= ?");
+            sql.append(" and ").append(table).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endSecondTB);
         }
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(LogRecord.INDEX_NAME).append(".").append(SERVICE_ID).append(" = ?");
+            sql.append(" and ").append(table).append(".").append(SERVICE_ID).append(" = ?");
             parameters.add(serviceId);
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
@@ -142,54 +233,18 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
 
         if (CollectionUtils.isNotEmpty(tags)) {
             for (int i = 0; i < tags.size(); i++) {
-                final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
-                if (foundIdx > -1) {
-                    sql.append(" and ").append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i).append(".");
-                    sql.append(AbstractLogRecord.TAGS).append(" = ?");
-                    parameters.add(tags.get(i).toString());
-                } else {
-                    //If the tag is not searchable, but is required, then don't need to run the real query.
-                    return new Logs();
-                }
+                sql.append(" and ").append(AbstractLogRecord.ADDITIONAL_TAG_TABLE + i).append(".");
+                sql.append(AbstractLogRecord.TAGS).append(" = ?");
+                parameters.add(tags.get(i).toString());
             }
         }
-
         sql.append(" order by ")
            .append(TIMESTAMP)
            .append(" ")
            .append(Order.DES.equals(queryOrder) ? "desc" : "asc");
 
-        buildLimit(sql, from, limit);
+        sql.append(" limit ").append(from + limit);
 
-        return jdbcClient.executeQuery(
-            "select * " + sql, resultSet -> {
-                Logs logs = new Logs();
-
-                while (resultSet.next()) {
-                    Log log = new Log();
-                    log.setServiceId(resultSet.getString(SERVICE_ID));
-                    log.setServiceInstanceId(resultSet.getString(SERVICE_INSTANCE_ID));
-                    log.setEndpointId(resultSet.getString(ENDPOINT_ID));
-                    if (log.getEndpointId() != null) {
-                        log.setEndpointName(IDManager.EndpointID.analysisId(log.getEndpointId()).getEndpointName());
-                    }
-                    log.setTraceId(resultSet.getString(TRACE_ID));
-                    log.setTimestamp(resultSet.getLong(TIMESTAMP));
-                    log.setContentType(ContentType.instanceOf(resultSet.getInt(CONTENT_TYPE)));
-                    log.setContent(resultSet.getString(CONTENT));
-                    String dataBinaryBase64 = resultSet.getString(TAGS_RAW_DATA);
-                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-                        parserDataBinary(dataBinaryBase64, log.getTags());
-                    }
-                    logs.getLogs().add(log);
-                }
-
-                return logs;
-            }, parameters.toArray(new Object[0]));
-    }
-
-    protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" LIMIT ").append(limit);
-        sql.append(" OFFSET ").append(from);
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 }

@@ -28,6 +28,8 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +37,48 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
     private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<Record> readRecords(final RecordCondition condition,
                                     final String valueColumnName,
                                     final Duration duration) {
-        StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var results = new ArrayList<Record>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQL(condition, valueColumnName, duration, table);
+            jdbcClient.executeQuery(
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        Record record = new Record();
+                        record.setName(resultSet.getString(TopN.STATEMENT));
+                        final String refId = resultSet.getString(TopN.TRACE_ID);
+                        record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
+                        record.setId(record.getRefId());
+                        record.setValue(resultSet.getInt(valueColumnName));
+                        results.add(record);
+                    }
+                    return null;
+                },
+                sqlAndParameters.parameters());
+        }
+
+        return results;
+    }
+
+    protected static SQLAndParameters buildSQL(
+        RecordCondition condition,
+        String valueColumnName,
+        Duration duration,
+        String table) {
+        StringBuilder sql = new StringBuilder("select * from " + table + " where ");
         List<Object> parameters = new ArrayList<>(10);
         sql.append(" ").append(TopN.ENTITY_ID).append(" = ? and");
         parameters.add(condition.getParentEntity().buildId());
@@ -58,22 +95,6 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
         }
         sql.append(" limit ").append(condition.getTopN());
 
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                List<Record> results = new ArrayList<>();
-                while (resultSet.next()) {
-                    Record record = new Record();
-                    record.setName(resultSet.getString(TopN.STATEMENT));
-                    final String refId = resultSet.getString(TopN.TRACE_ID);
-                    record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
-                    record.setId(record.getRefId());
-                    record.setValue(resultSet.getString(valueColumnName));
-                    results.add(record);
-                }
-                return results;
-            },
-            parameters.toArray(new Object[0]));
+        return new SQLAndParameters(sql.toString(), parameters);
     }
-
 }

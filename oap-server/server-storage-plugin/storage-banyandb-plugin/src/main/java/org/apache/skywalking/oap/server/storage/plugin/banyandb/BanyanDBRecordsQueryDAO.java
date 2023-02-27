@@ -87,20 +87,20 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
             record.setName(e.getTagValue(TopN.STATEMENT));
             record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
             record.setId(record.getRefId());
-            record.setValue(extractFieldValueAsString(spec, valueColumnName, e));
+            record.setValue(extractFieldValueAsLong(spec, valueColumnName, e));
             results.add(record);
         }
 
         return results;
     }
 
-    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, RowEntity e) throws IOException {
+    private long extractFieldValueAsLong(MetadataRegistry.ColumnSpec spec, String fieldName, RowEntity e) {
         if (double.class.equals(spec.getColumnClass())) {
-            return String.valueOf(ByteUtil.bytes2Double(e.getTagValue(fieldName)).longValue());
+            return ByteUtil.bytes2Double(e.getTagValue(fieldName)).longValue();
         } else if (String.class.equals(spec.getColumnClass())) {
             return e.getTagValue(fieldName);
         } else {
-            return String.valueOf(((Number) e.getTagValue(fieldName)).longValue());
+            return ((Number) e.getTagValue(fieldName)).longValue();
         }
     }
 }

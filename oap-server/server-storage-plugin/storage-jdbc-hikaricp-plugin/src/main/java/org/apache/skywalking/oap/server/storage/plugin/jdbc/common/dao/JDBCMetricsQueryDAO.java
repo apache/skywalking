@@ -50,7 +50,11 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     public long readMetricsValue(final MetricsCondition condition,
                                 String valueColumnName,
                                 final Duration duration) {
-        final var tables = tableHelper.getTablesForRead(condition.getName());
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
 
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
@@ -119,7 +123,11 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
         // Label is null, because in readMetricsValues, no label parameter.
         final var intValues = metricsValues.getValues();
 
-        final var tables = tableHelper.getTablesForRead(condition.getName());
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
 
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
@@ -167,7 +175,11 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                                                         final List<String> labels,
                                                         final Duration duration) {
         final var idMap = new HashMap<String, DataTable>();
-        final var tables = tableHelper.getTablesForRead(condition.getName());
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
 
         final var pointOfTimes = duration.assembleDurationPoints();
         final var entityId = condition.getEntity().buildId();
@@ -215,42 +227,51 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
                                final Duration duration) {
-        final var pointOfTimes = duration.assembleDurationPoints();
-        final var entityId = condition.getEntity().buildId();
-        final var ids =
-            pointOfTimes
-                .stream()
-                .map(pointOfTime ->
-                    condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId)
-                )
-                .collect(Collectors.toList());
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var heatMap = new HeatMap();
 
-        final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + condition.getName())
-            .append(" where id in ")
-            .append(
-                ids.stream()
-                   .map(it -> "?")
-                   .collect(Collectors.joining(", ", "(", ")"))
-            );
+        for (String table : tables) {
+            final var pointOfTimes = duration.assembleDurationPoints();
+            final var entityId = condition.getEntity().buildId();
+            final var ids =
+                pointOfTimes
+                    .stream()
+                    .map(pointOfTime ->
+                        condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId)
+                    )
+                    .collect(Collectors.toList());
 
-        buildShardingCondition(sql, ids, entityId);
+            final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + table)
+                .append(" where id in ")
+                .append(
+                    ids.stream()
+                       .map(it -> "?")
+                       .collect(Collectors.joining(", ", "(", ")"))
+                );
 
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+            buildShardingCondition(sql, ids, entityId);
 
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                HeatMap heatMap = new HeatMap();
+            final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
 
-                while (resultSet.next()) {
-                    heatMap.buildColumn(
-                        resultSet.getString("id"), resultSet.getString("dataset"), defaultValue);
-                }
-                heatMap.fixMissingColumns(ids, defaultValue);
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        heatMap.buildColumn(
+                            resultSet.getString("id"), resultSet.getString("dataset"), defaultValue);
+                    }
+                    heatMap.fixMissingColumns(ids, defaultValue);
 
-                return heatMap;
-            },
-            ids.toArray(new Object[0]));
+                    return null;
+                },
+                ids.toArray(new Object[0]));
+        }
+
+        return heatMap;
     }
 
     protected void buildShardingCondition(StringBuilder sql, List<String> parameters, String entityId) {

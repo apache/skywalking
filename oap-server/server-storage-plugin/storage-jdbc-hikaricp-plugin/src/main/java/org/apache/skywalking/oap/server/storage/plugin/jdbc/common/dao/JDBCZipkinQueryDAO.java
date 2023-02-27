@@ -59,7 +59,6 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     public List<String> getServiceNames() {
         StringBuilder sql = new StringBuilder();
         sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
-        sql.append(" where ").append("1=1");
         sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
         return h2Client.executeQuery(sql.toString(), resultSet -> {
             List<String> services = new ArrayList<>();

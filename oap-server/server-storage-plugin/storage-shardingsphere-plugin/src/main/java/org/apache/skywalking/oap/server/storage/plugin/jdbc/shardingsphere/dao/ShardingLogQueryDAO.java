@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
@@ -33,8 +34,9 @@ import java.util.List;
 public class ShardingLogQueryDAO extends JDBCLogQueryDAO {
 
     public ShardingLogQueryDAO(final JDBCClient h2Client,
-                               final ModuleManager manager) {
-        super(h2Client, manager);
+                               final ModuleManager manager,
+                               final TableHelper tableHelper) {
+        super(h2Client, manager, tableHelper);
     }
 
     @Override

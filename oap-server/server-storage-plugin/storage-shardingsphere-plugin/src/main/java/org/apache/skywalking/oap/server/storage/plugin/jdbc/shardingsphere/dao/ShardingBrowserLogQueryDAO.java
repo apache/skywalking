@@ -21,13 +21,15 @@ import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
 public class ShardingBrowserLogQueryDAO extends JDBCBrowserLogQueryDAO {
+    protected TableHelper tableHelper;
 
-    public ShardingBrowserLogQueryDAO(JDBCClient jdbcClient) {
-        super(jdbcClient);
+    public ShardingBrowserLogQueryDAO(JDBCClient jdbcClient, TableHelper tableHelper) {
+        super(jdbcClient, tableHelper);
     }
 
     @Override

@@ -151,7 +151,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCTraceQueryDAO(getManager(), jdbcClient));
         this.registerServiceImplementation(
             IBrowserLogQueryDAO.class,
-            new JDBCBrowserLogQueryDAO(jdbcClient));
+            new JDBCBrowserLogQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IMetadataQueryDAO.class,
             new JDBCMetadataQueryDAO(jdbcClient, config.getMetadataQueryMaxSize(), getManager()));
@@ -160,26 +160,26 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCAggregationQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IAlarmQueryDAO.class,
-            new JDBCAlarmQueryDAO(jdbcClient, getManager()));
+            new JDBCAlarmQueryDAO(jdbcClient, getManager(), tableHelper));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class,
-            new JDBCHistoryDeleteDAO(jdbcClient));
+            new JDBCHistoryDeleteDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IRecordsQueryDAO.class,
-            new JDBCRecordsQueryDAO(jdbcClient));
+            new JDBCRecordsQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
-            new JDBCLogQueryDAO(jdbcClient, getManager()));
+            new JDBCLogQueryDAO(jdbcClient, getManager(), tableHelper));
 
         this.registerServiceImplementation(
             IProfileTaskQueryDAO.class,
             new JDBCProfileTaskQueryDAO(jdbcClient, getManager()));
         this.registerServiceImplementation(
             IProfileTaskLogQueryDAO.class,
-            new JDBCProfileTaskLogQueryDAO(jdbcClient));
+            new JDBCProfileTaskLogQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IProfileThreadSnapshotQueryDAO.class,
-            new JDBCProfileThreadSnapshotQueryDAO(jdbcClient));
+            new JDBCProfileThreadSnapshotQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             UITemplateManagementDAO.class,
             new JDBCUITemplateManagementDAO(jdbcClient));
@@ -190,16 +190,16 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(
             IEBPFProfilingTaskDAO.class,
-            new JDBCEBPFProfilingTaskDAO(jdbcClient));
+            new JDBCEBPFProfilingTaskDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IEBPFProfilingScheduleDAO.class,
-            new JDBCEBPFProfilingScheduleDAO(jdbcClient));
+            new JDBCEBPFProfilingScheduleDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IEBPFProfilingDataDAO.class,
-            new JDBCEBPFProfilingDataDAO(jdbcClient));
+            new JDBCEBPFProfilingDataDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IServiceLabelDAO.class,
-            new JDBCServiceLabelQueryDAO(jdbcClient));
+            new JDBCServiceLabelQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ITagAutoCompleteQueryDAO.class,
             new JDBCTagAutoCompleteQueryDAO(jdbcClient));

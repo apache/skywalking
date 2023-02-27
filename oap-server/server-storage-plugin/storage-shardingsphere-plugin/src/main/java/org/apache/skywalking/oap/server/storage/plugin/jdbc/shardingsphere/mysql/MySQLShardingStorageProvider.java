@@ -95,13 +95,13 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
             new ShardingTraceQueryDAO(getManager(), jdbcClient));
         this.registerServiceImplementation(
             IBrowserLogQueryDAO.class,
-            new ShardingBrowserLogQueryDAO(jdbcClient));
+            new ShardingBrowserLogQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IAggregationQueryDAO.class,
             new ShardingAggregationQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ILogQueryDAO.class,
-            new ShardingLogQueryDAO(jdbcClient, getManager()));
+            new ShardingLogQueryDAO(jdbcClient, getManager(), tableHelper));
 
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class,
@@ -109,7 +109,8 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
                 jdbcClient,
                 ((MySQLShardingStorageConfig) config).getDataSources(),
                 getManager(),
-                modelInstaller));
+                modelInstaller,
+                tableHelper));
 
         this.registerServiceImplementation(
             IZipkinQueryDAO.class,

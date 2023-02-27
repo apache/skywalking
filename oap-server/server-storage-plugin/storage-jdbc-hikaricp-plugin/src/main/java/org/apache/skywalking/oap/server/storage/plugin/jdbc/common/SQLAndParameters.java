@@ -6,29 +6,34 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Getter
+@Accessors(fluent = true)
 @RequiredArgsConstructor
-public class BrowserErrorLogs {
-    private final List<BrowserErrorLog> logs;
+public class SQLAndParameters {
+    @Getter
+    private final String sql;
+    @NonNull
+    private final List<Object> parameters;
 
-    public BrowserErrorLogs() {
-        this.logs = new ArrayList<>();
+    public Object[] parameters() {
+        return parameters.toArray();
     }
 }

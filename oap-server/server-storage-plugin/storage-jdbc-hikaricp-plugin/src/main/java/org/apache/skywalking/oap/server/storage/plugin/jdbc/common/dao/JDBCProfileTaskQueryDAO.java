@@ -32,6 +32,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
@@ -46,7 +48,9 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
     public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
                                          Long endTimeBucket, Integer limit) {
         final var results = new ArrayList<ProfileTask>();
-        final var tables = tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME);
+        final var tables = startTimeBucket == null || endTimeBucket == null ?
+            tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME) :
+            tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME, startTimeBucket, endTimeBucket);
         for (final var table : tables) {
             final var condition = new ArrayList<>(4);
             final var sql = new StringBuilder()
@@ -92,7 +96,12 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
                     condition.toArray(new Object[0]))
             );
         }
-        return results;
+        return limit == null ?
+            results :
+            results
+                .stream()
+                .limit(limit)
+                .collect(toList());
     }
 
     @Override

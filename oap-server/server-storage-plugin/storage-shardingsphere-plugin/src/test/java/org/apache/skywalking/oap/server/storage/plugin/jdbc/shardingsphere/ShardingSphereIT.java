@@ -716,7 +716,7 @@ public class ShardingSphereIT {
     @SneakyThrows
     private void historyDelete(Model model) {
         ShardingHistoryDeleteDAO deleteDAO = new ShardingHistoryDeleteDAO(
-            ssClient, dataSources, moduleManager, mySQLTableInstaller);
+            ssClient, dataSources, moduleManager, mySQLTableInstaller, new TableHelper(moduleManager, ssClient));
         deleteDAO.deleteHistory(model, Metrics.TIME_BUCKET, ttlTestDrop);
     }
 

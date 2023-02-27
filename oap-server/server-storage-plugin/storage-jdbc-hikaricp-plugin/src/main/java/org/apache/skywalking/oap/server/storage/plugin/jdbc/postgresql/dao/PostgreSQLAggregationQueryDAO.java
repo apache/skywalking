@@ -29,7 +29,6 @@ public class PostgreSQLAggregationQueryDAO extends JDBCAggregationQueryDAO {
         super(h2Client, tableHelper);
     }
 
-    @Override
     protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {
         StringBuilder sql = new StringBuilder();
         sql.append("select * from (select avg(")

@@ -44,16 +44,17 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
@@ -75,47 +76,75 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         final var tables = tableHelper.getTablesForRead(ServiceTraffic.INDEX_NAME);
 
         for (final var table : tables) {
-            final var sql = new StringBuilder();
-            final var condition = new ArrayList<>(5);
-            sql.append("select * from ").append(table);
-            if (StringUtil.isNotEmpty(layer) || StringUtil.isNotEmpty(group)) {
-                sql.append(" where ");
-            }
-
-            if (StringUtil.isNotEmpty(layer)) {
-                sql.append(ServiceTraffic.LAYER).append(" = ?");
-                condition.add(Layer.valueOf(layer).value());
-            }
-            if (StringUtil.isNotEmpty(layer) && StringUtil.isNotEmpty(group)) {
-                sql.append(" and ");
-            }
-            if (StringUtil.isNotEmpty(group)) {
-                sql.append(ServiceTraffic.GROUP).append(" = ?");
-                condition.add(group);
-            }
-
-            sql.append(" limit ").append(metadataQueryMaxSize);
-
+            final var sqlAndParameters = buildSQLForListServices(layer, group, table);
             results.addAll(jdbcClient.executeQuery(
-                sql.toString(),
+                sqlAndParameters.sql(),
                 this::buildServices,
-                condition.toArray(new Object[0]))
+                sqlAndParameters.parameters())
             );
         }
-        return results;
+        return results
+            .stream()
+            .limit(metadataQueryMaxSize)
+            .collect(toList());
+    }
+
+    protected SQLAndParameters buildSQLForListServices(String layer, String group, String table) {
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>(5);
+        sql.append("select * from ").append(table);
+        if (StringUtil.isNotEmpty(layer) || StringUtil.isNotEmpty(group)) {
+            sql.append(" where ");
+        }
+
+        if (StringUtil.isNotEmpty(layer)) {
+            sql.append(ServiceTraffic.LAYER).append(" = ?");
+            parameters.add(Layer.valueOf(layer).value());
+        }
+        if (StringUtil.isNotEmpty(layer) && StringUtil.isNotEmpty(group)) {
+            sql.append(" and ");
+        }
+        if (StringUtil.isNotEmpty(group)) {
+            sql.append(ServiceTraffic.GROUP).append(" = ?");
+            parameters.add(group);
+        }
+
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     @Override
     @SneakyThrows
     public List<Service> getServices(final String serviceId) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(ServiceTraffic.INDEX_NAME).append(" where ");
+        final var tables = tableHelper.getTablesForRead(ServiceTraffic.INDEX_NAME);
+        final var results = new ArrayList<Service>();
+
+        for (String table : tables) {
+            final SQLAndParameters sqlAndParameters = buildSQLForGetServices(serviceId, table);
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildServices,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+        return results
+            .stream()
+            .limit(metadataQueryMaxSize)
+            .collect(toList());
+    }
+
+    protected SQLAndParameters buildSQLForGetServices(String serviceId, String table) {
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>(5);
+        sql.append("select * from ").append(table).append(" where ");
         sql.append(ServiceTraffic.SERVICE_ID).append(" = ?");
-        condition.add(serviceId);
+        parameters.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildServices, condition.toArray(new Object[0]));
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     @Override
@@ -126,40 +155,65 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
         final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
 
+        final var tables = tableHelper.getTablesForRead(
+            InstanceTraffic.INDEX_NAME,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQLForListInstances(serviceId, minuteTimeBucket, table);
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildInstances,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+
+        return results
+            .stream()
+            .limit(metadataQueryMaxSize)
+            .collect(toList());
+    }
+
+    protected SQLAndParameters buildSQLForListInstances(String serviceId, long minuteTimeBucket, String table) {
+        final var  sql = new StringBuilder();
+        final var parameters = new ArrayList<>(5);
+        sql.append("select * from ").append(table).append(" where ");
+        sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+        parameters.add(minuteTimeBucket);
+        sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
+        parameters.add(serviceId);
+        sql.append(" limit ").append(metadataQueryMaxSize);
+
+        return new SQLAndParameters(sql.toString(), parameters);
+    }
+
+    @Override
+    @SneakyThrows
+    public ServiceInstance getInstance(final String instanceId) {
         final var tables = tableHelper.getTablesForRead(InstanceTraffic.INDEX_NAME);
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(5);
             sql.append("select * from ").append(table).append(" where ");
-            sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
-            condition.add(minuteTimeBucket);
-            sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
-            condition.add(serviceId);
+            sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
+            condition.add(instanceId);
             sql.append(" limit ").append(metadataQueryMaxSize);
 
-            results.addAll(
-                jdbcClient.executeQuery(sql.toString(), this::buildInstances, condition.toArray(new Object[0]))
-            );
+            final var result = jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                final List<ServiceInstance> instances = buildInstances(resultSet);
+                return instances.size() > 0 ? instances.get(0) : null;
+            }, condition.toArray(new Object[0]));
+            if (result != null) {
+                return result;
+            }
         }
 
-        return results;
-    }
-
-    @Override
-    @SneakyThrows
-    public ServiceInstance getInstance(final String instanceId) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(InstanceTraffic.INDEX_NAME).append(" where ");
-        sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
-        condition.add(instanceId);
-        sql.append(" limit ").append(metadataQueryMaxSize);
-
-        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            final List<ServiceInstance> instances = buildInstances(resultSet);
-            return instances.size() > 0 ? instances.get(0) : null;
-        }, condition.toArray(new Object[0]));
+        return null;
     }
 
     @Override
@@ -196,78 +250,163 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                         return endpoints;
                     }, condition.toArray(new Object[0])));
         }
-        return results.stream().limit(limit).collect(Collectors.toList());
+        return results.stream().limit(limit).collect(toList());
     }
 
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>();
-        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket, false);
+        final var tables = tableHelper.getTablesForRead(
+            ProcessTraffic.INDEX_NAME,
+            lastPingStartTimeBucket,
+            lastPingEndTimeBucket
+        );
+        final var results = new ArrayList<Process>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQLForListProcesses(serviceId, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket, table);
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildProcesses,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+
+        return results
+            .stream()
+            .limit(metadataQueryMaxSize)
+            .collect(toList());
+    }
+
+    protected SQLAndParameters buildSQLForListProcesses(
+        final String serviceId,
+        final ProfilingSupportStatus supportStatus,
+        final long lastPingStartTimeBucket,
+        final long lastPingEndTimeBucket,
+        final String table) {
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>();
+        sql.append("select * from ").append(table);
+        appendProcessWhereQuery(sql, parameters, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket, false);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]));
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual) {
-        long lastPingStartTimeBucket = duration.getStartTimeBucket();
-        long lastPingEndTimeBucket = duration.getEndTimeBucket();
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>();
-        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesForRead(
+            ProcessTraffic.INDEX_NAME,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var results = new ArrayList<Process>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQLForListProcesses(serviceInstanceId, duration, includeVirtual, table);
+
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildProcesses,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+
+        return results
+            .stream()
+            .limit(metadataQueryMaxSize)
+            .collect(toList());
+    }
+
+    protected SQLAndParameters buildSQLForListProcesses(String serviceInstanceId, Duration duration, boolean includeVirtual, String table) {
+        final var lastPingStartTimeBucket = duration.getStartTimeBucket();
+        final var lastPingEndTimeBucket = duration.getEndTimeBucket();
+        final var sql = new StringBuilder();
+        final var condition = new ArrayList<>();
+        sql.append("select * from ").append(table);
         appendProcessWhereQuery(sql, condition, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket, includeVirtual);
         sql.append(" limit ").append(metadataQueryMaxSize);
-
-        return jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]));
+        return new SQLAndParameters(sql.toString(), condition);
     }
 
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String agentId) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(2);
-        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0, false);
-        sql.append(" limit ").append(metadataQueryMaxSize);
+        final var tables = tableHelper.getTablesForRead(ProcessTraffic.INDEX_NAME);
+        final var results = new ArrayList<Process>();
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]));
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(2);
+            sql.append("select * from ").append(table);
+            appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0, false);
+            sql.append(" limit ").append(metadataQueryMaxSize);
+
+            results.addAll(
+                jdbcClient.executeQuery(sql.toString(), this::buildProcesses, condition.toArray(new Object[0]))
+            );
+        }
+
+        return results
+            .stream()
+            .limit(metadataQueryMaxSize)
+            .collect(toList());
     }
 
     @Override
     @SneakyThrows
-    public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, serviceId, null, null, profilingSupportStatus,
-            lastPingStartTimeBucket, lastPingEndTimeBucket, false);
+    public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
+        final var tables = tableHelper.getTablesForRead(
+            ProcessTraffic.INDEX_NAME,
+            lastPingStartTimeBucket,
+            lastPingEndTimeBucket
+        );
+        long total = 0;
 
-        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            if (!resultSet.next()) {
-                return 0L;
-            }
-            return resultSet.getLong("total");
-        }, condition.toArray(new Object[0]));
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select count(1) total from ").append(table);
+            appendProcessWhereQuery(sql, condition, serviceId, null, null, profilingSupportStatus,
+                lastPingStartTimeBucket, lastPingEndTimeBucket, false);
+
+            total += jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                if (!resultSet.next()) {
+                    return 0L;
+                }
+                return resultSet.getLong("total");
+            }, condition.toArray(new Object[0]));
+        }
+
+        return total;
     }
 
     @Override
     @SneakyThrows
-    public long getProcessCount(String instanceId) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(3);
-        sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
-        appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0, false);
+    public long getProcessCount(String instanceId) {
+        final var tables = tableHelper.getTablesForRead(ProcessTraffic.INDEX_NAME);
+        long total = 0;
 
-        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            if (!resultSet.next()) {
-                return 0L;
-            }
-            return resultSet.getLong("total");
-        }, condition.toArray(new Object[0]));
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(3);
+            sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
+            appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0, false);
+
+            total += jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                if (!resultSet.next()) {
+                    return 0L;
+                }
+                return resultSet.getLong("total");
+            }, condition.toArray(new Object[0]));
+        }
+
+        return total;
     }
 
     private List<Service> buildServices(ResultSet resultSet) throws SQLException {
@@ -368,18 +507,28 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public Process getProcess(String processId) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(ProcessTraffic.INDEX_NAME).append(" where ");
-        sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
-        condition.add(processId);
-        sql.append(" limit ").append(metadataQueryMaxSize);
+        final var tables = tableHelper.getTablesForRead(ProcessTraffic.INDEX_NAME);
 
-        return jdbcClient.executeQuery(
-            sql.toString(), resultSet -> {
-                final List<Process> processes = buildProcesses(resultSet);
-                return processes.size() > 0 ? processes.get(0) : null;
-            }, condition.toArray(new Object[0]));
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table).append(" where ");
+            sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
+            condition.add(processId);
+            sql.append(" limit ").append(metadataQueryMaxSize);
+
+            final var result = jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    final List<Process> processes = buildProcesses(resultSet);
+                    return processes.size() > 0 ? processes.get(0) : null;
+                },
+                condition.toArray(new Object[0]));
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     private List<Process> buildProcesses(ResultSet resultSet) throws SQLException {

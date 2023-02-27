@@ -17,33 +17,47 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JDBCServiceLabelQueryDAO implements IServiceLabelDAO {
-    private JDBCClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<String> queryAllLabels(String serviceId) {
-        final StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(1);
-        sql.append("select " + ServiceLabelRecord.LABEL + " from ")
-                .append(ServiceLabelRecord.INDEX_NAME)
-                .append(" where ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
-        condition.add(serviceId);
+        final var tables = tableHelper.getTablesForRead(ServiceLabelRecord.LABEL);
+        final var results = new ArrayList<String>();
 
-        return jdbcClient.executeQuery(
-            sql.toString(), this::parseLabels, condition.toArray(new Object[0]));
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(1);
+            sql.append("select " + table + " from ")
+               .append(ServiceLabelRecord.INDEX_NAME)
+               .append(" where ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
+            condition.add(serviceId);
+
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sql.toString(),
+                    this::parseLabels,
+                    condition.toArray(new Object[0])
+                )
+            );
+        }
+
+        return results;
     }
 
     private List<String> parseLabels(ResultSet resultSet) throws SQLException {

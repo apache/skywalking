@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCHistoryDeleteDAO;
 
 import java.util.HashMap;
@@ -42,8 +43,9 @@ public class ShardingHistoryDeleteDAO extends JDBCHistoryDeleteDAO {
     public ShardingHistoryDeleteDAO(JDBCClient client,
                                     Set<String> dataSources,
                                     ModuleManager manager,
-                                    ModelInstaller modelInstaller) {
-        super(client);
+                                    ModelInstaller modelInstaller,
+                                    TableHelper tableHelper) {
+        super(client, tableHelper);
         this.client = client;
         this.manager = manager;
         this.dataSources = dataSources;

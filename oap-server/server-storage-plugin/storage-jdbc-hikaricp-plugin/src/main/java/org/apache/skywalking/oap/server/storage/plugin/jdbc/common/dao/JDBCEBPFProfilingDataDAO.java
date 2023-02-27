@@ -18,12 +18,16 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,27 +35,54 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-@AllArgsConstructor
+import static java.util.stream.Collectors.joining;
+
+@RequiredArgsConstructor
 public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
-    private JDBCClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) {
-        final StringBuilder sql = new StringBuilder();
-        final StringBuilder conditionSql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(scheduleIdList.size() + 2);
-        sql.append("select * from ").append(EBPFProfilingDataRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesForRead(
+            EBPFProfilingDataRecord.INDEX_NAME,
+            TimeBucket.getTimeBucket(beginTime, DownSampling.Day),
+            TimeBucket.getTimeBucket(endTime, DownSampling.Day)
+        );
+        final var results = new ArrayList<EBPFProfilingDataRecord>();
 
-        appendListCondition(conditionSql, condition, EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList);
-        appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, ">=", beginTime);
-        appendCondition(conditionSql, condition, EBPFProfilingDataRecord.UPLOAD_TIME, "<", endTime);
-
-        if (conditionSql.length() > 0) {
-            sql.append(" where ").append(conditionSql);
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL(scheduleIdList, beginTime, endTime, table);
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildDataList,
+                    sqlAndParameters.parameters()
+                )
+            );
         }
+        return results;
+    }
 
-        return jdbcClient.executeQuery(sql.toString(), this::buildDataList, condition.toArray(new Object[0]));
+    protected SQLAndParameters buildSQL(
+        final List<String> scheduleIdList,
+        final long beginTime,
+        final long endTime,
+        final String table) {
+        final var sql = new StringBuilder();
+        final var conditions = new StringBuilder();
+        final var parameters = new ArrayList<>(scheduleIdList.size() + 2);
+        sql.append("select * from ").append(table);
+
+        appendConditions(conditions, parameters, EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList);
+        appendCondition(conditions, parameters, EBPFProfilingDataRecord.UPLOAD_TIME, ">=", beginTime);
+        appendCondition(conditions, parameters, EBPFProfilingDataRecord.UPLOAD_TIME, "<", endTime);
+
+        if (conditions.length() > 0) {
+            sql.append(" where ").append(conditions);
+        }
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     private List<EBPFProfilingDataRecord> buildDataList(ResultSet resultSet) throws SQLException {
@@ -73,26 +104,20 @@ public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         return dataList;
     }
 
-    private void appendCondition(StringBuilder conditionSql, List<Object> condition, String filed, String compare, Object data) {
+    private void appendCondition(StringBuilder conditionSql, List<Object> condition, String field, String compare, Object data) {
         if (conditionSql.length() > 0) {
             conditionSql.append(" and ");
         }
-        conditionSql.append(filed).append(compare).append("?");
+        conditionSql.append(field).append(compare).append("?");
         condition.add(data);
     }
 
-    private <T> void appendListCondition(StringBuilder conditionSql, List<Object> condition, String filed, List<T> data) {
+    private <T> void appendConditions(StringBuilder conditionSql, List<Object> condition, String field, List<T> data) {
         if (conditionSql.length() > 0) {
             conditionSql.append(" and ");
         }
-        conditionSql.append(filed).append(" in (");
-        for (int i = 0; i < data.size(); i++) {
-            if (i > 0) {
-                conditionSql.append(", ");
-            }
-            conditionSql.append("?");
-            condition.add(data.get(i));
-        }
-        conditionSql.append(")");
+        conditionSql.append(field).append(" in ")
+                    .append(data.stream().map(it -> "?").collect(joining(", ", "(", ")")));
+        condition.addAll(data);
     }
 }

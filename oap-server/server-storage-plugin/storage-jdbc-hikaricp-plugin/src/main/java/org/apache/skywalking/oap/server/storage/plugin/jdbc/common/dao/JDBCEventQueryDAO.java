@@ -37,13 +37,15 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,12 +58,12 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
         final Tuple2<Stream<String>, Stream<Object>> conditionsParametersPair = buildQuery(condition);
         final Stream<String> conditions = conditionsParametersPair._1();
         final Object[] parameters = conditionsParametersPair._2().toArray();
-        final String whereClause = conditions.collect(Collectors.joining(" and ", " where ", ""));
+        final String whereClause = conditions.collect(joining(" and ", " where ", ""));
 
         final var tables = tableHelper.getTablesForRead(Event.INDEX_NAME);
-        final var events = new Events();
-        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
-        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        final var queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        final var page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
 
         for (String table : tables) {
 
@@ -78,75 +80,81 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
 
             jdbcClient.executeQuery(sql, resultSet -> {
                 while (resultSet.next()) {
-                    events.getEvents().add(parseResultSet(resultSet));
+                    events.add(parseResultSet(resultSet));
                 }
                 return null;
             }, parameters);
         }
 
-        if (Order.DES.equals(queryOrder)) {
-            events.setEvents(
-                events
-                    .getEvents()
-                    .stream()
-                    .sorted(comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime).reversed())
-                    .skip(page.getFrom())
-                    .limit(page.getLimit())
-                    .collect(Collectors.toList()));
-        } else {
-            events.setEvents(
-                events
-                    .getEvents()
-                    .stream()
-                    .sorted(comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime))
-                    .skip(page.getFrom())
-                    .limit(page.getLimit())
-                    .collect(Collectors.toList()));
-        }
-        return events;
+        final var comparator = Order.DES.equals(queryOrder) ?
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime).reversed() :
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime);
+        return new Events(
+            events
+                .stream()
+                .sorted(comparator)
+                .skip(page.getFrom())
+                .limit(page.getLimit())
+                .collect(toList())
+        );
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditions) throws Exception {
-        final List<Tuple2<Stream<String>, Stream<Object>>> conditionsParametersPair = conditions.stream()
-                                                                                                .map(this::buildQuery)
-                                                                                                .collect(Collectors.toList());
-        final Object[] parameters = conditionsParametersPair.stream()
-                                                            .map(Tuple2::_2)
-                                                            .reduce(Stream.empty(), Stream::concat)
-                                                            .toArray();
-        final String whereClause = conditionsParametersPair.stream()
-                                                       .map(Tuple2::_1)
-                                                       .map(it -> it.collect(Collectors.joining(" and ")))
-                                                       .collect(Collectors.joining(" or ", " where ", ""));
+        final var conditionsParametersPair = conditions.stream()
+                                                       .map(this::buildQuery)
+                                                       .collect(toList());
+        final var parameters = conditionsParametersPair.stream()
+                                                       .map(Tuple2::_2)
+                                                       .reduce(Stream.empty(), Stream::concat)
+                                                       .toArray();
+        final var whereClause = conditionsParametersPair.stream()
+                                                        .map(Tuple2::_1)
+                                                        .map(it -> it.collect(joining(" and ")))
+                                                        .collect(joining(" or ", " where ", ""));
 
         EventQueryCondition condition = conditions.get(0);
         final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-        String sql = "select * from " + Event.INDEX_NAME + whereClause;
-        if (Order.DES.equals(queryOrder)) {
-            sql += " order by " + Event.START_TIME + " desc";
-        } else {
-            sql += " order by " + Event.START_TIME + " asc";
-        }
-        sql += " limit " + page.getLimit() + " offset " + page.getFrom();
-        if (log.isDebugEnabled()) {
-            log.debug("Query SQL: {}, parameters: {}", sql, parameters);
-        }
-        return jdbcClient.executeQuery(sql, resultSet -> {
-            final Events result = new Events();
 
-            while (resultSet.next()) {
-                result.getEvents().add(parseResultSet(resultSet));
+        final var tables = tableHelper.getTablesForRead(Event.INDEX_NAME);
+        final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
+
+        for (String table : tables) {
+            String sql = "select * from " + table + whereClause;
+            if (Order.DES.equals(queryOrder)) {
+                sql += " order by " + Event.START_TIME + " desc";
+            } else {
+                sql += " order by " + Event.START_TIME + " asc";
             }
+            sql += " limit " + (page.getLimit() + page.getFrom());
+            if (log.isDebugEnabled()) {
+                log.debug("Query SQL: {}, parameters: {}", sql, parameters);
+            }
+            jdbcClient.executeQuery(sql, resultSet -> {
+                while (resultSet.next()) {
+                    events.add(parseResultSet(resultSet));
+                }
 
-            return result;
-        }, parameters);
+                return null;
+            }, parameters);
+        }
 
+        final var comparator = Order.DES.equals(queryOrder) ?
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime).reversed() :
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime);
+        return new Events(
+            events
+                .stream()
+                .sorted(comparator)
+                .skip(page.getFrom())
+                .limit(page.getLimit())
+                .collect(toList())
+        );
     }
 
     protected org.apache.skywalking.oap.server.core.query.type.event.Event parseResultSet(final ResultSet resultSet) throws SQLException {
-        final org.apache.skywalking.oap.server.core.query.type.event.Event event = new org.apache.skywalking.oap.server.core.query.type.event.Event();
+        final var event = new org.apache.skywalking.oap.server.core.query.type.event.Event();
 
         event.setUuid(resultSet.getString(Event.UUID));
 

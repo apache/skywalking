@@ -19,15 +19,16 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.query.graphql.type.TopNRecordsCondition;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.query.type.TopNRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 8.0.0 This query is replaced by {@link MetricsQuery}, all queries have been delegated to there.
@@ -57,7 +58,7 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
             TopNRecord top = new TopNRecord();
             top.setStatement(record.getName());
             top.setTraceId(record.getRefId());
-            top.setLatency(Long.parseLong(record.getValue()));
+            top.setLatency(record.getValue());
             list.add(top);
         });
         return list;

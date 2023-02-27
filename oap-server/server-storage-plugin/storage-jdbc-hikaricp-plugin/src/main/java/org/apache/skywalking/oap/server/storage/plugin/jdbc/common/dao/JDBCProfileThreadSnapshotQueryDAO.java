@@ -28,28 +28,83 @@ import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<BasicTrace> queryProfiledSegments(String taskId) {
-        // search segment id list
+        final var tables = tableHelper.getTablesForRead(ProfileThreadSnapshotRecord.INDEX_NAME);
+        final var results = new ArrayList<BasicTrace>();
+        final var segments = new ArrayList<>();
+
+        for (String table : tables) {
+            segments.addAll(querySegments(taskId, table));
+        }
+
+        if (segments.isEmpty()) {
+            return  Collections.emptyList();
+        }
+
+        final var segmentTables = tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
+        for (String table : segmentTables) {
+            final var sql = new StringBuilder();
+            sql.append("select * from ").append(table).append(" where ");
+            for (int i = 0; i < segments.size(); i++) {
+                sql.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
+            }
+            sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        BasicTrace basicTrace = new BasicTrace();
+
+                        basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
+                        basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
+                        basicTrace.getEndpointNames().add(
+                            IDManager.EndpointID.analysisId(
+                                resultSet.getString(SegmentRecord.ENDPOINT_ID)).getEndpointName()
+                        );
+                        basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
+                        basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
+                        String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
+                        basicTrace.getTraceIds().add(traceIds);
+
+                        results.add(basicTrace);
+                    }
+                    return null;
+                },
+                segments);
+        }
+        return results
+            .stream()
+            .sorted(Comparator.<BasicTrace, Long>comparing(it -> Long.parseLong(it.getStart())).reversed())
+            .collect(toList());
+    }
+
+    protected ArrayList<String> querySegments(String taskId, String table) throws SQLException {
         StringBuilder sql = new StringBuilder();
         sql.append("select ")
            .append(ProfileThreadSnapshotRecord.SEGMENT_ID)
            .append(" from ")
-           .append(ProfileThreadSnapshotRecord.INDEX_NAME);
+           .append(table);
 
         sql.append(" where ")
            .append(ProfileThreadSnapshotRecord.TASK_ID)
@@ -57,50 +112,13 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
            .append(ProfileThreadSnapshotRecord.SEQUENCE)
            .append(" = 0");
 
-        final var segments = jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            final var results = new ArrayList<String>();
+        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
+            final var segments = new ArrayList<String>();
             while (resultSet.next()) {
-                results.add(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
+                segments.add(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
             }
-            return results;
+            return segments;
         }, taskId);
-
-        if (CollectionUtils.isEmpty(segments)) {
-            return Collections.emptyList();
-        }
-
-        // search traces
-        sql = new StringBuilder();
-        sql.append("select * from ").append(SegmentRecord.INDEX_NAME).append(" where ");
-        for (int i = 0; i < segments.size(); i++) {
-            sql.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
-        }
-        sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
-
-
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                ArrayList<BasicTrace> result = new ArrayList<>(segments.size());
-                while (resultSet.next()) {
-                    BasicTrace basicTrace = new BasicTrace();
-
-                    basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                    basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
-                    basicTrace.getEndpointNames().add(
-                        IDManager.EndpointID.analysisId(
-                            resultSet.getString(SegmentRecord.ENDPOINT_ID)).getEndpointName()
-                    );
-                    basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
-                    basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
-                    String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
-                    basicTrace.getTraceIds().add(traceIds);
-
-                    result.add(basicTrace);
-                }
-                return result;
-            },
-            segments.toArray(new String[segments.size()]));
     }
 
     @Override
@@ -118,38 +136,44 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId,
                                                           int minSequence,
                                                           int maxSequence) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select * from ").append(ProfileThreadSnapshotRecord.INDEX_NAME).append(" where ");
-        sql.append(" 1=1 ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" < ? ");
+        final var tables = tableHelper.getTablesForRead(ProfileThreadSnapshotRecord.INDEX_NAME);
+        final var results = new ArrayList<ProfileThreadSnapshotRecord>();
 
-        Object[] params = new Object[] {
-            segmentId,
-            minSequence,
-            maxSequence
-        };
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            sql.append("select * from ").append(table).append(" where ");
+            sql.append(" 1=1 ");
+            sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
+            sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
+            sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" < ? ");
+
+            Object[] params = new Object[]{
+                segmentId,
+                minSequence,
+                maxSequence
+            };
 
 
-        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            ArrayList<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
-            while (resultSet.next()) {
-                ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
+            jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
 
-                record.setTaskId(resultSet.getString(ProfileThreadSnapshotRecord.TASK_ID));
-                record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
-                record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
-                record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
-                String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
-                if (StringUtil.isNotEmpty(dataBinaryBase64)) {
-                    record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                    record.setTaskId(resultSet.getString(ProfileThreadSnapshotRecord.TASK_ID));
+                    record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
+                    record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
+                    record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
+                    String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
+                    if (StringUtil.isNotEmpty(dataBinaryBase64)) {
+                        record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                    }
+
+                    results.add(record);
                 }
+                return null;
+            }, params);
+        }
 
-                result.add(record);
-            }
-            return result;
-        }, params);
+        return results;
     }
 
     @Override
