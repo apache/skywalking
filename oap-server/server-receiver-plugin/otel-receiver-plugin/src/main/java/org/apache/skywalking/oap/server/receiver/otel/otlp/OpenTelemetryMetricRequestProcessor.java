@@ -172,8 +172,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
      * map them by their absolute value into the negative range using the same scale as the positive range. So the
      * upperBound should be calculated as -base**(offset+index).
      *
-     * We temporarily ignored the zero_count field, because the zero_threshold even could cover over the existing
-     * bucket scopes. The discussion is in pull request #10449.
+     * Ignored the zero_count field temporarily, 
+     * because the zero_threshold even could overlap the existing bucket scopes. 
      *
      * @param positiveOffset       corresponding to positive Buckets' offset in ExponentialHistogramDataPoint
      * @param positiveBucketCounts corresponding to positive Buckets' bucket_counts in ExponentialHistogramDataPoint
