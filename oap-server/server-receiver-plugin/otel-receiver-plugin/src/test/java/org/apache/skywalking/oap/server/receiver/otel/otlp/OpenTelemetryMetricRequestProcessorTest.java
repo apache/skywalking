@@ -61,36 +61,36 @@ public class OpenTelemetryMetricRequestProcessorTest {
         adaptMetricsMethod.setAccessible(true);
 
         // number is 4, 7, 9
-        ExponentialHistogramDataPoint.Buckets positiveBuckets = ExponentialHistogramDataPoint.Buckets.newBuilder()
-                                                                                                     .setOffset(10)
-                                                                                                     .addBucketCounts(
-                                                                                                         1) // (0, 6.72]
-                                                                                                     .addBucketCounts(
-                                                                                                         1
-                                                                                                     ) // (6.72, 8]
-                                                                                                     .addBucketCounts(
-                                                                                                         1
-                                                                                                     ) // (8, 9.51]
-                                                                                                     .build();
+        ExponentialHistogramDataPoint.Buckets var1 = ExponentialHistogramDataPoint.Buckets.newBuilder()
+                                                                                          .setOffset(10)
+                                                                                          .addBucketCounts(
+                                                                                              1) // (0, 6.72]
+                                                                                          .addBucketCounts(
+                                                                                              1
+                                                                                          ) // (6.72, 8]
+                                                                                          .addBucketCounts(
+                                                                                              1
+                                                                                          ) // (8, 9.51]
+                                                                                          .build();
         // number is -14, -17, -18, -21
-        ExponentialHistogramDataPoint.Buckets negativeBuckets = ExponentialHistogramDataPoint.Buckets.newBuilder()
-                                                                                                     .setOffset(15)
-                                                                                                     .addBucketCounts(
-                                                                                                         1
-                                                                                                     ) // (-16, -13.45]
-                                                                                                     .addBucketCounts(
-                                                                                                         2
-                                                                                                     ) // (-19.02, -16]
-                                                                                                     .addBucketCounts(
-                                                                                                         1
-                                                                                                     ) // (NEGATIVE_INFINITY, -19.02]
-                                                                                                     .build();
+        ExponentialHistogramDataPoint.Buckets var2 = ExponentialHistogramDataPoint.Buckets.newBuilder()
+                                                                                          .setOffset(15)
+                                                                                          .addBucketCounts(
+                                                                                              1
+                                                                                          ) // (-16, -13.45]
+                                                                                          .addBucketCounts(
+                                                                                              2
+                                                                                          ) // (-19.02, -16]
+                                                                                          .addBucketCounts(
+                                                                                              1
+                                                                                          ) // (-INFINITY, -19.02]
+                                                                                          .build();
         ExponentialHistogramDataPoint dataPoint = ExponentialHistogramDataPoint.newBuilder()
                                                                                .setCount(7)
                                                                                .setSum(-50)
                                                                                .setScale(2)
-                                                                               .setPositive(positiveBuckets)
-                                                                               .setNegative(negativeBuckets)
+                                                                               .setPositive(var1)
+                                                                               .setNegative(var2)
                                                                                .setTimeUnixNano(1000000)
                                                                                .build();
         ExponentialHistogram exponentialHistogram = ExponentialHistogram.newBuilder()
