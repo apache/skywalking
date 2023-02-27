@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import io.grpc.Status;
 
@@ -76,12 +77,14 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public enum MetadataRegistry {
     INSTANCE;
 
+    private static final Set<String> VALID_GROUP_BY_TAGS = ImmutableSet.of(Metrics.ENTITY_ID, InstanceTraffic.SERVICE_ID);
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final Map<String, Schema> registry = new HashMap<>();
 
@@ -172,31 +175,34 @@ public enum MetadataRegistry {
             schemaBuilder.field(field.getName());
         }
         // parse TopN
-        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name(), tagsAndFields));
+        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name()));
 
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return builder.build();
     }
 
-    private TopNSpec parseTopNSpec(final Model model, final String measureName, MeasureMetadata tagsAndFields) {
+    private TopNSpec parseTopNSpec(final Model model, final String measureName)
+            throws StorageException {
         final Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(model.getName());
-        if (valueColumnOpt.isEmpty()) {
+        if (valueColumnOpt.isEmpty() || valueColumnOpt.get().getDataType() != Column.ValueDataType.COMMON_VALUE) {
+            // skip non-single valued metrics
             return null;
         }
 
-        List<String> groupByTagNames = new ArrayList<>();
-        groupByTagNames.add(Metrics.ENTITY_ID);
-        for (final TagMetadata tagSpec : tagsAndFields.tags) {
-            if (tagSpec.getTagSpec().getTagName().equals(InstanceTraffic.SERVICE_ID)) {
-                groupByTagNames.add(InstanceTraffic.SERVICE_ID);
-            }
+        if (model.getBanyanDBModelExtension().getTopN() == null) {
+            throw new StorageException("Metrics[" + measureName + "] should be annotated with @TopNAggregation");
+        }
+
+        if (CollectionUtils.isEmpty(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames()) ||
+                !VALID_GROUP_BY_TAGS.containsAll(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())) {
+            throw new StorageException("invalid groupBy tags: " + model.getBanyanDBModelExtension().getTopN().getGroupByTagNames());
         }
         return TopNSpec.builder()
                 .name(measureName + "_topn")
-                .lruSize(model.getBanyanDBModelExtension().getLruSize())
-                .countersNumber(model.getBanyanDBModelExtension().getCountersNumber())
+                .lruSize(model.getBanyanDBModelExtension().getTopN().getLruSize())
+                .countersNumber(model.getBanyanDBModelExtension().getTopN().getCountersNumber())
                 .fieldName(valueColumnOpt.get().getValueCName())
-                .groupByTagNames(groupByTagNames) // use entity_id as the only groupBy field
+                .groupByTagNames(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())
                 .sort(AbstractQuery.Sort.UNSPECIFIED) // include both TopN and BottomN
                 .build();
     }

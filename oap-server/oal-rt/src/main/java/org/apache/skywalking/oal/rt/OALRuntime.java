@@ -33,8 +33,10 @@ import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.ClassMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
+import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -52,6 +54,8 @@ import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
@@ -74,6 +78,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -243,6 +248,8 @@ public class OALRuntime implements OALEngine {
             throw new OALCompileException(e.getMessage(), e);
         }
 
+        final List<String> groupByTagNames = new ArrayList<>();
+
         /**
          * Add fields with annotations.
          *
@@ -275,6 +282,10 @@ public class OALRuntime implements OALEngine {
                     Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
+                }
+
+                if (Metrics.ENTITY_ID.equals(field.getColumnName()) || InstanceTraffic.SERVICE_ID.equals(field.getColumnName())) {
+                    groupByTagNames.add(field.getColumnName());
                 }
 
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
@@ -315,6 +326,30 @@ public class OALRuntime implements OALEngine {
         streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
 
         annotationsAttribute.addAnnotation(streamAnnotation);
+
+        // Add @BanyanDB.TopNAggregation if applicable
+        // 1. groupByTagName is not empty
+        // 2. parentClass implements LongValueHolder, IntValueHolder or DoubleValueHolder
+        try {
+            if (Arrays.stream(parentMetricsClass.getInterfaces())
+                    .anyMatch(i -> i.getSimpleName().equals("IntValueHolder") ||
+                            i.getSimpleName().equals("LongValueHolder") ||
+                            i.getSimpleName().equals("DoubleValueHolder"))) {
+                if (!groupByTagNames.isEmpty()) {
+                    Annotation topNAnnotation = new Annotation(BanyanDB.TopNAggregation.class.getName(), constPool);
+                    ArrayMemberValue amv = new ArrayMemberValue(constPool);
+                    MemberValue[] values = new MemberValue[groupByTagNames.size()];
+                    for (int i = 0; i < groupByTagNames.size(); ++i) {
+                        values[i] = new StringMemberValue(groupByTagNames.get(i), constPool);
+                    }
+                    amv.setValue(values);
+                    topNAnnotation.addMemberValue("groupByTagNames", amv);
+                    annotationsAttribute.addAnnotation(topNAnnotation);
+                }
+            }
+        } catch (NotFoundException ignored) {
+        }
+
         metricsClassClassFile.addAttribute(annotationsAttribute);
 
         Class targetClass;

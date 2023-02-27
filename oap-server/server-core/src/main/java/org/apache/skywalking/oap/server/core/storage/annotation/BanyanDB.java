@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 
 /**
@@ -47,7 +49,7 @@ public @interface BanyanDB {
 
     /**
      * Series key is used to group time series data per metric of one entity in one place.
-     *
+     * <p>
      * For example,
      * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
      * by service ID
@@ -74,7 +76,7 @@ public @interface BanyanDB {
     @interface SeriesID {
         /**
          * Relative entity tag
-         *
+         * <p>
          * The index number determines the order of the column placed in the SeriesID.
          * BanyanDB SeriesID searching procedure uses a prefix-scanning strategy.
          * Searching series against a prefix could improve the performance.
@@ -131,6 +133,7 @@ public @interface BanyanDB {
     /**
      * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
      * BanyanDB stream requires a timestamp in milliseconds.
+     *
      * @since 9.3.0
      */
     @Target({ElementType.TYPE})
@@ -141,13 +144,14 @@ public @interface BanyanDB {
 
     /**
      * MeasureField defines a column as a measure's field.
-     *
+     * <p>
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
-     *   storageOnly=true: the column is a measure tag that is not indexed.
-     *   storageOnly=false: the column is a measure tag that is indexed.
-     *   indexOnly=true: the column is a measure tag that is indexed, but not stored.
-     *   indexOnly=false: the column is a measure tag that is indexed and stored.
+     * storageOnly=true: the column is a measure tag that is not indexed.
+     * storageOnly=false: the column is a measure tag that is indexed.
+     * indexOnly=true: the column is a measure tag that is indexed, but not stored.
+     * indexOnly=false: the column is a measure tag that is indexed and stored.
+     *
      * @since 9.4.0
      */
     @Target({ElementType.FIELD})
@@ -157,7 +161,8 @@ public @interface BanyanDB {
 
     /**
      * StoreIDTag indicates a metric store its ID as a tag for searching.
-     * @since 9.4.0
+     *
+     * @Since 9.4.0
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -166,12 +171,17 @@ public @interface BanyanDB {
 
     /**
      * TopNAggregation contains parameters for TopNAggregation
+     *
      * @since 9.4.0
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
+    @Inherited
     @interface TopNAggregation {
         int lruSize() default 2;
+
         int countersNumber() default 1000;
+
+        String[] groupByTagNames();
     }
 }

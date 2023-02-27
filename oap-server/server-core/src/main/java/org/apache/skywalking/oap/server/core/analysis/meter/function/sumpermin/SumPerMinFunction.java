@@ -44,6 +44,7 @@ import java.util.Objects;
 
 @ToString
 @MeterFunction(functionName = "sumPerMin")
+@BanyanDB.TopNAggregation(groupByTagNames = {Metrics.ENTITY_ID, InstanceTraffic.SERVICE_ID})
 public abstract class SumPerMinFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
     protected static final String VALUE = "value";
     protected static final String TOTAL = "total";

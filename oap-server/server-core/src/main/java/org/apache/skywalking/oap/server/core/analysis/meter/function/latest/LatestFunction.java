@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import java.util.Objects;
 
 @MeterFunction(functionName = "latest")
+@BanyanDB.TopNAggregation(groupByTagNames = {Metrics.ENTITY_ID, InstanceTraffic.SERVICE_ID})
 @ToString
 public abstract class LatestFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
     protected static final String VALUE = "value";
