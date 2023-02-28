@@ -308,7 +308,7 @@ GET /api/v1/label/<label_name>/values
 
 For example:
 ```shell
-/api/v1/label/__name__/values'
+/api/v1/label/__name__/values
 ```
 
 Result:
