@@ -2,6 +2,12 @@
 Since 9.4.0, SkyWalking provide [PromQL Service](../../api/promql-service.md). You can choose [Grafana](https://grafana.com/) 
 as the SkyWalking UI. About the installation and how to use please refer to the [official document](https://grafana.com/docs/grafana/v9.3/).
 
+Notice <1>, Gafana is [AGPL-3.0 license](https://github.com/grafana/grafana/blob/main/LICENSE), which is very different from Apache 2.0.
+Please follow AGPL 3.0 license requirements.
+
+Notice <2>, SkyWalking always uses its native UI as first class. All visualization features are only available on native UI.
+Grafana UI is an extension on our support of PromQL APIs. We don't maintain or promise the complete Grafana UI dashboard setup.
+
 ## Configure Data Source
 In the data source config panel, chose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
 <img src="https://skywalking.apache.org/doc-graph/promql/grafana-datasource.jpg"/>
