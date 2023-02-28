@@ -14,14 +14,14 @@ If not mentioned, it will not be supported by default.
 ### Time series Selectors
 #### [Instant Vector Selectors](https://prometheus.io/docs/prometheus/latest/querying/basics/#instant-vector-selectors)
 For example: select metric `service_cpm` which the service is `$service` and the layer is `$layer`.
-```shell
+```text
 service_cpm{service='$service', layer='$layer'}
 ```
 **Note: The label matching operators only support `=` instead of regular expressions.**
 
 #### [Range Vector Selectors](https://prometheus.io/docs/prometheus/latest/querying/basics/#range-vector-selectors)
 For example: select metric `service_cpm` which the service is `$service` and the layer is `$layer` within the last 5 minutes.
-```shell
+```text
 service_cpm{service='$service', layer='$layer'}[5m]
 ```
 
@@ -49,19 +49,19 @@ service_cpm{service='$service', layer='$layer'}[5m]
 
 ##### Between two scalars
 For example:
-```shell
+```text
 1 + 2
 ```
 
 ##### Between an instant vector and a scalar
 For example:
-```shell
+```text
 service_cpm{service='$service', layer='$layer'} / 100
 ```
 
 ##### Between two instant vectors
 For example:
-```shell
+```text
 service_cpm{service='$service', layer='$layer'} + service_cpm{service='$service', layer='$layer'}
 ```
 
@@ -78,19 +78,19 @@ service_cpm{service='$service', layer='$layer'} + service_cpm{service='$service'
 | <=       | less-or-equal)   | yes     |
 ##### Between two scalars
 For example:
-```shell
+```text
 1 > bool 2
 ```
 
 ##### Between an instant vector and a scalar
 For example:
-```shell
+```text
 service_cpm{service='$service', layer='$layer'} > 1
 ```
 
 ##### Between two instant vectors
 For example:
-```shell
+```text
 service_cpm{service='service_A', layer='$layer'} > service_cpm{service='service_B', layer='$layer'}
 ```
 
@@ -99,7 +99,7 @@ service_cpm{service='service_A', layer='$layer'} > service_cpm{service='service_
 #### Expression queries
 
 ##### [Instant queries](https://prometheus.io/docs/prometheus/latest/querying/api/#instant-queries)
-```shell
+```text
 GET|POST /api/v1/query
 ```
 
@@ -110,7 +110,7 @@ GET|POST /api/v1/query
 | timeout   | evaluation timeout                                                                                                                  | **no**  | **ignore** |
 
 For example:
-```shell
+```text
 /api/v1/query?query=service_cpm{service='agent::songs', layer='GENERAL'}
 ```
 
@@ -139,7 +139,7 @@ Result:
 ```
 
 ##### [Range queries](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries)
-```shell
+```text
 GET|POST /api/v1/query_range
 ```
 
@@ -152,7 +152,7 @@ GET|POST /api/v1/query_range
 | timeout   | evaluation timeout                                                                   | **no**  | **ignore** |
 
 For example:
-```shell
+```text
 /api/v1/query_range?query=service_cpm{service='agent::songs', layer='GENERAL'}&start=1677479336&end=1677479636
 ```
 
@@ -205,7 +205,7 @@ Result:
 #### Querying metadata
 
 ##### [Finding series by label matchers](https://prometheus.io/docs/prometheus/latest/querying/api/#finding-series-by-label-matchers)
-```shell
+```text
 GET|POST /api/v1/series
 ```
 
@@ -216,7 +216,7 @@ GET|POST /api/v1/series
 | end       | end timestamp, **seconds**   | yes     | no       |
 
 For example:
-```shell
+```text
 /api/v1/series?match[]=service_traffic{layer='GENERAL'}&start=1677479336&end=1677479636
 ```
 
@@ -265,7 +265,7 @@ Result:
 - endpoint_traffic
 
 #### [Getting label names](https://prometheus.io/docs/prometheus/latest/querying/api/#getting-label-names)
-```shell
+```text
 GET|POST /api/v1/labels
 ```
 
@@ -276,7 +276,7 @@ GET|POST /api/v1/labels
 | end       | end timestamp   | **no**  | yes      |
 
 For example:
-```shell
+```text
 /api/v1/labels?match[]=instance_jvm_cpu'
 ```
 
@@ -296,7 +296,7 @@ Result:
 ```
 
 #### [Querying label values](https://prometheus.io/docs/prometheus/latest/querying/api/#querying-label-values)
-```shell
+```text
 GET /api/v1/label/<label_name>/values
 ```
 
@@ -307,7 +307,7 @@ GET /api/v1/label/<label_name>/values
 | end       | end timestamp   | **no**  | yes      |
 
 For example:
-```shell
+```text
 /api/v1/label/__name__/values
 ```
 
@@ -334,7 +334,7 @@ Result:
 ```
 
 #### [Querying metric metadata](https://prometheus.io/docs/prometheus/latest/querying/api/#querying-metric-metadata)
-```shell
+```text
 GET /api/v1/metadata
 ```
 
@@ -344,8 +344,8 @@ GET /api/v1/metadata
 | metric    | **metric name, support regular expression** | yes     | **yes**  |
 
 For example:
-```shell
-/api/v1/metadata?limit=10'
+```text
+/api/v1/metadata?limit=10
 ```
 
 Result:
@@ -408,12 +408,12 @@ Different metrics will have different labels depending on their Scope and metric
 
 ### Common Value Metrics
 - Query Labels: 
-```shell
+```text
 {General labels}
 ```
 
 - Expression Example: 
-```shell
+```text
 service_cpm{service='agent::songs', layer='GENERAL'}
 ```
 
@@ -444,7 +444,7 @@ service_cpm{service='agent::songs', layer='GENERAL'}
 
 ### Labeled Value Metrics
 - Query Labels:
-```shell
+```text
 --{General labels}
 --labels: Used to filter the value labels to be returned
 --relabels: Used to rename the returned value labels
@@ -452,7 +452,7 @@ note: The number and order of labels must match the number and order of relabels
 ```
 
 - Expression Example:
-```shell
+```text
 service_percentile{service='agent::songs', layer='GENERAL', labels='0,1,2', relabels='P50,P75,P90'}
 ```
 
@@ -509,14 +509,14 @@ service_percentile{service='agent::songs', layer='GENERAL', labels='0,1,2', rela
 
 ### Sort Metrics
 - Query Labels:
-```shell
---parent_service: Name of the parent service
+```text
+--parent_service: <optional> Name of the parent service.
 --top_n: The max number of the selected metric value
 --order: ASC/DES
 ```
 
 - Expression Example:
-```shell
+```text
 service_instance_cpm{parent_service='agent::songs', layer='GENERAL',  top_n='10', order='DES'}
 ```
 
@@ -571,14 +571,14 @@ service_instance_cpm{parent_service='agent::songs', layer='GENERAL',  top_n='10'
 ### Sampled Records
 
 - Query Labels:
-```shell
+```text
 --parent_service: Name of the parent service
 --top_n: The max number of the selected records value
 --order: ASC/DES
 ```
 
 - Expression Example:
-```shell
+```text
 top_n_database_statement{parent_service='localhost:-1', layer='VIRTUAL_DATABASE',  top_n='10', order='DES'}
 ```
 
