@@ -50,11 +50,11 @@ public class PromOpUtils {
 
         long durationValue = endTS - startTS;
 
-        if (durationValue < 3600000) {
+        if (durationValue <= 3600000) {
             duration.setStep(Step.MINUTE);
             duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
             duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
-        } else if (durationValue < 86400000) {
+        } else if (durationValue <= 86400000) {
             duration.setStep(Step.HOUR);
             duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HH));
             duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HH));
