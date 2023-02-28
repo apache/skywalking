@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import zipkin2.Endpoint;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
 
 @RequiredArgsConstructor
@@ -53,163 +55,206 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     private static final Gson GSON = new Gson();
 
     private final JDBCClient h2Client;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<String> getServiceNames() {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
-        sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            List<String> services = new ArrayList<>();
-            while (resultSet.next()) {
-                services.add(resultSet.getString(ZipkinServiceTraffic.SERVICE_NAME));
-            }
-            return services;
-        });
+        final var tables = tableHelper.getTablesForRead(ZipkinServiceTraffic.INDEX_NAME);
+        final var services = new ArrayList<String>();
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
+            sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    services.add(resultSet.getString(ZipkinServiceTraffic.SERVICE_NAME));
+                }
+                return null;
+            });
+        }
+
+        return services
+            .stream()
+            .limit(NAME_QUERY_MAX_SIZE)
+            .collect(toList());
     }
 
     @Override
     @SneakyThrows
     public List<String> getRemoteServiceNames(final String serviceName) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(1);
-        sql.append("select ").append(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME).append(" from ")
-           .append(ZipkinServiceRelationTraffic.INDEX_NAME);
-        sql.append(" where ");
-        sql.append(ZipkinServiceRelationTraffic.SERVICE_NAME).append(" = ?");
-        sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
-        condition.add(serviceName);
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            List<String> remoteServices = new ArrayList<>();
-            while (resultSet.next()) {
-                remoteServices.add(resultSet.getString(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME));
-            }
-            return remoteServices;
-        }, condition.toArray(new Object[0]));
+        final var tables = tableHelper.getTablesForRead(ZipkinServiceRelationTraffic.INDEX_NAME);
+        final var remoteServices = new ArrayList<String>();
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(1);
+            sql.append("select ").append(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME).append(" from ")
+               .append(table);
+            sql.append(" where ");
+            sql.append(ZipkinServiceRelationTraffic.SERVICE_NAME).append(" = ?");
+            sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
+            condition.add(serviceName);
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    remoteServices.add(resultSet.getString(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME));
+                }
+                return null;
+            }, condition.toArray(new Object[0]));
+        }
+
+        return remoteServices
+            .stream()
+            .limit(NAME_QUERY_MAX_SIZE)
+            .collect(toList());
     }
 
     @Override
     @SneakyThrows
     public List<String> getSpanNames(final String serviceName) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(1);
-        sql.append("select ").append(ZipkinServiceSpanTraffic.SPAN_NAME).append(" from ")
-           .append(ZipkinServiceSpanTraffic.INDEX_NAME);
-        sql.append(" where ");
-        sql.append(ZipkinServiceSpanTraffic.SERVICE_NAME).append(" = ?");
-        sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
-        condition.add(serviceName);
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            List<String> spanNames = new ArrayList<>();
-            while (resultSet.next()) {
-                spanNames.add(resultSet.getString(ZipkinServiceSpanTraffic.SPAN_NAME));
-            }
-            return spanNames;
-        }, condition.toArray(new Object[0]));
+        final var tables = tableHelper.getTablesForRead(ZipkinServiceSpanTraffic.INDEX_NAME);
+        final var spanNames = new ArrayList<String>();
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(1);
+            sql.append("select ").append(ZipkinServiceSpanTraffic.SPAN_NAME).append(" from ")
+               .append(table);
+            sql.append(" where ");
+            sql.append(ZipkinServiceSpanTraffic.SERVICE_NAME).append(" = ?");
+            sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
+            condition.add(serviceName);
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    spanNames.add(resultSet.getString(ZipkinServiceSpanTraffic.SPAN_NAME));
+                }
+                return null;
+            }, condition.toArray(new Object[0]));
+        }
+
+        return spanNames
+            .stream()
+            .limit(NAME_QUERY_MAX_SIZE)
+            .collect(toList());
     }
 
     @Override
     @SneakyThrows
     public List<Span> getTrace(final String traceId) {
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(ZipkinSpanRecord.INDEX_NAME);
-        sql.append(" where ");
-        sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
-        condition.add(traceId);
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            List<Span> trace = new ArrayList<>();
-            while (resultSet.next()) {
-                trace.add(buildSpan(resultSet));
-            }
-            return trace;
-        }, condition.toArray(new Object[0]));
+        final var tables = tableHelper.getTablesForRead(ZipkinSpanRecord.INDEX_NAME);
+        final var trace = new ArrayList<Span>();
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table);
+            sql.append(" where ");
+            sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
+            condition.add(traceId);
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    trace.add(buildSpan(resultSet));
+                }
+                return null;
+            }, condition.toArray(new Object[0]));
+        }
+        return trace;
     }
 
     @Override
     @SneakyThrows
     public List<List<Span>> getTraces(final QueryRequest request, Duration duration) {
+        final var tables = tableHelper.getTablesForRead(
+            ZipkinSpanRecord.INDEX_NAME,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
         final long startTimeMillis = duration.getStartTimestamp();
         final long endTimeMillis = duration.getEndTimestamp();
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        List<Map.Entry<String, String>> annotations = new ArrayList<>(request.annotationQuery().entrySet());
-        sql.append("select ").append(ZipkinSpanRecord.INDEX_NAME).append(".").append(ZipkinSpanRecord.TRACE_ID).append(", ")
-            .append("min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
-        sql.append(ZipkinSpanRecord.INDEX_NAME);
-        /**
-         * This is an AdditionalEntity feature, see:
-         * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
-         */
-        if (!CollectionUtils.isEmpty(annotations)) {
-            for (int i = 0; i < annotations.size(); i++) {
-                sql.append(" inner join ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(" ");
-                sql.append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE + i);
-                sql.append(" on ").append(ZipkinSpanRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
-                sql.append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE + i).append(".").append(ID_COLUMN);
-            }
-        }
-        sql.append(" where ");
-        sql.append(" 1=1 ");
-        if (startTimeMillis > 0 && endTimeMillis > 0) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" >= ?");
-            condition.add(startTimeMillis);
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" <= ?");
-            condition.add(endTimeMillis);
-            buildShardingCondition(sql, condition, startTimeMillis, endTimeMillis);
-        }
-        if (request.minDuration() != null) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.DURATION).append(" >= ?");
-            condition.add(request.minDuration());
-        }
-        if (request.maxDuration() != null) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.DURATION).append(" <= ?");
-            condition.add(request.maxDuration());
-        }
-        if (!StringUtil.isEmpty(request.serviceName())) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME).append(" = ?");
-            condition.add(request.serviceName());
-        }
-        if (!StringUtil.isEmpty(request.remoteServiceName())) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME).append(" = ?");
-            condition.add(request.remoteServiceName());
-        }
-        if (!StringUtil.isEmpty(request.spanName())) {
-            sql.append(" and ");
-            sql.append(ZipkinSpanRecord.NAME).append(" = ?");
-            condition.add(request.spanName());
-        }
-        if (CollectionUtils.isNotEmpty(annotations)) {
-            for (int i = 0; i < annotations.size(); i++) {
-                Map.Entry<String, String> annotation = annotations.get(i);
-                if (annotation.getValue().isEmpty()) {
-                    sql.append(" and ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(i).append(".");
-                    sql.append(ZipkinSpanRecord.QUERY).append(" = ?");
-                    condition.add(annotation.getKey());
-                } else {
-                    sql.append(" and ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(i).append(".");
-                    sql.append(ZipkinSpanRecord.QUERY).append(" = ?");
-                    condition.add(annotation.getKey() + "=" + annotation.getValue());
+        final var traceIds = new HashSet<String>();
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            List<Map.Entry<String, String>> annotations = new ArrayList<>(request.annotationQuery().entrySet());
+            sql.append("select ").append(table).append(".").append(ZipkinSpanRecord.TRACE_ID).append(", ")
+               .append("min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
+            sql.append(table);
+            /**
+             * This is an AdditionalEntity feature, see:
+             * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
+             */
+            if (!CollectionUtils.isEmpty(annotations)) {
+                for (int i = 0; i < annotations.size(); i++) {
+                    sql.append(" inner join ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(" ");
+                    sql.append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE + i);
+                    sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
+                    sql.append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE + i).append(".").append(ID_COLUMN);
                 }
             }
-        }
-        sql.append(" group by ").append(ZipkinSpanRecord.TRACE_ID);
-        sql.append(" order by min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
-        sql.append(" limit ").append(request.limit());
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            final var traceIds = new HashSet<String>();
-            while (resultSet.next()) {
-                traceIds.add(resultSet.getString(ZipkinSpanRecord.TRACE_ID));
+            sql.append(" where ");
+            sql.append(" 1=1 ");
+            if (startTimeMillis > 0 && endTimeMillis > 0) {
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" >= ?");
+                condition.add(startTimeMillis);
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" <= ?");
+                condition.add(endTimeMillis);
+                buildShardingCondition(sql, condition, startTimeMillis, endTimeMillis);
             }
-            return getTraces(traceIds);
-        }, condition.toArray(new Object[0]));
+            if (request.minDuration() != null) {
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.DURATION).append(" >= ?");
+                condition.add(request.minDuration());
+            }
+            if (request.maxDuration() != null) {
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.DURATION).append(" <= ?");
+                condition.add(request.maxDuration());
+            }
+            if (!StringUtil.isEmpty(request.serviceName())) {
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME).append(" = ?");
+                condition.add(request.serviceName());
+            }
+            if (!StringUtil.isEmpty(request.remoteServiceName())) {
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME).append(" = ?");
+                condition.add(request.remoteServiceName());
+            }
+            if (!StringUtil.isEmpty(request.spanName())) {
+                sql.append(" and ");
+                sql.append(ZipkinSpanRecord.NAME).append(" = ?");
+                condition.add(request.spanName());
+            }
+            if (CollectionUtils.isNotEmpty(annotations)) {
+                for (int i = 0; i < annotations.size(); i++) {
+                    Map.Entry<String, String> annotation = annotations.get(i);
+                    if (annotation.getValue().isEmpty()) {
+                        sql.append(" and ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(i).append(".");
+                        sql.append(ZipkinSpanRecord.QUERY).append(" = ?");
+                        condition.add(annotation.getKey());
+                    } else {
+                        sql.append(" and ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(i).append(".");
+                        sql.append(ZipkinSpanRecord.QUERY).append(" = ?");
+                        condition.add(annotation.getKey() + "=" + annotation.getValue());
+                    }
+                }
+            }
+            sql.append(" group by ").append(ZipkinSpanRecord.TRACE_ID);
+            sql.append(" order by min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(") desc");
+            sql.append(" limit ").append(request.limit());
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    traceIds.add(resultSet.getString(ZipkinSpanRecord.TRACE_ID));
+                }
+                return null;
+            }, condition.toArray(new Object[0]));
+        }
+
+        return getTraces(traceIds);
     }
 
     @Override
@@ -218,26 +263,35 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         if (CollectionUtils.isEmpty(traceIds)) {
             return new ArrayList<>();
         }
-        StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(5);
-        sql.append("select * from ").append(ZipkinSpanRecord.INDEX_NAME);
-        sql.append(" where ");
-        sql.append(" 1=1 ");
 
-        int i = 0;
-        sql.append(" and ");
-        for (final String traceId : traceIds) {
-            sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
-            condition.add(traceId);
-            if (i != traceIds.size() - 1) {
-                sql.append(" or ");
+        final var tables = tableHelper.getTablesForRead(ZipkinSpanRecord.INDEX_NAME);
+        final var traces = new ArrayList<List<Span>>();
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table);
+            sql.append(" where ");
+            sql.append(" 1=1 ");
+
+            int i = 0;
+            sql.append(" and ");
+            for (final String traceId : traceIds) {
+                sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
+                condition.add(traceId);
+                if (i != traceIds.size() - 1) {
+                    sql.append(" or ");
+                }
+                i++;
             }
-            i++;
+
+            sql.append(" order by ").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" desc");
+
+            traces.addAll(
+                h2Client.executeQuery(sql.toString(), this::buildTraces, condition.toArray(new Object[0]))
+            );
         }
-
-        sql.append(" order by ").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" desc");
-
-        return h2Client.executeQuery(sql.toString(), this::buildTraces, condition.toArray(new Object[0]));
+        return traces;
     }
 
     private List<List<Span>> buildTraces(ResultSet resultSet) throws SQLException {

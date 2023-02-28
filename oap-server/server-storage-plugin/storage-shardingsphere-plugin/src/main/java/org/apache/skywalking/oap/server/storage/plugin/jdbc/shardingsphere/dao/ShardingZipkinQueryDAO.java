@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCZipkinQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 import zipkin2.Span;
@@ -30,8 +31,9 @@ import zipkin2.storage.QueryRequest;
 import java.util.List;
 
 public class ShardingZipkinQueryDAO extends JDBCZipkinQueryDAO {
-    public ShardingZipkinQueryDAO(final JDBCClient h2Client) {
-        super(h2Client);
+    public ShardingZipkinQueryDAO(final JDBCClient h2Client,
+                                  final TableHelper tableHelper) {
+        super(h2Client, tableHelper);
     }
 
     @Override

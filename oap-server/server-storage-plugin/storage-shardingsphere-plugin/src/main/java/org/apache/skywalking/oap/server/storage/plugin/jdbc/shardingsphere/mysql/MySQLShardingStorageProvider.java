@@ -86,13 +86,13 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
 
         this.registerServiceImplementation(
             ITopologyQueryDAO.class,
-            new ShardingTopologyQueryDAO(jdbcClient));
+            new ShardingTopologyQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IMetricsQueryDAO.class,
             new ShardingMetricsQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
-            new ShardingTraceQueryDAO(getManager(), jdbcClient));
+            new ShardingTraceQueryDAO(getManager(), jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IBrowserLogQueryDAO.class,
             new ShardingBrowserLogQueryDAO(jdbcClient, tableHelper));
@@ -114,7 +114,7 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
 
         this.registerServiceImplementation(
             IZipkinQueryDAO.class,
-            new ShardingZipkinQueryDAO(jdbcClient));
+            new ShardingZipkinQueryDAO(jdbcClient, tableHelper));
     }
 
     @Override

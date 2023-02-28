@@ -18,18 +18,20 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
 
+import java.io.IOException;
+import java.util.List;
+
 public class ShardingTopologyQueryDAO extends JDBCTopologyQueryDAO {
 
-    public ShardingTopologyQueryDAO(JDBCClient h2Client) {
-        super(h2Client);
+    public ShardingTopologyQueryDAO(JDBCClient h2Client, TableHelper tableHelper) {
+        super(h2Client, tableHelper);
     }
 
     @Override

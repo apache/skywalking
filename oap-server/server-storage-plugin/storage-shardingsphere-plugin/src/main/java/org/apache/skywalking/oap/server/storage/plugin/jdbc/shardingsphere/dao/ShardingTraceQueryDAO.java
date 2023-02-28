@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 
-import java.io.IOException;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -27,14 +25,19 @@ import org.apache.skywalking.oap.server.core.query.type.TraceBrief;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.DurationWithinTTL;
+
+import java.io.IOException;
+import java.util.List;
 
 public class ShardingTraceQueryDAO extends JDBCTraceQueryDAO {
 
     public ShardingTraceQueryDAO(ModuleManager manager,
-                                 JDBCClient h2Client) {
-        super(manager, h2Client);
+                                 JDBCClient h2Client,
+                                 TableHelper tableHelper) {
+        super(manager, h2Client, tableHelper);
     }
 
     @Override

@@ -142,13 +142,13 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
 
         this.registerServiceImplementation(
             ITopologyQueryDAO.class,
-            new JDBCTopologyQueryDAO(jdbcClient));
+            new JDBCTopologyQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IMetricsQueryDAO.class,
             new JDBCMetricsQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ITraceQueryDAO.class,
-            new JDBCTraceQueryDAO(getManager(), jdbcClient));
+            new JDBCTraceQueryDAO(getManager(), jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IBrowserLogQueryDAO.class,
             new JDBCBrowserLogQueryDAO(jdbcClient, tableHelper));
@@ -182,7 +182,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCProfileThreadSnapshotQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             UITemplateManagementDAO.class,
-            new JDBCUITemplateManagementDAO(jdbcClient));
+            new JDBCUITemplateManagementDAO(jdbcClient, tableHelper));
 
         this.registerServiceImplementation(
             IEventQueryDAO.class,
@@ -202,13 +202,13 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCServiceLabelQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ITagAutoCompleteQueryDAO.class,
-            new JDBCTagAutoCompleteQueryDAO(jdbcClient));
+            new JDBCTagAutoCompleteQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IZipkinQueryDAO.class,
-            new JDBCZipkinQueryDAO(jdbcClient));
+            new JDBCZipkinQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             ISpanAttachedEventQueryDAO.class,
-            new JDBCSpanAttachedEventQueryDAO(jdbcClient));
+            new JDBCSpanAttachedEventQueryDAO(jdbcClient, tableHelper));
     }
 
     @Override

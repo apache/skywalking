@@ -416,7 +416,7 @@ public class ShardingSphereIT {
         });
 
         // Test query
-        JDBCTagAutoCompleteQueryDAO tagQueryDAO = new JDBCTagAutoCompleteQueryDAO(ssClient);
+        JDBCTagAutoCompleteQueryDAO tagQueryDAO = new JDBCTagAutoCompleteQueryDAO(ssClient, new TableHelper(moduleManager, ssClient));
         Set<String> tagKeys = tagQueryDAO.queryTagAutocompleteKeys(TagType.TRACE, 10, duration);
         Assertions.assertEquals(searchableTag, tagKeys.iterator().next());
         Set<String> tagValues = tagQueryDAO.queryTagAutocompleteValues(TagType.TRACE, searchableTag, 10, duration);
@@ -473,7 +473,7 @@ public class ShardingSphereIT {
         ttlDropTest(model);
 
         //Test trace query
-        ShardingTraceQueryDAO traceQueryDAO = new ShardingTraceQueryDAO(moduleManager, ssClient);
+        ShardingTraceQueryDAO traceQueryDAO = new ShardingTraceQueryDAO(moduleManager, ssClient, new TableHelper(moduleManager, ssClient));
         TraceBrief traceBrief = traceQueryDAO.queryBasicTraces(
             duration, 0, 0,
             segmentRecordA.getServiceId(), null,
@@ -554,7 +554,7 @@ public class ShardingSphereIT {
         ttlDropTest(clientModel);
 
         //Test topology query
-        ShardingTopologyQueryDAO queryDAO = new ShardingTopologyQueryDAO(ssClient);
+        ShardingTopologyQueryDAO queryDAO = new ShardingTopologyQueryDAO(ssClient, new TableHelper(moduleManager, ssClient));
         List<Call.CallDetail> callDetailsServerSide = queryDAO.loadServiceRelationsDetectedAtServerSide(
             duration, Arrays.asList(serviceIdB));
         //Service_A -----> Service_B
@@ -568,7 +568,7 @@ public class ShardingSphereIT {
 
     @SneakyThrows
     private void createShardingRuleTest(Model model) {
-        ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, dataSources, ttlTestCreate);
+        ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, TableHelper.getTableForWrite(model), dataSources, ttlTestCreate);
         Map<String, ShardingRule> shardingRules = Whitebox.getInternalState(
             ShardingRulesOperator.INSTANCE, "modelShardingRules");
         ShardingRule inputRule = shardingRules.get(model.getName()).toBuilder().build();
@@ -579,7 +579,7 @@ public class ShardingSphereIT {
     }
 
     private void updateShardingRuleTest(Model model) throws SQLException {
-        ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, dataSources, ttlTestCreate);
+        ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, TableHelper.getTableForWrite(model), dataSources, ttlTestCreate);
         Map<String, ShardingRule> shardingRules = Whitebox.getInternalState(
             ShardingRulesOperator.INSTANCE, "modelShardingRules");
         ShardingRule inputRule = shardingRules.get(model.getName()).toBuilder().build();

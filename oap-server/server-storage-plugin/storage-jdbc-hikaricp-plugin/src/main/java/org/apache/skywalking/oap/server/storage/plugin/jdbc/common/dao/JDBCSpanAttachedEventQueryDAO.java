@@ -25,60 +25,81 @@ import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAtta
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
 @RequiredArgsConstructor
 public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO {
     private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
     public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) {
-        StringBuilder sql = new StringBuilder("select * from " + SpanAttachedEventRecord.INDEX_NAME + " where ");
-        List<Object> parameters = new ArrayList<>(traceIds.size() + 1);
+        final var tables = tableHelper.getTablesForRead(SpanAttachedEventRecord.INDEX_NAME);
+        final var results = new ArrayList<SpanAttachedEventRecord>();
 
-        sql.append(" ").append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" in (");
-        for (int i = 0; i < traceIds.size(); i++) {
-            if (i == 0) {
-                sql.append("?");
-            } else {
-                sql.append(",?");
-            }
-            parameters.add(traceIds.get(i));
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQL(type, traceIds, table);
+
+            jdbcClient.executeQuery(
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        SpanAttachedEventRecord record = new SpanAttachedEventRecord();
+                        record.setStartTimeSecond(resultSet.getLong(SpanAttachedEventRecord.START_TIME_SECOND));
+                        record.setStartTimeNanos(resultSet.getInt(SpanAttachedEventRecord.START_TIME_NANOS));
+                        record.setEvent(resultSet.getString(SpanAttachedEventRecord.EVENT));
+                        record.setEndTimeSecond(resultSet.getLong(SpanAttachedEventRecord.END_TIME_SECOND));
+                        record.setEndTimeNanos(resultSet.getInt(SpanAttachedEventRecord.END_TIME_NANOS));
+                        record.setTraceRefType(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE));
+                        record.setRelatedTraceId(resultSet.getString(SpanAttachedEventRecord.RELATED_TRACE_ID));
+                        record.setTraceSegmentId(resultSet.getString(SpanAttachedEventRecord.TRACE_SEGMENT_ID));
+                        record.setTraceSpanId(resultSet.getString(SpanAttachedEventRecord.TRACE_SPAN_ID));
+                        String dataBinaryBase64 = resultSet.getString(SpanAttachedEventRecord.DATA_BINARY);
+                        if (StringUtil.isNotEmpty(dataBinaryBase64)) {
+                            record.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                        }
+                        results.add(record);
+                    }
+
+                    return null;
+                },
+                sqlAndParameters.parameters());
         }
-        sql.append(") and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
+        return results
+            .stream()
+            .sorted(comparing(SpanAttachedEventRecord::getStartTimeSecond).thenComparing(SpanAttachedEventRecord::getStartTimeNanos))
+            .collect(toList());
+    }
+
+    private static SQLAndParameters buildSQL(SpanAttachedEventTraceType type, List<String> traceIds, String table) {
+        final var sql = new StringBuilder("select * from " + table + " where ");
+        final var parameters = new ArrayList<>(traceIds.size() + 1);
+
+        sql.append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" in ");
+        sql.append(
+            traceIds
+                .stream()
+                .map(it -> "?")
+                .collect(joining(",", "(", ")"))
+        );
+        parameters.addAll(traceIds);
+
+        sql.append(" and ").append(SpanAttachedEventRecord.TRACE_REF_TYPE).append(" = ?");
         parameters.add(type.value());
 
         sql.append(" order by ").append(SpanAttachedEventRecord.START_TIME_SECOND)
-                .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
+           .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
 
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                List<SpanAttachedEventRecord> results = new ArrayList<>();
-                while (resultSet.next()) {
-                    SpanAttachedEventRecord record = new SpanAttachedEventRecord();
-                    record.setStartTimeSecond(resultSet.getLong(SpanAttachedEventRecord.START_TIME_SECOND));
-                    record.setStartTimeNanos(resultSet.getInt(SpanAttachedEventRecord.START_TIME_NANOS));
-                    record.setEvent(resultSet.getString(SpanAttachedEventRecord.EVENT));
-                    record.setEndTimeSecond(resultSet.getLong(SpanAttachedEventRecord.END_TIME_SECOND));
-                    record.setEndTimeNanos(resultSet.getInt(SpanAttachedEventRecord.END_TIME_NANOS));
-                    record.setTraceRefType(resultSet.getInt(SpanAttachedEventRecord.TRACE_REF_TYPE));
-                    record.setRelatedTraceId(resultSet.getString(SpanAttachedEventRecord.RELATED_TRACE_ID));
-                    record.setTraceSegmentId(resultSet.getString(SpanAttachedEventRecord.TRACE_SEGMENT_ID));
-                    record.setTraceSpanId(resultSet.getString(SpanAttachedEventRecord.TRACE_SPAN_ID));
-                    String dataBinaryBase64 = resultSet.getString(SpanAttachedEventRecord.DATA_BINARY);
-                    if (StringUtil.isNotEmpty(dataBinaryBase64)) {
-                        record.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
-                    }
-                    results.add(record);
-                }
-
-                return results;
-            },
-            parameters.toArray(new Object[0]));
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 }

@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -43,6 +44,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITemplateManagementDAO {
     private final JDBCClient h2Client;
+    private final TableHelper tableHelper;
 
     @Override
     @SneakyThrows
@@ -50,45 +52,61 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
         if (StringUtil.isEmpty(id)) {
             return null;
         }
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(UITemplate.INDEX_NAME).append(" where id=? LIMIT 1 ");
-        condition.add(id);
 
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            final UITemplate.Builder builder = new UITemplate.Builder();
-            UITemplate uiTemplate = (UITemplate) toStorageData(resultSet, UITemplate.INDEX_NAME, builder);
-            if (uiTemplate != null) {
-                return new DashboardConfiguration().fromEntity(uiTemplate);
+        final var tables = tableHelper.getTablesForRead(UITemplate.INDEX_NAME);
+
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            final ArrayList<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table).append(" where id=? LIMIT 1 ");
+            condition.add(id);
+
+            final var result = h2Client.executeQuery(sql.toString(), resultSet -> {
+                final UITemplate.Builder builder = new UITemplate.Builder();
+                UITemplate uiTemplate = (UITemplate) toStorageData(resultSet, UITemplate.INDEX_NAME, builder);
+                if (uiTemplate != null) {
+                    return new DashboardConfiguration().fromEntity(uiTemplate);
+                }
+                return null;
+            }, condition.toArray(new Object[0]));
+            if (result != null) {
+                return result;
             }
-            return null;
-        }, condition.toArray(new Object[0]));
+        }
+
+        return null;
     }
 
     @Override
     @SneakyThrows
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) {
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(UITemplate.INDEX_NAME).append(" where 1=1 ");
-        if (!includingDisabled) {
-            sql.append(" and ").append(UITemplate.DISABLED).append("=?");
-            condition.add(BooleanUtils.booleanToValue(includingDisabled));
+        final var tables = tableHelper.getTablesForRead(UITemplate.INDEX_NAME);
+        final var configs = new ArrayList<DashboardConfiguration>();
+
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            final ArrayList<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table).append(" where 1=1 ");
+            if (!includingDisabled) {
+                sql.append(" and ").append(UITemplate.DISABLED).append("=?");
+                condition.add(BooleanUtils.booleanToValue(includingDisabled));
+            }
+
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                final UITemplate.Builder builder = new UITemplate.Builder();
+                UITemplate uiTemplate = null;
+                do {
+                    uiTemplate = (UITemplate) toStorageData(resultSet, UITemplate.INDEX_NAME, builder);
+                    if (uiTemplate != null) {
+                        configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
+                    }
+                }
+                while (uiTemplate != null);
+                return null;
+            }, condition.toArray(new Object[0]));
         }
 
-        return h2Client.executeQuery(sql.toString(), resultSet -> {
-            final List<DashboardConfiguration> configs = new ArrayList<>();
-            final UITemplate.Builder builder = new UITemplate.Builder();
-            UITemplate uiTemplate = null;
-            do {
-                uiTemplate = (UITemplate) toStorageData(resultSet, UITemplate.INDEX_NAME, builder);
-                if (uiTemplate != null) {
-                    configs.add(new DashboardConfiguration().fromEntity(uiTemplate));
-                }
-            }
-            while (uiTemplate != null);
-            return configs;
-        }, condition.toArray(new Object[0]));
+        return configs;
     }
 
     @Override
