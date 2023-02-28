@@ -33,6 +33,9 @@ import java.util.Objects;
 
 public class ResourceUtils {
 
+    private ResourceUtils() {
+    }
+
     public static Reader read(String fileName) throws FileNotFoundException {
         return new InputStreamReader(readToStream(fileName), StandardCharsets.UTF_8);
     }

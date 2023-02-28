@@ -24,6 +24,9 @@ import java.util.Set;
 
 public class CollectionUtils {
 
+    private CollectionUtils() {
+    }
+
     public static boolean isEmpty(Map map) {
         return map == null || map.size() == 0;
     }
