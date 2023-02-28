@@ -26,7 +26,7 @@ databaseName: swtest
 
 dataSources:
  ds_0:
-   url: jdbc:mysql://data-source-0:3306/swtest?allowPublicKeyRetrieval=true
+   url: jdbc:mysql://data-source-0:3306/swtest?allowPublicKeyRetrieval=true&allowMultiQueries=true
    username: root
    password: root@1234
    connectionTimeoutMilliseconds: 30000
@@ -35,7 +35,7 @@ dataSources:
    maxPoolSize: 50
    minPoolSize: 1
  ds_1:
-   url: jdbc:mysql://data-source-1:3306/swtest?allowPublicKeyRetrieval=true
+   url: jdbc:mysql://data-source-1:3306/swtest?allowPublicKeyRetrieval=true&allowMultiQueries=true
    username: root
    password: root@1234
    connectionTimeoutMilliseconds: 30000

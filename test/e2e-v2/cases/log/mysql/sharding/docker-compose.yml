@@ -57,7 +57,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: mysql-sharding
-      SW_JDBC_URL: jdbc:mysql://sharding-proxy:3307/swtest
+      SW_JDBC_URL: jdbc:mysql://sharding-proxy:3307/swtest?allowMultiQueries=true
       SW_JDBC_SHARDING_DATA_SOURCES: ds_0,ds_1
       SW_CORE_METRICS_DATA_TTL: 2
       SW_CORE_RECORD_DATA_TTL: 2

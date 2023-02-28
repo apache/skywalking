@@ -30,6 +30,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.joda.time.DateTime;
 
+import java.util.HashSet;
+
 @Slf4j
 @RequiredArgsConstructor
 public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
@@ -44,15 +46,26 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         final var startTimeBucket = endTimeBucket - ttl;
 
         log.info(
-            "Deleting history data from {} to {}, ttl: {}, now: {}",
-            startTimeBucket,
-            endTimeBucket,
+            "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
             ttl,
-            System.currentTimeMillis()
+            System.currentTimeMillis(),
+            startTimeBucket,
+            endTimeBucket
         );
 
-        final var tables = tableHelper.getTablesForRead(model.getName(), startTimeBucket, endTimeBucket);
-        for (String table : tables) {
+        final var ttlTables = tableHelper.getTablesForRead(model.getName(), startTimeBucket, endTimeBucket);
+        final var tablesToDrop = new HashSet<String>();
+
+        try (final var conn = jdbcClient.getConnection();
+             final var result = conn.getMetaData().getTables(null, null, TableHelper.getTableName(model) + "%", new String[] {"TABLE"})) {
+            while (result.next()) {
+                tablesToDrop.add(result.getString("TABLE_NAME"));
+            }
+        }
+
+        ttlTables.forEach(tablesToDrop::remove);
+        tablesToDrop.removeIf(it -> !it.matches(".*_\\d{8}"));
+        for (String table : tablesToDrop) {
             final var dropSql = new SQLBuilder("drop table if exists ").append(table);
             jdbcClient.executeUpdate(dropSql.toString());
         }
