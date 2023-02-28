@@ -172,8 +172,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
      * map them by their absolute value into the negative range using the same scale as the positive range. So the
      * upperBound should be calculated as -base**(offset+index).
      *
-     * Ignored the zero_count field temporarily, 
-     * because the zero_threshold even could overlap the existing bucket scopes. 
+     * Ignored the zero_count field temporarily,
+     * because the zero_threshold even could overlap the existing bucket scopes.
      *
      * @param positiveOffset       corresponding to positive Buckets' offset in ExponentialHistogramDataPoint
      * @param positiveBucketCounts corresponding to positive Buckets' bucket_counts in ExponentialHistogramDataPoint
@@ -198,7 +198,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             upperBound = -Math.pow(base, negativeOffset + i);
             if (upperBound == Double.NEGATIVE_INFINITY) {
                 log.warn("Receive and reject out-of-range ExponentialHistogram data");
-                break;
+                return new HashMap<>();
             }
             result.put(upperBound, negativeBucketCounts.get(i));
         }
@@ -206,7 +206,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             upperBound = Math.pow(base, positiveOffset + i + 1);
             if (upperBound == Double.POSITIVE_INFINITY) {
                 log.warn("Receive and reject out-of-range ExponentialHistogram data");
-                break;
+                return new HashMap<>();
             }
             result.put(upperBound, positiveBucketCounts.get(i));
         }

@@ -60,39 +60,39 @@ public class OpenTelemetryMetricRequestProcessorTest {
         Method adaptMetricsMethod = clazz.getDeclaredMethod("adaptMetrics", Map.class, Metric.class);
         adaptMetricsMethod.setAccessible(true);
 
-        // number is 4, 7, 9
-        var var1 = ExponentialHistogramDataPoint.Buckets.newBuilder()
-                                                                                          .setOffset(10)
-                                                                                          .addBucketCounts(
-                                                                                              1) // (0, 6.72]
-                                                                                          .addBucketCounts(
-                                                                                              1
-                                                                                          ) // (6.72, 8]
-                                                                                          .addBucketCounts(
-                                                                                              1
-                                                                                          ) // (8, 9.51]
-                                                                                          .build();
-        // number is -14, -17, -18, -21
-        var var2 = ExponentialHistogramDataPoint.Buckets.newBuilder()
-                                                                                          .setOffset(15)
-                                                                                          .addBucketCounts(
-                                                                                              1
-                                                                                          ) // (-16, -13.45]
-                                                                                          .addBucketCounts(
-                                                                                              2
-                                                                                          ) // (-19.02, -16]
-                                                                                          .addBucketCounts(
-                                                                                              1
-                                                                                          ) // (-INFINITY, -19.02]
-                                                                                          .build();
+        // number is 4; 7, 7.5; 8.5, 8.7, 9.4
+        var positiveBuckets = ExponentialHistogramDataPoint.Buckets.newBuilder()
+                                                                   .setOffset(10)
+                                                                   .addBucketCounts(
+                                                                       1) // (0, 6.72]
+                                                                   .addBucketCounts(
+                                                                       2
+                                                                   ) // (6.72, 8]
+                                                                   .addBucketCounts(
+                                                                       3
+                                                                   ) // (8, 9.51]
+                                                                   .build();
+        // number is -14, -14.5, -15; -18; -21, -26
+        var negativeBuckets = ExponentialHistogramDataPoint.Buckets.newBuilder()
+                                                                   .setOffset(15)
+                                                                   .addBucketCounts(
+                                                                       3
+                                                                   ) // (-16, -13.45]
+                                                                   .addBucketCounts(
+                                                                       1
+                                                                   ) // (-19.02, -16]
+                                                                   .addBucketCounts(
+                                                                       2
+                                                                   ) // (-INFINITY, -19.02]
+                                                                   .build();
         var dataPoint = ExponentialHistogramDataPoint.newBuilder()
-                                                                               .setCount(7)
-                                                                               .setSum(-50)
-                                                                               .setScale(2)
-                                                                               .setPositive(var1)
-                                                                               .setNegative(var2)
-                                                                               .setTimeUnixNano(1000000)
-                                                                               .build();
+                                                     .setCount(12)
+                                                     .setSum(-63.4)
+                                                     .setScale(2)
+                                                     .setPositive(positiveBuckets)
+                                                     .setNegative(negativeBuckets)
+                                                     .setTimeUnixNano(1000000)
+                                                     .build();
         ExponentialHistogram exponentialHistogram = ExponentialHistogram.newBuilder()
                                                                         .addDataPoints(dataPoint)
                                                                         .build();
@@ -107,8 +107,8 @@ public class OpenTelemetryMetricRequestProcessorTest {
         Histogram histogramMetric = list.get(0);
         assertEquals("test_metric", histogramMetric.getName());
         assertEquals(1, histogramMetric.getTimestamp());
-        assertEquals(7, histogramMetric.getSampleCount());
-        assertEquals(-50, histogramMetric.getSampleSum());
+        assertEquals(12, histogramMetric.getSampleCount());
+        assertEquals(-63.4, histogramMetric.getSampleSum());
 
         // validate the key and value of bucket
         double base = Math.pow(2, Math.pow(2, -2));
@@ -117,18 +117,18 @@ public class OpenTelemetryMetricRequestProcessorTest {
         assertEquals(1, histogramMetric.getBuckets().get(Math.pow(base, 11)));
 
         assertTrue(histogramMetric.getBuckets().containsKey(Math.pow(base, 12)));
-        assertEquals(1, histogramMetric.getBuckets().get(Math.pow(base, 12)));
+        assertEquals(2, histogramMetric.getBuckets().get(Math.pow(base, 12)));
 
         assertTrue(histogramMetric.getBuckets().containsKey(Double.POSITIVE_INFINITY));
-        assertEquals(1, histogramMetric.getBuckets().get(Double.POSITIVE_INFINITY));
+        assertEquals(3, histogramMetric.getBuckets().get(Double.POSITIVE_INFINITY));
 
         assertTrue(histogramMetric.getBuckets().containsKey(-Math.pow(base, 15)));
-        assertEquals(1, histogramMetric.getBuckets().get(-Math.pow(base, 15)));
+        assertEquals(3, histogramMetric.getBuckets().get(-Math.pow(base, 15)));
 
         assertTrue(histogramMetric.getBuckets().containsKey(-Math.pow(base, 16)));
-        assertEquals(2, histogramMetric.getBuckets().get(-Math.pow(base, 16)));
+        assertEquals(1, histogramMetric.getBuckets().get(-Math.pow(base, 16)));
 
         assertTrue(histogramMetric.getBuckets().containsKey(-Math.pow(base, 17)));
-        assertEquals(1, histogramMetric.getBuckets().get(-Math.pow(base, 17)));
+        assertEquals(2, histogramMetric.getBuckets().get(-Math.pow(base, 17)));
     }
 }
