@@ -144,7 +144,11 @@ catalog:
           - name: "Dynamic Configuration"
             path: "/en/setup/backend/dynamic-config"
       - name: "UI Setup"
-        path: "/en/setup/backend/ui-setup"
+        catalog:
+          - name: "Native UI"
+            path: "/en/setup/backend/ui-setup"
+          - name: "Grafana UI"
+            path: "/en/setup/backend/ui-grafana"
       - name: "Official Dashboards"
         catalog:
           - name: "Overview"
@@ -257,6 +261,8 @@ catalog:
             path: "/en/api/event"
           - name: "Profiling"
             path: "/en/api/profiling-protocol"
+          - name: "PromQL Service"
+            path: "/en/api/promql-service.md"
       - name: "Query APIs"
         catalog:
           - name:  "GraphQL APIs"
