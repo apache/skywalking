@@ -56,6 +56,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "value": "0-0-0",
                   "label": "Load_Server",
                   "associate": [
@@ -589,6 +594,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "value": "0-0-7",
                   "label": "Load_Client",
                   "associate": [
@@ -1109,7 +1119,8 @@
                     },
                     {
                       "unit": "calls or packets / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "calculation": "cpm5d"
                     },
                     {
                       "unit": "ms",
@@ -1123,7 +1134,8 @@
                     },
                     {
                       "unit": "calls or packets / min ",
-                      "label": "Server Load"
+                      "label": "Server Load",
+                      "calculation": "cpm5d"
                     }
                   ],
                   "linkClientMetricConfig": [
@@ -1133,7 +1145,8 @@
                     },
                     {
                       "unit": "calls or packets / min",
-                      "label": "Client Load"
+                      "label": "Client Load",
+                      "calculation": "cpm5d"
                     }
                   ]
                 }

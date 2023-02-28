@@ -188,6 +188,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "value": "1-0-3",
                   "label": "Instance_Load",
                   "associate": [

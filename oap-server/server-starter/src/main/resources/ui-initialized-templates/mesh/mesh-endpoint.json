@@ -210,6 +210,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "value": "1-0-8",
                   "label": "Endpoint_Load",
                   "associate": [

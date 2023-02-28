@@ -112,7 +112,8 @@
                   ],
                   "metricConfig": [
                     {
-                      "unit": "calls / min"
+                      "unit": "calls / min",
+                      "calculation": "cpm5d"
                     }
                   ]
                 },
@@ -371,6 +372,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "associate": [
                     {
                       "widgetId": "4-0-3"
@@ -516,6 +522,11 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
                   ]
                 },
                 {
@@ -634,6 +645,11 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
                   ]
                 }
               ]
@@ -667,7 +683,7 @@
                     {
                       "label": "Load",
                       "unit": "calls / min",
-                      "calculation": "average"
+                      "calculation": "cpm5dAvg"
                     },
                     {
                       "calculation": "percentageAvg",
@@ -714,7 +730,7 @@
                     {
                       "label": "Load",
                       "unit": "calls / min",
-                      "calculation": "average"
+                      "calculation": "cpm5dAvg"
                     },
                     {
                       "calculation": "percentageAvg",
@@ -790,7 +806,8 @@
                   "nodeMetricConfig": [
                     {
                       "unit": "calls / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "calculation": "cpm5d"
                     },
                     {
                       "calculation": "percentage",
@@ -809,13 +826,15 @@
                     },
                     {
                       "unit": "calls / min",
-                      "label": "Server Load"
+                      "label": "Server Load",
+                      "calculation": "cpm5d"
                     }
                   ],
                   "linkClientMetricConfig": [
                     {
                       "unit": "calls / min",
-                      "label": "Client Load"
+                      "label": "Client Load",
+                      "calculation": "cpm5d"
                     },
                     {
                       "unit": "ms",

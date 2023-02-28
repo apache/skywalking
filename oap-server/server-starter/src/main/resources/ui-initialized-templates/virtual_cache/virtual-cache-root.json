@@ -63,7 +63,7 @@
             {
               "label": "Access Traffic",
               "unit": "calls / min",
-              "calculation": "average"
+              "calculation": "cpm5dAvg"
             }
           ]
         },

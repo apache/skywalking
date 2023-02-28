@@ -253,6 +253,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -313,7 +318,8 @@
                     },
                     {
                       "unit": "calls / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "calculation": "cpm5d"
                     }
                   ],
                   "nodeMetricConfig": [
@@ -328,7 +334,8 @@
                     },
                     {
                       "unit": "calls / min ",
-                      "label": "Load"
+                      "label": "Load",
+                      "calculation": "cpm5d"
                     }
                   ]
                 }

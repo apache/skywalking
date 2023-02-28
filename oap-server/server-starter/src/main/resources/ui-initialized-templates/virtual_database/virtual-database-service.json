@@ -116,6 +116,11 @@
           "metricTypes": [
             "readMetricsValues"
           ],
+          "metricConfig": [
+            {
+              "calculation": "cpm5d"
+            }
+          ],
           "value": "4",
           "label": "Database_Traffic",
           "associate": [

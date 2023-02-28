@@ -189,6 +189,11 @@
           "metricTypes": [
             "readMetricsValues"
           ],
+          "metricConfig": [
+            {
+              "calculation": "cpm5d"
+            }
+          ],
           "value": "3",
           "label": "Load_Client",
           "associate": [
@@ -464,6 +469,11 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "cpm5d"
+            }
           ],
           "value": "7",
           "label": "Load_Server",

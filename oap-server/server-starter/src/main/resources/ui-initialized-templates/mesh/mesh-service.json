@@ -115,7 +115,8 @@
                   ],
                   "metricConfig": [
                     {
-                      "unit": "calls or packets / min"
+                      "unit": "calls or packets / min",
+                      "calculation": "cpm5d"
                     }
                   ],
                   "value": "0-0-2",
@@ -358,6 +359,11 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "value": "0-0-7",
                   "label": "Service_Load",
                   "associate": [
@@ -448,6 +454,11 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
                   ],
                   "value": "0-0-11",
                   "label": "0-0-11"
@@ -576,6 +587,11 @@
                   "metricTypes": [
                     "sortMetrics"
                   ],
+                  "metricConfig": [
+                    {
+                      "calculation": "cpm5d"
+                    }
+                  ],
                   "value": "0-0-22",
                   "label": "0-0-22"
                 },
@@ -666,7 +682,7 @@
                     {
                       "label": "Load",
                       "unit": "calls or packets / min",
-                      "calculation": "average"
+                      "calculation": "cpm5dAvg"
                     },
                     {
                       "calculation": "percentageAvg",
@@ -715,7 +731,7 @@
                     {
                       "label": "Load",
                       "unit": "calls or packets / min",
-                      "calculation": "average"
+                      "calculation": "cpm5dAvg"
                     },
                     {
                       "calculation": "percentageAvg",
@@ -793,7 +809,8 @@
                   "nodeMetricConfig": [
                     {
                       "unit": "calls or packets / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "calculation": "cpm5d"
                     },
                     {
                       "calculation": "percentage",
@@ -812,13 +829,15 @@
                     },
                     {
                       "unit": "calls or packets / min",
-                      "label": "Server Load"
+                      "label": "Server Load",
+                      "calculation": "cpm5d"
                     }
                   ],
                   "linkClientMetricConfig": [
                     {
                       "unit": "calls or packets / min",
-                      "label": "Client Load"
+                      "label": "Client Load",
+                      "calculation": "cpm5d"
                     },
                     {
                       "unit": "ms",

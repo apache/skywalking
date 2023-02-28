@@ -63,7 +63,7 @@
             {
               "label": "Traffic",
               "unit": "calls / min",
-              "calculation": "average"
+              "calculation": "cpm5dAvg"
             }
           ]
         },

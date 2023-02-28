@@ -67,7 +67,7 @@
             {
               "label": "Consume Traffic",
               "unit": "calls / min",
-              "calculation": "average"
+              "calculation": "cpm5dAvg"
             },
             {
               "label": "Produce Successful Rate",
@@ -77,7 +77,7 @@
             {
               "label": "Produce Traffic",
               "unit": "calls / min",
-              "calculation": "average"
+              "calculation": "cpm5dAvg"
             }
           ]
         }

@@ -171,6 +171,11 @@
           "metricTypes": [
             "readMetricsValues"
           ],
+          "metricConfig": [
+            {
+              "calculation": "cpm5d"
+            }
+          ],
           "associate": [
             {
               "widgetId": "1"
@@ -406,6 +411,11 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "calculation": "cpm5d"
+            }
           ],
           "associate": [
             {
