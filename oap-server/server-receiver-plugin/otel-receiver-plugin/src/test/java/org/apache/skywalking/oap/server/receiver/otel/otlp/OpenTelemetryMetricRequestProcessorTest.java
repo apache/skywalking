@@ -73,7 +73,7 @@ public class OpenTelemetryMetricRequestProcessorTest {
                                                                                           ) // (8, 9.51]
                                                                                           .build();
         // number is -14, -17, -18, -21
-        ExponentialHistogramDataPoint.Buckets var2 = ExponentialHistogramDataPoint.Buckets.newBuilder()
+        var var2 = ExponentialHistogramDataPoint.Buckets.newBuilder()
                                                                                           .setOffset(15)
                                                                                           .addBucketCounts(
                                                                                               1
@@ -85,7 +85,7 @@ public class OpenTelemetryMetricRequestProcessorTest {
                                                                                               1
                                                                                           ) // (-INFINITY, -19.02]
                                                                                           .build();
-        ExponentialHistogramDataPoint dataPoint = ExponentialHistogramDataPoint.newBuilder()
+        var dataPoint = ExponentialHistogramDataPoint.newBuilder()
                                                                                .setCount(7)
                                                                                .setSum(-50)
                                                                                .setScale(2)
