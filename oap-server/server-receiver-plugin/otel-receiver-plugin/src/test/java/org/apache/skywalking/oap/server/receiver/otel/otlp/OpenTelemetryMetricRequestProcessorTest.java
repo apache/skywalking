@@ -61,7 +61,7 @@ public class OpenTelemetryMetricRequestProcessorTest {
         adaptMetricsMethod.setAccessible(true);
 
         // number is 4, 7, 9
-        ExponentialHistogramDataPoint.Buckets var1 = ExponentialHistogramDataPoint.Buckets.newBuilder()
+        var var1 = ExponentialHistogramDataPoint.Buckets.newBuilder()
                                                                                           .setOffset(10)
                                                                                           .addBucketCounts(
                                                                                               1) // (0, 6.72]
