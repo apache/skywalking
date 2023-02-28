@@ -138,7 +138,10 @@
 * Update BanyanDB client to 0.3.0.
 * Add AWS DynamoDB menu.
 * Fix: add auto period to the independent mode for widgets.
-* optimize menus and add Windows monitoring menu.
+* Optimize menus and add Windows monitoring menu.
+* Add a calculation for the cpm5dAvg.
+* add a cpm5d calculation.
+* Fix data processing error in the eBPF profiling widget.
 
 #### Documentation
 
