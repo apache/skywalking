@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -61,7 +60,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
         final var ids =
             pointOfTimes
                 .stream()
-                .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
                 .collect(Collectors.toList());
         final var defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
         final var function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
@@ -134,7 +133,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
         final var ids =
             pointOfTimes
                 .stream()
-                .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
                 .collect(Collectors.toList());
 
         for (final var table : tables) {
@@ -186,7 +185,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
         final var ids =
             pointOfTimes
                 .stream()
-                .map(pointOfTime -> condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId))
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
                 .collect(Collectors.toList());
 
         for (final var table : tables) {
@@ -240,9 +239,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
             final var ids =
                 pointOfTimes
                     .stream()
-                    .map(pointOfTime ->
-                        condition.getName() + Const.UNDERSCORE + pointOfTime.id(entityId)
-                    )
+                    .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId))                    )
                     .collect(Collectors.toList());
 
             final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + table)

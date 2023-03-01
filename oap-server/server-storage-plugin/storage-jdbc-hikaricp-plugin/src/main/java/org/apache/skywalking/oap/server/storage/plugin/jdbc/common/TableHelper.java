@@ -113,7 +113,7 @@ public class TableHelper {
         return getTablesForRead(modelName, timeBucketStart, timeBucketEnd);
     }
 
-    public String generateId(Model model, String originalID) {
+    public static String generateId(Model model, String originalID) {
         if (model.isRecord() && !model.isSuperDataset()) {
             return generateId(model.getName(), originalID);
         }
@@ -126,11 +126,11 @@ public class TableHelper {
         return generateId(model.getName(), originalID);
     }
 
-    public String generateId(String table, String originalID) {
+    public static String generateId(String table, String originalID) {
         return table + Const.ID_CONNECTOR + originalID;
     }
 
-    public boolean isFunctionMetric(Model model) {
+    public static boolean isFunctionMetric(Model model) {
         return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
