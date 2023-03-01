@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -104,7 +105,7 @@ public class TableHelper {
             configs().getRecordDataTTL() :
             configs().getMetricsDataTTL();
         final var timeBucketEnd = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
-        final var timeBucketStart = timeBucketEnd - ttl;
+        final var timeBucketStart = TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
 
         return getTablesForRead(modelName, timeBucketStart, timeBucketEnd);
     }

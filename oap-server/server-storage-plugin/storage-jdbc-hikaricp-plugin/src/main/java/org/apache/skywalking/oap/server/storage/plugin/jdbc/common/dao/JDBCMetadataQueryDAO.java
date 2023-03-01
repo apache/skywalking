@@ -395,7 +395,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(3);
-            sql.append("select count(1) total from ").append(ProcessTraffic.INDEX_NAME);
+            sql.append("select count(1) total from ").append(table);
             appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0, false);
 
             total += jdbcClient.executeQuery(sql.toString(), resultSet -> {
