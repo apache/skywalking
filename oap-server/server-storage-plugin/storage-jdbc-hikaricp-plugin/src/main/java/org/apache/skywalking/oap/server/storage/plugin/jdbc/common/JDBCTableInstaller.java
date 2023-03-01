@@ -211,8 +211,9 @@ public class JDBCTableInstaller extends ModelInstaller {
     private void createAdditionalTable(Model model) throws SQLException {
         final var additionalTables = model.getSqlDBModelExtension().getAdditionalTables();
         for (final var table : additionalTables.values()) {
-            createOrUpdateTable(table.getName(), table.getColumns(), true);
-            createOrUpdateTableIndexes(table.getName(), table.getColumns(), true);
+            final var tableName = table.getName().toUpperCase();
+            createOrUpdateTable(tableName, table.getColumns(), true);
+            createOrUpdateTableIndexes(tableName, table.getColumns(), true);
         }
     }
 

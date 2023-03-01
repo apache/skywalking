@@ -47,8 +47,9 @@ public class TableHelper {
     private final JDBCClient jdbcClient;
 
     public static String getTableName(Model model) {
-        return model.isMetric() ? "metrics_all" :
+        final var table = model.isMetric() ? "metrics_all" :
             (model.isRecord() && !model.isSuperDataset() ? "records_all" : model.getName());
+        return table.toUpperCase();
     }
 
     public static String getTableForWrite(Model model) {
@@ -62,7 +63,7 @@ public class TableHelper {
         return tableName + Const.UNDERSCORE + dayTimeBucket;
     }
 
-    public String getTableForRead(String modelName, long timestamp) {
+    public static String getTable(String modelName, long timebucket) {
         final var model = TableMetaInfo.get(modelName);
         final var tableName = getTableName(model);
 
@@ -70,7 +71,7 @@ public class TableHelper {
             return tableName;
         }
 
-        return tableName + Const.UNDERSCORE + TimeBucket.getTimeBucket(timestamp, DownSampling.Day);
+        return tableName + Const.UNDERSCORE + TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timebucket), DownSampling.Day);
     }
 
     public List<String> getTablesForRead(String modelName, long timeBucketStart, long timeBucketEnd) {

@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.io.IOException;
@@ -137,7 +138,7 @@ public class JDBCSQLExecutor {
                                                                     long timeBucket,
                                                                     Map<String, Object> objectMap,
                                                                     SessionCacheCallback onCompleteCallback) {
-        final var table = writeTableName(model, timeBucket);
+        final var table = TableHelper.getTable(model.getName(), timeBucket);
         final var sqlBuilder = new SQLBuilder("INSERT INTO " + table);
         final var columns = model.getColumns();
         final var columnNames =
@@ -227,7 +228,7 @@ public class JDBCSQLExecutor {
         final var toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(metrics, toStorage);
         final var objectMap = toStorage.obtain();
-        final var table = writeTableName(model, timeBucket);
+        final var table = TableHelper.getTable(model.getName(), timeBucket);
         final var sqlBuilder = new StringBuilder("UPDATE " + table + " SET ");
         final var columns = model.getColumns();
         final var queries = new ArrayList<String>();
@@ -274,29 +275,4 @@ public class JDBCSQLExecutor {
         }
         return tables;
     }
-
-    static String writeTableName(Model model, long timeBucket) {
-        var tableName =
-            model.isMetric() ? "metrics_all" :
-                model.isRecord() && !model.isSuperDataset() ? "records_all"
-                    : model.getName();
-        if (model.isRecord() && model.isSuperDataset()) {
-            return tableName + Const.UNDERSCORE + timeBucket / 1000000;
-        }
-        switch (model.getDownsampling()) {
-            case None:
-                return tableName;
-            case Hour:
-                return tableName + Const.UNDERSCORE + timeBucket / 100;
-            case Minute:
-                return tableName + Const.UNDERSCORE + timeBucket / 10000;
-            case Day:
-                return tableName + Const.UNDERSCORE + timeBucket;
-            case Second:
-                return tableName + Const.UNDERSCORE + timeBucket / 1000000;
-            default:
-                throw new UnexpectedException("Unexpected down sampling value, " + model.getDownsampling());
-        }
-    }
-
 }
