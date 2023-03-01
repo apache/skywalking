@@ -230,7 +230,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append(EndpointTraffic.SERVICE_ID).append("=?");
             condition.add(serviceId);
             sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
-            condition.add(EndpointTraffic.NAME);
+            condition.add(EndpointTraffic.INDEX_NAME);
             if (!Strings.isNullOrEmpty(keyword)) {
                 sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
                 condition.add(keyword);
