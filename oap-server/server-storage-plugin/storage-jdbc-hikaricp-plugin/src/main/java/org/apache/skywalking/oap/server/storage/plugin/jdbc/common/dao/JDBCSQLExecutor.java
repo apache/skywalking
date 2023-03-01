@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
@@ -69,7 +68,7 @@ public class JDBCSQLExecutor {
                 }
 
                 return null;
-            }, ids.stream().map(it -> modelName + Const.UNDERSCORE + it).toArray());
+            }, ids.stream().map(it -> TableHelper.generateId(modelName, it)).toArray());
         }
         return storageDataList;
     }
@@ -155,7 +154,7 @@ public class JDBCSQLExecutor {
 
         final var param =
             Stream.concat(
-                      Stream.of((model.isTimeSeries() ? (model.getName() + Const.UNDERSCORE) : "") + metrics.id().build(), model.getName()),
+                      Stream.of(TableHelper.generateId(model, metrics.id().build()), model.getName()),
                       columns
                           .stream()
                           .map(ModelColumn::getColumnName)
