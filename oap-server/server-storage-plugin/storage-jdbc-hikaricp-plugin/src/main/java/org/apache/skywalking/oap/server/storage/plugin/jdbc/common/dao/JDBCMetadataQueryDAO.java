@@ -92,10 +92,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     protected SQLAndParameters buildSQLForListServices(String layer, String group, String table) {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
-        sql.append("select * from ").append(table);
-        if (StringUtil.isNotEmpty(layer) || StringUtil.isNotEmpty(group)) {
-            sql.append(" where ");
-        }
+        sql.append("select * from ").append(table)
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(ServiceTraffic.INDEX_NAME);
 
         if (StringUtil.isNotEmpty(layer)) {
             sql.append(ServiceTraffic.LAYER).append(" = ?");
@@ -139,8 +138,10 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     protected SQLAndParameters buildSQLForGetServices(String serviceId, String table) {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
-        sql.append("select * from ").append(table).append(" where ");
-        sql.append(ServiceTraffic.SERVICE_ID).append(" = ?");
+        sql.append("select * from ").append(table)
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+           .append(" and ").append(ServiceTraffic.SERVICE_ID).append(" = ?");
+        parameters.add(ServiceTraffic.INDEX_NAME);
         parameters.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
