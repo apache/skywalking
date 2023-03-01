@@ -23,11 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import java.sql.SQLException;
@@ -63,7 +65,7 @@ public class TableHelper {
         return tableName + Const.UNDERSCORE + dayTimeBucket;
     }
 
-    public static String getTable(String modelName, long timebucket) {
+    public static String getTable(String modelName, long timeBucket) {
         final var model = TableMetaInfo.get(modelName);
         final var tableName = getTableName(model);
 
@@ -71,7 +73,7 @@ public class TableHelper {
             return tableName;
         }
 
-        return tableName + Const.UNDERSCORE + TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timebucket), DownSampling.Day);
+        return tableName + Const.UNDERSCORE + TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucket), DownSampling.Day);
     }
 
     public List<String> getTablesForRead(String modelName, long timeBucketStart, long timeBucketEnd) {
@@ -109,6 +111,27 @@ public class TableHelper {
         final var timeBucketStart = TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
 
         return getTablesForRead(modelName, timeBucketStart, timeBucketEnd);
+    }
+
+    public String generateId(Model model, String originalID) {
+        if (model.isRecord() && !model.isSuperDataset()) {
+            return generateId(model.getName(), originalID);
+        }
+        if (!model.isMetric()) {
+            return originalID;
+        }
+        if (!isFunctionMetric(model)) {
+            return originalID;
+        }
+        return generateId(model.getName(), originalID);
+    }
+
+    public String generateId(String table, String originalID) {
+        return table + Const.ID_CONNECTOR + originalID;
+    }
+
+    public boolean isFunctionMetric(Model model) {
+        return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
     ConfigService configs() {
