@@ -80,6 +80,7 @@ public class JDBCClient implements Client, HealthCheckable {
         try (final var connection = getConnection();
              final var statement = connection.createStatement()) {
             statement.execute(sql);
+            statement.closeOnCompletion();
             healthChecker.health();
         } catch (SQLException e) {
             healthChecker.unHealth(e);
@@ -151,7 +152,7 @@ public class JDBCClient implements Client, HealthCheckable {
     public boolean isIndexExisted(final String table,
                                   final String index) throws SQLException {
         try (final var connection = getConnection();
-             final var resultSet = connection.getMetaData().getIndexInfo(null, null, table, false, false)) {
+             final var resultSet = connection.getMetaData().getIndexInfo(null, null, table.toUpperCase(), false, false)) {
             while (resultSet.next()) {
                 if (resultSet.getString("INDEX_NAME").equalsIgnoreCase(index)) {
                     return true;
@@ -175,10 +176,10 @@ public class JDBCClient implements Client, HealthCheckable {
 
     public Set<String> getTableColumns(final String table) throws SQLException {
         try (final var conn = getConnection();
-             final var result = conn.getMetaData().getColumns(null, null, table, null)) {
+             final var result = conn.getMetaData().getColumns(null, null, table.toUpperCase(), null)) {
             final var columns = new HashSet<String>();
             while (result.next()) {
-                columns.add(result.getString("COLUMN_NAME"));
+                columns.add(result.getString("COLUMN_NAME").toLowerCase());
             }
             return columns;
         }
