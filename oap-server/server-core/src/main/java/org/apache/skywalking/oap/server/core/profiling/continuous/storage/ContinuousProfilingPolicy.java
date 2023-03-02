@@ -49,10 +49,10 @@ public class ContinuousProfilingPolicy extends ManagementData {
 
     @Column(name = SERVICE_ID)
     private String serviceId;
-    @Column(name = UUID)
-    private String uuid;
     @Column(name = CONFIGURATION_JSON, storageOnly = true, length = 5000)
     private String configurationJson;
+    @Column(name = UUID)
+    private String uuid;
 
     @Override
     public StorageID id() {

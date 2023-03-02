@@ -69,7 +69,7 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
             query.must(Query.range(EBPFProfilingTaskRecord.LAST_UPDATE_TIME).gt(latestUpdateTime));
         }
         if (triggerType != null) {
-            query.must(Query.term(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType));
+            query.must(Query.term(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value()));
         }
 
         final SearchBuilder search = Search.builder().query(query)
