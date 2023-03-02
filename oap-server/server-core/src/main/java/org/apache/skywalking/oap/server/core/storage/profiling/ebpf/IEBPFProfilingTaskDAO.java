@@ -51,5 +51,5 @@ public interface IEBPFProfilingTaskDAO extends DAO {
      * Query profiling task by logical ID
      * @param id {@link EBPFProfilingTaskRecord#getLogicalId()}
      */
-    List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException;
+    List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException;
 }

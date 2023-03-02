@@ -119,7 +119,7 @@ public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFPr
     }
 
     @Override
-    public List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException {
+    public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
         final StringBuilder sql = new StringBuilder();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME)
             .append(" where ").append(EBPFProfilingTaskRecord.LOGICAL_ID).append("=?");

@@ -164,7 +164,7 @@ public class EBPFProfilingMutationService implements Service {
     }
 
     public EBPFNetworkKeepProfilingResult keepEBPFNetworkProfiling(String taskId) throws IOException {
-        final List<EBPFProfilingTaskRecord> tasks = getProcessProfilingTaskDAO().queryByLogicalId(taskId);
+        final List<EBPFProfilingTaskRecord> tasks = getProcessProfilingTaskDAO().getTaskRecord(taskId);
         // task not exists
         if (CollectionUtils.isEmpty(tasks)) {
             return buildKeepProfilingError("profiling task not exists");

@@ -116,7 +116,7 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     @Override
-    public List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException {
+    public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool().must(Query.term(EBPFProfilingTaskRecord.LOGICAL_ID, id));

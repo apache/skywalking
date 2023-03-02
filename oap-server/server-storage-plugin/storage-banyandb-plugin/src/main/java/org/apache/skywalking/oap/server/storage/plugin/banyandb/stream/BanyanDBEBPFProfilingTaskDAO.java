@@ -109,7 +109,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
     }
 
     @Override
-    public List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException {
+    public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
         StreamQueryResponse resp = query(EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
             new QueryBuilder<StreamQuery>() {
                 @Override
