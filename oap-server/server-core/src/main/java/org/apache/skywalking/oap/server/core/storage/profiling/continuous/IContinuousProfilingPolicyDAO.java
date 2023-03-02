@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter;
+package org.apache.skywalking.oap.server.core.storage.profiling.continuous;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-public enum ScopeType {
-    SERVICE(DefaultScopeDefine.SERVICE),
-    SERVICE_INSTANCE(DefaultScopeDefine.SERVICE_INSTANCE),
-    ENDPOINT(DefaultScopeDefine.ENDPOINT),
-    PROCESS(DefaultScopeDefine.PROCESS),
-    SERVICE_RELATION(DefaultScopeDefine.SERVICE_RELATION),
-    PROCESS_RELATION(DefaultScopeDefine.PROCESS_RELATION);
+import java.io.IOException;
+import java.util.List;
 
-    @Getter
-    private final int scopeId;
+public interface IContinuousProfilingPolicyDAO extends DAO {
 
-    ScopeType(final int scopeId) {
-        this.scopeId = scopeId;
-    }
+    /**
+     * save the policy, insert if not absent
+     */
+    void savePolicy(ContinuousProfilingPolicy policy) throws IOException;
+
+    /**
+     * query policies from services
+     */
+    List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException;
+
 }

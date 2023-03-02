@@ -123,6 +123,8 @@ public class DefaultScopeDefine {
     public static final int SAMPLED_STATUS_4XX_TRACE = 66;
     public static final int SAMPLED_STATUS_5XX_TRACE = 67;
 
+    public static final int CONTINUOUS_PROFILING_POLICY = 68;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */

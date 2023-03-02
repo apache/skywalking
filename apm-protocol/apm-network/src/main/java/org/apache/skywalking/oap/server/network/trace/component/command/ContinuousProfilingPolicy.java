@@ -16,32 +16,34 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.network.trace.component.command;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
-public class EBPFProfilingTask {
-
-    private String taskId;
-    private String serviceId;
+public class ContinuousProfilingPolicy {
+    @SerializedName("ServiceName")
     private String serviceName;
-    private String serviceInstanceId;
-    private String serviceInstanceName;
-    private List<String> processLabels;
-    private String processId;
-    private String processName;
-    private long taskStartTime;
-    private EBPFProfilingTriggerType triggerType;
-    private long fixedTriggerDuration;
-    private EBPFProfilingTargetType targetType;
-    private long createTime;
-    private long lastUpdateTime;
-    private EBPFProfilingTaskExtension extensionConfig;
-    private List<ContinuousProfilingTriggeredCause> continuousProfilingCauses;
+    @SerializedName("UUID")
+    private String uuid;
+    @SerializedName("Profiling")
+    private Map<String, Map<String, Item>> profiling;
 
+    @Data
+    public static class Item {
+        @SerializedName("Threshold")
+        private String threshold;
+        @SerializedName("Period")
+        private int period;
+        @SerializedName("Count")
+        private int count;
+        @SerializedName("URIList")
+        private List<String> uriList;
+        @SerializedName("URIRegex")
+        private String uriRegex;
+    }
 }

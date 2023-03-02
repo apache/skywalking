@@ -16,23 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter;
+package org.apache.skywalking.oap.server.network.trace.component.command;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.apm.network.common.v3.Command;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 
-public enum ScopeType {
-    SERVICE(DefaultScopeDefine.SERVICE),
-    SERVICE_INSTANCE(DefaultScopeDefine.SERVICE_INSTANCE),
-    ENDPOINT(DefaultScopeDefine.ENDPOINT),
-    PROCESS(DefaultScopeDefine.PROCESS),
-    SERVICE_RELATION(DefaultScopeDefine.SERVICE_RELATION),
-    PROCESS_RELATION(DefaultScopeDefine.PROCESS_RELATION);
+public class ContinuousProfilingReportCommand extends BaseCommand implements Serializable {
+    public static final String NAME = "ContinuousProfilingReportTask";
 
-    @Getter
-    private final int scopeId;
+    private final String taskId;
 
-    ScopeType(final int scopeId) {
-        this.scopeId = scopeId;
+    public ContinuousProfilingReportCommand(String serialNumber, String taskId) {
+        super(NAME, serialNumber);
+        this.taskId = taskId;
+    }
+
+    @Override
+    public Command.Builder serialize() {
+        final Command.Builder builder = commandBuilder();
+        builder.addArgs(KeyStringValuePair.newBuilder()
+            .setKey("TaskId").setValue(taskId).build());
+        return builder;
     }
 }

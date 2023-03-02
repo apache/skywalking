@@ -52,6 +52,8 @@ import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateIn
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.DisableOALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingMutationService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskMutationService;
@@ -296,6 +298,10 @@ public class CoreModuleProvider extends ModuleProvider {
             EBPFProfilingQueryService.class,
             new EBPFProfilingQueryService(getManager(), moduleConfig, this.storageModels)
         );
+        this.registerServiceImplementation(
+            ContinuousProfilingMutationService.class, new ContinuousProfilingMutationService(getManager()));
+        this.registerServiceImplementation(
+            ContinuousProfilingQueryService.class, new ContinuousProfilingQueryService(getManager()));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 

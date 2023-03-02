@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.profiling.ebpf.storage;
+package org.apache.skywalking.oap.server.core.profiling.continuous.storage;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 
@@ -25,43 +25,33 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Define when the profiling task would be executed
- */
-public enum EBPFProfilingTriggerType {
+public enum ContinuousProfilingTargetType {
 
     UNKNOWN(0),
+    ON_CPU(1),
+    OFF_CPU(2),
+    NETWORK(3);
 
-    /**
-     * Appoint the task start time
-     */
-    FIXED_TIME(1),
-
-    /**
-     * Trigger by the reach the continuous profiling policy
-     */
-    CONTINUOUS_PROFILING(2)
-    ;
     private final int value;
-    private static final Map<Integer, EBPFProfilingTriggerType> DICTIONARY = new HashMap<>();
+    private static final Map<Integer, ContinuousProfilingTargetType> DICTIONARY = new HashMap<>();
 
     static {
-        Arrays.stream(EBPFProfilingTriggerType.values()).collect(Collectors.toMap(EBPFProfilingTriggerType::value, type -> type)).forEach(DICTIONARY::put);
+        DICTIONARY.putAll(Arrays.stream(ContinuousProfilingTargetType.values()).collect(Collectors.toMap(ContinuousProfilingTargetType::value, type -> type)));
     }
 
-    EBPFProfilingTriggerType(int value) {
+    ContinuousProfilingTargetType(int value) {
         this.value = value;
     }
 
-    public int value() {
-        return value;
-    }
-
-    public static EBPFProfilingTriggerType valueOf(int value) {
-        EBPFProfilingTriggerType type = DICTIONARY.get(value);
+    public static ContinuousProfilingTargetType valueOf(int value) {
+        ContinuousProfilingTargetType type = DICTIONARY.get(value);
         if (type == null) {
-            throw new UnexpectedException("Unknown EBPFProfilingTriggerType value");
+            throw new UnexpectedException("Unknown ContinuousProfilingTargetType value");
         }
         return type;
+    }
+
+    public int value() {
+        return this.value;
     }
 }

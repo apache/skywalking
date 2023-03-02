@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.storage.profiling.ebpf;
 
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 import java.io.IOException;
@@ -35,21 +35,21 @@ public interface IEBPFProfilingTaskDAO extends DAO {
      * Query profiling task through service id list
      * @param serviceIdList cannot be empty
      */
-    List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList,
+    List<EBPFProfilingTaskRecord> queryTasksByServices(List<String> serviceIdList, EBPFProfilingTriggerType triggerType,
                                                  long taskStartTime, long latestUpdateTime) throws IOException;
 
     /**
      * Query profiling task through target types
      * @param targetTypes cannot be empty
      */
-    List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId,
+    List<EBPFProfilingTaskRecord> queryTasksByTargets(String serviceId, String serviceInstanceId,
                                                 List<EBPFProfilingTargetType> targetTypes,
+                                                EBPFProfilingTriggerType triggerType,
                                                 long taskStartTime, long latestUpdateTime) throws IOException;
 
     /**
-     * Query profiling task
+     * Query profiling task by logical ID
      * @param id {@link EBPFProfilingTaskRecord#getLogicalId()}
-     * @return use {@link EBPFProfilingTask#combine(EBPFProfilingTask)} to combine all task result
      */
-    EBPFProfilingTask queryById(String id) throws IOException;
+    List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException;
 }

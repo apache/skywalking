@@ -16,23 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter;
+package org.apache.skywalking.oap.server.core.query.input;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingMonitorType;
 
-public enum ScopeType {
-    SERVICE(DefaultScopeDefine.SERVICE),
-    SERVICE_INSTANCE(DefaultScopeDefine.SERVICE_INSTANCE),
-    ENDPOINT(DefaultScopeDefine.ENDPOINT),
-    PROCESS(DefaultScopeDefine.PROCESS),
-    SERVICE_RELATION(DefaultScopeDefine.SERVICE_RELATION),
-    PROCESS_RELATION(DefaultScopeDefine.PROCESS_RELATION);
+import java.util.List;
 
-    @Getter
-    private final int scopeId;
-
-    ScopeType(final int scopeId) {
-        this.scopeId = scopeId;
-    }
+@Data
+public class ContinuousProfilingPolicyItemCreation {
+    // define the monitor type to collect metrics
+    private ContinuousProfilingMonitorType type;
+    // threshold of policy, which decide by the monitor type
+    private String threshold;
+    // the length of time to evaluate the metrics
+    private int period;
+    // how many times after the metrics match the threshold, will trigger profiling
+    private int count;
+    // the URI path/regex filter when monitor the HTTP related types
+    private List<String> uriList;
+    private String uriRegex;
 }

@@ -19,29 +19,21 @@
 package org.apache.skywalking.oap.server.core.query.type;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
-import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Continuous profiling task configuration
+ */
 @Data
-public class EBPFProfilingTask {
-
-    private String taskId;
-    private String serviceId;
-    private String serviceName;
-    private String serviceInstanceId;
-    private String serviceInstanceName;
-    private List<String> processLabels;
+public class EBPFProfilingTaskContinuousProfiling {
     private String processId;
     private String processName;
-    private long taskStartTime;
-    private EBPFProfilingTriggerType triggerType;
-    private long fixedTriggerDuration;
-    private EBPFProfilingTargetType targetType;
-    private long createTime;
-    private long lastUpdateTime;
-    private EBPFProfilingTaskExtension extensionConfig;
-    private List<ContinuousProfilingTriggeredCause> continuousProfilingCauses;
 
+    private List<ContinuousProfilingTriggeredCause> causes;
+
+    public EBPFProfilingTaskContinuousProfiling() {
+        this.causes = new ArrayList<>();
+    }
 }

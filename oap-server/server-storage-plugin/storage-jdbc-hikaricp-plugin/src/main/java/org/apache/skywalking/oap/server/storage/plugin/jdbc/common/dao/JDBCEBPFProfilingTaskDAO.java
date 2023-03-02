@@ -18,17 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
@@ -36,17 +32,15 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
-    private static final Gson GSON = new Gson();
+public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFProfilingTaskDAO {
     private JDBCHikariCPClient jdbcClient;
 
     @Override
-    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTaskRecord> queryTasksByServices(List<String> serviceIdList, EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME);
@@ -61,6 +55,10 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         if (latestUpdateTime > 0) {
             appendCondition(conditionSql, condition,
                 EBPFProfilingTaskRecord.LAST_UPDATE_TIME, ">", latestUpdateTime);
+        }
+        if (triggerType != null) {
+            appendCondition(conditionSql, condition,
+                EBPFProfilingTaskRecord.TRIGGER_TYPE, "=", triggerType.value());
         }
 
         if (conditionSql.length() > 0) {
@@ -78,7 +76,8 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     }
 
     @Override
-    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTaskRecord> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
+                                                             EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME);
@@ -101,6 +100,9 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
             appendCondition(conditionSql, condition,
                 EBPFProfilingTaskRecord.LAST_UPDATE_TIME, ">", latestUpdateTime);
         }
+        if (triggerType != null) {
+            appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.TRIGGER_TYPE, "=", triggerType.value());
+        }
 
         if (conditionSql.length() > 0) {
             sql.append(" where ").append(conditionSql);
@@ -117,60 +119,25 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     }
 
     @Override
-    public EBPFProfilingTask queryById(String id) throws IOException {
+    public List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException {
         final StringBuilder sql = new StringBuilder();
         sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME)
             .append(" where ").append(EBPFProfilingTaskRecord.LOGICAL_ID).append("=?");
 
         try (Connection connection = jdbcClient.getConnection()) {
             try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), id)) {
-                final List<EBPFProfilingTask> tasks = buildTasks(resultSet);
-                if (CollectionUtils.isEmpty(tasks)) {
-                    return null;
-                }
-                EBPFProfilingTask result = tasks.get(0);
-                for (int i = 1; i < tasks.size(); i++) {
-                    result = result.combine(tasks.get(i));
-                }
-                return result;
+                return buildTasks(resultSet);
             }
         } catch (SQLException e) {
             throw new IOException(e);
         }
     }
 
-    private List<EBPFProfilingTask> buildTasks(ResultSet resultSet) throws SQLException {
-        List<EBPFProfilingTask> tasks = new ArrayList<>();
-        while (resultSet.next()) {
-            EBPFProfilingTask task = new EBPFProfilingTask();
-            task.setTaskId(resultSet.getString(EBPFProfilingTaskRecord.LOGICAL_ID));
-            final String serviceId = resultSet.getString(EBPFProfilingTaskRecord.SERVICE_ID);
-            task.setServiceId(serviceId);
-            task.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
-            final String processLabelString = resultSet.getString(EBPFProfilingTaskRecord.PROCESS_LABELS_JSON);
-            if (StringUtil.isNotEmpty(processLabelString)) {
-                task.setProcessLabels(GSON.<List<String>>fromJson(processLabelString, ArrayList.class));
-            } else {
-                task.setProcessLabels(Collections.emptyList());
-            }
-            if (StringUtil.isNotEmpty(resultSet.getString(EBPFProfilingTaskRecord.INSTANCE_ID))) {
-                task.setServiceInstanceId(resultSet.getString(EBPFProfilingTaskRecord.INSTANCE_ID));
-                task.setServiceInstanceName(IDManager.ServiceInstanceID.analysisId(task.getServiceInstanceId()).getName());
-            }
-            task.setTaskStartTime(resultSet.getLong(EBPFProfilingTaskRecord.START_TIME));
-            task.setTriggerType(EBPFProfilingTriggerType.valueOf(
-                    resultSet.getInt(EBPFProfilingTaskRecord.TRIGGER_TYPE)));
-            task.setFixedTriggerDuration(resultSet.getInt(EBPFProfilingTaskRecord.FIXED_TRIGGER_DURATION));
-            task.setTargetType(EBPFProfilingTargetType.valueOf(
-                    resultSet.getInt(EBPFProfilingTaskRecord.TARGET_TYPE)));
-            task.setCreateTime(resultSet.getLong(EBPFProfilingTaskRecord.CREATE_TIME));
-            task.setLastUpdateTime(resultSet.getLong(EBPFProfilingTaskRecord.LAST_UPDATE_TIME));
-            String extensionConfigJson = resultSet.getString(EBPFProfilingTaskRecord.EXTENSION_CONFIG_JSON);
-            if (StringUtil.isNotEmpty(extensionConfigJson)) {
-                task.setExtensionConfig(GSON.fromJson(extensionConfigJson, EBPFProfilingTaskExtension.class));
-            }
-
-            tasks.add(task);
+    private List<EBPFProfilingTaskRecord> buildTasks(ResultSet resultSet) throws SQLException {
+        List<EBPFProfilingTaskRecord> tasks = new ArrayList<>();
+        StorageData data;
+        while ((data = toStorageData(resultSet, EBPFProfilingTaskRecord.INDEX_NAME, new EBPFProfilingTaskRecord.Builder())) != null) {
+            tasks.add((EBPFProfilingTaskRecord) data);
         }
         return tasks;
     }

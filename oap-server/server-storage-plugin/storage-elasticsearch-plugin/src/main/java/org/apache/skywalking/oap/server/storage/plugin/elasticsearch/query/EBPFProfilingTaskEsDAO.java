@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.gson.Gson;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -26,12 +25,9 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
-import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -42,15 +38,11 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskDAO {
-    private static final Gson GSON = new Gson();
-
     private final int taskMaxSize;
 
     public EBPFProfilingTaskEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
@@ -59,7 +51,7 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     @Override
-    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTaskRecord> queryTasksByServices(List<String> serviceIdList, EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
@@ -76,6 +68,9 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         if (latestUpdateTime > 0) {
             query.must(Query.range(EBPFProfilingTaskRecord.LAST_UPDATE_TIME).gt(latestUpdateTime));
         }
+        if (triggerType != null) {
+            query.must(Query.term(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType));
+        }
 
         final SearchBuilder search = Search.builder().query(query)
             .sort(EBPFProfilingTaskRecord.CREATE_TIME, Sort.Order.DESC)
@@ -86,7 +81,8 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     @Override
-    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes, long taskStartTime, long latestUpdateTime) throws IOException {
+    public List<EBPFProfilingTaskRecord> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
+                                                             EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
@@ -100,6 +96,9 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         if (CollectionUtils.isNotEmpty(targetTypes)) {
             query.must(Query.terms(EBPFProfilingTaskRecord.TARGET_TYPE, targetTypes.stream()
                 .map(EBPFProfilingTargetType::value).collect(Collectors.toList())));
+        }
+        if (triggerType != null) {
+            query.must(Query.term(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value()));
         }
         if (taskStartTime > 0) {
             query.must(Query.range(EBPFProfilingTaskRecord.START_TIME).gte(taskStartTime));
@@ -117,7 +116,7 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
     }
 
     @Override
-    public EBPFProfilingTask queryById(String id) throws IOException {
+    public List<EBPFProfilingTaskRecord> queryByLogicalId(String id) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(EBPFProfilingTaskRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool().must(Query.term(EBPFProfilingTaskRecord.LOGICAL_ID, id));
@@ -125,44 +124,12 @@ public class EBPFProfilingTaskEsDAO extends EsDAO implements IEBPFProfilingTaskD
         final SearchBuilder search = Search.builder().query(query).size(taskMaxSize);
 
         final SearchResponse response = getClient().search(index, search.build());
-        final List<EBPFProfilingTask> tasks = response.getHits().getHits().stream().map(this::parseTask).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(tasks)) {
-            return null;
-        }
-        EBPFProfilingTask result = tasks.get(0);
-        for (int i = 1; i < tasks.size(); i++) {
-            result = result.combine(tasks.get(i));
-        }
-        return result;
+        return response.getHits().getHits().stream().map(this::parseTask).collect(Collectors.toList());
     }
 
-    private EBPFProfilingTask parseTask(final SearchHit hit) {
+    private EBPFProfilingTaskRecord parseTask(final SearchHit hit) {
         final Map<String, Object> sourceAsMap = hit.getSource();
         final EBPFProfilingTaskRecord.Builder builder = new EBPFProfilingTaskRecord.Builder();
-        final EBPFProfilingTaskRecord record = builder.storage2Entity(new ElasticSearchConverter.ToEntity(EBPFProfilingTaskRecord.INDEX_NAME, sourceAsMap));
-
-        final EBPFProfilingTask task = new EBPFProfilingTask();
-        task.setTaskId(record.getLogicalId());
-        task.setServiceId(record.getServiceId());
-        task.setServiceName(IDManager.ServiceID.analysisId(record.getServiceId()).getName());
-        if (StringUtil.isNotEmpty(record.getProcessLabelsJson())) {
-            task.setProcessLabels(GSON.<List<String>>fromJson(record.getProcessLabelsJson(), ArrayList.class));
-        } else {
-            task.setProcessLabels(Collections.emptyList());
-        }
-        if (StringUtil.isNotEmpty(record.getInstanceId())) {
-            task.setServiceInstanceId(record.getInstanceId());
-            task.setServiceInstanceName(IDManager.ServiceInstanceID.analysisId(record.getInstanceId()).getName());
-        }
-        task.setTaskStartTime(record.getStartTime());
-        task.setTriggerType(EBPFProfilingTriggerType.valueOf(record.getTriggerType()));
-        task.setFixedTriggerDuration(record.getFixedTriggerDuration());
-        task.setTargetType(EBPFProfilingTargetType.valueOf(record.getTargetType()));
-        task.setCreateTime(record.getCreateTime());
-        task.setLastUpdateTime(record.getLastUpdateTime());
-        if (StringUtil.isNotEmpty(record.getExtensionConfigJson())) {
-            task.setExtensionConfig(GSON.fromJson(record.getExtensionConfigJson(), EBPFProfilingTaskExtension.class));
-        }
-        return task;
+        return builder.storage2Entity(new ElasticSearchConverter.ToEntity(EBPFProfilingTaskRecord.INDEX_NAME, sourceAsMap));
     }
 }

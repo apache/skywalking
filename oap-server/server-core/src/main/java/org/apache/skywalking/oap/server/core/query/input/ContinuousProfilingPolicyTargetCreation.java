@@ -16,23 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter;
+package org.apache.skywalking.oap.server.core.query.input;
 
-import lombok.Getter;
-import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import lombok.Data;
+import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingTargetType;
 
-public enum ScopeType {
-    SERVICE(DefaultScopeDefine.SERVICE),
-    SERVICE_INSTANCE(DefaultScopeDefine.SERVICE_INSTANCE),
-    ENDPOINT(DefaultScopeDefine.ENDPOINT),
-    PROCESS(DefaultScopeDefine.PROCESS),
-    SERVICE_RELATION(DefaultScopeDefine.SERVICE_RELATION),
-    PROCESS_RELATION(DefaultScopeDefine.PROCESS_RELATION);
+import java.util.List;
 
-    @Getter
-    private final int scopeId;
-
-    ScopeType(final int scopeId) {
-        this.scopeId = scopeId;
-    }
+@Data
+public class ContinuousProfilingPolicyTargetCreation {
+    // policy profiling target
+    private ContinuousProfilingTargetType targetType;
+    // target check thresholds
+    private List<ContinuousProfilingPolicyItemCreation> checkItems;
 }
