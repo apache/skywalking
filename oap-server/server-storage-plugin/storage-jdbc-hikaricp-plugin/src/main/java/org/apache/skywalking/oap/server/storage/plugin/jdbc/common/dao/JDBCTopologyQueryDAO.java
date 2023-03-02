@@ -275,7 +275,9 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
     private List<Call.CallDetail> loadProcessFromSide(Duration duration,
                                                        String instanceId,
                                                        DetectPoint detectPoint) throws IOException {
-        final var tableName = (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME);
+        final var tableName = detectPoint == DetectPoint.SERVER ?
+            ProcessRelationServerSideMetrics.INDEX_NAME :
+            ProcessRelationClientSideMetrics.INDEX_NAME;
         final var tables = tableHelper.getTablesForRead(
             tableName,
             duration.getStartTimeBucket(),

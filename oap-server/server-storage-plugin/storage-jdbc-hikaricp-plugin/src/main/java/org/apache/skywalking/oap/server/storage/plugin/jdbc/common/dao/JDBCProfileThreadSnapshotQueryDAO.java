@@ -153,7 +153,6 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                 maxSequence
             };
 
-
             jdbcClient.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
                     ProfileThreadSnapshotRecord record = new ProfileThreadSnapshotRecord();
@@ -229,7 +228,6 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                 return resultSet.getInt(1);
             }
             return -1;
-        } ,params);
+        }, params);
     }
-
 }

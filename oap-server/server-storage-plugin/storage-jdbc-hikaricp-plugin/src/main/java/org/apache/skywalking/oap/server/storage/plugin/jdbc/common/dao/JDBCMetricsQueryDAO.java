@@ -239,7 +239,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
             final var ids =
                 pointOfTimes
                     .stream()
-                    .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId))                    )
+                    .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
                     .collect(Collectors.toList());
 
             final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + table)
