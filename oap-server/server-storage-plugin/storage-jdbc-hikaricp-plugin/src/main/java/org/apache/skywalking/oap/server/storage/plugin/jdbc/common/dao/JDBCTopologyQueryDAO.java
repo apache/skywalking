@@ -202,6 +202,7 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
 
         for (String table : tables) {
             Object[] conditions = new Object[]{
+                tableName,
                 duration.getStartTimeBucket(),
                 duration.getEndTimeBucket(),
                 sourceServiceId,
@@ -221,7 +222,8 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
                                                                          .append("))");
             jdbcClient.executeQuery(
                 "select " + Metrics.ENTITY_ID
-                    + " from " + table + " where " + Metrics.TIME_BUCKET + ">= ? and "
+                    + " from " + table + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? and "
+                    + Metrics.TIME_BUCKET + ">= ? and "
                     + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql + " group by " + Metrics.ENTITY_ID,
                 resultSet -> {
                     buildInstanceCalls(resultSet, calls, detectPoint);
@@ -248,13 +250,15 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
             duration.getEndTimeBucket()
         );
         for (String table : tables) {
-            Object[] conditions = new Object[3];
-            conditions[0] = duration.getStartTimeBucket();
-            conditions[1] = duration.getEndTimeBucket();
-            conditions[2] = id;
+            Object[] conditions = new Object[4];
+            conditions[0] = tableName;
+            conditions[1] = duration.getStartTimeBucket();
+            conditions[2] = duration.getEndTimeBucket();
+            conditions[3] = id;
             jdbcClient.executeQuery(
                 "select " + Metrics.ENTITY_ID + " from " + table
-                    + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
+                    + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? and "
+                    + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
                     + (isSourceId ? sourceCName : destCName) + "=?"
                     + " group by " + Metrics.ENTITY_ID,
                 resultSet -> {
@@ -271,8 +275,9 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
     private List<Call.CallDetail> loadProcessFromSide(Duration duration,
                                                        String instanceId,
                                                        DetectPoint detectPoint) throws IOException {
+        final var tableName = (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME);
         final var tables = tableHelper.getTablesForRead(
-            (detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME),
+            tableName,
             duration.getStartTimeBucket(),
             duration.getEndTimeBucket()
         );
@@ -280,14 +285,16 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         List<Call.CallDetail> calls = new ArrayList<>();
 
         for (String table : tables) {
-            Object[] conditions = new Object[3];
-            conditions[0] = duration.getStartTimeBucket();
-            conditions[1] = duration.getEndTimeBucket();
-            conditions[2] = instanceId;
+            Object[] conditions = new Object[4];
+            conditions[0] = tableName;
+            conditions[1] = duration.getStartTimeBucket();
+            conditions[2] = duration.getEndTimeBucket();
+            conditions[3] = instanceId;
             jdbcClient.executeQuery(
                 "select " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID
                     + " from " + table
-                    + " where " + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
+                    + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? and "
+                    + Metrics.TIME_BUCKET + ">= ? and " + Metrics.TIME_BUCKET + "<=? and "
                     + ProcessRelationClientSideMetrics.SERVICE_INSTANCE_ID + "=?"
                     + " group by " + Metrics.ENTITY_ID + ", " + ProcessRelationServerSideMetrics.COMPONENT_ID,
                 resultSet -> {
