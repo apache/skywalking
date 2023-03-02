@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
@@ -150,16 +151,17 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
         final var calls = new ArrayList<Call.CallDetail>();
 
         for (String table : tables) {
-            Object[] conditions = new Object[serviceIds.size() * 2 + 2];
-            conditions[0] = duration.getStartTimeBucket();
-            conditions[1] = duration.getEndTimeBucket();
+            Object[] conditions = new Object[serviceIds.size() * 2 + 3];
+            conditions[0] = tableName;
+            conditions[1] = duration.getStartTimeBucket();
+            conditions[2] = duration.getEndTimeBucket();
             StringBuilder serviceIdMatchSql = new StringBuilder();
             if (serviceIds.size() > 0) {
                 serviceIdMatchSql.append("and (");
                 for (int i = 0; i < serviceIds.size(); i++) {
                     serviceIdMatchSql.append(sourceCName + "=? or " + destCName + "=? ");
-                    conditions[i * 2 + 2] = serviceIds.get(i);
-                    conditions[i * 2 + 1 + 2] = serviceIds.get(i);
+                    conditions[i * 2 + 3] = serviceIds.get(i);
+                    conditions[i * 2 + 1 + 3] = serviceIds.get(i);
                     if (i != serviceIds.size() - 1) {
                         serviceIdMatchSql.append("or ");
                     }
@@ -168,7 +170,8 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
             }
             jdbcClient.executeQuery(
                 "select " + Metrics.ENTITY_ID + ", " + ServiceRelationServerSideMetrics.COMPONENT_IDS
-                    + " from " + table + " where " + Metrics.TIME_BUCKET + ">= ? and "
+                    + " from " + table + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? and "
+                    + Metrics.TIME_BUCKET + ">= ? and "
                     + Metrics.TIME_BUCKET + "<=? " + serviceIdMatchSql +
                     " group by " + Metrics.ENTITY_ID + "," + ServiceRelationServerSideMetrics.COMPONENT_IDS,
                 resultSet -> {
