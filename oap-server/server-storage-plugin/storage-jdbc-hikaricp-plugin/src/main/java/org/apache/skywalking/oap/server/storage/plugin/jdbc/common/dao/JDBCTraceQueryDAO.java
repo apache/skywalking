@@ -118,16 +118,16 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                 for (int i = 0; i < tags.size(); i++) {
                     sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TAG_TABLE).append(" ");
                     sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i);
-                    sql.append(" on ").append(SegmentRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
+                    sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
                     sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
                 }
             }
             sql.append(" where ");
             sql.append(" 1=1 ");
             if (startSecondTB != 0 && endSecondTB != 0) {
-                sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
+                sql.append(" and ").append(table).append(".").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
                 parameters.add(startSecondTB);
-                sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
+                sql.append(" and ").append(table).append(".").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
                 parameters.add(endSecondTB);
             }
             if (minDuration != 0) {
@@ -139,7 +139,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                 parameters.add(maxDuration);
             }
             if (StringUtil.isNotEmpty(serviceId)) {
-                sql.append(" and ").append(SegmentRecord.INDEX_NAME).append(".").append(SegmentRecord.SERVICE_ID).append(" = ?");
+                sql.append(" and ").append(table).append(".").append(SegmentRecord.SERVICE_ID).append(" = ?");
                 parameters.add(serviceId);
             }
             if (StringUtil.isNotEmpty(serviceInstanceId)) {
