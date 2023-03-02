@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 @Slf4j
 public class H2TableInstaller extends JDBCTableInstaller {
     public static final String ID_COLUMN = Metrics.ID;
-    public static final String TABLE_COLUMN = "TABLE_NAME";
 
     public H2TableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);

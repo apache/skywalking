@@ -49,9 +49,8 @@ public class TableHelper {
     private final JDBCClient jdbcClient;
 
     public static String getTableName(Model model) {
-        final var table = model.isMetric() ? "metrics_all" :
+        return model.isMetric() ? "metrics_all" :
             (model.isRecord() && !model.isSuperDataset() ? "records_all" : model.getName());
-        return table.toUpperCase();
     }
 
     public static String getTableForWrite(Model model) {
@@ -118,9 +117,6 @@ public class TableHelper {
             return generateId(model.getName(), originalID);
         }
         if (!model.isMetric()) {
-            return originalID;
-        }
-        if (!isFunctionMetric(model)) {
             return originalID;
         }
         return generateId(model.getName(), originalID);

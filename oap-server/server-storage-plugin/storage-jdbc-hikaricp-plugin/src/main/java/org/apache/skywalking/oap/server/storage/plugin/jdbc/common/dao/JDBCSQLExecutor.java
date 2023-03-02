@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
@@ -142,7 +143,7 @@ public class JDBCSQLExecutor {
         final var columns = model.getColumns();
         final var columnNames =
             Stream.concat(
-                      Stream.of(H2TableInstaller.ID_COLUMN, H2TableInstaller.TABLE_COLUMN),
+                      Stream.of(H2TableInstaller.ID_COLUMN, JDBCTableInstaller.TABLE_COLUMN),
                       columns
                           .stream()
                           .map(ModelColumn::getColumnName)
