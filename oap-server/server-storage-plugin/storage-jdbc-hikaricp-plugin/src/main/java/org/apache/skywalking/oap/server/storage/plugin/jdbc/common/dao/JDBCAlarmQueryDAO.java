@@ -134,7 +134,7 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             for (int i = 0; i < tags.size(); i++) {
                 sql.append(" inner join ").append(AlarmRecord.ADDITIONAL_TAG_TABLE).append(" ");
                 sql.append(AlarmRecord.ADDITIONAL_TAG_TABLE + i);
-                sql.append(" on ").append(AlarmRecord.INDEX_NAME).append(".").append(ID_COLUMN).append(" = ");
+                sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
                 sql.append(AlarmRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
@@ -144,9 +144,9 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             parameters.add(scopeId);
         }
         if (startTB != 0 && endTB != 0) {
-            sql.append(" and ").append(AlarmRecord.INDEX_NAME).append(".").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
+            sql.append(" and ").append(table).append(".").append(AlarmRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startTB);
-            sql.append(" and ").append(AlarmRecord.INDEX_NAME).append(".").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
+            sql.append(" and ").append(table).append(".").append(AlarmRecord.TIME_BUCKET).append(" <= ?");
             parameters.add(endTB);
         }
 
