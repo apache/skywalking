@@ -33,7 +33,7 @@ Each MySQL/MariaDB server is cataloged as an `Instance` in OAP.
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
-The metrics definition and expression rules are found in `/config/otel-rules/mysql.yaml`.
+The metrics definition and expression rules are found in `/config/otel-rules/mysql`.
 The MySQL dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
 
 ## Collect sampled slow SQLs

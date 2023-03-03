@@ -47,7 +47,7 @@ PostgreSQL monitoring provides monitoring of the status and resources of the Pos
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
-The metrics definition and expression rules are found in `/config/otel-rules/postgresql.yaml`.
+The metrics definition and expression rules are found in `/config/otel-rules/postgresql`.
 The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.
 
 ## Collect sampled slow SQLs
