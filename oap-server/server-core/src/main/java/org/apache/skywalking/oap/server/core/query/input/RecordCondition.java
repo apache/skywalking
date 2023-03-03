@@ -20,8 +20,11 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -37,8 +40,7 @@ public class RecordCondition {
      */
     private String name;
     /**
-     * Follow {@link Entity} definition description.
-     * The owner of the sampled records.
+     * Follow {@link Entity} definition description. The owner of the sampled records.
      */
     private Entity parentEntity;
     private int topN;
@@ -58,5 +60,17 @@ public class RecordCondition {
         }
         this.topN = condition.getTopN();
         this.order = condition.getOrder();
+    }
+
+    /**
+     * Sense Scope through metric name.
+     * @return false if not a valid metric name.
+     */
+    public boolean senseScope() {
+        if (MetricsType.UNKNOWN.equals(MetricsMetadataQueryService.typeOfMetrics(name))) {
+            return false;
+        }
+        parentEntity.setScope(ValueColumnMetadata.INSTANCE.getScope(name));
+        return true;
     }
 }

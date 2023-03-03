@@ -4,6 +4,9 @@
       "pattern": "^http://localhost"
     },
     {
+      "pattern": "^http://pgp.mit.edu:11371"
+    },
+    {
       "pattern": "^https://github.com/apache/skywalking/blob/master/docs/en/changes/changes-x.y.z.md$"
     },
     {

@@ -20,8 +20,11 @@ package org.apache.skywalking.oap.server.core.query.input;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
 /**
  * Top N query condition.
@@ -52,4 +55,16 @@ public class TopNCondition {
     private Scope scope;
     private int topN;
     private Order order;
+
+    /**
+     * Sense Scope through metric name.
+     * @return false if not a valid metric name.
+     */
+    public boolean senseScope() {
+        if (MetricsType.UNKNOWN.equals(MetricsMetadataQueryService.typeOfMetrics(name))) {
+            return false;
+        }
+        scope = ValueColumnMetadata.INSTANCE.getScope(name);
+        return true;
+    }
 }

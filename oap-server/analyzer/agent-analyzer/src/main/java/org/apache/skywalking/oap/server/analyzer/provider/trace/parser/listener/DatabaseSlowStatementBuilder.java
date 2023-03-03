@@ -63,7 +63,7 @@ public class DatabaseSlowStatementBuilder {
         DatabaseSlowStatement dbSlowStat = new DatabaseSlowStatement();
         dbSlowStat.setId(id);
         dbSlowStat.setTraceId(traceId);
-        dbSlowStat.setDatabaseServiceId(IDManager.ServiceID.buildId(serviceName, false));
+        dbSlowStat.setDatabaseServiceId(IDManager.ServiceID.buildId(serviceName, layer.isNormal()));
         dbSlowStat.setStatement(statement);
         dbSlowStat.setLatency(latency);
         dbSlowStat.setTimeBucket(timeBucket);

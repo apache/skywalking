@@ -316,7 +316,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.apache.curator/curator-recipes/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-x-discovery/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpasyncclient/4.1.3 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient/4.5.13 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient/4.5.3 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore/4.4.13 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore-nio/4.4.13 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/2.8.1 Apache-2.0
@@ -368,7 +368,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/d3-ease/v/3.0.1 3.0.1 BSD-3-Clause
     https://npmjs.com/package/d3-tip/node_modules/d3-selection/v/1.4.2 1.4.2 BSD-3-Clause
     https://npmjs.com/package/normalize-wheel-es/v/1.2.0 1.2.0 BSD-3-Clause
-    https://mvnrepository.com/artifact/org.antlr/antlr4-runtime/4.9.2 BSD-3-Clause
+    https://mvnrepository.com/artifact/org.antlr/antlr4-runtime/4.11.1 BSD-3-Clause
     https://npmjs.com/package/rw/v/1.3.3 1.3.3 BSD-3-Clause
     https://npmjs.com/package/source-map/v/0.6.1 0.6.1 BSD-3-Clause
     https://npmjs.com/package/source-map-js/v/1.0.2 1.0.2 BSD-3-Clause

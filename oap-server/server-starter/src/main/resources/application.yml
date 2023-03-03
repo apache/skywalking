@@ -356,7 +356,7 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"oc,otlp"}
-    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows"}
+    enabledOtelRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}
@@ -434,6 +434,18 @@ query-zipkin:
     uiQueryLimit: ${SW_QUERY_ZIPKIN_UI_QUERY_LIMIT:10}
     # Default look back on the UI for search traces, 15 minutes in millis
     uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
+
+#This module is for PromQL API.
+promql:
+  selector: ${SW_PROMQL:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_PROMQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_PROMQL_REST_PORT:9090}
+    restContextPath: ${SW_PROMQL_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
 
 alarm:
   selector: ${SW_ALARM:default}
@@ -555,6 +567,3 @@ aws-firehose:
     idleTimeOut: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_IDLE_TIME_OUT:30000}
     acceptQueueSize: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ACCEPT_QUEUE_SIZE:0}
     maxRequestHeaderSize: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
-    enableTLS: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ENABLE_TLS:false}
-    tlsKeyPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_KEY_PATH:}
-    tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}

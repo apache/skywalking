@@ -53,10 +53,6 @@
             <artifactId>mvel2</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.linecorp.armeria</groupId>
             <artifactId>armeria-junit5</artifactId>
             <scope>test</scope>

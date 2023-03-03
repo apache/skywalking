@@ -17,8 +17,6 @@ version: '2.1'
 
 services:
   oap:
-    environment:
-      SW_METER_ANALYZER_ACTIVE_FILES:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap

@@ -73,5 +73,5 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_pg_instance_active_sessions --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
     expected: expected/metrics-has-value-label.yml
   # slow sql
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement --service-name=postgresql::postgres:5432 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
     expected:  expected/db-has-value.yml

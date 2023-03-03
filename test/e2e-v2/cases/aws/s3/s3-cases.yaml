@@ -13,7 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- key: {{ notEmpty .key }}
-  value: {{ ge .value 0 }}
-{{- end }}
+# This file is used to show how to write configuration files and can be used to test.
+
+  cases:
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+      expected: expected/service.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=aws_s3_4xx --service-name aws-s3::skywalking |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
+          --name=aws_s3_5xx --service-name aws-s3::skywalking |yq e 'to_entries' -
+      expected: expected/metrics-has-value.yml

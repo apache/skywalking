@@ -87,13 +87,24 @@
 * [Optional] Optimize single trace query performance by customizing routing in ElasticSearch. SkyWalking trace segments and Zipkin spans are using trace ID for routing. This is OFF by default, controlled by `storage/elasticsearch/enableCustomRouting`.
 * Enhance OAP HTTP server to support HTTPS
 * Remove handler scan in otel receiver, manual initialization instead
-* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format)
+* Add aws-firehose-receiver to support collecting AWS CloudWatch metric(OpenTelemetry format). Notice, no HTTPS/TLS setup
+  support. By following AWS Firehose request, it uses [proxy request](https://en.wikipedia.org/wiki/Proxy_server#Web_proxy_servers)
+  (`https://...` instead of `/aws/firehose/metrics`), there must be a proxy(Nginx, Envoy, etc.).
 * Avoid Antlr dependencies' versions might be different in compile time and runtime.
 * Now `PrometheusMetricConverter#escapedName` also support converting `/` to `_`.
 * Add missing TCP throughput metrics.
 * Refactor `@Column` annotation, swap `Column#name` and `ElasticSearch.Column#columnAlias` and rename `ElasticSearch.Column#columnAlias` to `ElasticSearch.Column#legacyName`.
 * Add Python HTTPX module component ID(7019).
 * Migrate tests from junit 4 to junit 5.
+* Refactor http-based alarm plugins and extract common logic to `HttpAlarmCallback`.
+* Support Amazon Simple Storage Service (Amazon S3) metrics monitoring
+* Support process Sum metrics with AGGREGATION_TEMPORALITY_DELTA case
+* Support Amazon DynamoDB monitoring.
+* Support prometheus HTTP API and promQL.
+* `Scope` in the Entity of Metrics query v1 protocol is not required and automatical correction. The scope is determined based on the metric itself.
+* Add explicit `ReadTimeout` for ConsulConfigurationWatcher to avoid `IllegalArgumentException: Cache watchInterval=10sec >= networkClientReadTimeout=10000ms`.
+* Fix `DurationUtils.getDurationPoints` exceed, when `startTimeBucket` equals `endTimeBucket`.
+* Support process OpenTelemetry ExponentialHistogram metrics
 
 #### UI
 
@@ -124,6 +135,13 @@
 * Fix: remove duplicate popup message for query result.
 * Add logo for HTTPX.
 * Refactor: optimize the attached events visualization in the trace widget.
+* Update BanyanDB client to 0.3.0.
+* Add AWS DynamoDB menu.
+* Fix: add auto period to the independent mode for widgets.
+* Optimize menus and add Windows monitoring menu.
+* Add a calculation for the cpm5dAvg.
+* add a cpm5d calculation.
+* Fix data processing error in the eBPF profiling widget.
 
 #### Documentation
 

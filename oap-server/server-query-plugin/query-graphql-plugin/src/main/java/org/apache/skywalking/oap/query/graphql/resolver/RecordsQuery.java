@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -47,6 +48,9 @@ public class RecordsQuery implements GraphQLQueryResolver {
     }
 
     public List<Record> readRecords(RecordCondition condition, Duration duration) throws IOException {
+        if (!condition.senseScope() || !condition.getParentEntity().isValid()) {
+            return Collections.emptyList();
+        }
         return getRecordQueryService().readRecords(condition, duration);
     }
 }

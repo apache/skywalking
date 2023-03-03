@@ -14,6 +14,11 @@
 # limitations under the License.
 
 {{- contains . }}
-- key: {{ notEmpty .key }}
-  value: {{ ge .value 0 }}
-{{- end }}
+- id: {{ b64enc "aws-dynamodb::xxxxxxxx" }}.1
+  name: aws-dynamodb::xxxxxxxx
+  group: aws-dynamodb
+  shortname: xxxxxxxx
+  normal: true
+  layers:
+    - AWS_DYNAMODB
+  {{- end }}

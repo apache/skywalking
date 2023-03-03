@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.core.query.type;
 import io.vavr.collection.Stream;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 
 public class IntValues {
+    @Getter
     private List<KVInt> values = new ArrayList<>();
 
     public void addKVInt(KVInt e) {

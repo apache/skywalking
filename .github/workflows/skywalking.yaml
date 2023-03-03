@@ -41,7 +41,7 @@ jobs:
         with:
           submodules: true
       - name: Check license header
-        uses: apache/skywalking-eyes@bd8d2db65f2fea938b74401ae72b0365733bdfdc
+        uses: apache/skywalking-eyes@775fe1ffda59b7e100aa144d0ef8d7beae17f97d
 
   code-style:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -78,7 +78,7 @@ jobs:
           go-version: "1.16"
       - name: Check Dependencies Licenses
         run: |
-          go install github.com/apache/skywalking-eyes/cmd/license-eye@bd8d2db65f2fea938b74401ae72b0365733bdfdc
+          go install github.com/apache/skywalking-eyes/cmd/license-eye@775fe1ffda59b7e100aa144d0ef8d7beae17f97d
           license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
           if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
             echo "LICENSE file is not updated correctly"
@@ -670,6 +670,10 @@ jobs:
             config: test/e2e-v2/cases/aws/eks/e2e.yaml
           - name: Windows
             config: test/e2e-v2/cases/win/e2e.yaml
+          - name: AWS Cloud S3
+            config: test/e2e-v2/cases/aws/s3/e2e.yaml
+          - name: AWS Cloud DynamoDB
+            config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

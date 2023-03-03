@@ -146,8 +146,18 @@ public enum Layer {
     /**
      * Windows Machine
      */
-    OS_WINDOWS(23, true);
+    OS_WINDOWS(23, true),
 
+    /**
+     * Amazon Simple Storage Service (Amazon S3) is an object storage service provided by AWS Cloud
+     */
+    AWS_S3(24, true),
+
+    /*
+     * Amazon DynamoDB is a fully managed NoSQL database service that provides
+     * fast and predictable performance with seamless scalability.
+     */
+    AWS_DYNAMODB(25, true);
 
     private final int value;
     /**
