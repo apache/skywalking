@@ -93,7 +93,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
         sql.append("select * from ").append(table)
-           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? and ");
         parameters.add(ServiceTraffic.INDEX_NAME);
 
         if (StringUtil.isNotEmpty(layer)) {
