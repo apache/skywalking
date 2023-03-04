@@ -73,7 +73,7 @@ public class AgentConfigurationsWatcher extends ConfigChangeWatcher {
     public AgentConfigurations getAgentConfigurations(String service) {
         AgentConfigurations agentConfigurations = agentConfigurationsTable.getAgentConfigurationsCache().get(service);
         if (null == agentConfigurations) {
-            return emptyAgentConfigurations;
+            return agentConfigurationsTable.getAgentConfigurationsCache().getOrDefault("default-config", emptyAgentConfigurations);
         } else {
             return agentConfigurations;
         }

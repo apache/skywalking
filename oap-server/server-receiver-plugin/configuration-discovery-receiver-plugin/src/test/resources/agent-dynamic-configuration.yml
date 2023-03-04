@@ -14,6 +14,9 @@
 # limitations under the License.
 
 configurations:
+  default-config:
+    trace.sample_rate: 2000
+    agent.sample_n_per_3_secs: 10
   serviceA:
     trace.sample_rate: 1000
     trace.ignore_path: /api/seller/seller/*

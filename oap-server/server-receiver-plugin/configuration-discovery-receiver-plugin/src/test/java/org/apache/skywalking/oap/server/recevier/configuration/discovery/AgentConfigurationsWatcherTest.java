@@ -61,27 +61,39 @@ public class AgentConfigurationsWatcherTest {
         AgentConfigurationsTable modifyAgentConfigurationsTable = Whitebox.getInternalState(
             agentConfigurationsWatcher, "agentConfigurationsTable");
         Map<String, AgentConfigurations> configurationCache = modifyAgentConfigurationsTable.getAgentConfigurationsCache();
-        Assertions.assertEquals(2, configurationCache.size());
+        Assertions.assertEquals(3, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         Assertions.assertEquals("serviceA", agentConfigurations0.getService());
-        Assertions.assertEquals(2, agentConfigurations0.getConfiguration().size());
+        Assertions.assertEquals(3, agentConfigurations0.getConfiguration().size());
         Assertions.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals("10", agentConfigurations0.getConfiguration().get("agent.sample_n_per_3_secs"));
         Assertions.assertEquals(
-            "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
+                "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
         Assertions.assertEquals(
-            "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
-            agentConfigurations0.getUuid()
+                "285ab9c676d0733aaf487720a98cb0c9864cfe77b2fe5a19cdb519b5b382137b6c580f25e6daefca43b812f60230f7b4159cd9376f2e6f53588446b31a4ad10e",
+                agentConfigurations0.getUuid()
         );
 
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
         Assertions.assertEquals("serviceB", agentConfigurations1.getService());
-        Assertions.assertEquals(2, agentConfigurations1.getConfiguration().size());
+        Assertions.assertEquals(3, agentConfigurations1.getConfiguration().size());
         Assertions.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals("10", agentConfigurations1.getConfiguration().get("agent.sample_n_per_3_secs"));
         Assertions.assertEquals(
-            "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
+                "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
         Assertions.assertEquals(
-            "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
-            agentConfigurations0.getUuid()
+                "285ab9c676d0733aaf487720a98cb0c9864cfe77b2fe5a19cdb519b5b382137b6c580f25e6daefca43b812f60230f7b4159cd9376f2e6f53588446b31a4ad10e",
+                agentConfigurations0.getUuid()
+        );
+
+        AgentConfigurations agentConfigurations2 = configurationCache.get("default-config");
+        Assertions.assertEquals("default-config", agentConfigurations2.getService());
+        Assertions.assertEquals(2, agentConfigurations2.getConfiguration().size());
+        Assertions.assertEquals("2000", agentConfigurations2.getConfiguration().get("trace.sample_rate"));
+        Assertions.assertEquals("10", agentConfigurations2.getConfiguration().get("agent.sample_n_per_3_secs"));
+        Assertions.assertEquals(
+                "a8da29ed936552b4cb8925cb6180bde7ef95655552b9e9d4a2ca51f71789529e9777beb248817e215b950c9ee3c41c53e3252b05c61d4d7e5000fd7f83dc4b54",
+                agentConfigurations2.getUuid()
         );
     }
 
@@ -105,8 +117,10 @@ public class AgentConfigurationsWatcherTest {
         Assertions.assertEquals(0, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
+        AgentConfigurations agentConfigurations2 = configurationCache.get("default-config");
 
         Assertions.assertNull(agentConfigurations0);
         Assertions.assertNull(agentConfigurations1);
+        Assertions.assertNull(agentConfigurations2);
     }
 }
