@@ -182,7 +182,7 @@ public class JDBCSQLExecutor {
         SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + tableName + " VALUES");
         List<Object> param = new ArrayList<>();
         sqlBuilder.append("(?,");
-        param.add(metrics.id().build());
+        param.add(TableHelper.generateId(tableName, metrics.id().build()));
         int position = 0;
         List valueList = new ArrayList();
         for (int i = 0; i < columns.size(); i++) {
