@@ -28,11 +28,13 @@ import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
@@ -41,7 +43,7 @@ public class JDBCMetricsDAO extends JDBCSQLExecutor implements IMetricsDAO {
 
     @Override
     public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws Exception {
-        final var ids = metrics.stream().map(m -> m.id().build()).collect(Collectors.toList());
+        final var ids = metrics.stream().map(m -> TableHelper.generateId(model, m.id().build())).collect(toList());
         final var storageDataList = getByIDs(jdbcClient, model.getName(), ids, storageBuilder);
         final var result = new ArrayList<Metrics>(storageDataList.size());
         for (StorageData storageData : storageDataList) {
