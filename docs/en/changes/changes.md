@@ -142,6 +142,7 @@
 * Add a calculation for the cpm5dAvg.
 * add a cpm5d calculation.
 * Fix data processing error in the eBPF profiling widget.
+* Support for double quotes in SlowSQL statements.
 
 #### Documentation
 
