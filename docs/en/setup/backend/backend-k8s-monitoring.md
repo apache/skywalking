@@ -68,6 +68,6 @@ K8s Service as a `Service` in OAP and land on the `Layer: K8S_SERVICE`.
 
 ## Customizations
 You can customize your own metrics/expression/dashboard panel.
-The metrics definition and expression rules are found in `/config/otel-rules/k8s-cluster.yaml，/config/otel-rules/k8s-node.yaml, /config/otel-rules/k8s-service.yaml`.
+The metrics definition and expression rules are found in `/config/otel-rules/k8s/k8s-cluster.yaml，/config/otel-rules/k8s/k8s-node.yaml, /config/otel-rules/k8s/k8s-service.yaml`.
 The K8s Cluster dashboard panel configurations are found in `/config/ui-initialized-templates/k8s`.
 The K8s Service dashboard panel configurations are found in `/config/ui-initialized-templates/k8s_service`.

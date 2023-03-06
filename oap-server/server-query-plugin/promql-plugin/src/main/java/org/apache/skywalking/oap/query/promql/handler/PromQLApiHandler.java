@@ -103,7 +103,6 @@ public class PromQLApiHandler {
     }
 
     @Get
-    @Post
     @Path("/api/v1/metadata")
     public HttpResponse metadata(
         @Param("limit") Optional<Integer> limit,
@@ -174,7 +173,6 @@ public class PromQLApiHandler {
      * reserve these param to keep consistent with API protocol.
      */
     @Get
-    @Post
     @Path("/api/v1/label/{label_name}/values")
     public HttpResponse labelValues(
         @Param("label_name") String labelName,
@@ -290,7 +288,7 @@ public class PromQLApiHandler {
         if (time.isPresent()) {
             endTS = formatTimestamp2Millis(time.get());
         }
-        long startTS = endTS - 900000; //look back 15m by default
+        long startTS = endTS - 120000; //look back 2m by default
         Duration duration = timestamp2Duration(startTS, endTS);
         ExprQueryRsp response = new ExprQueryRsp();
 
@@ -349,7 +347,7 @@ public class PromQLApiHandler {
         @Param("query") String query,
         @Param("start") String start,
         @Param("end") String end,
-        @Param("step") String step,
+        @Param("step") Optional<String> step,
         @Param("timeout") Optional<String> timeout) throws IOException {
         long startTS = formatTimestamp2Millis(start);
         long endTS = formatTimestamp2Millis(end);

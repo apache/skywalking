@@ -35,6 +35,8 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.joda.time.DateTime;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 public class PromOpUtils {
     //Adopt skywalking time step.
@@ -48,11 +50,11 @@ public class PromOpUtils {
 
         long durationValue = endTS - startTS;
 
-        if (durationValue < 3600000) {
+        if (durationValue <= 3600000) {
             duration.setStep(Step.MINUTE);
             duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
             duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
-        } else if (durationValue < 86400000) {
+        } else if (durationValue <= 86400000) {
             duration.setStep(Step.HOUR);
             duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HH));
             duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HH));
@@ -251,5 +253,23 @@ public class PromOpUtils {
     public static String formatDoubleValue(double v) {
         DecimalFormat format = new DecimalFormat("#.##");
         return format.format(v);
+    }
+
+    /**
+     * Format duration string to org.joda.time.Duration.
+     * Don't support year and month because the days vary in length.
+     * @param duration such as "5d", "30m", "5d30m, "1w, "1w5d"
+     * @return org.joda.time.Duration
+     */
+    public static org.joda.time.Duration formatDuration(String duration) {
+        PeriodFormatter f = new PeriodFormatterBuilder()
+            .appendWeeks().appendSuffix("w")
+            .appendDays().appendSuffix("d")
+            .appendHours().appendSuffix("h")
+            .appendMinutes().appendSuffix("m")
+            .appendSeconds().appendSuffix("s")
+            .appendMillis().appendSuffix("ms")
+            .toFormatter();
+        return f.parsePeriod(duration).toStandardDuration();
     }
 }

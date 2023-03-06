@@ -58,6 +58,7 @@ import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.apache.skywalking.promql.rt.grammar.PromQLParserBaseVisitor;
 
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.buildMatrixValues;
+import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.formatDuration;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixBinaryOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixCompareOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixScalarBinaryOp;
@@ -247,9 +248,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
             return result;
         }
 
-        String timeRange = "PT" + ctx.DURATION().getText().toUpperCase();
+        String timeRange = ctx.DURATION().getText().toUpperCase();
         long endTS = System.currentTimeMillis();
-        long startTS = endTS - java.time.Duration.parse(timeRange).toMillis();
+        long startTS = endTS - formatDuration(timeRange).getMillis();
         duration = timestamp2Duration(startTS, endTS);
         ParseResult result = visit(ctx.metricInstant());
         result.setRangeExpression(true);
@@ -259,14 +260,11 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
     private void checkLabels(Map<LabelName, String> labelMap,
                              LabelName... labelNames) throws IllegalExpressionException {
         StringBuilder missLabels = new StringBuilder();
+        int j = 0;
         for (int i = 0; i < labelNames.length; i++) {
             String labelName = labelNames[i].toString();
             if (labelMap.get(labelNames[i]) == null) {
-                if (i == 0) {
-                    missLabels.append(labelName);
-                } else {
-                    missLabels.append(",").append(labelName);
-                }
+                missLabels.append(j++ > 0 ? "," : "").append(labelName);
             }
         }
         String result = missLabels.toString();
@@ -425,7 +423,8 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                              Layer layer,
                                              Scope scope,
                                              Map<LabelName, String> labelMap) throws IllegalExpressionException {
-        checkLabels(labelMap, LabelName.TOP_N, LabelName.PARENT_SERVICE, LabelName.ORDER);
+        //sortMetrics query ParentService could be null.
+        checkLabels(labelMap, LabelName.TOP_N, LabelName.ORDER);
         TopNCondition topNCondition = new TopNCondition();
         topNCondition.setName(metricName);
         topNCondition.setParentService(labelMap.get(LabelName.PARENT_SERVICE));

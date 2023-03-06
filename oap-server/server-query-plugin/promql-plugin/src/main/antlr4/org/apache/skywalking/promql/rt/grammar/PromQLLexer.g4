@@ -47,7 +47,7 @@ GT:          '>';
 
 // Literals
 NUMBER: Digit+ (DOT Digit+)?;
-DURATION: Digit+ ('s' | 'm' | 'h' | 'd' | 'w' | 'y');
+DURATION: Digit+ ('ms' | 's' | 'm' | 'h' | 'd' | 'w');
 NAME_STRING: NameLetter+;
 VALUE_STRING: '\'' .*? '\'' | '"' .*? '"';
 
