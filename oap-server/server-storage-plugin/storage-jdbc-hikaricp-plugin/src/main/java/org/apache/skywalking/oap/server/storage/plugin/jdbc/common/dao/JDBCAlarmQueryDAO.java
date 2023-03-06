@@ -139,7 +139,8 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
                 sql.append(AlarmRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
-        sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        sql.append(" where ")
+           .append(table).append(".").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(AlarmRecord.INDEX_NAME);
         if (Objects.nonNull(scopeId)) {
             sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
