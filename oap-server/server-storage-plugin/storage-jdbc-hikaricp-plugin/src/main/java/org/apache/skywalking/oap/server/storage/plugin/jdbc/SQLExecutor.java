@@ -40,6 +40,7 @@ import java.util.List;
 @Slf4j
 public class SQLExecutor implements InsertRequest, UpdateRequest {
     private final String sql;
+    @Getter
     private final List<Object> param;
     private final SessionCacheCallback callback;
     @Getter
@@ -49,7 +50,7 @@ public class SQLExecutor implements InsertRequest, UpdateRequest {
         final var preparedStatement = connection.prepareStatement(sql);
         setParameters(preparedStatement);
         if (log.isDebugEnabled()) {
-            log.debug("execute sql in batch: {}, parameters: {}", sql, param);
+            log.debug("Executing sql in batch: {}, parameters: {}", sql, param);
         }
         preparedStatement.execute();
         if (additionalSQLs != null) {

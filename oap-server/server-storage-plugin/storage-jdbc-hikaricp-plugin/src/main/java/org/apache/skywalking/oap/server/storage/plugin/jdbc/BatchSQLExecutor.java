@@ -54,6 +54,10 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
             var pendingCount = 0;
             for (final var prepareRequest : prepareRequests) {
                 final var sqlExecutor = (SQLExecutor) prepareRequest;
+                if (log.isDebugEnabled()) {
+                    log.debug("Executing sql: {}", sql);
+                    log.debug("SQL parameters: {}", sqlExecutor.getParam());
+                }
                 sqlExecutor.setParameters(preparedStatement);
                 preparedStatement.addBatch();
                 bulkRequest.add(sqlExecutor);
