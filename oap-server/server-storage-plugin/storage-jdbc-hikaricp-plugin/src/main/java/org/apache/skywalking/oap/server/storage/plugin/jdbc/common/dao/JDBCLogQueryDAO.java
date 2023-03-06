@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -196,7 +197,8 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
             }
         }
         sql.append(" where ");
-        sql.append(" 1=1 ");
+        sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(LogRecord.INDEX_NAME);
         if (startSecondTB != 0 && endSecondTB != 0) {
             sql.append(" and ").append(table).append(".").append(AbstractLogRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startSecondTB);

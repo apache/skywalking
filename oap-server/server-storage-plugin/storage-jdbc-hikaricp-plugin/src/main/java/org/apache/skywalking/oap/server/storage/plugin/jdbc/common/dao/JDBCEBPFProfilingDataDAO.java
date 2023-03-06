@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -72,8 +73,10 @@ public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         final String table) {
         final var sql = new StringBuilder();
         final var conditions = new StringBuilder();
-        final var parameters = new ArrayList<>(scheduleIdList.size() + 2);
+        final var parameters = new ArrayList<>(scheduleIdList.size() + 3);
         sql.append("select * from ").append(table);
+        conditions.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(EBPFProfilingDataRecord.INDEX_NAME);
 
         appendConditions(conditions, parameters, EBPFProfilingDataRecord.SCHEDULE_ID, scheduleIdList);
         appendCondition(conditions, parameters, EBPFProfilingDataRecord.UPLOAD_TIME, ">=", beginTime);

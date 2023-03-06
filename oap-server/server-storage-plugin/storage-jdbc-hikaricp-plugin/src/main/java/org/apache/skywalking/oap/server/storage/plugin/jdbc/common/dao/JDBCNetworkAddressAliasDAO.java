@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.Networ
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.util.ArrayList;
@@ -48,22 +49,28 @@ public class JDBCNetworkAddressAliasDAO extends JDBCSQLExecutor implements INetw
         for (final var table : tables) {
             final var sql = new StringBuilder()
                 .append("select * from ").append(table)
-                .append(" where ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(">?");
+                .append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
+                .append(" and ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(">?");
+
 
             results.addAll(
-                jdbcClient.executeQuery(sql.toString(), resultSet -> {
-                    List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
-                    NetworkAddressAlias networkAddressAlias;
-                    do {
-                        networkAddressAlias = (NetworkAddressAlias) toStorageData(
-                            resultSet, NetworkAddressAlias.INDEX_NAME, new NetworkAddressAlias.Builder());
-                        if (networkAddressAlias != null) {
-                            networkAddressAliases.add(networkAddressAlias);
+                jdbcClient.executeQuery(
+                    sql.toString(),
+                    resultSet -> {
+                        List<NetworkAddressAlias> networkAddressAliases = new ArrayList<>();
+                        NetworkAddressAlias networkAddressAlias;
+                        do {
+                            networkAddressAlias = (NetworkAddressAlias) toStorageData(
+                                resultSet, NetworkAddressAlias.INDEX_NAME, new NetworkAddressAlias.Builder());
+                            if (networkAddressAlias != null) {
+                                networkAddressAliases.add(networkAddressAlias);
+                            }
                         }
-                    }
-                    while (networkAddressAlias != null);
-                    return networkAddressAliases;
-                }, lastUpdateTime)
+                        while (networkAddressAlias != null);
+                        return networkAddressAliases;
+                    },
+                    NetworkAddressAlias.INDEX_NAME, lastUpdateTime)
             );
         }
         return results;

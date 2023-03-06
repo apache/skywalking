@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -94,7 +95,8 @@ public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         final var sql = new StringBuilder("select " + BrowserErrorLogRecord.DATA_BINARY);
         final var parameters = new ArrayList<>(9);
         sql.append(" from ").append(table)
-           .append(" where ").append(" 1 = 1 ");
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(BrowserErrorLogRecord.INDEX_NAME);
 
         long startSecondTB = 0, endSecondTB = 0;
         if (nonNull(duration)) {

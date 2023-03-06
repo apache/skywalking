@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtensi
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -75,6 +76,8 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         sql.append("select * from ").append(table);
 
         final var conditionSql = new StringBuilder();
+        conditionSql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(EBPFProfilingTaskRecord.INDEX_NAME);
 
         appendListCondition(conditionSql, parameters, EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList);
         if (taskStartTime > 0) {
@@ -125,6 +128,8 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         final var conditions = new StringBuilder();
 
         sql.append("select * from ").append(table);
+        conditions.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(EBPFProfilingTaskRecord.INDEX_NAME);
 
         if (StringUtil.isNotEmpty(serviceId)) {
             appendCondition(conditions, parameters, EBPFProfilingTaskRecord.SERVICE_ID, serviceId);
@@ -157,12 +162,13 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         for (final var table : tables) {
             final var sql = new StringBuilder();
             sql.append("select * from ").append(table)
-               .append(" where ").append(EBPFProfilingTaskRecord.LOGICAL_ID).append(" = ?");
+               .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+               .append(EBPFProfilingTaskRecord.LOGICAL_ID).append(" = ?");
 
             final var result = jdbcClient.executeQuery(
                 sql.toString(),
                 resultSet -> buildTasks(resultSet).stream().reduce(EBPFProfilingTask::combine).orElse(null),
-                id
+                EBPFProfilingTaskRecord.INDEX_NAME, id
             );
             if (result != null) {
                 return result;

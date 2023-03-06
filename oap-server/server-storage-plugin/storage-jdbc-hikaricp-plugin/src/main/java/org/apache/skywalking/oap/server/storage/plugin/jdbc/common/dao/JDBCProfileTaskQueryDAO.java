@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTas
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
@@ -55,7 +56,8 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             final var condition = new ArrayList<>(4);
             final var sql = new StringBuilder()
                 .append("select * from ").append(table)
-                .append(" where 1 = 1");
+                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(ProfileTaskRecord.INDEX_NAME);
 
             if (startTimeBucket != null) {
                 sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ? ");

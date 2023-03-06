@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
@@ -63,6 +64,8 @@ public class JDBCEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
         final var conditions = new StringBuilder();
         final var parameters = new ArrayList<>(4);
         sql.append("select * from ").append(table);
+        conditions.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(EBPFProfilingScheduleRecord.INDEX_NAME);
 
         appendCondition(conditions, parameters, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
 

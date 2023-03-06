@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
@@ -66,7 +67,6 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
         final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
 
         for (String table : tables) {
-
             String sql = "select * from " + table + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
@@ -176,6 +176,9 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
     protected Tuple2<Stream<String>, Stream<Object>> buildQuery(final EventQueryCondition condition) {
         final Stream.Builder<String> conditions = Stream.builder();
         final Stream.Builder<Object> parameters = Stream.builder();
+
+        conditions.add(JDBCTableInstaller.TABLE_COLUMN + " = ?");
+        parameters.add(Event.INDEX_NAME);
 
         if (!isNullOrEmpty(condition.getUuid())) {
             conditions.add(Event.UUID + "=?");

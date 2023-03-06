@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -80,7 +81,9 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
         String table) {
         StringBuilder sql = new StringBuilder("select * from " + table + " where ");
         List<Object> parameters = new ArrayList<>(10);
-        sql.append(" ").append(TopN.ENTITY_ID).append(" = ? and");
+        sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(condition.getName());
+        sql.append(" and ").append(TopN.ENTITY_ID).append(" = ? and");
         parameters.add(condition.getParentEntity().buildId());
         sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
         parameters.add(duration.getStartTimeBucketInSec());

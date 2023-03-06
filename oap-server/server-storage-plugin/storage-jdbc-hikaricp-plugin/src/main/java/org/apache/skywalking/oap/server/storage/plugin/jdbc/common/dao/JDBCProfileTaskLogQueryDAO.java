@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -66,8 +67,10 @@ public class JDBCProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
 
     protected SQLAndParameters buildSQL(String table) {
         final var sql = new StringBuilder();
-        final var parameters = new ArrayList<>(1);
-        sql.append("select * from ").append(table);
+        final var parameters = new ArrayList<>(2);
+        sql.append("select * from ").append(table)
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(ProfileTaskLogRecord.INDEX_NAME);
 
         sql.append("ORDER BY ").append(ProfileTaskLogRecord.OPERATION_TIME).append(" DESC ");
         return new SQLAndParameters(sql.toString(), parameters);
