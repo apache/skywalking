@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -138,7 +139,8 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
                 sql.append(AlarmRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
             }
         }
-        sql.append(" where 1 = 1");
+        sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(AlarmRecord.INDEX_NAME);
         if (Objects.nonNull(scopeId)) {
             sql.append(" and ").append(AlarmRecord.SCOPE).append(" = ?");
             parameters.add(scopeId);
