@@ -67,6 +67,9 @@ public class TableHelper {
     public static String getTable(String modelName, long timeBucket) {
         final var model = TableMetaInfo.get(modelName);
         final var tableName = getTableName(model);
+        if (timeBucket == 0) {
+            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+        }
 
         if (!model.isTimeSeries()) {
             return tableName;
