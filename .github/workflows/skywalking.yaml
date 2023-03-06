@@ -543,6 +543,30 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
 
+          - name: Continuous Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/banyandb/e2e.yaml
+          - name: Continuous Profiling H2
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/h2/e2e.yaml
+          - name: Continuous Profiling ES
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/e2e.yaml
+          - name: Continuous Profiling Sharding ES
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/es-sharding/e2e.yaml
+          - name: Continuous Profiling MySQL
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/mysql/e2e.yaml
+          - name: Continuous Profiling Postgres
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/postgres/e2e.yaml
+          - name: Continuous Profiling TiDB
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/tidb/e2e.yaml
+          - name: Continuous Profiling OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Continuous Profiling OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Continuous Profiling OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
           - name: Kafka Profiling
