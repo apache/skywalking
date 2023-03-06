@@ -51,6 +51,7 @@ function rewrite_body(tag, timestamp, record)
   for i = 4, #lines, 1 do
     inner_record.statement = inner_record.statement .. lines[i]
   end
+  inner_record.statement = string.gsub(inner_record.statement, '"', '\\"')
 
   local jsonstr = table2json(inner_record)
   record.body = { json = { json = jsonstr } }
