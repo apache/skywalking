@@ -254,7 +254,7 @@ public class JDBCSQLExecutor {
         }
         sqlBuilder.append(queries.stream().collect(Collectors.joining(", ")));
         sqlBuilder.append(" WHERE id = ?");
-        param.add(metrics.id().build());
+        param.add(TableHelper.generateId(model, metrics.id().build()));
 
         return new SQLExecutor(sqlBuilder.toString(), param, callback);
     }
