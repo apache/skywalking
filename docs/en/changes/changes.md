@@ -7,6 +7,7 @@
 * Bump up Armeria version to 1.21.0.
 * Clean up maven `pom.xml`s.
 * Bump up Java version to 11.
+* Bump up snakeyaml to 2.0.
 
 #### OAP Server
 

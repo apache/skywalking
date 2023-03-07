@@ -59,7 +59,7 @@ public class ZabbixConfigs {
                     return null;
                 }
                 try (Reader r = new FileReader(f)) {
-                    return new Yaml().loadAs(r, ZabbixConfig.class);
+                    return new Yaml().<ZabbixConfig>loadAs(r, ZabbixConfig.class);
                 } catch (IOException e) {
                     log.warn("Reading file {} failed", f, e);
                 }

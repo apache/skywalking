@@ -62,7 +62,7 @@ public class LALConfigs {
                          })
                          .map(f -> {
                              try (final Reader r = new FileReader(f)) {
-                                 return new Yaml().loadAs(r, LALConfigs.class);
+                                 return new Yaml().<LALConfigs>loadAs(r, LALConfigs.class);
                              } catch (IOException e) {
                                  log.debug("Failed to read file {}", f, e);
                              }
