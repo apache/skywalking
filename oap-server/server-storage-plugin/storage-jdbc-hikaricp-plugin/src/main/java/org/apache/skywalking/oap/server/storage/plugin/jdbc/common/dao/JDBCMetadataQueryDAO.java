@@ -185,7 +185,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         sql.append("select * from ").append(table).append(" where ")
             .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(InstanceTraffic.INDEX_NAME);
-        sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+        sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
         parameters.add(minuteTimeBucket);
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         parameters.add(serviceId);
@@ -205,7 +205,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table).append(" where ")
                 .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(InstanceTraffic.INDEX_NAME);
-            sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
+            sql.append(" and ").append(H2TableInstaller.ID_COLUMN).append(" = ?");
             condition.add(instanceId);
             sql.append(" limit ").append(metadataQueryMaxSize);
 
@@ -233,7 +233,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table).append(" where ")
                 .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(EndpointTraffic.INDEX_NAME);
-            sql.append(EndpointTraffic.SERVICE_ID).append("=?");
+            sql.append(" and ").append(EndpointTraffic.SERVICE_ID).append("=?");
             condition.add(serviceId);
             sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(EndpointTraffic.INDEX_NAME);
@@ -534,7 +534,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table).append(" where ");
             sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
             condition.add(ProcessTraffic.INDEX_NAME);
-            sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
+            sql.append(" and ").append(H2TableInstaller.ID_COLUMN).append(" = ?");
             condition.add(processId);
             sql.append(" limit ").append(metadataQueryMaxSize);
 
