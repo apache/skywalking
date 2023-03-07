@@ -119,7 +119,7 @@ public class TableHelper {
         if (model.isRecord() && !model.isSuperDataset()) {
             return generateId(model.getName(), originalID);
         }
-        if (!model.isMetric() || !isFunctionMetric(model)) {
+        if (!model.isMetric()) {
             return originalID;
         }
         return generateId(model.getName(), originalID);
