@@ -22,6 +22,7 @@ import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.sql.ResultSet;
@@ -37,15 +38,18 @@ public class JDBCServiceLabelQueryDAO implements IServiceLabelDAO {
     @Override
     @SneakyThrows
     public List<String> queryAllLabels(String serviceId) {
-        final var tables = tableHelper.getTablesForRead(ServiceLabelRecord.LABEL);
+        final var tables = tableHelper.getTablesForRead(ServiceLabelRecord.INDEX_NAME);
         final var results = new ArrayList<String>();
 
         for (String table : tables) {
             final StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(1);
-            sql.append("select " + table + " from ")
-               .append(ServiceLabelRecord.INDEX_NAME)
-               .append(" where ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
+            sql.append("select " + ServiceLabelRecord.LABEL + " from ")
+               .append(table)
+               .append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+               .append(" and ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
+            condition.add(ServiceLabelRecord.INDEX_NAME);
             condition.add(serviceId);
 
             results.addAll(
