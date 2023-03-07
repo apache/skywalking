@@ -182,7 +182,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     protected SQLAndParameters buildSQLForListInstances(String serviceId, long minuteTimeBucket, String table) {
         final var  sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
-        sql.append("select * from ").append(table).append(" where ");
+        sql.append("select * from ").append(table).append(" where ")
+            .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(InstanceTraffic.INDEX_NAME);
         sql.append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
         parameters.add(minuteTimeBucket);
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
@@ -200,7 +202,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(5);
-            sql.append("select * from ").append(table).append(" where ");
+            sql.append("select * from ").append(table).append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(InstanceTraffic.INDEX_NAME);
             sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
             condition.add(instanceId);
             sql.append(" limit ").append(metadataQueryMaxSize);
@@ -226,7 +230,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(5);
-            sql.append("select * from ").append(table).append(" where ");
+            sql.append("select * from ").append(table).append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(EndpointTraffic.INDEX_NAME);
             sql.append(EndpointTraffic.SERVICE_ID).append("=?");
             condition.add(serviceId);
             sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
@@ -292,6 +298,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>();
         sql.append("select * from ").append(table);
+        sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(ProcessTraffic.INDEX_NAME);
         appendProcessWhereQuery(sql, parameters, serviceId, null, null, supportStatus, lastPingStartTimeBucket, lastPingEndTimeBucket, false);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
@@ -332,6 +340,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         final var sql = new StringBuilder();
         final var condition = new ArrayList<>();
         sql.append("select * from ").append(table);
+        sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        condition.add(ProcessTraffic.INDEX_NAME);
         appendProcessWhereQuery(sql, condition, null, serviceInstanceId, null, null, lastPingStartTimeBucket, lastPingEndTimeBucket, includeVirtual);
         sql.append(" limit ").append(metadataQueryMaxSize);
         return new SQLAndParameters(sql.toString(), condition);
@@ -347,6 +357,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(2);
             sql.append("select * from ").append(table);
+            sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+            condition.add(ProcessTraffic.INDEX_NAME);
             appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0, false);
             sql.append(" limit ").append(metadataQueryMaxSize);
 
@@ -375,6 +387,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(5);
             sql.append("select count(1) total from ").append(table);
+            sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+            condition.add(ProcessTraffic.INDEX_NAME);
+
             appendProcessWhereQuery(sql, condition, serviceId, null, null, profilingSupportStatus,
                 lastPingStartTimeBucket, lastPingEndTimeBucket, false);
 
@@ -399,6 +414,9 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(3);
             sql.append("select count(1) total from ").append(table);
+            sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+            condition.add(ProcessTraffic.INDEX_NAME);
+
             appendProcessWhereQuery(sql, condition, null, instanceId, null, null, 0, 0, false);
 
             total += jdbcClient.executeQuery(sql.toString(), resultSet -> {
@@ -464,12 +482,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                                          String agentId, final ProfilingSupportStatus profilingSupportStatus,
                                          final long lastPingStartTimeBucket, final long lastPingEndTimeBucket,
                                          boolean includeVirtual) {
-        if (StringUtil.isNotEmpty(serviceId) || StringUtil.isNotEmpty(instanceId) || StringUtil.isNotEmpty(agentId)) {
-            sql.append(" where ");
-        }
-
         if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(ProcessTraffic.SERVICE_ID).append("=?");
+            sql.append(" and ").append(ProcessTraffic.SERVICE_ID).append("=?");
             condition.add(serviceId);
         }
         if (StringUtil.isNotEmpty(instanceId)) {
@@ -518,6 +532,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             StringBuilder sql = new StringBuilder();
             List<Object> condition = new ArrayList<>(5);
             sql.append("select * from ").append(table).append(" where ");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+            condition.add(ProcessTraffic.INDEX_NAME);
             sql.append(H2TableInstaller.ID_COLUMN).append(" = ?");
             condition.add(processId);
             sql.append(" limit ").append(metadataQueryMaxSize);
