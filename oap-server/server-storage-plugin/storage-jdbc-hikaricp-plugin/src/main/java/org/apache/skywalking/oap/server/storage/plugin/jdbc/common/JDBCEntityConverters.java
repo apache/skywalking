@@ -29,7 +29,7 @@ public class JDBCEntityConverters {
             @Override
             @SneakyThrows
             public Object get(String fieldName) {
-                return resultSet.getString(fieldName);
+                return resultSet.getObject(fieldName);
             }
 
             @Override
