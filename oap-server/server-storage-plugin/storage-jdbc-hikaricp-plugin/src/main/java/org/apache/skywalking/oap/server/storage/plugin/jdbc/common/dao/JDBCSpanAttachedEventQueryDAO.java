@@ -89,7 +89,7 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
         sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(SpanAttachedEventRecord.INDEX_NAME);
 
-        sql.append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" in ");
+        sql.append(" and ").append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" in ");
         sql.append(
             traceIds
                 .stream()
