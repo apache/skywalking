@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -412,13 +413,15 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     private List<Service> buildServices(ResultSet resultSet) throws SQLException {
         List<Service> services = new ArrayList<>();
         while (resultSet.next()) {
-            String serviceName = resultSet.getString(ServiceTraffic.NAME);
+            final var serviceTraffic = new ServiceTraffic.Builder().storage2Entity(JDBCEntityConverters.toEntity(resultSet));
+
+            String serviceName = serviceTraffic.getName();
             Service service = new Service();
-            service.setId(resultSet.getString(ServiceTraffic.SERVICE_ID));
+            service.setId(serviceTraffic.getServiceId());
             service.setName(serviceName);
-            service.setShortName(resultSet.getString(ServiceTraffic.SHORT_NAME));
-            service.setGroup(resultSet.getString(ServiceTraffic.GROUP));
-            service.getLayers().add(Layer.valueOf(resultSet.getInt(ServiceTraffic.LAYER)).name());
+            service.setShortName(serviceTraffic.getShortName());
+            service.setGroup(serviceTraffic.getGroup());
+            service.getLayers().add(serviceTraffic.getLayer().name());
             services.add(service);
         }
         return services;
@@ -534,35 +537,34 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     private List<Process> buildProcesses(ResultSet resultSet) throws SQLException {
         List<Process> processes = new ArrayList<>();
         while (resultSet.next()) {
-            final Process process = new Process();
-            process.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-            process.setName(resultSet.getString(ProcessTraffic.NAME));
-            final String serviceId = resultSet.getString(ProcessTraffic.SERVICE_ID);
+            final var processTraffic = new ProcessTraffic.Builder().storage2Entity(JDBCEntityConverters.toEntity(resultSet));
+
+            Process process = new Process();
+            process.setId(processTraffic.id().build());
+            process.setName(processTraffic.getName());
+            final String serviceId = processTraffic.getServiceId();
             process.setServiceId(serviceId);
-            final IDManager.ServiceID.ServiceIDDefinition serviceIDDefinition = IDManager.ServiceID.analysisId(serviceId);
-            process.setServiceName(serviceIDDefinition.getName());
-            final String instanceId = resultSet.getString(ProcessTraffic.INSTANCE_ID);
+            process.setServiceName(IDManager.ServiceID.analysisId(serviceId).getName());
+            final String instanceId = processTraffic.getInstanceId();
             process.setInstanceId(instanceId);
-            final IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(instanceId);
-            process.setInstanceName(instanceIDDefinition.getName());
-            process.setAgentId(resultSet.getString(ProcessTraffic.AGENT_ID));
-            process.setDetectType(ProcessDetectType.valueOf(resultSet.getInt(ProcessTraffic.DETECT_TYPE)).name());
-            process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(resultSet.getInt(ProcessTraffic.PROFILING_SUPPORT_STATUS)).name());
-            String propertiesString = resultSet.getString(ProcessTraffic.PROPERTIES);
-            if (!Strings.isNullOrEmpty(propertiesString)) {
-                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+            process.setInstanceName(IDManager.ServiceInstanceID.analysisId(instanceId).getName());
+            process.setAgentId(processTraffic.getAgentId());
+            process.setDetectType(ProcessDetectType.valueOf(processTraffic.getDetectType()).name());
+            process.setProfilingSupportStatus(ProfilingSupportStatus.valueOf(processTraffic.getProfilingSupportStatus()).name());
+
+            JsonObject properties = processTraffic.getProperties();
+            if (properties != null) {
                 for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
                     String key = property.getKey();
                     String value = property.getValue().getAsString();
                     process.getAttributes().add(new Attribute(key, value));
                 }
             }
-            final String labelJsonString = resultSet.getString(ProcessTraffic.LABELS_JSON);
-            if (!Strings.isNullOrEmpty(labelJsonString)) {
-                List<String> labels = GSON.<List<String>>fromJson(labelJsonString, ArrayList.class);
+            final String labelsJson = processTraffic.getLabelsJson();
+            if (StringUtils.isNotEmpty(labelsJson)) {
+                final List<String> labels = GSON.<List<String>>fromJson(labelsJson, ArrayList.class);
                 process.getLabels().addAll(labels);
             }
-
             processes.add(process);
         }
         return processes;
