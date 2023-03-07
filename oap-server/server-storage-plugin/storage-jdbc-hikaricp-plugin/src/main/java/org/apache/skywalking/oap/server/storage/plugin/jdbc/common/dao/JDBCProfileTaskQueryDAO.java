@@ -113,21 +113,32 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             return null;
         }
 
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME)
-            .append(" where " + ProfileTaskRecord.TASK_ID + "=? LIMIT 1");
-        condition.add(id);
+        final var tables = tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME);
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            final ArrayList<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table)
+               .append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
+               .append(" and ")
+               .append(ProfileTaskRecord.TASK_ID + "=? LIMIT 1");
+            condition.add(ProfileTaskRecord.INDEX_NAME);
+            condition.add(id);
 
-        return jdbcClient.executeQuery(
-            sql.toString(),
-            resultSet -> {
-                if (resultSet.next()) {
-                    return parseTask(resultSet);
-                }
-                return null;
-            },
-            condition.toArray(new Object[0]));
+            final var r = jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return parseTask(resultSet);
+                    }
+                    return null;
+                },
+                condition.toArray(new Object[0]));
+            if (r != null) {
+                return r;
+            }
+        }
+        return null;
     }
 
     /**

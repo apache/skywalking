@@ -83,7 +83,7 @@ public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
         appendCondition(conditions, parameters, EBPFProfilingDataRecord.UPLOAD_TIME, "<", endTime);
 
         if (conditions.length() > 0) {
-            sql.append(" where ").append(conditions);
+            sql.append(conditions);
         }
         return new SQLAndParameters(sql.toString(), parameters);
     }
