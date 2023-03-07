@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -34,12 +35,12 @@ public class EndpointGroupingRuleReader {
     private Map yamlData;
 
     public EndpointGroupingRuleReader(InputStream inputStream) {
-        Yaml yaml = new Yaml(new SafeConstructor());
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         yamlData = (Map) yaml.load(inputStream);
     }
 
     public EndpointGroupingRuleReader(Reader io) {
-        Yaml yaml = new Yaml(new SafeConstructor());
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         yamlData = (Map) yaml.load(io);
     }
 

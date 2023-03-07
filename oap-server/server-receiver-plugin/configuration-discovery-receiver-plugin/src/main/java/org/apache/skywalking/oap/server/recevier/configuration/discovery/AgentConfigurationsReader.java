@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -37,13 +38,13 @@ public class AgentConfigurationsReader {
     private Map yamlData;
 
     public AgentConfigurationsReader(InputStream inputStream) {
-        Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(inputStream);
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
+        yamlData = yaml.load(inputStream);
     }
 
     public AgentConfigurationsReader(Reader io) {
-        Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(io);
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
+        yamlData = yaml.load(io);
     }
 
     public AgentConfigurationsTable readAgentConfigurationsTable() {
