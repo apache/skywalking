@@ -43,6 +43,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
 
 public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
@@ -426,28 +428,28 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         List<ServiceInstance> serviceInstances = new ArrayList<>();
 
         while (resultSet.next()) {
+            final var instanceTraffic =
+                new InstanceTraffic.Builder().storage2Entity(JDBCEntityConverters.toEntity(resultSet));
+
             ServiceInstance serviceInstance = new ServiceInstance();
-            serviceInstance.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-            serviceInstance.setName(resultSet.getString(InstanceTraffic.NAME));
+            serviceInstance.setId(instanceTraffic.id().build());
+            serviceInstance.setName(instanceTraffic.getName());
             serviceInstance.setInstanceUUID(serviceInstance.getId());
 
-            String propertiesString = resultSet.getString(InstanceTraffic.PROPERTIES);
-            if (!Strings.isNullOrEmpty(propertiesString)) {
-                JsonObject properties = GSON.fromJson(propertiesString, JsonObject.class);
+            JsonObject properties = instanceTraffic.getProperties();
+            if (properties != null) {
                 for (Map.Entry<String, JsonElement> property : properties.entrySet()) {
                     String key = property.getKey();
                     String value = property.getValue().getAsString();
-                    if (key.equals(InstanceTraffic.PropertyUtil.LANGUAGE)) {
+                    if (key.equals(LANGUAGE)) {
                         serviceInstance.setLanguage(Language.value(value));
                     } else {
                         serviceInstance.getAttributes().add(new Attribute(key, value));
                     }
-
                 }
             } else {
                 serviceInstance.setLanguage(Language.UNKNOWN);
             }
-
             serviceInstances.add(serviceInstance);
         }
         return serviceInstances;
