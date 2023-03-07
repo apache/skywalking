@@ -24,10 +24,10 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -78,12 +78,13 @@ public class JDBCEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
     private List<EBPFProfilingSchedule> buildSchedules(ResultSet resultSet) throws SQLException {
         List<EBPFProfilingSchedule> schedules = new ArrayList<>();
         while (resultSet.next()) {
+            final var r = new EBPFProfilingScheduleRecord.Builder().storage2Entity(JDBCEntityConverters.toEntity(resultSet));
             EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
-            schedule.setScheduleId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-            schedule.setTaskId(resultSet.getString(EBPFProfilingScheduleRecord.TASK_ID));
-            schedule.setProcessId(resultSet.getString(EBPFProfilingScheduleRecord.PROCESS_ID));
-            schedule.setStartTime(resultSet.getLong(EBPFProfilingScheduleRecord.START_TIME));
-            schedule.setEndTime(resultSet.getLong(EBPFProfilingScheduleRecord.END_TIME));
+            schedule.setScheduleId(r.getScheduleId());
+            schedule.setTaskId(r.getTaskId());
+            schedule.setProcessId(r.getProcessId());
+            schedule.setStartTime(r.getStartTime());
+            schedule.setEndTime(r.getEndTime());
 
             schedules.add(schedule);
         }
