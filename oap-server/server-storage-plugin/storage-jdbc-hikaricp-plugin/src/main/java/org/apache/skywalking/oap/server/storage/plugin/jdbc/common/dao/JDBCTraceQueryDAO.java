@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
@@ -123,7 +124,8 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                 }
             }
             sql.append(" where ");
-            sql.append(" 1=1 ");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            parameters.add(SegmentRecord.INDEX_NAME);
             if (startSecondTB != 0 && endSecondTB != 0) {
                 sql.append(" and ").append(table).append(".").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
                 parameters.add(startSecondTB);
@@ -232,8 +234,9 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                     SegmentRecord.START_TIME + ", " +
                     SegmentRecord.LATENCY + ", " +
                     SegmentRecord.IS_ERROR + ", " +
-                    SegmentRecord.DATA_BINARY + " from " + table +
-                    " where " + SegmentRecord.TRACE_ID + " = ?",
+                    SegmentRecord.DATA_BINARY + " from " + table + " where " +
+                    JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
+                    SegmentRecord.TRACE_ID + " = ?",
                 resultSet -> {
                     while (resultSet.next()) {
                         SegmentRecord segmentRecord = new SegmentRecord();
@@ -252,7 +255,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                     }
                     return null;
                 },
-                traceId
+                SegmentRecord.INDEX_NAME, traceId
             );
         }
         return segmentRecords;

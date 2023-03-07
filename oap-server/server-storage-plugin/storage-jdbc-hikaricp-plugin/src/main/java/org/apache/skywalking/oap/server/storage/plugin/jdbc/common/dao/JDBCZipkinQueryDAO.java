@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import zipkin2.Endpoint;
 import zipkin2.Span;
@@ -65,14 +66,16 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
-            sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(ZipkinServiceTraffic.INDEX_NAME);
+            sql.append("select ").append(ZipkinServiceTraffic.SERVICE_NAME).append(" from ").append(table)
+                .append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
             h2Client.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
                     services.add(resultSet.getString(ZipkinServiceTraffic.SERVICE_NAME));
                 }
                 return null;
-            });
+            }, ZipkinServiceTraffic.INDEX_NAME);
         }
 
         return services
@@ -89,11 +92,13 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
-            List<Object> condition = new ArrayList<>(1);
+            List<Object> condition = new ArrayList<>(2);
             sql.append("select ").append(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME).append(" from ")
                .append(table);
             sql.append(" where ");
-            sql.append(ZipkinServiceRelationTraffic.SERVICE_NAME).append(" = ?");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(ZipkinServiceRelationTraffic.INDEX_NAME);
+            sql.append(" and ").append(ZipkinServiceRelationTraffic.SERVICE_NAME).append(" = ?");
             sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
             condition.add(serviceName);
             h2Client.executeQuery(sql.toString(), resultSet -> {
@@ -122,7 +127,9 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             sql.append("select ").append(ZipkinServiceSpanTraffic.SPAN_NAME).append(" from ")
                .append(table);
             sql.append(" where ");
-            sql.append(ZipkinServiceSpanTraffic.SERVICE_NAME).append(" = ?");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(ZipkinServiceSpanTraffic.INDEX_NAME);
+            sql.append(" and ").append(ZipkinServiceSpanTraffic.SERVICE_NAME).append(" = ?");
             sql.append(" limit ").append(NAME_QUERY_MAX_SIZE);
             condition.add(serviceName);
             h2Client.executeQuery(sql.toString(), resultSet -> {
@@ -150,7 +157,9 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             List<Object> condition = new ArrayList<>(1);
             sql.append("select * from ").append(table);
             sql.append(" where ");
-            sql.append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(ZipkinSpanRecord.INDEX_NAME);
+            sql.append(" and ").append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
             condition.add(traceId);
             h2Client.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
@@ -272,7 +281,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             List<Object> condition = new ArrayList<>(5);
             sql.append("select * from ").append(table);
             sql.append(" where ");
-            sql.append(" 1=1 ");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(ZipkinSpanRecord.INDEX_NAME);
 
             int i = 0;
             sql.append(" and ");

@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
@@ -58,7 +59,10 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
         for (String table : tables) {
             final StringBuilder sql = new StringBuilder();
             final ArrayList<Object> condition = new ArrayList<>(1);
-            sql.append("select * from ").append(table).append(" where id=? LIMIT 1 ");
+            sql.append("select * from ").append(table).append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+               .append(" and id=? LIMIT 1 ");
+            condition.add(UITemplate.INDEX_NAME);
             condition.add(id);
 
             final var result = h2Client.executeQuery(sql.toString(), resultSet -> {
@@ -86,7 +90,9 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
         for (String table : tables) {
             final StringBuilder sql = new StringBuilder();
             final ArrayList<Object> condition = new ArrayList<>(1);
-            sql.append("select * from ").append(table).append(" where 1=1 ");
+            sql.append("select * from ").append(table).append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+            condition.add(UITemplate.INDEX_NAME);
             if (!includingDisabled) {
                 sql.append(" and ").append(UITemplate.DISABLED).append("=?");
                 condition.add(BooleanUtils.booleanToValue(includingDisabled));

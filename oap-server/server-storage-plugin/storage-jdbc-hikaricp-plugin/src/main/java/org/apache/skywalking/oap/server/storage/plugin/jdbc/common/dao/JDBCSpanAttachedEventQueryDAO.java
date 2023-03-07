@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAtta
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -84,6 +85,9 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
     private static SQLAndParameters buildSQL(SpanAttachedEventTraceType type, List<String> traceIds, String table) {
         final var sql = new StringBuilder("select * from " + table + " where ");
         final var parameters = new ArrayList<>(traceIds.size() + 1);
+
+        sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(SpanAttachedEventRecord.INDEX_NAME);
 
         sql.append(SpanAttachedEventRecord.RELATED_TRACE_ID).append(" in ");
         sql.append(

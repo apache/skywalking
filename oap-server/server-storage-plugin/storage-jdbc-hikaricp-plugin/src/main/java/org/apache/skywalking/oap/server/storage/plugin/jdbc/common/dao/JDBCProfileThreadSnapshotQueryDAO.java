@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThr
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
@@ -58,16 +60,25 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
         }
 
         if (segments.isEmpty()) {
-            return  Collections.emptyList();
+            return Collections.emptyList();
         }
 
         final var segmentTables = tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
         for (String table : segmentTables) {
             final var sql = new StringBuilder();
-            sql.append("select * from ").append(table).append(" where ");
-            for (int i = 0; i < segments.size(); i++) {
-                sql.append(i > 0 ? " or " : "").append(SegmentRecord.SEGMENT_ID).append(" = ? ");
-            }
+            final var parameters = new ArrayList<>();
+
+            sql.append("select * from ").append(table).append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? and ");
+            parameters.add(ProfileThreadSnapshotRecord.INDEX_NAME);
+
+            final var segmentQuery =
+                segments
+                    .stream()
+                    .map(it -> SegmentRecord.SEGMENT_ID + " = ? ")
+                    .collect(joining(" or ", "(", ")"));
+            sql.append(segmentQuery);
+            parameters.addAll(segments);
             sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
 
             jdbcClient.executeQuery(
@@ -91,7 +102,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                     }
                     return null;
                 },
-                segments);
+                parameters);
         }
         return results
             .stream()
@@ -142,12 +153,13 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
             sql.append("select * from ").append(table).append(" where ");
-            sql.append(" 1=1 ");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
             sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
             sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" >= ? ");
             sql.append(" and ").append(ProfileThreadSnapshotRecord.SEQUENCE).append(" < ? ");
 
             Object[] params = new Object[]{
+                ProfileThreadSnapshotRecord.INDEX_NAME,
                 segmentId,
                 minSequence,
                 maxSequence
