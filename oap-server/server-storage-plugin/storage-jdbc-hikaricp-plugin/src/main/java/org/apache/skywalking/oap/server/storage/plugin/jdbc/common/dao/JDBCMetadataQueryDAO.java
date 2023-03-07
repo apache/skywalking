@@ -243,9 +243,11 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                         List<Endpoint> endpoints = new ArrayList<>();
 
                         while (resultSet.next()) {
+                            final var endpointTraffic = new EndpointTraffic.Builder().storage2Entity(JDBCEntityConverters.toEntity(resultSet));
+
                             Endpoint endpoint = new Endpoint();
-                            endpoint.setId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-                            endpoint.setName(resultSet.getString(EndpointTraffic.NAME));
+                            endpoint.setId(endpointTraffic.id().build());
+                            endpoint.setName(endpointTraffic.getName());
                             endpoints.add(endpoint);
                         }
                         return endpoints;
