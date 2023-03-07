@@ -135,7 +135,7 @@
 * Fix: remove duplicate popup message for query result.
 * Add logo for HTTPX.
 * Refactor: optimize the attached events visualization in the trace widget.
-* Update BanyanDB client to 0.3.0.
+* Update BanyanDB client to 0.3.1.
 * Add AWS DynamoDB menu.
 * Fix: add auto period to the independent mode for widgets.
 * Optimize menus and add Windows monitoring menu.
