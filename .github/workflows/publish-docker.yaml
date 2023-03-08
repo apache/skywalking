@@ -33,8 +33,6 @@ jobs:
       contents: read
       packages: write
     timeout-minutes: 90
-    env:
-      TAG: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -53,11 +51,15 @@ jobs:
             echo "DOCKER_REGISTRY=docker.io" >> $GITHUB_ENV
             echo "DOCKER_USERNAME=${{ secrets.DOCKERHUB_USER }}" >> $GITHUB_ENV
             echo "DOCKER_PASSWORD=${{ secrets.DOCKERHUB_TOKEN }}" >> $GITHUB_ENV
+            echo "OAP_NAME=skywalking-oap-server" >> $GITHUB
+            echo "UI_NAME=skywalking-ui" >> $GITHUB
+            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB
           else
             echo "HUB=ghcr.io/apache/skywalking" >> $GITHUB_ENV
             echo "DOCKER_REGISTRY=ghcr.io/apache/skywalking" >> $GITHUB_ENV
             echo "DOCKER_USERNAME=${{ github.actor }}" >> $GITHUB_ENV
             echo "DOCKER_PASSWORD=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+            echo "TAG=${{ github.sha }}" >> $GITHUB_ENV
           fi
       - name: Log in to the Container registry
         uses: docker/login-action@v2
