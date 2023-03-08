@@ -20,7 +20,9 @@ on:
   push:
     branches:
       - master
-      - docker
+  release:
+    types:
+      - released
 
 env:
   SKIP_TEST: true
