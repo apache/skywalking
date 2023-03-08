@@ -527,6 +527,9 @@ SmartSql:
 FreeSql:
   id: 3017
   languages: C#
+FreeRedis:
+  id: 3018
+  languages: C#
 
 # NoeJS components
 # [4000, 5000) for Node.js agent
@@ -723,6 +726,7 @@ Component-Server-Mappings:
   h2-jdbc-driver: H2
   mysql-connector-java: Mysql
   Jedis: Redis
+  FreeRedis: Redis
   StackExchange.Redis: Redis
   Redisson: Redis
   Lettuce: Redis
