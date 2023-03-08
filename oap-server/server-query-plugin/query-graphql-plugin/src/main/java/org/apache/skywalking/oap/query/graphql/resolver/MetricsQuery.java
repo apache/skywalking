@@ -102,7 +102,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
      */
     public MetricsType typeOfMetrics(String name) throws IOException {
-        return getMetricsMetadataQueryService().typeOfMetrics(name);
+        return MetricsMetadataQueryService.typeOfMetrics(name);
     }
 
     /**

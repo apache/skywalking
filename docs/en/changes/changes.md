@@ -7,6 +7,7 @@
 * Bump up Armeria version to 1.21.0.
 * Clean up maven `pom.xml`s.
 * Bump up Java version to 11.
+* Bump up snakeyaml to 2.0.
 
 #### OAP Server
 
@@ -104,6 +105,8 @@
 * `Scope` in the Entity of Metrics query v1 protocol is not required and automatical correction. The scope is determined based on the metric itself.
 * Add explicit `ReadTimeout` for ConsulConfigurationWatcher to avoid `IllegalArgumentException: Cache watchInterval=10sec >= networkClientReadTimeout=10000ms`.
 * Fix `DurationUtils.getDurationPoints` exceed, when `startTimeBucket` equals `endTimeBucket`.
+* Support process OpenTelemetry ExponentialHistogram metrics
+* Add FreeRedis component ID(3018).
 
 #### UI
 
@@ -134,10 +137,15 @@
 * Fix: remove duplicate popup message for query result.
 * Add logo for HTTPX.
 * Refactor: optimize the attached events visualization in the trace widget.
-* Update BanyanDB client to 0.3.0.
+* Update BanyanDB client to 0.3.1.
 * Add AWS DynamoDB menu.
 * Fix: add auto period to the independent mode for widgets.
-* optimize menus and add Windows monitoring menu.
+* Optimize menus and add Windows monitoring menu.
+* Add a calculation for the cpm5dAvg.
+* add a cpm5d calculation.
+* Fix data processing error in the eBPF profiling widget.
+* Support for double quotes in SlowSQL statements.
+* Fix: the wrong position of the menu when clicking the topology node.
 
 #### Documentation
 
