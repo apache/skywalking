@@ -145,6 +145,7 @@
 * add a cpm5d calculation.
 * Fix data processing error in the eBPF profiling widget.
 * Support for double quotes in SlowSQL statements.
+* Fix: the wrong position of the menu when clicking the topology node.
 
 #### Documentation
 
