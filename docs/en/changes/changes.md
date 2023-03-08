@@ -106,6 +106,7 @@
 * Add explicit `ReadTimeout` for ConsulConfigurationWatcher to avoid `IllegalArgumentException: Cache watchInterval=10sec >= networkClientReadTimeout=10000ms`.
 * Fix `DurationUtils.getDurationPoints` exceed, when `startTimeBucket` equals `endTimeBucket`.
 * Support process OpenTelemetry ExponentialHistogram metrics
+* Add FreeRedis component ID(3018).
 
 #### UI
 
