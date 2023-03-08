@@ -45,7 +45,7 @@ public class JDBCProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
         final var tables = tableHelper.getTablesForRead(ProfileTaskLogRecord.INDEX_NAME);
         final var results = new ArrayList<ProfileTaskLog>();
 
-        for (String table : tables) {
+        for (final var table : tables) {
             final var sqlAndParameters = buildSQL(table);
 
             results.addAll(
@@ -72,7 +72,7 @@ public class JDBCProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
            .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(ProfileTaskLogRecord.INDEX_NAME);
 
-        sql.append("ORDER BY ").append(ProfileTaskLogRecord.OPERATION_TIME).append(" DESC ");
+        sql.append(" ORDER BY ").append(ProfileTaskLogRecord.OPERATION_TIME).append(" DESC ");
         return new SQLAndParameters(sql.toString(), parameters);
     }
 

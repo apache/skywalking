@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
@@ -39,6 +40,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -70,7 +72,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
 
             sql.append("select * from ").append(table).append(" where ")
                 .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? and ");
-            parameters.add(ProfileThreadSnapshotRecord.INDEX_NAME);
+            parameters.add(SegmentRecord.INDEX_NAME);
 
             final var segmentQuery =
                 segments
@@ -81,8 +83,10 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
             parameters.addAll(segments);
             sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
 
+            final var sqlAndParameters = new SQLAndParameters(sql.toString(), parameters);
+
             jdbcClient.executeQuery(
-                sql.toString(),
+                sqlAndParameters.sql(),
                 resultSet -> {
                     while (resultSet.next()) {
                         BasicTrace basicTrace = new BasicTrace();
@@ -102,7 +106,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                     }
                     return null;
                 },
-                parameters);
+                sqlAndParameters.parameters());
         }
         return results
             .stream()
@@ -118,6 +122,8 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
            .append(table);
 
         sql.append(" where ")
+           .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+           .append(" and ")
            .append(ProfileThreadSnapshotRecord.TASK_ID)
            .append(" = ? and ")
            .append(ProfileThreadSnapshotRecord.SEQUENCE)
@@ -129,7 +135,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                 segments.add(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
             }
             return segments;
-        }, taskId);
+        }, ProfileThreadSnapshotRecord.INDEX_NAME, taskId);
     }
 
     @Override
@@ -190,56 +196,80 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     @Override
     @SneakyThrows
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        return jdbcClient.executeQuery(
-            "select * from " + SegmentRecord.INDEX_NAME + " where " + SegmentRecord.SEGMENT_ID + " = ?",
-            resultSet -> {
-                if (resultSet.next()) {
-                    SegmentRecord segmentRecord = new SegmentRecord();
-                    segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                    segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
-                    segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
-                    segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
-                    segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                    segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
-                    segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
-                    String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
-                    if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-                        segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+        final var tables = tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
+        for (final var table : tables) {
+            final var r = jdbcClient.executeQuery(
+                "select * from " + table +
+                    " where " + JDBCTableInstaller.TABLE_COLUMN + " = ?" +
+                    " and " + SegmentRecord.SEGMENT_ID + " = ?",
+                resultSet -> {
+                    if (resultSet.next()) {
+                        SegmentRecord segmentRecord = new SegmentRecord();
+                        segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
+                        segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
+                        segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
+                        segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
+                        segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
+                        segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
+                        segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
+                        String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
+                        if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                            segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+                        }
+                        return segmentRecord;
                     }
-                    return segmentRecord;
-                }
-                return null;
-            },
-            segmentId
-        );
+                    return null;
+                },
+                SegmentRecord.INDEX_NAME, segmentId
+            );
+            if (r != null) {
+                return r;
+            }
+        }
+        return null;
     }
 
     @SneakyThrows
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select ")
-           .append(aggType)
-           .append("(")
-           .append(ProfileThreadSnapshotRecord.SEQUENCE)
-           .append(") from ")
-           .append(ProfileThreadSnapshotRecord.INDEX_NAME)
-           .append(" where ");
-        sql.append(" 1=1 ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ? ");
-        sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
+        final var tables = tableHelper.getTablesForRead(ProfileThreadSnapshotRecord.INDEX_NAME);
 
-        Object[] params = new Object[] {
-            segmentId,
-            start,
-            end
-        };
+        var result = IntStream.builder();
 
-        return jdbcClient.executeQuery(sql.toString(), resultSet -> {
-            if (resultSet.next()) {
-                return resultSet.getInt(1);
-            }
-            return -1;
-        }, params);
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            sql.append("select ")
+               .append(aggType)
+               .append("(")
+               .append(ProfileThreadSnapshotRecord.SEQUENCE)
+               .append(") from ")
+               .append(table)
+               .append(" where ");
+            sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            sql.append(" and ").append(ProfileThreadSnapshotRecord.SEGMENT_ID).append(" = ? ");
+            sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" >= ? ");
+            sql.append(" and ").append(ProfileThreadSnapshotRecord.DUMP_TIME).append(" <= ? ");
+
+            Object[] params = new Object[]{
+                ProfileThreadSnapshotRecord.INDEX_NAME,
+                segmentId,
+                start,
+                end
+            };
+
+            jdbcClient.executeQuery(sql.toString(), resultSet -> {
+                if (resultSet.next()) {
+                    result.add(resultSet.getInt(1));
+                }
+                return null;
+            }, params);
+        }
+        switch (aggType) {
+            case "min":
+                return result.build().min().orElse(-1);
+            case "max":
+                return result.build().max().orElse(-1);
+            default:
+                throw new UnsupportedOperationException("Unsupported agg type: " + aggType);
+        }
     }
 }
