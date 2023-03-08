@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
+    private final ModelInstaller modelInstaller;
 
     @Override
     @SneakyThrows
@@ -93,7 +95,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
                     return;
             }
         }
-        // Delete additional tables
+        // Delete data in additional tables
         for (final var additionalTable : model.getSqlDBModelExtension().getAdditionalTables().values()) {
             SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
                 .append(timeBucketColumnName).append("<= ? ")
@@ -101,5 +103,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
                 .append(timeBucketColumnName).append(">= ? ");
             jdbcClient.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime);
         }
+        
+        modelInstaller.createTable(model);
     }
 }

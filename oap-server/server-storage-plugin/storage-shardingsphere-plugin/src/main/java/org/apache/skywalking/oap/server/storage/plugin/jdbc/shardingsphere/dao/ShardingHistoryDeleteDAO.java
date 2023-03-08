@@ -45,7 +45,7 @@ public class ShardingHistoryDeleteDAO extends JDBCHistoryDeleteDAO {
                                     ModuleManager manager,
                                     ModelInstaller modelInstaller,
                                     TableHelper tableHelper) {
-        super(client, tableHelper);
+        super(client, tableHelper, modelInstaller);
         this.client = client;
         this.manager = manager;
         this.dataSources = dataSources;

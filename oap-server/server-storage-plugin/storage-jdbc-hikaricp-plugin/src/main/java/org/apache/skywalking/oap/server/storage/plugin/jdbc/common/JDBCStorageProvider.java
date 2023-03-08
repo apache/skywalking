@@ -163,7 +163,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCAlarmQueryDAO(jdbcClient, getManager(), tableHelper));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class,
-            new JDBCHistoryDeleteDAO(jdbcClient, tableHelper));
+            new JDBCHistoryDeleteDAO(jdbcClient, tableHelper, modelInstaller));
         this.registerServiceImplementation(
             IRecordsQueryDAO.class,
             new JDBCRecordsQueryDAO(jdbcClient, tableHelper));
