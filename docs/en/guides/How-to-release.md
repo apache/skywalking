@@ -282,6 +282,10 @@ SkyWalking Resources:
 
 ## Publish the Docker images
 
+We have a [GitHub workflow](../../../.github/workflows/publish-docker.yaml) to automatically publish the Docker images to
+Docker Hub after you set the version from `pre-release` to `release`, all you need to do is to watch that workflow and see
+whether it succeeds, if it fails, you can use the following steps to publish the Docker images in your local machine.
+
 ```shell
 export SW_VERSION=x.y.z
 git clone --depth 1 --branch v$SW_VERSION https://github.com/apache/skywalking.git
