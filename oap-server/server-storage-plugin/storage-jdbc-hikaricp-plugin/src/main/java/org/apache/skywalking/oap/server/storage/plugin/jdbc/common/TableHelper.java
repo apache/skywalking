@@ -23,13 +23,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import java.sql.SQLException;
@@ -95,7 +93,7 @@ public class TableHelper {
             .mapToObj(it -> tableName + "_" + it)
             .filter(table -> {
                 try {
-                    return jdbcClient.isTableExisted(table);
+                    return jdbcClient.tableExists(table);
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -127,10 +125,6 @@ public class TableHelper {
 
     public static String generateId(String table, String originalID) {
         return table + Const.ID_CONNECTOR + originalID;
-    }
-
-    public static boolean isFunctionMetric(Model model) {
-        return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
     ConfigService configs() {

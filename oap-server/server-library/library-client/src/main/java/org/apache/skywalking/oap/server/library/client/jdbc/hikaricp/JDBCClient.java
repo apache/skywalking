@@ -149,8 +149,8 @@ public class JDBCClient implements Client, HealthCheckable {
         this.healthChecker.register(healthChecker);
     }
 
-    public boolean isIndexExisted(final String table,
-                                  final String index) throws SQLException {
+    public boolean indexExists(final String table,
+                               final String index) throws SQLException {
         try (final var connection = getConnection();
              final var resultSet = connection.getMetaData().getIndexInfo(null, null, table, false, false)) {
             while (resultSet.next()) {
@@ -162,9 +162,9 @@ public class JDBCClient implements Client, HealthCheckable {
         return false;
     }
 
-    public boolean isTableExisted(final String table) throws SQLException {
+    public boolean tableExists(final String table) throws SQLException {
         try (final var conn = getConnection();
-             final var result = conn.getMetaData().getTables(null, null, table, new String[]{"TABLE"})) {
+             final var result = conn.getMetaData().getTables(null, null, table, new String[]{})) {
             return result.next();
         }
     }

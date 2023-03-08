@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
+import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
@@ -45,6 +46,10 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.S
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao.ShardingZipkinQueryDAO;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -119,8 +124,20 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        MetricsCreator metricCreator =
+            getManager()
+                .find(TelemetryModule.NAME)
+                .provider()
+                .getService(MetricsCreator.class);
+        HealthCheckMetrics healthChecker =
+            metricCreator.createHealthCheckerGauge(
+                "storage_" + name(),
+                MetricsTag.EMPTY_KEY,
+                MetricsTag.EMPTY_VALUE);
+        jdbcClient.registerChecker(healthChecker);
         try {
-            super.start();
+            jdbcClient.connect();
+            modelInstaller.start();
 
             ShardingRulesOperator.INSTANCE.start(jdbcClient);
 
@@ -129,6 +146,12 @@ public class MySQLShardingStorageProvider extends MySQLStorageProvider {
                     .find(CoreModule.NAME)
                     .provider()
                     .getService(ConfigService.class));
+
+            getManager()
+                .find(CoreModule.NAME)
+                .provider()
+                .getService(ModelCreator.class)
+                .addModelListener(modelInstaller);
         } catch (StorageException | SQLException | IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

@@ -55,6 +55,8 @@ public class ShardingSphereTableInstaller extends MySQLTableInstaller {
     @Override
     @SneakyThrows
     public boolean isExists(Model model) {
+        TableMetaInfo.addModel(model);
+
         boolean isRuleExecuted = false;
         boolean isTableExist = super.isExists(model) && this.isTableExists(model);
         JDBCClient jdbcClient = (JDBCClient) client;
@@ -69,7 +71,6 @@ public class ShardingSphereTableInstaller extends MySQLTableInstaller {
 
     @SneakyThrows
     private boolean isTableExists(Model model) {
-        TableMetaInfo.addModel(model);
         final var jdbcClient = (JDBCClient) client;
         return jdbcClient.executeQuery(String.format("SHOW LOGICAL TABLES LIKE '%s'", model.getName()), ResultSet::next);
     }

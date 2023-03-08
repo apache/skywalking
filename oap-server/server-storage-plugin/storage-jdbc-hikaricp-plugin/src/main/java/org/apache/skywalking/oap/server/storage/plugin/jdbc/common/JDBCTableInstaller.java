@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
-import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +125,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         // Additional table's id is a many-to-one relation to the main table's id,
         // and thus can not be primary key, but a simple index.
         if (isAdditionalTable) {
-            final var index = table + "_" + JDBCTableInstaller.ID_COLUMN;
+            final var index = "idx_" + Math.abs(table.hashCode()) + "_" + JDBCTableInstaller.ID_COLUMN;
             if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -140,7 +139,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         }
 
         if (!isAdditionalTable) {
-            final var index = table + "_" + JDBCTableInstaller.TABLE_COLUMN;
+            final var index = "idx_" + Math.abs(table.hashCode()) + "_" + Math.abs(JDBCTableInstaller.TABLE_COLUMN.hashCode());
             if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -163,7 +162,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .map(ColumnName::getStorageName)
                 .collect(toList());
         for (var column : columnsMissingIndex) {
-            final var index = table + "_" + Math.abs(column.hashCode());
+            final var index = "idx_" + Math.abs(table.hashCode()) + "_" + Math.abs(column.hashCode());
             if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -239,27 +238,25 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     protected boolean isTableExisted(String table) throws SQLException {
         final var jdbcClient = (JDBCClient) client;
-        return jdbcClient.isTableExisted(table);
+        return jdbcClient.tableExists(table);
     }
 
     protected boolean isIndexExisted(String table, String index) throws SQLException {
         final var jdbcClient = (JDBCClient) client;
-        return jdbcClient.isIndexExisted(table, index);
+        return jdbcClient.indexExists(table, index);
     }
 
     private void updateTable(String table, List<ModelColumn> columns) throws SQLException {
-        final var alterSql =
+        final var alterSqls =
             columns
                 .stream()
                 .map(this::getColumnDefinition)
                 .map(definition -> "ALTER TABLE " + table + " ADD COLUMN " + definition + "; ")
-                .collect(joining());
+                .collect(toList());
 
-        if (Strings.isNullOrEmpty(alterSql.trim())) {
-            return;
+        for (String alterSql : alterSqls) {
+            executeSQL(new SQLBuilder(alterSql));
         }
-
-        executeSQL(new SQLBuilder(alterSql));
     }
 
     private void createTable(String table, List<ModelColumn> columns, boolean isAdditionalTable) throws SQLException {

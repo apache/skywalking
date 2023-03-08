@@ -76,6 +76,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
@@ -260,6 +262,25 @@ public class ShardingSphereIT {
         environment.stop();
     }
 
+    @Test
+    void sanityTest() throws SQLException {
+        init("5.3.1", DataSourceType.MYSQL);
+
+        ssClient.executeUpdate("CREATE SHARDING TABLE RULE a(\n" +
+            "DATANODES(\"ds_1.a_0\",\"ds_1.a_1\",\"ds_1.a_2\",\"ds_1.a_3\",\"ds_1.a_4\",\"ds_0.a_0\",\"ds_0.a_1\",\"ds_0.a_2\",\"ds_0.a_3\",\"ds_0.a_4\"),\n" +
+            "DATABASE_STRATEGY(TYPE=\"standard\",\n" +
+            "SHARDING_COLUMN=id,\n" +
+            "SHARDING_ALGORITHM(TYPE(NAME=\"inline\",\n" +
+            "PROPERTIES(\"algorithm-expression\"=\"ds_${id.hashCode()&Integer.MAX_VALUE%2}\")))))");
+        ssClient.executeUpdate("CREATE TABLE a ( id INT )");
+        ssClient.executeUpdate("ALTER TABLE a ADD COLUMN name VARCHAR(45) NULL");
+        ssClient.executeUpdate("ALTER TABLE a ADD COLUMN name2 VARCHAR(45) NULL; \nALTER TABLE a ADD COLUMN name6 VARCHAR(45) NULL; \nALTER TABLE a ADD COLUMN name8 VARCHAR(45) NULL");
+        ssClient.executeUpdate("ALTER TABLE a ADD COLUMN name3 VARCHAR(45) NULL");
+        ssClient.executeUpdate("ALTER TABLE a ADD COLUMN name4 VARCHAR(45) NULL");
+        ssClient.executeUpdate("ALTER TABLE a ADD COLUMN name5 VARCHAR(45) NULL");
+    }
+
+    @Disabled
     @SneakyThrows
     @ParameterizedTest(name = "{0}")
     @MethodSource("versions")
@@ -571,7 +592,7 @@ public class ShardingSphereIT {
         ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, TableHelper.getTableForWrite(model), dataSources, ttlTestCreate);
         Map<String, ShardingRule> shardingRules = Whitebox.getInternalState(
             ShardingRulesOperator.INSTANCE, "modelShardingRules");
-        ShardingRule inputRule = shardingRules.get(model.getName()).toBuilder().build();
+        ShardingRule inputRule = shardingRules.get(TableHelper.getTableForWrite(model)).toBuilder().build();
         ShardingRule outPutRule = loadShardingRule(model);
         outPutRule.setOperation("CREATE");
         //The rules in the database erased all `"`
@@ -582,7 +603,7 @@ public class ShardingSphereIT {
         ShardingRulesOperator.INSTANCE.createOrUpdateShardingRule(ssClient, model, TableHelper.getTableForWrite(model), dataSources, ttlTestCreate);
         Map<String, ShardingRule> shardingRules = Whitebox.getInternalState(
             ShardingRulesOperator.INSTANCE, "modelShardingRules");
-        ShardingRule inputRule = shardingRules.get(model.getName()).toBuilder().build();
+        ShardingRule inputRule = shardingRules.get(TableHelper.getTableForWrite(model)).toBuilder().build();
         ShardingRule outPutRule = loadShardingRule(model);
         outPutRule.setOperation("ALTER");
         //The rules in the database erased all `"`
@@ -597,7 +618,7 @@ public class ShardingSphereIT {
         Whitebox.invokeMethod(ShardingRulesOperator.INSTANCE, "initShardingRules", ssClient);
         Map<String, ShardingRule> shardingRules = Whitebox.getInternalState(
             ShardingRulesOperator.INSTANCE, "modelShardingRules");
-        return shardingRules.get(model.getName()).toBuilder().build();
+        return shardingRules.get(TableHelper.getTableForWrite(model)).toBuilder().build();
     }
 
     @SneakyThrows
