@@ -370,6 +370,14 @@
                     <artifactId>antlr4-maven-plugin</artifactId>
                     <version>${antlr.version}</version>
                 </plugin>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <configuration>
+                        <arguments>-DskipTests</arguments>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
