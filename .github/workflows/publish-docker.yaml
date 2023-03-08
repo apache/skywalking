@@ -51,9 +51,9 @@ jobs:
             echo "DOCKER_REGISTRY=docker.io" >> $GITHUB_ENV
             echo "DOCKER_USERNAME=${{ secrets.DOCKERHUB_USER }}" >> $GITHUB_ENV
             echo "DOCKER_PASSWORD=${{ secrets.DOCKERHUB_TOKEN }}" >> $GITHUB_ENV
-            echo "OAP_NAME=skywalking-oap-server" >> $GITHUB
-            echo "UI_NAME=skywalking-ui" >> $GITHUB
-            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB
+            echo "OAP_NAME=skywalking-oap-server" >> $GITHUB_ENV
+            echo "UI_NAME=skywalking-ui" >> $GITHUB_ENV
+            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
           else
             echo "HUB=ghcr.io/apache/skywalking" >> $GITHUB_ENV
             echo "DOCKER_REGISTRY=ghcr.io/apache/skywalking" >> $GITHUB_ENV
