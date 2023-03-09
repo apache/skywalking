@@ -53,7 +53,6 @@ public class JDBCNetworkAddressAliasDAO extends JDBCSQLExecutor implements INetw
                 .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
                 .append(" and ").append(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET).append(">?");
 
-
             results.addAll(
                 jdbcClient.executeQuery(
                     sql.toString(),

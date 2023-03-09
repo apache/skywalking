@@ -193,6 +193,9 @@ public class EBPFProfilingQueryService implements Service {
 
     public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws Exception {
         final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId);
+
+        log.info("schedules: {}", GSON.toJson(schedules));
+
         if (CollectionUtils.isNotEmpty(schedules)) {
             final Model processModel = getProcessModel();
             final List<Metrics> processMetrics = schedules.stream()
@@ -202,6 +205,8 @@ public class EBPFProfilingQueryService implements Service {
                         return p;
                     }).collect(Collectors.toList());
             final List<Metrics> processes = getProcessMetricsDAO().multiGet(processModel, processMetrics);
+
+            log.info("processes: {}", GSON.toJson(processes));
 
             final Map<String, Process> processMap = processes.stream()
                                                                 .map(t -> (ProcessTraffic) t)

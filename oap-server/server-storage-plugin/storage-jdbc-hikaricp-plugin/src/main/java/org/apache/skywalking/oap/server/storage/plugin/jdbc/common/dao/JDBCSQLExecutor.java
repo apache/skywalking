@@ -261,11 +261,7 @@ public class JDBCSQLExecutor {
 
     private static ArrayList<String> getModelTables(JDBCClient h2Client, String modelName) throws Exception {
         final var model = TableMetaInfo.get(modelName);
-        final var tableNamePattern = (
-            model.isMetric() ? "metrics_all" :
-                model.isRecord() && !model.isSuperDataset() ? "records_all"
-                    : model.getName()
-        ) + "%";
+        final var tableNamePattern = TableHelper.getTableName(model) + "%";
         final var tables = new ArrayList<String>();
         try (final var connection = h2Client.getConnection();
              final var resultSet = connection.getMetaData().getTables(connection.getCatalog(), null, tableNamePattern, new String[]{"TABLE"})) {
