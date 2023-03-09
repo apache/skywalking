@@ -145,7 +145,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
 
     /**
      * The number of threads for the underlying HTTP client to perform socket I/O.
-     * If the value is <= 0, the number of available processors will be used.
+     * If the value is {@code <= 0}, the number of available processors will be used.
      */
     private int numHttpClientThread;
 

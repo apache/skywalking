@@ -112,7 +112,7 @@ public class CoreModuleConfig extends ModuleConfig {
      * load for memory, network of OAP and storage.
      *
      * But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party
-     * tool, such as Kibana->ES, to query the data by themselves.
+     * tool, such as Kibana-&gt;ES, to query the data by themselves.
      */
     private boolean activeExtraModelColumns = false;
     /**
