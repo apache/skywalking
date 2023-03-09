@@ -45,7 +45,7 @@ This step is only for testing purpose. If your env is correctly set, you don't n
 ## Prepare for the release
 ```
 ./mvnw release:clean
-./mvnw release:prepare -DautoVersionSubmodules=true -Pall
+./mvnw release:prepare -DautoVersionSubmodules=true -Darguments='-Dmaven.test.skip' -Pall
 ```
 
 - Set version number as x.y.z, and tag as **v**x.y.z (The version tag must start with **v**. You will find out why this is necessary in the next step.)
@@ -54,7 +54,7 @@ _You could do a GPG signature before preparing for the release. If you need to i
 
 ## Stage the release 
 ```
-./mvnw release:perform -Dmaven.test.skip -Pall
+./mvnw release:perform -Darguments='-Dmaven.test.skip' -Pall
 ```
 
 - The release will be automatically inserted into a temporary staging repository.
