@@ -5,6 +5,7 @@
 
 #### OAP Server
 
+* Fix wrong layer of metric `user error` in DynamoDB monitoring.
 
 #### Documentation
 
