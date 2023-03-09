@@ -59,15 +59,18 @@ public @interface SQLDatabase {
      * Support create additional tables from a model.<br>
      * <p>
      * Notice:
+     * <ul>
      * <li>This feature only support `Record` type.
      * <li>An additional table only supports one list-type field.
      * <li>Create `MultiColumnsIndex` on the additional table only when it contains all need columns.
+     * </ul>
      * <p>
      * The typical use is: when need to storage a `List` field, we can transform it to another table as row set.<br>
      * For example in SegmentRecord#tags create an additional table:
-     * <pre>{@code
-     *     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
-     *     private List<String> tags;}</pre>
+     * <pre>
+     *     {@code @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})}
+     *     {@code private List<String> tags;}
+     * </pre>
      * <p>
      * In H2TraceQueryDAO#queryBasicTraces query tags as condition from this additional table, could build sql like this:
      * <pre>{@code
@@ -95,18 +98,19 @@ public @interface SQLDatabase {
      *         }
      *         }</pre>
      * <p>
+     * <ul>
      * <li>If no tags condition, only query segment table, the SQL should be: select
      * column1, column2 ... from segment where 1=1 and colunm1=xx ...
      *
-     *<li> If 1 tag condition, query both segment and segment_tag tables, the SQL should be: select column1, column2 ...
+     * <li> If 1 tag condition, query both segment and segment_tag tables, the SQL should be: select column1, column2 ...
      * from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id where 1=1 and colunm1=xx ... and
      * segment_tag0=tagString0
      *
-     *<li> If 2 or more tags condition, query both segment and segment_tag tables, the SQL should be: select column1,
+     * <li> If 2 or more tags condition, query both segment and segment_tag tables, the SQL should be: select column1,
      * column2 ... from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id inner join segment_tag
      * segment_tag1 on segment.id=segment_tag1.id ... where 1=1 and colunm1=xx ... and segment_tag0=tagString0 and
      * segment_tag1=tagString1 ...
-     *
+     * </ul>
      */
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
