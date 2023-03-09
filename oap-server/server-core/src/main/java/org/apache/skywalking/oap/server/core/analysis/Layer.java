@@ -124,7 +124,7 @@ public enum Layer {
     MYSQL(18, true),
 
     /**
-     * Cache conjectured by client side plugin(eg. skywalking-java -> JedisPlugin LettucePlugin)
+     * Cache conjectured by client side plugin(eg. skywalking-java -&gt; JedisPlugin LettucePlugin)
      */
     VIRTUAL_CACHE(19, false),
 

@@ -481,6 +481,36 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok-maven-plugin</artifactId>
+                <version>1.18.20.0</version>
+                <configuration>
+                    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                    <addOutputDirectory>false</addOutputDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>delombok</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <sourcepath>
+                        ${project.build.directory}/generated-sources/delombok;
+                        ${project.build.directory}/generated-sources/protobuf/java;
+                        ${project.build.directory}/generated-sources/protobuf/grpc-java;
+                        ${project.build.directory}/generated-sources/antlr4;;
+                    </sourcepath>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
