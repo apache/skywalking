@@ -163,7 +163,6 @@ jobs:
         run: |
           ./mvnw clean install -B -q \
             -Dmaven.test.skip \
-            -Dmaven.javadoc.skip \
             -Dcheckstyle.skip
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
