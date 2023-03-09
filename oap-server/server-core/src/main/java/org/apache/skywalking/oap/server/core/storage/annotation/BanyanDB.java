@@ -65,7 +65,6 @@ public @interface BanyanDB {
      * <p>
      * Only work with {@link Column}
      *
-     * @return non-negative if this column be used for sharding. -1 means not as a sharding key
      * @since 9.3.0 Rename as SeriesID.
      * @since 9.1.0 created as a new annotation.
      * @since 9.0.0 added in {@link Column}
@@ -84,7 +83,7 @@ public @interface BanyanDB {
          * considering OAP finds services by "layer", the "layer" 's index should be 0 to
          * trigger a prefix-scanning.
          *
-         * @return index, from zero.
+         * @return non-negative if this column be used for sharding. -1 means not as a sharding key
          */
         int index() default -1;
     }
@@ -158,7 +157,7 @@ public @interface BanyanDB {
 
     /**
      * StoreIDTag indicates a metric store its ID as a tag for searching.
-     * @Since 9.4.0
+     * @since 9.4.0
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
