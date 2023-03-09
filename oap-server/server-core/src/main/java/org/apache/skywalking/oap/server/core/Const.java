@@ -41,6 +41,7 @@ public class Const {
     public static final String POINT = ".";
     public static final String DOUBLE_COLONS_SPLIT = "::";
     public static final String BLANK_ENTITY_NAME = "_blank";
+
     public static final class TLS_MODE {
         public static final String NON_TLS = "NONE";
 
