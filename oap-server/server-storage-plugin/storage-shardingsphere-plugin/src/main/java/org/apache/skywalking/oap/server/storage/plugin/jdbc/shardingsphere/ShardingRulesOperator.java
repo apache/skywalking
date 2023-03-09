@@ -152,23 +152,35 @@ public enum ShardingRulesOperator {
         buildDataNodes(builder, tableName, dataSources, ttl, currentDate);
         buildDatabaseStrategy(builder, dsShardingColumn, dataSources.size());
 
-        switch (shardingAlgorithm) {
-            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
-                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
-                break;
-            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
-                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
-                break;
-            case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
-                buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
-                                             TIME_RELATIVE_ID_SHARDING_EXPRESSION);
-                break;
-            case TIME_BUCKET_SHARDING_ALGORITHM:
-                buildExpressionTableStrategy(builder, tableName, tableShardingColumn, TIME_BUCKET_SHARDING_EXPRESSION);
-                break;
-            default:
-                throw new UnexpectedException("Unsupported sharding algorithm " + shardingAlgorithm);
-        }
+        StringBuilder propsBuilder = new StringBuilder();
+        propsBuilder.append("\"algorithm-expression\"=\"").append(tableName).append("_${")
+                    .append(tableShardingColumn)
+                    .append(".hashCode()&Integer.MAX_VALUE%")
+                    .append(4)
+                    .append("}\"");
+
+        builder.tableStrategyType("\"standard\"")
+               .tableShardingColumn(tableShardingColumn)
+               .tableShardingAlgorithmType("\"inline\"")
+               .tableShardingAlgorithmProps(propsBuilder.toString());
+//
+//        switch (shardingAlgorithm) {
+//            case TIME_SEC_RANGE_SHARDING_ALGORITHM:
+//                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_SEC_RANGE_SHARDING_EXPRESSION);
+//                break;
+//            case TIME_MIN_RANGE_SHARDING_ALGORITHM:
+//                buildTimeRangeTableStrategy(builder, tableShardingColumn, TIME_MIN_RANGE_SHARDING_EXPRESSION);
+//                break;
+//            case TIME_RELATIVE_ID_SHARDING_ALGORITHM:
+//                buildExpressionTableStrategy(builder, tableName, tableShardingColumn,
+//                                             TIME_RELATIVE_ID_SHARDING_EXPRESSION);
+//                break;
+//            case TIME_BUCKET_SHARDING_ALGORITHM:
+//                buildExpressionTableStrategy(builder, tableName, tableShardingColumn, TIME_BUCKET_SHARDING_EXPRESSION);
+//                break;
+//            default:
+//                throw new UnexpectedException("Unsupported sharding algorithm " + shardingAlgorithm);
+//        }
         return builder;
     }
 

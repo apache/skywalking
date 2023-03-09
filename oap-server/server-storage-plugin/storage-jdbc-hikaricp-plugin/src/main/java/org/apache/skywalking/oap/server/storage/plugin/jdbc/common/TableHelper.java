@@ -23,11 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import java.sql.SQLException;
@@ -47,8 +49,8 @@ public class TableHelper {
     private final JDBCClient jdbcClient;
 
     public static String getTableName(Model model) {
-        return model.isMetric() ? "metrics_all" :
-            (model.isRecord() && !model.isSuperDataset() ? "records_all" : model.getName());
+        final var aggFuncName = FunctionCategory.uniqueFunctionName(model.getStreamClass()).replaceAll("-", "_");
+        return StringUtil.isNotBlank(aggFuncName) ? aggFuncName : model.getName();
     }
 
     public static String getTableForWrite(Model model) {
@@ -117,7 +119,7 @@ public class TableHelper {
         if (model.isRecord() && !model.isSuperDataset()) {
             return generateId(model.getName(), originalID);
         }
-        if (!model.isMetric()) {
+        if (!model.isMetric() || !isFunctionMetric(model)) {
             return originalID;
         }
         return generateId(model.getName(), originalID);
@@ -125,6 +127,10 @@ public class TableHelper {
 
     public static String generateId(String table, String originalID) {
         return table + Const.ID_CONNECTOR + originalID;
+    }
+
+    public static boolean isFunctionMetric(Model model) {
+        return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
     ConfigService configs() {
