@@ -164,7 +164,7 @@ public class JDBCClient implements Client, HealthCheckable {
 
     public boolean tableExists(final String table) throws SQLException {
         try (final var conn = getConnection();
-             final var result = conn.getMetaData().getTables(null, null, table, new String[]{})) {
+             final var result = conn.getMetaData().getTables(null, null, table, null)) {
             return result.next();
         }
     }
