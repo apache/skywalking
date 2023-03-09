@@ -107,6 +107,7 @@
 * Fix `DurationUtils.getDurationPoints` exceed, when `startTimeBucket` equals `endTimeBucket`.
 * Support process OpenTelemetry ExponentialHistogram metrics
 * Add FreeRedis component ID(3018).
+* Fix wrong layer of metric `user error` in DynamoDB monitoring.
 
 #### UI
 
