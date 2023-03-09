@@ -6,6 +6,7 @@
 #### OAP Server
 
 * Fix wrong layer of metric `user error` in DynamoDB monitoring.
+* Support to bind TLS status as a part of component for service topology.
 
 #### Documentation
 

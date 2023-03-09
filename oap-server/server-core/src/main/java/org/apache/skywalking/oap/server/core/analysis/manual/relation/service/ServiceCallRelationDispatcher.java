@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.relation.service;
 
+import java.util.Optional;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRelation> {
-
     @Override
     public void dispatch(ServiceRelation source) {
         switch (source.getDetectPoint()) {
@@ -41,7 +44,9 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
-        metrics.getComponentIds().add(source.getComponentId());
+        final IntList componentIds = metrics.getComponentIds();
+        componentIds.add(source.getComponentId());
+        tlsStatus(source.getTlsMode()).ifPresent(componentIds::add);
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
@@ -51,8 +56,27 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
         metrics.setTimeBucket(source.getTimeBucket());
         metrics.setSourceServiceId(source.getSourceServiceId());
         metrics.setDestServiceId(source.getDestServiceId());
-        metrics.getComponentIds().add(source.getComponentId());
+        final IntList componentIds = metrics.getComponentIds();
+        componentIds.add(source.getComponentId());
+        tlsStatus(source.getTlsMode()).ifPresent(componentIds::add);
         metrics.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(metrics);
+    }
+
+    private Optional<Integer> tlsStatus(String tlsMode) {
+        if (StringUtil.isBlank(tlsMode)) {
+            return Optional.empty();
+        }
+        switch (tlsMode) {
+            case Const.TLS_MODE.M_TLS:
+                // component ID, mtls = 142
+                return Optional.of(142);
+            case Const.TLS_MODE.TLS:
+                // component ID, mtls = 130
+                return Optional.of(130);
+            case Const.TLS_MODE.NON_TLS:
+            default:
+                return Optional.empty();
+        }
     }
 }
