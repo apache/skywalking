@@ -72,7 +72,7 @@ public class ServiceCallRelationDispatcher implements SourceDispatcher<ServiceRe
                 // component ID, mtls = 142
                 return Optional.of(142);
             case Const.TLS_MODE.TLS:
-                // component ID, mtls = 130
+                // component ID, tls = 130
                 return Optional.of(130);
             case Const.TLS_MODE.NON_TLS:
             default:
