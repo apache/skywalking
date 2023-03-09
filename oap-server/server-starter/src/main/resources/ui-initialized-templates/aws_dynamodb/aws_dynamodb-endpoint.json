@@ -106,31 +106,6 @@
           "y":21,
           "w":6,
           "h":11,
-          "i":"3",
-          "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "aws_dynamodb_endpoint_user_errors"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"User Error"
-          }
-        },
-        {
-          "x":12,
-          "y":21,
-          "w":6,
-          "h":11,
           "i":"4",
           "type":"Widget",
           "metricTypes":[
@@ -152,7 +127,7 @@
           }
         },
         {
-          "x":18,
+          "x":12,
           "y":21,
           "w":6,
           "h":11,
@@ -340,7 +315,8 @@
       "layer":"AWS_DYNAMODB",
       "entity":"Endpoint",
       "name":"AWS-DynamoDB-Endpoint",
-      "id":"AWS-DynamoDB-Endpoint"
+      "id":"AWS-DynamoDB-Endpoint",
+      "isRoot":false
     }
   }
 ]
