@@ -27,9 +27,11 @@ nodes:
 calls:
 {{- contains .calls }}
 - source: {{ b64enc "test-ui<browser>"}}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - ajax
   target: {{ b64enc "provider-py"}}.1
-  targetcomponents: []
+  targetcomponents:
+    - Python
   id: {{ b64enc "test-ui<browser>"}}.1-{{ b64enc "provider-py"}}.1
   detectpoints:
     - CLIENT
