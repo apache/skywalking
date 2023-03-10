@@ -6,6 +6,7 @@
 #### OAP Server
 
 * Fix wrong layer of metric `user error` in DynamoDB monitoring.
+* ElasticSearch storage does not check field types when OAP running in `no-init` mode.
 
 #### Documentation
 

@@ -90,12 +90,14 @@ public class StorageEsInstaller extends ModelInstaller {
                 Optional<Index> index = esClient.getIndex(tableName);
                 Mappings historyMapping = index.map(Index::getMappings).orElseGet(Mappings::new);
                 structures.putStructure(tableName, historyMapping, index.map(Index::getSettings).orElseGet(HashMap::new));
-                boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
-                // Do not check index settings in the "no-init mode",
-                // because the no-init mode OAP server doesn't take responsibility for index settings.
                 if (RunningMode.isNoInitMode()) {
-                    exist = containsMapping;
+                    // Do not check index settings and field types in the "no-init mode",
+                    // because the no-init mode OAP server doesn't take responsibility for index settings
+                    // or updating field types, it just cares about whether the data can be ingested without
+                    // reporting errors.
+                    exist = structures.containsFieldNames(tableName, createMapping(model));
                 } else {
+                    boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
                     exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
                 }
             }
@@ -105,7 +107,7 @@ public class StorageEsInstaller extends ModelInstaller {
         boolean templateExists = esClient.isExistsTemplate(tableName);
         final Optional<IndexTemplate> template = esClient.getTemplate(tableName);
 
-        if ((templateExists && !template.isPresent()) || (!templateExists && template.isPresent())) {
+        if ((templateExists && template.isEmpty()) || (!templateExists && template.isPresent())) {
             throw new Error("[Bug warning] ElasticSearch client query template result is not consistent. " +
                                 "Please file an issue to Apache SkyWalking.(https://github.com/apache/skywalking/issues)");
         }
@@ -116,12 +118,12 @@ public class StorageEsInstaller extends ModelInstaller {
             structures.putStructure(
                 tableName, template.get().getMappings(), template.get().getSettings()
             );
-            boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
             // Do not check index settings in the "no-init mode",
             // because the no-init mode OAP server doesn't take responsibility for index settings.
             if (RunningMode.isNoInitMode()) {
-                exist = containsMapping;
+                exist = structures.containsFieldNames(tableName, createMapping(model));
             } else {
+                boolean containsMapping = structures.containsMapping(tableName, createMapping(model));
                 exist = containsMapping && structures.compareIndexSetting(tableName, createSetting(model));
             }
         }

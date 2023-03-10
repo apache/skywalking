@@ -107,6 +107,23 @@ public class IndexStructures {
     }
 
     /**
+     * Check whether all the fields are already defined regardless of the field types.
+     * When OAP runs in no-init mode, it doesn't care about the field types, it just
+     * cares about whether the data can be ingested without reporting error.
+     * OAP running in init mode should take care of the field types.
+     */
+    public boolean containsFieldNames(String tableName, Mappings mappings) {
+        if (Objects.isNull(mappings) ||
+            CollectionUtils.isEmpty(mappings.getProperties())) {
+            return true;
+        }
+
+        return mappingStructures.containsKey(tableName) &&
+                mappingStructures.get(tableName)
+                        .containsAllFieldNames(new Fields(mappings));
+    }
+
+    /**
      * Returns true when the current index setting equals the input.
      */
     public boolean compareIndexSetting(String tableName, Map<String, Object> settings) {
@@ -125,7 +142,7 @@ public class IndexStructures {
      */
     public static class Fields {
         private final Map<String, Object> properties;
-        private Mappings.Source source;
+        private final Mappings.Source source;
 
         private Fields(Mappings mapping) {
             this.properties = mapping.getProperties();
@@ -157,6 +174,13 @@ public class IndexStructures {
                 }
             }
             return true;
+        }
+
+        private boolean containsAllFieldNames(Fields fields) {
+            if (this.properties.size() < fields.properties.size()) {
+                return false;
+            }
+            return this.properties.keySet().containsAll(fields.properties.keySet());
         }
 
         /**
