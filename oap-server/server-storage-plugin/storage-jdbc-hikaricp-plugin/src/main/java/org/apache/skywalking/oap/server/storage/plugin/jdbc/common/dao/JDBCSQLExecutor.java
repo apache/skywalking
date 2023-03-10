@@ -69,7 +69,7 @@ public class JDBCSQLExecutor {
                 }
 
                 return null;
-            }, ids.stream().map(it -> TableHelper.generateId(modelName, it)).toArray());
+            }, ids.toArray());
         }
         return storageDataList;
     }

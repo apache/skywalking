@@ -125,8 +125,8 @@ public class TableHelper {
         return generateId(model.getName(), originalID);
     }
 
-    public static String generateId(String table, String originalID) {
-        return table + Const.ID_CONNECTOR + originalID;
+    public static String generateId(String modelName, String originalID) {
+        return modelName + Const.ID_CONNECTOR + originalID;
     }
 
     public static boolean isFunctionMetric(Model model) {
