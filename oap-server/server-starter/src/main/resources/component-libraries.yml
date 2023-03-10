@@ -438,7 +438,7 @@ https:
   priority: 46
 tls:
   id: 130
-  languages: ebpf
+  languages: ebpf, mesh
   priority: 11
 Micronaut:
   id: 131
@@ -473,6 +473,10 @@ AWSSQS:
 Micrometer:
   id: 141
   languages: Java
+mtls:
+  id: 142
+  languages: ebpf, mesh
+  priority: 12
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

@@ -37,12 +37,13 @@ public class ComponentLibraryCatalogFileTest {
     @Test
     public void testPriority() {
         ComponentLibraryCatalogService service = new ComponentLibraryCatalogService();
-        Assertions.assertEquals(false, service.compare(service.getComponentId("Unknown"), service.getComponentId("tcp")));
-        Assertions.assertEquals(false, service.compare(service.getComponentId("tcp"), service.getComponentId("tls")));
-        Assertions.assertEquals(false, service.compare(service.getComponentId("tls"), service.getComponentId("rpc")));
-        Assertions.assertEquals(false, service.compare(service.getComponentId("rpc"), service.getComponentId("http")));
-        Assertions.assertEquals(false, service.compare(service.getComponentId("http"), service.getComponentId("https")));
-        Assertions.assertEquals(false, service.compare(service.getComponentId("https"), service.getComponentId("SpringMVC")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("Unknown"), service.getComponentId("tcp")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("tcp"), service.getComponentId("tls")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("tcp"), service.getComponentId("mtls")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("tls"), service.getComponentId("rpc")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("rpc"), service.getComponentId("http")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("http"), service.getComponentId("https")));
+        Assertions.assertEquals(true, service.compare(service.getComponentId("https"), service.getComponentId("SpringMVC")));
 
         // Equal priority
         Assertions.assertEquals(false, service.compare(service.getComponentId("Dubbo"), service.getComponentId("SpringMVC")));

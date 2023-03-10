@@ -136,8 +136,8 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             final String entityId = dataPoint.getTagValue(Metrics.ENTITY_ID);
             final IntList componentIds = new IntList(
                     dataPoint.getTagValue(ServiceRelationClientSideMetrics.COMPONENT_IDS));
-            final Call.CallDetail call = new Call.CallDetail();
             for (int i = 0; i < componentIds.size(); i++) {
+                final Call.CallDetail call = new Call.CallDetail();
                 call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
                 calls.add(call);
             }
