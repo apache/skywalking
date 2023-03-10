@@ -125,7 +125,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         // Additional table's id is a many-to-one relation to the main table's id,
         // and thus can not be primary key, but a simple index.
         if (isAdditionalTable) {
-            final var index = "idx_" + Math.abs(table.hashCode()) + "_" + JDBCTableInstaller.ID_COLUMN;
+            final var index = "idx_" + Math.abs((table + "_" + JDBCTableInstaller.ID_COLUMN).hashCode());
             if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -139,7 +139,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         }
 
         if (!isAdditionalTable) {
-            final var index = "idx_" + Math.abs(table.hashCode()) + "_" + Math.abs(JDBCTableInstaller.TABLE_COLUMN.hashCode());
+            final var index = "idx_" + Math.abs((table + "_" + JDBCTableInstaller.TABLE_COLUMN).hashCode());
             if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -162,7 +162,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .map(ColumnName::getStorageName)
                 .collect(toList());
         for (var column : columnsMissingIndex) {
-            final var index = "idx_" + Math.abs(table.hashCode()) + "_" + Math.abs(column.hashCode());
+            final var index = "idx_" + Math.abs((table + "_" + column).hashCode());
             if (!isIndexExisted(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
@@ -187,7 +187,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 if (isAdditionalTable && !columnNames.containsAll(multiColumns)) {
                     continue;
                 }
-                final var index = table + "_" + Math.abs(String.join("_", multiColumns).hashCode());
+                final var index = "idx_" + Math.abs((table + "_" + String.join("_", multiColumns)).hashCode());
                 if (isIndexExisted(table, index)) {
                     continue;
                 }
