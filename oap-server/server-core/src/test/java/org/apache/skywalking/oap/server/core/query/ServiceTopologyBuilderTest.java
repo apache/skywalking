@@ -55,11 +55,6 @@ public class ServiceTopologyBuilderTest {
                     protected void register() {
                         registerServiceImplementation(
                             IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
-                    }
-                });
-                register(TelemetryModule.NAME, () -> new MockModuleProvider() {
-                    @Override
-                    protected void register() {
                         registerServiceImplementation(
                             NetworkAddressAliasCache.class, new NetworkAddressAliasCache(new CoreModuleConfig()));
                     }
@@ -72,8 +67,34 @@ public class ServiceTopologyBuilderTest {
     public void testServiceTopologyBuild() {
         final ServiceTopologyBuilder serviceTopologyBuilder = new ServiceTopologyBuilder(moduleManager);
         List<Call.CallDetail> serviceRelationClientCalls = new ArrayList<>();
-        Call.CallDetail call_1 = new Call.CallDetail();
-        call_1.buildFromServiceRelation(
+        Call.CallDetail call1 = new Call.CallDetail();
+        call1.buildFromServiceRelation(
+            IDManager.ServiceID.buildRelationId(
+                new IDManager.ServiceID.ServiceRelationDefine(
+                    IDManager.ServiceID.buildId("SvrA", true),
+                    IDManager.ServiceID.buildId("SvrB", true)
+                )
+            ),
+            142,// mtls
+            DetectPoint.CLIENT
+        );
+        serviceRelationClientCalls.add(call1);
+        Call.CallDetail call2 = new Call.CallDetail();
+        call2.buildFromServiceRelation(
+            IDManager.ServiceID.buildRelationId(
+                new IDManager.ServiceID.ServiceRelationDefine(
+                    IDManager.ServiceID.buildId("SvrA", true),
+                    IDManager.ServiceID.buildId("SvrB", true)
+                )
+            ),
+            49,// http
+            DetectPoint.CLIENT
+        );
+        serviceRelationClientCalls.add(call2);
+        
+        List<Call.CallDetail> serviceRelationServerCalls = new ArrayList<>();
+        Call.CallDetail call3 = new Call.CallDetail();
+        call3.buildFromServiceRelation(
             IDManager.ServiceID.buildRelationId(
                 new IDManager.ServiceID.ServiceRelationDefine(
                     IDManager.ServiceID.buildId("SvrA", true),
@@ -83,9 +104,9 @@ public class ServiceTopologyBuilderTest {
             142,// mtls
             DetectPoint.SERVER
         );
-        serviceRelationClientCalls.add(call_1);
-        Call.CallDetail call_2 = new Call.CallDetail();
-        call_2.buildFromServiceRelation(
+        serviceRelationServerCalls.add(call3);
+        Call.CallDetail call4 = new Call.CallDetail();
+        call4.buildFromServiceRelation(
             IDManager.ServiceID.buildRelationId(
                 new IDManager.ServiceID.ServiceRelationDefine(
                     IDManager.ServiceID.buildId("SvrA", true),
@@ -95,8 +116,8 @@ public class ServiceTopologyBuilderTest {
             49,// http
             DetectPoint.SERVER
         );
-        serviceRelationClientCalls.add(call_2);
-        final Topology topology = serviceTopologyBuilder.build(new ArrayList<>(), serviceRelationClientCalls);
+        serviceRelationServerCalls.add(call4);
+        final Topology topology = serviceTopologyBuilder.build(serviceRelationClientCalls, serviceRelationServerCalls);
         Assertions.assertEquals(2, topology.getNodes().size());
         for (final Node node : topology.getNodes()) {
             if (node.getName().equals("SvrB")) {
@@ -106,7 +127,7 @@ public class ServiceTopologyBuilderTest {
             }
         }
         for (final Call call : topology.getCalls()) {
-            Assertions.assertEquals(0, call.getSourceComponents().size());
+            Assertions.assertEquals(2, call.getSourceComponents().size());
             Assertions.assertEquals(List.of("mtls", "http"), call.getTargetComponents());
         }
     }
