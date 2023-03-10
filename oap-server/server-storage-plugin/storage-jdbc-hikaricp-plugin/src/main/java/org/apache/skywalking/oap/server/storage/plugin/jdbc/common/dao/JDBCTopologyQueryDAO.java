@@ -271,11 +271,11 @@ public class JDBCTopologyQueryDAO implements ITopologyQueryDAO {
     private void buildServiceCalls(ResultSet resultSet, List<Call.CallDetail> calls,
                                    DetectPoint detectPoint) throws SQLException {
         while (resultSet.next()) {
-            Call.CallDetail call = new Call.CallDetail();
             String entityId = resultSet.getString(Metrics.ENTITY_ID);
             final IntList componentIds = new IntList(
                 resultSet.getString(ServiceRelationServerSideMetrics.COMPONENT_IDS));
             for (int i = 0; i < componentIds.size(); i++) {
+                Call.CallDetail call = new Call.CallDetail();
                 call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
                 calls.add(call);
             }

@@ -316,8 +316,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 (List<Map<String, Object>>) componentTerms.get("buckets");
             final IntList componentIds = new IntList((String) subAgg.iterator().next().get("key"));
 
-            Call.CallDetail call = new Call.CallDetail();
             for (int i = 0; i < componentIds.size(); i++) {
+                Call.CallDetail call = new Call.CallDetail();
                 call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
                 calls.add(call);
             }
