@@ -34,7 +34,6 @@ import org.apache.skywalking.oap.server.core.query.type.Node;
 import org.apache.skywalking.oap.server.core.query.type.Topology;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +74,8 @@ public class ServiceTopologyBuilderTest {
                     IDManager.ServiceID.buildId("SvrB", true)
                 )
             ),
-            142,// mtls
+            // mtls
+            142,
             DetectPoint.CLIENT
         );
         serviceRelationClientCalls.add(call1);
@@ -87,11 +87,12 @@ public class ServiceTopologyBuilderTest {
                     IDManager.ServiceID.buildId("SvrB", true)
                 )
             ),
-            49,// http
+            // http
+            49,
             DetectPoint.CLIENT
         );
         serviceRelationClientCalls.add(call2);
-        
+
         List<Call.CallDetail> serviceRelationServerCalls = new ArrayList<>();
         Call.CallDetail call3 = new Call.CallDetail();
         call3.buildFromServiceRelation(
@@ -101,7 +102,8 @@ public class ServiceTopologyBuilderTest {
                     IDManager.ServiceID.buildId("SvrB", true)
                 )
             ),
-            142,// mtls
+            // mtls
+            142,
             DetectPoint.SERVER
         );
         serviceRelationServerCalls.add(call3);
@@ -113,7 +115,8 @@ public class ServiceTopologyBuilderTest {
                     IDManager.ServiceID.buildId("SvrB", true)
                 )
             ),
-            49,// http
+            // http
+            49,
             DetectPoint.SERVER
         );
         serviceRelationServerCalls.add(call4);
