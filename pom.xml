@@ -489,6 +489,8 @@
                 <configuration>
                     <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
                     <addOutputDirectory>false</addOutputDirectory>
+                    <outputDirectory>${project.build.directory}/delombok</outputDirectory>
+                    <encoding>UTF-8</encoding>
                 </configuration>
                 <executions>
                     <execution>

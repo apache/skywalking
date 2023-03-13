@@ -2,6 +2,7 @@
 
 #### Project
 
+* Fix `Duplicate class found` due to the `delombok` goal.
 
 #### OAP Server
 
