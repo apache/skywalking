@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -99,7 +100,7 @@ public class EndpointGroupingRuleReader4Openapi {
                 continue;
             }
             Reader reader = new FileReader(file);
-            Yaml yaml = new Yaml(new SafeConstructor());
+            Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
             Map openapiData = yaml.load(reader);
             if (openapiData != null) {
                 serviceOpenapiDefMap.computeIfAbsent(getServiceName(openapiDefPath, file, openapiData), k -> new ArrayList<>()).add(openapiData);
@@ -119,7 +120,7 @@ public class EndpointGroupingRuleReader4Openapi {
                 serviceName = itemNameInfo[0];
             }
             Reader reader = new StringReader(openapiDefs);
-            Yaml yaml = new Yaml(new SafeConstructor());
+            Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
             Map openapiData = yaml.load(reader);
             if (openapiData != null) {
                 serviceOpenapiDefMap.computeIfAbsent(getServiceName(serviceName, openapiData), k -> new ArrayList<>())

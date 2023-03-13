@@ -438,7 +438,7 @@ https:
   priority: 46
 tls:
   id: 130
-  languages: ebpf
+  languages: ebpf, mesh
   priority: 11
 Micronaut:
   id: 131
@@ -473,6 +473,10 @@ AWSSQS:
 Micrometer:
   id: 141
   languages: Java
+mtls:
+  id: 142
+  languages: ebpf, mesh
+  priority: 12
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -526,6 +530,9 @@ SmartSql:
   languages: C#
 FreeSql:
   id: 3017
+  languages: C#
+FreeRedis:
+  id: 3018
   languages: C#
 
 # NoeJS components
@@ -723,6 +730,7 @@ Component-Server-Mappings:
   h2-jdbc-driver: H2
   mysql-connector-java: Mysql
   Jedis: Redis
+  FreeRedis: Redis
   StackExchange.Redis: Redis
   Redisson: Redis
   Lettuce: Redis

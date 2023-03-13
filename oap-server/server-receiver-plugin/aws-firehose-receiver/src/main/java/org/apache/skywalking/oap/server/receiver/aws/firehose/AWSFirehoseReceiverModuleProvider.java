@@ -82,7 +82,7 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
                                                                           .getService(
                                                                               OpenTelemetryMetricRequestProcessor.class);
         httpServer.addHandler(
-            new FirehoseHTTPHandler(processor),
+            new FirehoseHTTPHandler(processor, moduleConfig.getFirehoseAccessKey()),
             Collections.singletonList(HttpMethod.POST)
         );
     }

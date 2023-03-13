@@ -601,12 +601,6 @@
                         "value": {
                           "stringValue": "UserErrors"
                         }
-                      },
-                      {
-                        "key": "TableName",
-                        "value": {
-                          "stringValue": "test"
-                        }
                       }
                     ]
                   }

@@ -128,6 +128,6 @@ public class ComponentLibraryCatalogService implements IComponentLibraryCatalogS
     public boolean compare(int componentA, int componentB) {
         final Integer priorityA = componentIDPriorities.getOrDefault(componentA, 50);
         final Integer priorityB = componentIDPriorities.getOrDefault(componentB, 50);
-        return priorityA.compareTo(priorityB) > 0;
+        return priorityA.compareTo(priorityB) < 0;
     }
 }

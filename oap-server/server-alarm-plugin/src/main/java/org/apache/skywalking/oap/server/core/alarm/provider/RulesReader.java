@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -48,13 +49,13 @@ public class RulesReader {
     private Map yamlData;
 
     public RulesReader(InputStream inputStream) {
-        Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(inputStream);
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
+        yamlData = yaml.load(inputStream);
     }
 
     public RulesReader(Reader io) {
-        Yaml yaml = new Yaml(new SafeConstructor());
-        yamlData = (Map) yaml.load(io);
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
+        yamlData = yaml.load(io);
     }
 
     /**

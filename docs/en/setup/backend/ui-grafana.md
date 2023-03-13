@@ -54,3 +54,9 @@ General settings:
 
 #### Sampled Records
 Same as the Sort Metrics.
+
+## Preview on demo.skywalking.a.o
+SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
+You could take a glance through [**Preview metrics on Grafana**](https://skywalking.apache.org/#demo) of the demo deployment.
+
+Notice, we don't provide all setups due to our monitoring target expanding fast. This demo is for helping you understand the above documents only.

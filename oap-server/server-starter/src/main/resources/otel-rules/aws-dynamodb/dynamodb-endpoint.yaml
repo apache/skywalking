@@ -78,8 +78,7 @@ metricsRules:
     exp: amazonaws_com_AWS_DynamoDB_SystemErrors.tagMatch('Operation','GetItem|Scan|Query|BatchGetItem|TransactGetItems')
   - name: endpoint_write_system_errors
     exp: amazonaws_com_AWS_DynamoDB_SystemErrors.tagMatch('Operation','PutItem|UpdateItem|DeleteItem|BatchWriteItem|TransactWriteItems')
-  - name: endpoint_user_errors
-    exp: amazonaws_com_AWS_DynamoDB_UserErrors
+
   - name: endpoint_conditional_check_failed_requests
     exp: amazonaws_com_AWS_DynamoDB_ConditionalCheckFailedRequests
   - name: endpoint_transaction_conflict
