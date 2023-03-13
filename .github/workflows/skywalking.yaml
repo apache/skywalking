@@ -55,6 +55,19 @@ jobs:
       - name: Check code style
         run: ./mvnw -B -q clean checkstyle:check
 
+  check-javadoc:
+    if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    name: Check JavaDoc
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Check JavaDoc
+        run: ./mvnw -B -q clean javadoc:javadoc
+
+
   dependency-license:
     if: |
       ( always() && ! cancelled() ) &&
@@ -89,14 +102,15 @@ jobs:
   sanity-check:
     if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Sanity check results
-    needs: [license-header, code-style, dependency-license]
+    needs: [license-header, code-style, check-javadoc, dependency-license]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Check results
         run: |
           [[ ${{ needs.license-header.result }} == 'success' ]] || exit 1;
-          [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1;
+          [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1
+          [[ ${{ needs.check-javadoc.result }} == 'success' ]] || exit 1;
           [[ ${{ needs.dependency-license.result }} == 'success' ]] || [[ ${{ needs.dependency-license.result }} == 'skipped' ]] || exit 1;
 
   changes:
