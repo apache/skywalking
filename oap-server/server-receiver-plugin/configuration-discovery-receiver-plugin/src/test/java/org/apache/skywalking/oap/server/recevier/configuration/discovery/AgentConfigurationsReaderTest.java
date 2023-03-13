@@ -26,32 +26,30 @@ public class AgentConfigurationsReaderTest {
     @Test
     public void testReadAgentConfigurations() {
         AgentConfigurationsReader reader = new AgentConfigurationsReader(
-            this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-configuration.yml"));
+                this.getClass().getClassLoader().getResourceAsStream("agent-dynamic-configuration.yml"));
 
         Map<String, AgentConfigurations> configurationCache = reader.readAgentConfigurationsTable()
-                                                                    .getAgentConfigurationsCache();
+                .getAgentConfigurationsCache();
         Assertions.assertEquals(3, configurationCache.size());
         AgentConfigurations agentConfigurations0 = configurationCache.get("serviceA");
         Assertions.assertEquals("serviceA", agentConfigurations0.getService());
-        Assertions.assertEquals(3, agentConfigurations0.getConfiguration().size());
+        Assertions.assertEquals(2, agentConfigurations0.getConfiguration().size());
         Assertions.assertEquals("1000", agentConfigurations0.getConfiguration().get("trace.sample_rate"));
-        Assertions.assertEquals("10", agentConfigurations0.getConfiguration().get("agent.sample_n_per_3_secs"));
         Assertions.assertEquals(
-            "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
+                "/api/seller/seller/*", agentConfigurations0.getConfiguration().get("trace.ignore_path"));
         Assertions.assertEquals(
-            "285ab9c676d0733aaf487720a98cb0c9864cfe77b2fe5a19cdb519b5b382137b6c580f25e6daefca43b812f60230f7b4159cd9376f2e6f53588446b31a4ad10e",
-            agentConfigurations0.getUuid()
+                "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
+                agentConfigurations0.getUuid()
         );
 
         AgentConfigurations agentConfigurations1 = configurationCache.get("serviceB");
         Assertions.assertEquals("serviceB", agentConfigurations1.getService());
-        Assertions.assertEquals(3, agentConfigurations1.getConfiguration().size());
+        Assertions.assertEquals(2, agentConfigurations1.getConfiguration().size());
         Assertions.assertEquals("1000", agentConfigurations1.getConfiguration().get("trace.sample_rate"));
-        Assertions.assertEquals("10", agentConfigurations1.getConfiguration().get("agent.sample_n_per_3_secs"));
         Assertions.assertEquals(
-            "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
+                "/api/seller/seller/*", agentConfigurations1.getConfiguration().get("trace.ignore_path"));
         Assertions.assertEquals(
-            "285ab9c676d0733aaf487720a98cb0c9864cfe77b2fe5a19cdb519b5b382137b6c580f25e6daefca43b812f60230f7b4159cd9376f2e6f53588446b31a4ad10e",
+                "92670f1ccbdee60e14ffc054d70a5cf3f93f6b5fb1adb83b10bea4fec79b96e7bc5e7b188e231428853721ded42ec756663947316065617f3cfdf51d6dfc8da6",
             agentConfigurations0.getUuid()
         );
 

@@ -65,7 +65,12 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
 
         AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getAgentConfigurations(
             request.getService());
+        AgentConfigurations defaultConfigurations = agentConfigurationsWatcher.getAgentConfigurations("default-config");
         if (null != agentConfigurations) {
+            if (agentConfigurations.isNeedMerge() && null != defaultConfigurations) {
+                agentConfigurations.mergeAgentConfigurations(defaultConfigurations.getConfiguration());
+                agentConfigurations.setNeedMerge(false);
+            }
             if (disableMessageDigest || !Objects.equals(agentConfigurations.getUuid(), request.getUuid())) {
                 ConfigurationDiscoveryCommand configurationDiscoveryCommand =
                     newAgentDynamicConfigCommand(agentConfigurations);

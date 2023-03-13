@@ -54,9 +54,6 @@ public class AgentConfigurationsReader {
                 if (configurationsData != null) {
                     configurationsData.forEach((k, v) -> {
                         Map map = (Map) v;
-                        if (configurationsData.containsKey("default-config")) {
-                            ((Map) configurationsData.get("default-config")).forEach(map::putIfAbsent);
-                        }
                         StringBuilder serviceConfigStr = new StringBuilder();
                         Map<String, String> config = new HashMap<>(map.size());
                         map.forEach((key, value) -> {
