@@ -109,7 +109,7 @@ jobs:
       - name: Check results
         run: |
           [[ ${{ needs.license-header.result }} == 'success' ]] || exit 1;
-          [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1
+          [[ ${{ needs.code-style.result }} == 'success' ]] || exit 1;
           [[ ${{ needs.check-javadoc.result }} == 'success' ]] || exit 1;
           [[ ${{ needs.dependency-license.result }} == 'success' ]] || [[ ${{ needs.dependency-license.result }} == 'skipped' ]] || exit 1;
 
