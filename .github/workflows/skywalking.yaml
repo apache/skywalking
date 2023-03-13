@@ -161,7 +161,7 @@ jobs:
           cache: "maven"
       - name: Build distribution tar
         run: |
-          ./mvnw clean install -B -q \
+          ./mvnw clean install javadoc:javadoc -B -q \
             -Dmaven.test.skip \
             -Dcheckstyle.skip
       - uses: actions/upload-artifact@v3
