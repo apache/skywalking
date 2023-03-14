@@ -65,7 +65,7 @@ public class MeterConfigs {
                     return null;
                 }
                 try (Reader r = new FileReader(f)) {
-                    return new Yaml().loadAs(r, MeterConfig.class);
+                    return new Yaml().<MeterConfig>loadAs(r, MeterConfig.class);
                 } catch (IOException e) {
                     log.warn("Reading file {} failed", f, e);
                 }

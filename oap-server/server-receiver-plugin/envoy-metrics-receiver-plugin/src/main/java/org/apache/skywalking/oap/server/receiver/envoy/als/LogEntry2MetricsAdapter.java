@@ -35,19 +35,15 @@ import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.Protocol;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.M_TLS;
+import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
+import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.TLS;
 
 /**
  * Adapt {@link HTTPAccessLogEntry} objects to {@link HTTPServiceMeshMetric} builders.
  */
 @RequiredArgsConstructor
 public class LogEntry2MetricsAdapter {
-
-    public static final String NON_TLS = "NONE";
-
-    public static final String M_TLS = "mTLS";
-
-    public static final String TLS = "TLS";
-
     /**
      * The access log entry that is to be adapted into metrics builders.
      */

@@ -18,10 +18,15 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
-import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
+import com.google.protobuf.Any;
+import com.google.protobuf.TextFormat;
+import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
@@ -31,12 +36,8 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import com.google.protobuf.Any;
-import com.google.protobuf.TextFormat;
-import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import lombok.extern.slf4j.Slf4j;
+
+import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
 
 @Slf4j
 public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {

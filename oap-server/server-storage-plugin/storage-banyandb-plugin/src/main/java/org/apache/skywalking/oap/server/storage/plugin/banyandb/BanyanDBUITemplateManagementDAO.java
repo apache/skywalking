@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO implements UITemplateManagementDAO {
-    private static final String GROUP = "sw";
+    public static final String GROUP = "sw";
 
     public BanyanDBUITemplateManagementDAO(BanyanDBStorageClient client) {
         super(client);

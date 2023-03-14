@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -95,7 +96,7 @@ public class ApdexThresholdConfig extends ConfigChangeWatcher implements Configu
 
     @SuppressWarnings("unchecked")
     private void updateConfig(final Reader contentRender) {
-        dictionary = (Map<String, Integer>) new Yaml(new SafeConstructor()).load(contentRender);
+        dictionary = new Yaml(new SafeConstructor(new LoaderOptions())).load(contentRender);
         if (dictionary == null) {
             dictionary = Collections.emptyMap();
         }

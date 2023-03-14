@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.tcp.mx;
 
-import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
-import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.DOWNSTREAM_KEY;
-import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.UPSTREAM_KEY;
+import com.google.protobuf.Any;
+import com.google.protobuf.TextFormat;
+import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
@@ -35,12 +38,10 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import org.apache.skywalking.oap.server.receiver.envoy.als.mx.FieldsHelper;
 import org.apache.skywalking.oap.server.receiver.envoy.als.mx.ServiceMetaInfoAdapter;
 import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.AbstractTCPAccessLogAnalyzer;
-import com.google.protobuf.Any;
-import com.google.protobuf.TextFormat;
-import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import lombok.extern.slf4j.Slf4j;
+
+import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.DOWNSTREAM_KEY;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer.UPSTREAM_KEY;
 
 @Slf4j
 public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyzer {

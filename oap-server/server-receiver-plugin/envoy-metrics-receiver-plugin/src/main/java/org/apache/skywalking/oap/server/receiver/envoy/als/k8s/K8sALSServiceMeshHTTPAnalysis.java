@@ -18,9 +18,13 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
-import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
-import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.NON_TLS;
-import static org.apache.skywalking.oap.server.receiver.envoy.als.k8s.Addresses.isValid;
+import io.envoyproxy.envoy.config.core.v3.Address;
+import io.envoyproxy.envoy.config.core.v3.SocketAddress;
+import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
+import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
+import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
@@ -30,13 +34,10 @@ import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
-import io.envoyproxy.envoy.config.core.v3.Address;
-import io.envoyproxy.envoy.config.core.v3.SocketAddress;
-import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
-import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
-import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+
+import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
+import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.k8s.Addresses.isValid;
 
 /**
  * Analysis log based on ingress and mesh scenarios.

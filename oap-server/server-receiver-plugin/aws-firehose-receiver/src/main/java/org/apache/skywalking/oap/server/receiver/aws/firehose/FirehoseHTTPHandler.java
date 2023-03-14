@@ -21,6 +21,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
+import com.linecorp.armeria.server.annotation.Default;
+import com.linecorp.armeria.server.annotation.Header;
 import com.linecorp.armeria.server.annotation.Post;
 import com.linecorp.armeria.server.annotation.ProducesJson;
 import io.opentelemetry.proto.collector.metrics.firehose.v0_7.ExportMetricsServiceRequest;
@@ -28,17 +30,30 @@ import java.io.ByteArrayInputStream;
 import java.util.Base64;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 
 @Slf4j
 @AllArgsConstructor
 public class FirehoseHTTPHandler {
     private final OpenTelemetryMetricRequestProcessor openTelemetryMetricRequestProcessor;
+    private final String firehoseAccessKey;
 
     @Post("/aws/firehose/metrics")
     @ConsumesJson
     @ProducesJson
-    public HttpResponse collectMetrics(final FirehoseReq firehoseReq) {
+    public HttpResponse collectMetrics(final FirehoseReq firehoseReq,
+                                       @Default @Header(value = "X-Amz-Firehose-Access-Key") String accessKey) {
+
+        if (StringUtil.isNotBlank(firehoseAccessKey) && !firehoseAccessKey.equals(accessKey)) {
+            return HttpResponse.ofJson(
+                HttpStatus.UNAUTHORIZED,
+                new FirehoseRes(firehoseReq.getRequestId(), System.currentTimeMillis(),
+                                "AccessKey incorrect, please check your config"
+                )
+            );
+        }
+
         try {
             for (RequestData record : firehoseReq.getRecords()) {
                 final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
