@@ -54,6 +54,9 @@ public class AgentConfigurationsReader {
                 Map configurationsData = (Map) yamlData.get("configurations");
                 if (configurationsData != null) {
                     configurationsData.forEach((k, v) -> {
+                        if (Objects.isNull(k) || Objects.isNull(v)) {
+                            return;
+                        }
                         Map map = (Map) v;
                         StringBuilder serviceConfigStr = new StringBuilder();
                         Map<String, String> config = new HashMap<>(map.size());

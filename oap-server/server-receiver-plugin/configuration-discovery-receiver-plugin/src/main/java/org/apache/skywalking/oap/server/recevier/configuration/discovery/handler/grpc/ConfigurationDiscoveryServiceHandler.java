@@ -65,15 +65,11 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
 
         AgentConfigurations agentConfigurations = agentConfigurationsWatcher.getAgentConfigurations(
             request.getService());
-        AgentConfigurations defaultConfigurations = agentConfigurationsWatcher.getAgentConfigurations("default-config");
         if (null != agentConfigurations) {
-            if (agentConfigurations.isNeedMerge() && null != defaultConfigurations) {
-                agentConfigurations.mergeAgentConfigurations(defaultConfigurations.getConfiguration());
-                agentConfigurations.setNeedMerge(false);
-            }
-            if (disableMessageDigest || !Objects.equals(agentConfigurations.getUuid(), request.getUuid())) {
+            String uuid = agentConfigurations.buildAgentConfigurationsUuid(agentConfigurationsWatcher.getAgentConfigurations("default-config"));
+            if (disableMessageDigest || !Objects.equals(uuid, request.getUuid())) {
                 ConfigurationDiscoveryCommand configurationDiscoveryCommand =
-                    newAgentDynamicConfigCommand(agentConfigurations);
+                    newAgentDynamicConfigCommand(agentConfigurations, uuid);
                 commandsBuilder.addCommands(configurationDiscoveryCommand.serialize().build());
             }
         }
@@ -81,13 +77,14 @@ public class ConfigurationDiscoveryServiceHandler extends ConfigurationDiscovery
         responseObserver.onCompleted();
     }
 
-    public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(AgentConfigurations agentConfigurations) {
+    public ConfigurationDiscoveryCommand newAgentDynamicConfigCommand(AgentConfigurations agentConfigurations, String uuid) {
         List<KeyStringValuePair> configurationList = Lists.newArrayList();
-        agentConfigurations.getConfiguration().forEach((k, v) -> {
-            KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(k).setValue(v);
-            configurationList.add(builder.build());
+        agentConfigurations.buildConfiguration(agentConfigurationsWatcher.getAgentConfigurations("default-config"))
+                .forEachRemaining(entry -> {
+                    KeyStringValuePair.Builder builder = KeyStringValuePair.newBuilder().setKey(entry.getKey()).setValue(entry.getValue());
+                    configurationList.add(builder.build());
         });
         return new ConfigurationDiscoveryCommand(
-            UUID.randomUUID().toString(), agentConfigurations.getUuid(), configurationList);
+            UUID.randomUUID().toString(), uuid, configurationList);
     }
 }

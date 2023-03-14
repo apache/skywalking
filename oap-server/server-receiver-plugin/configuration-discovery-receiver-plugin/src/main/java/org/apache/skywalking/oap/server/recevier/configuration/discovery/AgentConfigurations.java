@@ -18,14 +18,16 @@
 
 package org.apache.skywalking.oap.server.recevier.configuration.discovery;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.common.hash.Hashing;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.logging.log4j.util.Strings;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Dynamic configuration items, save the dynamic configuration of the agent corresponding to the service.
@@ -41,23 +43,31 @@ public class AgentConfigurations {
      */
     private volatile String uuid;
 
-    private volatile boolean needMerge = true;
-
     public AgentConfigurations(final String service, final Map<String, String> configuration, final String uuid) {
         this.service = service;
         this.configuration = configuration;
         this.uuid = uuid;
     }
 
-    public void mergeAgentConfigurations(Map<String, String> config) {
-        if (null != config && !config.isEmpty()) {
-            Map<String, String> mergedConfig = new HashMap<>(this.configuration);
-            config.forEach(mergedConfig::putIfAbsent);
+    public String buildAgentConfigurationsUuid(AgentConfigurations config) {
+        if (null != config && !config.getConfiguration().isEmpty()) {
             StringBuilder serviceConfigStr = new StringBuilder();
-            mergedConfig.forEach((key, value) -> serviceConfigStr.append(key).append(":").append(value));
-            this.setConfiguration(mergedConfig);
-            this.setUuid(Hashing.sha512().hashString(
-                    serviceConfigStr.toString(), StandardCharsets.UTF_8).toString());
+            buildConfiguration(config)
+                    .forEachRemaining(entry -> serviceConfigStr.append(entry.getKey()).append(":").append(entry.getValue()));
+            String configStr = serviceConfigStr.toString();
+            return Strings.isEmpty(configStr) ? Hashing.sha512().hashString(
+                    "EMPTY", StandardCharsets.UTF_8).toString() : Hashing.sha512().hashString(
+                    serviceConfigStr.toString(), StandardCharsets.UTF_8).toString();
         }
+        return this.uuid;
+    }
+
+    public Iterator<Map.Entry<String, String>> buildConfiguration(AgentConfigurations config) {
+        if (null != config && !config.getConfiguration().isEmpty()) {
+            return Stream.concat(this.configuration.entrySet().stream(),
+                    config.getConfiguration().entrySet().stream()
+                            .filter(entry -> !configuration.containsKey(entry.getKey()))).iterator();
+        }
+        return this.configuration.entrySet().iterator();
     }
 }
