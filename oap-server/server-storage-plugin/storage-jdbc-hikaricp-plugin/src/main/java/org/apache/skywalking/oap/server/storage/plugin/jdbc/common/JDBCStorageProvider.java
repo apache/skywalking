@@ -87,7 +87,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 public abstract class JDBCStorageProvider extends ModuleProvider {
     protected JDBCStorageConfig config;
     protected JDBCClient jdbcClient;
-    protected ModelInstaller modelInstaller;
+    protected JDBCTableInstaller modelInstaller;
     protected TableHelper tableHelper;
 
     /**
@@ -119,7 +119,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         jdbcClient = new JDBCClient(config.getProperties());
-        modelInstaller = createModelInstaller();
+        modelInstaller = (JDBCTableInstaller) createModelInstaller();
         tableHelper = new TableHelper(getManager(), jdbcClient);
 
         this.registerServiceImplementation(

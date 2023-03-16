@@ -138,7 +138,7 @@ public class JDBCSQLExecutor {
                                                                     long timeBucket,
                                                                     Map<String, Object> objectMap,
                                                                     SessionCacheCallback onCompleteCallback) {
-        final var table = TableHelper.getTable(model.getName(), timeBucket);
+        final var table = TableHelper.getTable(model, timeBucket);
         final var sqlBuilder = new SQLBuilder("INSERT INTO " + table);
         final var columns = model.getColumns();
         final var columnNames =
@@ -228,7 +228,7 @@ public class JDBCSQLExecutor {
         final var toStorage = new HashMapConverter.ToStorage();
         storageBuilder.entity2Storage(metrics, toStorage);
         final var objectMap = toStorage.obtain();
-        final var table = TableHelper.getTable(model.getName(), timeBucket);
+        final var table = TableHelper.getTable(model, timeBucket);
         final var sqlBuilder = new StringBuilder("UPDATE " + table + " SET ");
         final var columns = model.getColumns();
         final var queries = new ArrayList<String>();

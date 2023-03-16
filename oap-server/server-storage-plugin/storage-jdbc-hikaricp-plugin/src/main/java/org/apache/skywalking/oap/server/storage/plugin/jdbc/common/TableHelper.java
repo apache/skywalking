@@ -64,8 +64,7 @@ public class TableHelper {
         return tableName + Const.UNDERSCORE + dayTimeBucket;
     }
 
-    public static String getTable(String modelName, long timeBucket) {
-        final var model = TableMetaInfo.get(modelName);
+    public static String getTable(Model model, long timeBucket) {
         final var tableName = getTableName(model);
         if (timeBucket == 0) {
             timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);

@@ -11,6 +11,7 @@
 * Support to bind TLS status as a part of component for service topology.
 * Fix component ID priority bug.
 * Fix component ID of topology overlap due to storage layer bugs.
+* [Breaking Change] Enhance JDBC storage through merging table and managing day-based table rolling.
 
 #### Documentation
 

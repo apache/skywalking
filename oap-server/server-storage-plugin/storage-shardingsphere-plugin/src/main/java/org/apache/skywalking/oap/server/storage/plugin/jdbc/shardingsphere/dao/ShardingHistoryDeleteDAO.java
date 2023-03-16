@@ -21,9 +21,9 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.dao;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCHistoryDeleteDAO;
 
@@ -38,12 +38,12 @@ public class ShardingHistoryDeleteDAO extends JDBCHistoryDeleteDAO {
     private final ModuleManager manager;
     private final Set<String> dataSources;
     private final Map<String, Long> tableLatestSuccess;
-    private final ModelInstaller modelInstaller;
+    private final JDBCTableInstaller modelInstaller;
 
     public ShardingHistoryDeleteDAO(JDBCClient client,
                                     Set<String> dataSources,
                                     ModuleManager manager,
-                                    ModelInstaller modelInstaller,
+                                    JDBCTableInstaller modelInstaller,
                                     TableHelper tableHelper) {
         super(client, tableHelper, modelInstaller);
         this.client = client;

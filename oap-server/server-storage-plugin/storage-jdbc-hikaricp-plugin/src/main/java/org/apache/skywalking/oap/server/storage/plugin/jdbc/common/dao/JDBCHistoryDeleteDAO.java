@@ -21,32 +21,36 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.joda.time.DateTime;
 
 import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
-    private final ModelInstaller modelInstaller;
+    private final JDBCTableInstaller modelInstaller;
+
+    private final Map<Pair<Model, String>, Boolean> tableExistenceCache = new ConcurrentHashMap<>();
 
     @Override
     @SneakyThrows
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
-        // TODO delete old and create new tables
         final var endTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
         final var startTimeBucket = endTimeBucket - ttl;
-
         log.info(
             "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
             ttl,
@@ -59,7 +63,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         final var tablesToDrop = new HashSet<String>();
 
         try (final var conn = jdbcClient.getConnection();
-             final var result = conn.getMetaData().getTables(null, null, TableHelper.getTableName(model) + "%", new String[] {"TABLE"})) {
+             final var result = conn.getMetaData().getTables(null, null, TableHelper.getTableName(model) + "%", new String[]{"TABLE"})) {
             while (result.next()) {
                 tablesToDrop.add(result.getString("TABLE_NAME"));
             }
@@ -103,7 +107,11 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
                 .append(timeBucketColumnName).append(">= ? ");
             jdbcClient.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime);
         }
-        
-        modelInstaller.createTable(model);
+
+        final var table = TableHelper.getTable(model, TimeBucket.getTimeBucket(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day));
+        if (tableExistenceCache.get(Pair.of(model, table)) != Boolean.TRUE) {
+            modelInstaller.createTable(model, table);
+            tableExistenceCache.put(Pair.of(model, table), true);
+        }
     }
 }

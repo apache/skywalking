@@ -45,15 +45,10 @@ public class Model {
     private final BanyanDBModelExtension banyanDBModelExtension;
     private final ElasticSearchModelExtension elasticSearchModelExtension;
 
-    public boolean isTimeSeries() {
-        return !DownSampling.None.equals(downsampling);
-    }
-
-    public boolean isMetric() {
-        return Metrics.class.isAssignableFrom(getStreamClass());
-    }
-
-    public boolean isRecord() {
-        return Record.class.isAssignableFrom(getStreamClass());
-    }
+    @Getter(lazy = true)
+    private final boolean isMetric = Metrics.class.isAssignableFrom(getStreamClass());
+    @Getter(lazy = true)
+    private final boolean isRecord = Record.class.isAssignableFrom(getStreamClass());
+    @Getter(lazy = true)
+    private final boolean isTimeSeries = !DownSampling.None.equals(getDownsampling());
 }

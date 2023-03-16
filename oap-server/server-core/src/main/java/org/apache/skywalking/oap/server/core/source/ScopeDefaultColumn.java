@@ -61,7 +61,7 @@ public class ScopeDefaultColumn {
         /**
          * Define column length, only effective when the type is String.
          */
-        int length() default 200;
+        int length() default 256;
     }
 
     @Target({ElementType.TYPE})

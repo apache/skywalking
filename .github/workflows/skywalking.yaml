@@ -318,8 +318,8 @@ jobs:
       fail-fast: false
       matrix:
         test:
-#          - name: Cluster ZK/ES
-#            config: test/e2e-v2/cases/cluster/zk/es/e2e.yaml
+          - name: Cluster ZK/ES
+            config: test/e2e-v2/cases/cluster/zk/es/e2e.yaml
 
           - name: Agent NodeJS Backend
             config: test/e2e-v2/cases/nodejs/e2e.yaml
@@ -327,10 +327,10 @@ jobs:
             config: test/e2e-v2/cases/go/e2e.yaml
           - name: Agent NodeJS Frontend
             config: test/e2e-v2/cases/browser/e2e.yaml
-#          - name: Agent NodeJS Frontend ES
-#            config: test/e2e-v2/cases/browser/es/e2e.yaml
-#          - name: Agent NodeJS Frontend ES Sharding
-#            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
+          - name: Agent NodeJS Frontend ES
+            config: test/e2e-v2/cases/browser/es/e2e.yaml
+          - name: Agent NodeJS Frontend ES Sharding
+            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
           - name: Agent PHP
             config: test/e2e-v2/cases/php/e2e.yaml
           - name: Agent Python
@@ -338,8 +338,8 @@ jobs:
           - name: Agent Lua
             config: test/e2e-v2/cases/lua/e2e.yaml
 
-#          - name: BanyanDB
-#            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
+          - name: BanyanDB
+            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: Storage H2
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
@@ -348,73 +348,69 @@ jobs:
             config: test/e2e-v2/cases/storage/tidb/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
-#          - name: Storage ES 6.3.2
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=6.3.2
-#          - name: Storage ES 7.0.0
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=7.0.0
-#          - name: Storage ES 7.8.0
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=7.8.0
-#          - name: Storage ES 7.10.1
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=7.10.1
-#          - name: Storage ES 7.14.0
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=7.14.0
-#          - name: Storage ES 7.15.0
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=7.15.0
-#          - name: Storage ES 8.0.0
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=8.0.0
-#          - name: Storage ES 8.1.0
-#            config: test/e2e-v2/cases/storage/es/e2e.yaml
-#            env: ES_VERSION=8.1.0
-#          - name: Storage OpenSearch 1.1.0
-#            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.1.0
-#          - name: Storage OpenSearch 1.3.6
-#            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.3.6
-#          - name: Storage OpenSearch 2.4.0
-#            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=2.4.0
-#          - name: Storage ES Sharding
-#            config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
+          - name: Storage ES 6.3.2
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=6.3.2
+          - name: Storage ES 7.0.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.0.0
+          - name: Storage ES 7.8.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.8.0
+          - name: Storage ES 7.10.1
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.10.1
+          - name: Storage ES 7.14.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.14.0
+          - name: Storage ES 7.15.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=7.15.0
+          - name: Storage ES 8.0.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=8.0.0
+          - name: Storage ES 8.1.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=8.1.0
+          - name: Storage OpenSearch 1.1.0
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Storage OpenSearch 1.3.6
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Storage OpenSearch 2.4.0
+            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+          - name: Storage ES Sharding
+            config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
 
           - name: Alarm H2
             config: test/e2e-v2/cases/alarm/h2/e2e.yaml
-#          - name: Alarm ES
-#            config: test/e2e-v2/cases/alarm/es/e2e.yaml
-#          - name: Alarm ES Sharding
-#            config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
+          - name: Alarm ES
+            config: test/e2e-v2/cases/alarm/es/e2e.yaml
+          - name: Alarm ES Sharding
+            config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
           - name: Alarm MySQL
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
 
-          - name: TTL TiDB
-            config: test/e2e-v2/cases/ttl/tidb/e2e.yaml
-          - name: TTL PostgreSQL
-            config: test/e2e-v2/cases/ttl/postgresql/e2e.yaml
-#          - name: TTL ES 6.3.2
-#            config: test/e2e-v2/cases/ttl/es/e2e.yaml
-#            env: ES_VERSION=6.3.2
-#          - name: TTL ES 7.15.0
-#            config: test/e2e-v2/cases/ttl/es/e2e.yaml
-#            env: ES_VERSION=7.15.0
-#          - name: TTL ES 8.0.0
-#            config: test/e2e-v2/cases/ttl/es/e2e.yaml
-#            env: ES_VERSION=8.0.0
+          - name: TTL ES 6.3.2
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=6.3.2
+          - name: TTL ES 7.15.0
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=7.15.0
+          - name: TTL ES 8.0.0
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=8.0.0
 
-#          - name: Event BanyanDB
-#            config: test/e2e-v2/cases/event/banyandb/e2e.yaml
+          - name: Event BanyanDB
+            config: test/e2e-v2/cases/event/banyandb/e2e.yaml
           - name: Event H2
             config: test/e2e-v2/cases/event/h2/e2e.yaml
-#          - name: Event ES
-#            config: test/e2e-v2/cases/event/es/e2e.yaml
+          - name: Event ES
+            config: test/e2e-v2/cases/event/es/e2e.yaml
           - name: Event MySQL
             config: test/e2e-v2/cases/event/mysql/e2e.yaml
 
@@ -424,97 +420,97 @@ jobs:
             config: test/e2e-v2/cases/log/mysql/e2e.yaml
           - name: Log PostgreSQL
             config: test/e2e-v2/cases/log/postgres/e2e.yaml
-#          - name: Log ES 6.3.2
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=6.3.2
-#          - name: Log ES 7.0.0
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=7.0.0
-#          - name: Log ES 7.8.0
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=7.8.0
-#          - name: Log ES 7.10.1
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=7.10.1
-#          - name: Log ES 7.14.0
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=7.14.0
-#          - name: Log ES 7.15.0
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=7.15.0
-#          - name: Log ES 8.0.0
-#            config: test/e2e-v2/cases/log/es/e2e.yaml
-#            env: ES_VERSION=8.0.0
-#          - name: Log ES 8.0.0 Shardng
-#            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
-#            env: ES_VERSION=8.0.0
-#
-#          - name: Log FluentBit ES 6.3.2
-#            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-#            env: ES_VERSION=6.3.2
-#          - name: Log FluentBit ES 7.0.0
-#            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-#            env: ES_VERSION=7.0.0
-#          - name: Log FluentBit ES 7.8.0
-#            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-#            env: ES_VERSION=7.8.0
-#          - name: Log FluentBit ES 7.10.1
-#            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-#            env: ES_VERSION=7.10.1
-#          - name: Log FluentBit ES 7.14.0
-#            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-#            env: ES_VERSION=7.14.0
-#          - name: Log FluentBit ES 7.15.0
-#            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-#            env: ES_VERSION=7.15.0
+          - name: Log ES 6.3.2
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=6.3.2
+          - name: Log ES 7.0.0
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.0.0
+          - name: Log ES 7.8.0
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.8.0
+          - name: Log ES 7.10.1
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.10.1
+          - name: Log ES 7.14.0
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.14.0
+          - name: Log ES 7.15.0
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=7.15.0
+          - name: Log ES 8.0.0
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=8.0.0
+          - name: Log ES 8.0.0 Shardng
+            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.0.0
 
-#          - name: Trace Profiling BanyanDB
-#            config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
+          - name: Log FluentBit ES 6.3.2
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=6.3.2
+          - name: Log FluentBit ES 7.0.0
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.0.0
+          - name: Log FluentBit ES 7.8.0
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.8.0
+          - name: Log FluentBit ES 7.10.1
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.10.1
+          - name: Log FluentBit ES 7.14.0
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.14.0
+          - name: Log FluentBit ES 7.15.0
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=7.15.0
+
+          - name: Trace Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
           - name: Trace Profiling H2
             config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
-#          - name: Trace Profiling ES
-#            config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
-#          - name: Trace Profiling ES Sharding
-#            config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
+          - name: Trace Profiling ES
+            config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
+          - name: Trace Profiling ES Sharding
+            config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
           - name: Trace Profiling MySQL
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
             config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
           - name: Trace Profiling TiDB
             config: test/e2e-v2/cases/profiling/trace/tidb/e2e.yaml
-#          - name: Trace Profiling OpenSearch 1.1.0
-#            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.1.0
-#          - name: Trace Profiling OpenSearch 1.3.6
-#            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.3.6
-#          - name: Trace Profiling OpenSearch 2.4.0
-#            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=2.4.0
+          - name: Trace Profiling OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Trace Profiling OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Trace Profiling OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
 
-#          - name: eBPF Profiling On CPU BanyanDB
-#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
+          - name: eBPF Profiling On CPU BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
           - name: eBPF Profiling On CPU H2
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/h2/e2e.yaml
-#          - name: eBPF Profiling On CPU ES
-#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
-#          - name: eBPF Profiling On CPU ES
-#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
+          - name: eBPF Profiling On CPU ES
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
+          - name: eBPF Profiling On CPU ES
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
           - name: eBPF Profiling On CPU MySQL
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
           - name: eBPF Profiling On CPU Postgres
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
           - name: eBPF Profiling On CPU TiDB
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/tidb/e2e.yaml
-#          - name: eBPF Profiling On CPU OpenSearch 1.1.0
-#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.1.0
-#          - name: eBPF Profiling On CPU OpenSearch 1.3.6
-#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.3.6
-#          - name: eBPF Profiling On CPU OpenSearch 2.4.0
-#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=2.4.0
+          - name: eBPF Profiling On CPU OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: eBPF Profiling On CPU OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: eBPF Profiling On CPU OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
           - name: eBPF Profiling Off CPU
             config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
             runs-on: ubuntu-20.04
@@ -532,15 +528,15 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
           - name: eBPF Profiling Network TiDB
             config: test/e2e-v2/cases/profiling/ebpf/network/tidb/e2e.yaml
-#          - name: eBPF Profiling Network OpenSearch 1.1.0
-#            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.1.0
-#          - name: eBPF Profiling Network OpenSearch 1.3.6
-#            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=1.3.6
-#          - name: eBPF Profiling Network OpenSearch 2.4.0
-#            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-#            env: OPENSEARCH_VERSION=2.4.0
+          - name: eBPF Profiling Network OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: eBPF Profiling Network OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: eBPF Profiling Network OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
@@ -551,56 +547,56 @@ jobs:
           - name: Kafka Log
             config: test/e2e-v2/cases/kafka/log/e2e.yaml
 
-#          - name: Istio Metrics Service 1.8.2
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.8.2
-#              KUBERNETES_VERSION=19
-#          - name: Istio Metrics Service 1.9.1
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.9.1
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.10.3
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.10.3
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.11.4
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.11.4
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.12.0
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.12.0
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.13.1
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.13.1
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.14.4
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.14.4
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.15.0
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.15.0
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.16.0
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.16.0
-#              KUBERNETES_VERSION=20
-#          - name: Istio Metrics Service 1.17.0
-#            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-#            env: |
-#              ISTIO_VERSION=1.17.0
-#              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.8.2
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.8.2
+              KUBERNETES_VERSION=19
+          - name: Istio Metrics Service 1.9.1
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.9.1
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.10.3
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.10.3
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.11.4
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.11.4
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.12.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.12.0
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.13.1
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.13.1
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.14.4
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.14.4
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.15.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.15.0
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.16.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.16.0
+              KUBERNETES_VERSION=20
+          - name: Istio Metrics Service 1.17.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.17.0
+              KUBERNETES_VERSION=20
 
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
@@ -640,16 +636,16 @@ jobs:
 #            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
           - name: Zipkin MySQL
             config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
-#          - name: Zipkin Opensearch
-#            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
+          - name: Zipkin Opensearch
+            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
           - name: Zipkin H2
             config: test/e2e-v2/cases/zipkin/h2/e2e.yaml
           - name: Zipkin Postgres
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
             config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
-#          - name: Zipkin BanyanDB
-#            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
+          - name: Zipkin BanyanDB
+            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
 
           - name: MySQL-Sharding storage
             config: test/e2e-v2/cases/storage/mysql/sharding/e2e.yaml
@@ -701,61 +697,61 @@ jobs:
           name: logs
           path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
-#  e2e-test-istio:
-#    if: |
-#      ( always() && ! cancelled() ) &&
-#      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-#    name: E2E test
-#    needs: [docker]
-#    runs-on: ubuntu-20.04
-#    timeout-minutes: 60
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        analyzer: [k8s-mesh, mx-mesh]
-#        versions:
-#          - istio: 1.7.1
-#            kubernetes: 18
-#          - istio: 1.8.2
-#            kubernetes: 19
-#          - istio: 1.9.1
-#            kubernetes: 19
-#          - istio: 1.10.3
-#            kubernetes: 19
-#          - istio: 1.11.4
-#            kubernetes: 19
-#          - istio: 1.12.0
-#            kubernetes: 19
-#          - istio: 1.13.1
-#            kubernetes: 20
-#          - istio: 1.14.4
-#            kubernetes: 20
-#          - istio: 1.15.0
-#            kubernetes: 20
-#          - istio: 1.16.0
-#            kubernetes: 20
-#          - istio: 1.17.0
-#            kubernetes: 20
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#      - uses: actions/download-artifact@v3
-#        name: Download docker images
-#        with:
-#          name: docker-images-11
-#          path: docker-images
-#      - name: Load docker images
-#        run: find docker-images -name "*.tar" -exec docker load -i {} \;
-#      - name: ${{ matrix.test.name }}
-#        uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
-#        env:
-#          ISTIO_VERSION: ${{ matrix.versions.istio }}
-#          KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
-#          ALS_ANALYZER: ${{ matrix.analyzer }}
-#        with:
-#          e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
+  e2e-test-istio:
+    if: |
+      ( always() && ! cancelled() ) &&
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
+    name: E2E test
+    needs: [docker]
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        analyzer: [k8s-mesh, mx-mesh]
+        versions:
+          - istio: 1.7.1
+            kubernetes: 18
+          - istio: 1.8.2
+            kubernetes: 19
+          - istio: 1.9.1
+            kubernetes: 19
+          - istio: 1.10.3
+            kubernetes: 19
+          - istio: 1.11.4
+            kubernetes: 19
+          - istio: 1.12.0
+            kubernetes: 19
+          - istio: 1.13.1
+            kubernetes: 20
+          - istio: 1.14.4
+            kubernetes: 20
+          - istio: 1.15.0
+            kubernetes: 20
+          - istio: 1.16.0
+            kubernetes: 20
+          - istio: 1.17.0
+            kubernetes: 20
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v3
+        name: Download docker images
+        with:
+          name: docker-images-11
+          path: docker-images
+      - name: Load docker images
+        run: find docker-images -name "*.tar" -exec docker load -i {} \;
+      - name: ${{ matrix.test.name }}
+        uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
+        env:
+          ISTIO_VERSION: ${{ matrix.versions.istio }}
+          KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
+          ALS_ANALYZER: ${{ matrix.analyzer }}
+        with:
+          e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
 
   e2e-test-java-versions:
     if: |
@@ -794,43 +790,43 @@ jobs:
         with:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/simple/jdk/e2e.yaml
 
-#  required:
-#    if: always()
-#    name: Required
-#    needs:
-#      - dependency-license
-#      - unit-test
-#      - integration-test
-#      - slow-integration-test
-#      - e2e-test
-#      - e2e-test-istio
-#      - e2e-test-java-versions
-#    runs-on: ubuntu-latest
-#    timeout-minutes: 10
-#    steps:
-#      - name: Merge Requirement
-#        # check changes, sanity, dependency license, unit, integration, e2e, e2e-istio and e2e-java-versions,
-#        # if all of them are working as expected then naturally exits else return error code
-#        run: |
-#          execute=${{ needs.changes.outputs.oap }}
-#
-#          sanityResults=${{ needs.dependency-license.result }}
-#          [[ ${sanityResults} == 'success' ]] || [[ ${execute} != 'true' && ${sanityResults} == 'skipped' ]] || exit -1;
-#
-#          depLicenseResults=${{ needs.dependency-license.result }}
-#          unitResults=${{ needs.unit-test.result }};
-#          integrationResults=${{ needs.integration-test.result }};
-#          timeConsumingITResults=${{ needs.slow-integration-test.result }};
-#          e2eResults=${{ needs.e2e-test.result }};
-#          e2eIstioResults=${{ needs.e2e-test-istio.result }};
-#          e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
-#
-#          [[ ${depLicenseResults} == 'success' ]] || [[ ${execute} != 'true' && ${depLicenseResults} == 'skipped' ]] || exit -2;
-#          [[ ${unitResults} == 'success' ]] || [[ ${execute} != 'true' && ${unitResults} == 'skipped' ]] || exit -3;
-#          [[ ${integrationResults} == 'success' ]] || [[ ${execute} != 'true' && ${integrationResults} == 'skipped' ]] || exit -4;
-#          [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
-#          [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
-#          [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
-#          [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
-#
-#          exit 0;
+  required:
+    if: always()
+    name: Required
+    needs:
+      - dependency-license
+      - unit-test
+      - integration-test
+      - slow-integration-test
+      - e2e-test
+      - e2e-test-istio
+      - e2e-test-java-versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Merge Requirement
+        # check changes, sanity, dependency license, unit, integration, e2e, e2e-istio and e2e-java-versions,
+        # if all of them are working as expected then naturally exits else return error code
+        run: |
+          execute=${{ needs.changes.outputs.oap }}
+
+          sanityResults=${{ needs.dependency-license.result }}
+          [[ ${sanityResults} == 'success' ]] || [[ ${execute} != 'true' && ${sanityResults} == 'skipped' ]] || exit -1;
+
+          depLicenseResults=${{ needs.dependency-license.result }}
+          unitResults=${{ needs.unit-test.result }};
+          integrationResults=${{ needs.integration-test.result }};
+          timeConsumingITResults=${{ needs.slow-integration-test.result }};
+          e2eResults=${{ needs.e2e-test.result }};
+          e2eIstioResults=${{ needs.e2e-test-istio.result }};
+          e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
+
+          [[ ${depLicenseResults} == 'success' ]] || [[ ${execute} != 'true' && ${depLicenseResults} == 'skipped' ]] || exit -2;
+          [[ ${unitResults} == 'success' ]] || [[ ${execute} != 'true' && ${unitResults} == 'skipped' ]] || exit -3;
+          [[ ${integrationResults} == 'success' ]] || [[ ${execute} != 'true' && ${integrationResults} == 'skipped' ]] || exit -4;
+          [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
+          [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
+          [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
+          [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
+
+          exit 0;

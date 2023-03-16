@@ -86,7 +86,11 @@ public class JDBCTableInstaller extends ModelInstaller {
     @SneakyThrows
     public void createTable(Model model) {
         final var table = TableHelper.getTableForWrite(model);
+        createTable(model, table);
+    }
 
+    @SneakyThrows
+    public void createTable(Model model, String table) {
         createOrUpdateTable(table, model.getColumns(), false);
         createOrUpdateTableIndexes(table, model.getColumns(), false);
         createAdditionalTable(model);
@@ -207,7 +211,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         c.execute(sql.toString());
     }
 
-    private void createAdditionalTable(Model model) throws SQLException {
+    public void createAdditionalTable(Model model) throws SQLException {
         final var additionalTables = model.getSqlDBModelExtension().getAdditionalTables();
         for (final var table : additionalTables.values()) {
             final var tableName = table.getName();
