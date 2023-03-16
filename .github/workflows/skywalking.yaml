@@ -344,8 +344,6 @@ jobs:
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
-          - name: Storage TiDB
-            config: test/e2e-v2/cases/storage/tidb/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
           - name: Storage ES 6.3.2
@@ -476,8 +474,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
             config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
-          - name: Trace Profiling TiDB
-            config: test/e2e-v2/cases/profiling/trace/tidb/e2e.yaml
           - name: Trace Profiling OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -500,8 +496,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
           - name: eBPF Profiling On CPU Postgres
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
-          - name: eBPF Profiling On CPU TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/tidb/e2e.yaml
           - name: eBPF Profiling On CPU OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -526,8 +520,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
           - name: eBPF Profiling Network Postgres
             config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
-          - name: eBPF Profiling Network TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/network/tidb/e2e.yaml
           - name: eBPF Profiling Network OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
