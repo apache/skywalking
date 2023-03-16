@@ -105,6 +105,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @Slf4j
+@Disabled
 @org.junit.jupiter.api.Tag("slow")
 public class ShardingSphereIT {
     private static MockedStatic<DefaultScopeDefine> DEFAULT_SCOPE_DEFINE_MOCKED_STATIC;

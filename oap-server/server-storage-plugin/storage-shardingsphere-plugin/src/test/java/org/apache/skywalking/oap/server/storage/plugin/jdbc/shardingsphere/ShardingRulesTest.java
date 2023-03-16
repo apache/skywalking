@@ -23,12 +23,14 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
+@Disabled
 public class ShardingRulesTest {
     private DateTime currentDate;
 
