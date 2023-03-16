@@ -96,13 +96,13 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return topNList;
     }
 
-    private long extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) {
+    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
         if (double.class.equals(spec.getColumnClass())) {
-            return ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName)).longValue();
+            return String.valueOf(ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName)).longValue());
         } else if (String.class.equals(spec.getColumnClass())) {
             return dataPoint.getFieldValue(fieldName);
         } else {
-            return ((Number) dataPoint.getFieldValue(fieldName)).longValue();
+            return String.valueOf(((Number) dataPoint.getFieldValue(fieldName)).longValue());
         }
     }
 }

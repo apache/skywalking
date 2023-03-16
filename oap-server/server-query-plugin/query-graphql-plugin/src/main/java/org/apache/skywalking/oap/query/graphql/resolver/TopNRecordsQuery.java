@@ -58,7 +58,7 @@ public class TopNRecordsQuery implements GraphQLQueryResolver {
             TopNRecord top = new TopNRecord();
             top.setStatement(record.getName());
             top.setTraceId(record.getRefId());
-            top.setLatency(record.getValue());
+            top.setLatency(Long.parseLong(record.getValue()));
             list.add(top);
         });
         return list;

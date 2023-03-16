@@ -35,7 +35,7 @@ public class Record {
     /**
      * Usually an integer value as this is a metric to measure this entity ID.
      */
-    private long value;
+    private String value;
     /**
      * Have value, Only if the record has related trace id.
      * UI should show this as an attached value.

@@ -63,7 +63,7 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
                         final String refId = resultSet.getString(TopN.TRACE_ID);
                         record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
                         record.setId(record.getRefId());
-                        record.setValue(resultSet.getInt(valueColumnName));
+                        record.setValue(String.valueOf(resultSet.getInt(valueColumnName)));
                         results.add(record);
                     }
                     return null;

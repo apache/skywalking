@@ -38,7 +38,7 @@ public class SelectedRecord {
     /**
      * Usually an integer value as this is metrics.
      */
-    private long value;
+    private String value;
     /**
      * Have value, Only if the record has related trace id. UI should show this as an attached value.
      */

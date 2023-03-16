@@ -125,7 +125,7 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             SelectedRecord record = new SelectedRecord();
             record.setId((String) termsBucket.get("key"));
             Map<String, Object> value = (Map<String, Object>) termsBucket.get(realValueColumn);
-            record.setValue(((Number) value.get("value")).longValue());
+            record.setValue(String.valueOf(((Number) value.get("value")).longValue()));
             topNList.add(record);
         }
 

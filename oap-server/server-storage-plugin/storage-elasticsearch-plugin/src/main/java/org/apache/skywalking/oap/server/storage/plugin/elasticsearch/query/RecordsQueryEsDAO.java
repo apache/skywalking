@@ -83,7 +83,7 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
             final String refId = (String) sourceAsMap.get(TopN.TRACE_ID);
             record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
             record.setId(record.getRefId());
-            record.setValue(Integer.parseInt(sourceAsMap.getOrDefault(valueColumnName, "0").toString()));
+            record.setValue(sourceAsMap.getOrDefault(valueColumnName, "0").toString());
             results.add(record);
         }
 

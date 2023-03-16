@@ -62,7 +62,7 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
                 while (resultSet.next()) {
                     final var topNEntity = new SelectedRecord();
                     topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                    topNEntity.setValue(resultSet.getInt("result"));
+                    topNEntity.setValue(String.valueOf(resultSet.getInt("result")));
                     results.add(topNEntity);
                 }
                 return null;
@@ -71,8 +71,8 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
 
         final var comparator =
             Order.ASC.equals(metrics.getOrder()) ?
-                comparing(SelectedRecord::getValue) :
-                comparing(SelectedRecord::getValue).reversed();
+                comparing((SelectedRecord it) -> Long.parseLong(it.getValue())) :
+                comparing((SelectedRecord it) -> Long.parseLong(it.getValue())).reversed();
         return results
             .stream()
             .collect(groupingBy(SelectedRecord::getId))
@@ -80,9 +80,9 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
             .stream()
             .map(entry -> {
                 final var selectedRecord = new SelectedRecord();
-                final var average = (int) entry.getValue().stream().mapToLong(SelectedRecord::getValue).average().orElse(0);
+                final var average = (int) entry.getValue().stream().map(SelectedRecord::getValue).mapToLong(Long::parseLong).average().orElse(0);
                 selectedRecord.setId(entry.getKey());
-                selectedRecord.setValue(average);
+                selectedRecord.setValue(String.valueOf(average));
                 return selectedRecord;
             })
             .sorted(comparator)
