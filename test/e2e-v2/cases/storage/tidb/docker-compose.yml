@@ -36,7 +36,7 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
-      SW_STORAGE: tidb
+      SW_STORAGE: mysql
       SW_JDBC_URL: "jdbc:mysql://tidb:4000/test?allowMultiQueries=true"
       SW_DATA_SOURCE_PASSWORD: ""
     ports:

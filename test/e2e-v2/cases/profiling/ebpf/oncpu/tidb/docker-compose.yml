@@ -38,7 +38,7 @@ services:
     networks:
       - e2e
     environment:
-      SW_STORAGE: tidb
+      SW_STORAGE: mysql
       SW_JDBC_URL: "jdbc:mysql://tidb:4000/test?allowMultiQueries=true"
       SW_DATA_SOURCE_PASSWORD: ""
     entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
