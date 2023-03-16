@@ -47,7 +47,7 @@ public class TimeSeriesUtilsTest {
                                       new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
         normalRecordModel = new Model("normalRecordModel", Lists.newArrayList(),
-                                      0, DownSampling.Second, true, Record.class, true,
+                                      0, DownSampling.Second, false, Record.class, true,
                                       new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
         normalMetricsModel = new Model("normalMetricsModel", Lists.newArrayList(),
