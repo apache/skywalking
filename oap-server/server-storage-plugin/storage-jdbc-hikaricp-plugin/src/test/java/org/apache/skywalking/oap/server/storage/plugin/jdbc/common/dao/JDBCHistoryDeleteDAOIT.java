@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
 
 @Testcontainers
 @ExtendWith(MockitoExtension.class)
-class JDBCHistoryDeleteDAOTest {
+class JDBCHistoryDeleteDAOIT {
     @Container
     private final PostgreSQLContainer<?> psqlContainer = new PostgreSQLContainer<>("postgres:13")
         .withDatabaseName("skywalking")
