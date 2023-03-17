@@ -283,8 +283,6 @@ jobs:
     strategy:
       matrix:
         test:
-          - name: ShardingSphere
-            class: org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingSphereIT
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:

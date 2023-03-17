@@ -197,11 +197,6 @@
             <artifactId>storage-banyandb-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>storage-shardingsphere-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- storage module -->
 
         <!-- queryBuild module -->

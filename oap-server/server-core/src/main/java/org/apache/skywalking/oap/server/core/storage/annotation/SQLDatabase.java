@@ -100,7 +100,7 @@ public @interface SQLDatabase {
      * <p>
      * <ul>
      * <li>If no tags condition, only query segment table, the SQL should be: select
-     * column1, column2 ... from segment where 1=1 and colunm1=xx ...
+     * column1, column2 ... from segment where 1=1 and column1=xx ...
      *
      * <li> If 1 tag condition, query both segment and segment_tag tables, the SQL should be: select column1, column2 ...
      * from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id where 1=1 and colunm1=xx ... and
@@ -108,7 +108,7 @@ public @interface SQLDatabase {
      *
      * <li> If 2 or more tags condition, query both segment and segment_tag tables, the SQL should be: select column1,
      * column2 ... from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id inner join segment_tag
-     * segment_tag1 on segment.id=segment_tag1.id ... where 1=1 and colunm1=xx ... and segment_tag0=tagString0 and
+     * segment_tag1 on segment.id=segment_tag1.id ... where 1=1 and column1=xx ... and segment_tag0=tagString0 and
      * segment_tag1=tagString1 ...
      * </ul>
      */

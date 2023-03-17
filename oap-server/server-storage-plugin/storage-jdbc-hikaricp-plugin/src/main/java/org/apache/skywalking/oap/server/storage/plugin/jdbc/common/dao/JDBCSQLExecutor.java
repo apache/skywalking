@@ -124,7 +124,8 @@ public class JDBCSQLExecutor {
             });
 
             List<SQLExecutor> additionalSQLExecutors = buildAdditionalInsertExecutor(
-                model, additionalTable.getName(), additionalTable.getColumns(), metrics, additionalEntity, callback
+                model, additionalTable.getName(), additionalTable.getColumns(), metrics,
+                timeBucket, additionalEntity, callback
             );
             sqlExecutor.appendAdditionalSQLs(additionalSQLExecutors);
         }
@@ -173,11 +174,14 @@ public class JDBCSQLExecutor {
     private <T extends StorageData> List<SQLExecutor> buildAdditionalInsertExecutor(Model model, String tableName,
                                                                                     List<ModelColumn> columns,
                                                                                     T metrics,
+                                                                                    long timeBucket,
                                                                                     Map<String, Object> objectMap,
                                                                                     SessionCacheCallback callback) {
 
         List<SQLExecutor> sqlExecutors = new ArrayList<>();
-        SQLBuilder sqlBuilder = new SQLBuilder("INSERT INTO " + tableName + " VALUES");
+        final var sqlBuilder = new SQLBuilder("INSERT INTO ")
+            .append(TableHelper.getTable(tableName, timeBucket))
+            .append(" VALUES ");
         List<Object> param = new ArrayList<>();
         sqlBuilder.append("(?,");
         param.add(TableHelper.generateId(model, metrics.id().build()));

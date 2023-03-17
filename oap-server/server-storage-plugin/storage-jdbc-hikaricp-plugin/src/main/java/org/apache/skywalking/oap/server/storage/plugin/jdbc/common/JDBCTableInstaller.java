@@ -65,7 +65,7 @@ public class JDBCTableInstaller extends ModelInstaller {
     public boolean isExists(Model model) {
         TableMetaInfo.addModel(model);
 
-        final var table = TableHelper.getTableForWrite(model);
+        final var table = TableHelper.getLatestTableForWrite(model);
 
         if (!isTableExisted(table)) {
             return false;
@@ -85,7 +85,7 @@ public class JDBCTableInstaller extends ModelInstaller {
     @Override
     @SneakyThrows
     public void createTable(Model model) {
-        final var table = TableHelper.getTableForWrite(model);
+        final var table = TableHelper.getLatestTableForWrite(model);
         createTable(model, table);
     }
 
@@ -214,7 +214,7 @@ public class JDBCTableInstaller extends ModelInstaller {
     public void createAdditionalTable(Model model) throws SQLException {
         final var additionalTables = model.getSqlDBModelExtension().getAdditionalTables();
         for (final var table : additionalTables.values()) {
-            final var tableName = table.getName();
+            final var tableName = TableHelper.getLatestTableForWrite(table.getName());
             createOrUpdateTable(tableName, table.getColumns(), true);
             createOrUpdateTableIndexes(tableName, table.getColumns(), true);
         }

@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
@@ -48,12 +50,15 @@ public class TableHelper {
     private final ModuleManager moduleManager;
     private final JDBCClient jdbcClient;
 
+    @Getter(lazy = true, value = AccessLevel.PRIVATE)
+    private final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
+
     public static String getTableName(Model model) {
         final var aggFuncName = FunctionCategory.uniqueFunctionName(model.getStreamClass()).replaceAll("-", "_");
         return StringUtil.isNotBlank(aggFuncName) ? aggFuncName : model.getName();
     }
 
-    public static String getTableForWrite(Model model) {
+    public static String getLatestTableForWrite(Model model) {
         final var tableName = getTableName(model);
 
         if (!model.isTimeSeries()) {
@@ -62,6 +67,15 @@ public class TableHelper {
 
         final var dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
         return tableName + Const.UNDERSCORE + dayTimeBucket;
+    }
+
+    /**
+     * @param rawTableName the table name without time bucket suffix.
+     * @return the table name with time bucket.
+     */
+    public static String getLatestTableForWrite(String rawTableName) {
+        final var dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+        return rawTableName + Const.UNDERSCORE + dayTimeBucket;
     }
 
     public static String getTable(Model model, long timeBucket) {
@@ -75,6 +89,14 @@ public class TableHelper {
         }
 
         return tableName + Const.UNDERSCORE + TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucket), DownSampling.Day);
+    }
+
+    public static String getTable(String rawTableName, long timeBucket) {
+        if (timeBucket == 0) {
+            timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+        }
+
+        return rawTableName + Const.UNDERSCORE + TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucket), DownSampling.Day);
     }
 
     public List<String> getTablesForRead(String modelName, long timeBucketStart, long timeBucketEnd) {
@@ -106,8 +128,8 @@ public class TableHelper {
         final var model = TableMetaInfo.get(modelName);
 
         final var ttl = model.isRecord() ?
-            configs().getRecordDataTTL() :
-            configs().getMetricsDataTTL();
+            getConfigService().getRecordDataTTL() :
+            getConfigService().getMetricsDataTTL();
         final var timeBucketEnd = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
         final var timeBucketStart = TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
 
@@ -132,10 +154,8 @@ public class TableHelper {
         return StringUtil.isNotBlank(FunctionCategory.uniqueFunctionName(model.getStreamClass()));
     }
 
-    ConfigService configs() {
-        return moduleManager
-            .find(CoreModule.NAME)
-            .provider()
-            .getService(ConfigService.class);
+    public static long getTimeBucket(String table) {
+        final var split = table.split("_");
+        return Long.parseLong(split[split.length - 1]);
     }
 }

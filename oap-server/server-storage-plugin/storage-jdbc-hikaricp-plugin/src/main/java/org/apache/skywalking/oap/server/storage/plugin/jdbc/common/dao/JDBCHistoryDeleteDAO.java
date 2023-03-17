@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
-import org.joda.time.DateTime;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -76,39 +75,19 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
             jdbcClient.executeUpdate(dropSql.toString());
         }
 
-        long deadline;
-        long minTime;
-        if (model.isRecord()) {
-            deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
-            minTime = 1000_00_00_00_00_00L;
-        } else {
-            switch (model.getDownsampling()) {
-                case Minute:
-                    deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
-                    minTime = 1000_00_00_00_00L;
-                    break;
-                case Hour:
-                    deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
-                    minTime = 1000_00_00_00L;
-                    break;
-                case Day:
-                    deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
-                    minTime = 1000_00_00L;
-                    break;
-                default:
-                    return;
+        // Drop additional tables
+        for (final var table : tablesToDrop) {
+            final var timeBucket = TableHelper.getTimeBucket(table);
+            for (final var additionalTable : model.getSqlDBModelExtension().getAdditionalTables().values()) {
+                final var additionalTableToDrop = TableHelper.getTable(additionalTable.getName(), timeBucket);
+                final var dropSql = new SQLBuilder("drop table if exists ").append(additionalTableToDrop);
+                jdbcClient.executeUpdate(dropSql.toString());
             }
         }
-        // Delete data in additional tables
-        for (final var additionalTable : model.getSqlDBModelExtension().getAdditionalTables().values()) {
-            SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
-                .append(timeBucketColumnName).append("<= ? ")
-                .append(" and ")
-                .append(timeBucketColumnName).append(">= ? ");
-            jdbcClient.executeUpdate(additionalTableDeleteSQL.toString(), deadline, minTime);
-        }
 
-        final var table = TableHelper.getTable(model, TimeBucket.getTimeBucket(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day));
+        // Create tables for the next day.
+        final var nextTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
+        final var table = TableHelper.getTable(model, nextTimeBucket);
         if (tableExistenceCache.get(Pair.of(model, table)) != Boolean.TRUE) {
             modelInstaller.createTable(model, table);
             tableExistenceCache.put(Pair.of(model, table), true);

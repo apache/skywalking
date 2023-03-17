@@ -190,16 +190,18 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             sql.append("select ").append(table).append(".").append(ZipkinSpanRecord.TRACE_ID).append(", ")
                .append("min(").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(")").append(" from ");
             sql.append(table);
-            /**
+            /*
              * This is an AdditionalEntity feature, see:
              * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
              */
+            final var timeBucket = TableHelper.getTimeBucket(table);
+            final var tagTable = TableHelper.getTable(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, timeBucket);
             if (!CollectionUtils.isEmpty(annotations)) {
                 for (int i = 0; i < annotations.size(); i++) {
-                    sql.append(" inner join ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(" ");
-                    sql.append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE + i);
+                    sql.append(" inner join ").append(tagTable).append(" ");
+                    sql.append(tagTable + i);
                     sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
-                    sql.append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE + i).append(".").append(ID_COLUMN);
+                    sql.append(tagTable + i).append(".").append(ID_COLUMN);
                 }
             }
             sql.append(" where ");
@@ -242,11 +244,11 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
                 for (int i = 0; i < annotations.size(); i++) {
                     Map.Entry<String, String> annotation = annotations.get(i);
                     if (annotation.getValue().isEmpty()) {
-                        sql.append(" and ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(i).append(".");
+                        sql.append(" and ").append(tagTable).append(i).append(".");
                         sql.append(ZipkinSpanRecord.QUERY).append(" = ?");
                         condition.add(annotation.getKey());
                     } else {
-                        sql.append(" and ").append(ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE).append(i).append(".");
+                        sql.append(" and ").append(tagTable).append(i).append(".");
                         sql.append(ZipkinSpanRecord.QUERY).append(" = ?");
                         condition.add(annotation.getKey() + "=" + annotation.getValue());
                     }

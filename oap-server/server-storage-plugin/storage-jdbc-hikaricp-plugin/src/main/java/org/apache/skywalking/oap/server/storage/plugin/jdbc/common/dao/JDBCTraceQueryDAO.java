@@ -111,16 +111,18 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
             sql.append("from ").append(table);
 
-            /**
+            /*
              * This is an AdditionalEntity feature, see:
              * {@link org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase.AdditionalEntity}
              */
+            final var timeBucket = TableHelper.getTimeBucket(table);
+            final var tagTable = TableHelper.getTable(SegmentRecord.ADDITIONAL_TAG_TABLE, timeBucket);
             if (!CollectionUtils.isEmpty(tags)) {
                 for (int i = 0; i < tags.size(); i++) {
-                    sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TAG_TABLE).append(" ");
-                    sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i);
+                    sql.append(" inner join ").append(tagTable).append(" ");
+                    sql.append(tagTable + i);
                     sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
-                    sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".").append(ID_COLUMN);
+                    sql.append(tagTable + i).append(".").append(ID_COLUMN);
                 }
             }
             sql.append(" where ");
@@ -158,7 +160,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
             }
             if (CollectionUtils.isNotEmpty(tags)) {
                 for (int i = 0; i < tags.size(); i++) {
-                    sql.append(" and ").append(SegmentRecord.ADDITIONAL_TAG_TABLE + i).append(".");
+                    sql.append(" and ").append(tagTable + i).append(".");
                     sql.append(SegmentRecord.TAGS).append(" = ?");
                     parameters.add(tags.get(i).toString());
                 }
