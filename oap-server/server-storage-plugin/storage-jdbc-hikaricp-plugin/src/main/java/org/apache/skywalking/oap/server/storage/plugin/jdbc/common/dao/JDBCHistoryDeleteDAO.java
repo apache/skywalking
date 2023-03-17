@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
@@ -30,6 +29,7 @@ import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+import org.joda.time.DateTime;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     private final TableHelper tableHelper;
     private final JDBCTableInstaller modelInstaller;
 
-    private final Map<Pair<Model, String>, Boolean> tableExistenceCache = new ConcurrentHashMap<>();
+    private final Map<String, Long> lastDeletedTimeBucket = new ConcurrentHashMap<>();
 
     @Override
     @SneakyThrows
@@ -58,6 +58,19 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
             endTimeBucket
         );
 
+        final var deadline = Long.parseLong(new DateTime().minusDays(ttl).toString("yyyyMMdd"));
+        final var lastSuccessDeadline = lastDeletedTimeBucket.getOrDefault(model.getName(), 0L);
+        if (deadline <= lastSuccessDeadline) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "The deadline {} is less than the last success deadline {}, skip deleting history data",
+                    deadline,
+                    lastSuccessDeadline
+                );
+            }
+            return;
+        }
+
         final var ttlTables = tableHelper.getTablesForRead(model.getName(), startTimeBucket, endTimeBucket);
         final var tablesToDrop = new HashSet<String>();
 
@@ -69,8 +82,8 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         }
 
         ttlTables.forEach(tablesToDrop::remove);
-        tablesToDrop.removeIf(it -> !it.matches(".*_\\d{8}"));
-        for (String table : tablesToDrop) {
+        tablesToDrop.removeIf(it -> !it.matches(".*_\\d{8}$"));
+        for (final var table : tablesToDrop) {
             final var dropSql = new SQLBuilder("drop table if exists ").append(table);
             jdbcClient.executeUpdate(dropSql.toString());
         }
@@ -88,9 +101,8 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         // Create tables for the next day.
         final var nextTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
         final var table = TableHelper.getTable(model, nextTimeBucket);
-        if (tableExistenceCache.get(Pair.of(model, table)) != Boolean.TRUE) {
-            modelInstaller.createTable(model, table);
-            tableExistenceCache.put(Pair.of(model, table), true);
-        }
+        modelInstaller.createTable(model, table);
+
+        lastDeletedTimeBucket.put(model.getName(), deadline);
     }
 }

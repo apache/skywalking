@@ -38,8 +38,9 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Utility class to get table name for a given model.
@@ -121,7 +122,7 @@ public class TableHelper {
                     throw new RuntimeException(e);
                 }
             })
-            .collect(Collectors.toList());
+            .collect(toList());
     }
 
     public List<String> getTablesForRead(String modelName) {
