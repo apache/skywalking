@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
 
 @RequiredArgsConstructor
 public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
@@ -200,8 +199,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
                 for (int i = 0; i < annotations.size(); i++) {
                     sql.append(" inner join ").append(tagTable).append(" ");
                     sql.append(tagTable + i);
-                    sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
-                    sql.append(tagTable + i).append(".").append(ID_COLUMN);
+                    sql.append(" on ").append(table).append(".").append(JDBCTableInstaller.ID_COLUMN).append(" = ");
+                    sql.append(tagTable + i).append(".").append(JDBCTableInstaller.ID_COLUMN);
                 }
             }
             sql.append(" where ");

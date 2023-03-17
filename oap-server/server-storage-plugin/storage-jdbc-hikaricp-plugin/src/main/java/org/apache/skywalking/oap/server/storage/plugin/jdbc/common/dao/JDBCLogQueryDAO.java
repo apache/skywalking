@@ -67,7 +67,6 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
-import static org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller.ID_COLUMN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -194,8 +193,8 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
             for (int i = 0; i < tags.size(); i++) {
                 sql.append(" inner join ").append(tagTable).append(" ");
                 sql.append(tagTable + i);
-                sql.append(" on ").append(table).append(".").append(ID_COLUMN).append(" = ");
-                sql.append(tagTable + i).append(".").append(ID_COLUMN);
+                sql.append(" on ").append(table).append(".").append(JDBCTableInstaller.ID_COLUMN).append(" = ");
+                sql.append(tagTable + i).append(".").append(JDBCTableInstaller.ID_COLUMN);
             }
         }
         sql.append(" where ");

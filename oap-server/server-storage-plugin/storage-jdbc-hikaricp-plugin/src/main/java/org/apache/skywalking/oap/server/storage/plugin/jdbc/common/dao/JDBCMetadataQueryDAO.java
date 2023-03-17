@@ -48,7 +48,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityCon
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -205,7 +204,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table).append(" where ")
                 .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(InstanceTraffic.INDEX_NAME);
-            sql.append(" and ").append(H2TableInstaller.ID_COLUMN).append(" = ?");
+            sql.append(" and ").append(JDBCTableInstaller.ID_COLUMN).append(" = ?");
             condition.add(instanceId);
             sql.append(" limit ").append(metadataQueryMaxSize);
 
@@ -534,7 +533,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table).append(" where ");
             sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
             condition.add(ProcessTraffic.INDEX_NAME);
-            sql.append(" and ").append(H2TableInstaller.ID_COLUMN).append(" = ?");
+            sql.append(" and ").append(JDBCTableInstaller.ID_COLUMN).append(" = ?");
             condition.add(processId);
             sql.append(" limit ").append(metadataQueryMaxSize);
 

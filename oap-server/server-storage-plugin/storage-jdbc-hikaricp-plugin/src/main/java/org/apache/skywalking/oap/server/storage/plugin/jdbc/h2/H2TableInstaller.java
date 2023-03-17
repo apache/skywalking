@@ -19,15 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.h2;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 
 @Slf4j
 public class H2TableInstaller extends JDBCTableInstaller {
-    public static final String ID_COLUMN = Metrics.ID;
-
     public H2TableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
     }
