@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Range;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -125,9 +126,12 @@ public class TableHelper {
         timeBucketStart = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketStart), DownSampling.Day);
         timeBucketEnd = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketEnd), DownSampling.Day);
 
+        final var ttlTimeBucketRange = getTTLTimeBucketRange(model);
+
         return LongStream
             .rangeClosed(timeBucketStart, timeBucketEnd)
             .distinct()
+            .filter(ttlTimeBucketRange::contains)
             .mapToObj(it -> tableName + "_" + it)
             .filter(table -> {
                 try {
@@ -141,14 +145,8 @@ public class TableHelper {
 
     public List<String> getTablesWithinTTL(String modelName) {
         final var model = TableMetaInfo.get(modelName);
-
-        final var ttl = model.isRecord() ?
-            getConfigService().getRecordDataTTL() :
-            getConfigService().getMetricsDataTTL();
-        final var timeBucketEnd = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
-        final var timeBucketStart = TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
-
-        return getTablesForRead(modelName, timeBucketStart, timeBucketEnd);
+        final var range = getTTLTimeBucketRange(model);
+        return getTablesForRead(modelName, range.lowerEndpoint(), range.upperEndpoint());
     }
 
     public static String generateId(Model model, String originalID) {
@@ -172,5 +170,14 @@ public class TableHelper {
     public static long getTimeBucket(String table) {
         final var split = table.split("_");
         return Long.parseLong(split[split.length - 1]);
+    }
+
+    Range<Long> getTTLTimeBucketRange(Model model) {
+        final var ttl = model.isRecord() ?
+            getConfigService().getRecordDataTTL() :
+            getConfigService().getMetricsDataTTL();
+        final var timeBucketEnd = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+        final var timeBucketStart = TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
+        return Range.closed(timeBucketStart, timeBucketEnd);
     }
 }
