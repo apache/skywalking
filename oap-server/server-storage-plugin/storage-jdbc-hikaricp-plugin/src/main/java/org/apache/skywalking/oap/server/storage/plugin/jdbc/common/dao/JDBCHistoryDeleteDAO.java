@@ -18,66 +18,93 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.joda.time.DateTime;
-import lombok.RequiredArgsConstructor;
 
+import java.time.Clock;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
 @RequiredArgsConstructor
 public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
+    private final JDBCTableInstaller modelInstaller;
+    private final Clock clock;
+
+    private final Map<String, Long> lastDeletedTimeBucket = new ConcurrentHashMap<>();
 
     @Override
-    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) throws IOException {
-        SQLBuilder dataDeleteSQL = new SQLBuilder("delete from " + model.getName() + " where ")
-            .append(timeBucketColumnName).append("<= ? ")
-            .append(" and ")
-            .append(timeBucketColumnName).append(">= ? ");
+    @SneakyThrows
+    public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
+        final var endTimeBucket = TimeBucket.getTimeBucket(clock.millis(), DownSampling.Day);
+        final var startTimeBucket = endTimeBucket - ttl;
+        log.info(
+            "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
+            ttl,
+            clock.millis(),
+            startTimeBucket,
+            endTimeBucket
+        );
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            long deadline;
-            long minTime;
-            if (model.isRecord()) {
-                deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmmss"));
-                minTime = 1000_00_00_00_00_00L;
-            } else {
-                switch (model.getDownsampling()) {
-                    case Minute:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHHmm"));
-                        minTime = 1000_00_00_00_00L;
-                        break;
-                    case Hour:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMddHH"));
-                        minTime = 1000_00_00_00L;
-                        break;
-                    case Day:
-                        deadline = Long.parseLong(new DateTime().plusDays(-ttl).toString("yyyyMMdd"));
-                        minTime = 1000_00_00L;
-                        break;
-                    default:
-                        return;
-                }
+        final var deadline = Long.parseLong(new DateTime().minusDays(ttl).toString("yyyyMMdd"));
+        final var lastSuccessDeadline = lastDeletedTimeBucket.getOrDefault(model.getName(), 0L);
+        if (deadline <= lastSuccessDeadline) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    "The deadline {} is less than the last success deadline {}, skip deleting history data",
+                    deadline,
+                    lastSuccessDeadline
+                );
             }
-            jdbcClient.executeUpdate(connection, dataDeleteSQL.toString(), deadline, minTime);
-            // Delete additional tables
-            for (SQLDatabaseModelExtension.AdditionalTable additionalTable : model.getSqlDBModelExtension()
-                                                                                  .getAdditionalTables()
-                                                                                  .values()) {
-                SQLBuilder additionalTableDeleteSQL = new SQLBuilder("delete from " + additionalTable.getName() + " where ")
-                    .append(timeBucketColumnName).append("<= ? ")
-                    .append(" and ")
-                    .append(timeBucketColumnName).append(">= ? ");
-                jdbcClient.executeUpdate(connection, additionalTableDeleteSQL.toString(), deadline, minTime);
-            }
-        } catch (JDBCClientException | SQLException e) {
-            throw new IOException(e.getMessage(), e);
+            return;
         }
+
+        final var ttlTables = tableHelper.getTablesForRead(model.getName(), startTimeBucket, endTimeBucket);
+        final var tablesToDrop = new HashSet<String>();
+
+        try (final var conn = jdbcClient.getConnection();
+             final var result = conn.getMetaData().getTables(null, null, TableHelper.getTableName(model) + "%", new String[]{"TABLE"})) {
+            while (result.next()) {
+                tablesToDrop.add(result.getString("TABLE_NAME"));
+            }
+        }
+
+        ttlTables.forEach(tablesToDrop::remove);
+        tablesToDrop.removeIf(it -> !it.matches(".*_\\d{8}$"));
+        for (final var table : tablesToDrop) {
+            final var dropSql = new SQLBuilder("drop table if exists ").append(table);
+            jdbcClient.executeUpdate(dropSql.toString());
+        }
+
+        // Drop additional tables
+        for (final var table : tablesToDrop) {
+            final var timeBucket = TableHelper.getTimeBucket(table);
+            for (final var additionalTable : model.getSqlDBModelExtension().getAdditionalTables().values()) {
+                final var additionalTableToDrop = TableHelper.getTable(additionalTable.getName(), timeBucket);
+                final var dropSql = new SQLBuilder("drop table if exists ").append(additionalTableToDrop);
+                jdbcClient.executeUpdate(dropSql.toString());
+            }
+        }
+
+        // Create tables for the next day.
+        final var nextTimeBucket = TimeBucket.getTimeBucket(clock.millis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
+        final var table = TableHelper.getTable(model, nextTimeBucket);
+        modelInstaller.createTable(model, table);
+
+        lastDeletedTimeBucket.put(model.getName(), deadline);
     }
 }

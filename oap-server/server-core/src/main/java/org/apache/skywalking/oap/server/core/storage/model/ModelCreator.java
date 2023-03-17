@@ -31,7 +31,7 @@ public interface ModelCreator extends Service {
      *
      * @return the created new model
      */
-    Model add(Class<?> aClass, int scopeId, Storage storage, boolean record) throws StorageException;
+    Model add(Class<?> aClass, int scopeId, Storage storage) throws StorageException;
 
     void addModelListener(CreatingListener listener) throws StorageException;
 

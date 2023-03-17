@@ -283,8 +283,6 @@ jobs:
     strategy:
       matrix:
         test:
-          - name: ShardingSphere
-            class: org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingSphereIT
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:
@@ -344,8 +342,6 @@ jobs:
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
-          - name: Storage TiDB
-            config: test/e2e-v2/cases/storage/tidb/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
           - name: Storage ES 6.3.2
@@ -395,10 +391,6 @@ jobs:
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
 
-          - name: TTL TiDB
-            config: test/e2e-v2/cases/ttl/tidb/e2e.yaml
-          - name: TTL PostgreSQL
-            config: test/e2e-v2/cases/ttl/postgresql/e2e.yaml
           - name: TTL ES 6.3.2
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=6.3.2
@@ -480,8 +472,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
             config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
-          - name: Trace Profiling TiDB
-            config: test/e2e-v2/cases/profiling/trace/tidb/e2e.yaml
           - name: Trace Profiling OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -504,8 +494,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
           - name: eBPF Profiling On CPU Postgres
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
-          - name: eBPF Profiling On CPU TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/tidb/e2e.yaml
           - name: eBPF Profiling On CPU OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -530,8 +518,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
           - name: eBPF Profiling Network Postgres
             config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
-          - name: eBPF Profiling Network TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/network/tidb/e2e.yaml
           - name: eBPF Profiling Network OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -651,14 +637,6 @@ jobs:
           - name: Zipkin BanyanDB
             config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
 
-          - name: MySQL-Sharding storage
-            config: test/e2e-v2/cases/storage/mysql/sharding/e2e.yaml
-          - name: MySQL-Sharding log
-            config: test/e2e-v2/cases/log/mysql/sharding/e2e.yaml
-          - name: MySQL-Sharding browser
-            config: test/e2e-v2/cases/browser/mysql/sharding/e2e.yaml
-          - name: MySQL-Sharding zipkin
-            config: test/e2e-v2/cases/zipkin/mysql/sharding/e2e.yaml
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
           - name: Exporter Kafka

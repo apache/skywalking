@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import lombok.Getter;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import lombok.Getter;
 
 /**
  * Define the default columns of source scope. These columns pass down into the persistent entity(OAL metrics entity)

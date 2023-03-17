@@ -18,13 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -32,60 +27,103 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.groupingBy;
 
 @RequiredArgsConstructor
 public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
-    protected final JDBCHikariCPClient jdbcClient;
+    protected final JDBCClient jdbcClient;
+    protected final TableHelper tableHelper;
 
     @Override
+    @SneakyThrows
     public List<SelectedRecord> sortMetrics(final TopNCondition metrics,
                                             final String valueColumnName,
                                             final Duration duration,
-                                            List<KeyValue> additionalConditions) throws IOException {
-        List<Object> conditions = new ArrayList<>(10);
-        StringBuilder sql = buildMetricsValueSql(valueColumnName, metrics.getName());
-        sql.append(Metrics.TIME_BUCKET).append(" >= ? and ").append(Metrics.TIME_BUCKET).append(" <= ?");
-        conditions.add(duration.getStartTimeBucket());
-        conditions.add(duration.getEndTimeBucket());
-        if (additionalConditions != null) {
-            additionalConditions.forEach(condition -> {
-                sql.append(" and ").append(condition.getKey()).append("=?");
-                conditions.add(condition.getValue());
+                                            final List<KeyValue> additionalConditions) {
+        final var results = new ArrayList<SelectedRecord>();
+        final var tables = tableHelper.getTablesForRead(
+            metrics.getName(), duration.getStartTimeBucket(), duration.getEndTimeBucket()
+        );
+
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL(metrics, valueColumnName, duration, additionalConditions, table);
+
+            jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
+                while (resultSet.next()) {
+                    final var topNEntity = new SelectedRecord();
+                    topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
+                    topNEntity.setValue(String.valueOf(resultSet.getInt("result")));
+                    results.add(topNEntity);
+                }
+                return null;
+            }, sqlAndParameters.parameters());
+        }
+
+        final var comparator =
+            Order.ASC.equals(metrics.getOrder()) ?
+                comparing((SelectedRecord it) -> Long.parseLong(it.getValue())) :
+                comparing((SelectedRecord it) -> Long.parseLong(it.getValue())).reversed();
+        return results
+            .stream()
+            .collect(groupingBy(SelectedRecord::getId))
+            .entrySet()
+            .stream()
+            .map(entry -> {
+                final var selectedRecord = new SelectedRecord();
+                final var average = (int) entry.getValue().stream().map(SelectedRecord::getValue).mapToLong(Long::parseLong).average().orElse(0);
+                selectedRecord.setId(entry.getKey());
+                selectedRecord.setValue(String.valueOf(average));
+                return selectedRecord;
+            })
+            .sorted(comparator)
+            .limit(metrics.getTopN())
+            .collect(Collectors.toList());
+    }
+
+    protected SQLAndParameters buildSQL(
+        final TopNCondition metrics,
+        final String valueColumnName,
+        final Duration duration,
+        final List<KeyValue> queries,
+        final String table) {
+
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>(10);
+        sql.append("select result, ").append(Metrics.ENTITY_ID)
+           .append(" from (select avg(").append(valueColumnName).append(") as result,")
+           .append(Metrics.ENTITY_ID)
+           .append(" from ").append(table)
+           .append(" where ")
+           .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+           .append(" and ")
+           .append(Metrics.TIME_BUCKET).append(" >= ? ")
+           .append(" and ")
+           .append(Metrics.TIME_BUCKET).append(" <= ?");
+
+        parameters.add(metrics.getName());
+        parameters.add(duration.getStartTimeBucket());
+        parameters.add(duration.getEndTimeBucket());
+        if (queries != null) {
+            queries.forEach(query -> {
+                sql.append(" and ").append(query.getKey()).append(" = ?");
+                parameters.add(query.getValue());
             });
         }
         sql.append(" group by ").append(Metrics.ENTITY_ID);
         sql.append(")  as T order by result")
-           .append(metrics.getOrder().equals(Order.ASC) ? " asc" : " desc")
+           .append(Order.ASC.equals(metrics.getOrder()) ? " asc" : " desc")
            .append(" limit ")
            .append(metrics.getTopN());
-        List<SelectedRecord> topNEntities = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection();
-             ResultSet resultSet = jdbcClient.executeQuery(
-                 connection, sql.toString(), conditions.toArray(new Object[0]))) {
-            while (resultSet.next()) {
-                SelectedRecord topNEntity = new SelectedRecord();
-                topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                topNEntity.setValue(resultSet.getString("result"));
-                topNEntities.add(topNEntity);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return topNEntities;
-    }
-
-    protected StringBuilder buildMetricsValueSql(String valueColumnName, String metricsName) {
-        StringBuilder sql = new StringBuilder();
-        sql.append("select result,")
-           .append(Metrics.ENTITY_ID)
-           .append(" from (select avg(")
-           .append(valueColumnName)
-           .append(") result,")
-           .append(Metrics.ENTITY_ID)
-           .append(" from ")
-           .append(metricsName)
-           .append(" where ");
-        return sql;
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 }

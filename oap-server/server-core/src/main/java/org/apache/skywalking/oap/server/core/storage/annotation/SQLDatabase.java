@@ -23,7 +23,6 @@ import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 
 /**
  * SQLDatabase annotation is a holder including all annotations for SQL-based RDBMS storage
@@ -32,13 +31,14 @@ import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
  */
 public @interface SQLDatabase {
     /**
-     * QueryIndex defines the unified index is required in the query stage. This works only the storage supports this kind
-     * of index model. Mostly, work for the typical relational database, such as MySQL, TiDB.
+     * {@code CompositeIndex} defines the composite index required in the query stage.
+     * This works only when the storage supports this kind of index model, mostly,
+     * work for the typical relational database, such as MySQL, TiDB.
      */
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
-    @Repeatable(MultipleQueryUnifiedIndex.class)
-    @interface QueryUnifiedIndex {
+    @Repeatable(CompositeIndices.class)
+    @interface CompositeIndex {
 
         /**
          * @return list of other column should be add into the unified index.
@@ -47,12 +47,12 @@ public @interface SQLDatabase {
     }
 
     /**
-     * The support of the multiple {@link QueryUnifiedIndex}s on one field.
+     * The support of the multiple {@link CompositeIndex}s on one field.
      */
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface MultipleQueryUnifiedIndex {
-        QueryUnifiedIndex[] value();
+    @interface CompositeIndices {
+        CompositeIndex[] value();
     }
 
     /**
@@ -74,7 +74,7 @@ public @interface SQLDatabase {
      * <p>
      * In H2TraceQueryDAO#queryBasicTraces query tags as condition from this additional table, could build sql like this:
      * <pre>{@code
-     *             if (!CollectionUtils.isEmpty(tags)) {
+     *         if (!CollectionUtils.isEmpty(tags)) {
      *             for (int i = 0; i < tags.size(); i++) {
      *                 sql.append(" inner join ").append(SegmentRecord.ADDITIONAL_TAG_TABLE).append(" ");
      *                 sql.append(SegmentRecord.ADDITIONAL_TAG_TABLE + i);
@@ -83,7 +83,7 @@ public @interface SQLDatabase {
      *             }
      *         }
      *         ...
-     *             if (CollectionUtils.isNotEmpty(tags)) {
+     *         if (CollectionUtils.isNotEmpty(tags)) {
      *             for (int i = 0; i < tags.size(); i++) {
      *                 final int foundIdx = searchableTagKeys.indexOf(tags.get(i).getKey());
      *                 if (foundIdx > -1) {
@@ -96,11 +96,11 @@ public @interface SQLDatabase {
      *                 }
      *             }
      *         }
-     *         }</pre>
+     * }</pre>
      * <p>
      * <ul>
      * <li>If no tags condition, only query segment table, the SQL should be: select
-     * column1, column2 ... from segment where 1=1 and colunm1=xx ...
+     * column1, column2 ... from segment where 1=1 and column1=xx ...
      *
      * <li> If 1 tag condition, query both segment and segment_tag tables, the SQL should be: select column1, column2 ...
      * from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id where 1=1 and colunm1=xx ... and
@@ -108,7 +108,7 @@ public @interface SQLDatabase {
      *
      * <li> If 2 or more tags condition, query both segment and segment_tag tables, the SQL should be: select column1,
      * column2 ... from segment inner join segment_tag segment_tag0 on segment.id=segment_tag0.id inner join segment_tag
-     * segment_tag1 on segment.id=segment_tag1.id ... where 1=1 and colunm1=xx ... and segment_tag0=tagString0 and
+     * segment_tag1 on segment.id=segment_tag1.id ... where 1=1 and column1=xx ... and segment_tag0=tagString0 and
      * segment_tag1=tagString1 ...
      * </ul>
      */
@@ -139,17 +139,5 @@ public @interface SQLDatabase {
     @Retention(RetentionPolicy.RUNTIME)
     @interface MultipleExtraColumn4AdditionalEntity {
         ExtraColumn4AdditionalEntity[] value();
-    }
-
-    /**
-     * Support add sharding policy for a table model. Can be declared on the superclass and overridden by subclass..
-     * @since 9.3.0
-     */
-    @Target({ElementType.TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface Sharding {
-        ShardingAlgorithm shardingAlgorithm();
-        String dataSourceShardingColumn() default "";
-        String tableShardingColumn() default "";
     }
 }

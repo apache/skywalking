@@ -50,10 +50,10 @@ public class EBPFProfilingDataRecord extends Record {
     public static final String DATA_BINARY = "dump_binary";
     public static final String UPLOAD_TIME = "upload_time";
 
-    @Column(name = TASK_ID, length = 600)
+    @Column(name = TASK_ID)
     @BanyanDB.SeriesID(index = 0)
     private String taskId;
-    @Column(name = SCHEDULE_ID, length = 600)
+    @Column(name = SCHEDULE_ID)
     private String scheduleId;
     @Column(name = STACK_ID_LIST)
     private String stackIdList;

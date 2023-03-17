@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
 
 @Getter
 public class TraceBrief {
@@ -28,5 +29,9 @@ public class TraceBrief {
 
     public TraceBrief() {
         this.traces = new ArrayList<>();
+    }
+
+    public TraceBrief(List<BasicTrace> traces) {
+        this.traces = traces;
     }
 }

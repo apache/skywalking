@@ -27,6 +27,7 @@ public class Const {
     public static final String RELATION_ID_CONNECTOR = "-";
     public static final String RELATION_ID_PARSER_SPLIT = "\\-";
     public static final String LINE = "-";
+    public static final String UNDERSCORE = "_";
     public static final String COMMA = ",";
     public static final String SPACE = " ";
     public static final String KEY_VALUE_SPLIT = ",";
