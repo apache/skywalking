@@ -192,17 +192,6 @@ storage:
     metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
     maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-  mysql-sharding:
-    properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:13307/swtest?rewriteBatchedStatements=true&allowMultiQueries=true"}
-      dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root}
-    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
-    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-    # The dataSources are configured in ShardingSphere-Proxy config-sharding.yaml.
-    # The dataSource name should include the prefix "ds_" and separated by "," and start from ds_0
-    dataSources: ${SW_JDBC_SHARDING_DATA_SOURCES:ds_0,ds_1}
   postgresql:
     properties:
       jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}

@@ -20,13 +20,11 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -235,14 +233,6 @@ public class JDBCSQLExecutor {
         final var param = new ArrayList<>();
         for (final var column : columns) {
             final var columnName = column.getColumnName().getName();
-            if (model.getSqlDBModelExtension().isShardingTable()) {
-                SQLDatabaseModelExtension.Sharding sharding = model.getSqlDBModelExtension().getSharding().orElseThrow(
-                    () -> new UnexpectedException("Sharding should not be empty."));
-                if (columnName.equals(sharding.getDataSourceShardingColumn()) || columnName.equals(
-                    sharding.getTableShardingColumn())) {
-                    continue;
-                }
-            }
             queries.add(column.getColumnName().getStorageName() + " = ?");
 
             final var value = objectMap.get(columnName);

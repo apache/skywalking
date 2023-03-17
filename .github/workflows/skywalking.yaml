@@ -639,14 +639,6 @@ jobs:
           - name: Zipkin BanyanDB
             config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
 
-#          - name: MySQL-Sharding storage
-#            config: test/e2e-v2/cases/storage/mysql/sharding/e2e.yaml
-#          - name: MySQL-Sharding log
-#            config: test/e2e-v2/cases/log/mysql/sharding/e2e.yaml
-#          - name: MySQL-Sharding browser
-#            config: test/e2e-v2/cases/browser/mysql/sharding/e2e.yaml
-#          - name: MySQL-Sharding zipkin
-#            config: test/e2e-v2/cases/zipkin/mysql/sharding/e2e.yaml
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
           - name: Exporter Kafka

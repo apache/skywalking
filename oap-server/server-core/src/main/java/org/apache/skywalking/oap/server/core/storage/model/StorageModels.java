@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * StorageModels manages all models detected by the core.
@@ -260,17 +259,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     );
                 }
             }
-        }
-
-        // For the annotation need to be declared on the superclass, the other annotation should be declared on the subclass.
-        if (sqlDBModelExtension.getSharding().isEmpty() && clazz.isAnnotationPresent(SQLDatabase.Sharding.class)) {
-            SQLDatabase.Sharding sharding = clazz.getAnnotation(SQLDatabase.Sharding.class);
-            sqlDBModelExtension.setSharding(
-                Optional.of(new SQLDatabaseModelExtension.Sharding(
-                    sharding.shardingAlgorithm(),
-                    sharding.dataSourceShardingColumn(),
-                    sharding.tableShardingColumn()
-                )));
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {

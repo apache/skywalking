@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -141,17 +139,5 @@ public @interface SQLDatabase {
     @Retention(RetentionPolicy.RUNTIME)
     @interface MultipleExtraColumn4AdditionalEntity {
         ExtraColumn4AdditionalEntity[] value();
-    }
-
-    /**
-     * Support add sharding policy for a table model. Can be declared on the superclass and overridden by subclass..
-     * @since 9.3.0
-     */
-    @Target({ElementType.TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface Sharding {
-        ShardingAlgorithm shardingAlgorithm();
-        String dataSourceShardingColumn() default "";
-        String tableShardingColumn() default "";
     }
 }
