@@ -47,7 +47,7 @@ public class ApplicationConfigLoaderTestCase {
         assertThat(providerConfig.get("metadataQueryMaxSize")).isEqualTo(5000);
         assertThat(providerConfig.get("properties")).isInstanceOf(Properties.class);
         Properties properties = (Properties) providerConfig.get("properties");
-        assertThat(properties.get("jdbcUrl")).isEqualTo("jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true");
+        assertThat(properties.get("jdbcUrl")).isEqualTo("jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true&allowMultiQueries=true");
     }
 
     @Test

@@ -18,42 +18,74 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.AllArgsConstructor;
+
+import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
-import java.io.IOException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@AllArgsConstructor
-public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFProfilingTaskDAO {
-    private JDBCHikariCPClient jdbcClient;
+
+@RequiredArgsConstructor
+public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
+    private static final Gson GSON = new Gson();
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
-    public List<EBPFProfilingTaskRecord> queryTasksByServices(List<String> serviceIdList, EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>();
-        sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME);
+    @SneakyThrows
+    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) {
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
+        final var results = new ArrayList<EBPFProfilingTask>();
 
-        StringBuilder conditionSql = new StringBuilder();
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQLForQueryTasksByServices(serviceIdList, taskStartTime, latestUpdateTime, table);
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildTasks,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+        return results;
+    }
 
-        appendListCondition(conditionSql, condition, EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList);
+    protected SQLAndParameters buildSQLForQueryTasksByServices(
+        final List<String> serviceIdList,
+        final long taskStartTime,
+        final long latestUpdateTime,
+        final String table) {
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>();
+        sql.append("select * from ").append(table);
+
+        final var conditionSql = new StringBuilder();
+        conditionSql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(EBPFProfilingTaskRecord.INDEX_NAME);
+
+        appendListCondition(conditionSql, parameters, EBPFProfilingTaskRecord.SERVICE_ID, serviceIdList);
         if (taskStartTime > 0) {
-            appendCondition(conditionSql, condition,
+            appendCondition(conditionSql, parameters,
                 EBPFProfilingTaskRecord.START_TIME, ">=", taskStartTime);
         }
         if (latestUpdateTime > 0) {
-            appendCondition(conditionSql, condition,
+            appendCondition(conditionSql, parameters,
                 EBPFProfilingTaskRecord.LAST_UPDATE_TIME, ">", latestUpdateTime);
         }
         if (triggerType != null) {
@@ -64,73 +96,93 @@ public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFPr
         if (conditionSql.length() > 0) {
             sql.append(" where ").append(conditionSql);
         }
-
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildTasks(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     @Override
-    public List<EBPFProfilingTaskRecord> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
+    @SneakyThrows
+    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
                                                              EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>();
-        sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME);
+        final var results = new ArrayList<EBPFProfilingTask>();
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
 
-        StringBuilder conditionSql = new StringBuilder();
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQLForQueryTasksByTargets(
+                serviceId, serviceInstanceId, targetTypes, taskStartTime, latestUpdateTime, table
+            );
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildTasks,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+        return results;
+    }
+
+    protected SQLAndParameters buildSQLForQueryTasksByTargets(
+        final String serviceId,
+        final String serviceInstanceId,
+        final List<EBPFProfilingTargetType> targetTypes,
+        final long taskStartTime,
+        final long latestUpdateTime,
+        final String table) {
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>();
+        final var conditions = new StringBuilder();
+
+        sql.append("select * from ").append(table);
+        conditions.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(EBPFProfilingTaskRecord.INDEX_NAME);
 
         if (StringUtil.isNotEmpty(serviceId)) {
-            appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.SERVICE_ID, serviceId);
+            appendCondition(conditions, parameters, EBPFProfilingTaskRecord.SERVICE_ID, serviceId);
         }
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
-            appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.INSTANCE_ID, serviceInstanceId);
+            appendCondition(conditions, parameters, EBPFProfilingTaskRecord.INSTANCE_ID, serviceInstanceId);
         }
-        appendListCondition(conditionSql, condition, EBPFProfilingTaskRecord.TARGET_TYPE, targetTypes.stream()
-            .map(EBPFProfilingTargetType::value).collect(Collectors.toList()));
+        appendListCondition(conditions, parameters, EBPFProfilingTaskRecord.TARGET_TYPE,
+            targetTypes.stream().map(EBPFProfilingTargetType::value).collect(Collectors.toList()));
         if (taskStartTime > 0) {
-            appendCondition(conditionSql, condition,
+            appendCondition(conditions, parameters,
                 EBPFProfilingTaskRecord.START_TIME, ">=", taskStartTime);
         }
         if (latestUpdateTime > 0) {
-            appendCondition(conditionSql, condition,
+            appendCondition(conditions, parameters,
                 EBPFProfilingTaskRecord.LAST_UPDATE_TIME, ">", latestUpdateTime);
         }
         if (triggerType != null) {
             appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.TRIGGER_TYPE, "=", triggerType.value());
         }
 
-        if (conditionSql.length() > 0) {
-            sql.append(" where ").append(conditionSql);
+        if (conditions.length() > 0) {
+            sql.append(" where ").append(conditions);
         }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildTasks(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     @Override
-    public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        sql.append("select * from ").append(EBPFProfilingTaskRecord.INDEX_NAME)
-            .append(" where ").append(EBPFProfilingTaskRecord.LOGICAL_ID).append("=?");
+    @SneakyThrows
+    public EBPFProfilingTask queryById(String id) {
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
+        for (final var table : tables) {
+            final var sql = new StringBuilder();
+            sql.append("select * from ").append(table)
+               .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+               .append(EBPFProfilingTaskRecord.LOGICAL_ID).append(" = ?");
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), id)) {
-                return buildTasks(resultSet);
+            final var result = jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> buildTasks(resultSet).stream().reduce(EBPFProfilingTask::combine).orElse(null),
+                EBPFProfilingTaskRecord.INDEX_NAME, id
+            );
+            if (result != null) {
+                return result;
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
         }
+        return null;
     }
 
     private List<EBPFProfilingTaskRecord> buildTasks(ResultSet resultSet) throws SQLException {

@@ -19,16 +19,6 @@
 package org.apache.skywalking.oap.server.core.profiling.ebpf;
 
 import com.google.gson.Gson;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -66,6 +56,17 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -218,8 +219,11 @@ public class EBPFProfilingQueryService implements Service {
         return result;
     }
 
-    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {
+    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws Exception {
         final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId);
+
+        log.info("schedules: {}", GSON.toJson(schedules));
+
         if (CollectionUtils.isNotEmpty(schedules)) {
             final Model processModel = getProcessModel();
             final List<Metrics> processMetrics = schedules.stream()
@@ -229,6 +233,8 @@ public class EBPFProfilingQueryService implements Service {
                         return p;
                     }).collect(Collectors.toList());
             final List<Metrics> processes = getProcessMetricsDAO().multiGet(processModel, processMetrics);
+
+            log.info("processes: {}", GSON.toJson(processes));
 
             final Map<String, Process> processMap = processes.stream()
                                                                 .map(t -> (ProcessTraffic) t)

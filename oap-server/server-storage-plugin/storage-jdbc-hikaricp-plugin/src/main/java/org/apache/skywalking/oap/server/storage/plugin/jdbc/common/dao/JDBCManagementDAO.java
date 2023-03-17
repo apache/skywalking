@@ -18,25 +18,26 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.storage.IManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Synchronize storage H2 implements
  */
 @RequiredArgsConstructor
 public class JDBCManagementDAO extends JDBCSQLExecutor implements IManagementDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final StorageBuilder<ManagementData> storageBuilder;
 
     @Override
@@ -47,7 +48,7 @@ public class JDBCManagementDAO extends JDBCSQLExecutor implements IManagementDAO
                 return;
             }
 
-            SQLExecutor insertExecutor = getInsertExecutor(model.getName(), storageData, storageBuilder,
+            SQLExecutor insertExecutor = getInsertExecutor(model, storageData, 0, storageBuilder,
                                                            new HashMapConverter.ToStorage(), null);
             insertExecutor.invoke(connection);
         } catch (IOException | SQLException e) {

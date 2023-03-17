@@ -11,6 +11,8 @@
 * Support to bind TLS status as a part of component for service topology.
 * Fix component ID priority bug.
 * Fix component ID of topology overlap due to storage layer bugs.
+* [Breaking Change] Enhance JDBC storage through merging tables and managing day-based table rolling.
+* [Breaking Change] Sharding-MySQL implementations and tests get removed due to we have the day-based rolling mechanism by default
 * Support continuous profiling feature.
 * Support collect process level related metrics.
 

@@ -260,7 +260,7 @@ storage:
   selector: ${SW_STORAGE:mysql}
   mysql:
     properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"}
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true&allowMultiQueries=true"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
       dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
@@ -275,60 +275,8 @@ All connection-related settings, including URL link, username, and password, are
 Only part of the settings is listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 To understand the function of the parameter `rewriteBatchedStatements=true` in MySQL, see the [MySQL official document](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements).
 
-## MySQL-Sharding
-MySQL-Sharding plugin provides the MySQL database sharding and table sharding, this feature
-leverage [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy)
-to manage the JDBC between OAP and multi-database instances, and according to the sharding rules do routing to the database and table sharding.
-
-Tested Shardingsphere-Proxy 5.3.1 version, and MySQL Client driver 8.0.13 version is currently available.
-Activate MySQL and Shardingsphere-Proxy as storage, and set storage provider to **mysql-sharding**.
-
-**NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes.
-Please download the MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:mysql-sharding}
-  mysql-sharding:
-    properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:13307/swtest?rewriteBatchedStatements=true"}
-      dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root}
-    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
-    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-    # The dataSources are configured in ShardingSphere-Proxy config-sharding.yaml
-    # The dataSource name should include the prefix "ds_" and separated by ","
-    dataSources: ${SW_JDBC_SHARDING_DATA_SOURCES:ds_0,ds_1}
-
-```
-
-## TiDB
-Tested TiDB Server 4.0.8 version, and MySQL Client driver 8.0.13 version is currently available.
-Activate TiDB as storage, and set storage provider to **tidb**.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:tidb}
-  tidb:
-    properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/swtest?rewriteBatchedStatements=true"}
-      dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:""}
-      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
-      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
-      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
-      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
-      dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
-    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
-    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
-    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-```
-All connection-related settings, including URL link, username, and password are found in `application.yml`.
-For details on settings, refer to the configuration of *MySQL* above.
-To understand the function of the parameter `rewriteBatchedStatements=true` in TiDB, see the document of [TiDB best practices](https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api).
+In theory, all other databases that are compatible with MySQL protocol should be able to use this storage plugin,
+such as TiDB. Please compose the JDBC URL according to the database's documentation.
 
 ## PostgreSQL
 PostgreSQL JDBC driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.

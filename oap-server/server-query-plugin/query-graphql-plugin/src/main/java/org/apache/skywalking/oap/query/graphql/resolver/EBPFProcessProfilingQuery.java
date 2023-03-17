@@ -70,7 +70,7 @@ public class EBPFProcessProfilingQuery implements GraphQLQueryResolver {
         return getQueryService().queryEBPFProfilingTasks(serviceId, serviceInstanceId, targets, triggerType);
     }
 
-    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {
+    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws Exception {
         return getQueryService().queryEBPFProfilingSchedules(taskId);
     }
 

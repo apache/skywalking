@@ -18,6 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.instance;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
@@ -25,21 +30,15 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
-import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE;
 
 @Stream(name = InstanceTraffic.INDEX_NAME, scopeId = SERVICE_INSTANCE,
@@ -49,7 +48,6 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
     "serviceId",
     "name"
 })
-@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class InstanceTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_traffic";
     public static final String SERVICE_ID = "service_id";

@@ -18,23 +18,24 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
 
 @RequiredArgsConstructor
 public class JDBCRecordDAO extends JDBCSQLExecutor implements IRecordDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
     private final StorageBuilder<Record> storageBuilder;
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
-        return getInsertExecutor(model.getName(), record, storageBuilder, new HashMapConverter.ToStorage(), null);
+        return getInsertExecutor(model, record, record.getTimeBucket(), storageBuilder, new HashMapConverter.ToStorage(), null);
     }
 }

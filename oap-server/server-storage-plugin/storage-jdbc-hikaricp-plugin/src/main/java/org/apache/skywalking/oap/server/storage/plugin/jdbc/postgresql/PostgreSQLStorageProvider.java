@@ -49,9 +49,9 @@ public class PostgreSQLStorageProvider extends JDBCStorageProvider {
 
         this.registerServiceImplementation(
             IMetricsQueryDAO.class,
-            new PostgreSQLMetricsQueryDAO(jdbcClient));
+            new PostgreSQLMetricsQueryDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IAggregationQueryDAO.class,
-            new PostgreSQLAggregationQueryDAO(jdbcClient));
+            new PostgreSQLAggregationQueryDAO(jdbcClient, tableHelper));
     }
 }

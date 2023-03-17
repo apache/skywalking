@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.storage;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Metrics related DAO.
@@ -39,7 +40,7 @@ public interface IMetricsDAO extends DAO {
      * @return the data of all given IDs. Only include existing data. Don't require to keep the same order of ids list.
      * @throws IOException when error occurs in data query.
      */
-    List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException;
+    List<Metrics> multiGet(Model model, List<Metrics> metrics) throws Exception;
 
     /**
      * Transfer the given metrics to an executable insert statement.

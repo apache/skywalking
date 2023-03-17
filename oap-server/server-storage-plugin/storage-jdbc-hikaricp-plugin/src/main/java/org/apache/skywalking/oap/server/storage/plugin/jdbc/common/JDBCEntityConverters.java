@@ -16,18 +16,27 @@
  *
  */
 
-package org.apache.skywalking.oap.server.library.client.jdbc;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
-import java.io.IOException;
+import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 
-public class JDBCClientException extends IOException {
+import java.sql.ResultSet;
 
-    public JDBCClientException(String message) {
-        super(message);
-    }
+public class JDBCEntityConverters {
+    public static Convert2Entity toEntity(ResultSet resultSet) {
+        return new Convert2Entity() {
+            @Override
+            @SneakyThrows
+            public Object get(String fieldName) {
+                return resultSet.getObject(fieldName);
+            }
 
-    public JDBCClientException(String message, Throwable cause) {
-        super(message, cause);
+            @Override
+            @SneakyThrows
+            public byte[] getBytes(String fieldName) {
+                return resultSet.getBytes(fieldName);
+            }
+        };
     }
 }
-

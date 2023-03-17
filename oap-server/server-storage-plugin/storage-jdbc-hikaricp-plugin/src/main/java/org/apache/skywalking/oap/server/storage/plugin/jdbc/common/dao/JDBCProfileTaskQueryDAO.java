@@ -18,93 +18,125 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
-@RequiredArgsConstructor
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+
 public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
-    @Override
-    public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
-                                         Long endTimeBucket, Integer limit) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME).append(" where 1=1 ");
-
-        if (startTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ? ");
-            condition.add(startTimeBucket);
-        }
-
-        if (endTimeBucket != null) {
-            sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" <= ? ");
-            condition.add(endTimeBucket);
-        }
-
-        if (StringUtil.isNotEmpty(serviceId)) {
-            sql.append(" and ").append(ProfileTaskRecord.SERVICE_ID).append("=? ");
-            condition.add(serviceId);
-        }
-
-        if (StringUtil.isNotEmpty(endpointName)) {
-            sql.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append("=?");
-            condition.add(endpointName);
-        }
-
-        sql.append(" ORDER BY ").append(ProfileTaskRecord.START_TIME).append(" DESC ");
-
-        if (limit != null) {
-            sql.append(" LIMIT ").append(limit);
-        }
-
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final LinkedList<ProfileTask> tasks = new LinkedList<>();
-                while (resultSet.next()) {
-                    tasks.add(parseTask(resultSet));
-                }
-                return tasks;
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+    public JDBCProfileTaskQueryDAO(JDBCClient jdbcClient, ModuleManager moduleManager) {
+        this.jdbcClient = jdbcClient;
+        this.tableHelper = new TableHelper(moduleManager, jdbcClient);
     }
 
     @Override
-    public ProfileTask getById(String id) throws IOException {
+    @SneakyThrows
+    public List<ProfileTask> getTaskList(String serviceId, String endpointName, Long startTimeBucket,
+                                         Long endTimeBucket, Integer limit) {
+        final var results = new ArrayList<ProfileTask>();
+        final var tables = startTimeBucket == null || endTimeBucket == null ?
+            tableHelper.getTablesWithinTTL(ProfileTaskRecord.INDEX_NAME) :
+            tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME, startTimeBucket, endTimeBucket);
+        for (final var table : tables) {
+            final var condition = new ArrayList<>(4);
+            final var sql = new StringBuilder()
+                .append("select * from ").append(table)
+                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(ProfileTaskRecord.INDEX_NAME);
+
+            if (startTimeBucket != null) {
+                sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" >= ? ");
+                condition.add(startTimeBucket);
+            }
+
+            if (endTimeBucket != null) {
+                sql.append(" and ").append(ProfileTaskRecord.TIME_BUCKET).append(" <= ? ");
+                condition.add(endTimeBucket);
+            }
+
+            if (StringUtil.isNotEmpty(serviceId)) {
+                sql.append(" and ").append(ProfileTaskRecord.SERVICE_ID).append("=? ");
+                condition.add(serviceId);
+            }
+
+            if (StringUtil.isNotEmpty(endpointName)) {
+                sql.append(" and ").append(ProfileTaskRecord.ENDPOINT_NAME).append("=?");
+                condition.add(endpointName);
+            }
+
+            sql.append(" ORDER BY ").append(ProfileTaskRecord.START_TIME).append(" DESC ");
+
+            if (limit != null) {
+                sql.append(" LIMIT ").append(limit);
+            }
+
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sql.toString(),
+                    resultSet -> {
+                        final var tasks = new ArrayList<ProfileTask>();
+                        while (resultSet.next()) {
+                            tasks.add(parseTask(resultSet));
+                        }
+                        return tasks;
+                    },
+                    condition.toArray(new Object[0]))
+            );
+        }
+        return limit == null ?
+            results :
+            results
+                .stream()
+                .limit(limit)
+                .collect(toList());
+    }
+
+    @Override
+    @SneakyThrows
+    public ProfileTask getById(String id) {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
 
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(ProfileTaskRecord.INDEX_NAME)
-            .append(" where " + ProfileTaskRecord.TASK_ID + "=? LIMIT 1");
-        condition.add(id);
+        final var tables = tableHelper.getTablesWithinTTL(ProfileTaskRecord.INDEX_NAME);
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            final ArrayList<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table)
+               .append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
+               .append(" and ")
+               .append(ProfileTaskRecord.TASK_ID + "=? LIMIT 1");
+            condition.add(ProfileTaskRecord.INDEX_NAME);
+            condition.add(id);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                if (resultSet.next()) {
-                    return parseTask(resultSet);
-                }
+            final var r = jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        return parseTask(resultSet);
+                    }
+                    return null;
+                },
+                condition.toArray(new Object[0]));
+            if (r != null) {
+                return r;
             }
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e);
         }
         return null;
     }
