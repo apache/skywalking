@@ -43,7 +43,7 @@ public class JDBCNetworkAddressAliasDAO extends JDBCSQLExecutor implements INetw
     @Override
     @SneakyThrows
     public List<NetworkAddressAlias> loadLastUpdate(long lastUpdateTime) {
-        final var tables = tableHelper.getTablesForRead(NetworkAddressAlias.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(NetworkAddressAlias.INDEX_NAME);
         final var results = new ArrayList<NetworkAddressAlias>();
 
         for (final var table : tables) {

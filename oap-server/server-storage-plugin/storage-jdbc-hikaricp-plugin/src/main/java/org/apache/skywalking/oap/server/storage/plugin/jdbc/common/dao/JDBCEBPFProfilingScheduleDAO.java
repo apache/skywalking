@@ -42,7 +42,7 @@ public class JDBCEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
     @Override
     @SneakyThrows
     public List<EBPFProfilingSchedule> querySchedules(String taskId) {
-        final var tables = tableHelper.getTablesForRead(EBPFProfilingScheduleRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingScheduleRecord.INDEX_NAME);
         final var schedules = new ArrayList<EBPFProfilingSchedule>();
         for (final var table : tables) {
             final var sqlAndParameters = buildSQL(taskId, table);

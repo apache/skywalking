@@ -42,7 +42,7 @@ public class JDBCProfileTaskLogQueryDAO implements IProfileTaskLogQueryDAO {
     @Override
     @SneakyThrows
     public List<ProfileTaskLog> getTaskLogList() {
-        final var tables = tableHelper.getTablesForRead(ProfileTaskLogRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProfileTaskLogRecord.INDEX_NAME);
         final var results = new ArrayList<ProfileTaskLog>();
 
         for (final var table : tables) {

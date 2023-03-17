@@ -102,7 +102,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
         final var tables = startSecondTB > 0 && endSecondTB > 0 ?
             tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB) :
-            tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
+            tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var traces = new ArrayList<BasicTrace>();
 
         for (String table : tables) {
@@ -224,7 +224,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     @Override
     @SneakyThrows
     public List<SegmentRecord> queryByTraceId(String traceId) throws IOException {
-        final var tables = tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
 
         for (String table : tables) {

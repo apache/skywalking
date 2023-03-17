@@ -50,7 +50,7 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
                                          Long endTimeBucket, Integer limit) {
         final var results = new ArrayList<ProfileTask>();
         final var tables = startTimeBucket == null || endTimeBucket == null ?
-            tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME) :
+            tableHelper.getTablesWithinTTL(ProfileTaskRecord.INDEX_NAME) :
             tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME, startTimeBucket, endTimeBucket);
         for (final var table : tables) {
             final var condition = new ArrayList<>(4);
@@ -113,7 +113,7 @@ public class JDBCProfileTaskQueryDAO implements IProfileTaskQueryDAO {
             return null;
         }
 
-        final var tables = tableHelper.getTablesForRead(ProfileTaskRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProfileTaskRecord.INDEX_NAME);
         for (String table : tables) {
             final StringBuilder sql = new StringBuilder();
             final ArrayList<Object> condition = new ArrayList<>(1);

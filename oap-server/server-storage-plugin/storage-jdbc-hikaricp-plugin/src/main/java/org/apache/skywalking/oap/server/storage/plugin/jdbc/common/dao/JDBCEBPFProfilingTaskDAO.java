@@ -50,7 +50,7 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     @Override
     @SneakyThrows
     public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) {
-        final var tables = tableHelper.getTablesForRead(EBPFProfilingTaskRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
         final var results = new ArrayList<EBPFProfilingTask>();
 
         for (final var table : tables) {
@@ -99,7 +99,7 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     @SneakyThrows
     public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes, long taskStartTime, long latestUpdateTime) {
         final var results = new ArrayList<EBPFProfilingTask>();
-        final var tables = tableHelper.getTablesForRead(EBPFProfilingTaskRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
 
         for (final var table : tables) {
             final var sqlAndParameters = buildSQLForQueryTasksByTargets(
@@ -158,7 +158,7 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
     @Override
     @SneakyThrows
     public EBPFProfilingTask queryById(String id) {
-        final var tables = tableHelper.getTablesForRead(EBPFProfilingTaskRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
         for (final var table : tables) {
             final var sql = new StringBuilder();
             sql.append("select * from ").append(table)

@@ -61,7 +61,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     @Override
     @SneakyThrows
     public List<String> getServiceNames() {
-        final var tables = tableHelper.getTablesForRead(ZipkinServiceTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ZipkinServiceTraffic.INDEX_NAME);
         final var services = new ArrayList<String>();
 
         for (String table : tables) {
@@ -87,7 +87,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     @Override
     @SneakyThrows
     public List<String> getRemoteServiceNames(final String serviceName) {
-        final var tables = tableHelper.getTablesForRead(ZipkinServiceRelationTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ZipkinServiceRelationTraffic.INDEX_NAME);
         final var remoteServices = new ArrayList<String>();
 
         for (String table : tables) {
@@ -118,7 +118,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     @Override
     @SneakyThrows
     public List<String> getSpanNames(final String serviceName) {
-        final var tables = tableHelper.getTablesForRead(ZipkinServiceSpanTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ZipkinServiceSpanTraffic.INDEX_NAME);
         final var spanNames = new ArrayList<String>();
 
         for (String table : tables) {
@@ -149,7 +149,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     @Override
     @SneakyThrows
     public List<Span> getTrace(final String traceId) {
-        final var tables = tableHelper.getTablesForRead(ZipkinSpanRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME);
         final var trace = new ArrayList<Span>();
 
         for (String table : tables) {
@@ -275,7 +275,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             return new ArrayList<>();
         }
 
-        final var tables = tableHelper.getTablesForRead(ZipkinSpanRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME);
         final var traces = new ArrayList<List<Span>>();
 
         for (String table : tables) {

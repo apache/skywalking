@@ -38,7 +38,7 @@ public class JDBCServiceLabelQueryDAO implements IServiceLabelDAO {
     @Override
     @SneakyThrows
     public List<String> queryAllLabels(String serviceId) {
-        final var tables = tableHelper.getTablesForRead(ServiceLabelRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ServiceLabelRecord.INDEX_NAME);
         final var results = new ArrayList<String>();
 
         for (String table : tables) {

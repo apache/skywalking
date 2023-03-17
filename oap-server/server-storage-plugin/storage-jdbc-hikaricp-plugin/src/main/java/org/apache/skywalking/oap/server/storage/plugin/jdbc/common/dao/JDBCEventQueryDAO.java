@@ -61,7 +61,7 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
         final Object[] parameters = conditionsParametersPair._2().toArray();
         final String whereClause = conditions.collect(joining(" and ", " where ", ""));
 
-        final var tables = tableHelper.getTablesForRead(Event.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(Event.INDEX_NAME);
         final var queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         final var page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
         final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
@@ -117,7 +117,7 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
         final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
         final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
 
-        final var tables = tableHelper.getTablesForRead(Event.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(Event.INDEX_NAME);
         final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
 
         for (String table : tables) {

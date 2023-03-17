@@ -18,8 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
@@ -34,8 +38,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
-import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
@@ -53,6 +57,16 @@ public class TableHelper {
 
     @Getter(lazy = true, value = AccessLevel.PRIVATE)
     private final ConfigService configService = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class);
+
+    private final LoadingCache<String, Boolean> tableExistence =
+        CacheBuilder.newBuilder()
+                    .expireAfterWrite(10, TimeUnit.MINUTES)
+                    .build(new CacheLoader<>() {
+                        @Override
+                        public @NonNull Boolean load(@NonNull String tableName) throws Exception {
+                            return jdbcClient.tableExists(tableName);
+                        }
+                    });
 
     public static String getTableName(Model model) {
         final var aggFuncName = FunctionCategory.uniqueFunctionName(model.getStreamClass()).replaceAll("-", "_");
@@ -111,21 +125,24 @@ public class TableHelper {
         timeBucketStart = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketStart), DownSampling.Day);
         timeBucketEnd = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketEnd), DownSampling.Day);
 
+        final var tablesWithinTTL = new HashSet<>(getTablesWithinTTL(modelName));
+
         return LongStream
             .rangeClosed(timeBucketStart, timeBucketEnd)
             .distinct()
             .mapToObj(it -> tableName + "_" + it)
+            .filter(tablesWithinTTL::contains)
             .filter(table -> {
                 try {
-                    return jdbcClient.tableExists(table);
-                } catch (SQLException e) {
+                    return tableExistence.get(table);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             })
             .collect(toList());
     }
 
-    public List<String> getTablesForRead(String modelName) {
+    public List<String> getTablesWithinTTL(String modelName) {
         final var model = TableMetaInfo.get(modelName);
 
         final var ttl = model.isRecord() ?

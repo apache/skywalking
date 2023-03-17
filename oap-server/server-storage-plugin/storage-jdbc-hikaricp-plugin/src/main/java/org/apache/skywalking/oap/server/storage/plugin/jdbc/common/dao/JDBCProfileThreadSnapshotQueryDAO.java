@@ -53,7 +53,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     @Override
     @SneakyThrows
     public List<BasicTrace> queryProfiledSegments(String taskId) {
-        final var tables = tableHelper.getTablesForRead(ProfileThreadSnapshotRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProfileThreadSnapshotRecord.INDEX_NAME);
         final var results = new ArrayList<BasicTrace>();
         final var segments = new ArrayList<>();
 
@@ -65,7 +65,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
             return Collections.emptyList();
         }
 
-        final var segmentTables = tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
+        final var segmentTables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         for (String table : segmentTables) {
             final var sql = new StringBuilder();
             final var parameters = new ArrayList<>();
@@ -153,7 +153,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId,
                                                           int minSequence,
                                                           int maxSequence) throws IOException {
-        final var tables = tableHelper.getTablesForRead(ProfileThreadSnapshotRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProfileThreadSnapshotRecord.INDEX_NAME);
         final var results = new ArrayList<ProfileThreadSnapshotRecord>();
 
         for (String table : tables) {
@@ -196,7 +196,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
     @Override
     @SneakyThrows
     public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        final var tables = tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         for (final var table : tables) {
             final var r = jdbcClient.executeQuery(
                 "select * from " + table +
@@ -231,7 +231,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
 
     @SneakyThrows
     private int querySequenceWithAgg(String aggType, String segmentId, long start, long end) throws IOException {
-        final var tables = tableHelper.getTablesForRead(ProfileThreadSnapshotRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProfileThreadSnapshotRecord.INDEX_NAME);
 
         var result = IntStream.builder();
 

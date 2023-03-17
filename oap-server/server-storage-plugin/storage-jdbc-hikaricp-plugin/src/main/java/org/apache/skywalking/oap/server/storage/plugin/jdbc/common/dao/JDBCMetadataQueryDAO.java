@@ -76,7 +76,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @SneakyThrows
     public List<Service> listServices(final String layer, final String group) {
         final var results = new ArrayList<Service>();
-        final var tables = tableHelper.getTablesForRead(ServiceTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ServiceTraffic.INDEX_NAME);
 
         for (final var table : tables) {
             final var sqlAndParameters = buildSQLForListServices(layer, group, table);
@@ -116,7 +116,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Service> getServices(final String serviceId) {
-        final var tables = tableHelper.getTablesForRead(ServiceTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ServiceTraffic.INDEX_NAME);
         final var results = new ArrayList<Service>();
 
         for (String table : tables) {
@@ -197,7 +197,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public ServiceInstance getInstance(final String instanceId) {
-        final var tables = tableHelper.getTablesForRead(InstanceTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
@@ -225,7 +225,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @SneakyThrows
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
         final var results = new ArrayList<Endpoint>();
-        final var tables = tableHelper.getTablesForRead(EndpointTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(EndpointTraffic.INDEX_NAME);
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
@@ -350,7 +350,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String agentId) {
-        final var tables = tableHelper.getTablesForRead(ProcessTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {
@@ -407,7 +407,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public long getProcessCount(String instanceId) {
-        final var tables = tableHelper.getTablesForRead(ProcessTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
         long total = 0;
 
         for (String table : tables) {
@@ -526,7 +526,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public Process getProcess(String processId) {
-        final var tables = tableHelper.getTablesForRead(ProcessTraffic.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();

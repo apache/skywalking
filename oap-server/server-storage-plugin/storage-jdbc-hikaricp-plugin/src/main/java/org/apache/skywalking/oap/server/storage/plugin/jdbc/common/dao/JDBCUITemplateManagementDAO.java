@@ -54,7 +54,7 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
             return null;
         }
 
-        final var tables = tableHelper.getTablesForRead(UITemplate.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(UITemplate.INDEX_NAME);
 
         for (String table : tables) {
             final StringBuilder sql = new StringBuilder();
@@ -84,7 +84,7 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
     @Override
     @SneakyThrows
     public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) {
-        final var tables = tableHelper.getTablesForRead(UITemplate.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(UITemplate.INDEX_NAME);
         final var configs = new ArrayList<DashboardConfiguration>();
 
         for (String table : tables) {

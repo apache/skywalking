@@ -45,7 +45,7 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
     @Override
     @SneakyThrows
     public List<SpanAttachedEventRecord> querySpanAttachedEvents(SpanAttachedEventTraceType type, List<String> traceIds) {
-        final var tables = tableHelper.getTablesForRead(SpanAttachedEventRecord.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(SpanAttachedEventRecord.INDEX_NAME);
         final var results = new ArrayList<SpanAttachedEventRecord>();
 
         for (String table : tables) {
