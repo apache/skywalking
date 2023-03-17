@@ -38,8 +38,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
+import java.time.Duration;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
@@ -60,7 +60,7 @@ public class TableHelper {
 
     private final LoadingCache<String, Boolean> tableExistence =
         CacheBuilder.newBuilder()
-                    .expireAfterWrite(10, TimeUnit.MINUTES)
+                    .expireAfterAccess(Duration.ofMinutes(10))
                     .build(new CacheLoader<>() {
                         @Override
                         public @NonNull Boolean load(@NonNull String tableName) throws Exception {
@@ -125,13 +125,10 @@ public class TableHelper {
         timeBucketStart = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketStart), DownSampling.Day);
         timeBucketEnd = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketEnd), DownSampling.Day);
 
-        final var tablesWithinTTL = new HashSet<>(getTablesWithinTTL(modelName));
-
         return LongStream
             .rangeClosed(timeBucketStart, timeBucketEnd)
             .distinct()
             .mapToObj(it -> tableName + "_" + it)
-            .filter(tablesWithinTTL::contains)
             .filter(table -> {
                 try {
                     return tableExistence.get(table);
