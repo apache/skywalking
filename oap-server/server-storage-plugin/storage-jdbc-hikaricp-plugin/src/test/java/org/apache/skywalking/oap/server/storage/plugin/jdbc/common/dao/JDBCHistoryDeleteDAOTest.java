@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
@@ -30,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -82,6 +86,14 @@ class JDBCHistoryDeleteDAOTest {
 
         tableHelper = new TableHelper(moduleManager, jdbcClient);
         tableInstaller = new JDBCTableInstaller(jdbcClient, moduleManager);
+
+        final var providerHolder = mock(ModuleProviderHolder.class);
+        final var coreModule = mock(CoreModuleProvider.class);
+        final var configService = mock(ConfigService.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(providerHolder);
+        when(providerHolder.provider()).thenReturn(coreModule);
+        when(coreModule.getService(ConfigService.class)).thenReturn(configService);
+        when(configService.getMetricsDataTTL()).thenReturn(3);
 
         final var serviceTrafficNameColumn = mock(Column.class);
         when(serviceTrafficNameColumn.name()).thenReturn("service_traffic_name");
