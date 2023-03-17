@@ -67,7 +67,8 @@ public class JDBCTableInstaller extends ModelInstaller {
 
         final var table = TableHelper.getLatestTableForWrite(model);
 
-        if (!isTableExisted(table)) {
+        final var jdbcClient = (JDBCClient) client;
+        if (!jdbcClient.tableExists(table)) {
             return false;
         }
 
@@ -126,11 +127,13 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     public void createOrUpdateTableIndexes(String table, List<ModelColumn> columns,
                                            boolean isAdditionalTable) throws SQLException {
+        final var jdbcClient = (JDBCClient) client;
+
         // Additional table's id is a many-to-one relation to the main table's id,
         // and thus can not be primary key, but a simple index.
         if (isAdditionalTable) {
             final var index = "idx_" + Math.abs((table + "_" + JDBCTableInstaller.ID_COLUMN).hashCode());
-            if (!isIndexExisted(table, index)) {
+            if (!jdbcClient.indexExists(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
@@ -144,7 +147,7 @@ public class JDBCTableInstaller extends ModelInstaller {
 
         if (!isAdditionalTable) {
             final var index = "idx_" + Math.abs((table + "_" + JDBCTableInstaller.TABLE_COLUMN).hashCode());
-            if (!isIndexExisted(table, index)) {
+            if (!jdbcClient.indexExists(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
@@ -167,7 +170,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .collect(toList());
         for (var column : columnsMissingIndex) {
             final var index = "idx_" + Math.abs((table + "_" + column).hashCode());
-            if (!isIndexExisted(table, index)) {
+            if (!jdbcClient.indexExists(table, index)) {
                 executeSQL(
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
@@ -192,7 +195,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                     continue;
                 }
                 final var index = "idx_" + Math.abs((table + "_" + String.join("_", multiColumns)).hashCode());
-                if (isIndexExisted(table, index)) {
+                if (jdbcClient.indexExists(table, index)) {
                     continue;
                 }
                 executeSQL(
@@ -228,7 +231,8 @@ public class JDBCTableInstaller extends ModelInstaller {
         final var existingColumns = getDatabaseColumns(table);
         columnsToBeAdded.removeIf(it -> existingColumns.contains(it.getColumnName().getStorageName()));
 
-        if (!isTableExisted(table)) {
+        final var jdbcClient = (JDBCClient) client;
+        if (!jdbcClient.tableExists(table)) {
             createTable(table, columnsToBeAdded, isAdditionalTable);
         } else {
             updateTable(table, columnsToBeAdded);
@@ -238,16 +242,6 @@ public class JDBCTableInstaller extends ModelInstaller {
     protected Set<String> getDatabaseColumns(String table) throws SQLException {
         final var jdbcClient = (JDBCClient) client;
         return jdbcClient.getTableColumns(table);
-    }
-
-    protected boolean isTableExisted(String table) throws SQLException {
-        final var jdbcClient = (JDBCClient) client;
-        return jdbcClient.tableExists(table);
-    }
-
-    protected boolean isIndexExisted(String table, String index) throws SQLException {
-        final var jdbcClient = (JDBCClient) client;
-        return jdbcClient.indexExists(table, index);
     }
 
     private void updateTable(String table, List<ModelColumn> columns) throws SQLException {

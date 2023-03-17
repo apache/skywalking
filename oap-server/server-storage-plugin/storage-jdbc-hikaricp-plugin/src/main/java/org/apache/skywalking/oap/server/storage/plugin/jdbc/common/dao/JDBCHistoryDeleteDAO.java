@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.joda.time.DateTime;
 
+import java.time.Clock;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,18 +43,19 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
     private final JDBCTableInstaller modelInstaller;
+    private final Clock clock;
 
     private final Map<String, Long> lastDeletedTimeBucket = new ConcurrentHashMap<>();
 
     @Override
     @SneakyThrows
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
-        final var endTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+        final var endTimeBucket = TimeBucket.getTimeBucket(clock.millis(), DownSampling.Day);
         final var startTimeBucket = endTimeBucket - ttl;
         log.info(
             "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
             ttl,
-            System.currentTimeMillis(),
+            clock.millis(),
             startTimeBucket,
             endTimeBucket
         );
@@ -99,7 +101,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         }
 
         // Create tables for the next day.
-        final var nextTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
+        final var nextTimeBucket = TimeBucket.getTimeBucket(clock.millis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
         final var table = TableHelper.getTable(model, nextTimeBucket);
         modelInstaller.createTable(model, table);
 

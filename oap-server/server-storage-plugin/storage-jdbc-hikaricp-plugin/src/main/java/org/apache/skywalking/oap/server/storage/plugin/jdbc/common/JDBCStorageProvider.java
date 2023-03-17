@@ -84,6 +84,8 @@ import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+import java.time.Clock;
+
 public abstract class JDBCStorageProvider extends ModuleProvider {
     protected JDBCStorageConfig config;
     protected JDBCClient jdbcClient;
@@ -163,7 +165,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCAlarmQueryDAO(jdbcClient, getManager(), tableHelper));
         this.registerServiceImplementation(
             IHistoryDeleteDAO.class,
-            new JDBCHistoryDeleteDAO(jdbcClient, tableHelper, modelInstaller));
+            new JDBCHistoryDeleteDAO(jdbcClient, tableHelper, modelInstaller, Clock.systemDefaultZone()));
         this.registerServiceImplementation(
             IRecordsQueryDAO.class,
             new JDBCRecordsQueryDAO(jdbcClient, tableHelper));
