@@ -18,33 +18,72 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
+    @SneakyThrows
     public List<Record> readRecords(final RecordCondition condition,
                                     final String valueColumnName,
-                                    final Duration duration) throws IOException {
-        StringBuilder sql = new StringBuilder("select * from " + condition.getName() + " where ");
+                                    final Duration duration) {
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var results = new ArrayList<Record>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQL(condition, valueColumnName, duration, table);
+            jdbcClient.executeQuery(
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        Record record = new Record();
+                        record.setName(resultSet.getString(TopN.STATEMENT));
+                        final String refId = resultSet.getString(TopN.TRACE_ID);
+                        record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
+                        record.setId(record.getRefId());
+                        record.setValue(String.valueOf(resultSet.getInt(valueColumnName)));
+                        results.add(record);
+                    }
+                    return null;
+                },
+                sqlAndParameters.parameters());
+        }
+
+        return results;
+    }
+
+    protected static SQLAndParameters buildSQL(
+        RecordCondition condition,
+        String valueColumnName,
+        Duration duration,
+        String table) {
+        StringBuilder sql = new StringBuilder("select * from " + table + " where ");
         List<Object> parameters = new ArrayList<>(10);
-        sql.append(" ").append(TopN.ENTITY_ID).append(" = ? and");
+        sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(condition.getName());
+        sql.append(" and ").append(TopN.ENTITY_ID).append(" = ? and");
         parameters.add(condition.getParentEntity().buildId());
         sql.append(" ").append(TopN.TIME_BUCKET).append(" >= ?");
         parameters.add(duration.getStartTimeBucketInSec());
@@ -59,25 +98,6 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
         }
         sql.append(" limit ").append(condition.getTopN());
 
-        List<Record> results = new ArrayList<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), parameters.toArray(new Object[0]))) {
-                while (resultSet.next()) {
-                    Record record = new Record();
-                    record.setName(resultSet.getString(TopN.STATEMENT));
-                    final String refId = resultSet.getString(TopN.TRACE_ID);
-                    record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
-                    record.setId(record.getRefId());
-                    record.setValue(resultSet.getString(valueColumnName));
-                    results.add(record);
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-
-        return results;
+        return new SQLAndParameters(sql.toString(), parameters);
     }
-
 }

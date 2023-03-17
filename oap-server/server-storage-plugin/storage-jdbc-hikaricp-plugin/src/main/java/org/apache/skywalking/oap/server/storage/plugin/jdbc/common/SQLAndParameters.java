@@ -16,24 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.mysql;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCStorageConfig;
-import com.google.common.base.Splitter;
-import lombok.Setter;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 
-@Setter
-public class MySQLShardingStorageConfig extends JDBCStorageConfig {
-    private String dataSources = Const.EMPTY_STRING;
+import java.util.List;
 
-    public Set<String> getDataSources() {
-        if (StringUtils.isEmpty(this.dataSources)) {
-            return null;
-        }
-        return new HashSet<>(Splitter.on(",").splitToList(this.dataSources));
+@Accessors(fluent = true)
+@RequiredArgsConstructor
+public class SQLAndParameters {
+    @Getter
+    private final String sql;
+    @NonNull
+    private final List<Object> parameters;
+
+    public Object[] parameters() {
+        return parameters.toArray();
     }
 }

@@ -20,15 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -36,91 +31,130 @@ import org.apache.skywalking.oap.server.core.query.type.event.EventQueryConditio
 import org.apache.skywalking.oap.server.core.query.type.event.EventType;
 import org.apache.skywalking.oap.server.core.query.type.event.Events;
 import org.apache.skywalking.oap.server.core.query.type.event.Source;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Event;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
-import static java.util.Objects.isNull;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JDBCEventQueryDAO implements IEventQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     public Events queryEvents(final EventQueryCondition condition) throws Exception {
         final Tuple2<Stream<String>, Stream<Object>> conditionsParametersPair = buildQuery(condition);
         final Stream<String> conditions = conditionsParametersPair._1();
         final Object[] parameters = conditionsParametersPair._2().toArray();
-        final String whereClause = conditions.collect(Collectors.joining(" and ", " where ", ""));
+        final String whereClause = conditions.collect(joining(" and ", " where ", ""));
 
-        final Events result = new Events();
+        final var tables = tableHelper.getTablesWithinTTL(Event.INDEX_NAME);
+        final var queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        final var page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
 
-        try (final Connection connection = jdbcClient.getConnection()) {
-            final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
-            final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            String sql = "select * from " + Event.INDEX_NAME + whereClause;
+        for (String table : tables) {
+            String sql = "select * from " + table + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {
                 sql += " order by " + Event.START_TIME + " asc";
             }
-            sql += " limit " + page.getLimit() + " offset " + page.getFrom();
+            sql += " limit " + (page.getLimit() + page.getFrom());
             if (log.isDebugEnabled()) {
                 log.debug("Query SQL: {}, parameters: {}", sql, parameters);
             }
-            try (final ResultSet resultSet = jdbcClient.executeQuery(connection, sql, parameters)) {
+
+            jdbcClient.executeQuery(sql, resultSet -> {
                 while (resultSet.next()) {
-                    result.getEvents().add(parseResultSet(resultSet));
+                    events.add(parseResultSet(resultSet));
                 }
-            }
+                return null;
+            }, parameters);
         }
 
-        return result;
+        final var comparator = Order.DES.equals(queryOrder) ?
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime).reversed() :
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime);
+        return new Events(
+            events
+                .stream()
+                .sorted(comparator)
+                .skip(page.getFrom())
+                .limit(page.getLimit())
+                .collect(toList())
+        );
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditions) throws Exception {
-        final List<Tuple2<Stream<String>, Stream<Object>>> conditionsParametersPair = conditions.stream()
-                                                                                                .map(this::buildQuery)
-                                                                                                .collect(Collectors.toList());
-        final Object[] parameters = conditionsParametersPair.stream()
-                                                            .map(Tuple2::_2)
-                                                            .reduce(Stream.empty(), Stream::concat)
-                                                            .toArray();
-        final String whereClause = conditionsParametersPair.stream()
-                                                       .map(Tuple2::_1)
-                                                       .map(it -> it.collect(Collectors.joining(" and ")))
-                                                       .collect(Collectors.joining(" or ", " where ", ""));
+        final var conditionsParametersPair = conditions.stream()
+                                                       .map(this::buildQuery)
+                                                       .collect(toList());
+        final var parameters = conditionsParametersPair.stream()
+                                                       .map(Tuple2::_2)
+                                                       .reduce(Stream.empty(), Stream::concat)
+                                                       .toArray();
+        final var whereClause = conditionsParametersPair.stream()
+                                                        .map(Tuple2::_1)
+                                                        .map(it -> it.collect(joining(" and ")))
+                                                        .collect(joining(" or ", " where ", ""));
 
-        final Events result = new Events();
-        try (final Connection connection = jdbcClient.getConnection()) {
-            EventQueryCondition condition = conditions.get(0);
-            final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
-            final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-            String sql = "select * from " + Event.INDEX_NAME + whereClause;
+        EventQueryCondition condition = conditions.get(0);
+        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+
+        final var tables = tableHelper.getTablesWithinTTL(Event.INDEX_NAME);
+        final var events = new ArrayList<org.apache.skywalking.oap.server.core.query.type.event.Event>();
+
+        for (String table : tables) {
+            String sql = "select * from " + table + whereClause;
             if (Order.DES.equals(queryOrder)) {
                 sql += " order by " + Event.START_TIME + " desc";
             } else {
                 sql += " order by " + Event.START_TIME + " asc";
             }
-            sql += " limit " + page.getLimit() + " offset " + page.getFrom();
+            sql += " limit " + (page.getLimit() + page.getFrom());
             if (log.isDebugEnabled()) {
                 log.debug("Query SQL: {}, parameters: {}", sql, parameters);
             }
-            try (final ResultSet resultSet = jdbcClient.executeQuery(connection, sql, parameters)) {
+            jdbcClient.executeQuery(sql, resultSet -> {
                 while (resultSet.next()) {
-                    result.getEvents().add(parseResultSet(resultSet));
+                    events.add(parseResultSet(resultSet));
                 }
-            }
+
+                return null;
+            }, parameters);
         }
-        return result;
+
+        final var comparator = Order.DES.equals(queryOrder) ?
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime).reversed() :
+            comparing(org.apache.skywalking.oap.server.core.query.type.event.Event::getStartTime);
+        return new Events(
+            events
+                .stream()
+                .sorted(comparator)
+                .skip(page.getFrom())
+                .limit(page.getLimit())
+                .collect(toList())
+        );
     }
 
     protected org.apache.skywalking.oap.server.core.query.type.event.Event parseResultSet(final ResultSet resultSet) throws SQLException {
-        final org.apache.skywalking.oap.server.core.query.type.event.Event event = new org.apache.skywalking.oap.server.core.query.type.event.Event();
+        final var event = new org.apache.skywalking.oap.server.core.query.type.event.Event();
 
         event.setUuid(resultSet.getString(Event.UUID));
 
@@ -142,6 +176,9 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
     protected Tuple2<Stream<String>, Stream<Object>> buildQuery(final EventQueryCondition condition) {
         final Stream.Builder<String> conditions = Stream.builder();
         final Stream.Builder<Object> parameters = Stream.builder();
+
+        conditions.add(JDBCTableInstaller.TABLE_COLUMN + " = ?");
+        parameters.add(Event.INDEX_NAME);
 
         if (!isNullOrEmpty(condition.getUuid())) {
             conditions.add(Event.UUID + "=?");

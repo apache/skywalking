@@ -17,39 +17,51 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
-import java.io.IOException;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JDBCServiceLabelQueryDAO implements IServiceLabelDAO {
-    private JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
-    public List<String> queryAllLabels(String serviceId) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(1);
-        sql.append("select " + ServiceLabelRecord.LABEL + " from ")
-                .append(ServiceLabelRecord.INDEX_NAME)
-                .append(" where ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
-        condition.add(serviceId);
+    @SneakyThrows
+    public List<String> queryAllLabels(String serviceId) {
+        final var tables = tableHelper.getTablesWithinTTL(ServiceLabelRecord.INDEX_NAME);
+        final var results = new ArrayList<String>();
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return parseLabels(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(1);
+            sql.append("select " + ServiceLabelRecord.LABEL + " from ")
+               .append(table)
+               .append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+               .append(" and ").append(ServiceLabelRecord.SERVICE_ID).append(" = ?");
+            condition.add(ServiceLabelRecord.INDEX_NAME);
+            condition.add(serviceId);
+
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sql.toString(),
+                    this::parseLabels,
+                    condition.toArray(new Object[0])
+                )
+            );
         }
+
+        return results;
     }
 
     private List<String> parseLabels(ResultSet resultSet) throws SQLException {

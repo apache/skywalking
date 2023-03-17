@@ -65,8 +65,7 @@ public class StorageModelsTest {
     public void testStorageModels() throws StorageException {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
-                   new Storage("StorageModelsTest", false, DownSampling.Hour),
-                   false
+                   new Storage("StorageModelsTest", false, DownSampling.Hour)
         );
 
         final List<Model> allModules = models.allModels();
@@ -91,12 +90,12 @@ public class StorageModelsTest {
         private String column;
 
         @Column(name = "column1")
-        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column2"})
+        @SQLDatabase.CompositeIndex(withColumns = {"column2"})
         private String column1;
 
         @Column(name = "column2")
-        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column1"})
-        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column"})
+        @SQLDatabase.CompositeIndex(withColumns = {"column1"})
+        @SQLDatabase.CompositeIndex(withColumns = {"column"})
         private String column2;
 
         @Column(name = "column", storageOnly = true)

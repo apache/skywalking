@@ -83,7 +83,7 @@ public class TopologyQuery implements GraphQLQueryResolver {
         return getQueryService().getEndpointDependencies(duration, endpointId);
     }
 
-    public ProcessTopology getProcessTopology(final String instanceId, final Duration duration) throws IOException {
+    public ProcessTopology getProcessTopology(final String instanceId, final Duration duration) throws Exception {
         return getQueryService().getProcessTopology(instanceId, duration);
     }
 }

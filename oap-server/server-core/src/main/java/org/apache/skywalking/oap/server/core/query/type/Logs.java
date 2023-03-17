@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import java.util.ArrayList;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
@@ -33,5 +34,9 @@ public class Logs {
 
     public Logs() {
         this.logs = new ArrayList<>();
+    }
+
+    public Logs(final List<Log> logs) {
+        this.logs = logs;
     }
 }

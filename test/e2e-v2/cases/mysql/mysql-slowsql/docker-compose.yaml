@@ -30,7 +30,7 @@ services:
       - SW_STORAGE=mysql
       - SW_DATA_SOURCE_USER=root
       - SW_DATA_SOURCE_PASSWORD=password
-      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
+      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
       - SW_CORE_TOPN_REPORT_PERIOD=2
     depends_on:
       mysql:

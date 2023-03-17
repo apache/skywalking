@@ -52,11 +52,11 @@ public class ProfileThreadSnapshotRecord extends Record {
     public static final String STACK_BINARY = "stack_binary";
 
     @Column(name = TASK_ID)
-    @SQLDatabase.QueryUnifiedIndex(withColumns = {SEGMENT_ID})
+    @SQLDatabase.CompositeIndex(withColumns = {SEGMENT_ID})
     private String taskId;
     @Column(name = SEGMENT_ID)
-    @SQLDatabase.QueryUnifiedIndex(withColumns = {SEQUENCE})
-    @SQLDatabase.QueryUnifiedIndex(withColumns = {DUMP_TIME})
+    @SQLDatabase.CompositeIndex(withColumns = {SEQUENCE})
+    @SQLDatabase.CompositeIndex(withColumns = {DUMP_TIME})
     @BanyanDB.SeriesID(index = 0)
     private String segmentId;
     @Column(name = DUMP_TIME)
