@@ -20,13 +20,17 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.common.base.Joiner;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -34,48 +38,54 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class JDBCContinuousProfilingPolicyDAO extends JDBCSQLExecutor implements IContinuousProfilingPolicyDAO {
-    private JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
     public void savePolicy(ContinuousProfilingPolicy policy) throws IOException {
         final List<ContinuousProfilingPolicy> existingPolicy = queryPolicies(Arrays.asList(policy.getServiceId()));
         SQLExecutor sqlExecutor;
+        final var model = TableMetaInfo.get(ContinuousProfilingPolicy.INDEX_NAME);
         if (CollectionUtils.isNotEmpty(existingPolicy)) {
-            sqlExecutor = getUpdateExecutor(ContinuousProfilingPolicy.INDEX_NAME, policy, new ContinuousProfilingPolicy.Builder(), null);
+            sqlExecutor = getUpdateExecutor(model, policy, 0, new ContinuousProfilingPolicy.Builder(), null);
         } else {
-            sqlExecutor = getInsertExecutor(ContinuousProfilingPolicy.INDEX_NAME, policy,
+            sqlExecutor = getInsertExecutor(model, policy, 0,
                 new ContinuousProfilingPolicy.Builder(), new HashMapConverter.ToStorage(), null);
         }
 
         try (Connection connection = jdbcClient.getConnection()) {
             sqlExecutor.invoke(connection);
-        } catch (SQLException | JDBCClientException e) {
+        } catch (SQLException e) {
             throw new IOException(e);
         }
     }
 
+    @SneakyThrows
     @Override
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
+        final var tables = tableHelper.getTablesWithinTTL(UITemplate.INDEX_NAME);
         final StringBuilder sql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(serviceIdList);
-        sql.append("select * from ").append(ContinuousProfilingPolicy.INDEX_NAME).append(" where ")
-            .append(ContinuousProfilingPolicy.SERVICE_ID)
-            .append(" in (").append(Joiner.on(",").join(serviceIdList.stream().map(s -> "?").collect(Collectors.toList())))
-            .append(" )");
+        List<Object> condition = new ArrayList<>();
+        condition.add(ContinuousProfilingPolicy.INDEX_NAME);
+        condition.addAll(serviceIdList);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildPolicies(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
+        for (String table : tables) {
+            sql.append("select * from ").append(table).append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+                .append(" and ").append(ContinuousProfilingPolicy.SERVICE_ID)
+                .append(" in (").append(Joiner.on(",").join(serviceIdList.stream().map(s -> "?").collect(Collectors.toList())))
+                .append(" )");
+
+            return jdbcClient.executeQuery(sql.toString(), this::buildPolicies, condition.toArray(new Object[0]));
         }
+
+        return Collections.emptyList();
     }
 
     private List<ContinuousProfilingPolicy> buildPolicies(ResultSet resultSet) throws SQLException {

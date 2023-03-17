@@ -18,11 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-
-import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
@@ -34,40 +31,21 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @RequiredArgsConstructor
-public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
-    private static final Gson GSON = new Gson();
+public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFProfilingTaskDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
 
-    @Override
-    @SneakyThrows
-    public List<EBPFProfilingTask> queryTasksByServices(List<String> serviceIdList, long taskStartTime, long latestUpdateTime) {
-        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
-        final var results = new ArrayList<EBPFProfilingTask>();
-
-        for (final var table : tables) {
-            final var sqlAndParameters = buildSQLForQueryTasksByServices(serviceIdList, taskStartTime, latestUpdateTime, table);
-            results.addAll(
-                jdbcClient.executeQuery(
-                    sqlAndParameters.sql(),
-                    this::buildTasks,
-                    sqlAndParameters.parameters()
-                )
-            );
-        }
-        return results;
-    }
-
     protected SQLAndParameters buildSQLForQueryTasksByServices(
         final List<String> serviceIdList,
+        EBPFProfilingTriggerType triggerType,
         final long taskStartTime,
         final long latestUpdateTime,
         final String table) {
@@ -89,7 +67,7 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
                 EBPFProfilingTaskRecord.LAST_UPDATE_TIME, ">", latestUpdateTime);
         }
         if (triggerType != null) {
-            appendCondition(conditionSql, condition,
+            appendCondition(conditionSql, parameters,
                 EBPFProfilingTaskRecord.TRIGGER_TYPE, "=", triggerType.value());
         }
 
@@ -99,16 +77,36 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         return new SQLAndParameters(sql.toString(), parameters);
     }
 
+    @SneakyThrows
+    @Override
+    public List<EBPFProfilingTaskRecord> queryTasksByServices(List<String> serviceIdList, EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
+        final var results = new ArrayList<EBPFProfilingTaskRecord>();
+
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQLForQueryTasksByServices(serviceIdList, triggerType, taskStartTime, latestUpdateTime, table);
+            results.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildTasks,
+                    sqlAndParameters.parameters()
+                )
+            );
+        }
+
+        return results;
+    }
+
     @Override
     @SneakyThrows
-    public List<EBPFProfilingTask> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
+    public List<EBPFProfilingTaskRecord> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
                                                              EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
-        final var results = new ArrayList<EBPFProfilingTask>();
+        final var results = new ArrayList<EBPFProfilingTaskRecord>();
         final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
 
         for (final var table : tables) {
             final var sqlAndParameters = buildSQLForQueryTasksByTargets(
-                serviceId, serviceInstanceId, targetTypes, taskStartTime, latestUpdateTime, table
+                serviceId, serviceInstanceId, targetTypes, triggerType, taskStartTime, latestUpdateTime, table
             );
             results.addAll(
                 jdbcClient.executeQuery(
@@ -121,10 +119,30 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         return results;
     }
 
+    @Override
+    @SneakyThrows
+    public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
+        final List<EBPFProfilingTaskRecord> results = new ArrayList<>();
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
+        for (final var table : tables) {
+            String sql = "select * from " + table +
+                " where " + JDBCTableInstaller.TABLE_COLUMN + " = ?" +
+                EBPFProfilingTaskRecord.LOGICAL_ID + " = ?";
+
+            results.addAll(jdbcClient.executeQuery(
+                sql,
+                this::buildTasks,
+                EBPFProfilingTaskRecord.INDEX_NAME, id
+            ));
+        }
+        return results;
+    }
+
     protected SQLAndParameters buildSQLForQueryTasksByTargets(
         final String serviceId,
         final String serviceInstanceId,
         final List<EBPFProfilingTargetType> targetTypes,
+        EBPFProfilingTriggerType triggerType,
         final long taskStartTime,
         final long latestUpdateTime,
         final String table) {
@@ -153,7 +171,8 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
                 EBPFProfilingTaskRecord.LAST_UPDATE_TIME, ">", latestUpdateTime);
         }
         if (triggerType != null) {
-            appendCondition(conditionSql, condition, EBPFProfilingTaskRecord.TRIGGER_TYPE, "=", triggerType.value());
+            appendCondition(conditions, parameters,
+                EBPFProfilingTaskRecord.TRIGGER_TYPE, "=", triggerType.value());
         }
 
         if (conditions.length() > 0) {
@@ -161,28 +180,6 @@ public class JDBCEBPFProfilingTaskDAO implements IEBPFProfilingTaskDAO {
         }
 
         return new SQLAndParameters(sql.toString(), parameters);
-    }
-
-    @Override
-    @SneakyThrows
-    public EBPFProfilingTask queryById(String id) {
-        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
-        for (final var table : tables) {
-            final var sql = new StringBuilder();
-            sql.append("select * from ").append(table)
-               .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
-               .append(EBPFProfilingTaskRecord.LOGICAL_ID).append(" = ?");
-
-            final var result = jdbcClient.executeQuery(
-                sql.toString(),
-                resultSet -> buildTasks(resultSet).stream().reduce(EBPFProfilingTask::combine).orElse(null),
-                EBPFProfilingTaskRecord.INDEX_NAME, id
-            );
-            if (result != null) {
-                return result;
-            }
-        }
-        return null;
     }
 
     private List<EBPFProfilingTaskRecord> buildTasks(ResultSet resultSet) throws SQLException {

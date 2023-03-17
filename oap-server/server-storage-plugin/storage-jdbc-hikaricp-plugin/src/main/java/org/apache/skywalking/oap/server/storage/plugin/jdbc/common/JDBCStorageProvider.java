@@ -203,7 +203,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             new JDBCEBPFProfilingDataDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IContinuousProfilingPolicyDAO.class,
-            new JDBCContinuousProfilingPolicyDAO(jdbcClient));
+            new JDBCContinuousProfilingPolicyDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IServiceLabelDAO.class,
             new JDBCServiceLabelQueryDAO(jdbcClient, tableHelper));
