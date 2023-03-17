@@ -662,9 +662,15 @@ jobs:
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
+      - name: Cache maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
@@ -762,9 +768,15 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
+      - name: Cache maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
         uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
         env:
