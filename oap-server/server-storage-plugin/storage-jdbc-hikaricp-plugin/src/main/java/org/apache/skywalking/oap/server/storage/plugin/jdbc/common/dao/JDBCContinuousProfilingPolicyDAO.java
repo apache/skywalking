@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 import com.google.common.base.Joiner;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
@@ -69,7 +68,7 @@ public class JDBCContinuousProfilingPolicyDAO extends JDBCSQLExecutor implements
     @SneakyThrows
     @Override
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
-        final var tables = tableHelper.getTablesWithinTTL(UITemplate.INDEX_NAME);
+        final var tables = tableHelper.getTablesWithinTTL(ContinuousProfilingPolicy.INDEX_NAME);
         final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         condition.add(ContinuousProfilingPolicy.INDEX_NAME);
