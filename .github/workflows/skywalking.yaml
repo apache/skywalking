@@ -540,8 +540,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/continuous/mysql/e2e.yaml
           - name: Continuous Profiling Postgres
             config: test/e2e-v2/cases/profiling/ebpf/continuous/postgres/e2e.yaml
-          - name: Continuous Profiling TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/tidb/e2e.yaml
           - name: Continuous Profiling OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0

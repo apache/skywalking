@@ -50,7 +50,8 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
             EBPFProfilingTaskRecord.TARGET_TYPE,
             EBPFProfilingTaskRecord.CREATE_TIME,
             EBPFProfilingTaskRecord.LAST_UPDATE_TIME,
-            EBPFProfilingTaskRecord.EXTENSION_CONFIG_JSON);
+            EBPFProfilingTaskRecord.EXTENSION_CONFIG_JSON,
+            EBPFProfilingTaskRecord.CONTINUOUS_PROFILING_JSON);
 
     public BanyanDBEBPFProfilingTaskDAO(BanyanDBStorageClient client) {
         super(client);
