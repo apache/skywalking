@@ -67,6 +67,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private static final Gson GSON = new Gson();
 
     private final int queryMaxSize;
+    private final int resultWindowMaxSize;
+    private final int metadataMaxSize;
     private final int scrollingBatchSize;
     private String endpointTrafficNameAlias;
     private boolean aliasNameInit = false;
@@ -76,9 +78,11 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         ElasticSearchClient client,
         StorageModuleElasticsearchConfig config) {
         super(client);
-        this.queryMaxSize = config.getMetadataQueryMaxSize();
+        this.metadataMaxSize = config.getMetadataQueryMaxSize();
+        this.resultWindowMaxSize = config.getResultWindowMaxSize();
         this.scrollingBatchSize = config.getScrollingBatchSize();
         this.layerSize = Layer.values().length;
+        this.queryMaxSize = Math.min(metadataMaxSize, resultWindowMaxSize);
     }
 
     @Override
@@ -86,7 +90,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
 
-        final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
+        final int batchSize = Math.min(metadataMaxSize, scrollingBatchSize);
         final BoolQueryBuilder query =
             Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(batchSize);
@@ -118,7 +122,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
                     break;
                 }
                 // We've got enough data
-                if (services.size() >= queryMaxSize) {
+                if (services.size() >= metadataMaxSize) {
                     break;
                 }
                 results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
@@ -159,7 +163,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, InstanceTraffic.INDEX_NAME));
         }
-        final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
+        final int batchSize = Math.min(metadataMaxSize, scrollingBatchSize);
         final SearchBuilder search = Search.builder().query(query).size(batchSize);
 
         final List<ServiceInstance> instances = new ArrayList<>();
@@ -170,7 +174,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             if (batch.size() < batchSize) {
                 break;
             }
-            if (batch.size() >= queryMaxSize) {
+            if (batch.size() >= metadataMaxSize) {
                 break;
             }
             response = getClient().scroll(SCROLL_CONTEXT_RETENTION, response.getScrollId());
