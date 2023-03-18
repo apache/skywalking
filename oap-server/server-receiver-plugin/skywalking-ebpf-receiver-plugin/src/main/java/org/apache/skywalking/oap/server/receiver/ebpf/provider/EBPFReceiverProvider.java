@@ -32,6 +32,8 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 
 public class EBPFReceiverProvider extends ModuleProvider {
 
+    private EBPFReceiverModuleConfig config;
+
     @Override
     public String name() {
         return "default";
@@ -43,8 +45,18 @@ public class EBPFReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ConfigCreator newConfigCreator() {
-        return null;
+    public ConfigCreator<EBPFReceiverModuleConfig> newConfigCreator() {
+        return new ConfigCreator<EBPFReceiverModuleConfig>() {
+            @Override
+            public Class<EBPFReceiverModuleConfig> type() {
+                return EBPFReceiverModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(EBPFReceiverModuleConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -58,7 +70,7 @@ public class EBPFReceiverProvider extends ModuleProvider {
                 .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new EBPFProcessServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new EBPFProfilingServiceHandler(getManager()));
-        grpcHandlerRegister.addHandler(new ContinuousProfilingServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ContinuousProfilingServiceHandler(getManager(), this.config));
     }
 
     @Override

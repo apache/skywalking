@@ -18,9 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.ebpf.provider.handler;
 
-import com.google.common.base.Functions;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
 import io.grpc.stub.StreamObserver;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.ebpf.profiling.v3.ContinuousProfilingCause;
@@ -52,10 +54,15 @@ import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.network.trace.component.command.ContinuousProfilingPolicyCommand;
+import org.apache.skywalking.oap.server.receiver.ebpf.provider.EBPFReceiverModuleConfig;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -64,10 +71,14 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
 
     private IContinuousProfilingPolicyDAO policyDAO;
     private final CommandService commandService;
+    private final Cache<String, PolicyWrapper> policyCache;
 
-    public ContinuousProfilingServiceHandler(ModuleManager moduleManager) {
+    public ContinuousProfilingServiceHandler(ModuleManager moduleManager, EBPFReceiverModuleConfig config) {
         this.policyDAO = moduleManager.find(StorageModule.NAME).provider().getService(IContinuousProfilingPolicyDAO.class);
         this.commandService = moduleManager.find(CoreModule.NAME).provider().getService(CommandService.class);
+        this.policyCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(config.getContinuousPolicyCacheTimeout(), TimeUnit.SECONDS)
+            .build();
     }
 
     @Override
@@ -81,8 +92,35 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
         }
 
         try {
-            final Map<String, ContinuousProfilingPolicy> policiesInDB = policyDAO.queryPolicies(new ArrayList<>(policiesQuery.keySet()))
-                .stream().collect(Collectors.toMap(ContinuousProfilingPolicy::getServiceId, Functions.identity(), (s1, s2) -> s1));
+            final List<String> serviceIdList = new ArrayList<>(policiesQuery.keySet());
+            final HashMap<String, ContinuousProfilingPolicy> policiesInDB = new HashMap<>();
+
+            // query from the cache first
+            for (ListIterator<String> serviceIdIt = serviceIdList.listIterator(); serviceIdIt.hasNext(); ) {
+                final String serviceId = serviceIdIt.next();
+                final PolicyWrapper wrapper = this.policyCache.getIfPresent(serviceId);
+                if (wrapper == null) {
+                    continue;
+                }
+                serviceIdIt.remove();
+
+                if (wrapper.policy != null) {
+                    policiesInDB.put(serviceId, wrapper.policy);
+                }
+            }
+
+            // query the policies which not in the cache
+            final List<ContinuousProfilingPolicy> queriedFromDB = policyDAO.queryPolicies(serviceIdList);
+            for (ContinuousProfilingPolicy dbPolicy : queriedFromDB) {
+                policiesInDB.put(dbPolicy.getServiceId(), dbPolicy);
+                this.policyCache.put(dbPolicy.getServiceId(), new PolicyWrapper(dbPolicy));
+                serviceIdList.remove(dbPolicy.getServiceId());
+            }
+
+            // Also add the cache if the service haven't policy
+            for (String serviceId : serviceIdList) {
+                this.policyCache.put(serviceId, new PolicyWrapper(null));
+            }
 
             final ArrayList<ContinuousProfilingPolicy> updatePolicies = new ArrayList<>();
             for (Map.Entry<String, String> entry : policiesQuery.entrySet()) {
@@ -221,4 +259,8 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
         return (long) (val * 100);
     }
 
+    @AllArgsConstructor
+    private static class PolicyWrapper {
+        final ContinuousProfilingPolicy policy;
+    }
 }
