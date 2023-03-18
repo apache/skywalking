@@ -67,6 +67,10 @@ public class MetadataQueryV2 implements GraphQLQueryResolver {
         return getMetadataQueryService().listServices(layer, null);
     }
 
+    public List<Service> listGroupServices(final String layer, final String group) throws IOException {
+        return getMetadataQueryService().listServices(layer, group);
+    }
+
     public Service findService(final String serviceName) throws IOException {
         return getMetadataQueryService().getService(IDManager.ServiceID.buildId(serviceName, true));
     }
