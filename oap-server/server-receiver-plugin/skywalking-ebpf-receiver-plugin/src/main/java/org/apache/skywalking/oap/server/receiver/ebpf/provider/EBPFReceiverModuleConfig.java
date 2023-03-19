@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class EBPFReceiverModuleConfig extends ModuleConfig {
 
     /**
-     * The continuous profiling policy cache time, Unit is second. Default value is 60 second.
+     * The continuous profiling policy cache time, Unit is second. Default value is 60 seconds.
      */
     @Setter
     private int continuousPolicyCacheTimeout = 60;
