@@ -87,6 +87,8 @@ public class Entity {
                 return Objects.nonNull(serviceName) && Objects.nonNull(serviceInstanceName) && Objects.nonNull(normal);
             case Endpoint:
                 return Objects.nonNull(serviceName) && Objects.nonNull(endpointName) && Objects.nonNull(normal);
+            case Process:
+                return Objects.nonNull(serviceName) && Objects.nonNull(serviceInstanceName) && Objects.nonNull(processName) && Objects.nonNull(normal);
             case ServiceRelation:
                 return Objects.nonNull(serviceName) && Objects.nonNull(destServiceName)
                     && Objects.nonNull(normal) && Objects.nonNull(destNormal);
@@ -123,6 +125,8 @@ public class Entity {
                     IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName);
             case Endpoint:
                 return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, normal), endpointName);
+            case Process:
+                return IDManager.ProcessID.buildId(IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId(serviceName, normal), serviceInstanceName), processName);
             case ServiceRelation:
                 return IDManager.ServiceID.buildRelationId(
                     new IDManager.ServiceID.ServiceRelationDefine(

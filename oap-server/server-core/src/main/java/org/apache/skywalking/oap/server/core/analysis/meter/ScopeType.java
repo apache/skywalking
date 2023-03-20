@@ -25,6 +25,7 @@ public enum ScopeType {
     SERVICE(DefaultScopeDefine.SERVICE),
     SERVICE_INSTANCE(DefaultScopeDefine.SERVICE_INSTANCE),
     ENDPOINT(DefaultScopeDefine.ENDPOINT),
+    PROCESS(DefaultScopeDefine.PROCESS),
     SERVICE_RELATION(DefaultScopeDefine.SERVICE_RELATION),
     PROCESS_RELATION(DefaultScopeDefine.PROCESS_RELATION);
 

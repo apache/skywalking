@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasD
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
@@ -58,6 +59,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAggre
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCAlarmQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCBatchDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCBrowserLogQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCContinuousProfilingPolicyDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEBPFProfilingTaskDAO;
@@ -199,6 +201,9 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IEBPFProfilingDataDAO.class,
             new JDBCEBPFProfilingDataDAO(jdbcClient, tableHelper));
+        this.registerServiceImplementation(
+            IContinuousProfilingPolicyDAO.class,
+            new JDBCContinuousProfilingPolicyDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             IServiceLabelDAO.class,
             new JDBCServiceLabelQueryDAO(jdbcClient, tableHelper));
