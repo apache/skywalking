@@ -77,11 +77,11 @@ public class JDBCContinuousProfilingPolicyDAO extends JDBCSQLExecutor implements
             .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
             .append(" and ").append(ContinuousProfilingPolicy.SERVICE_ID)
             .append(" in ").append(serviceIdList.stream().map(s -> "?").collect(Collectors.joining(",", "(", ")")));
+        final var results = new ArrayList<ContinuousProfilingPolicy>();
         for (String table : tables) {
-            return jdbcClient.executeQuery("select * from " + table + whereQuery, this::buildPolicies, condition.toArray(new Object[0]));
+            results.addAll(jdbcClient.executeQuery("select * from " + table + whereQuery, this::buildPolicies, condition.toArray(new Object[0])));
         }
-
-        return Collections.emptyList();
+        return results;
     }
 
     private List<ContinuousProfilingPolicy> buildPolicies(ResultSet resultSet) throws SQLException {
