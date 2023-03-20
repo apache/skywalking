@@ -14,6 +14,7 @@
 * [Breaking Change] Enhance JDBC storage through merging tables and managing day-based table rolling.
 * [Breaking Change] Sharding-MySQL implementations and tests get removed due to we have the day-based rolling mechanism by default
 * Fix otel k8s-cluster rule add namespace dimension for MAL aggregation calculation(Deployment Status,Deployment Spec Replicas)
+
 #### Documentation
 
 
