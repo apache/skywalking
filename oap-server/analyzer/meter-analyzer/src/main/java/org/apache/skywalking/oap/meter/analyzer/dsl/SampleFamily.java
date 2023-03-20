@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EndpointEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.EntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.InstanceEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ProcessEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ProcessRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.dsl.EntityDescription.ServiceRelationEntityDescription;
@@ -477,6 +478,23 @@ public class SampleFamily {
         return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer, Const.POINT));
     }
 
+    public SampleFamily process(List<String> serviceKeys, List<String> serviceInstanceKeys, List<String> processKeys, String layerKey) {
+        Preconditions.checkArgument(serviceKeys.size() > 0);
+        Preconditions.checkArgument(serviceInstanceKeys.size() > 0);
+        Preconditions.checkArgument(processKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.PROCESS;
+            ctx.scopeLabels.addAll(serviceKeys);
+            ctx.scopeLabels.addAll(serviceInstanceKeys);
+            ctx.scopeLabels.addAll(processKeys);
+            ctx.scopeLabels.add(layerKey);
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ProcessEntityDescription(serviceKeys, serviceInstanceKeys, processKeys, layerKey, Const.POINT));
+    }
+
     public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, Layer layer) {
         Preconditions.checkArgument(sourceServiceKeys.size() > 0);
         Preconditions.checkArgument(destServiceKeys.size() > 0);
@@ -667,6 +685,14 @@ public class SampleFamily {
                         InternalOps.dim(samples, endpointEntityDescription.getServiceKeys(), endpointEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, endpointEntityDescription.getEndpointKeys(), endpointEntityDescription.getDelimiter()),
                         endpointEntityDescription.getLayer()
+                    );
+                case PROCESS:
+                    final ProcessEntityDescription processEntityDescription = (ProcessEntityDescription) entityDescription;
+                    return MeterEntity.newProcess(
+                        InternalOps.dim(samples, processEntityDescription.getServiceKeys(), processEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, processEntityDescription.getServiceInstanceKeys(), processEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, processEntityDescription.getProcessKeys(), processEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, List.of(processEntityDescription.getLayerKey()), processEntityDescription.getDelimiter())
                     );
                 case SERVICE_RELATION:
                     ServiceRelationEntityDescription serviceRelationEntityDescription = (ServiceRelationEntityDescription) entityDescription;

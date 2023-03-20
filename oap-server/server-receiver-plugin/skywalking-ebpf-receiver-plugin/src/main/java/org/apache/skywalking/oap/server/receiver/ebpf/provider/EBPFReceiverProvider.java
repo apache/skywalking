@@ -25,11 +25,14 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.ebpf.module.EBPFReceiverModule;
+import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.ContinuousProfilingServiceHandler;
 import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.EBPFProcessServiceHandler;
 import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.EBPFProfilingServiceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 public class EBPFReceiverProvider extends ModuleProvider {
+
+    private EBPFReceiverModuleConfig config;
 
     @Override
     public String name() {
@@ -42,8 +45,18 @@ public class EBPFReceiverProvider extends ModuleProvider {
     }
 
     @Override
-    public ConfigCreator newConfigCreator() {
-        return null;
+    public ConfigCreator<EBPFReceiverModuleConfig> newConfigCreator() {
+        return new ConfigCreator<EBPFReceiverModuleConfig>() {
+            @Override
+            public Class<EBPFReceiverModuleConfig> type() {
+                return EBPFReceiverModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(EBPFReceiverModuleConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     @Override
@@ -57,6 +70,7 @@ public class EBPFReceiverProvider extends ModuleProvider {
                 .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new EBPFProcessServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new EBPFProfilingServiceHandler(getManager()));
+        grpcHandlerRegister.addHandler(new ContinuousProfilingServiceHandler(getManager(), this.config));
     }
 
     @Override

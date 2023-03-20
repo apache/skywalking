@@ -153,3 +153,16 @@ profiling:
             default_request_encoding: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_SAMPLING_HTTP_DEFAULT_REQUEST_ENCODING:UTF-8}
             # The default body encoding when sampling the response
             default_response_encoding: ${ROVER_PROFILING_TASK_NETWORK_PROTOCOL_ANALYZE_SAMPLING_HTTP_DEFAULT_RESPONSE_ENCODING:UTF-8}
+  # continuous profiling config
+  continuous:
+    # continuous related meters prefix name
+    meter_prefix: ${ROVER_PROFILING_CONTINUOUS_METER_PREFIX:rover_con_p}
+    # The interval of fetch metrics from the system, such as Process CPU, System Load, etc.
+    fetch_interval: ${ROVER_PROFILING_CONTINUOUS_FETCH_INTERVAL:1s}
+    # The interval of check metrics is reach the thresholds
+    check_interval: ${ROVER_PROFILING_CONTINUOUS_CHECK_INTERVAL:5s}
+    trigger:
+      # the duration of the profiling task
+      execute_duration: ${ROVER_PROFILING_CONTINUOUS_TRIGGER_EXECUTE_DURATION:10m}
+      # the minimal duration between the execution of the same profiling task
+      silence_duration: ${ROVER_PROFILING_CONTINUOUS_TRIGGER_SILENCE_DURATION:20m}

@@ -30,6 +30,8 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingMutationService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingMutationService;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.EBPFProfilingQueryService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskMutationService;
@@ -102,6 +104,8 @@ public class CoreModule extends ModuleDefine {
     private void addEBPFProfilingService(List<Class> classes) {
         classes.add(EBPFProfilingMutationService.class);
         classes.add(EBPFProfilingQueryService.class);
+        classes.add(ContinuousProfilingMutationService.class);
+        classes.add(ContinuousProfilingQueryService.class);
     }
 
     private void addManagementService(List<Class> classes) {

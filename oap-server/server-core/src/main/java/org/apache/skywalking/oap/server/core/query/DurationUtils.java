@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import java.util.LinkedList;
-import java.util.List;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public enum DurationUtils {
     INSTANCE;
@@ -190,5 +191,4 @@ public enum DurationUtils {
         }
         throw new UnexpectedException("Unsupported step " + step.name());
     }
-
 }

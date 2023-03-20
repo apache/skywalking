@@ -18,25 +18,19 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.postgresql;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
-import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
-import com.google.gson.JsonObject;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 
-public class PostgreSQLTableInstaller extends H2TableInstaller {
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
+
+public class PostgreSQLTableInstaller extends JDBCTableInstaller {
     public PostgreSQLTableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
     }
@@ -46,70 +40,13 @@ public class PostgreSQLTableInstaller extends H2TableInstaller {
         /*
          * Override column because the default column names in core are reserved in PostgreSQL.
          */
-        this.overrideColumnName("precision", "cal_precision");
-        this.overrideColumnName("match", "match_num");
+        overrideColumnName("value", "value_");
+        overrideColumnName("precision", "cal_precision");
+        overrideColumnName("match", "match_num");
     }
 
     @Override
-    public void createTableIndexes(
-        JDBCHikariCPClient client,
-        Connection connection,
-        String tableName,
-        List<ModelColumn> columns,
-        boolean additionalTable) throws JDBCClientException {
-        // Additional table's id follow the main table can not be primary key
-        if (additionalTable) {
-            SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-            tableIndexSQL.append(tableName.toUpperCase()).append("_id_IDX");
-            tableIndexSQL.append(" ON ").append(tableName).append("(").append(ID_COLUMN).append(")");
-            createIndex(client, connection, tableName, tableIndexSQL);
-        }
-
-        int indexSeq = 0;
-        for (final ModelColumn modelColumn : columns) {
-            if (modelColumn.shouldIndex() && modelColumn.getLength() < 256) {
-                    SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                    tableIndexSQL.append(tableName.toUpperCase())
-                                 .append("_")
-                                 .append(String.valueOf(indexSeq++))
-                                 .append("_IDX ");
-                    tableIndexSQL.append("ON ").append(tableName).append("(")
-                                 .append(modelColumn.getColumnName().getStorageName())
-                                 .append(")");
-                    createIndex(client, connection, tableName, tableIndexSQL);
-            }
-        }
-
-        List<String> columnList = columns.stream().map(column -> column.getColumnName().getStorageName()).collect(
-            Collectors.toList());
-        for (final ModelColumn modelColumn : columns) {
-            for (final SQLDatabaseExtension.MultiColumnsIndex index : modelColumn.getSqlDatabaseExtension()
-                                                                                 .getIndices()) {
-                final String[] multiColumns = index.getColumns();
-                //Create MultiColumnsIndex on the additional table only when it contains all need columns.
-                if (additionalTable && !columnList.containsAll(Arrays.asList(multiColumns))) {
-                    continue;
-                }
-                SQLBuilder tableIndexSQL = new SQLBuilder("CREATE INDEX ");
-                tableIndexSQL.append(tableName.toUpperCase())
-                             .append("_")
-                             .append(String.valueOf(indexSeq++))
-                             .append("_IDX ");
-                tableIndexSQL.append(" ON ").append(tableName).append("(");
-                for (int i = 0; i < multiColumns.length; i++) {
-                    tableIndexSQL.append(multiColumns[i]);
-                    if (i < multiColumns.length - 1) {
-                        tableIndexSQL.append(",");
-                    }
-                }
-                tableIndexSQL.append(")");
-                createIndex(client, connection, tableName, tableIndexSQL);
-            }
-        }
-    }
-
-    @Override
-    protected String transform(ModelColumn column, Class<?> type, Type genericType) {
+    protected String getColumnDefinition(ModelColumn column, Class<?> type, Type genericType) {
         final String storageName = column.getColumnName().getStorageName();
         if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
             return storageName + " INT";
@@ -131,14 +68,14 @@ public class PostgreSQLTableInstaller extends H2TableInstaller {
             }
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            return transform(column, (Class<?>) elementType, elementType);
+            return getColumnDefinition(column, (Class<?>) elementType, elementType);
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }
     }
 
     @Override
-    public String getColumn(final ModelColumn column) {
+    public String getColumnDefinition(final ModelColumn column) {
         final String storageName = column.getColumnName().getStorageName();
         final Class<?> type = column.getType();
         if (StorageDataComplexObject.class.isAssignableFrom(type)) {
@@ -156,6 +93,6 @@ public class PostgreSQLTableInstaller extends H2TableInstaller {
                 return storageName + " VARCHAR(" + column.getLength() + ")";
             }
         }
-        return super.getColumn(column);
+        return super.getColumnDefinition(column);
     }
 }

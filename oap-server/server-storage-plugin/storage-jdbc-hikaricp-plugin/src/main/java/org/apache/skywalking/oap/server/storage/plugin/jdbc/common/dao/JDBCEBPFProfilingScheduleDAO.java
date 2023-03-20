@@ -18,55 +18,73 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.h2.H2TableInstaller;
-import java.io.IOException;
-import java.sql.Connection;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JDBCEBPFProfilingScheduleDAO implements IEBPFProfilingScheduleDAO {
-    private JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        final StringBuilder conditionSql = new StringBuilder();
-        List<Object> condition = new ArrayList<>(4);
-        sql.append("select * from ").append(EBPFProfilingScheduleRecord.INDEX_NAME);
-
-        appendCondition(conditionSql, condition, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
-
-        if (conditionSql.length() > 0) {
-            sql.append(" where ").append(conditionSql);
+    @SneakyThrows
+    public List<EBPFProfilingSchedule> querySchedules(String taskId) {
+        final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingScheduleRecord.INDEX_NAME);
+        final var schedules = new ArrayList<EBPFProfilingSchedule>();
+        for (final var table : tables) {
+            final var sqlAndParameters = buildSQL(taskId, table);
+            schedules.addAll(
+                jdbcClient.executeQuery(
+                    sqlAndParameters.sql(),
+                    this::buildSchedules,
+                    sqlAndParameters.parameters()
+                )
+            );
         }
+        return schedules;
+    }
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                    connection, sql.toString(), condition.toArray(new Object[0]))) {
-                return buildSchedules(resultSet);
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
+    protected SQLAndParameters buildSQL(
+        final String taskId,
+        final String table) {
+        final var sql = new StringBuilder();
+        final var conditions = new StringBuilder();
+        final var parameters = new ArrayList<>(4);
+        sql.append("select * from ").append(table);
+        conditions.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+        parameters.add(EBPFProfilingScheduleRecord.INDEX_NAME);
+
+        appendCondition(conditions, parameters, EBPFProfilingScheduleRecord.TASK_ID, "=", taskId);
+
+        if (conditions.length() > 0) {
+            sql.append(" where ").append(conditions);
         }
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 
     private List<EBPFProfilingSchedule> buildSchedules(ResultSet resultSet) throws SQLException {
         List<EBPFProfilingSchedule> schedules = new ArrayList<>();
         while (resultSet.next()) {
+            final var r = new EBPFProfilingScheduleRecord.Builder().storage2Entity(JDBCEntityConverters.toEntity(resultSet));
             EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
-            schedule.setScheduleId(resultSet.getString(H2TableInstaller.ID_COLUMN));
-            schedule.setTaskId(resultSet.getString(EBPFProfilingScheduleRecord.TASK_ID));
-            schedule.setProcessId(resultSet.getString(EBPFProfilingScheduleRecord.PROCESS_ID));
-            schedule.setStartTime(resultSet.getLong(EBPFProfilingScheduleRecord.START_TIME));
-            schedule.setEndTime(resultSet.getLong(EBPFProfilingScheduleRecord.END_TIME));
+            schedule.setScheduleId(r.getScheduleId());
+            schedule.setTaskId(r.getTaskId());
+            schedule.setProcessId(r.getProcessId());
+            schedule.setStartTime(r.getStartTime());
+            schedule.setEndTime(r.getEndTime());
 
             schedules.add(schedule);
         }

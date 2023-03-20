@@ -1,0 +1,40 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- contains . }}
+- scheduleid: {{ notEmpty .scheduleid }}
+  taskid: {{ notEmpty .taskid }}
+  process:
+    id: {{ notEmpty .process.id }}
+    name: sqrt
+    serviceid: {{ b64enc "sqrt" }}.1
+    servicename: sqrt
+    instanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
+    instancename: test-instance
+    agentid: {{ notEmpty .process.agentid }}
+    detecttype: VM
+    attributes:
+      {{- contains .process.attributes }}
+      - name: host_ip
+        value: {{ notEmpty .value }}
+      - name: pid
+        value: {{ notEmpty .value }}
+      - name: command_line
+        value: /sqrt
+      {{- end }}
+    labels: []
+  starttime: {{ gt .starttime 0 }}
+  endtime: {{ gt .endtime 0 }}
+{{- end }}

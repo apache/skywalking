@@ -287,7 +287,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                                     Optional.ofNullable(selectedRecord.getName()), Optional.empty()
             );
             metricData.setMetric(metricInfo);
-            metricData.setValues(buildMatrixValues(duration, selectedRecord.getValue()));
+            metricData.setValues(buildMatrixValues(duration, String.valueOf(selectedRecord.getValue())));
             matrixResult.getMetricDataList().add(metricData);
         }
     }
@@ -306,7 +306,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                                     Optional.ofNullable(record.getName())
             );
             metricData.setMetric(metricInfo);
-            metricData.setValues(buildMatrixValues(duration, record.getValue()));
+            metricData.setValues(buildMatrixValues(duration, String.valueOf(record.getValue())));
             matrixResult.getMetricDataList().add(metricData);
         }
     }

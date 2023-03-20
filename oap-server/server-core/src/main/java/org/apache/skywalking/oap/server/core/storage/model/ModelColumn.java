@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.lang.reflect.Type;
 import lombok.Getter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+
+import java.lang.reflect.Type;
 
 @Getter
 @ToString
@@ -49,19 +50,19 @@ public class ModelColumn {
      *
      * @since 9.1.0
      */
-    private SQLDatabaseExtension sqlDatabaseExtension;
+    private final SQLDatabaseExtension sqlDatabaseExtension;
     /**
      * Hold configurations especially for ElasticSearch
      *
      * @since 9.1.0
      */
-    private ElasticSearchExtension elasticSearchExtension;
+    private final ElasticSearchExtension elasticSearchExtension;
     /**
      * Hold configurations especially for BanyanDB relevant
      *
      * @since 9.1.0
      */
-    private BanyanDBExtension banyanDBExtension;
+    private final BanyanDBExtension banyanDBExtension;
 
     public ModelColumn(ColumnName columnName,
                        Class<?> type,

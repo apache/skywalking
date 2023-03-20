@@ -161,7 +161,7 @@ jobs:
           cache: "maven"
       - name: Build distribution tar
         run: |
-          ./mvnw clean install -B -q \
+          ./mvnw clean install javadoc:javadoc -B -q \
             -Dmaven.test.skip \
             -Dcheckstyle.skip
       - uses: actions/upload-artifact@v3
@@ -283,8 +283,6 @@ jobs:
     strategy:
       matrix:
         test:
-          - name: ShardingSphere
-            class: org.apache.skywalking.oap.server.storage.plugin.jdbc.shardingsphere.ShardingSphereIT
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:
@@ -344,8 +342,6 @@ jobs:
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
-          - name: Storage TiDB
-            config: test/e2e-v2/cases/storage/tidb/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
           - name: Storage ES 6.3.2
@@ -395,10 +391,6 @@ jobs:
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
 
-          - name: TTL TiDB
-            config: test/e2e-v2/cases/ttl/tidb/e2e.yaml
-          - name: TTL PostgreSQL
-            config: test/e2e-v2/cases/ttl/postgresql/e2e.yaml
           - name: TTL ES 6.3.2
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=6.3.2
@@ -480,8 +472,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
             config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
-          - name: Trace Profiling TiDB
-            config: test/e2e-v2/cases/profiling/trace/tidb/e2e.yaml
           - name: Trace Profiling OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -504,8 +494,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
           - name: eBPF Profiling On CPU Postgres
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
-          - name: eBPF Profiling On CPU TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/tidb/e2e.yaml
           - name: eBPF Profiling On CPU OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -530,8 +518,6 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
           - name: eBPF Profiling Network Postgres
             config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
-          - name: eBPF Profiling Network TiDB
-            config: test/e2e-v2/cases/profiling/ebpf/network/tidb/e2e.yaml
           - name: eBPF Profiling Network OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -540,6 +526,28 @@ jobs:
             env: OPENSEARCH_VERSION=1.3.6
           - name: eBPF Profiling Network OpenSearch 2.4.0
             config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
+
+          - name: Continuous Profiling BanyanDB
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/banyandb/e2e.yaml
+          - name: Continuous Profiling H2
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/h2/e2e.yaml
+          - name: Continuous Profiling ES
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/e2e.yaml
+          - name: Continuous Profiling Sharding ES
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/es-sharding/e2e.yaml
+          - name: Continuous Profiling MySQL
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/mysql/e2e.yaml
+          - name: Continuous Profiling Postgres
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/postgres/e2e.yaml
+          - name: Continuous Profiling OpenSearch 1.1.0
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: Continuous Profiling OpenSearch 1.3.6
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: Continuous Profiling OpenSearch 2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
 
           - name: Kafka Basic
@@ -651,14 +659,6 @@ jobs:
           - name: Zipkin BanyanDB
             config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
 
-          - name: MySQL-Sharding storage
-            config: test/e2e-v2/cases/storage/mysql/sharding/e2e.yaml
-          - name: MySQL-Sharding log
-            config: test/e2e-v2/cases/log/mysql/sharding/e2e.yaml
-          - name: MySQL-Sharding browser
-            config: test/e2e-v2/cases/browser/mysql/sharding/e2e.yaml
-          - name: MySQL-Sharding zipkin
-            config: test/e2e-v2/cases/zipkin/mysql/sharding/e2e.yaml
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
           - name: Exporter Kafka
@@ -684,9 +684,15 @@ jobs:
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
+      - name: Cache maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
@@ -784,9 +790,15 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
+      - name: Cache maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
         uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
         env:

@@ -92,7 +92,7 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
         ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
         // Top N metrics doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
         Model model = modelSetter.add(
-            topNClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second), true);
+            topNClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second));
 
         TopNWorker persistentWorker = new TopNWorker(
             moduleDefineHolder, model, topSize, topNWorkerReportCycle * 60 * 1000L, recordDAO);

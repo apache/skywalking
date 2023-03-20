@@ -192,6 +192,8 @@
         <skipUTs>false</skipUTs>
 
         <system-stubs.version>2.0.2</system-stubs.version>
+
+        <delombok.output.dir>${project.build.directory}/delombok</delombok.output.dir>
     </properties>
 
     <dependencies>
@@ -489,6 +491,8 @@
                 <configuration>
                     <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
                     <addOutputDirectory>false</addOutputDirectory>
+                    <outputDirectory>${delombok.output.dir}</outputDirectory>
+                    <encoding>UTF-8</encoding>
                 </configuration>
                 <executions>
                     <execution>
@@ -511,7 +515,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <sourcepath>
-                        ${project.build.directory}/generated-sources/delombok;
+                        ${delombok.output.dir};
                         ${project.build.directory}/generated-sources/protobuf/java;
                         ${project.build.directory}/generated-sources/protobuf/grpc-java;
                         ${project.build.directory}/generated-sources/antlr4;;

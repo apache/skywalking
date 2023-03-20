@@ -19,6 +19,8 @@
   servicename: file
   serviceinstanceid: null
   serviceinstancename: null
+  processid: null
+  processname: null
   processlabels:
     {{- contains .processlabels }}
     - e2e-label1
@@ -29,4 +31,5 @@
   fixedtriggerduration: 60
   targettype: OFF_CPU
   createtime: {{ gt .createtime 0 }}
+  continuousprofilingcauses: []
   {{- end }}

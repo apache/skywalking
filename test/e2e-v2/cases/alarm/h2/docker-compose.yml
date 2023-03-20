@@ -36,7 +36,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: h2
-      SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db
+      SW_STORAGE_H2_URL: jdbc:h2:tcp://h2db:1521/skywalking-oap-db;DATABASE_TO_UPPER=FALSE
       SW_SEARCHABLE_ALARM_TAG_KEYS: level,receivers
     ports:
       - 12800
