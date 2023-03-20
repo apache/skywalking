@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import com.google.common.base.Joiner;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
