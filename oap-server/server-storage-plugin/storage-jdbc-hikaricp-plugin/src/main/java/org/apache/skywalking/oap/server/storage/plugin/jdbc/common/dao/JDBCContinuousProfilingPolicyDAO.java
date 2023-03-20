@@ -69,19 +69,17 @@ public class JDBCContinuousProfilingPolicyDAO extends JDBCSQLExecutor implements
     @Override
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
         final var tables = tableHelper.getTablesWithinTTL(ContinuousProfilingPolicy.INDEX_NAME);
-        final StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>();
         condition.add(ContinuousProfilingPolicy.INDEX_NAME);
         condition.addAll(serviceIdList);
 
+        StringBuilder whereQuery = new StringBuilder()
+            .append(" where ")
+            .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+            .append(" and ").append(ContinuousProfilingPolicy.SERVICE_ID)
+            .append(" in ").append(serviceIdList.stream().map(s -> "?").collect(Collectors.joining(",", "(", ")")));
         for (String table : tables) {
-            sql.append("select * from ").append(table).append(" where ")
-                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
-                .append(" and ").append(ContinuousProfilingPolicy.SERVICE_ID)
-                .append(" in (").append(Joiner.on(",").join(serviceIdList.stream().map(s -> "?").collect(Collectors.toList())))
-                .append(" )");
-
-            return jdbcClient.executeQuery(sql.toString(), this::buildPolicies, condition.toArray(new Object[0]));
+            return jdbcClient.executeQuery("select * from " + table + whereQuery, this::buildPolicies, condition.toArray(new Object[0]));
         }
 
         return Collections.emptyList();
