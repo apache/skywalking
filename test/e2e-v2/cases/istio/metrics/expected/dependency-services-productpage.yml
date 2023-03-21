@@ -35,21 +35,24 @@ nodes:
 calls:
 {{- contains .calls }}
 - source: {{ b64enc "e2e::istio-ingressgateway"}}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - Unknown
   target: {{ b64enc "e2e::productpage"}}.1
   targetcomponents: []
   id: {{ b64enc "e2e::istio-ingressgateway"}}.1-{{ b64enc "e2e::productpage"}}.1
   detectpoints:
     - CLIENT
 - source: {{ b64enc "e2e::productpage"}}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - Unknown
   target: {{ b64enc "e2e::details"}}.1
   targetcomponents: []
   id: {{ b64enc "e2e::productpage"}}.1-{{ b64enc "e2e::details"}}.1
   detectpoints:
     - CLIENT
 - source: {{ b64enc "e2e::productpage" }}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - Unknown
   target: {{ b64enc "e2e::reviews"}}.1
   targetcomponents: []
   id: {{ b64enc "e2e::productpage" }}.1-{{ b64enc "e2e::reviews"}}.1

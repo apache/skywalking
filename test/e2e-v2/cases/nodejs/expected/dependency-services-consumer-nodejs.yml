@@ -31,9 +31,11 @@ nodes:
 calls:
 {{- contains .calls }}
 - source: {{ b64enc "consumer" }}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - Axios
   target: {{ b64enc "e2e-service-consumer" }}.1
-  targetcomponents: []
+  targetcomponents:
+    - Tomcat
   id: {{ b64enc "consumer" }}.1-{{ b64enc "e2e-service-consumer" }}.1
   detectpoints:
     - CLIENT
@@ -41,7 +43,8 @@ calls:
 - source: {{ b64enc "User" }}.0
   sourcecomponents: []
   target: {{ b64enc "consumer" }}.1
-  targetcomponents: []
+  targetcomponents:
+    - http
   id: {{ b64enc "User" }}.0-{{ b64enc "consumer" }}.1
   detectpoints:
     - SERVER
