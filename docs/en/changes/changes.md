@@ -17,6 +17,10 @@
 * Support continuous profiling feature.
 * Support collect process level related metrics.
 
+#### UI
+* Revert: cpm5d function. This feature is cancelled from backend.
+* Fix: alerting link breaks on the topology.
+
 #### Documentation
 
 
