@@ -31,7 +31,8 @@ nodes:
 calls:
 {{- contains .calls }}
 - source: {{ b64enc "e2e-service-entry-provider" }}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - SpringRestTemplate
   target: {{ b64enc "e2e-service-end-provider"}}.1
   targetcomponents: []
   id: {{ b64enc "e2e-service-entry-provider" }}.1-{{ b64enc "e2e-service-end-provider"}}.1
@@ -40,14 +41,17 @@ calls:
 - source: {{ b64enc "e2e-service-entry-provider" }}.1
   sourcecomponents: []
   target: {{ b64enc "User_Service_Name"}}.1
-  targetcomponents: []
+  targetcomponents:
+    - Nginx
   id: {{ b64enc "e2e-service-entry-provider" }}.1-{{ b64enc "User_Service_Name"}}.1
   detectpoints:
     - SERVER
 - source: {{ b64enc "User_Service_Name" }}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - Nginx
   target: {{ b64enc "e2e-service-end-provider"}}.1
-  targetcomponents: []
+  targetcomponents:
+    - Tomcat
   id: {{ b64enc "User_Service_Name" }}.1-{{ b64enc "e2e-service-end-provider"}}.1
   detectpoints:
     - CLIENT
