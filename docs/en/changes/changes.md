@@ -21,6 +21,11 @@
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
 * Fix: alerting link breaks on the topology.
+* Refactor Topology widget to make it more hierarchical.
+  1. Choose `User` as the first node.
+  2. If `User` node is absent, choose the busiest node(which has the most calls of all).
+  3. Do a left-to-right flow process.
+  4. At the same level, list nodes from top to bottom in alphabetical order.
 
 #### Documentation
 
