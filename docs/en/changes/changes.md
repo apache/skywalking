@@ -21,6 +21,7 @@
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
 * Fix: alerting link breaks on the topology.
+* Refactor Topology widget to make it more hierarchical.
 
 #### Documentation
 
