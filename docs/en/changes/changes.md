@@ -17,7 +17,7 @@
 * Support continuous profiling feature.
 * Support collect process level related metrics.
 * Fix K8sRetag reads the wrong k8s service from the cache due to a possible namespace mismatch.
-* Support cross thread trace profiling.
+* [Breaking Change] Support cross-thread trace profiling. The data structure and query APIs are changed.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
