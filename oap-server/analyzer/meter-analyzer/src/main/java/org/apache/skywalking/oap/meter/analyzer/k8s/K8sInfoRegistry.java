@@ -51,6 +51,7 @@ public class K8sInfoRegistry {
                     .namespace(it.getMetadata().getNamespace())
                     .build())
                 .orElse(ObjectID.EMPTY)));
+
         ipServiceMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(3))
             .build(CacheLoader.from(ip -> KubernetesServices.INSTANCE
@@ -73,6 +74,7 @@ public class K8sInfoRegistry {
                     .build())
                 .findFirst()
                 .orElse(ObjectID.EMPTY)));
+
         podServiceMap = CacheBuilder.newBuilder()
             .expireAfterWrite(Duration.ofMinutes(3))
             .build(CacheLoader.from(podObjectID -> {
@@ -94,6 +96,7 @@ public class K8sInfoRegistry {
                     .list()
                     .stream()
                     .filter(it -> it.getMetadata() != null)
+                    .filter(it -> Objects.equals(it.getMetadata().getNamespace(), pod.get().getMetadata().getNamespace()))
                     .filter(it -> it.getSpec() != null)
                     .filter(it -> requireNonNull(it.getSpec()).getSelector() != null)
                     .filter(it -> {
