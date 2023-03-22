@@ -18,7 +18,7 @@
   instanceid: {{ notEmpty .instanceid }}
   instancename: provider1
   endpointnames:
-    - POST:/profile/{name}
+    - POST:/info
   duration: {{ gt .duration 0 }}
   start: "{{ notEmpty .start }}"
   spans:
@@ -26,15 +26,21 @@
   - spanid: {{ ge .spanid 0 }}
     parentspanid: {{ .parentspanid }}
     segmentid: {{ notEmpty .segmentid }}
-    refs: []
+    refs:
+    {{- contains .refs}}
+    - traceid: {{ notEmpty .traceid }}
+      parentsegmentid: {{ notEmpty .parentsegmentid }}
+      parentspanid: 1
+      type: CROSS_PROCESS
+    {{- end}}
     servicecode: e2e-service-provider
     serviceinstancename: provider1
     starttime: {{ gt .starttime 0 }}
     endtime: {{ gt .endtime 0 }}
-    endpointname: POST:/profile/{name}
+    endpointname: POST:/info
     type: Entry
     peer: ""
-    component: SpringMVC
+    component: Tomcat
     iserror: false
     layer: Http
     tags:
@@ -43,8 +49,6 @@
         value: {{ notEmpty .value }}
       - key: http.method
         value: POST
-      - key: http.params
-        value: "e2e=[true]"
       {{- end }}
     logs: []
     profiled: true

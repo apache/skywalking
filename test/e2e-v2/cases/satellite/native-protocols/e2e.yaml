@@ -117,17 +117,17 @@ verify:
     - query: |
         segmentid=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
           ) | yq e '.[0].spans.[] | select(.spanid == 0) | .segmentid' - \
         );
         start=$(
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
           ) | yq e '.[0].spans.[] | select(.spanid == 0) | .starttime' - \
         );
         end=$(
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/info | yq e '.[0].id' - \
           ) | yq e '.[0].spans.[] | select(.spanid == 0) | .endtime' - \
         );
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace analysis --segment-ids=$segmentid --time-ranges=$(echo $start"-"$end)
