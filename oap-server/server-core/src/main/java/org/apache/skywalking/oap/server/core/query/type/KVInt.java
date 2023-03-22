@@ -26,4 +26,5 @@ import lombok.Setter;
 public class KVInt {
     private String id;
     private long value;
+    private boolean isEmptyValue;
 }

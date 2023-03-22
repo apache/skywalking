@@ -68,6 +68,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             SegmentRecord.ENDPOINT_ID,
             SegmentRecord.LATENCY,
             SegmentRecord.START_TIME,
+            SegmentRecord.SEGMENT_ID,
             SegmentRecord.DATA_BINARY);
 
     public BanyanDBTraceQueryDAO(BanyanDBStorageClient client) {
@@ -182,20 +183,48 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                         query.and(eq(SegmentRecord.TRACE_ID, traceId));
                     }
                 });
+        return buildRecords(resp);
+    }
 
-        List<SegmentRecord> segmentRecords = new ArrayList<>(resp.getElements().size());
+    @Override
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME, TAGS,
+            new QueryBuilder<StreamQuery>() {
+                @Override
+                public void apply(StreamQuery query) {
+                    query.and(in(SegmentRecord.SEGMENT_ID, segmentIdList));
+                }
+            });
+        return buildRecords(resp);
+    }
 
-        for (final RowEntity rowEntity : resp.getElements()) {
-            SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
-                    new BanyanDBConverter.StorageToStream(SegmentRecord.INDEX_NAME, rowEntity));
-            segmentRecords.add(segmentRecord);
-        }
-
-        return segmentRecords;
+    @Override
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
+        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME, TAGS,
+            new QueryBuilder<StreamQuery>() {
+                @Override
+                public void apply(StreamQuery query) {
+                    query.and(in(SegmentRecord.TRACE_ID, traceIdList));
+                    query.and(in(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList));
+                }
+            });
+        return buildRecords(resp);
     }
 
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return Collections.emptyList();
+    }
+
+    private List<SegmentRecord> buildRecords(StreamQueryResponse resp) {
+        List<SegmentRecord> segmentRecords = new ArrayList<>(resp.getElements().size());
+
+        for (final RowEntity rowEntity : resp.getElements()) {
+            SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
+                new BanyanDBConverter.StorageToStream(SegmentRecord.INDEX_NAME, rowEntity));
+            segmentRecords.add(segmentRecord);
+        }
+
+        return segmentRecords;
     }
 }

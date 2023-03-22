@@ -19,16 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.banyandb.v1.client.Element;
 import org.apache.skywalking.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
@@ -80,7 +76,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
+    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
         StreamQueryResponse resp = query(ProfileThreadSnapshotRecord.INDEX_NAME,
                 TAGS_BASIC,
                 new QueryBuilder<StreamQuery>() {
@@ -102,42 +98,7 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
             segmentIds.add(rowEntity.getTagValue(ProfileThreadSnapshotRecord.SEGMENT_ID));
         }
 
-        if (segmentIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final StreamQueryResponse segmentRecordResp = query(SegmentRecord.INDEX_NAME,
-                TAGS_TRACE,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery traceQuery) {
-                        // TODO: use "in" operator
-                        for (final String segmentID : segmentIds) {
-                            traceQuery.or(eq(SegmentRecord.SEGMENT_ID, segmentID));
-                        }
-                        traceQuery.setLimit(segmentIds.size());
-                        traceQuery.setOrderBy(desc(SegmentRecord.START_TIME));
-                    }
-                });
-
-        List<BasicTrace> basicTraces = new ArrayList<>();
-        for (final Element row : segmentRecordResp.getElements()) {
-            BasicTrace basicTrace = new BasicTrace();
-
-            basicTrace.setSegmentId(row.getId());
-            basicTrace.setStart(String.valueOf((Number) row.getTagValue(SegmentRecord.START_TIME)));
-            basicTrace.getEndpointNames().add(IDManager.EndpointID.analysisId(
-                    row.getTagValue(SegmentRecord.ENDPOINT_ID)
-            ).getEndpointName());
-            basicTrace.setDuration(((Number) row.getTagValue(SegmentRecord.LATENCY)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(
-                    ((Number) row.getTagValue(SegmentRecord.IS_ERROR)).intValue()
-            ));
-            basicTrace.getTraceIds().add(row.getTagValue(SegmentRecord.TRACE_ID));
-
-            basicTraces.add(basicTrace);
-        }
-        return basicTraces;
+        return segmentIds;
     }
 
     @Override
@@ -170,26 +131,6 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
             result.add(record);
         }
         return result;
-    }
-
-    @Override
-    public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        StreamQueryResponse resp = query(SegmentRecord.INDEX_NAME,
-                TAGS_TRACE_ALL,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.and(eq(SegmentRecord.SEGMENT_ID, segmentId));
-                    }
-                });
-
-        if (resp.size() == 0) {
-            return null;
-        }
-
-        final RowEntity rowEntity = resp.getElements().iterator().next();
-        return new SegmentRecord.Builder().storage2Entity(
-                new BanyanDBConverter.StorageToStream(SegmentRecord.INDEX_NAME, rowEntity));
     }
 
     private int querySequenceWithAgg(AggType aggType, String segmentId, long start, long end) throws IOException {

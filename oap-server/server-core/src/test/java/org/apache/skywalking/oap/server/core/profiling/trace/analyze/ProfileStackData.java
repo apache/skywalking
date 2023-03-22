@@ -22,6 +22,7 @@ import com.google.common.base.Splitter;
 import lombok.Data;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadStack;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 
 import java.util.ArrayList;
@@ -49,19 +50,19 @@ public class ProfileStackData {
         return result;
     }
 
-    public List<ProfileAnalyzeTimeRange> transformTimeRanges() {
+    public List<SegmentProfileAnalyzeQuery> transformQueries() {
         final String[] timeRangeString = this.timeRanges.split(",");
-        final ArrayList<ProfileAnalyzeTimeRange> ranges = new ArrayList<>();
+        final ArrayList<SegmentProfileAnalyzeQuery> result = new ArrayList<>();
         for (String timeRange : timeRangeString) {
             final ProfileAnalyzeTimeRange range = new ProfileAnalyzeTimeRange();
             final String[] startEndTimes = timeRange.split("-");
 
             range.setStart(Integer.parseInt(startEndTimes[0]) * limit);
             range.setEnd(Integer.parseInt(startEndTimes[1]) * limit);
-            ranges.add(range);
+            result.add(SegmentProfileAnalyzeQuery.builder().timeRange(range).build());
         }
 
-        return ranges;
+        return result;
     }
 
 }

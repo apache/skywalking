@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadSnapshot;
 import org.apache.skywalking.apm.network.language.profile.v3.ThreadStack;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -50,13 +50,12 @@ public class ProfileSnapshotDumper {
         List<ProfiledBasicInfo.SequenceRange> sequenceRanges = basicInfo.buildSequenceRanges();
         int rangeCount = sequenceRanges.size();
 
-        String segmentId = basicInfo.getSegmentId();
         File snapshotFile = new File(basicInfo.getConfig().getAnalyzeResultDist() + File.separator + "snapshot.data");
 
         // reading data and write to file
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(snapshotFile))) {
             for (int i = 0; i < rangeCount; i++) {
-                List<ProfileThreadSnapshotRecord> records = querySnapshot(segmentId, snapshotQueryDAO, sequenceRanges.get(i));
+                List<ProfileThreadSnapshotRecord> records = querySnapshot(snapshotQueryDAO, sequenceRanges.get(i));
                 for (ProfileThreadSnapshotRecord record : records) {
                     // transform to proto data and save it
                     ThreadSnapshot.newBuilder()
@@ -80,10 +79,10 @@ public class ProfileSnapshotDumper {
     /**
      * query snapshots with retry mechanism
      */
-    private static List<ProfileThreadSnapshotRecord> querySnapshot(String segmentId, IProfileThreadSnapshotQueryDAO threadSnapshotQueryDAO, ProfiledBasicInfo.SequenceRange sequenceRange) throws IOException {
+    private static List<ProfileThreadSnapshotRecord> querySnapshot(IProfileThreadSnapshotQueryDAO threadSnapshotQueryDAO, ProfiledBasicInfo.SequenceRange sequenceRange) throws IOException {
         for (int i = 1; i <= QUERY_PROFILE_SNAPSHOT_RETRY_COUNT; i++) {
             try {
-                return threadSnapshotQueryDAO.queryRecords(segmentId, sequenceRange.getMin(), sequenceRange.getMax());
+                return threadSnapshotQueryDAO.queryRecords(sequenceRange.getSegmentId(), sequenceRange.getMin(), sequenceRange.getMax());
             } catch (IOException e) {
                 if (i == QUERY_PROFILE_SNAPSHOT_RETRY_COUNT) {
                     throw e;
@@ -96,13 +95,13 @@ public class ProfileSnapshotDumper {
     /**
      * load thread snapshots in appointing time range
      */
-    public static List<ThreadSnapshot> parseFromFileWithTimeRange(File file, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+    public static List<ThreadSnapshot> parseFromFileWithTimeRange(File file, final List<SegmentProfileAnalyzeQuery> queries) throws IOException {
         try (final FileInputStream fileInputStream = new FileInputStream(file)) {
             ThreadSnapshot snapshot;
             final ArrayList<ThreadSnapshot> data = new ArrayList<>();
             while ((snapshot = ThreadSnapshot.parseDelimitedFrom(fileInputStream)) != null) {
                 ThreadSnapshot finalSnapshot = snapshot;
-                if (timeRanges.stream().filter(t -> finalSnapshot.getTime() >= t.getStart() && finalSnapshot.getTime() <= t.getEnd()).findFirst().isPresent()) {
+                if (queries.stream().anyMatch(t -> finalSnapshot.getTime() >= t.getTimeRange().getStart() && finalSnapshot.getTime() <= t.getTimeRange().getEnd())) {
                     data.add(snapshot);
                 }
             }

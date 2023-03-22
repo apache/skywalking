@@ -18,13 +18,12 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.common.base.Strings;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -34,14 +33,9 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.A
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.AggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
@@ -61,22 +55,22 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
     }
 
     @Override
-    public List<BasicTrace> queryProfiledSegments(String taskId) {
+    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
         final BoolQueryBuilder segmentIdQuery =
             Query.bool()
-                 .must(Query.term(ProfileThreadSnapshotRecord.TASK_ID, taskId))
-                 .must(Query.term(ProfileThreadSnapshotRecord.SEQUENCE, 0));
+                .must(Query.term(ProfileThreadSnapshotRecord.TASK_ID, taskId))
+                .must(Query.term(ProfileThreadSnapshotRecord.SEQUENCE, 0));
         if (IndexController.LogicIndicesRegister.isMergedTable(ProfileThreadSnapshotRecord.INDEX_NAME)) {
             segmentIdQuery.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileThreadSnapshotRecord.INDEX_NAME));
         }
 
         final SearchBuilder search =
             Search.builder().query(segmentIdQuery)
-                  .size(querySegmentMaxSize)
-                  .sort(
-                      ProfileThreadSnapshotRecord.DUMP_TIME,
-                      Sort.Order.DESC
-                  );
+                .size(querySegmentMaxSize)
+                .sort(
+                    ProfileThreadSnapshotRecord.DUMP_TIME,
+                    Sort.Order.DESC
+                );
 
         SearchResponse response =
             getClient().search(
@@ -90,44 +84,7 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
             segmentIds.add(
                 (String) searchHit.getSource().get(ProfileThreadSnapshotRecord.SEGMENT_ID));
         }
-
-        if (CollectionUtils.isEmpty(segmentIds)) {
-            return Collections.emptyList();
-        }
-
-        final BoolQueryBuilder traceQuery = Query.bool();
-        for (String segmentId : segmentIds) {
-            traceQuery.should(Query.term(SegmentRecord.SEGMENT_ID, segmentId));
-        }
-        final SearchBuilder traceSearch =
-            Search.builder().query(traceQuery)
-                  .size(segmentIds.size())
-                  .sort(SegmentRecord.START_TIME, Sort.Order.DESC);
-
-        response = getClient().search(SegmentRecord.INDEX_NAME, traceSearch.build());
-
-        List<BasicTrace> result = new ArrayList<>();
-        for (SearchHit searchHit : response.getHits().getHits()) {
-            BasicTrace basicTrace = new BasicTrace();
-
-            basicTrace.setSegmentId((String) searchHit.getSource().get(SegmentRecord.SEGMENT_ID));
-            basicTrace.setStart(
-                String.valueOf(searchHit.getSource().get(SegmentRecord.START_TIME)));
-            basicTrace.getEndpointNames().add(
-                IDManager.EndpointID.analysisId(
-                    (String) searchHit.getSource().get(SegmentRecord.ENDPOINT_ID)
-                ).getEndpointName());
-            basicTrace.setDuration(
-                ((Number) searchHit.getSource().get(SegmentRecord.LATENCY)).intValue());
-            basicTrace.setError(BooleanUtils.valueToBoolean(
-                ((Number) searchHit.getSource().get(SegmentRecord.IS_ERROR)).intValue()));
-            basicTrace.getTraceIds()
-                      .add((String) searchHit.getSource().get(SegmentRecord.TRACE_ID));
-
-            result.add(basicTrace);
-        }
-
-        return result;
+        return segmentIds;
     }
 
     @Override
@@ -175,38 +132,6 @@ public class ProfileThreadSnapshotQueryEsDAO extends EsDAO
             result.add(record);
         }
         return result;
-    }
-
-    @Override
-    public SegmentRecord getProfiledSegment(String segmentId) {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
-        final SearchBuilder search =
-            Search.builder()
-                  .query(Query.term(SegmentRecord.SEGMENT_ID, segmentId))
-                  .size(1);
-
-        final SearchResponse response = getClient().search(index, search.build());
-
-        if (response.getHits().getHits().isEmpty()) {
-            return null;
-        }
-        final SearchHit searchHit = response.getHits().iterator().next();
-        final SegmentRecord segmentRecord = new SegmentRecord();
-        segmentRecord.setSegmentId((String) searchHit.getSource().get(SegmentRecord.SEGMENT_ID));
-        segmentRecord.setTraceId((String) searchHit.getSource().get(SegmentRecord.TRACE_ID));
-        segmentRecord.setServiceId((String) searchHit.getSource().get(SegmentRecord.SERVICE_ID));
-        segmentRecord.setStartTime(
-            ((Number) searchHit.getSource().get(SegmentRecord.START_TIME)).longValue());
-        segmentRecord.setLatency(
-            ((Number) searchHit.getSource().get(SegmentRecord.LATENCY)).intValue());
-        segmentRecord.setIsError(
-            ((Number) searchHit.getSource().get(SegmentRecord.IS_ERROR)).intValue());
-        String dataBinaryBase64 = (String) searchHit.getSource().get(SegmentRecord.DATA_BINARY);
-        if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-            segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
-        }
-        return segmentRecord;
     }
 
     protected int querySequenceWithAgg(AggregationBuilder aggregationBuilder,

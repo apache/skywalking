@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogServi
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
@@ -49,7 +50,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collections;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -107,7 +107,7 @@ public class ProfileSnapshotExporterTest {
         timeRange.setStart(exportedData.getSpans().get(0).getStart());
         timeRange.setEnd(exportedData.getSpans().get(0).getEnd());
         final List<ThreadSnapshot> threadSnapshots = ProfileSnapshotDumper.parseFromFileWithTimeRange(
-            writeFile, Collections.singletonList(timeRange));
+            writeFile, List.of(SegmentProfileAnalyzeQuery.builder().timeRange(timeRange).build()));
 
         Assertions.assertEquals(threadSnapshots.size(), exportedData.getSnapshots().size());
         for (int i = 0; i < threadSnapshots.size(); i++) {

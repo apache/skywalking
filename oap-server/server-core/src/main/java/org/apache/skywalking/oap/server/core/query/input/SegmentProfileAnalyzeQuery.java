@@ -16,37 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.server.core.query.input;
 
-import java.util.ArrayList;
-import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 
-@Getter
-@Setter
-public class ProfiledSpan {
-
-    private int spanId;
-    private int parentSpanId;
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class SegmentProfileAnalyzeQuery {
     private String segmentId;
-    private List<Ref> refs;
-    private String serviceCode;
-    private String serviceInstanceName;
-    private long startTime;
-    private long endTime;
-    private String endpointName;
-    private String type;
-    private String peer;
-    private String component;
-    private boolean isError;
-    private String layer;
-    private final List<KeyValue> tags;
-    private final List<LogEntity> logs;
-    private boolean profiled;
-
-    public ProfiledSpan() {
-        this.tags = new ArrayList<>();
-        this.logs = new ArrayList<>();
-    }
+    private ProfileAnalyzeTimeRange timeRange;
 }

@@ -22,9 +22,9 @@ import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -49,17 +49,10 @@ public class ProfiledBasicInfo {
     private ExporterConfig config;
 
     // profiled segment
-    private String segmentId;
-    private long segmentStartTime;
-    private long segmentEndTime;
-    private int duration;
+    private List<ProfiledSegment> segments;
 
     // spans
     private List<Span> profiledSegmentSpans;
-
-    // snapshot sequence
-    private int minSequence;
-    private int maxSequence;
 
     /**
      * reading data from storage and build data
@@ -73,35 +66,43 @@ public class ProfiledBasicInfo {
         IProfileThreadSnapshotQueryDAO threadSnapshotQueryDAO = manager.find(StorageModule.NAME).provider().getService(IProfileThreadSnapshotQueryDAO.class);
 
         // query and found profiled segment
-        List<BasicTrace> taskTraces = taskQueryService.getTaskTraces(config.getTaskId());
-        BasicTrace profiledTrace = taskTraces.stream().filter(t -> t.getTraceIds().contains(config.getTraceId())).findFirst().orElse(null);
-        if (profiledTrace == null) {
+        List<SegmentRecord> taskTraces = taskQueryService.getTaskSegments(config.getTaskId());
+        List<SegmentRecord> segments = taskTraces.stream().filter(t -> Objects.equals(t.getTraceId(), config.getTraceId())).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(segments)) {
             throw new IllegalArgumentException("Cannot fount profiled segment in current task: " + config.getTaskId()
                     + ", segment id: " + config.getTraceId() + ", current task total profiled trace count is " + taskTraces.size());
         }
 
         // setting segment basic info
-        String segmentId = profiledTrace.getSegmentId();
-        long startTime = Long.parseLong(profiledTrace.getStart());
-        long endTime = startTime + profiledTrace.getDuration();
-        data.setSegmentId(segmentId);
-        data.setSegmentStartTime(startTime);
-        data.setSegmentEndTime(endTime);
-        data.setDuration(profiledTrace.getDuration());
+        data.setSegments(new ArrayList<>());
+        data.setProfiledSegmentSpans(new ArrayList<>());
+        for (SegmentRecord segment : segments) {
+            final ProfiledSegment profiledSegment = new ProfiledSegment();
 
-        // query spans
-        Trace trace = traceQueryService.queryTrace(config.getTraceId());
-        List<Span> profiledSegmentSpans = trace.getSpans().stream().filter(s -> Objects.equals(s.getSegmentId(), segmentId)).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(profiledSegmentSpans)) {
-            throw new IllegalArgumentException("Current segment cannot found any span");
+            String segmentId = segment.getSegmentId();
+            long startTime = segment.getStartTime();
+            long endTime = startTime + segment.getLatency();
+            profiledSegment.setSegmentId(segmentId);
+            profiledSegment.setSegmentStartTime(startTime);
+            profiledSegment.setSegmentEndTime(endTime);
+            profiledSegment.setDuration(segment.getLatency());
+
+            // query spans
+            Trace trace = traceQueryService.queryTrace(config.getTraceId());
+            List<Span> profiledSegmentSpans = trace.getSpans().stream().filter(s -> Objects.equals(s.getSegmentId(), segmentId)).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(profiledSegmentSpans)) {
+                throw new IllegalArgumentException("Current segment cannot found any span");
+            }
+            data.getProfiledSegmentSpans().addAll(profiledSegmentSpans);
+
+            // query snapshots sequences
+            int minSequence = threadSnapshotQueryDAO.queryMinSequence(segmentId, startTime, endTime);
+            int maxSequence = threadSnapshotQueryDAO.queryMaxSequence(segmentId, startTime, endTime);
+            profiledSegment.setMinSequence(minSequence);
+            profiledSegment.setMaxSequence(maxSequence);
+
+            data.getSegments().add(profiledSegment);
         }
-        data.setProfiledSegmentSpans(profiledSegmentSpans);
-
-        // query snapshots sequences
-        int minSequence = threadSnapshotQueryDAO.queryMinSequence(segmentId, startTime, endTime);
-        int maxSequence = threadSnapshotQueryDAO.queryMaxSequence(segmentId, startTime, endTime);
-        data.setMinSequence(minSequence);
-        data.setMaxSequence(maxSequence);
 
         return data;
     }
@@ -130,25 +131,42 @@ public class ProfiledBasicInfo {
      */
     public List<SequenceRange> buildSequenceRanges() {
         ArrayList<SequenceRange> ranges = new ArrayList<>();
-        do {
-            int batchMax = Math.min(minSequence + SEQUENCE_RANGE_BATCH_SIZE, maxSequence);
-            ranges.add(new SequenceRange(minSequence, batchMax));
-            minSequence = batchMax;
+        for (ProfiledSegment segment : this.segments) {
+            int minSequence = segment.minSequence;
+            do {
+                int batchMax = Math.min(minSequence + SEQUENCE_RANGE_BATCH_SIZE, segment.maxSequence);
+                ranges.add(new SequenceRange(segment.getSegmentId(), minSequence, batchMax));
+                minSequence = batchMax;
+            }
+            while (minSequence < segment.maxSequence);
         }
-        while (minSequence < maxSequence);
 
         return ranges;
     }
 
     @Getter
     public static class SequenceRange {
+        private String segmentId;
         private int min;
         private int max;
 
-        public SequenceRange(int min, int max) {
+        public SequenceRange(String segmentId, int min, int max) {
+            this.segmentId = segmentId;
             this.min = min;
             this.max = max;
         }
+    }
+
+    @Data
+    public static class ProfiledSegment {
+        private String segmentId;
+        private long segmentStartTime;
+        private long segmentEndTime;
+        private int duration;
+
+        // snapshot sequence
+        private int minSequence;
+        private int maxSequence;
     }
 
 }
