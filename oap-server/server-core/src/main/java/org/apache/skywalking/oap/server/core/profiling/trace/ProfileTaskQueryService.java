@@ -291,7 +291,12 @@ public class ProfileTaskQueryService implements Service {
             current.setValue(parentSegments);
         }
 
-        return results.stream().filter(ProfiledTraceSegments::isContainsProfiled).collect(Collectors.toList());
+        return results.stream().filter(ProfiledTraceSegments::isContainsProfiled).peek(this::removeAllCrossProcessRef).collect(Collectors.toList());
+    }
+
+    private void removeAllCrossProcessRef(ProfiledTraceSegments segments) {
+        segments.getSpans().stream().filter(s -> CollectionUtils.isNotEmpty(s.getRefs()))
+            .forEach(s -> s.getRefs().removeIf(ref -> RefType.CROSS_PROCESS.equals(ref.getType())));
     }
 
     private List<ProfiledSpan> buildProfiledSpanList(SegmentObject segmentObject, boolean profiled) {
