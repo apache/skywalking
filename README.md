@@ -67,5 +67,9 @@ Please follow the [REPORTING GUIDELINES](https://www.apache.org/foundation/polic
 Hundreds of companies and organizations use SkyWalking for research, production, and commercial product.
 Visit our [website](http://skywalking.apache.org/users/) to find the user page.
 
+## 🙏 Support
+
+Don't forget to leave a star ⭐️
+
 # License
 [Apache 2.0 License.](LICENSE)
