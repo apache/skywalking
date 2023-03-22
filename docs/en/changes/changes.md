@@ -16,6 +16,7 @@
 * Fix otel k8s-cluster rule add namespace dimension for MAL aggregation calculation(Deployment Status,Deployment Spec Replicas)
 * Support continuous profiling feature.
 * Support collect process level related metrics.
+* Support cross thread trace profiling.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

@@ -46,6 +46,10 @@ public interface ITraceQueryDAO extends Service {
 
     List<SegmentRecord> queryByTraceId(String traceId) throws IOException;
 
+    List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException;
+
+    List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException;
+
     /**
      * This method gives more flexible for 3rd trace without segment concept, which can't search data through {@link #queryByTraceId(String)}
      */

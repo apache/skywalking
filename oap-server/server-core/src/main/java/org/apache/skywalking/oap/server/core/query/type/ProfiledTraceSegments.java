@@ -18,20 +18,31 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-public class ProfiledSegment {
+@Data
+public class ProfiledTraceSegments {
+    private String traceId;
+    private String instanceId;
+    private String instanceName;
+    private List<String> endpointNames;
+    private int duration;
+    private String start;
+    private List<ProfiledSpan> spans;
+    private boolean containsProfiled;
 
-    private final List<ProfiledSpan> spans;
-
-    public ProfiledSegment() {
+    public ProfiledTraceSegments() {
+        this.endpointNames = new ArrayList<>();
         this.spans = new ArrayList<>();
     }
 
+    public void merge(ProfiledTraceSegments other) {
+        this.spans.addAll(other.spans);
+        if (!this.containsProfiled) {
+            this.containsProfiled = other.containsProfiled;
+        }
+    }
 }

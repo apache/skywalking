@@ -23,10 +23,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
-import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 
@@ -41,9 +39,9 @@ public class ProfileStackAnalyze {
 
     public void analyzeAndAssert(int maxAnalyzeCount) throws IOException {
         List<ProfileThreadSnapshotRecord> stacks = data.transformSnapshots();
-        final List<ProfileAnalyzeTimeRange> ranges = data.transformTimeRanges();
+        final List<SegmentProfileAnalyzeQuery> queries = data.transformQueries();
 
-        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(null, ranges).getTrees();
+        List<ProfileStackTree> trees = buildAnalyzer(stacks, maxAnalyzeCount).analyze(queries).getTrees();
 
         assertNotNull(trees);
         assertEquals(trees.size(), expected.size());
@@ -67,7 +65,7 @@ public class ProfileStackAnalyze {
         }
 
         @Override
-        public List<BasicTrace> queryProfiledSegments(String taskId) throws IOException {
+        public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
             return null;
         }
 
@@ -97,11 +95,6 @@ public class ProfileStackAnalyze {
                     .filter(s -> s.getSequence() >= minSequence)
                     .filter(s -> s.getSequence() < maxSequence)
                     .collect(Collectors.toList());
-        }
-
-        @Override
-        public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-            return null;
         }
 
     }

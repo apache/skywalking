@@ -22,9 +22,9 @@ import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.core.query.type.Trace;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -73,21 +73,21 @@ public class ProfiledBasicInfo {
         IProfileThreadSnapshotQueryDAO threadSnapshotQueryDAO = manager.find(StorageModule.NAME).provider().getService(IProfileThreadSnapshotQueryDAO.class);
 
         // query and found profiled segment
-        List<BasicTrace> taskTraces = taskQueryService.getTaskTraces(config.getTaskId());
-        BasicTrace profiledTrace = taskTraces.stream().filter(t -> t.getTraceIds().contains(config.getTraceId())).findFirst().orElse(null);
-        if (profiledTrace == null) {
+        List<SegmentRecord> taskTraces = taskQueryService.getTaskSegments(config.getTaskId());
+        SegmentRecord segment = taskTraces.stream().filter(t -> Objects.equals(t.getTraceId(), config.getTraceId())).findFirst().orElse(null);
+        if (segment == null) {
             throw new IllegalArgumentException("Cannot fount profiled segment in current task: " + config.getTaskId()
                     + ", segment id: " + config.getTraceId() + ", current task total profiled trace count is " + taskTraces.size());
         }
 
         // setting segment basic info
-        String segmentId = profiledTrace.getSegmentId();
-        long startTime = Long.parseLong(profiledTrace.getStart());
-        long endTime = startTime + profiledTrace.getDuration();
+        String segmentId = segment.getSegmentId();
+        long startTime = segment.getStartTime();
+        long endTime = startTime + segment.getLatency();
         data.setSegmentId(segmentId);
         data.setSegmentStartTime(startTime);
         data.setSegmentEndTime(endTime);
-        data.setDuration(profiledTrace.getDuration());
+        data.setDuration(segment.getLatency());
 
         // query spans
         Trace trace = traceQueryService.queryTrace(config.getTraceId());

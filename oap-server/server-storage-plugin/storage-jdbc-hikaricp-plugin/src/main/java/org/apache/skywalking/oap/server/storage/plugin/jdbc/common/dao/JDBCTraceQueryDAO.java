@@ -44,6 +44,8 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -51,6 +53,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 import static java.util.function.Predicate.not;
@@ -64,6 +67,16 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     private final TableHelper tableHelper;
 
     private Set<String> searchableTagKeys;
+
+    private static String DETAIL_SELECT_QUERY = "select " + SegmentRecord.SEGMENT_ID + ", " +
+        SegmentRecord.TRACE_ID + ", " +
+        SegmentRecord.ENDPOINT_ID + ", " +
+        SegmentRecord.SERVICE_ID + ", " +
+        SegmentRecord.SERVICE_INSTANCE_ID + ", " +
+        SegmentRecord.START_TIME + ", " +
+        SegmentRecord.LATENCY + ", " +
+        SegmentRecord.IS_ERROR + ", " +
+        SegmentRecord.DATA_BINARY;
 
     @Override
     @SneakyThrows
@@ -228,32 +241,11 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
 
         for (String table : tables) {
             jdbcClient.executeQuery(
-                "select " + SegmentRecord.SEGMENT_ID + ", " +
-                    SegmentRecord.TRACE_ID + ", " +
-                    SegmentRecord.SERVICE_ID + ", " +
-                    SegmentRecord.SERVICE_INSTANCE_ID + ", " +
-                    SegmentRecord.START_TIME + ", " +
-                    SegmentRecord.LATENCY + ", " +
-                    SegmentRecord.IS_ERROR + ", " +
-                    SegmentRecord.DATA_BINARY + " from " + table + " where " +
+                DETAIL_SELECT_QUERY + " from " + table + " where " +
                     JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
                     SegmentRecord.TRACE_ID + " = ?",
                 resultSet -> {
-                    while (resultSet.next()) {
-                        SegmentRecord segmentRecord = new SegmentRecord();
-                        segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                        segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
-                        segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
-                        segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
-                        segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                        segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
-                        segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
-                        String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
-                        if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-                            segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
-                        }
-                        segmentRecords.add(segmentRecord);
-                    }
+                    segmentRecords.addAll(buildRecords(resultSet));
                     return null;
                 },
                 SegmentRecord.INDEX_NAME, traceId
@@ -262,8 +254,82 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
         return segmentRecords;
     }
 
+    @SneakyThrows
+    @Override
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
+        final var segmentRecords = new ArrayList<SegmentRecord>();
+        final ArrayList<String> conditions = new ArrayList<>();
+        conditions.add(SegmentRecord.INDEX_NAME);
+        conditions.addAll(segmentIdList);
+
+        for (String table : tables) {
+            jdbcClient.executeQuery(
+                DETAIL_SELECT_QUERY + " from " + table + " where " +
+                    JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
+                    SegmentRecord.SEGMENT_ID + " in " +
+                    segmentIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")),
+                resultSet -> {
+                    segmentRecords.addAll(buildRecords(resultSet));
+                    return null;
+                },
+                conditions.toArray()
+            );
+        }
+        return segmentRecords;
+    }
+
+    @SneakyThrows
+    @Override
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
+        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
+        final var segmentRecords = new ArrayList<SegmentRecord>();
+        final ArrayList<String> conditions = new ArrayList<>();
+        conditions.add(SegmentRecord.INDEX_NAME);
+        conditions.addAll(traceIdList);
+        conditions.addAll(instanceIdList);
+
+        for (String table : tables) {
+            jdbcClient.executeQuery(
+                DETAIL_SELECT_QUERY + " from " + table + " where " +
+                    JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
+                    SegmentRecord.TRACE_ID + " in " +
+                    traceIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ") and ")) +
+                    SegmentRecord.SERVICE_INSTANCE_ID + " in " +
+                    instanceIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")),
+                resultSet -> {
+                    segmentRecords.addAll(buildRecords(resultSet));
+                    return null;
+                },
+                conditions.toArray()
+            );
+        }
+        return segmentRecords;
+    }
+
     @Override
     public List<Span> doFlexibleTraceQuery(String traceId) {
         return Collections.emptyList();
+    }
+
+    private List<SegmentRecord> buildRecords(ResultSet resultSet) throws SQLException {
+        final List<SegmentRecord> records = new ArrayList<>();
+        while (resultSet.next()) {
+            SegmentRecord segmentRecord = new SegmentRecord();
+            segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
+            segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
+            segmentRecord.setEndpointId(resultSet.getString(SegmentRecord.ENDPOINT_ID));
+            segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
+            segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
+            segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
+            segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
+            segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
+            String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
+            if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
+                segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
+            }
+            records.add(segmentRecord);
+        }
+        return records;
     }
 }

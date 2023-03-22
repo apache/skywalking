@@ -18,100 +18,36 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
-import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
-
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshotQueryDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
 
-    @Override
     @SneakyThrows
-    public List<BasicTrace> queryProfiledSegments(String taskId) {
-        final var tables = tableHelper.getTablesWithinTTL(ProfileThreadSnapshotRecord.INDEX_NAME);
-        final var results = new ArrayList<BasicTrace>();
-        final var segments = new ArrayList<>();
-
-        for (String table : tables) {
+    @Override
+    public List<String> queryProfiledSegmentIdList(String taskId) throws IOException {
+        final var snapshotTables = tableHelper.getTablesWithinTTL(ProfileThreadSnapshotRecord.INDEX_NAME);
+        final var segments = new ArrayList<String>();
+        for (String table : snapshotTables) {
             segments.addAll(querySegments(taskId, table));
         }
-
-        if (segments.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        final var segmentTables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
-        for (String table : segmentTables) {
-            final var sql = new StringBuilder();
-            final var parameters = new ArrayList<>();
-
-            sql.append("select * from ").append(table).append(" where ")
-                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? and ");
-            parameters.add(SegmentRecord.INDEX_NAME);
-
-            final var segmentQuery =
-                segments
-                    .stream()
-                    .map(it -> SegmentRecord.SEGMENT_ID + " = ? ")
-                    .collect(joining(" or ", "(", ")"));
-            sql.append(segmentQuery);
-            parameters.addAll(segments);
-            sql.append(" order by ").append(SegmentRecord.START_TIME).append(" ").append("desc");
-
-            final var sqlAndParameters = new SQLAndParameters(sql.toString(), parameters);
-
-            jdbcClient.executeQuery(
-                sqlAndParameters.sql(),
-                resultSet -> {
-                    while (resultSet.next()) {
-                        BasicTrace basicTrace = new BasicTrace();
-
-                        basicTrace.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                        basicTrace.setStart(resultSet.getString(SegmentRecord.START_TIME));
-                        basicTrace.getEndpointNames().add(
-                            IDManager.EndpointID.analysisId(
-                                resultSet.getString(SegmentRecord.ENDPOINT_ID)).getEndpointName()
-                        );
-                        basicTrace.setDuration(resultSet.getInt(SegmentRecord.LATENCY));
-                        basicTrace.setError(BooleanUtils.valueToBoolean(resultSet.getInt(SegmentRecord.IS_ERROR)));
-                        String traceIds = resultSet.getString(SegmentRecord.TRACE_ID);
-                        basicTrace.getTraceIds().add(traceIds);
-
-                        results.add(basicTrace);
-                    }
-                    return null;
-                },
-                sqlAndParameters.parameters());
-        }
-        return results
-            .stream()
-            .sorted(Comparator.<BasicTrace, Long>comparing(it -> Long.parseLong(it.getStart())).reversed())
-            .collect(toList());
+        return segments;
     }
 
     protected ArrayList<String> querySegments(String taskId, String table) throws SQLException {
@@ -191,42 +127,6 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
         }
 
         return results;
-    }
-
-    @Override
-    @SneakyThrows
-    public SegmentRecord getProfiledSegment(String segmentId) throws IOException {
-        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
-        for (final var table : tables) {
-            final var r = jdbcClient.executeQuery(
-                "select * from " + table +
-                    " where " + JDBCTableInstaller.TABLE_COLUMN + " = ?" +
-                    " and " + SegmentRecord.SEGMENT_ID + " = ?",
-                resultSet -> {
-                    if (resultSet.next()) {
-                        SegmentRecord segmentRecord = new SegmentRecord();
-                        segmentRecord.setSegmentId(resultSet.getString(SegmentRecord.SEGMENT_ID));
-                        segmentRecord.setTraceId(resultSet.getString(SegmentRecord.TRACE_ID));
-                        segmentRecord.setServiceId(resultSet.getString(SegmentRecord.SERVICE_ID));
-                        segmentRecord.setServiceInstanceId(resultSet.getString(SegmentRecord.SERVICE_INSTANCE_ID));
-                        segmentRecord.setStartTime(resultSet.getLong(SegmentRecord.START_TIME));
-                        segmentRecord.setLatency(resultSet.getInt(SegmentRecord.LATENCY));
-                        segmentRecord.setIsError(resultSet.getInt(SegmentRecord.IS_ERROR));
-                        String dataBinaryBase64 = resultSet.getString(SegmentRecord.DATA_BINARY);
-                        if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
-                            segmentRecord.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));
-                        }
-                        return segmentRecord;
-                    }
-                    return null;
-                },
-                SegmentRecord.INDEX_NAME, segmentId
-            );
-            if (r != null) {
-                return r;
-            }
-        }
-        return null;
     }
 
     @SneakyThrows

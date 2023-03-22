@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.query.type.Thermodynamic;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -90,6 +91,14 @@ public class MetricQuery implements GraphQLQueryResolver {
 
         final MetricsValues metricsValues = query.readMetricsValues(condition, duration);
         return metricsValues.getValues();
+    }
+
+    public NullableValue readNullableMetricsValue(MetricsCondition condition, Duration duration) {
+        // TODO default implantation
+        final NullableValue nullableValue = new NullableValue();
+        nullableValue.setValue(0);
+        nullableValue.setEmptyValue(true);
+        return nullableValue;
     }
 
     public List<IntValues> getMultipleLinearIntValues(final MetricCondition metrics, final int numOfLinear,
