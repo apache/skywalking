@@ -26,13 +26,7 @@
   - spanid: {{ ge .spanid 0 }}
     parentspanid: {{ .parentspanid }}
     segmentid: {{ notEmpty .segmentid }}
-    refs:
-    {{- contains .refs}}
-    - traceid: {{ notEmpty .traceid }}
-      parentsegmentid: {{ notEmpty .parentsegmentid }}
-      parentspanid: 1
-      type: CROSS_PROCESS
-    {{- end}}
+    refs: []
     servicecode: e2e-service-provider
     serviceinstancename: provider1
     starttime: {{ gt .starttime 0 }}
