@@ -18,6 +18,7 @@
 * Support collect process level related metrics.
 * Fix K8sRetag reads the wrong k8s service from the cache due to a possible namespace mismatch.
 * [Breaking Change] Support cross-thread trace profiling. The data structure and query APIs are changed.
+* Fix PromQL HTTP API `/api/v1/labels` response missing `service` label.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
