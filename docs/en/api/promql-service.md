@@ -2,10 +2,10 @@
 PromQL([Prometheus Query Language](https://prometheus.io/docs/prometheus/latest/querying/basics/)) Service
 exposes Prometheus Querying HTTP APIs including the bundled PromQL expression system.
 Third-party systems or visualization platforms that already support PromQL (such as Grafana), 
-could obtain metrics through PromeQL Service.
+could obtain metrics through PromQL Service.
 
 As SkyWalking and Prometheus have fundamental differences in metrics classification, format, storage, etc. 
-The PromQL Service supported will be a subset of the complete PromQL
+The PromQL Service supported will be a subset of the complete PromQL.
 
 ## Details Of Supported Protocol
 The following doc describes the details of the supported protocol and compared it to the PromQL official documentation.
@@ -286,7 +286,7 @@ Result:
     "status": "success",
     "data": [
         "layer",
-        "scope",
+        "service",
         "top_n",
         "order",
         "service_instance",
@@ -382,7 +382,7 @@ Result:
 ## Metrics Type For Query
 
 ### Supported Metrics [Scope](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/query/enumeration/Scope.java)(Catalog)
-All scopes are not supported completely, please check the following table:
+Not all scopes are supported for now, please check the following table:
 
 | Scope                   | Support |
 |-------------------------|---------|

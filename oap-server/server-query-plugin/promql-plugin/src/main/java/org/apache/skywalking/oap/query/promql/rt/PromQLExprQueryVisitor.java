@@ -179,7 +179,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         try {
             String metricName = ctx.metricName().getText();
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = getValueColumn(metricName);
-            if (!valueColumn.isPresent()) {
+            if (valueColumn.isEmpty()) {
                 result.setErrorType(ErrorType.BAD_DATA);
                 result.setErrorInfo("Metric: [" + metricName + "] dose not exist.");
                 return result;
@@ -261,9 +261,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                              LabelName... labelNames) throws IllegalExpressionException {
         StringBuilder missLabels = new StringBuilder();
         int j = 0;
-        for (int i = 0; i < labelNames.length; i++) {
-            String labelName = labelNames[i].toString();
-            if (labelMap.get(labelNames[i]) == null) {
+        for (final LabelName name : labelNames) {
+            String labelName = name.toString();
+            if (labelMap.get(name) == null) {
                 missLabels.append(j++ > 0 ? "," : "").append(labelName);
             }
         }
@@ -335,12 +335,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         MetricsCondition metricsCondition = buildMetricsCondition(metricName, layer, scope, labelMap);
         Map<String, String> relabelMap = new HashMap<>();
         String queryLabels = labelMap.get(LabelName.LABELS);
-        List<String> queryLabelList = Collections.EMPTY_LIST;
+        List<String> queryLabelList = Collections.emptyList();
         if (StringUtil.isNotBlank(queryLabels)) {
             queryLabelList = Arrays.asList(queryLabels.split(Const.COMMA));
 
             String relabels = labelMap.get(LabelName.RELABELS);
-            List<String> relabelList = Collections.EMPTY_LIST;
+            List<String> relabelList = Collections.emptyList();
             if (StringUtil.isNotBlank(relabels)) {
                 relabelList = Arrays.asList(relabels.split(Const.COMMA));
             }

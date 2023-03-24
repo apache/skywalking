@@ -459,7 +459,7 @@ public class PromQLApiHandler {
                                             Column.ValueDataType dataType) {
         List<LabelName> labelNames = new ArrayList<>();
         labelNames.add(LabelName.LAYER);
-        labelNames.add(LabelName.SCOPE);
+        labelNames.add(LabelName.SERVICE);
         labelNames.add(LabelName.TOP_N);
         labelNames.add(LabelName.ORDER);
         if (Column.ValueDataType.LABELED_VALUE == dataType) {
