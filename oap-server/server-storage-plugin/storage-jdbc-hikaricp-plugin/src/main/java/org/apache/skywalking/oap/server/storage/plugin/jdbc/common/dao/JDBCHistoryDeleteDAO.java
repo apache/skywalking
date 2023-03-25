@@ -75,16 +75,17 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
 
         final var ttlTables = tableHelper.getTablesForRead(model.getName(), startTimeBucket, endTimeBucket);
         final var tablesToDrop = new HashSet<String>();
+        final var tableName = TableHelper.getTableName(model);
 
         try (final var conn = jdbcClient.getConnection();
-             final var result = conn.getMetaData().getTables(null, null, TableHelper.getTableName(model) + "%", new String[]{"TABLE"})) {
+             final var result = conn.getMetaData().getTables(null, null, tableName + "%", new String[]{"TABLE"})) {
             while (result.next()) {
                 tablesToDrop.add(result.getString("TABLE_NAME"));
             }
         }
 
         ttlTables.forEach(tablesToDrop::remove);
-        tablesToDrop.removeIf(it -> !it.matches(".*_\\d{8}$"));
+        tablesToDrop.removeIf(it -> !it.matches(tableName + "_\\d{8}$"));
         for (final var table : tablesToDrop) {
             final var dropSql = new SQLBuilder("drop table if exists ").append(table);
             jdbcClient.executeUpdate(dropSql.toString());
