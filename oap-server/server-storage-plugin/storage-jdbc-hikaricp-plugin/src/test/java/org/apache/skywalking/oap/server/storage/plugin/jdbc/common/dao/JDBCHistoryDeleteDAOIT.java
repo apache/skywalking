@@ -117,7 +117,7 @@ class JDBCHistoryDeleteDAOIT {
     void test() throws SQLException {
         // Table install should create the table.
         var clock = Clock.fixed(Instant.parse("2023-03-17T10:00:00Z"), ZoneId.systemDefault());
-        tableInstaller.createTable(model, "service_traffic_20230317");
+        tableInstaller.createTable(model, 20230317);
 
         var jdbcHistoryDeleteDAO = new JDBCHistoryDeleteDAO(jdbcClient, tableHelper, tableInstaller, clock);
         jdbcHistoryDeleteDAO.deleteHistory(model, "time_bucket", 3);
