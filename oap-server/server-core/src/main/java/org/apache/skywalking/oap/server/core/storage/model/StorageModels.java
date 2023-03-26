@@ -17,24 +17,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -49,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -286,17 +269,6 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                     );
                 }
             }
-        }
-
-        // For the annotation need to be declared on the superclass, the other annotation should be declared on the subclass.
-        if (!sqlDBModelExtension.getSharding().isPresent() && clazz.isAnnotationPresent(SQLDatabase.Sharding.class)) {
-            SQLDatabase.Sharding sharding = clazz.getAnnotation(SQLDatabase.Sharding.class);
-            sqlDBModelExtension.setSharding(
-                Optional.of(new SQLDatabaseModelExtension.Sharding(
-                    sharding.shardingAlgorithm(),
-                    sharding.dataSourceShardingColumn(),
-                    sharding.tableShardingColumn()
-                )));
         }
 
         if (Objects.nonNull(clazz.getSuperclass())) {
