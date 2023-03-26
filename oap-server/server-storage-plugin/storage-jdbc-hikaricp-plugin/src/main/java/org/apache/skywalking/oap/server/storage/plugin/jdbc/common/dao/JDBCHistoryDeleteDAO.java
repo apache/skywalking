@@ -103,8 +103,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
 
         // Create tables for the next day.
         final var nextTimeBucket = TimeBucket.getTimeBucket(clock.millis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
-        final var table = TableHelper.getTable(model, nextTimeBucket);
-        modelInstaller.createTable(model, table);
+        modelInstaller.createTable(model, nextTimeBucket);
 
         lastDeletedTimeBucket.put(model.getName(), deadline);
     }

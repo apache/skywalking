@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -86,15 +88,16 @@ public class JDBCTableInstaller extends ModelInstaller {
     @Override
     @SneakyThrows
     public void createTable(Model model) {
-        final var table = TableHelper.getLatestTableForWrite(model);
-        createTable(model, table);
+        final var dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+        createTable(model, dayTimeBucket);
     }
 
     @SneakyThrows
-    public void createTable(Model model, String table) {
+    public void createTable(Model model, long timeBucket) {
+        final var table = TableHelper.getTable(model, timeBucket);
         createOrUpdateTable(table, model.getColumns(), false);
         createOrUpdateTableIndexes(table, model.getColumns(), false);
-        createAdditionalTable(model);
+        createAdditionalTable(model, timeBucket);
     }
 
     public String getColumnDefinition(ModelColumn column) {
@@ -214,10 +217,10 @@ public class JDBCTableInstaller extends ModelInstaller {
         c.execute(sql.toString());
     }
 
-    public void createAdditionalTable(Model model) throws SQLException {
+    public void createAdditionalTable(Model model, long timeBucket) throws SQLException {
         final var additionalTables = model.getSqlDBModelExtension().getAdditionalTables();
         for (final var table : additionalTables.values()) {
-            final var tableName = TableHelper.getLatestTableForWrite(table.getName());
+            final var tableName = TableHelper.getTable(table.getName(), timeBucket);
             createOrUpdateTable(tableName, table.getColumns(), true);
             createOrUpdateTableIndexes(tableName, table.getColumns(), true);
         }
