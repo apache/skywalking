@@ -85,15 +85,6 @@ public class TableHelper {
         return tableName + Const.UNDERSCORE + dayTimeBucket;
     }
 
-    /**
-     * @param rawTableName the table name without time bucket suffix.
-     * @return the table name with time bucket.
-     */
-    public static String getLatestTableForWrite(String rawTableName) {
-        final var dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
-        return rawTableName + Const.UNDERSCORE + dayTimeBucket;
-    }
-
     public static String getTable(Model model, long timeBucket) {
         final var tableName = getTableName(model);
         if (timeBucket == 0) {
@@ -116,6 +107,22 @@ public class TableHelper {
     }
 
     public List<String> getTablesForRead(String modelName, long timeBucketStart, long timeBucketEnd) {
+        return getTablesInTimeBucketRange(modelName, timeBucketStart, timeBucketEnd)
+            .stream()
+            .filter(table -> {
+                try {
+                    return tableExistence.get(table);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(toList());
+    }
+
+    /**
+     * Similar to {@link #getTablesForRead(String, long, long)}, but don't check the table existence.
+     */
+    public List<String> getTablesInTimeBucketRange(String modelName, long timeBucketStart, long timeBucketEnd) {
         final var model = TableMetaInfo.get(modelName);
         final var tableName = getTableName(model);
 
@@ -133,13 +140,6 @@ public class TableHelper {
             .distinct()
             .filter(ttlTimeBucketRange::contains)
             .mapToObj(it -> tableName + "_" + it)
-            .filter(table -> {
-                try {
-                    return tableExistence.get(table);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            })
             .collect(toList());
     }
 
