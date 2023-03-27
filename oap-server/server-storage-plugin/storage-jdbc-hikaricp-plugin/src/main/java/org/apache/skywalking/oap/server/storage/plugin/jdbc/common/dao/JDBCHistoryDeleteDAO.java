@@ -50,8 +50,8 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     @Override
     @SneakyThrows
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
-        final var endTimeBucket = TimeBucket.getTimeBucket(clock.millis(), DownSampling.Day);
-        final var startTimeBucket = endTimeBucket - ttl;
+        final var endTimeBucket = TimeBucket.getTimeBucket(clock.millis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
+        final var startTimeBucket = endTimeBucket - ttl - 1;
         log.info(
             "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
             ttl,
@@ -73,7 +73,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
             return;
         }
 
-        final var ttlTables = tableHelper.getTablesForRead(model.getName(), startTimeBucket, endTimeBucket);
+        final var ttlTables = tableHelper.getTablesInTimeBucketRange(model.getName(), startTimeBucket, endTimeBucket);
         final var tablesToDrop = new HashSet<String>();
         final var tableName = TableHelper.getTableName(model);
 
