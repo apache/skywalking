@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
+import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -107,8 +108,16 @@ public class TableHelper {
     }
 
     public List<String> getTablesForRead(String modelName, long timeBucketStart, long timeBucketEnd) {
+        final var model = TableMetaInfo.get(modelName);
+        final var rawTableName = getTableName(model);
+        final var ttlTimeBucketRange = getTTLTimeBucketRange(model);
+        final var ttlTables =
+            LongStream.rangeClosed(ttlTimeBucketRange.lowerEndpoint(), ttlTimeBucketRange.upperEndpoint())
+                      .mapToObj(it -> getTable(rawTableName, it))
+                      .collect(toList());
         return getTablesInTimeBucketRange(modelName, timeBucketStart, timeBucketEnd)
             .stream()
+            .filter(not(ttlTables::contains))
             .filter(table -> {
                 try {
                     return tableExistence.get(table);
@@ -124,22 +133,19 @@ public class TableHelper {
      */
     public List<String> getTablesInTimeBucketRange(String modelName, long timeBucketStart, long timeBucketEnd) {
         final var model = TableMetaInfo.get(modelName);
-        final var tableName = getTableName(model);
+        final var rawTableName = getTableName(model);
 
         if (!model.isTimeSeries()) {
-            return Collections.singletonList(tableName);
+            return Collections.singletonList(rawTableName);
         }
 
         timeBucketStart = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketStart), DownSampling.Day);
         timeBucketEnd = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketEnd), DownSampling.Day);
 
-        final var ttlTimeBucketRange = getTTLTimeBucketRange(model);
-
         return LongStream
             .rangeClosed(timeBucketStart, timeBucketEnd)
             .distinct()
-            .filter(ttlTimeBucketRange::contains)
-            .mapToObj(it -> tableName + "_" + it)
+            .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
             .collect(toList());
     }
 
