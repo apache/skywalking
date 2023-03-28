@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.LongStream;
 
-import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -117,7 +116,7 @@ public class TableHelper {
                       .collect(toList());
         return getTablesInTimeBucketRange(modelName, timeBucketStart, timeBucketEnd)
             .stream()
-            .filter(not(ttlTables::contains))
+            .filter(ttlTables::contains)
             .filter(table -> {
                 try {
                     return tableExistence.get(table);
