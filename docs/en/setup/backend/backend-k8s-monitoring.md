@@ -11,7 +11,7 @@ SkyWalking leverages K8s kube-state-metrics (KSM) and cAdvisor for collecting me
 1. Setup [kube-state-metric](https://github.com/kubernetes/kube-state-metrics#kubernetes-deployment).
 2. cAdvisor is integrated into `kubelet` by default.
 3. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). For details on Prometheus Receiver in OpenTelemetry Collector for K8s, refer to [here](https://github.com/prometheus/prometheus/blob/main/documentation/examples/prometheus-kubernetes.yml).
-For a quick start, we have provided a complete example of configuration and recommended version; you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-kubernetes-monitor).
+For a quick start, we have provided a complete example of configuration and recommended version; you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/templates/feature-kubernetes-monitor).
 4. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## Kubernetes Cluster Monitoring
