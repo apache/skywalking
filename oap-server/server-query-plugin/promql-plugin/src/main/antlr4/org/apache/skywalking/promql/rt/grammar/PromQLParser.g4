@@ -36,7 +36,7 @@ mulDivMod:       MUL | DIV | MOD;
 compare:        (DEQ | NEQ | LTE | LT | GTE | GT) BOOL?;
 
 metricName:      NAME_STRING;
-metricInstant:   metricName | metricName L_BRACE labelList R_BRACE;
+metricInstant:   metricName | metricName L_BRACE labelList? R_BRACE;
 metricRange:     metricInstant L_BRACKET DURATION R_BRACKET;
 
 labelName:       NAME_STRING;
