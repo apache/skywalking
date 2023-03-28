@@ -180,7 +180,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [8, 11, 17]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -219,7 +219,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-        java-version: [8]
+        java-version: [11]
         include:
           - os: ubuntu
             java-version: 11
@@ -250,7 +250,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        java-version: [8, 11]
+        java-version: [11]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -651,7 +651,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [8, 11, 17]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
