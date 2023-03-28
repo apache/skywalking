@@ -28,7 +28,6 @@ concurrency:
 env:
   SW_AGENT_JDK_VERSION: 8
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
-  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
 
 jobs:
   license-header:
@@ -41,7 +40,7 @@ jobs:
         with:
           submodules: true
       - name: Check license header
-        uses: apache/skywalking-eyes@775fe1ffda59b7e100aa144d0ef8d7beae17f97d
+        uses: apache/skywalking-eyes@c5ee30754d4145fe29f90b9a82ef1d3902d41d2b
 
   code-style:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -57,7 +56,7 @@ jobs:
 
   dependency-license:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
     name: Dependency licenses
     needs: [changes]
@@ -70,15 +69,15 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: "11"
+          java-version: "8"
           cache: "maven"
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v3
         with:
           go-version: "1.16"
       - name: Check Dependencies Licenses
         run: |
-          go install github.com/apache/skywalking-eyes/cmd/license-eye@775fe1ffda59b7e100aa144d0ef8d7beae17f97d
+          go install github.com/apache/skywalking-eyes/cmd/license-eye@442d462
           license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
           if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
             echo "LICENSE file is not updated correctly"
@@ -87,7 +86,7 @@ jobs:
           fi
 
   sanity-check:
-    if: ( always() && ! cancelled() ) && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
+    if: always() && (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
     name: Sanity check results
     needs: [license-header, code-style, dependency-license]
     runs-on: ubuntu-latest
@@ -144,7 +143,7 @@ jobs:
 
   dist-tar:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Build dist tar
     needs: [sanity-check, changes]
@@ -157,12 +156,13 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "temurin"
-          java-version: "11"
+          java-version: "8"
           cache: "maven"
       - name: Build distribution tar
         run: |
-          ./mvnw clean install javadoc:javadoc -B -q \
+          ./mvnw clean install -B -q \
             -Dmaven.test.skip \
+            -Dmaven.javadoc.skip \
             -Dcheckstyle.skip
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
@@ -172,7 +172,7 @@ jobs:
 
   docker:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Docker images
     needs: [dist-tar, changes]
@@ -180,7 +180,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [11, 17]
+        java-version: [8, 11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -210,7 +210,7 @@ jobs:
 
   unit-test:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Unit test
     needs: [sanity-check, changes]
@@ -219,10 +219,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu, macos, windows]
-        java-version: [11]
+        java-version: [8]
         include:
           - os: ubuntu
-            java-version: 17
+            java-version: 11
     steps:
       - uses: actions/checkout@v3
         with:
@@ -236,13 +236,13 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: temurin
+          distribution: adopt
       - name: Unit test
-        run: ./mvnw clean test -q -B -D"checkstyle.skip" || ./mvnw clean test -q -B -D"checkstyle.skip"
+        run: ./mvnw clean verify -q -B -D"checkstyle.skip" || ./mvnw clean verify -q -B -D"checkstyle.skip"
 
   integration-test:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: Integration test
     needs: [sanity-check, changes]
@@ -250,7 +250,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        java-version: [11, 17]
+        java-version: [8, 11]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -264,53 +264,19 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: temurin
+          distribution: adopt
       - name: Integration test
         run: |
-          # Exclude slow integration tests and run those tests separately below.
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow || \
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow
-
-  # Slow tests
-  slow-integration-test:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: Slow Integration Tests
-    needs: [sanity-check, changes]
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      matrix:
-        test:
-          - name: ElasticSearch / OpenSearch
-            class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - name: Cache maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v3
-        with:
-          java-version: 11
-          distribution: temurin
-      - name: ${{ matrix.test.name }}
-        run: |
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -DfailIfNoTests=false || \
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -DfailIfNoTests=false
+          ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false || \
+          ./mvnw clean verify -q -B -Dcheckstyle.skip -DskipUTs -DskipITs=false
 
   e2e-test:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
-    runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -342,6 +308,8 @@ jobs:
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
+          - name: Storage TiDB
+            config: test/e2e-v2/cases/storage/tidb/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
           - name: Storage ES 6.3.2
@@ -365,18 +333,12 @@ jobs:
           - name: Storage ES 8.0.0
             config: test/e2e-v2/cases/storage/es/e2e.yaml
             env: ES_VERSION=8.0.0
-          - name: Storage ES 8.1.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=8.1.0
           - name: Storage OpenSearch 1.1.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: Storage OpenSearch 1.3.6
+          - name: Storage OpenSearch 1.2.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: Storage OpenSearch 2.4.0
-            config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
+            env: OPENSEARCH_VERSION=1.2.0
           - name: Storage ES Sharding
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
 
@@ -391,6 +353,10 @@ jobs:
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
 
+          - name: TTL TiDB
+            config: test/e2e-v2/cases/ttl/tidb/e2e.yaml
+          - name: TTL PostgreSQL
+            config: test/e2e-v2/cases/ttl/postgresql/e2e.yaml
           - name: TTL ES 6.3.2
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=6.3.2
@@ -472,15 +438,14 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
             config: test/e2e-v2/cases/profiling/trace/postgres/e2e.yaml
+          - name: Trace Profiling TiDB
+            config: test/e2e-v2/cases/profiling/trace/tidb/e2e.yaml
           - name: Trace Profiling OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: Trace Profiling OpenSearch 1.3.6
+          - name: Trace Profiling OpenSearch 1.2.0
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: Trace Profiling OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
+            env: OPENSEARCH_VERSION=1.2.0
 
           - name: eBPF Profiling On CPU BanyanDB
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
@@ -494,61 +459,22 @@ jobs:
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
           - name: eBPF Profiling On CPU Postgres
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
+          - name: eBPF Profiling On CPU TiDB
+            config: test/e2e-v2/cases/profiling/ebpf/oncpu/tidb/e2e.yaml
           - name: eBPF Profiling On CPU OpenSearch 1.1.0
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: eBPF Profiling On CPU OpenSearch 1.3.6
+          - name: eBPF Profiling On CPU OpenSearch 1.2.0
             config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: eBPF Profiling On CPU OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
+            env: OPENSEARCH_VERSION=1.2.0
           - name: eBPF Profiling Off CPU
             config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
-            runs-on: ubuntu-20.04
-          - name: eBPF Profiling Network BanyanDB
-            config: test/e2e-v2/cases/profiling/ebpf/network/banyandb/e2e.yaml
-          - name: eBPF Profiling Network H2
-            config: test/e2e-v2/cases/profiling/ebpf/network/h2/e2e.yaml
-          - name: eBPF Profiling Network ES
-            config: test/e2e-v2/cases/profiling/ebpf/network/es/e2e.yaml
+          - name: eBPF Profiling Network
+            config: test/e2e-v2/cases/profiling/ebpf/network/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
           - name: eBPF Profiling Network ES Sharding
-            config: test/e2e-v2/cases/profiling/ebpf/network/es/es-sharding/e2e.yaml
-          - name: eBPF Profiling Network MySQL
-            config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
-          - name: eBPF Profiling Network Postgres
-            config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
-          - name: eBPF Profiling Network OpenSearch 1.1.0
-            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: eBPF Profiling Network OpenSearch 1.3.6
-            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: eBPF Profiling Network OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
-
-          - name: Continuous Profiling BanyanDB
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/banyandb/e2e.yaml
-          - name: Continuous Profiling H2
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/h2/e2e.yaml
-          - name: Continuous Profiling ES
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/e2e.yaml
-          - name: Continuous Profiling Sharding ES
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/es-sharding/e2e.yaml
-          - name: Continuous Profiling MySQL
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/mysql/e2e.yaml
-          - name: Continuous Profiling Postgres
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/postgres/e2e.yaml
-          - name: Continuous Profiling OpenSearch 1.1.0
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: Continuous Profiling OpenSearch 1.3.6
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: Continuous Profiling OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
+            config: test/e2e-v2/cases/profiling/ebpf/network/es-sharding/e2e.yaml
+            env: ISTIO_VERSION=1.13.1
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
@@ -589,26 +515,6 @@ jobs:
             env: |
               ISTIO_VERSION=1.13.1
               KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.14.4
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.14.4
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.15.0
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.15.0
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.16.0
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.16.0
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.17.0
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.17.0
-              KUBERNETES_VERSION=20
 
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
@@ -626,21 +532,16 @@ jobs:
             config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
           - name: VM Prometheus
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
-          - name: VM Telegraf
-            config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
-          - name: MySQL Prometheus and slowsql
-            config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
+          - name: MySQL Prometheus
+            config: test/e2e-v2/cases/mysql/prometheus-mysql-exporter/e2e.yaml
           - name: PostgreSQL Prometheus
             config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
-          - name: MariaDB Prometheus and slowsql
-            config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
 
           - name: Rover with Istio Process 1.13.1
             config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
             env: ISTIO_VERSION=1.13.1
-            runs-on: ubuntu-20.04
 
           - name: Zipkin ES
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
@@ -656,23 +557,6 @@ jobs:
             config: test/e2e-v2/cases/zipkin/postgres/e2e.yaml
           - name: Zipkin Kafka
             config: test/e2e-v2/cases/zipkin/kafka/e2e.yaml
-          - name: Zipkin BanyanDB
-            config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
-
-          - name: APISIX metrics
-            config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
-          - name: Exporter Kafka
-            config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
-          - name: Virtual MQ
-            config: test/e2e-v2/cases/virtual-mq/e2e.yaml
-          - name: AWS Cloud EKS
-            config: test/e2e-v2/cases/aws/eks/e2e.yaml
-          - name: Windows
-            config: test/e2e-v2/cases/win/e2e.yaml
-          - name: AWS Cloud S3
-            config: test/e2e-v2/cases/aws/s3/e2e.yaml
-          - name: AWS Cloud DynamoDB
-            config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
@@ -680,27 +564,25 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-8
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
-      - name: Cache maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.16"
       - name: Set env var
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
+        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v2
         if: ${{ failure() }}
         name: Upload Logs
         with:
@@ -709,11 +591,11 @@ jobs:
 
   e2e-test-istio:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -734,15 +616,6 @@ jobs:
             kubernetes: 19
           - istio: 1.13.1
             kubernetes: 20
-          - istio: 1.14.4
-            kubernetes: 20
-          - istio: 1.15.0
-            kubernetes: 20
-          - istio: 1.16.0
-            kubernetes: 20
-          - istio: 1.17.0
-            kubernetes: 20
-
     steps:
       - uses: actions/checkout@v3
         with:
@@ -750,12 +623,16 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-8
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.16"
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
+        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -765,7 +642,7 @@ jobs:
 
   e2e-test-java-versions:
     if: |
-      ( always() && ! cancelled() ) &&
+      always() &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
     name: E2E test
     needs: [docker]
@@ -774,7 +651,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [11, 17]
+        java-version: [8, 11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -789,18 +666,16 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: temurin
-      - name: Cache maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          distribution: adopt
       - name: Prepare test services
         shell: bash
-        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
+        run: ./mvnw -B -f test/e2e-v2/java-test-service/pom.xml clean package
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.16"
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
+        uses: apache/skywalking-infra-e2e@afdf1cca0519d65bc480d8680b7a27f9b41fc421
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
@@ -813,7 +688,6 @@ jobs:
       - dependency-license
       - unit-test
       - integration-test
-      - slow-integration-test
       - e2e-test
       - e2e-test-istio
       - e2e-test-java-versions
@@ -832,7 +706,6 @@ jobs:
           depLicenseResults=${{ needs.dependency-license.result }}
           unitResults=${{ needs.unit-test.result }};
           integrationResults=${{ needs.integration-test.result }};
-          timeConsumingITResults=${{ needs.slow-integration-test.result }};
           e2eResults=${{ needs.e2e-test.result }};
           e2eIstioResults=${{ needs.e2e-test-istio.result }};
           e2eJavaVersionResults=${{ needs.e2e-test-java-versions.result }};
@@ -843,6 +716,5 @@ jobs:
           [[ ${e2eResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eResults} == 'skipped' ]] || exit -5;
           [[ ${e2eIstioResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eIstioResults} == 'skipped' ]] || exit -6;
           [[ ${e2eJavaVersionResults} == 'success' ]] || [[ ${execute} != 'true' && ${e2eJavaVersionResults} == 'skipped' ]] || exit -7;
-          [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
 
           exit 0;
