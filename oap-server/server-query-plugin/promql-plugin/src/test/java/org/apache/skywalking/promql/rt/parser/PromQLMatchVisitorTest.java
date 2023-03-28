@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.promql.rt.parser;
 
+import java.util.Arrays;
+import java.util.Collection;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -27,20 +29,49 @@ import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
 import org.apache.skywalking.promql.rt.grammar.PromQLLexer;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class PromQLMatchVisitorTest {
-    @Test
-    public void testMatchVisitor() {
-        PromQLLexer lexer = new PromQLLexer(
-            CharStreams.fromString("service_cpm{service='serviceA', layer='GENERAL'}"));
+
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+            {
+                "service_cpm",
+                ParseResultType.MATCH,
+                "service_cpm",
+                0
+            },
+            {
+                "service_cpm{}",
+                ParseResultType.MATCH,
+                "service_cpm",
+                0
+            },
+            {
+                "service_cpm{service='serviceA', layer='GENERAL'}",
+                ParseResultType.MATCH,
+                "service_cpm",
+                2
+            }
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testMatchVisitor(
+        String expression,
+        ParseResultType wantType,
+        String metricName,
+        int labelsSize) {
+        PromQLLexer lexer = new PromQLLexer(CharStreams.fromString(expression));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         PromQLParser parser = new PromQLParser(tokens);
         ParseTree tree = parser.expression();
         PromQLMatchVisitor visitor = new PromQLMatchVisitor();
         MatcherSetResult parseResult = visitor.visit(tree);
-        Assertions.assertEquals(ParseResultType.MATCH, parseResult.getResultType());
-        Assertions.assertEquals("service_cpm", parseResult.getMetricName());
-        Assertions.assertEquals(2, parseResult.getLabelMap().size());
+        Assertions.assertEquals(wantType, parseResult.getResultType());
+        Assertions.assertEquals(metricName, parseResult.getMetricName());
+        Assertions.assertEquals(labelsSize, parseResult.getLabelMap().size());
     }
 }
