@@ -73,7 +73,7 @@ jobs:
           java-version: "11"
           cache: "maven"
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: "1.16"
       - name: Check Dependencies Licenses
@@ -697,10 +697,10 @@ jobs:
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
+        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
         name: Upload Logs
         with:
@@ -755,7 +755,7 @@ jobs:
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
+        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -800,7 +800,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@964ede199fe199e166920169dc5f8c9b214cfac5
+        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
