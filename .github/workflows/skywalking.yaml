@@ -41,7 +41,7 @@ jobs:
         with:
           submodules: true
       - name: Check license header
-        uses: apache/skywalking-eyes@c5ee30754d4145fe29f90b9a82ef1d3902d41d2b
+        uses: apache/skywalking-eyes@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
 
   code-style:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
@@ -78,7 +78,7 @@ jobs:
           go-version: "1.16"
       - name: Check Dependencies Licenses
         run: |
-          go install github.com/apache/skywalking-eyes/cmd/license-eye@c5ee30754d4145fe29f90b9a82ef1d3902d41d2b
+          go install github.com/apache/skywalking-eyes/cmd/license-eye@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
           license-eye dependency resolve --summary ./dist-material/release-docs/LICENSE.tpl || exit 1
           if [ ! -z "$(git diff -U0 ./dist-material/release-docs/LICENSE)" ]; then
             echo "LICENSE file is not updated correctly"
@@ -697,7 +697,7 @@ jobs:
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
+        uses: apache/skywalking-infra-e2e@2b3aa53dbba73909730b211d5b8065abc74b56ad
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - uses: actions/upload-artifact@v2
@@ -755,7 +755,7 @@ jobs:
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
+        uses: apache/skywalking-infra-e2e@2b3aa53dbba73909730b211d5b8065abc74b56ad
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -800,7 +800,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@a21e3887322ee8bbecc03c3c7eb8fdbe815954d3
+        uses: apache/skywalking-infra-e2e@2b3aa53dbba73909730b211d5b8065abc74b56ad
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
