@@ -34,5 +34,6 @@
 
 #### Documentation
 
+* Add Profiling related documentations.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/169?closed=1)
