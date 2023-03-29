@@ -135,6 +135,14 @@ catalog:
             path: "/en/setup/backend/log-analyzer"
           - name: "On Demand Pod Logs"
             path: "/en/setup/backend/on-demand-pod-log"
+      - name: "Profiling"
+        catalog:
+          - name: "Tracing Profiling"
+            path: "/en/setup/backend/backend-trace-profiling"
+          - name: "eBPF Profiling"
+            path: "/en/setup/backend/backend-ebpf-profiling"
+          - name: "Continuous Profiling"
+            path: "/en/setup/backend/backend-continuous-profiling"
       - name: "Extension"
         catalog:
           - name: "Exporter"
