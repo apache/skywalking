@@ -1,4 +1,4 @@
-# EBPF Profiling
+# eBPF Profiling
 
 eBPF Profiling utilizes the [eBPF](https://ebpf.io/) technology to monitor applications without requiring any modifications to the application itself. Corresponds to [Out-Process Profiling](../../concepts-and-designs/profiling.md#out-of-process-profiling).
 
@@ -40,7 +40,7 @@ When creating an On CPU Profiling task, you need to specify which eligible proce
 3. **Start Time**: Whether the current task needs to be executed immediately or at a future point in time.
 4. **Duration**: The execution time of the current profiling task.
 
-Once the task is created, the eBPF agent would periodically request from the OAP whether there are any eligible tasks among all the processes collected by the current eBPF agent. 
+The eBPF agent would periodically request from the OAP whether there are any eligible tasks among all the processes collected by the current eBPF agent. 
 When the eBPF agent receives a task, it would start the profiling task with the process.
 
 #### Profiling analyze
@@ -54,7 +54,7 @@ At this point, a scheduling of task is generated. The scheduling data contains t
 4. **Start Time**: The execution start time of the current schedule.
 5. **End Time**: The time when the last sampling of the current schedule was completed.
 
-At this point, we can use the existing scheduling ID and time range to query the CPU execution situation of the specified process within a specific time period. 
+Once the schedule is created, we can use the existing scheduling ID and time range to query the CPU execution situation of the specified process within a specific time period. 
 The query contains the following fields:
 1. **Schedule ID**: The schedule ID you want to query.
 2. **Time**: The start and end times you want to query.

@@ -50,9 +50,9 @@ When the Agent receives a Trace Profiling task from OAP, it automatically genera
 
 ### Generate Requests
 
-At this point, Tracing requests matching the specified Endpoint would undergo Profiling.
+At this point, Tracing requests matching the specified Endpoint and other conditions would undergo Profiling.
 
-Notice, the Java Agent already supports cross-thread requests, so when a request involves cross-thread operations, it would also be periodically sampled for thread stack.
+Notice, whether profiling is thread sensitive, it relies on the agent side implementation. The Java Agent already supports cross-thread requests, so when a request involves cross-thread operations, it would also be periodically sampled for thread stack.
 
 ### Query task details
 
