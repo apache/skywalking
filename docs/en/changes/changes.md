@@ -21,6 +21,7 @@
 * Fix PromQL HTTP API `/api/v1/labels` response missing `service` label.
 * Fix possible NPE when initialize `IntList`.
 * Support parse PromQL expression has empty labels in the braces for metadata query.
+* Support alarm metric OP `!=`.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
