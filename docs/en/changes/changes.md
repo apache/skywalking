@@ -31,6 +31,9 @@
   2. If `User` node is absent, choose the busiest node(which has the most calls of all).
   3. Do a left-to-right flow process.
   4. At the same level, list nodes from top to bottom in alphabetical order.
+* Fix filter ID when ReadRecords metric associates with trace.
+* Add AWS API Gateway menu.
+* Change trace profiling protocol.
 
 #### Documentation
 
