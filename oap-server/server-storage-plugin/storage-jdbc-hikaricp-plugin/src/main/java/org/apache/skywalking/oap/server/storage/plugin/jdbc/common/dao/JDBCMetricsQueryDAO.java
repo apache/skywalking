@@ -220,7 +220,7 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
         }
 
         return Util.sortValues(
-            Util.composeLabelValue(condition, labels, ids, idMap),
+            Util.composeLabelValue(condition, labels, idMap),
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
         );

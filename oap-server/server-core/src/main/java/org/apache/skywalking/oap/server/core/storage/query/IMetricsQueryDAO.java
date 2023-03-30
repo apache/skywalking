@@ -90,7 +90,6 @@ public interface IMetricsQueryDAO extends DAO {
          */
         public static List<MetricsValues> composeLabelValue(final MetricsCondition condition,
             final List<String> labels,
-            final List<String> ids,
             final Map<String, DataTable> idMap) {
             List<String> allLabels;
             if (Objects.isNull(labels) || labels.size() < 1 || labels.stream().allMatch(Strings::isNullOrEmpty)) {
