@@ -24,6 +24,7 @@
 * Support alarm metric OP `!=`.
 * Support metrics query indicates whether value == 0 represents actually zero or no data.
 * Fix `NPE` when query the not exist series indexes in ElasticSearch storage. 
+* Support collecting memory buff/cache metrics in VM monitoring.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

@@ -52,6 +52,8 @@ metricsRules:
     exp: node_memory_MemAvailable_bytes
   - name: memory_used
     exp: node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+  - name: memory_buff_cache
+    exp: node_memory_Buffers_bytes + node_memory_Cached_bytes
   - name: memory_swap_free
     exp: node_memory_SwapFree_bytes
   - name: memory_swap_total
