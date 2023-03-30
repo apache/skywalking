@@ -25,5 +25,5 @@
     # verify metrics has been deleted
     - query: |
         sleep 30;
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-id=ZTJlLXRlc3QtZGVzdC1zZXJ2aWNl.1 --start="-193h" --end="-191h" |yq e 'to_entries' -
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics nullable --name=service_resp_time --service-id=ZTJlLXRlc3QtZGVzdC1zZXJ2aWNl.1 --start="-193h" --end="-191h"
       expected: expected/metrics-has-no-value.yml

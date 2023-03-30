@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -77,16 +78,19 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
             ),
             search.build()
         );
-        Map<String, Object> terms =
-            (Map<String, Object>) response.getAggregations().get(TagAutocompleteData.TAG_KEY);
-        List<Map<String, Object>> buckets = (List<Map<String, Object>>) terms.get("buckets");
         Set<String> tagKeys = new HashSet<>();
-        for (Map<String, Object> bucket : buckets) {
-            String tagKey = (String) bucket.get("key");
-            if (StringUtil.isEmpty(tagKey)) {
-                continue;
+        if (Objects.nonNull(response.getAggregations())) {
+            Map<String, Object> terms =
+                (Map<String, Object>) response.getAggregations().get(TagAutocompleteData.TAG_KEY);
+            List<Map<String, Object>> buckets = (List<Map<String, Object>>) terms.get("buckets");
+
+            for (Map<String, Object> bucket : buckets) {
+                String tagKey = (String) bucket.get("key");
+                if (StringUtil.isEmpty(tagKey)) {
+                    continue;
+                }
+                tagKeys.add(tagKey);
             }
-            tagKeys.add(tagKey);
         }
         return tagKeys;
     }

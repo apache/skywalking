@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -122,6 +123,13 @@ public class MetricsQuery implements GraphQLQueryResolver {
         if (!condition.senseScope() || !condition.getEntity().isValid()) {
             return 0;
         }
+        return getMetricsQueryService().readMetricsValue(condition, duration).getValue();
+    }
+
+    public NullableValue readNullableMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
+        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+            return new NullableValue(0, true);
+        }
         return getMetricsQueryService().readMetricsValue(condition, duration);
     }
 
@@ -139,6 +147,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
                 final KVInt kvInt = new KVInt();
                 kvInt.setId(id);
                 kvInt.setValue(0);
+                kvInt.setEmptyValue(true);
                 values.getValues().addKVInt(kvInt);
             });
             return values;
@@ -177,6 +186,7 @@ public class MetricsQuery implements GraphQLQueryResolver {
                     final KVInt kvInt = new KVInt();
                     kvInt.setId(id);
                     kvInt.setValue(0);
+                    kvInt.setEmptyValue(true);
                     values.getValues().addKVInt(kvInt);
                 });
                 values.setLabel(label);

@@ -27,4 +27,13 @@ public class KVInt {
     private String id;
     private long value;
     private boolean isEmptyValue;
+
+    public KVInt(String id, long value, boolean isEmptyValue) {
+        this.id = id;
+        this.value = value;
+        this.isEmptyValue = isEmptyValue;
+    }
+
+    public KVInt() {
+    }
 }

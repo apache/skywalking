@@ -13,13 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- key: {{ notEmpty .key }}
-  value:
-    value: 0
-    isemptyvalue: true
-- key: {{ notEmpty .key }}
-  value:
-    value: {{ ge .value.value 1 }}
-    isemptyvalue: false
-{{- end }}
+10000
