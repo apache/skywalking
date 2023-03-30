@@ -13,7 +13,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-  {{- range . }}
-- key: {{ notEmpty .key }}
-  value: 0
-  {{- end }}
+value: 0
+isemptyvalue: true
