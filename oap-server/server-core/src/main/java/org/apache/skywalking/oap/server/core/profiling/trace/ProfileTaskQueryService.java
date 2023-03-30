@@ -22,6 +22,7 @@ import com.google.common.base.Objects;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -267,6 +268,7 @@ public class ProfileTaskQueryService implements Service {
         while (entryIterator.hasNext()) {
             // keep segment if no ref
             final Map.Entry<String, ProfiledTraceSegments> current = entryIterator.next();
+            current.getValue().getSpans().sort(Comparator.comparingInt(ProfiledSpan::getSpanId));
             if (CollectionUtils.isEmpty(current.getValue().getSpans().get(0).getRefs())) {
                 results.add(current.getValue());
                 continue;
