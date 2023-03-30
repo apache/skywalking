@@ -22,7 +22,6 @@ import com.google.common.base.Objects;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -268,29 +267,34 @@ public class ProfileTaskQueryService implements Service {
         while (entryIterator.hasNext()) {
             // keep segment if no ref
             final Map.Entry<String, ProfiledTraceSegments> current = entryIterator.next();
-            current.getValue().getSpans().sort(Comparator.comparingInt(ProfiledSpan::getSpanId));
-            if (CollectionUtils.isEmpty(current.getValue().getSpans().get(0).getRefs())) {
-                results.add(current.getValue());
-                continue;
-            }
-            // keep segment if ref type is not same process(analyze only match with the same process)
-            final Ref ref = current.getValue().getSpans().get(0).getRefs().get(0);
-            if (RefType.CROSS_PROCESS.equals(ref.getType())) {
-                results.add(current.getValue());
-                continue;
+
+            boolean spanBeenAdded = false;
+            for (ProfiledSpan span : current.getValue().getSpans()) {
+                if (CollectionUtils.isEmpty(span.getRefs())) {
+                    continue;
+                }
+                // keep segment if ref type is not same process(analyze only match with the same process)
+                final Ref ref = span.getRefs().get(0);
+                if (RefType.CROSS_PROCESS.equals(ref.getType())) {
+                    results.add(current.getValue());
+                    spanBeenAdded = true;
+                    break;
+                }
+                // find parent segment if exist
+                final ProfiledTraceSegments parentSegments = segments.get(ref.getParentSegmentId());
+                if (parentSegments != null) {
+                    // add current segments into parent
+                    parentSegments.merge(current.getValue());
+                    // set parent segments(combined) as current segment
+                    current.setValue(parentSegments);
+                    spanBeenAdded = true;
+                    break;
+                }
             }
 
-            // find parent segment if exist
-            final ProfiledTraceSegments parentSegments = segments.get(ref.getParentSegmentId());
-            if (parentSegments == null) {
+            if (!spanBeenAdded) {
                 results.add(current.getValue());
-                continue;
             }
-
-            // add current segments into parent
-            parentSegments.merge(current.getValue());
-            // set parent segments(combined) as current segment
-            current.setValue(parentSegments);
         }
 
         return results.stream().filter(ProfiledTraceSegments::isContainsProfiled).peek(this::removeAllCrossProcessRef).collect(Collectors.toList());
