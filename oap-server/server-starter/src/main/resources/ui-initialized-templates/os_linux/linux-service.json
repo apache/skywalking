@@ -208,15 +208,20 @@
           "metrics": [
             "meter_vm_memory_used",
             "meter_vm_memory_total",
-            "meter_vm_memory_available"
+            "meter_vm_memory_available",
+            "meter_vm_memory_buff_cache"
           ],
           "metricTypes": [
+            "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
           ],
           "moved": false,
           "metricConfig": [
+            {
+              "calculation": "byteToMB"
+            },
             {
               "calculation": "byteToMB"
             },
