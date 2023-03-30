@@ -75,7 +75,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: "1.16"
+          go-version: "1.17"
       - name: Check Dependencies Licenses
         run: |
           go install github.com/apache/skywalking-eyes/cmd/license-eye@5b7ee1731d036b5aac68f8bd3fc9e6f98ada082e
