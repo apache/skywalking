@@ -264,12 +264,16 @@ public class ProfileTaskQueryService implements Service {
         // trying to find parent
         final ArrayList<ProfiledTraceSegments> results = new ArrayList<>();
         final Iterator<Map.Entry<String, ProfiledTraceSegments>> entryIterator = segments.entrySet().iterator();
+        final Set<ProfiledSpan> mergedSpans = new HashSet<>();
         while (entryIterator.hasNext()) {
             // keep segment if no ref
             final Map.Entry<String, ProfiledTraceSegments> current = entryIterator.next();
 
             boolean spanBeenAdded = false;
             for (ProfiledSpan span : current.getValue().getSpans()) {
+                if (mergedSpans.contains(span)) {
+                    continue;
+                }
                 if (CollectionUtils.isEmpty(span.getRefs())) {
                     continue;
                 }
@@ -283,6 +287,8 @@ public class ProfileTaskQueryService implements Service {
                 // find parent segment if exist
                 final ProfiledTraceSegments parentSegments = segments.get(ref.getParentSegmentId());
                 if (parentSegments != null) {
+                    // append merged spans
+                    mergedSpans.addAll(current.getValue().getSpans());
                     // add current segments into parent
                     parentSegments.merge(current.getValue());
                     // set parent segments(combined) as current segment
