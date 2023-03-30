@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
@@ -46,9 +47,9 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
 
     @Override
     @SneakyThrows
-    public long readMetricsValue(final MetricsCondition condition,
-                                String valueColumnName,
-                                final Duration duration) {
+    public NullableValue readMetricsValue(final MetricsCondition condition,
+                                          String valueColumnName,
+                                          final Duration duration) {
         final var tables = tableHelper.getTablesForRead(
             condition.getName(),
             duration.getStartTimeBucket(),
@@ -91,21 +92,25 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
             parameters.add(condition.getName());
             sql.append(" group by " + Metrics.ENTITY_ID);
 
-            results.add(jdbcClient.executeQuery(
+            jdbcClient.executeQuery(
                 sql.toString(),
                 resultSet -> {
                     if (resultSet.next()) {
-                        return resultSet.getLong("result");
+                        results.add(resultSet.getLong("result"));
                     }
-                    return (long) defaultValue;
+                    return null;
                 },
                 parameters.toArray(new Object[0])
-            ));
+            );
+        }
+
+        if (results.size() == 0) {
+            return new NullableValue(defaultValue, true);
         }
         if (op.equals("avg")) {
-            return results.stream().mapToLong(it -> it).sum() / results.size();
+            return new NullableValue(results.stream().mapToLong(it -> it).sum() / results.size(), false);
         }
-        return results.stream().mapToLong(it -> it).sum();
+        return new NullableValue(results.stream().mapToLong(it -> it).sum(), false);
     }
 
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {

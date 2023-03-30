@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -45,6 +46,7 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -60,9 +62,9 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     }
 
     @Override
-    public long readMetricsValue(final MetricsCondition condition,
-                                 final String valueColumnName,
-                                 final Duration duration) {
+    public NullableValue readMetricsValue(final MetricsCondition condition,
+                                          final String valueColumnName,
+                                          final Duration duration) {
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final SearchBuilder sourceBuilder = buildQuery(condition, duration);
         int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
@@ -87,16 +89,18 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), sourceBuilder.build());
 
-        final Map<String, Object> idTerms =
-            (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
-        final List<Map<String, Object>> buckets =
-            (List<Map<String, Object>>) idTerms.get("buckets");
+        if (Objects.nonNull(response.getAggregations())) {
+            final Map<String, Object> idTerms =
+                (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
+            final List<Map<String, Object>> buckets =
+                (List<Map<String, Object>>) idTerms.get("buckets");
 
-        for (Map<String, Object> idBucket : buckets) {
-            final Map<String, Object> agg = (Map<String, Object>) idBucket.get(realValueColumn);
-            return ((Number) agg.get("value")).longValue();
+            for (Map<String, Object> idBucket : buckets) {
+                final Map<String, Object> agg = (Map<String, Object>) idBucket.get(realValueColumn);
+                return new NullableValue(((Number) agg.get("value")).longValue(), false);
+            }
         }
-        return defaultValue;
+        return new NullableValue(defaultValue, true);
     }
 
     @Override
@@ -130,14 +134,16 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             for (String id : ids) {
                 KVInt kvInt = new KVInt();
                 kvInt.setId(id);
-                kvInt.setValue(0);
                 if (idMap.containsKey(id)) {
                     Map<String, Object> source = idMap.get(id);
-                    kvInt.setValue(((Number) source.getOrDefault(realValueColumn, 0)).longValue());
-                } else {
-                    kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
+                    if (source.get(realValueColumn) != null) {
+                        kvInt.setValue(((Number) source.get(realValueColumn)).longValue());
+                    } else {
+                        kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
+                        kvInt.setEmptyValue(true);
+                    }
+                    intValues.addKVInt(kvInt);
                 }
-                intValues.addKVInt(kvInt);
             }
         }
         metricsValues.setValues(
@@ -177,10 +183,12 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
         if (response.isPresent()) {
             for (final Document document : response.get()) {
-                idMap.put(
-                    document.getId(),
-                    new DataTable((String) document.getSource().getOrDefault(realValueColumn, ""))
-                );
+                if (document.getSource().get(realValueColumn) != null) {
+                    idMap.put(
+                        document.getId(),
+                        new DataTable((String) document.getSource().get(realValueColumn))
+                    );
+                }
             }
         }
         return Util.sortValues(

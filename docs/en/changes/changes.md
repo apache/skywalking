@@ -22,6 +22,8 @@
 * Fix possible NPE when initialize `IntList`.
 * Support parse PromQL expression has empty labels in the braces for metadata query.
 * Support alarm metric OP `!=`.
+* Support metrics query indicates whether value == 0 represents actually zero or no data.
+* Fix `NPE` when query the not exist series indexes in ElasticSearch storage. 
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

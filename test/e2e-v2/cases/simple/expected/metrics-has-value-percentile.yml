@@ -18,30 +18,60 @@
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
+    value:
+      value: 0
+      isemptyvalue: true
+  - key: {{ notEmpty .key }}
+    value:
+      value: {{ ge .value.value 1 }}
+      isemptyvalue: false
   {{- end }}
 - key: 1
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
+    value:
+      value: 0
+      isemptyvalue: true
+  - key: {{ notEmpty .key }}
+    value:
+      value: {{ ge .value.value 1 }}
+      isemptyvalue: false
   {{- end }}
 - key: 2
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
+    value:
+      value: 0
+      isemptyvalue: true
+  - key: {{ notEmpty .key }}
+    value:
+      value: {{ ge .value.value 1 }}
+      isemptyvalue: false
   {{- end }}
 - key: 3
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
+    value:
+      value: 0
+      isemptyvalue: true
+  - key: {{ notEmpty .key }}
+    value:
+      value: {{ ge .value.value 1 }}
+      isemptyvalue: false
   {{- end }}
 - key: 4
   value:
   {{- contains .value }}
   - key: {{ notEmpty .key }}
-    value: {{ ge .value 1 }}
+    value:
+      value: 0
+      isemptyvalue: true
+  - key: {{ notEmpty .key }}
+    value:
+      value: {{ ge .value.value 1 }}
+      isemptyvalue: false
   {{- end }}
 {{- end }}

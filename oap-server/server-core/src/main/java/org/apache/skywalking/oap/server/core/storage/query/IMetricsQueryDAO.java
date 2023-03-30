@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -34,6 +33,7 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
@@ -45,7 +45,7 @@ import static java.util.stream.Collectors.toList;
  * @since 8.0.0
  */
 public interface IMetricsQueryDAO extends DAO {
-    long readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
+    NullableValue readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
 
     MetricsValues readMetricsValues(MetricsCondition condition,
                                     String valueColumnName,
@@ -66,10 +66,7 @@ public interface IMetricsQueryDAO extends DAO {
             IntValues intValues = new IntValues();
 
             expectedOrder.forEach(id -> {
-                KVInt e = new KVInt();
-                e.setId(id);
-                e.setValue(origin.findValue(id, defaultValue));
-                intValues.addKVInt(e);
+                intValues.addKVInt(origin.findValue(id, defaultValue));
             });
 
             return intValues;
@@ -105,12 +102,16 @@ public interface IMetricsQueryDAO extends DAO {
             }
             final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
             List<LabeledValue> labeledValues = new TreeSet<>(allLabels).stream()
-                .flatMap(label -> ids.stream().map(id ->
+                .flatMap(label -> idMap.entrySet().stream().map(kv -> Objects.nonNull(kv.getValue().get(label)) ?
                     new LabeledValue(
                         label,
-                        id,
-                        Optional.ofNullable(idMap.getOrDefault(id, new DataTable()).get(label)).orElse((long) defaultValue))))
-                .collect(toList());
+                        kv.getKey(),
+                        kv.getValue().get(label), false) :
+                    new LabeledValue(
+                        label,
+                        kv.getKey(),
+                        defaultValue, true)
+                )).collect(toList());
             MetricsValues current = new MetricsValues();
             List<MetricsValues> result = new ArrayList<>();
             for (LabeledValue each : labeledValues) {
@@ -131,12 +132,9 @@ public interface IMetricsQueryDAO extends DAO {
         private final String label;
         private final KVInt kv;
 
-        public LabeledValue(String label, String id, long value) {
+        public LabeledValue(String label, String id, long value, boolean isEmptyValue) {
             this.label = label;
-            KVInt kv = new KVInt();
-            kv.setId(id);
-            kv.setValue(value);
-            this.kv = kv;
+            this.kv = new KVInt(id, value, isEmptyValue);
         }
     }
 }
