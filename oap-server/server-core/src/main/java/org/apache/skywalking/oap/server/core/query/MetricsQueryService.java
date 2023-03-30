@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -50,7 +51,7 @@ public class MetricsQueryService implements Service {
     /**
      * Read metrics single value in the duration of required metrics
      */
-    public long readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
+    public NullableValue readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
         return getMetricQueryDAO().readMetricsValue(
             condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
     }

@@ -24,4 +24,12 @@ import lombok.Data;
 public class NullableValue {
     private long value;
     private boolean isEmptyValue;
+
+    public NullableValue() {
+    }
+
+    public NullableValue(long value, boolean isEmptyValue) {
+        this.value = value;
+        this.isEmptyValue = isEmptyValue;
+    }
 }

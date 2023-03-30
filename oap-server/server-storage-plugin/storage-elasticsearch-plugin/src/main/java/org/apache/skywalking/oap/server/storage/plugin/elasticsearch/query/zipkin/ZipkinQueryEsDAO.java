@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -219,16 +220,17 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
             TimeBucket.getRecordTimeBucket(startTimeMillis),
             TimeBucket.getRecordTimeBucket(endTimeMillis)
         ), search.build());
-        final Map<String, Object> idTerms =
-            (Map<String, Object>) traceIdResponse.getAggregations().get(ZipkinSpanRecord.TRACE_ID);
-        final List<Map<String, Object>> buckets =
-            (List<Map<String, Object>>) idTerms.get("buckets");
-
         Set<String> traceIds = new HashSet<>();
-        for (Map<String, Object> idBucket : buckets) {
-            traceIds.add((String) idBucket.get("key"));
-        }
+        if (Objects.nonNull(traceIdResponse.getAggregations())) {
+            final Map<String, Object> idTerms =
+                (Map<String, Object>) traceIdResponse.getAggregations().get(ZipkinSpanRecord.TRACE_ID);
+            final List<Map<String, Object>> buckets =
+                (List<Map<String, Object>>) idTerms.get("buckets");
 
+            for (Map<String, Object> idBucket : buckets) {
+                traceIds.add((String) idBucket.get("key"));
+            }
+        }
         return getTraces(traceIds);
     }
 

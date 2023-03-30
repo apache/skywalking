@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -58,7 +59,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     }
 
     @Override
-    public long readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+    public NullableValue readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
         String modelName = condition.getName();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
         if (schema == null) {
@@ -88,9 +89,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
                 });
 
         for (DataPoint dataPoint : resp.getDataPoints()) {
-            return ((Number) dataPoint.getFieldValue(valueColumnName)).longValue();
+            return new NullableValue(((Number) dataPoint.getFieldValue(valueColumnName)).longValue(), false);
         }
-        return defaultValue;
+        return new NullableValue(defaultValue, true);
     }
 
     private void buildAggregationQuery(MeasureQuery query, String valueColumnName, Function function) {
@@ -125,12 +126,12 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
             String id = ts.id(entityID);
             KVInt kvInt = new KVInt();
             kvInt.setId(id);
-            kvInt.setValue(0);
             if (idMap.containsKey(ts.getPoint())) {
                 DataPoint dataPoint = idMap.get(ts.getPoint());
                 kvInt.setValue(extractFieldValue(schema, valueColumnName, dataPoint));
             } else {
                 kvInt.setValue(ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName()));
+                kvInt.setEmptyValue(true);
             }
             intValues.addKVInt(kvInt);
         }
@@ -171,7 +172,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         return Util.sortValues(
-                Util.composeLabelValue(condition, labels, ids, dataTableMap),
+                Util.composeLabelValue(condition, labels, dataTableMap),
                 ids,
                 ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
         );
