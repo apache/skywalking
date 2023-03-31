@@ -25,6 +25,7 @@
 * Support metrics query indicates whether value == 0 represents actually zero or no data.
 * Fix `NPE` when query the not exist series indexes in ElasticSearch storage. 
 * Support collecting memory buff/cache metrics in VM monitoring.
+* PromQL: Remove empty values from the query result, fix `/api/v1/metadata` param `limit` could cause out of bound.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
