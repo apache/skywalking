@@ -42,5 +42,6 @@
 #### Documentation
 
 * Add Profiling related documentations.
+* Add `SUM_PER_MIN` to MAL documentation.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/169?closed=1)
