@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.joda.time.DateTime;
@@ -243,9 +244,12 @@ public class PromOpUtils {
             long retTimestampSec = DurationUtils.INSTANCE.parseToDateTime(
                                                     duration.getStep(), times.get(i).getPoint())
                                                          .getMillis() / 1000;
-            TimeValuePair value = new TimeValuePair(
-                retTimestampSec, Long.toString(metricsValues.getValues().getValues().get(i).getValue()));
-            values.add(value);
+            KVInt kvInt = metricsValues.getValues().getValues().get(i);
+            if (!kvInt.isEmptyValue()) {
+                TimeValuePair value = new TimeValuePair(
+                    retTimestampSec, Long.toString(kvInt.getValue()));
+                values.add(value);
+            }
         }
         return values;
     }
