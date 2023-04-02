@@ -31,7 +31,7 @@
 
 # ApiId for HTTP APS, ApiName for REST API
 filter: "{ tags -> {tags.cloud_provider == 'aws' && tags.Namespace == 'AWS/ApiGateway' && (tags.ApiId || tags.ApiName) && tags.Stage && !tags.Method && !tags.Resource } }"
-expSuffix: tag({tags -> tags.service_name= tags.ApiId ? 'AWS-API-Gateway::'+tags.Stage+':'+tags.ApiId:'AWS-API-Gateway::'+tags.Stage+':'+tags.ApiName  }).service(['service_name'], Layer.AWS_GATEWAY)
+expSuffix: tag({tags -> tags.service_name= tags.ApiId ? 'aws-api-gateway::'+tags.Stage+':'+tags.ApiId:'aws-api-gateway::'+tags.Stage+':'+tags.ApiName  }).service(['service_name'], Layer.AWS_GATEWAY)
 metricPrefix: aws_gateway_service
 metricsRules:
   # Only for HTTP API

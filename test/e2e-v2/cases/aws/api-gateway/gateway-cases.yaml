@@ -20,10 +20,10 @@
       expected: expected/service.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-          --name=aws_gateway_service_4xx --service-name='AWS-API-Gateway::$default:6m85d5acx7' |yq e 'to_entries' -
+          --name=aws_gateway_service_4xx --service-name='aws-api-gateway::$default:6m85d5acx7' |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
           --name=aws_gateway_endpoint_count --endpoint-name='ANY /graphql' \
-          --service-name='AWS-API-Gateway::$default:6m85d5acx7' |yq e 'to_entries' -
+          --service-name='aws-api-gateway::$default:6m85d5acx7' |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml

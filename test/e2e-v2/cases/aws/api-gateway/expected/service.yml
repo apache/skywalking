@@ -14,9 +14,9 @@
 # limitations under the License.
 
   {{- contains . }}
-- id: {{ b64enc "AWS-API-Gateway::$default:6m85d5acx7" }}.1
-  name: AWS-API-Gateway::$default:6m85d5acx7
-  group: AWS-API-Gateway
+- id: {{ b64enc "aws-api-gateway::$default:6m85d5acx7" }}.1
+  name: "aws-api-gateway::$default:6m85d5acx7"
+  group: aws-api-gateway
   shortname: '$default:6m85d5acx7'
   normal: true
   layers:
