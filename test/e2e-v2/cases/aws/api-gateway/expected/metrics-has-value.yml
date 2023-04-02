@@ -12,8 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-{{- contains . }}
+  {{- contains . }}
 - key: {{ notEmpty .key }}
-  value: {{ gt .value 0 }}
-{{- end }}
+  value:
+    value: 0
+    isemptyvalue: true
+- key: {{ notEmpty .key }}
+  value:
+    value: {{ gt .value.value 0 }}
+    isemptyvalue: false
+  {{- end }}

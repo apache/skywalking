@@ -24,6 +24,6 @@
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-          --name=aws_gateway_endpoint_count --endpoint-name='ANY /graphql' \
+          --name=aws_gateway_endpoint_latency --endpoint-name='ANY /graphql' \
           --service-name='aws-api-gateway::$default:6m85d5acx7' |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
