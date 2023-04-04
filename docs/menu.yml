@@ -213,6 +213,8 @@ catalog:
             catalog:
               - name: "APISIX Monitoring"
                 path: "/en/setup/backend/backend-apisix-monitoring"
+              - name: "AWS API Gateway"
+                path: "/en/setup/backend/backend-aws-api-gateway-monitoring"
           - name: "Database Monitoring"
             catalog:
               - name: "MySQL/MariaDB Server"
