@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Range;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -114,11 +113,7 @@ public class TableHelper {
             return Collections.singletonList(rawTableName);
         }
 
-        final var ttlTimeBucketRange = getTTLTimeBucketRange(model);
-        final var ttlTables =
-            LongStream.rangeClosed(ttlTimeBucketRange.lowerEndpoint(), ttlTimeBucketRange.upperEndpoint())
-                      .mapToObj(it -> getTable(rawTableName, it))
-                      .collect(toList());
+        final var ttlTables = getTablesWithinTTL(modelName);
         return getTablesInTimeBucketRange(modelName, timeBucketStart, timeBucketEnd)
             .stream()
             .filter(ttlTables::contains)
@@ -143,11 +138,15 @@ public class TableHelper {
             return Collections.singletonList(rawTableName);
         }
 
-        timeBucketStart = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketStart), DownSampling.Day);
-        timeBucketEnd = TimeBucket.getTimeBucket(TimeBucket.getTimestamp(timeBucketEnd), DownSampling.Day);
+        final var timestampStart = TimeBucket.getTimestamp(timeBucketStart);
+        final var timestampEnd = TimeBucket.getTimestamp(timeBucketEnd);
+        final var timeBuckets = LongStream.builder();
+        for (var timestamp = timestampStart; timestamp <= timestampEnd; timestamp += TimeUnit.DAYS.toMillis(1)) {
+            timeBuckets.add(TimeBucket.getTimeBucket(timestamp, DownSampling.Day));
+        }
 
-        return LongStream
-            .rangeClosed(timeBucketStart, timeBucketEnd)
+        return timeBuckets
+            .build()
             .distinct()
             .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
             .collect(toList());
@@ -155,8 +154,24 @@ public class TableHelper {
 
     public List<String> getTablesWithinTTL(String modelName) {
         final var model = TableMetaInfo.get(modelName);
-        final var range = getTTLTimeBucketRange(model);
-        return getTablesForRead(modelName, range.lowerEndpoint(), range.upperEndpoint());
+        final var rawTableName = getTableName(model);
+
+        if (!model.isTimeSeries()) {
+            return Collections.singletonList(rawTableName);
+        }
+
+        final var ttlTimeBuckets = getTTLTimeBuckets(model);
+        return ttlTimeBuckets
+            .stream()
+            .map(it -> getTable(rawTableName, it))
+            .filter(table -> {
+                try {
+                    return tableExistence.get(table);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(toList());
     }
 
     public static String generateId(Model model, String originalID) {
@@ -182,12 +197,14 @@ public class TableHelper {
         return Long.parseLong(split[split.length - 1]);
     }
 
-    Range<Long> getTTLTimeBucketRange(Model model) {
+    List<Long> getTTLTimeBuckets(Model model) {
         final var ttl = model.isRecord() ?
             getConfigService().getRecordDataTTL() :
             getConfigService().getMetricsDataTTL();
-        final var timeBucketEnd = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
-        final var timeBucketStart = TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
-        return Range.closed(timeBucketStart, timeBucketEnd);
+        return LongStream
+            .rangeClosed(0, ttl)
+            .mapToObj(it -> TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(it), DownSampling.Day))
+            .distinct()
+            .collect(toList());
     }
 }
