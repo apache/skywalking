@@ -295,9 +295,9 @@
                   "moved": false
                 },
                 {
-                  "x": 20,
+                  "x": 21,
                   "y": 0,
-                  "w": 4,
+                  "w": 3,
                   "h": 6,
                   "i": "10",
                   "type": "Widget",
@@ -319,9 +319,9 @@
                   "moved": false
                 },
                 {
-                  "x": 16,
+                  "x": 18,
                   "y": 0,
-                  "w": 4,
+                  "w": 3,
                   "h": 6,
                   "i": "11",
                   "type": "Widget",
@@ -343,9 +343,9 @@
                   "moved": false
                 },
                 {
-                  "x": 12,
+                  "x": 15,
                   "y": 0,
-                  "w": 4,
+                  "w": 3,
                   "h": 6,
                   "i": "12",
                   "type": "Widget",
@@ -369,7 +369,7 @@
                 {
                   "x": 0,
                   "y": 0,
-                  "w": 4,
+                  "w": 3,
                   "h": 6,
                   "i": "13",
                   "type": "Widget",
@@ -391,9 +391,9 @@
                   "moved": false
                 },
                 {
-                  "x": 4,
+                  "x": 3,
                   "y": 0,
-                  "w": 4,
+                  "w": 3,
                   "h": 6,
                   "i": "14",
                   "type": "Widget",
@@ -415,9 +415,9 @@
                   "moved": false
                 },
                 {
-                  "x": 8,
+                  "x": 6,
                   "y": 0,
-                  "w": 4,
+                  "w": 3,
                   "h": 6,
                   "i": "15",
                   "type": "Widget",
@@ -432,6 +432,54 @@
                   },
                   "metrics": [
                     "k8s_cluster_deployment_total"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 9,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "17",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "StatefulSet Total"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUint": true
+                  },
+                  "metrics": [
+                    "k8s_cluster_statefulset_total"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ],
+                  "moved": false
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "18",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "DaemonSet Total"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUint": true
+                  },
+                  "metrics": [
+                    "k8s_cluster_daemonset_total"
                   ],
                   "metricTypes": [
                     "readMetricsValue"
