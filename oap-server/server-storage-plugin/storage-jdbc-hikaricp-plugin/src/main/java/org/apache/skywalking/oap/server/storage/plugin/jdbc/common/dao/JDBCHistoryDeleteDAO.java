@@ -51,7 +51,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
     @SneakyThrows
     public void deleteHistory(Model model, String timeBucketColumnName, int ttl) {
         final var endTimeBucket = TimeBucket.getTimeBucket(clock.millis() + TimeUnit.DAYS.toMillis(1), DownSampling.Day);
-        final var startTimeBucket = endTimeBucket - ttl - 1;
+        final var startTimeBucket = TimeBucket.getTimeBucket(clock.millis() - TimeUnit.DAYS.toMillis(ttl), DownSampling.Day);
         log.info(
             "Deleting history data, ttl: {}, now: {}. Keep [{}, {}]",
             ttl,
