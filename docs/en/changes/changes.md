@@ -40,7 +40,6 @@
 * Fix filter ID when ReadRecords metric associates with trace.
 * Add AWS API Gateway menu.
 * Change trace profiling protocol.
-* polish tooltips for trace profiling widget.
 * fix:incorrect node name length calculation.
 * add Redis menu.
 
