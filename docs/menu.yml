@@ -205,12 +205,16 @@ catalog:
                 path: "/en/setup/backend/backend-aws-s3-monitoring"
               - name: "AWS DynamoDB"
                 path: "/en/setup/backend/backend-aws-dynamodb-monitoring"
+              - name: "AWS API Gateway"
+                path: "/en/setup/backend/backend-aws-api-gateway-monitoring"
           - name: "Browser Monitoring"
             path: "/en/setup/service-agent/browser-agent"
           - name: "Gateway Monitoring"
             catalog:
               - name: "APISIX Monitoring"
                 path: "/en/setup/backend/backend-apisix-monitoring"
+              - name: "AWS API Gateway"
+                path: "/en/setup/backend/backend-aws-api-gateway-monitoring"
           - name: "Database Monitoring"
             catalog:
               - name: "MySQL/MariaDB Server"

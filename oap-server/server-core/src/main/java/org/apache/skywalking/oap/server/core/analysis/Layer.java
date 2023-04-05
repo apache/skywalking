@@ -119,7 +119,8 @@ public enum Layer {
     K8S_SERVICE(17, true),
 
     /**
-     * MySQL Server, also known as mysqld, is a single multithreaded program that does most of the work in a MySQL installation. 
+     * MySQL Server, also known as mysqld, is a single multithreaded program that does most of the work in a MySQL
+     * installation.
      */
     MYSQL(18, true),
 
@@ -153,11 +154,17 @@ public enum Layer {
      */
     AWS_S3(24, true),
 
-    /*
+    /**
      * Amazon DynamoDB is a fully managed NoSQL database service that provides
      * fast and predictable performance with seamless scalability.
      */
-    AWS_DYNAMODB(25, true);
+    AWS_DYNAMODB(25, true),
+
+    /**
+     * Amazon API Gateway is an AWS service for creating, publishing, maintaining, monitoring, and securing REST, HTTP,
+     * and WebSocket APIs at any scale.
+     */
+    AWS_GATEWAY(26, true);
 
     private final int value;
     /**

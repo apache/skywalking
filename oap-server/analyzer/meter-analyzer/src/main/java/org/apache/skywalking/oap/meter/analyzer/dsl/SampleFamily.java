@@ -464,7 +464,7 @@ public class SampleFamily {
         return instance(serviceKeys, Const.POINT, instanceKeys, Const.POINT, layer, null);
     }
 
-    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
+    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, String delimiter, Layer layer) {
         Preconditions.checkArgument(serviceKeys.size() > 0);
         Preconditions.checkArgument(endpointKeys.size() > 0);
         ExpressionParsingContext.get().ifPresent(ctx -> {
@@ -475,7 +475,11 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer, Const.POINT));
+        return createMeterSamples(new EndpointEntityDescription(serviceKeys, endpointKeys, layer, delimiter));
+    }
+
+    public SampleFamily endpoint(List<String> serviceKeys, List<String> endpointKeys, Layer layer) {
+        return endpoint(serviceKeys, endpointKeys, Const.POINT, layer);
     }
 
     public SampleFamily process(List<String> serviceKeys, List<String> serviceInstanceKeys, List<String> processKeys, String layerKey) {
