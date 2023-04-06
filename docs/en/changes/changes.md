@@ -28,6 +28,8 @@
 * PromQL: Remove empty values from the query result, fix `/api/v1/metadata` param `limit` could cause out of bound.
 * Support monitoring the total number metrics of k8s StatefulSet and DaemonSet.
 * Support Amazon API Gateway monitoring.
+* Bump up graphql-java to fix cve.
+* Bump up Kubernetes Java client.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
