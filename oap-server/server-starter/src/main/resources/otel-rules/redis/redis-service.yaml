@@ -36,6 +36,8 @@ metricsRules:
     exp: redis_uptime_in_seconds.max(['host_name'])
   - name: connected_clients
     exp: redis_connected_clients.sum(['host_name'])
+  - name: blocked_clients
+    exp: redis_blocked_clients.sum(['host_name'])
   - name: memory_usage
     exp: redis_memory_used_bytes * 100 / redis_memory_max_bytes
   - name: memory_max_bytes
@@ -44,8 +46,6 @@ metricsRules:
     exp: redis_commands_total.sum(['cmd','host_name']).rate('PT1M')
   - name: hit_rate
     exp: redis_keyspace_hits_total * 100 / (redis_keyspace_misses_total + redis_keyspace_hits_total)
-
-
 
   - name: net_input_bytes_total
     exp: redis_net_input_bytes_total.sum(['host_name']).rate('PT5M')
@@ -58,9 +58,6 @@ metricsRules:
     exp: redis_expired_keys_total.sum(['host_name'])
   - name: evicted_keys_total
     exp: redis_evicted_keys_total.sum(['host_name'])
-
-  - name: redis_blocked_clients
-    exp: redis_blocked_clients.sum(['host_name'])
 
   - name: average_time_spent_by_command
     exp: (redis_commands_duration_seconds_total.sum(['host_name','cmd']) / redis_commands_total.sum(['host_name','cmd'])).rate('PT1M')

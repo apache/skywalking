@@ -258,7 +258,7 @@
                     "readMetricsValue"
                   ],
                   "metrics":[
-                    "meter_redis_redis_blocked_clients"
+                    "meter_redis_blocked_clients"
                   ],
                   "graph":{
                     "type":"Card",
