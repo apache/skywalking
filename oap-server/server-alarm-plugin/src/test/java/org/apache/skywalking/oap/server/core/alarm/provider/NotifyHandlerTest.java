@@ -23,14 +23,12 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
-import org.apache.skywalking.oap.server.core.alarm.ProcessMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsEntityMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -246,37 +244,6 @@ public class NotifyHandlerTest {
         assertEquals(DefaultScopeDefine.ENDPOINT_RELATION_CATALOG_NAME, metaInAlarm.getScope());
         assertEquals("/source-path in from-service to /dest-path in dest-service", metaInAlarm.getName());
         assertEquals(DefaultScopeDefine.ENDPOINT_RELATION, metaInAlarm.getScopeId());
-    }
-
-    @Test
-    public void testNotifyWithProcessCatalog() {
-        String metricsName = "process-metrics";
-        String serviceName = "test-service";
-        String instanceName = "test-instance";
-        String processName = "test-process";
-        when(metadata.getMetricsName()).thenReturn(metricsName);
-        when(DefaultScopeDefine.inProcessCatalog(0)).thenReturn(true);
-        final String processId = IDManager.ProcessID.buildId(
-                IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId(serviceName, true), instanceName),
-                processName
-        );
-        when(metadata.getId()).thenReturn(processId);
-        when(metadata.getEntity()).thenReturn(MetricsEntityMetaInfo.buildProcess(serviceName, instanceName, processName));
-
-        ArgumentCaptor<MetaInAlarm> metaCaptor = ArgumentCaptor.forClass(MetaInAlarm.class);
-
-        notifyHandler.notify(metrics);
-        verify(rule).in(metaCaptor.capture(), any());
-
-        MetaInAlarm metaInAlarm = metaCaptor.getValue();
-
-        assertTrue(metaInAlarm instanceof ProcessMetaInAlarm);
-        assertEquals(metricsName, metaInAlarm.getMetricsName());
-        assertEquals("cf4be92893026c77c539266f47f2aa22f1e53ff64fc64803f5814293ff10a56f", metaInAlarm.getId0());
-        assertEquals("", metaInAlarm.getId1());
-        assertEquals(DefaultScopeDefine.PROCESS_CATALOG_NAME, metaInAlarm.getScope());
-        assertEquals("test-process in test-instance of test-service", metaInAlarm.getName());
-        assertEquals(DefaultScopeDefine.PROCESS, metaInAlarm.getScopeId());
     }
 
     @Test

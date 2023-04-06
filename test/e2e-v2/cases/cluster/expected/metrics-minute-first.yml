@@ -14,8 +14,14 @@
 # limitations under the License.
 
 - key: 2022-01-26 0259
-  value: 0
+  value:
+    value: 0
+    isemptyvalue: true
 - key: 2022-01-26 0300
-  value: 200
+  value:
+    value: 200
+    isemptyvalue: false
 - key: 2022-01-26 0301
-  value: 0
+  value:
+    value: 0
+    isemptyvalue: true

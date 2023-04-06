@@ -18,9 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
@@ -42,6 +40,10 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO {
 
@@ -116,18 +118,19 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             duration.getEndTimeBucketInSec()), search.build());
 
         final List<SelectedRecord> topNList = new ArrayList<>();
-        final Map<String, Object> idTerms =
-            (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
-        final List<Map<String, Object>> buckets =
-            (List<Map<String, Object>>) idTerms.get("buckets");
-        for (Map<String, Object> termsBucket : buckets) {
-            SelectedRecord record = new SelectedRecord();
-            record.setId((String) termsBucket.get("key"));
-            Map<String, Object> value = (Map<String, Object>) termsBucket.get(realValueColumn);
-            record.setValue(String.valueOf(((Number) value.get("value")).longValue()));
-            topNList.add(record);
+        if (Objects.nonNull(response.getAggregations())) {
+            final Map<String, Object> idTerms =
+                (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
+            final List<Map<String, Object>> buckets =
+                (List<Map<String, Object>>) idTerms.get("buckets");
+            for (Map<String, Object> termsBucket : buckets) {
+                SelectedRecord record = new SelectedRecord();
+                record.setId((String) termsBucket.get("key"));
+                Map<String, Object> value = (Map<String, Object>) termsBucket.get(realValueColumn);
+                record.setValue(String.valueOf(((Number) value.get("value")).longValue()));
+                topNList.add(record);
+            }
         }
-
         return topNList;
     }
 }

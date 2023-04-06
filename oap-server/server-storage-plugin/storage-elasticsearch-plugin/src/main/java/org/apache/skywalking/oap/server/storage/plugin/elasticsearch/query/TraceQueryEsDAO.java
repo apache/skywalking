@@ -184,6 +184,47 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
 
         final SearchResponse response = getClient().search(index, search.build(), searchParams);
 
+        return buildRecords(response);
+    }
+
+    @Override
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
+
+        final SearchBuilder search =
+            Search.builder()
+                .query(Query.terms(SegmentRecord.SEGMENT_ID, segmentIdList))
+                .size(segmentQueryMaxSize);
+
+        SearchParams searchParams = new SearchParams();
+        final SearchResponse response = getClient().search(index, search.build(), searchParams);
+
+        return buildRecords(response);
+    }
+
+    @Override
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
+
+        final SearchBuilder search =
+            Search.builder()
+                .query(Query.bool().must(Query.terms(SegmentRecord.TRACE_ID, traceIdList)).must(Query.terms(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList)))
+                .size(segmentQueryMaxSize);
+
+        SearchParams searchParams = new SearchParams();
+        final SearchResponse response = getClient().search(index, search.build(), searchParams);
+
+        return buildRecords(response);
+    }
+
+    @Override
+    public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
+        return Collections.emptyList();
+    }
+
+    private List<SegmentRecord> buildRecords(SearchResponse response) {
         List<SegmentRecord> segmentRecords = new ArrayList<>();
         for (SearchHit searchHit : response.getHits().getHits()) {
             SegmentRecord segmentRecord = new SegmentRecord.Builder().storage2Entity(
@@ -191,10 +232,5 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
             segmentRecords.add(segmentRecord);
         }
         return segmentRecords;
-    }
-
-    @Override
-    public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
-        return Collections.emptyList();
     }
 }

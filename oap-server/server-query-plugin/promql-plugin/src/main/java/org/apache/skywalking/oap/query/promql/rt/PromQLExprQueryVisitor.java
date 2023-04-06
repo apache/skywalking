@@ -179,7 +179,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         try {
             String metricName = ctx.metricName().getText();
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = getValueColumn(metricName);
-            if (!valueColumn.isPresent()) {
+            if (valueColumn.isEmpty()) {
                 result.setErrorType(ErrorType.BAD_DATA);
                 result.setErrorInfo("Metric: [" + metricName + "] dose not exist.");
                 return result;
@@ -261,9 +261,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                              LabelName... labelNames) throws IllegalExpressionException {
         StringBuilder missLabels = new StringBuilder();
         int j = 0;
-        for (int i = 0; i < labelNames.length; i++) {
-            String labelName = labelNames[i].toString();
-            if (labelMap.get(labelNames[i]) == null) {
+        for (final LabelName name : labelNames) {
+            String labelName = name.toString();
+            if (labelMap.get(name) == null) {
                 missLabels.append(j++ > 0 ? "," : "").append(labelName);
             }
         }
@@ -287,7 +287,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                                     Optional.ofNullable(selectedRecord.getName()), Optional.empty()
             );
             metricData.setMetric(metricInfo);
-            metricData.setValues(buildMatrixValues(duration, selectedRecord.getValue()));
+            metricData.setValues(buildMatrixValues(duration, String.valueOf(selectedRecord.getValue())));
             matrixResult.getMetricDataList().add(metricData);
         }
     }
@@ -306,7 +306,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                                                     Optional.ofNullable(record.getName())
             );
             metricData.setMetric(metricInfo);
-            metricData.setValues(buildMatrixValues(duration, record.getValue()));
+            metricData.setValues(buildMatrixValues(duration, String.valueOf(record.getValue())));
             matrixResult.getMetricDataList().add(metricData);
         }
     }
@@ -335,12 +335,12 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         MetricsCondition metricsCondition = buildMetricsCondition(metricName, layer, scope, labelMap);
         Map<String, String> relabelMap = new HashMap<>();
         String queryLabels = labelMap.get(LabelName.LABELS);
-        List<String> queryLabelList = Collections.EMPTY_LIST;
+        List<String> queryLabelList = Collections.emptyList();
         if (StringUtil.isNotBlank(queryLabels)) {
             queryLabelList = Arrays.asList(queryLabels.split(Const.COMMA));
 
             String relabels = labelMap.get(LabelName.RELABELS);
-            List<String> relabelList = Collections.EMPTY_LIST;
+            List<String> relabelList = Collections.emptyList();
             if (StringUtil.isNotBlank(relabels)) {
                 relabelList = Arrays.asList(relabels.split(Const.COMMA));
             }
@@ -492,7 +492,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 } else if (recordName.isPresent()) {
                     metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.SERVICE_INSTANCE);
+                    checkLabels(labelMap, LabelName.SERVICE, LabelName.SERVICE_INSTANCE);
+                    metricInfo.getLabels()
+                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
                     metricInfo.getLabels()
                               .add(new LabelValuePair(
                                   LabelName.SERVICE_INSTANCE,
@@ -507,7 +509,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 } else if (recordName.isPresent()) {
                     metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.ENDPOINT);
+                    checkLabels(labelMap, LabelName.SERVICE, LabelName.ENDPOINT);
+                    metricInfo.getLabels()
+                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
                     metricInfo.getLabels()
                               .add(new LabelValuePair(LabelName.ENDPOINT, labelMap.get(LabelName.ENDPOINT)));
                 }

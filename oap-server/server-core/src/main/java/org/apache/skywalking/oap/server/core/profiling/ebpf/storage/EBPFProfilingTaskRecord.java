@@ -55,9 +55,11 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String CREATE_TIME = "create_time";
     public static final String LAST_UPDATE_TIME = "last_update_time";
     public static final String EXTENSION_CONFIG_JSON = "extension_config_json";
+    public static final String CONTINUOUS_PROFILING_JSON = "continuous_profiling_json";
 
     public static final int PROCESS_LABELS_JSON_MAX_LENGTH = 1000;
     public static final int EXTENSION_CONFIG_JSON_MAX_LENGTH = 1000;
+    public static final int CONTINOUS_PROFILING_JSON_MAX_LENGTH = 1000;
 
     @Column(name = LOGICAL_ID)
     private String logicalId;
@@ -82,6 +84,8 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     private long lastUpdateTime;
     @Column(name = EXTENSION_CONFIG_JSON, length = EXTENSION_CONFIG_JSON_MAX_LENGTH, storageOnly = true)
     private String extensionConfigJson;
+    @Column(name = CONTINUOUS_PROFILING_JSON, length = CONTINOUS_PROFILING_JSON_MAX_LENGTH, storageOnly = true)
+    private String continuousProfilingJson;
 
     @Override
     public StorageID id() {
@@ -108,6 +112,20 @@ public class EBPFProfilingTaskRecord extends NoneStream {
                                 .hash().toString();
     }
 
+    /**
+     * combine the same task
+     * @param task have same {@link #logicalId}
+     */
+    public EBPFProfilingTaskRecord combine(EBPFProfilingTaskRecord task) {
+        if (task.getFixedTriggerDuration() > this.getFixedTriggerDuration()) {
+            this.setFixedTriggerDuration(task.getFixedTriggerDuration());
+        }
+        if (task.getLastUpdateTime() > this.getLastUpdateTime()) {
+            this.setLastUpdateTime(task.getLastUpdateTime());
+        }
+        return this;
+    }
+
     public static class Builder implements StorageBuilder<EBPFProfilingTaskRecord> {
 
         @Override
@@ -125,6 +143,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             record.setLastUpdateTime(((Number) converter.get(LAST_UPDATE_TIME)).longValue());
             record.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             record.setExtensionConfigJson((String) converter.get(EXTENSION_CONFIG_JSON));
+            record.setContinuousProfilingJson((String) converter.get(CONTINUOUS_PROFILING_JSON));
             return record;
         }
 
@@ -142,6 +161,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
             converter.accept(LAST_UPDATE_TIME, storageData.getLastUpdateTime());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
             converter.accept(EXTENSION_CONFIG_JSON, storageData.getExtensionConfigJson());
+            converter.accept(CONTINUOUS_PROFILING_JSON, storageData.getContinuousProfilingJson());
         }
     }
 }

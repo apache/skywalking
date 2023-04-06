@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
-import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.ProfileStackTree;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
@@ -64,11 +64,11 @@ public class ProfileAnalyzer {
     /**
      * search snapshots and analyze
      */
-    public ProfileAnalyzation analyze(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
+    public ProfileAnalyzation analyze(final List<SegmentProfileAnalyzeQuery> queries) throws IOException {
         ProfileAnalyzation analyzation = new ProfileAnalyzation();
 
         // query sequence range list
-        SequenceSearch sequenceSearch = getAllSequenceRange(segmentId, timeRanges);
+        SequenceSearch sequenceSearch = getAllSequenceRange(queries);
         if (sequenceSearch == null) {
             analyzation.setTip("Data not found");
             return analyzation;
@@ -80,7 +80,7 @@ public class ProfileAnalyzer {
         // query snapshots
         List<ProfileStack> stacks = sequenceSearch.getRanges().parallelStream().map(r -> {
             try {
-                return getProfileThreadSnapshotQueryDAO().queryRecords(segmentId, r.getMinSequence(), r.getMaxSequence());
+                return getProfileThreadSnapshotQueryDAO().queryRecords(r.getSegmentId(), r.getMinSequence(), r.getMaxSequence());
             } catch (IOException e) {
                 LOGGER.warn(e.getMessage(), e);
                 return Collections.<ProfileThreadSnapshotRecord>emptyList();
@@ -88,7 +88,7 @@ public class ProfileAnalyzer {
         }).flatMap(Collection::stream).map(ProfileStack::deserialize).distinct().collect(Collectors.toList());
 
         // analyze
-        final List<ProfileStackTree> trees = analyze(stacks);
+        final List<ProfileStackTree> trees = analyzeByStack(stacks);
         if (trees != null) {
             analyzation.getTrees().addAll(trees);
         }
@@ -96,10 +96,10 @@ public class ProfileAnalyzer {
         return analyzation;
     }
 
-    protected SequenceSearch getAllSequenceRange(String segmentId, List<ProfileAnalyzeTimeRange> timeRanges) {
-        final List<SequenceSearch> searches = timeRanges.parallelStream().map(r -> {
+    protected SequenceSearch getAllSequenceRange(final List<SegmentProfileAnalyzeQuery> queries) {
+        final List<SequenceSearch> searches = queries.parallelStream().map(r -> {
             try {
-                return getAllSequenceRange(segmentId, r.getStart(), r.getEnd());
+                return getAllSequenceRange(r.getSegmentId(), r.getTimeRange().getStart(), r.getTimeRange().getEnd());
             } catch (IOException e) {
                 LOGGER.warn(e.getMessage(), e);
                 return null;
@@ -125,7 +125,7 @@ public class ProfileAnalyzer {
 
         do {
             int batchMax = Math.min(minSequence + threadSnapshotAnalyzeBatchSize, maxSequence);
-            sequenceSearch.getRanges().add(new SequenceRange(minSequence, batchMax));
+            sequenceSearch.getRanges().add(new SequenceRange(segmentId, minSequence, batchMax));
             minSequence = batchMax;
         }
         while (minSequence < maxSequence);
@@ -136,7 +136,7 @@ public class ProfileAnalyzer {
     /**
      * Analyze records
      */
-    protected List<ProfileStackTree> analyze(List<ProfileStack> stacks) {
+    protected List<ProfileStackTree> analyzeByStack(List<ProfileStack> stacks) {
         if (CollectionUtils.isEmpty(stacks)) {
             return null;
         }
@@ -184,12 +184,18 @@ public class ProfileAnalyzer {
     }
 
     private static class SequenceRange {
+        private String segmentId;
         private int minSequence;
         private int maxSequence;
 
-        public SequenceRange(int minSequence, int maxSequence) {
+        public SequenceRange(String segmentId, int minSequence, int maxSequence) {
+            this.segmentId = segmentId;
             this.minSequence = minSequence;
             this.maxSequence = maxSequence;
+        }
+
+        public String getSegmentId() {
+            return segmentId;
         }
 
         public int getMinSequence() {

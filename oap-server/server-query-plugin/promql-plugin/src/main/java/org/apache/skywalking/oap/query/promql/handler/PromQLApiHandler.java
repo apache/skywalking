@@ -111,7 +111,8 @@ public class PromQLApiHandler {
         response.setStatus(ResultStatus.SUCCESS);
         String regex = metric.orElse("");
         List<MetricDefinition> definitionList = metricsQuery.listMetrics(regex);
-        int maxNum = limit.orElse(definitionList.size());
+        int inputLimit = limit.orElse(definitionList.size());
+        int maxNum = Math.min(inputLimit, definitionList.size());
         for (int i = 0; i < maxNum; i++) {
             List<MetricMetadata> metadataList = new ArrayList<>();
             MetricMetadata metadata = new MetricMetadata(MetricType.GAUGE, "", "");
@@ -459,7 +460,7 @@ public class PromQLApiHandler {
                                             Column.ValueDataType dataType) {
         List<LabelName> labelNames = new ArrayList<>();
         labelNames.add(LabelName.LAYER);
-        labelNames.add(LabelName.SCOPE);
+        labelNames.add(LabelName.SERVICE);
         labelNames.add(LabelName.TOP_N);
         labelNames.add(LabelName.ORDER);
         if (Column.ValueDataType.LABELED_VALUE == dataType) {

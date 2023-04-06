@@ -18,74 +18,107 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
+    @SneakyThrows
     public Set<String> queryTagAutocompleteKeys(final TagType tagType,
                                                 final int limit,
-                                                final Duration duration) throws IOException {
+                                                final Duration duration) {
+        final var tables = tableHelper.getTablesForRead(
+            TagAutocompleteData.INDEX_NAME,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var results = new HashSet<String>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQLForQueryKeys(tagType, limit, duration, table);
+            jdbcClient.executeQuery(
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        results.add(resultSet.getString(TagAutocompleteData.TAG_KEY));
+                    }
+                    return null;
+                },
+                sqlAndParameters.parameters());
+        }
+        return results;
+    }
+
+    protected SQLAndParameters buildSQLForQueryKeys(TagType tagType, int limit, Duration duration, String table) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(2);
 
         sql.append("select distinct ").append(TagAutocompleteData.TAG_KEY).append(" from ")
-           .append(TagAutocompleteData.INDEX_NAME).append(" where ");
+           .append(table).append(" where ");
         sql.append(" 1=1 ");
         appendTagAutocompleteCondition(tagType, duration, sql, condition);
         sql.append(" limit ").append(limit);
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
-            Set<String> tagKeys = new HashSet<>();
-            while (resultSet.next()) {
-                tagKeys.add(resultSet.getString(TagAutocompleteData.TAG_KEY));
-            }
-            return tagKeys;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+
+        return new SQLAndParameters(sql.toString(), condition);
     }
 
     @Override
+    @SneakyThrows
     public Set<String> queryTagAutocompleteValues(final TagType tagType,
                                                   final String tagKey,
                                                   final int limit,
-                                                  final Duration duration) throws IOException {
+                                                  final Duration duration) {
+        final var tables = tableHelper.getTablesForRead(
+            TagAutocompleteData.INDEX_NAME,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var results = new HashSet<String>();
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQLForQueryValues(tagType, tagKey, limit, duration, table);
+            jdbcClient.executeQuery(
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        results.add(resultSet.getString(TagAutocompleteData.TAG_VALUE));
+                    }
+                    return null;
+                },
+                sqlAndParameters.parameters()
+            );
+        }
+        return results;
+    }
+
+    protected SQLAndParameters buildSQLForQueryValues(TagType tagType, String tagKey, int limit, Duration duration, String table) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
-        sql.append("select * from ").append(TagAutocompleteData.INDEX_NAME).append(" where ");
+        sql.append("select * from ").append(table).append(" where ");
         sql.append(TagAutocompleteData.TAG_KEY).append(" = ?");
         condition.add(tagKey);
         appendTagAutocompleteCondition(tagType, duration, sql, condition);
         sql.append(" limit ").append(limit);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            ResultSet resultSet = jdbcClient.executeQuery(connection, sql.toString(), condition.toArray(new Object[0]));
-            Set<String> tagValues = new HashSet<>();
-            while (resultSet.next()) {
-                tagValues.add(resultSet.getString(TagAutocompleteData.TAG_VALUE));
-            }
-            return tagValues;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return new SQLAndParameters(sql.toString(), condition);
     }
 
     private void appendTagAutocompleteCondition(final TagType tagType,

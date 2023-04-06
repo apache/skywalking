@@ -18,45 +18,53 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
-import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
-import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    private final JDBCClient jdbcClient;
+    private final TableHelper tableHelper;
 
     @Override
-    public long readMetricsValue(final MetricsCondition condition,
-                                String valueColumnName,
-                                final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        final String entityId = condition.getEntity().buildId();
-        pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(entityId));
-        });
-        int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-        final Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
+    @SneakyThrows
+    public NullableValue readMetricsValue(final MetricsCondition condition,
+                                          String valueColumnName,
+                                          final Duration duration) {
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+
+        final var pointOfTimes = duration.assembleDurationPoints();
+        final var entityId = condition.getEntity().buildId();
+        final var ids =
+            pointOfTimes
+                .stream()
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
+                .collect(Collectors.toList());
+        final var defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        final var function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
         if (function == Function.Latest) {
             return readMetricsValues(condition, valueColumnName, duration).getValues().latestValue(defaultValue);
         }
@@ -68,38 +76,41 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
             default:
                 op = "sum";
         }
-        StringBuilder sql = buildMetricsValueSql(op, valueColumnName, condition.getName());
-        List<Object> parameters = new ArrayList();
-        if (entityId != null) {
-            sql.append(Metrics.ENTITY_ID + " = ? and ");
-            parameters.add(entityId);
-        }
-        sql.append("id in (");
-        for (int i = 0; i < ids.size(); i++) {
-            if (i == 0) {
-                sql.append("?");
-            } else {
-                sql.append(",?");
-            }
-            parameters.add(ids.get(i));
-        }
-        sql.append(")");
-        sql.append(" group by " + Metrics.ENTITY_ID);
 
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection,
-                sql.toString(),
-                parameters.toArray(new Object[0])
-            )) {
-                if (resultSet.next()) {
-                    return resultSet.getLong("result");
-                }
+        final var results = new ArrayList<Long>();
+        for (String table : tables) {
+            final var sql = buildMetricsValueSql(op, valueColumnName, table);
+            final var parameters = new ArrayList<>();
+            if (entityId != null) {
+                sql.append(Metrics.ENTITY_ID + " = ? and ");
+                parameters.add(entityId);
             }
-        } catch (SQLException e) {
-            throw new IOException(e);
+            sql.append("id in ");
+            sql.append(ids.stream().map(it -> "?").collect(Collectors.joining(", ", "(", ")")));
+            parameters.addAll(ids);
+            sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            parameters.add(condition.getName());
+            sql.append(" group by " + Metrics.ENTITY_ID);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    if (resultSet.next()) {
+                        results.add(resultSet.getLong("result"));
+                    }
+                    return null;
+                },
+                parameters.toArray(new Object[0])
+            );
         }
-        return defaultValue;
+
+        if (results.size() == 0) {
+            return new NullableValue(defaultValue, true);
+        }
+        if (op.equals("avg")) {
+            return new NullableValue(results.stream().mapToLong(it -> it).sum() / results.size(), false);
+        }
+        return new NullableValue(results.stream().mapToLong(it -> it).sum(), false);
     }
 
     protected StringBuilder buildMetricsValueSql(String op, String valueColumnName, String conditionName) {
@@ -108,48 +119,51 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     }
 
     @Override
+    @SneakyThrows
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
-                                           final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        final String entityId = condition.getEntity().buildId();
-        pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(entityId));
-        });
-
-        StringBuilder sql = new StringBuilder(
-            "select id, " + valueColumnName + " from " + condition.getName() + " where id in (");
-        List<Object> parameters = new ArrayList();
-        for (int i = 0; i < ids.size(); i++) {
-            if (i == 0) {
-                sql.append("?");
-            } else {
-                sql.append(",?");
-            }
-            parameters.add(ids.get(i));
-        }
-        sql.append(")");
-
-        buildShardingCondition(sql, parameters, entityId);
-
-        MetricsValues metricsValues = new MetricsValues();
+                                           final Duration duration) {
+        final var metricsValues = new MetricsValues();
         // Label is null, because in readMetricsValues, no label parameter.
-        final IntValues intValues = metricsValues.getValues();
+        final var intValues = metricsValues.getValues();
 
-        try (Connection connection = jdbcClient.getConnection()) {
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
 
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), parameters.toArray(new Object[0]))) {
-                while (resultSet.next()) {
-                    KVInt kv = new KVInt();
-                    kv.setId(resultSet.getString("id"));
-                    kv.setValue(resultSet.getLong(valueColumnName));
-                    intValues.addKVInt(kv);
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
+        final var pointOfTimes = duration.assembleDurationPoints();
+        final var entityId = condition.getEntity().buildId();
+        final var ids =
+            pointOfTimes
+                .stream()
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
+                .collect(Collectors.toList());
+
+        for (final var table : tables) {
+            final var sql = new StringBuilder("select id, " + valueColumnName + " from " + table)
+                .append(" where id in ")
+                .append(
+                    ids.stream()
+                       .map(it -> "?")
+                       .collect(Collectors.joining(", ", "(", ")"))
+                );
+
+            buildShardingCondition(sql, ids, entityId);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        final var kv = new KVInt();
+                        kv.setId(resultSet.getString("id"));
+                        kv.setValue(resultSet.getLong(valueColumnName));
+                        intValues.addKVInt(kv);
+                    }
+                    return null;
+                },
+                ids.toArray(new Object[0]));
         }
 
         metricsValues.setValues(
@@ -159,103 +173,109 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     }
 
     @Override
+    @SneakyThrows
     public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
                                                         final List<String> labels,
-                                                        final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        final String entityId = condition.getEntity().buildId();
-        pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(entityId));
-        });
+                                                        final Duration duration) {
+        final var idMap = new HashMap<String, DataTable>();
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
 
-        StringBuilder sql = new StringBuilder(
-            "select id, " + valueColumnName + " from " + condition.getName() + " where id in (");
+        final var pointOfTimes = duration.assembleDurationPoints();
+        final var entityId = condition.getEntity().buildId();
+        final var ids =
+            pointOfTimes
+                .stream()
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
+                .collect(Collectors.toList());
 
-        List<Object> parameters = new ArrayList();
-        for (int i = 0; i < ids.size(); i++) {
-            if (i == 0) {
-                sql.append("?");
-            } else {
-                sql.append(",?");
-            }
-            parameters.add(ids.get(i));
+        for (final var table : tables) {
+            final var sql = new StringBuilder("select id, " + valueColumnName + " from " + table)
+                .append(" where id in ")
+                .append(
+                    ids.stream().map(it -> "?")
+                       .collect(Collectors.joining(", ", "(", ")"))
+                );
+
+            buildShardingCondition(sql, ids, entityId);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        String id = resultSet.getString("id");
+
+                        DataTable multipleValues = new DataTable(5);
+                        multipleValues.toObject(resultSet.getString(valueColumnName));
+
+                        idMap.put(id, multipleValues);
+                    }
+                    return null;
+                },
+                ids.toArray(new Object[0]));
         }
-        sql.append(")");
 
-        buildShardingCondition(sql, parameters, entityId);
-
-        Map<String, DataTable> idMap = new HashMap<>();
-        try (Connection connection = jdbcClient.getConnection()) {
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), parameters.toArray(new Object[0]))) {
-                while (resultSet.next()) {
-                    String id = resultSet.getString("id");
-
-                    DataTable multipleValues = new DataTable(5);
-                    multipleValues.toObject(resultSet.getString(valueColumnName));
-
-                   idMap.put(id, multipleValues);
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
         return Util.sortValues(
-            Util.composeLabelValue(condition, labels, ids, idMap),
+            Util.composeLabelValue(condition, labels, idMap),
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
         );
     }
 
     @Override
+    @SneakyThrows
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
-                               final Duration duration) throws IOException {
-        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        List<String> ids = new ArrayList<>(pointOfTimes.size());
-        final String entityId = condition.getEntity().buildId();
-        pointOfTimes.forEach(pointOfTime -> {
-            ids.add(pointOfTime.id(entityId));
-        });
+                               final Duration duration) {
+        final var tables = tableHelper.getTablesForRead(
+            condition.getName(),
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        final var heatMap = new HeatMap();
 
-        StringBuilder sql = new StringBuilder(
-            "select id, " + valueColumnName + " dataset, id from " + condition.getName() + " where id in (");
-        List<Object> parameters = new ArrayList();
-        for (int i = 0; i < ids.size(); i++) {
-            if (i == 0) {
-                sql.append("?");
-            } else {
-                sql.append(",?");
-            }
-            parameters.add(ids.get(i));
+        for (String table : tables) {
+            final var pointOfTimes = duration.assembleDurationPoints();
+            final var entityId = condition.getEntity().buildId();
+            final var ids =
+                pointOfTimes
+                    .stream()
+                    .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
+                    .collect(Collectors.toList());
+
+            final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + table)
+                .append(" where id in ")
+                .append(
+                    ids.stream()
+                       .map(it -> "?")
+                       .collect(Collectors.joining(", ", "(", ")"))
+                );
+
+            buildShardingCondition(sql, ids, entityId);
+
+            final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        heatMap.buildColumn(
+                            resultSet.getString("id"), resultSet.getString("dataset"), defaultValue);
+                    }
+                    heatMap.fixMissingColumns(ids, defaultValue);
+
+                    return null;
+                },
+                ids.toArray(new Object[0]));
         }
-        sql.append(")");
 
-        buildShardingCondition(sql, parameters, entityId);
-
-        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-
-        try (Connection connection = jdbcClient.getConnection()) {
-            HeatMap heatMap = new HeatMap();
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, sql.toString(), parameters.toArray(new Object[0]))) {
-
-                while (resultSet.next()) {
-                    heatMap.buildColumn(
-                        resultSet.getString("id"), resultSet.getString("dataset"), defaultValue);
-                }
-            }
-
-            heatMap.fixMissingColumns(ids, defaultValue);
-
-            return heatMap;
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
+        return heatMap;
     }
 
-    protected void buildShardingCondition(StringBuilder sql, List<Object> parameters, String entityId) {
+    protected void buildShardingCondition(StringBuilder sql, List<String> parameters, String entityId) {
     }
 }

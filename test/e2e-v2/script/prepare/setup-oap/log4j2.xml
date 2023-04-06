@@ -24,6 +24,8 @@
         </Console>
     </Appenders>
     <Loggers>
+        <logger name="org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient" level="DEBUG" />
+        <logger name="org.apache.skywalking.oap.server.storage.plugin.jdbc" level="DEBUG" />
         <Root level="INFO">
             <AppenderRef ref="Console"/>
         </Root>

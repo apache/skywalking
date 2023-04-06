@@ -29,6 +29,8 @@ public class ProfiledSpan {
 
     private int spanId;
     private int parentSpanId;
+    private String segmentId;
+    private List<Ref> refs;
     private String serviceCode;
     private String serviceInstanceName;
     private long startTime;
@@ -41,6 +43,7 @@ public class ProfiledSpan {
     private String layer;
     private final List<KeyValue> tags;
     private final List<LogEntity> logs;
+    private boolean profiled;
 
     public ProfiledSpan() {
         this.tags = new ArrayList<>();

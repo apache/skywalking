@@ -36,7 +36,6 @@ import lombok.ToString;
 @ToString
 public class AlarmRule {
     private String alarmRuleName;
-
     private String metricsName;
     private ArrayList<String> includeNames;
     private String includeNamesRegex;

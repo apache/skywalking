@@ -52,43 +52,43 @@ public class MetricsQueryUtilTest {
                 asList("200", "400"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
-                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":8}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":3,\"isEmptyValue\":false}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":8,\"isEmptyValue\":false}]}}]"
             },
             {
                 asList("400", "200"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
-                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":8}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":3,\"isEmptyValue\":false}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":8,\"isEmptyValue\":false}]}}]"
             },
             {
                 Collections.emptyList(),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
-                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":8}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":3,\"isEmptyValue\":false}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":8,\"isEmptyValue\":false}]}}]"
             },
             {
                 Collections.singletonList("200"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":3,\"isEmptyValue\":false}]}}]"
             },
             {
                 asList("200", "400", "500"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2"), "202007291426", new DataTable("200,3|400,8")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":3}]}}," +
-                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":8}]}}," +
-                    "{\"label\":\"500\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":" + DEFAULT_VALUE + "},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + "}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":3,\"isEmptyValue\":false}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":8,\"isEmptyValue\":false}]}}," +
+                    "{\"label\":\"500\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":" + DEFAULT_VALUE + ",\"isEmptyValue\":true},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + ",\"isEmptyValue\":true}]}}]"
             },
             {
                 asList("200", "400"),
                 asList("202007291425", "202007291426"),
                 of("202007291425", new DataTable("200,1|400,2")),
-                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + "}]}}," +
-                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + "}]}}]"
+                "[{\"label\":\"200\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":1,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + ",\"isEmptyValue\":true}]}}," +
+                    "{\"label\":\"400\",\"values\":{\"values\":[{\"id\":\"202007291425\",\"value\":2,\"isEmptyValue\":false},{\"id\":\"202007291426\",\"value\":" + DEFAULT_VALUE + ",\"isEmptyValue\":true}]}}]"
             },
         });
     }
@@ -108,7 +108,10 @@ public class MetricsQueryUtilTest {
                                       final String expectedResult) {
         MetricsCondition condition = new MetricsCondition();
         condition.setName(MODULE_NAME);
-        List<MetricsValues> result = IMetricsQueryDAO.Util.composeLabelValue(condition, queryConditionLabels, datePoints, valueColumnData);
+        List<MetricsValues> result = IMetricsQueryDAO.Util.sortValues(
+            IMetricsQueryDAO.Util.composeLabelValue(condition, queryConditionLabels, valueColumnData),
+            datePoints, DEFAULT_VALUE
+        );
         assertThat(new Gson().toJson(result)).isEqualTo(expectedResult);
     }
 

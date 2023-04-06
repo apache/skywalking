@@ -33,6 +33,8 @@ public class EBPFProfilingTask {
     private String serviceInstanceId;
     private String serviceInstanceName;
     private List<String> processLabels;
+    private String processId;
+    private String processName;
     private long taskStartTime;
     private EBPFProfilingTriggerType triggerType;
     private long fixedTriggerDuration;
@@ -40,18 +42,6 @@ public class EBPFProfilingTask {
     private long createTime;
     private long lastUpdateTime;
     private EBPFProfilingTaskExtension extensionConfig;
+    private List<ContinuousProfilingTriggeredCause> continuousProfilingCauses;
 
-    /**
-     * combine the same task
-     * @param task have same {@link #taskId}
-     */
-    public EBPFProfilingTask combine(EBPFProfilingTask task) {
-        if (task.getFixedTriggerDuration() > this.getFixedTriggerDuration()) {
-            this.setFixedTriggerDuration(task.getFixedTriggerDuration());
-        }
-        if (task.getLastUpdateTime() > this.getLastUpdateTime()) {
-            this.setLastUpdateTime(task.getLastUpdateTime());
-        }
-        return this;
-    }
 }

@@ -32,7 +32,7 @@
         <log4j.version>2.17.1</log4j.version>
         <google.error_prone_annotations>2.11.0</google.error_prone_annotations>
         <graphql-java-tools.version>13.0.1</graphql-java-tools.version>
-        <graphql-java.version>19.2</graphql-java.version>
+        <graphql-java.version>20.2</graphql-java.version>
         <graphql-java-extended-scalars.version>18.1</graphql-java-extended-scalars.version>
         <okhttp.version>3.14.9</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
@@ -47,7 +47,7 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.7</commons-io.version>
         <commons-text.version>1.4</commons-text.version>
-        <kubernetes.version>16.0.0</kubernetes.version>
+        <kubernetes.version>18.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.24.0</zipkin.version>
         <jackson.version>2.14.1</jackson.version>
@@ -550,6 +550,12 @@
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>

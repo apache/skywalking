@@ -22,8 +22,16 @@ import com.google.common.base.Objects;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+import io.vavr.Tuple;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -32,19 +40,21 @@ import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentReco
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.profiling.trace.analyze.ProfileAnalyzer;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.LogEntity;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
-import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
-import org.apache.skywalking.oap.server.core.query.type.ProfiledSegment;
+import org.apache.skywalking.oap.server.core.query.type.ProfiledTraceSegments;
 import org.apache.skywalking.oap.server.core.query.type.ProfiledSpan;
+import org.apache.skywalking.oap.server.core.query.type.Ref;
+import org.apache.skywalking.oap.server.core.query.type.RefType;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -54,6 +64,7 @@ import static java.util.Objects.isNull;
 /**
  * handle profile task queries
  */
+@Slf4j
 public class ProfileTaskQueryService implements Service {
     private final ModuleManager moduleManager;
     private IProfileTaskQueryDAO profileTaskQueryDAO;
@@ -61,6 +72,7 @@ public class ProfileTaskQueryService implements Service {
     private IProfileThreadSnapshotQueryDAO profileThreadSnapshotQueryDAO;
     private NetworkAddressAliasCache networkAddressAliasCache;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
+    private ITraceQueryDAO traceQueryDAO;
 
     private final ProfileAnalyzer profileAnalyzer;
 
@@ -117,6 +129,15 @@ public class ProfileTaskQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
+    private ITraceQueryDAO getTraceQueryDAO() {
+        if (traceQueryDAO == null) {
+            this.traceQueryDAO = moduleManager.find(StorageModule.NAME)
+                                              .provider()
+                                              .getService(ITraceQueryDAO.class);
+        }
+        return traceQueryDAO;
+    }
+
     /**
      * search profile task list
      *
@@ -161,38 +182,143 @@ public class ProfileTaskQueryService implements Service {
         return findMatchedLogs(taskID, taskLogList);
     }
 
-    /**
-     * search profiled traces
-     */
-    public List<BasicTrace> getTaskTraces(String taskId) throws IOException {
-        return getProfileThreadSnapshotQueryDAO().queryProfiledSegments(taskId);
+    public ProfileAnalyzation getProfileAnalyze(final List<SegmentProfileAnalyzeQuery> queries) throws IOException {
+        return profileAnalyzer.analyze(queries);
     }
 
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId,
-                                                final List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
-        return profileAnalyzer.analyze(segmentId, timeRanges);
+    public List<SegmentRecord> getTaskSegments(String taskId) throws IOException {
+        final List<String> profiledSegmentIdList = getProfileThreadSnapshotQueryDAO().queryProfiledSegmentIdList(taskId);
+        return getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList);
     }
 
-    public ProfiledSegment getProfiledSegment(String segmentId) throws IOException {
-        SegmentRecord segmentRecord = getProfileThreadSnapshotQueryDAO().getProfiledSegment(segmentId);
-        if (segmentRecord == null) {
-            return null;
+    public List<ProfiledTraceSegments> getProfileTaskSegments(String taskId) throws IOException {
+        // query all profiled segments
+        final List<String> profiledSegmentIdList = getProfileThreadSnapshotQueryDAO().queryProfiledSegmentIdList(taskId);
+        final List<SegmentRecord> segmentRecords = getTraceQueryDAO().queryBySegmentIdList(profiledSegmentIdList);
+        if (CollectionUtils.isEmpty(segmentRecords)) {
+            return Collections.emptyList();
+        }
+        final Map<String, List<String>> traceWithInstances = segmentRecords.stream().collect(Collectors.toMap(
+            SegmentRecord::getTraceId,
+            s -> new ArrayList(List.of(s.getServiceInstanceId())),
+            (s1, s2) -> {
+                s1.addAll(s2);
+                return s1;
+            }));
+
+        // query all profiled segments related segments(same traceId and instanceId)
+        final Set<String> traceIdList = new HashSet<>(segmentRecords.size());
+        final Set<String> instanceIdList = new HashSet<>(segmentRecords.size());
+        for (SegmentRecord segment : segmentRecords) {
+            traceIdList.add(segment.getTraceId());
+            instanceIdList.add(segment.getServiceInstanceId());
+        }
+        final List<SegmentRecord> traceRelatedSegments = getTraceQueryDAO().queryByTraceIdWithInstanceId(
+            new ArrayList<>(traceIdList),
+            new ArrayList<>(instanceIdList));
+
+        // group by the traceId + service instanceId
+        final Map<String, List<SegmentRecord>> instanceTraceWithSegments = traceRelatedSegments.stream().filter(s -> {
+            final List<String> includingInstances = traceWithInstances.get(s.getTraceId());
+            return includingInstances.contains(s.getServiceInstanceId());
+        }).collect(Collectors.toMap(
+            s -> s.getTraceId() + s.getServiceInstanceId(),
+            s -> new ArrayList<>(List.of(s)),
+            (s1, s2) -> {
+                s1.addAll(s2);
+                return s1;
+            }));
+
+        // build result
+        return instanceTraceWithSegments.values().stream()
+            .flatMap(s -> buildProfiledSegmentsList(s, profiledSegmentIdList).stream())
+            .collect(Collectors.toList());
+    }
+
+    protected List<ProfiledTraceSegments> buildProfiledSegmentsList(List<SegmentRecord> segmentRecords, List<String> profiledSegmentIdList) {
+        final Map<String, ProfiledTraceSegments> segments = segmentRecords.stream().map(s -> {
+            try {
+                return Tuple.of(s, SegmentObject.parseFrom(s.getDataBinary()));
+            } catch (InvalidProtocolBufferException e) {
+                log.warn("parsing segment data error", e);
+                return null;
+            }
+        }).filter(java.util.Objects::nonNull).filter(s -> CollectionUtils.isNotEmpty(s._2.getSpansList())).collect(Collectors.toMap(
+            tuple -> tuple._1.getSegmentId(),
+            tuple -> {
+                final IDManager.ServiceInstanceID.InstanceIDDefinition serviceInstance = IDManager.ServiceInstanceID.analysisId(tuple._1.getServiceInstanceId());
+                final ProfiledTraceSegments seg = new ProfiledTraceSegments();
+                final boolean profiled = profiledSegmentIdList.contains(tuple._1.getSegmentId());
+                seg.setTraceId(tuple._1.getTraceId());
+                seg.setInstanceId(tuple._1.getServiceInstanceId());
+                seg.setInstanceName(serviceInstance.getName());
+                seg.getEndpointNames().add(IDManager.EndpointID.analysisId(tuple._1.getEndpointId()).getEndpointName());
+                seg.setDuration(tuple._1.getLatency());
+                seg.setStart(String.valueOf(tuple._1.getStartTime()));
+                seg.getSpans().addAll(buildProfiledSpanList(tuple._2, profiled));
+                seg.setContainsProfiled(profiled);
+                return seg;
+            }
+        ));
+
+        // trying to find parent
+        final ArrayList<ProfiledTraceSegments> results = new ArrayList<>();
+        final Iterator<Map.Entry<String, ProfiledTraceSegments>> entryIterator = segments.entrySet().iterator();
+        final Set<ProfiledSpan> mergedSpans = new HashSet<>();
+        while (entryIterator.hasNext()) {
+            // keep segment if no ref
+            final Map.Entry<String, ProfiledTraceSegments> current = entryIterator.next();
+
+            boolean spanBeenAdded = false;
+            for (ProfiledSpan span : current.getValue().getSpans()) {
+                if (mergedSpans.contains(span)) {
+                    continue;
+                }
+                if (CollectionUtils.isEmpty(span.getRefs())) {
+                    continue;
+                }
+                // keep segment if ref type is not same process(analyze only match with the same process)
+                final Ref ref = span.getRefs().get(0);
+                if (RefType.CROSS_PROCESS.equals(ref.getType())) {
+                    results.add(current.getValue());
+                    spanBeenAdded = true;
+                    break;
+                }
+                // find parent segment if exist
+                final ProfiledTraceSegments parentSegments = segments.get(ref.getParentSegmentId());
+                if (parentSegments != null) {
+                    // append merged spans
+                    mergedSpans.addAll(current.getValue().getSpans());
+                    // add current segments into parent
+                    parentSegments.merge(current.getValue());
+                    // set parent segments(combined) as current segment
+                    current.setValue(parentSegments);
+                    spanBeenAdded = true;
+                    break;
+                }
+            }
+
+            if (!spanBeenAdded) {
+                results.add(current.getValue());
+            }
         }
 
-        ProfiledSegment profiledSegment = new ProfiledSegment();
-        SegmentObject segmentObject = SegmentObject.parseFrom(segmentRecord.getDataBinary());
-        profiledSegment.getSpans().addAll(buildProfiledSpanList(segmentObject));
-
-        return profiledSegment;
+        return results.stream().filter(ProfiledTraceSegments::isContainsProfiled).peek(this::removeAllCrossProcessRef).collect(Collectors.toList());
     }
 
-    private List<ProfiledSpan> buildProfiledSpanList(SegmentObject segmentObject) {
+    private void removeAllCrossProcessRef(ProfiledTraceSegments segments) {
+        segments.getSpans().stream().filter(s -> CollectionUtils.isNotEmpty(s.getRefs()))
+            .forEach(s -> s.getRefs().removeIf(ref -> RefType.CROSS_PROCESS.equals(ref.getType())));
+    }
+
+    private List<ProfiledSpan> buildProfiledSpanList(SegmentObject segmentObject, boolean profiled) {
         List<ProfiledSpan> spans = new ArrayList<>();
 
         segmentObject.getSpansList().forEach(spanObject -> {
             ProfiledSpan span = new ProfiledSpan();
             span.setSpanId(spanObject.getSpanId());
             span.setParentSpanId(spanObject.getParentSpanId());
+            span.setSegmentId(segmentObject.getTraceSegmentId());
             span.setStartTime(spanObject.getStartTime());
             span.setEndTime(spanObject.getEndTime());
             span.setError(spanObject.getIsError());
@@ -229,6 +355,24 @@ public class ProfileTaskQueryService implements Service {
 
                 span.getLogs().add(logEntity);
             });
+
+            final List<Ref> refs = spanObject.getRefsList().stream().map(r -> {
+                final Ref ref = new Ref();
+                ref.setTraceId(r.getTraceId());
+                ref.setParentSegmentId(r.getParentTraceSegmentId());
+                ref.setParentSpanId(r.getParentSpanId());
+                switch (r.getRefType()) {
+                    case CrossThread:
+                        ref.setType(org.apache.skywalking.oap.server.core.query.type.RefType.CROSS_THREAD);
+                        break;
+                    case CrossProcess:
+                        ref.setType(org.apache.skywalking.oap.server.core.query.type.RefType.CROSS_PROCESS);
+                        break;
+                }
+                return ref;
+            }).collect(Collectors.toList());
+            span.setRefs(refs);
+            span.setProfiled(profiled);
 
             spans.add(span);
         });

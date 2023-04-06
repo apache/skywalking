@@ -80,6 +80,35 @@ public class ProfileTraceDAO implements ITraceQueryDAO {
     }
 
     @Override
+    public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList) throws IOException {
+        final ArrayList<SegmentRecord> segments = new ArrayList<>();
+        final SegmentRecord segment = new SegmentRecord();
+        segments.add(segment);
+
+        final SegmentObject.Builder segmentBuilder = SegmentObject.newBuilder();
+        segmentBuilder.setTraceSegmentId(exportData.getSegmentId());
+        for (ExportedData.Span span : exportData.getSpans()) {
+            segmentBuilder.addSpans(SpanObject.newBuilder()
+                .setOperationName(span.getOperation())
+                .setStartTime(span.getStart())
+                .setEndTime(span.getEnd())
+                .setSpanId(span.getId())
+                .setParentSpanId(span.getParentId()));
+        }
+        segment.setDataBinary(segmentBuilder.build().toByteArray());
+        segment.setTraceId(exportData.getTraceId());
+        segment.setServiceId("service");
+        segment.setSegmentId(exportData.getSegmentId());
+        segment.setLatency(exportData.getLimit() * 10);
+        return segments;
+    }
+
+    @Override
+    public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList) throws IOException {
+        return null;
+    }
+
+    @Override
     public List<Span> doFlexibleTraceQuery(String traceId) throws IOException {
         return null;
     }

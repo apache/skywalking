@@ -18,13 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -32,56 +27,78 @@ import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
-import org.apache.skywalking.oap.server.library.client.jdbc.JDBCClientException;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.SQLExecutor;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITemplateManagementDAO {
-    private final JDBCHikariCPClient h2Client;
+    private final JDBCClient h2Client;
+    private final TableHelper tableHelper;
 
     @Override
-    public DashboardConfiguration getTemplate(final String id) throws IOException {
+    @SneakyThrows
+    public DashboardConfiguration getTemplate(final String id) {
         if (StringUtil.isEmpty(id)) {
             return null;
         }
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(UITemplate.INDEX_NAME).append(" where id=? LIMIT 1 ");
-        condition.add(id);
 
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet rs = h2Client.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
+        final var tables = tableHelper.getTablesWithinTTL(UITemplate.INDEX_NAME);
+
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            final ArrayList<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table).append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
+               .append(" and id=? LIMIT 1 ");
+            condition.add(UITemplate.INDEX_NAME);
+            condition.add(id);
+
+            final var result = h2Client.executeQuery(sql.toString(), resultSet -> {
                 final UITemplate.Builder builder = new UITemplate.Builder();
-                UITemplate uiTemplate = (UITemplate) toStorageData(rs, UITemplate.INDEX_NAME, builder);
+                UITemplate uiTemplate = (UITemplate) toStorageData(resultSet, UITemplate.INDEX_NAME, builder);
                 if (uiTemplate != null) {
                     return new DashboardConfiguration().fromEntity(uiTemplate);
                 }
+                return null;
+            }, condition.toArray(new Object[0]));
+            if (result != null) {
+                return result;
             }
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e);
         }
+
         return null;
     }
 
     @Override
-    public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) throws IOException {
-        final StringBuilder sql = new StringBuilder();
-        final ArrayList<Object> condition = new ArrayList<>(1);
-        sql.append("select * from ").append(UITemplate.INDEX_NAME).append(" where 1=1 ");
-        if (!includingDisabled) {
-            sql.append(" and ").append(UITemplate.DISABLED).append("=?");
-            condition.add(BooleanUtils.booleanToValue(includingDisabled));
-        }
+    @SneakyThrows
+    public List<DashboardConfiguration> getAllTemplates(Boolean includingDisabled) {
+        final var tables = tableHelper.getTablesWithinTTL(UITemplate.INDEX_NAME);
+        final var configs = new ArrayList<DashboardConfiguration>();
 
-        try (Connection connection = h2Client.getConnection()) {
-            try (ResultSet resultSet = h2Client.executeQuery(
-                connection, sql.toString(), condition.toArray(new Object[0]))) {
-                final List<DashboardConfiguration> configs = new ArrayList<>();
+        for (String table : tables) {
+            final StringBuilder sql = new StringBuilder();
+            final ArrayList<Object> condition = new ArrayList<>(1);
+            sql.append("select * from ").append(table).append(" where ")
+               .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+            condition.add(UITemplate.INDEX_NAME);
+            if (!includingDisabled) {
+                sql.append(" and ").append(UITemplate.DISABLED).append("=?");
+                condition.add(BooleanUtils.booleanToValue(includingDisabled));
+            }
+
+            h2Client.executeQuery(sql.toString(), resultSet -> {
                 final UITemplate.Builder builder = new UITemplate.Builder();
                 UITemplate uiTemplate = null;
                 do {
@@ -91,22 +108,23 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
                     }
                 }
                 while (uiTemplate != null);
-                return configs;
-            }
-        } catch (SQLException | JDBCClientException e) {
-            throw new IOException(e);
+                return null;
+            }, condition.toArray(new Object[0]));
         }
+
+        return configs;
     }
 
     @Override
     public TemplateChangeStatus addTemplate(final DashboardSetting setting) throws IOException {
-        final UITemplate uiTemplate = setting.toEntity();
+        final var uiTemplate = setting.toEntity();
+        final var model = TableMetaInfo.get(UITemplate.INDEX_NAME);
         final SQLExecutor insertExecutor = getInsertExecutor(
-            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder(), new HashMapConverter.ToStorage(), null);
+            model, uiTemplate, 0, new UITemplate.Builder(), new HashMapConverter.ToStorage(), null);
         try (Connection connection = h2Client.getConnection()) {
             insertExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(setting.getId()).build();
-        } catch (SQLException | JDBCClientException e) {
+        } catch (SQLException e) {
             log.error(e.getMessage(), e);
             return TemplateChangeStatus.builder()
                                        .status(false)
@@ -134,12 +152,13 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
     }
 
     private TemplateChangeStatus executeUpdate(final UITemplate uiTemplate) throws IOException {
-        final SQLExecutor updateExecutor = getUpdateExecutor(
-            UITemplate.INDEX_NAME, uiTemplate, new UITemplate.Builder(), null);
+        final var model = TableMetaInfo.get(UITemplate.INDEX_NAME);
+        final var updateExecutor = getUpdateExecutor(
+            model, uiTemplate, 0, new UITemplate.Builder(), null);
         try (Connection connection = h2Client.getConnection()) {
             updateExecutor.invoke(connection);
             return TemplateChangeStatus.builder().status(true).id(uiTemplate.getTemplateId()).build();
-        } catch (SQLException | JDBCClientException e) {
+        } catch (SQLException e) {
             log.error(e.getMessage(), e);
             return TemplateChangeStatus.builder()
                                        .status(false)

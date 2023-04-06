@@ -128,11 +128,5 @@ We use [license-eye](https://github.com/apache/skywalking-eyes) to help you make
 - Add the new dependencies' notice files (if any) to `./dist-material/release-docs/NOTICE` if they are Apache 2.0 license. Copy their license files to `./dist-material/release-docs/licenses` if they are not standard Apache 2.0 license.
 - Copy the new dependencies' license file to `./dist-material/release-docs/licenses` if they are not standard Apache 2.0 license.
 
-## Profile
-The performance profile is an enhancement feature in the APM system. We use thread dump to estimate the method execution time, rather than adding multiple local spans. In this way, the cost would be significantly reduced compared to using distributed tracing to locate the slow method. This feature is suitable in the production environment. The following documents are key to understanding the essential parts of this feature.
-- [Profile data report protocol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided through gRPC, just like other traces and JVM data.
-- [Thread dump merging mechanism](backend-profile.md) introduces the merging mechanism. This mechanism helps end users understand profile reports.
-- [Exporter tool of profile raw data](backend-profile-export.md) guides you on how to package the original profile data for issue reports when the visualization doesn't work well on the official UI.
-
 ## Release
 If you're a committer, read the [Apache Release Guide](How-to-release.md) to learn about how to create an official Apache version release in accordance with avoid Apache's rules. As long as you keep our LICENSE and NOTICE, the Apache license allows everyone to redistribute.

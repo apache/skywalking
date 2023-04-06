@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
 
 @Getter
 public class Alarms {
@@ -29,5 +30,9 @@ public class Alarms {
 
     public Alarms() {
         this.msgs = new ArrayList<>();
+    }
+
+    public Alarms(List<AlarmMessage> msgs) {
+        this.msgs = msgs;
     }
 }

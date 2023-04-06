@@ -21,12 +21,11 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskQueryService;
-import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
+import org.apache.skywalking.oap.server.core.query.input.SegmentProfileAnalyzeQuery;
 import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzation;
-import org.apache.skywalking.oap.server.core.query.type.ProfileAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
-import org.apache.skywalking.oap.server.core.query.type.ProfiledSegment;
+import org.apache.skywalking.oap.server.core.query.type.ProfiledTraceSegments;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.io.IOException;
@@ -61,16 +60,12 @@ public class ProfileQuery implements GraphQLQueryResolver {
         return getProfileTaskQueryService().getProfileTaskLogs(taskID);
     }
 
-    public List<BasicTrace> getProfileTaskSegmentList(final String taskID) throws IOException {
-        return getProfileTaskQueryService().getTaskTraces(taskID);
+    public List<ProfiledTraceSegments> getProfileTaskSegments(String taskId) throws IOException {
+        return getProfileTaskQueryService().getProfileTaskSegments(taskId);
     }
 
-    public ProfiledSegment getProfiledSegment(final String segmentId) throws IOException {
-        return getProfileTaskQueryService().getProfiledSegment(segmentId);
-    }
-
-    public ProfileAnalyzation getProfileAnalyze(final String segmentId, final List<ProfileAnalyzeTimeRange> timeRanges) throws IOException {
-        return getProfileTaskQueryService().getProfileAnalyze(segmentId, timeRanges);
+    public ProfileAnalyzation getSegmentsProfileAnalyze(final List<SegmentProfileAnalyzeQuery> queries) throws IOException {
+        return getProfileTaskQueryService().getProfileAnalyze(queries);
     }
 
 }

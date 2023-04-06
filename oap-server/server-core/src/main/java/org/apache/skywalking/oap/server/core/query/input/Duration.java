@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+
+import java.util.List;
 
 @Getter
 @Setter

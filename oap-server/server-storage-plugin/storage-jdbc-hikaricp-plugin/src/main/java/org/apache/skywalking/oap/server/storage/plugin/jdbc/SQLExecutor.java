@@ -18,11 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A SQL executor.
@@ -39,16 +40,17 @@ import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 @Slf4j
 public class SQLExecutor implements InsertRequest, UpdateRequest {
     private final String sql;
+    @Getter
     private final List<Object> param;
     private final SessionCacheCallback callback;
     @Getter
     private List<SQLExecutor> additionalSQLs;
 
     public void invoke(Connection connection) throws SQLException {
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        final var preparedStatement = connection.prepareStatement(sql);
         setParameters(preparedStatement);
         if (log.isDebugEnabled()) {
-            log.debug("execute sql in batch: {}, parameters: {}", sql, param);
+            log.debug("Executing sql in batch: {}, parameters: {}", sql, param);
         }
         preparedStatement.execute();
         if (additionalSQLs != null) {

@@ -17,48 +17,92 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLog;
 import org.apache.skywalking.oap.server.core.query.type.BrowserErrorLogs;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
-import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCHikariCPClient;
+import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.util.ArrayList;
+
+import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
-    private final JDBCHikariCPClient jdbcClient;
+    protected final JDBCClient jdbcClient;
+    protected final TableHelper tableHelper;
 
     @Override
+    @SneakyThrows
     public BrowserErrorLogs queryBrowserErrorLogs(String serviceId,
                                                   String serviceVersionId,
                                                   String pagePathId,
                                                   BrowserErrorCategory category,
                                                   Duration duration,
                                                   int limit,
-                                                  int from) throws IOException {
+                                                  int from) {
+        final var logs = new ArrayList<BrowserErrorLog>();
+        final var tables = tableHelper.getTablesForRead(
+            BrowserErrorLogRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
+        );
+
+        for (String table : tables) {
+            final var sqlAndParameters = buildSQL(
+                serviceId, serviceVersionId, pagePathId,
+                category, duration, limit, from, table);
+
+            jdbcClient.executeQuery(
+                sqlAndParameters.sql(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        String dataBinaryBase64 = resultSet.getString(BrowserErrorLogRecord.DATA_BINARY);
+                        if (nonNull(dataBinaryBase64)) {
+                            BrowserErrorLog log = parserDataBinary(dataBinaryBase64);
+                            logs.add(log);
+                        }
+                    }
+
+                    return null;
+                },
+                sqlAndParameters.parameters()
+            );
+        }
+
+        return new BrowserErrorLogs(
+            logs
+                .stream()
+                .sorted(comparing(BrowserErrorLog::getTime).reversed())
+                .skip(from)
+                .limit(limit)
+                .collect(toList())
+        );
+    }
+
+    protected SQLAndParameters buildSQL(
+        String serviceId, String serviceVersionId, String pagePathId,
+        BrowserErrorCategory category, Duration duration, int limit, int from,
+        String table) {
+        final var sql = new StringBuilder("select " + BrowserErrorLogRecord.DATA_BINARY);
+        final var parameters = new ArrayList<>(9);
+        sql.append(" from ").append(table)
+           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
+        parameters.add(BrowserErrorLogRecord.INDEX_NAME);
+
         long startSecondTB = 0, endSecondTB = 0;
         if (nonNull(duration)) {
             startSecondTB = duration.getStartTimeBucketInSec();
             endSecondTB = duration.getEndTimeBucketInSec();
         }
-        StringBuilder sql = new StringBuilder();
-
-        List<Object> parameters = new ArrayList<>(9);
-
-        sql.append("from ").append(BrowserErrorLogRecord.INDEX_NAME)
-           .append(" where ").append(" 1=1 ");
-
         if (startSecondTB != 0 && endSecondTB != 0) {
             sql.append(" and ").append(BrowserErrorLogRecord.TIME_BUCKET).append(" >= ?");
             parameters.add(startSecondTB);
@@ -84,32 +128,8 @@ public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
         }
 
         sql.append(" order by ").append(BrowserErrorLogRecord.TIMESTAMP).append(" DESC ");
+        sql.append(" limit ").append(from + limit);
 
-        BrowserErrorLogs logs = new BrowserErrorLogs();
-        try (Connection connection = jdbcClient.getConnection()) {
-
-            buildLimit(sql, from, limit);
-
-            try (ResultSet resultSet = jdbcClient.executeQuery(
-                connection, "select " + BrowserErrorLogRecord.DATA_BINARY + " " + sql.toString(),
-                parameters.toArray(new Object[0])
-            )) {
-                while (resultSet.next()) {
-                    String dataBinaryBase64 = resultSet.getString(BrowserErrorLogRecord.DATA_BINARY);
-                    if (nonNull(dataBinaryBase64)) {
-                        BrowserErrorLog log = parserDataBinary(dataBinaryBase64);
-                        logs.getLogs().add(log);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new IOException(e);
-        }
-        return logs;
-    }
-
-    protected void buildLimit(StringBuilder sql, int from, int limit) {
-        sql.append(" limit ").append(limit);
-        sql.append(" offset ").append(from);
+        return new SQLAndParameters(sql.toString(), parameters);
     }
 }
