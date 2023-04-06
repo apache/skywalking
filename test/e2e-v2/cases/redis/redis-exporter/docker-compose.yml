@@ -1,0 +1,93 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    networks:
+      - e2e
+  redis_1: &redis
+    image: redis:6.0
+    networks:
+      - e2e
+    volumes:
+       - ./redis.conf:/etc/redis/redis.conf 
+    ports:
+      - 6379
+    command:
+      redis-server /etc/redis/redis.conf 
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/6379"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  redis_2:
+    <<: *redis
+  redis_3:
+    <<: *redis
+
+  redis_mock:
+    <<: *redis
+    volumes:
+       - ./redis.conf:/etc/redis/redis.conf 
+       - ./mock.txt:/etc/redis/mock.txt
+    depends_on:
+       - otel-collector
+       - redis_1
+       - redis_exporter_1
+    entrypoint: bash
+    command:
+      - -c
+      - "cat /etc/redis/mock.txt | redis-cli -h redis_1 -p 6379 &&  redis-server /etc/redis/redis.conf "
+      
+  redis_exporter_1: &redis_exporter
+    image: oliver006/redis_exporter:v1.48.0-alpine
+    networks:
+      - e2e
+    ports:
+      - 9121
+    environment:
+      - REDIS_ADDR=redis_1:6379
+  redis_exporter_2: 
+    <<: *redis_exporter
+    ports:
+      - 9121
+    environment:
+      - REDIS_ADDR=redis_2:6379
+  redis_exporter_3: 
+    <<: *redis_exporter
+    environment:
+      - REDIS_ADDR=redis_3:6379
+  otel-collector:
+    image: otel/opentelemetry-collector:0.50.0
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

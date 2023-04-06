@@ -14,8 +14,7 @@ SkyWalking leverages postgres-exporter for collecting metrics data from PostgreS
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ### PostgreSQL Monitoring
-PostgreSQL monitoring provides monitoring of the status and resources of the PostgreSQL server.PostgreSQL server as a `Service` in OAP, and land on the `Layer: POSTGRESQL`.
-
+PostgreSQL cluster is cataloged as a `Layer: PostgreSQL` `Service` in OAP. Each PostgreSQL server is cataloged as an `Instance` in OAP.
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|

@@ -1,0 +1,8 @@
+set a b ex 5
+set c d
+get a
+set e f
+debug sleep 10
+get a
+get b
+get c

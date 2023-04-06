@@ -34,6 +34,7 @@ metricPrefix: meter_redis
 metricsRules:
   - name: instance_uptime
     exp: redis_uptime_in_seconds
+
   - name: instance_connected_clients
     exp: redis_connected_clients
   - name: instance_memory_max_bytes
