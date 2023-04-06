@@ -64,6 +64,7 @@ public class UITemplateInitializer {
         Layer.OS_WINDOWS.name(),
         Layer.AWS_S3.name(),
         Layer.AWS_DYNAMODB.name(),
+        Layer.REDIS.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

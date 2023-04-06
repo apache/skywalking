@@ -157,7 +157,13 @@ public enum Layer {
      * Amazon DynamoDB is a fully managed NoSQL database service that provides
      * fast and predictable performance with seamless scalability.
      */
-    AWS_DYNAMODB(25, true);
+    AWS_DYNAMODB(25, true),
+
+    /*
+     * Redis is an open source (BSD licensed), in-memory data structure store,
+     * used as a database, cache, and message broker.
+     */
+    REDIS(26, true);
 
     private final int value;
     /**
