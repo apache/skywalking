@@ -26,8 +26,8 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_memory_usage --service-name=redis::root[root] |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_memory_max_bytes --service-name=redis::root[root] |yq e 'to_entries' -
-    expected: expected/metrics-has-value.yml
+
+
 
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_hit_rate --service-name=redis::root[root] |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
@@ -40,27 +40,26 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_expired_keys_total --service-name=redis::root[root] |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
-    
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_uptime --service-name=redis::root[root] |yq e 'to_entries' -
+
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_uptime --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_connected_clients --service-name=redis::root[root] |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_connected_clients --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_memory_usage --service-name=redis::root[root] |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_memory_usage --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_memory_max_bytes --service-name=redis::root[root] |yq e 'to_entries' -
-    expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_total_commands_rate --service-name=redis::root[root] |yq e 'to_entries' -
-    expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_hit_rate --service-name=redis::root[root] |yq e 'to_entries' -
-    expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_net_input_bytes_total --service-name=redis::root[root] |yq e 'to_entries' -
-    expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_net_output_bytes_total --service-name=redis::root[root] |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_memory_max_bytes --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_db_keys --service-name=redis::root[root] |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_hit_rate --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_expired_keys_total --service-name=redis::root[root] |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_net_input_bytes_total --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_net_output_bytes_total --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_db_keys --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_expired_keys_total --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
 

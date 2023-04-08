@@ -24,7 +24,7 @@
           "x":0,
           "y":0,
           "w":6,
-          "h":12,
+          "h":6,
           "i":"0",
           "type":"Widget",
           "metricTypes":[
@@ -35,7 +35,7 @@
           ],
           "graph":{
             "type":"Card",
-            "fontSize":40,
+            "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
@@ -52,7 +52,7 @@
           "x":6,
           "y":0,
           "w":6,
-          "h":12,
+          "h":6,
           "i":"1",
           "type":"Widget",
           "metricTypes":[
@@ -63,7 +63,7 @@
           ],
           "graph":{
             "type":"Card",
-            "fontSize":40,
+            "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
@@ -72,8 +72,8 @@
           }
         },
         {
-          "x":6,
-          "y":23,
+          "x":0,
+          "y":6,
           "w":6,
           "h":12,
           "i":"2",
@@ -82,7 +82,7 @@
             "readMetricsValues"
           ],
           "metrics":[
-            "meter_redis_instance_memory_usage"
+            "meter_redis_memory_usage"
           ],
           "graph":{
             "type":"Area",
@@ -96,9 +96,9 @@
         },
         {
           "x":12,
-          "y":12,
+          "y":6,
           "w":6,
-          "h":11,
+          "h":12,
           "i":"3",
           "type":"Widget",
           "metricTypes":[
@@ -121,9 +121,9 @@
         },
         {
           "x":0,
-          "y":12,
+          "y":18,
           "w":6,
-          "h":11,
+          "h":12,
           "i":"4",
           "type":"Widget",
           "metricTypes":[
@@ -148,7 +148,7 @@
           "x":18,
           "y":0,
           "w":6,
-          "h":12,
+          "h":6,
           "i":"5",
           "type":"Widget",
           "metricTypes":[
@@ -159,7 +159,7 @@
           ],
           "graph":{
             "type":"Card",
-            "fontSize":40,
+            "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
@@ -173,8 +173,8 @@
           }
         },
         {
-          "x":0,
-          "y":23,
+          "x":6,
+          "y":18,
           "w":6,
           "h":12,
           "i":"6",
@@ -209,9 +209,9 @@
         },
         {
           "x":18,
-          "y":12,
+          "y":6,
           "w":6,
-          "h":11,
+          "h":12,
           "i":"7",
           "type":"Widget",
           "metricTypes":[
@@ -240,7 +240,7 @@
           "x":12,
           "y":0,
           "w":6,
-          "h":12,
+          "h":6,
           "i":"8",
           "type":"Widget",
           "metricTypes":[
@@ -251,7 +251,7 @@
           ],
           "graph":{
             "type":"Card",
-            "fontSize":40,
+            "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
@@ -261,7 +261,7 @@
         },
         {
           "x":12,
-          "y":23,
+          "y":18,
           "w":6,
           "h":12,
           "i":"9",
@@ -286,9 +286,9 @@
         },
         {
           "x":6,
-          "y":12,
+          "y":6,
           "w":6,
-          "h":11,
+          "h":12,
           "i":"10",
           "type":"Widget",
           "metricTypes":[

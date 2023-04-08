@@ -29,11 +29,11 @@ services:
     networks:
       - e2e
     volumes:
-       - ./redis.conf:/etc/redis/redis.conf 
+      - ./redis.conf:/etc/redis/redis.conf
     ports:
       - 6379
     command:
-      redis-server /etc/redis/redis.conf 
+      redis-server /etc/redis/redis.conf
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/6379"]
       interval: 5s
@@ -47,17 +47,17 @@ services:
   redis_mock:
     <<: *redis
     volumes:
-       - ./redis.conf:/etc/redis/redis.conf 
-       - ./mock.txt:/etc/redis/mock.txt
+      - ./redis.conf:/etc/redis/redis.conf
+      - ./mock.txt:/etc/redis/mock.txt
     depends_on:
-       - otel-collector
-       - redis_1
-       - redis_exporter_1
+      - otel-collector
+      - redis_1
+      - redis_exporter_1
     entrypoint: bash
     command:
       - -c
       - "cat /etc/redis/mock.txt | redis-cli -h redis_1 -p 6379 &&  redis-server /etc/redis/redis.conf "
-      
+
   redis_exporter_1: &redis_exporter
     image: oliver006/redis_exporter:v1.48.0-alpine
     networks:
@@ -66,13 +66,13 @@ services:
       - 9121
     environment:
       - REDIS_ADDR=redis_1:6379
-  redis_exporter_2: 
+  redis_exporter_2:
     <<: *redis_exporter
     ports:
       - 9121
     environment:
       - REDIS_ADDR=redis_2:6379
-  redis_exporter_3: 
+  redis_exporter_3:
     <<: *redis_exporter
     environment:
       - REDIS_ADDR=redis_3:6379

@@ -39,9 +39,7 @@ metricsRules:
   - name: blocked_clients
     exp: redis_blocked_clients.sum(['host_name'])
   - name: memory_usage
-    exp: redis_memory_used_bytes * 100 / redis_memory_max_bytes
-  - name: memory_max_bytes
-    exp: redis_memory_max_bytes
+    exp: redis_memory_used_bytes.sum(['host_name']) * 100 / redis_memory_max_bytes.sum(['host_name'])
   - name: total_commands_rate
     exp: redis_commands_total.sum(['cmd','host_name']).rate('PT1M')
   - name: hit_rate
