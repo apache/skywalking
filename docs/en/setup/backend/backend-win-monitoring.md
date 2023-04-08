@@ -6,7 +6,7 @@ Windows entity as a `Service` in OAP and on the `Layer: OS_WINDOWS`.
 ## Data flow
 **For OpenTelemetry receiver:**
 1. The Prometheus windows_exporter collects metrics data from the VMs.
-2. The OpenTelemetry Collector fetches metrics from windows_exporter via Prometheus Receiver and pushes metrics to the SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
+2. The OpenTelemetry Collector fetches metrics from windows_exporter via Prometheus Receiver and pushes metrics to the SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ## Setup

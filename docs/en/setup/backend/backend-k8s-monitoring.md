@@ -4,7 +4,7 @@ SkyWalking leverages K8s kube-state-metrics (KSM) and cAdvisor for collecting me
 
 ## Data flow
 1. K8s kube-state-metrics and cAdvisor collect metrics data from K8s.
-2. OpenTelemetry Collector fetches metrics from kube-state-metrics and cAdvisor via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
+2. OpenTelemetry Collector fetches metrics from kube-state-metrics and cAdvisor via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server access to K8s's `API Server` gets meta info and parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ## Setup
