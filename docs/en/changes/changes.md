@@ -30,6 +30,7 @@
 * Support Amazon API Gateway monitoring.
 * Bump up graphql-java to fix cve.
 * Bump up Kubernetes Java client.
+* Support Redis Monitoring.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

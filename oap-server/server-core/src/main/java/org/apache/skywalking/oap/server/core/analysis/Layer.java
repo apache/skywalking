@@ -164,7 +164,13 @@ public enum Layer {
      * Amazon API Gateway is an AWS service for creating, publishing, maintaining, monitoring, and securing REST, HTTP,
      * and WebSocket APIs at any scale.
      */
-    AWS_GATEWAY(26, true);
+    AWS_GATEWAY(26, true),
+
+    /*
+     * Redis is an open source (BSD licensed), in-memory data structure store,
+     * used as a database, cache, and message broker.
+     */
+    REDIS(27, true);
 
     private final int value;
     /**

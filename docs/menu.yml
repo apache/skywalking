@@ -223,6 +223,8 @@ catalog:
                 path: "/en/setup/backend/backend-postgresql-monitoring"
               - name: "AWS DynamoDB"
                 path: "/en/setup/backend/backend-aws-dynamodb-monitoring"
+              - name: "Redis"
+                path: "/en/setup/backend/backend-redis-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"
