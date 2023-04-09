@@ -1,0 +1,401 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "cloud.provider",
+            "value": {
+              "stringValue": "aws"
+            }
+          },
+          {
+            "key": "cloud.account.id",
+            "value": {
+              "stringValue": "008835616606"
+            }
+          },
+          {
+            "key": "cloud.region",
+            "value": {
+              "stringValue": "ap-northeast-1"
+            }
+          },
+          {
+            "key": "aws.exporter.arn",
+            "value": {
+              "stringValue": "arn:aws:cloudwatch:ap-northeast-1:008835616606:metric-stream/CustomPartial"
+            }
+          }
+        ]
+      },
+      "instrumentationLibraryMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/Latency",
+              "unit": "ms",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "Latency"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      },
+                      {
+                        "key": "Method",
+                        "value": "ANY"
+                      },
+                      {
+                        "key": "Resource",
+                        "value": "/graphql"
+                      },
+                      {
+                        "key": "Stage",
+                        "value": "$default"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 376.0,
+                    "quantileValues": [
+                      {
+                        "value": 11.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 104.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/4xx",
+              "unit": "1",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "4xx"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 5.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/4xx",
+              "unit": "1",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "4xx"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      },
+                      {
+                        "key": "Stage",
+                        "value": "$default"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 5.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/Latency",
+              "unit": "ms",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "Latency"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 376.0,
+                    "quantileValues": [
+                      {
+                        "value": 11.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 104.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/Count",
+              "unit": "1",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "Count"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      },
+                      {
+                        "key": "Stage",
+                        "value": "$default"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 5.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/IntegrationLatency",
+              "unit": "ms",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "IntegrationLatency"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 32.0,
+                    "quantileValues": [
+                      {
+                        "value": 3.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 8.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/DataProcessed",
+              "unit": "By",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "DataProcessed"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 2775.0,
+                    "quantileValues": [
+                      {
+                        "value": 555.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 555.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/4xx",
+              "unit": "1",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "4xx"
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": "6m85d5acx7"
+                      },
+                      {
+                        "key": "Method",
+                        "value": "ANY"
+                      },
+                      {
+                        "key": "Resource",
+                        "value": "/graphql"
+                      },
+                      {
+                        "key": "Stage",
+                        "value": "$default"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 5.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/ApiGateway/Count",
+              "unit": "1",
+              "doubleSummary": {
+                "dataPoints": [
+                  {
+                    "labels": [
+                      {
+                        "key": "Namespace",
+                        "value": "AWS/ApiGateway"
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": "Count"
+                      }
+                    ],
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 5.0,
+                    "quantileValues": [
+                      {
+                        "value": 1.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 1.0
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

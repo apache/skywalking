@@ -6,7 +6,7 @@ it also provides a dashboard to visualize the self-observability metrics.
 ## Data flow
 1. SkyWalking OAP collects metrics data internally and exposes a Prometheus http endpoint to retrieve the metrics.
 2. SkyWalking OAP itself (or OpenTelemetry Collector, prefered in Kubernetes scenarios) fetches metrics from the Prometheus endpoint in step (1).
-3. OAP (or OpenTelemetry Collector) pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
+3. OAP (or OpenTelemetry Collector) pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 4. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ## Set up

@@ -96,7 +96,7 @@ Set this up following these steps:
     regex: (.+)
     replacement: $$1
 ```
-For the full example for OpenTelemetry Collector configuration and recommended version, you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/feature-so11y).
+For the full example for OpenTelemetry Collector configuration and recommended version, you can refer to [showcase](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/kubernetes/templates/feature-so11y).
 
 
 

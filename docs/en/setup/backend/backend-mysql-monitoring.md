@@ -5,7 +5,7 @@ SkyWalking leverages prometheus/mysqld_exporter for collecting metrics data. It 
 
 ### Data flow
 1. mysqld_exporter collect metrics data from MySQL/MariaDB.
-2. OpenTelemetry Collector fetches metrics from mysqld_exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
+2. OpenTelemetry Collector fetches metrics from mysqld_exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ### Set up

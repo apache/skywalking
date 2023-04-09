@@ -492,7 +492,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 } else if (recordName.isPresent()) {
                     metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.SERVICE_INSTANCE);
+                    checkLabels(labelMap, LabelName.SERVICE, LabelName.SERVICE_INSTANCE);
+                    metricInfo.getLabels()
+                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
                     metricInfo.getLabels()
                               .add(new LabelValuePair(
                                   LabelName.SERVICE_INSTANCE,
@@ -507,7 +509,9 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
                 } else if (recordName.isPresent()) {
                     metricInfo.getLabels().add(new LabelValuePair(LabelName.RECORD, recordName.get()));
                 } else {
-                    checkLabels(labelMap, LabelName.ENDPOINT);
+                    checkLabels(labelMap, LabelName.SERVICE, LabelName.ENDPOINT);
+                    metricInfo.getLabels()
+                              .add(new LabelValuePair(LabelName.SERVICE, labelMap.get(LabelName.SERVICE)));
                     metricInfo.getLabels()
                               .add(new LabelValuePair(LabelName.ENDPOINT, labelMap.get(LabelName.ENDPOINT)));
                 }

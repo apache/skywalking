@@ -70,6 +70,12 @@ metricsRules:
   - name: deployment_spec_replicas
     exp: kube_deployment_spec_replicas.sum(['cluster' , 'deployment' , 'namespace'])
 
+  - name: statefulset_total
+    exp: kube_statefulset_labels.sum(['cluster'])
+
+  - name: daemonset_total
+    exp: kube_daemonset_labels.sum(['cluster'])
+
   - name: service_total
     exp: kube_service_info.sum(['cluster'])
   - name: service_pod_status

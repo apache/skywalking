@@ -225,6 +225,7 @@ Down sampling function is called `downsampling` in MAL, and it accepts the follo
  - AVG
  - SUM
  - LATEST
+ - SUM_PER_MIN
  - MIN (TODO)
  - MAX (TODO)
  - MEAN (TODO)

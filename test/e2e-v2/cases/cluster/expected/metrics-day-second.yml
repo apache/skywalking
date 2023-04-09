@@ -13,6 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 - key: 2022-01-26
-  value: 400
+  value:
+    value: 400
+    isemptyvalue: false
 - key: 2022-01-27
-  value: 0
+  value:
+    value: 0
+    isemptyvalue: true

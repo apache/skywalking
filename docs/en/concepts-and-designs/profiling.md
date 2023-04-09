@@ -8,10 +8,11 @@ These typical scenarios usually are suitable for profiling through various profi
 3. Massive RPC requests block the network to cause responding slowly.
 4. Unexpected network requests caused by security issues or codes' bug.
 
-In the SkyWalking landscape, we provided two ways to support profiling within reasonable resource cost.
+In the SkyWalking landscape, we provided three ways to support profiling within reasonable resource cost.
 
 1. In-process profiling is bundled with auto-instrument agents.
 2. Out-of-process profiling is powered by eBPF agent.
+3. Continuous profiling is powered by eBPF agent.
 
 ## In-process profiling
 
@@ -80,3 +81,24 @@ Network profiling provides
 
 Learn more tech details from the post, [**Diagnose Service Mesh Network Performance with
 eBPF**](../academy/diagnose-service-mesh-network-performance-with-ebpf.md)
+
+## Continuous Profiling
+
+Continuous Profiling utilizes monitoring of system, processes, and network, 
+and automatically initiates profiling tasks when conditions meet the configured thresholds and time windows.
+
+### Monitor type
+
+Continuous profiling periodically collects the following types of performance metrics for processes and systems:
+1. System Load: Monitor current system load value.
+2. Process CPU: Monitor process CPU usage percent, value in [0-100].
+3. Process Thread Count: Monitor process thread count.
+4. HTTP Error Rate: Monitor the process HTTP(/1.x) response error(response status >= 500) percent, value in [0-100].
+5. HTTP Avg Response Time: Monitor the process HTTP(/1.x) response duration(ms).
+
+### Trigger Target
+
+When the collected metric data matches the configured threshold, the following types of profiling tasks could be triggered:
+1. On CPU Profiling: Perform eBPF On CPU Profiling on processes that meet the threshold.
+2. Off CPU Profiling: Perform eBPF Off CPU Profiling on processes that meet the threshold.
+3. Network Profiling: Perform eBPF Network Profiling on all processes within the same instance as the processes that meet the threshold.
