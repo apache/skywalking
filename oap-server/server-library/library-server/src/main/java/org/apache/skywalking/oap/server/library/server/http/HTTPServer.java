@@ -95,6 +95,10 @@ public class HTTPServer implements Server {
             sb.maxNumConnections(config.getAcceptQueueSize());
         }
 
+        if (config.isAcceptProxyRequest()) {
+            sb.absoluteUriTransformer(this::transformAbsoluteURI);
+        }
+
         log.info("Server root context path: {}", contextPath);
     }
 
@@ -118,5 +122,15 @@ public class HTTPServer implements Server {
     @Override
     public void start() {
         sb.build().start().join();
+    }
+
+    private String transformAbsoluteURI(final String uri) {
+        if (uri.startsWith("https://")) {
+            return uri.substring(uri.indexOf("/", 9));
+        }
+        if (uri.startsWith("http://")) {
+            return uri.substring(uri.indexOf("/", 8));
+        }
+        return uri;
     }
 }

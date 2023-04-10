@@ -30,4 +30,8 @@ public class AWSFirehoseReceiverModuleConfig extends ModuleConfig {
     private int acceptQueueSize = 0;
     private int maxRequestHeaderSize = 8192;
     private String firehoseAccessKey;
+    private boolean enableTLS = false;
+    private String tlsKeyPath;
+    private String tlsCertChainPath;
+    private boolean acceptProxyRequest = false;
 }
