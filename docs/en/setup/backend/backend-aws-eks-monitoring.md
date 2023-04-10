@@ -10,6 +10,8 @@ SkyWalking leverages OpenTelemetry Collector with [AWS Container Insights Receiv
 1. Deploy [amazon/aws-otel-collector](https://hub.docker.com/r/amazon/aws-otel-collector) with [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) to EKS
 2. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
+Read [Monitoring AWS EKS and S3 with SkyWalking](https://skywalking.apache.org/blog/2023-03-12-skywalking-aws-s3-eks/) for more details
+
 ### EKS Monitoring
 [AWS Container Insights Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/awscontainerinsightreceiver/README.md) provides multiple dimensions metrics for EKS  cluster, node, service, etc.
 Accordingly, SkyWalking observes the status, and payload of the EKS cluster, which is cataloged as a `LAYER: AWS_EKS` `Service` in the OAP. Meanwhile, the k8s nodes would be recognized as `LAYER: AWS_EKS` `instance`s. The k8s service would be recognized as `endpoint`s.
