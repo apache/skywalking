@@ -11,6 +11,8 @@ SkyWalking leverages Amazon Kinesis Data Filehose with [Amazon CloudWatch](https
 2. Config [aws-firehose-receiver](aws-firehose-receiver.md) to receive data.
 3. Create CloudWatch metric stream, and select the Firehose Delivery Stream which has been created above, set `Select namespaces` to `AWS/DynamoDB`, `Select output format` to `OpenTelemetry 0.7`. refer to [CloudWatch Metric Streams](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Metric-Streams.html)
 
+Read [Monitoring DynamoDB with SkyWalking](https://skywalking.apache.org/blog/2023-03-13-skywalking-aws-dynamodb/) for more details
+
 ### DynamoDB Monitoring
 DynamoDB monitoring provides monitoring of the status and resources of the DynamoDB server. AWS user id is cataloged as a `Layer: AWS_DYNAMODB` `Service` in OAP.
 Each DynamoDB table is cataloged as an `Endpoint` in OAP.

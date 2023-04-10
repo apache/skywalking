@@ -14,6 +14,11 @@ Usually, the [AWS CloudWatch metrics](https://docs.aws.amazon.com/AmazonCloudWat
 CloudWatch metrics with S3 -->  CloudWatch Metric Stream (OpenTelemetry formart) --> Kinesis Data Firehose Delivery Stream --> AWS Firehose receiver(OAP) --> OpenTelemetry receiver(OAP)
 ```
 
+The following blogs demonstrate complete setup process for AWS S3 and API Gateway:
+
+* [Monitoring DynamoDB with SkyWalking](https://skywalking.apache.org/blog/2023-03-13-skywalking-aws-dynamodb/) 
+* [Monitoring AWS EKS and S3 with SkyWalking](https://skywalking.apache.org/blog/2023-03-12-skywalking-aws-s3-eks/)
+
 ## Supported metrics
 
 | Description                             | Configuration File                  | Data Source                                                                                                                                       |
@@ -21,6 +26,8 @@ CloudWatch metrics with S3 -->  CloudWatch Metric Stream (OpenTelemetry formart)
 | Metrics of AWS Cloud S3                 | otel-rules/aws-s3/s3-service.yaml   | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
 | Metrics of AWS DynamoDB | otel-rules/aws-dynamodb/dynamodb-service.yaml  | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
 | Metrics of AWS DynamoDB | otel-rules/aws-dynamodb/dynamodb-endpoint.yaml | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
+| Metrics of AWS API Gateway | otel-rules/aws-gateway/gateway-service.yaml | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
+| Metrics of AWS API Gateway | otel-rules/aws-gateway/gateway-endpoint.yaml | AWS CloudWatcher Metrics Stream -> AWS Firehose delivery stream -> SkyWalking OAP Server with [AWS Firehose receiver](./aws-firehose-receiver.md) |
 
 ## Notice
 
