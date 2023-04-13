@@ -44,6 +44,9 @@
 * Add AWS API Gateway menu.
 * Change trace profiling protocol.
 * Add Redis menu.
+* Optimize data types.
+* Support isEmptyValue flag for metrics query.
+* Add elasticsearch menu.
 
 #### Documentation
 
