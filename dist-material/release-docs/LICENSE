@@ -235,10 +235,10 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.google.inject/guice/4.1.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.j2objc/j2objc-annotations/1.3 Apache-2.0
     https://mvnrepository.com/artifact/com.graphql-java/java-dataloader/3.2.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria/1.21.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql/1.21.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.21.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.21.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria/1.23.1 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql/1.23.1 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.23.1 Apache-2.0
+    https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.23.1 Apache-2.0
     https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.5.3 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/logging-interceptor/4.10.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/4.9.0 Apache-2.0
