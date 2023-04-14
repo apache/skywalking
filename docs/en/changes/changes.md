@@ -31,6 +31,7 @@
 * Bump up graphql-java to fix cve.
 * Bump up Kubernetes Java client.
 * Support Redis Monitoring.
+* Add component ID for amqp, amqp-producer and amqp-consumer.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
