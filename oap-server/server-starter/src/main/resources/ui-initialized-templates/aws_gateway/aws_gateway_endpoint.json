@@ -34,7 +34,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -59,7 +59,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -84,7 +84,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -109,7 +109,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -134,7 +134,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -159,7 +159,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -190,7 +190,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -215,7 +215,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
