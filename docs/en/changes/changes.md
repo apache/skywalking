@@ -31,6 +31,7 @@
 * Bump up graphql-java to fix cve.
 * Bump up Kubernetes Java client.
 * Support Redis Monitoring.
+* Support Elasticsearch Monitoring.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

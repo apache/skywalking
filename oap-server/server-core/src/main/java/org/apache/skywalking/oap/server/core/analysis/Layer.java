@@ -170,7 +170,13 @@ public enum Layer {
      * Redis is an open source (BSD licensed), in-memory data structure store,
      * used as a database, cache, and message broker.
      */
-    REDIS(27, true);
+    REDIS(27, true),
+
+    /*
+     * Elasticsearch is a distributed, open source search and analytics engine for all types of data,
+     * including textual, numerical, geospatial, structured, and unstructured.
+     */
+    ELASTICSEARCH(28, true);
 
     private final int value;
     /**
