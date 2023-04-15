@@ -126,10 +126,10 @@ public class HTTPServer implements Server {
 
     private String transformAbsoluteURI(final String uri) {
         if (uri.startsWith("https://")) {
-            return uri.substring(uri.indexOf("/", 9));
+            return uri.substring(uri.indexOf("/", 8));
         }
         if (uri.startsWith("http://")) {
-            return uri.substring(uri.indexOf("/", 8));
+            return uri.substring(uri.indexOf("/", 7));
         }
         return uri;
     }
