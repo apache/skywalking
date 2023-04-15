@@ -33,5 +33,4 @@ public class AWSFirehoseReceiverModuleConfig extends ModuleConfig {
     private boolean enableTLS = false;
     private String tlsKeyPath;
     private String tlsCertChainPath;
-    private boolean acceptProxyRequest = false;
 }
