@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -80,7 +79,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         final List<SelectedRecord> topNList = new ArrayList<>();
         for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
             SelectedRecord record = new SelectedRecord();
-            record.setId(item.getGroupByTagValues().get(0)); // 0 -> ENTITY_ID
+            record.setId((String) item.getTagValuesMap().get(Metrics.ENTITY_ID).getValue());
             record.setValue(extractFieldValueAsString(spec, item.getValue()));
             topNList.add(record);
         }
@@ -88,11 +87,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         return topNList;
     }
 
-    private static String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
-        return extractFieldValueAsString(spec, dataPoint.getFieldValue(fieldName));
-    }
-
-    private static String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, Object fieldValue) throws IOException {
+    private static String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, Object fieldValue) {
         if (double.class.equals(spec.getColumnClass())) {
             return String.valueOf(ByteUtil.bytes2Double((byte[]) fieldValue).longValue());
         } else if (String.class.equals(spec.getColumnClass())) {

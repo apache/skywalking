@@ -50,7 +50,7 @@ public class ServiceInstanceJVMMemory extends Source {
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByColumnInTopN = true)
     private String serviceId;
     @Getter
     @Setter

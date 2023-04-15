@@ -44,7 +44,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import java.util.Objects;
 
 @MeterFunction(functionName = "avg")
-@BanyanDB.TopNAggregation(groupByTagNames = {Metrics.ENTITY_ID, InstanceTraffic.SERVICE_ID})
 @ToString
 public abstract class AvgFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
     protected static final String SUMMATION = "summation";
@@ -63,6 +62,7 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @Setter
     @Getter
     @Column(name = InstanceTraffic.SERVICE_ID)
+    @BanyanDB.TopNAggregation
     private String serviceId;
 
     @Getter

@@ -47,7 +47,7 @@ public class TCPServiceInstance extends Source {
     }
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByColumnInTopN = true)
     private String serviceId;
     @Getter
     @Setter

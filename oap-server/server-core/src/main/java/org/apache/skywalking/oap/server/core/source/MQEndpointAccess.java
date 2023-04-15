@@ -43,7 +43,7 @@ public class MQEndpointAccess extends Source {
     private String entityId;
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByColumnInTopN = true)
     private String serviceId;
 
     @Getter

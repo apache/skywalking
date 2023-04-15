@@ -50,7 +50,7 @@ public class EnvoyInstanceMetric extends Source {
     private String id;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByColumnInTopN = true)
     private String serviceId;
     @Getter
     @Setter

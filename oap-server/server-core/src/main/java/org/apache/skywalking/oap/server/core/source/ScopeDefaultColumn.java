@@ -36,13 +36,15 @@ public class ScopeDefaultColumn {
     private Class<?> type;
     private boolean isID;
     private int length;
+    private final boolean groupByColInTopN;
 
-    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length) {
+    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean groupByColInTopN) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.isID = isID;
         this.length = length;
+        this.groupByColInTopN = groupByColInTopN;
     }
 
     @Target({ElementType.FIELD})
@@ -54,7 +56,7 @@ public class ScopeDefaultColumn {
          * Dynamic active means this column is only activated through core setting explicitly.
          *
          * @return FALSE: this column is not going to be added to the final generated metric as a column.
-         *         TRUE: this column could be added as a column if core/activeExtraModelColumns == true.
+         * TRUE: this column could be added as a column if core/activeExtraModelColumns == true.
          */
         boolean requireDynamicActive() default false;
 
@@ -62,6 +64,13 @@ public class ScopeDefaultColumn {
          * Define column length, only effective when the type is String.
          */
         int length() default 256;
+
+        /**
+         * Indicate whether this column is a condition for groupBy in the TopN Aggregation.
+         *
+         * @since 9.5.0
+         */
+        boolean groupByColumnInTopN() default false;
     }
 
     @Target({ElementType.TYPE})
@@ -76,7 +85,7 @@ public class ScopeDefaultColumn {
         /**
          * Declare this virtual column is representing an entity ID of this source and generated metrics.
          * Typically, metric ID = timestamp + entity ID
-         *
+         * <p>
          * This takes {@link ISource#getEntityId()}'s return as the value.
          *
          * @return TRUE if this is an ID column.

@@ -44,7 +44,6 @@ import java.util.Objects;
 
 @ToString
 @MeterFunction(functionName = "sum")
-@BanyanDB.TopNAggregation(groupByTagNames = {Metrics.ENTITY_ID, InstanceTraffic.SERVICE_ID})
 public abstract class SumFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
     protected static final String VALUE = "value";
 
@@ -57,6 +56,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     @Setter
     @Getter
     @Column(name = InstanceTraffic.SERVICE_ID)
+    @BanyanDB.TopNAggregation
     private String serviceId;
 
     @Getter

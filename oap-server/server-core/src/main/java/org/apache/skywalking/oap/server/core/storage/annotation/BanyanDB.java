@@ -170,18 +170,17 @@ public @interface BanyanDB {
     }
 
     /**
-     * TopNAggregation contains parameters for TopNAggregation
+     * Generate a TopN Aggregation and use the annotated column as a groupBy tag.
+     * It also contains parameters for TopNAggregation
      *
      * @since 9.4.0
      */
-    @Target({ElementType.TYPE})
+    @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @interface TopNAggregation {
         int lruSize() default 2;
 
         int countersNumber() default 1000;
-
-        String[] groupByTagNames();
     }
 }
