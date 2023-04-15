@@ -31,6 +31,9 @@
 * Bump up graphql-java to fix cve.
 * Bump up Kubernetes Java client.
 * Support Redis Monitoring.
+* Add component ID for amqp, amqp-producer and amqp-consumer.
+* Support no-proxy mode for aws-firehose receiver
+* Bump up armeria to 1.23.1
 * Support Elasticsearch Monitoring.
 
 #### UI

@@ -106,7 +106,7 @@ dependency:
       version: 2.13.4
       license: Apache-2.0
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
-      version: 2.14.1
+      version: 2.14.2
       license: Apache-2.0
     - name: com.graphql-java:graphql-java-extended-scalars
       version: 18.1
@@ -129,3 +129,7 @@ dependency:
     - name: build.buf.protoc-gen-validate:protoc-gen-validate
       version: 0.6.13
       license: Apache-2.0
+    - name: com.aayushatharva.brotli4j:service
+      version: 1.11.0
+      license: Apache-2.0
+

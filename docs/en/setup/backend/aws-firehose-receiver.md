@@ -32,5 +32,7 @@ The following blogs demonstrate complete setup process for AWS S3 and API Gatewa
 ## Notice
 
 1. Only OpenTelemetry format is supported (refer to [Metric streams output formats](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats.html))
-2. A proxy(e.g. Nginx, Envoy) is required in front of OAP's Firehose receiver to accept HTTPS requests from AWS Firehose through port `443` (refer to [Amazon Kinesis Data Firehose Delivery Stream HTTP Endpoint Delivery Specifications](https://docs.aws.amazon.com/firehose/latest/dev/httpdeliveryrequestresponse.html).
+2. According to HTTPS requirement by AWS Firehose(refer to [Amazon Kinesis Data Firehose Delivery Stream HTTP Endpoint Delivery Specifications](https://docs.aws.amazon.com/firehose/latest/dev/httpdeliveryrequestresponse.html), users have two options
+  - A proxy(e.g. Nginx, Envoy) is required in front of OAP's Firehose receiver to accept HTTPS requests from AWS Firehose through port `443`. (Recommended based on the general security policy)
+  - Set `aws-firehose/enableTLS=true` with suitable cert/key files through `aws-firehose/tlsKeyPath` and `aws-firehose/tlsCertChainPath` at OAP side to accept requests from firehose directly.
 3. AWS Firehose receiver support setting accessKey for Kinesis Data Firehose, please refer to [configuration vocabulary](./configuration-vocabulary.md)
