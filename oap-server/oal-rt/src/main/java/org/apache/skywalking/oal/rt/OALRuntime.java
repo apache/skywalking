@@ -277,7 +277,7 @@ public class OALRuntime implements OALEngine {
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 
-                if (field.isGroupByColInTopN()) {
+                if (field.isGroupByCondInTopN()) {
                     Annotation banyanTopNAggregationAnnotation = new Annotation(BanyanDB.TopNAggregation.class.getName(), constPool);
                     annotationsAttribute.addAnnotation(banyanTopNAggregationAnnotation);
                 }
@@ -320,7 +320,6 @@ public class OALRuntime implements OALEngine {
         streamAnnotation.addMemberValue("processor", new ClassMemberValue(METRICS_STREAM_PROCESSOR, constPool));
 
         annotationsAttribute.addAnnotation(streamAnnotation);
-
         metricsClassClassFile.addAttribute(annotationsAttribute);
 
         Class targetClass;

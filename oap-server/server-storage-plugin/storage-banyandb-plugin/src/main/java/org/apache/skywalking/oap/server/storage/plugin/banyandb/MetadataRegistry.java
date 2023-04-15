@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import io.grpc.Status;
 
@@ -64,7 +63,6 @@ import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
 import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -84,7 +82,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 public enum MetadataRegistry {
     INSTANCE;
 
-    private static final Set<String> VALID_GROUP_BY_TAGS = ImmutableSet.of(Metrics.ENTITY_ID, InstanceTraffic.SERVICE_ID);
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final Map<String, Schema> registry = new HashMap<>();
 
@@ -183,18 +180,17 @@ public enum MetadataRegistry {
 
     private TopNSpec parseTopNSpec(final Model model, final String measureName)
             throws StorageException {
+        if (model.getBanyanDBModelExtension().getTopN() == null) {
+            return null;
+        }
+
         final Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(model.getName());
         if (valueColumnOpt.isEmpty() || valueColumnOpt.get().getDataType() != Column.ValueDataType.COMMON_VALUE) {
             // skip non-single valued metrics
             return null;
         }
 
-        if (model.getBanyanDBModelExtension().getTopN() == null) {
-            throw new StorageException("Metrics[" + measureName + "] should be annotated with @TopNAggregation");
-        }
-
-        if (CollectionUtils.isEmpty(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames()) ||
-                !VALID_GROUP_BY_TAGS.containsAll(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())) {
+        if (CollectionUtils.isEmpty(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())) {
             throw new StorageException("invalid groupBy tags: " + model.getBanyanDBModelExtension().getTopN().getGroupByTagNames());
         }
         return TopNSpec.builder()

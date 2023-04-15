@@ -36,15 +36,15 @@ public class ScopeDefaultColumn {
     private Class<?> type;
     private boolean isID;
     private int length;
-    private final boolean groupByColInTopN;
+    private final boolean groupByCondInTopN;
 
-    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean groupByColInTopN) {
+    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean groupByCondInTopN) {
         this.fieldName = fieldName;
         this.columnName = columnName;
         this.type = type;
         this.isID = isID;
         this.length = length;
-        this.groupByColInTopN = groupByColInTopN;
+        this.groupByCondInTopN = groupByCondInTopN;
     }
 
     @Target({ElementType.FIELD})
@@ -70,7 +70,7 @@ public class ScopeDefaultColumn {
          *
          * @since 9.5.0
          */
-        boolean groupByColumnInTopN() default false;
+        boolean groupByCondInTopN() default false;
     }
 
     @Target({ElementType.TYPE})

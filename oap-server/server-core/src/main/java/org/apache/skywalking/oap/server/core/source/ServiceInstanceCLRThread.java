@@ -53,7 +53,7 @@ public class ServiceInstanceCLRThread extends Source {
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByColumnInTopN = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
     private String serviceId;
     @Getter
     @Setter

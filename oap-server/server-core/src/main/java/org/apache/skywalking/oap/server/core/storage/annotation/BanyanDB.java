@@ -34,12 +34,12 @@ import org.apache.skywalking.oap.server.core.analysis.record.Record;
 public @interface BanyanDB {
     /**
      * GlobalIndex declares advanced global index, which are only available in BanyanDB.
-     * <p>
+     *
      * Global index should only be considered if a column value has a huge value candidates, but we will need a direct
      * equal
      * query without timestamp.
      * The typical global index is designed for huge candidate of indexed values, such as `trace ID` or `segment ID`.
-     * <p>
+     *
      * Only work with {@link Column}
      */
     @Target({ElementType.FIELD})
@@ -49,22 +49,22 @@ public @interface BanyanDB {
 
     /**
      * Series key is used to group time series data per metric of one entity in one place.
-     * <p>
+     *
      * For example,
      * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
      * by service ID
      * [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
-     * <p>
+     *
      * BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored
      * closely and compressed better.
-     * <p>
+     *
      * 1. One entity could have multiple sharding keys
      * 2. If no column is appointed for this, {@link org.apache.skywalking.oap.server.core.storage.StorageData#id}
      * would be used by the storage implementation accordingly.
-     * <p>
+     *
      * NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical
      * files.
-     * <p>
+     *
      * Only work with {@link Column}
      *
      * @since 9.3.0 Rename as SeriesID.
@@ -76,11 +76,11 @@ public @interface BanyanDB {
     @interface SeriesID {
         /**
          * Relative entity tag
-         * <p>
+         *
          * The index number determines the order of the column placed in the SeriesID.
          * BanyanDB SeriesID searching procedure uses a prefix-scanning strategy.
          * Searching series against a prefix could improve the performance.
-         * <p>
+         *
          * For example, the ServiceTraffic composite "layer" and "name" as the SeriesID,
          * considering OAP finds services by "layer", the "layer" 's index should be 0 to
          * trigger a prefix-scanning.
@@ -144,13 +144,13 @@ public @interface BanyanDB {
 
     /**
      * MeasureField defines a column as a measure's field.
-     * <p>
+     *
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
-     * storageOnly=true: the column is a measure tag that is not indexed.
-     * storageOnly=false: the column is a measure tag that is indexed.
-     * indexOnly=true: the column is a measure tag that is indexed, but not stored.
-     * indexOnly=false: the column is a measure tag that is indexed and stored.
+     *   storageOnly=true: the column is a measure tag that is not indexed.
+     *   storageOnly=false: the column is a measure tag that is indexed.
+     *   indexOnly=true: the column is a measure tag that is indexed, but not stored.
+     *   indexOnly=false: the column is a measure tag that is indexed and stored.
      *
      * @since 9.4.0
      */
@@ -162,7 +162,7 @@ public @interface BanyanDB {
     /**
      * StoreIDTag indicates a metric store its ID as a tag for searching.
      *
-     * @Since 9.4.0
+     * @since 9.4.0
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

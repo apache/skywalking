@@ -217,7 +217,7 @@ public class DefaultScopeDefine {
                         scopeDefaultColumns.add(
                             new ScopeDefaultColumn(
                                 field.getName(), definedByField.columnName(), field.getType(), false,
-                                definedByField.length(), definedByField.groupByColumnInTopN()
+                                definedByField.length(), definedByField.groupByCondInTopN()
                             ));
                     }
                 }
