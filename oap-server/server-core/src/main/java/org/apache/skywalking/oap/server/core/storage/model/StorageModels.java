@@ -65,18 +65,18 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         retrieval(aClass, storage.getModelName(), modelColumns, scopeId, checker, sqlDBModelExtension, banyanDBModelExtension);
         // Add extra column for additional entities
         if (aClass.isAnnotationPresent(SQLDatabase.ExtraColumn4AdditionalEntity.class)
-                || aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
+            || aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
             Map<String/*parent column*/, List<String>/*tables*/> extraColumns = new HashMap<>();
             if (aClass.isAnnotationPresent(SQLDatabase.MultipleExtraColumn4AdditionalEntity.class)) {
                 for (SQLDatabase.ExtraColumn4AdditionalEntity extraColumn : aClass.getAnnotation(
-                        SQLDatabase.MultipleExtraColumn4AdditionalEntity.class).value()) {
+                    SQLDatabase.MultipleExtraColumn4AdditionalEntity.class).value()) {
                     List<String> tables = extraColumns.computeIfAbsent(
                             extraColumn.parentColumn(), v -> new ArrayList<>());
                     tables.add(extraColumn.additionalTable());
                 }
             } else {
                 SQLDatabase.ExtraColumn4AdditionalEntity extraColumn = aClass.getAnnotation(
-                        SQLDatabase.ExtraColumn4AdditionalEntity.class);
+                    SQLDatabase.ExtraColumn4AdditionalEntity.class);
                 List<String> tables = extraColumns.computeIfAbsent(extraColumn.parentColumn(), v -> new ArrayList<>());
                 tables.add(extraColumn.additionalTable());
             }
@@ -84,8 +84,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             extraColumns.forEach((extraColumn, tables) -> {
                 if (!addExtraColumn4AdditionalEntity(sqlDBModelExtension, modelColumns, extraColumn, tables)) {
                     throw new IllegalStateException(
-                            "Model [" + storage.getModelName() + "] defined an extra column  [" + extraColumn + "]  by @SQLDatabase.ExtraColumn4AdditionalEntity, " +
-                                    "but couldn't be found from the parent.");
+                        "Model [" + storage.getModelName() + "] defined an extra column  [" + extraColumn + "]  by @SQLDatabase.ExtraColumn4AdditionalEntity, " +
+                            "but couldn't be found from the parent.");
                 }
             });
         }
@@ -163,7 +163,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 if (field.isAnnotationPresent(SQLDatabase.AdditionalEntity.class)) {
                     if (!Record.class.isAssignableFrom(clazz)) {
                         throw new IllegalStateException(
-                                "Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
+                            "Model [" + modelName + "] is not a Record, @SQLDatabase.AdditionalEntity only supports Record.");
                     }
                 }
 
@@ -186,43 +186,43 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
                 indexDefinitions.forEach(indexDefinition -> {
                     sqlDatabaseExtension.appendIndex(new SQLDatabaseExtension.MultiColumnsIndex(
-                            column.name(),
-                            indexDefinition.withColumns()
+                        column.name(),
+                        indexDefinition.withColumns()
                     ));
                 });
 
                 // ElasticSearch extension
                 final ElasticSearch.MatchQuery elasticSearchAnalyzer = field.getAnnotation(
-                        ElasticSearch.MatchQuery.class);
+                    ElasticSearch.MatchQuery.class);
                 final ElasticSearch.Column elasticSearchColumn = field.getAnnotation(ElasticSearch.Column.class);
                 final ElasticSearch.Keyword keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
                 final ElasticSearch.Routing routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 ElasticSearchExtension elasticSearchExtension = new ElasticSearchExtension(
-                        elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
-                        elasticSearchColumn == null ? null : elasticSearchColumn.legacyName(),
-                        keywordColumn != null,
-                        routingColumn != null
+                    elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
+                    elasticSearchColumn == null ? null : elasticSearchColumn.legacyName(),
+                    keywordColumn != null,
+                    routingColumn != null
                 );
 
                 // BanyanDB extension
                 final BanyanDB.SeriesID banyanDBSeriesID = field.getAnnotation(
-                        BanyanDB.SeriesID.class);
+                    BanyanDB.SeriesID.class);
                 final BanyanDB.GlobalIndex banyanDBGlobalIndex = field.getAnnotation(
-                        BanyanDB.GlobalIndex.class);
+                    BanyanDB.GlobalIndex.class);
                 final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
-                        BanyanDB.NoIndexing.class);
+                    BanyanDB.NoIndexing.class);
                 final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
-                        BanyanDB.IndexRule.class);
+                    BanyanDB.IndexRule.class);
                 final BanyanDB.MeasureField banyanDBMeasureField = field.getAnnotation(
-                        BanyanDB.MeasureField.class);
+                    BanyanDB.MeasureField.class);
                 final BanyanDB.TopNAggregation topNAggregation = field.getAnnotation(
-                        BanyanDB.TopNAggregation.class);
+                    BanyanDB.TopNAggregation.class);
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
-                        banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
-                        banyanDBGlobalIndex != null,
-                        banyanDBNoIndex == null && !column.storageOnly(),
-                        banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
-                        banyanDBMeasureField != null
+                    banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
+                    banyanDBGlobalIndex != null,
+                    banyanDBNoIndex == null && !column.storageOnly(),
+                    banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
+                    banyanDBMeasureField != null
                 );
 
                 if (topNAggregation != null) {
@@ -234,16 +234,16 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
 
                 final ModelColumn modelColumn = new ModelColumn(
-                        new ColumnName(column),
-                        field.getType(),
-                        field.getGenericType(),
-                        column.storageOnly(),
-                        column.indexOnly(),
-                        column.dataType().isValue(),
-                        columnLength,
-                        sqlDatabaseExtension,
-                        elasticSearchExtension,
-                        banyanDBExtension
+                    new ColumnName(column),
+                    field.getType(),
+                    field.getGenericType(),
+                    column.storageOnly(),
+                    column.indexOnly(),
+                    column.dataType().isValue(),
+                    columnLength,
+                    sqlDatabaseExtension,
+                    elasticSearchExtension,
+                    banyanDBExtension
                 );
                 if (banyanDBExtension.isShardingKey()) {
                     checker.accept(modelName, modelColumn);
@@ -266,8 +266,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 }
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
-                            modelName, column.name(),
-                            column.dataType(), column.function(), column.defaultValue(), scopeId
+                        modelName, column.name(),
+                        column.dataType(), column.function(), column.defaultValue(), scopeId
                     );
                 }
             }
@@ -291,8 +291,8 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 log.debug("Override model column name: [{}] {} -> {}.", model.getName(), oldName, newName);
                 column.getColumnName().overrideName(oldName, newName);
                 column.getSqlDatabaseExtension()
-                        .getIndices()
-                        .forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
+                      .getIndices()
+                      .forEach(extraQueryIndex -> extraQueryIndex.overrideName(oldName, newName));
             });
         });
     }
@@ -330,10 +330,10 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
             ModelColumn exist = keys.get(idx);
             if (exist != null) {
                 throw new IllegalStateException(
-                        modelName + "'s "
-                                + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
-                                + " are conflicting with sharding key index=" + modelColumn.getBanyanDBExtension()
-                                .getShardingKeyIdx());
+                    modelName + "'s "
+                        + "Column [" + exist.getColumnName() + "] and column [" + modelColumn.getColumnName()
+                        + " are conflicting with sharding key index=" + modelColumn.getBanyanDBExtension()
+                                                                                   .getShardingKeyIdx());
             }
             keys.set(idx, modelColumn);
         }
