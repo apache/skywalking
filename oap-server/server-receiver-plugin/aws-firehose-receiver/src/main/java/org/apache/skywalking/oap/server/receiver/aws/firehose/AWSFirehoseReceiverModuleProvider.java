@@ -73,8 +73,9 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
                                                                       moduleConfig.getAcceptQueueSize())
                                                                   .maxRequestHeaderSize(
                                                                       moduleConfig.getMaxRequestHeaderSize())
+                                                                  //set acceptProxyRequest same with enableTLS
                                                                   .acceptProxyRequest(
-                                                                      moduleConfig.isAcceptProxyRequest())
+                                                                      moduleConfig.isEnableTLS())
                                                                   .enableTLS(moduleConfig.isEnableTLS())
                                                                   .tlsKeyPath(moduleConfig.getTlsKeyPath())
                                                                   .tlsCertChainPath(moduleConfig.getTlsCertChainPath())
@@ -85,9 +86,6 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        if (moduleConfig.isEnableTLS() && !moduleConfig.isAcceptProxyRequest()) {
-            throw new ModuleStartException("TLS is enabled, but acceptProxyRequest was disabled");
-        }
         final OpenTelemetryMetricRequestProcessor processor = getManager().find(OtelMetricReceiverModule.NAME)
                                                                           .provider()
                                                                           .getService(
