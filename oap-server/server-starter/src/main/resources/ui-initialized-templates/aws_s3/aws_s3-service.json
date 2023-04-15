@@ -126,7 +126,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -151,7 +151,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -176,7 +176,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -201,7 +201,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -226,7 +226,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -251,7 +251,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -276,7 +276,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -301,7 +301,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -326,7 +326,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true,
             "legend": {
@@ -364,7 +364,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true,
             "legend": {

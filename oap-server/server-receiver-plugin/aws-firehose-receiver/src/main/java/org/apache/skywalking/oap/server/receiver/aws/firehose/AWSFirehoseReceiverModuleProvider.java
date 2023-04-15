@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -29,6 +30,7 @@ import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
 import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverModule;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 
+@Slf4j
 public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
     public static final String NAME = "default";
 
@@ -67,9 +69,16 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
                                                                   .contextPath(moduleConfig.getContextPath())
                                                                   .maxThreads(moduleConfig.getMaxThreads())
                                                                   .idleTimeOut(moduleConfig.getIdleTimeOut())
-                                                                  .acceptQueueSize(moduleConfig.getAcceptQueueSize())
+                                                                  .acceptQueueSize(
+                                                                      moduleConfig.getAcceptQueueSize())
                                                                   .maxRequestHeaderSize(
                                                                       moduleConfig.getMaxRequestHeaderSize())
+                                                                  //set acceptProxyRequest same with enableTLS
+                                                                  .acceptProxyRequest(
+                                                                      moduleConfig.isEnableTLS())
+                                                                  .enableTLS(moduleConfig.isEnableTLS())
+                                                                  .tlsKeyPath(moduleConfig.getTlsKeyPath())
+                                                                  .tlsCertChainPath(moduleConfig.getTlsCertChainPath())
                                                                   .build();
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();

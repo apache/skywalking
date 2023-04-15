@@ -12,6 +12,8 @@ Amazon Simple Storage Service (Amazon S3) is an object storage service. SkyWalki
 2. Create an Amazon Kinesis Data Firehose Delivery Stream, and set [AWS Kinesis Data Firehose receiver](./aws-firehose-receiver.md)'s address as HTTP(s) Destination, refer to [Create Delivery Stream](https://docs.aws.amazon.com/firehose/latest/dev/basic-create.html)
 3. Create CloudWatch metric stream, and select the Firehose Delivery Stream which has been created above, set `Select namespaces` to `AWS/S3`, `Select output format` to `OpenTelemetry 0.7`. refer to [CloudWatch Metric Streams](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Metric-Streams.html)
 
+Read [Monitoring AWS EKS and S3 with SkyWalking](https://skywalking.apache.org/blog/2023-03-12-skywalking-aws-s3-eks/) for more details
+
 ### S3 Monitoring
 
 SkyWalking observes CloudWatch metrics of the S3 bucket, which is cataloged as a `LAYER: AWS_S3` `Service` in the OAP.

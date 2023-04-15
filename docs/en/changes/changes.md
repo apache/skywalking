@@ -31,6 +31,9 @@
 * Bump up graphql-java to fix cve.
 * Bump up Kubernetes Java client.
 * Support Redis Monitoring.
+* Add component ID for amqp, amqp-producer and amqp-consumer.
+* Support no-proxy mode for aws-firehose receiver
+* Bump up armeria to 1.23.1
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
@@ -44,6 +47,11 @@
 * Add AWS API Gateway menu.
 * Change trace profiling protocol.
 * Add Redis menu.
+* Optimize data types.
+* Support isEmptyValue flag for metrics query.
+* Add elasticsearch menu.
+* [Clean UI templates before upgrade] Set `showSymbol: true`, and make the data point shows on the Line graph.
+  Please clean `ui_template` index in elasticsearch storage or table in JDBC storage.
 
 #### Documentation
 

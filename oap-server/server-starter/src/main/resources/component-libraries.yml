@@ -477,6 +477,16 @@ mtls:
   id: 142
   languages: ebpf, mesh
   priority: 12
+amqp:
+  id: 143
+  languages: PHP
+  priority: 45
+amqp-producer:
+  id: 144
+  languages: PHP
+amqp-consumer:
+  id: 145
+  languages: PHP
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -766,3 +776,5 @@ Component-Server-Mappings:
   Impala-jdbc-driver: Impala
   eventmesh-producer: EventMesh
   eventmesh-consumer: EventMesh
+  amqp-producer: amqp
+  amqp-consumer: amqp
