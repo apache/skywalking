@@ -71,7 +71,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 for (SQLDatabase.ExtraColumn4AdditionalEntity extraColumn : aClass.getAnnotation(
                     SQLDatabase.MultipleExtraColumn4AdditionalEntity.class).value()) {
                     List<String> tables = extraColumns.computeIfAbsent(
-                            extraColumn.parentColumn(), v -> new ArrayList<>());
+                        extraColumn.parentColumn(), v -> new ArrayList<>());
                     tables.add(extraColumn.additionalTable());
                 }
             } else {
