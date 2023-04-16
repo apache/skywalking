@@ -22,9 +22,7 @@ Collector to transfer the metrics to
 
 ## Elasticsearch Monitoring
 
-Elasticsearch monitoring provides multidimensional metrics monitoring, such as cluster, node, and index. 
-
-Elasticsearch cluster as a `Service` in OAP, Elasticsearch node as an `Instance` in OAP, Elasticsearch Index as an `Endpoint` in OAP, and land on the `Layer: Elasticsearch`.
+Elasticsearch monitoring provides multidimensional metrics monitoring of Elasticsearch clusters as `Layer: ELASTICSEARCH` `Service` in the OAP. In each cluster, the nodes are represented as `Instance` and indices are `Endpoint`s.
 
 ### Elasticsearch Cluster Supported Metrics
 
