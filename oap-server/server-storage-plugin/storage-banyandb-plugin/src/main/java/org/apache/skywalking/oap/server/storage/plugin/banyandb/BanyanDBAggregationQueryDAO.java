@@ -19,6 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.skywalking.banyandb.v1.client.DataPoint;
+import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
+import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -28,6 +31,7 @@ import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
@@ -48,7 +52,6 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        // fast-path: BanyanDB server-side TopN support
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
@@ -59,10 +62,16 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             throw new IOException("field spec is not registered");
         }
 
-        if (schema.getTopNSpec() == null) {
-            throw new IOException("TopN spec is registered");
+        // BanyanDB server-side TopN support: for metrics aggregated at instance, endpoint levels
+        if (schema.getTopNSpec() != null) {
+            return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
         }
 
+        return directMetricsTopN(condition, valueColumnName, spec, timestampRange, additionalConditions);
+    }
+
+    List<SelectedRecord> serverSideTopN(TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
+                                        TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
         TopNQueryResponse resp = null;
         if (condition.getOrder() == Order.DES) {
             resp = topN(schema, timestampRange, condition.getTopN(), additionalConditions);
@@ -80,7 +89,44 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
             SelectedRecord record = new SelectedRecord();
             record.setId((String) item.getTagValuesMap().get(Metrics.ENTITY_ID).getValue());
-            record.setValue(extractFieldValueAsString(spec, item.getValue()));
+            record.setValue(extractFieldValueAsString(valueColumnSpec, item.getValue()));
+            topNList.add(record);
+        }
+
+        return topNList;
+    }
+
+    List<SelectedRecord> directMetricsTopN(TopNCondition condition, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
+                                           TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
+        MeasureQueryResponse resp = query(condition.getName(), TAGS, Collections.singleton(valueColumnName),
+                timestampRange, new QueryBuilder<MeasureQuery>() {
+                    @Override
+                    protected void apply(MeasureQuery query) {
+                        query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
+                        if (condition.getOrder() == Order.DES) {
+                            query.topN(condition.getTopN(), valueColumnName);
+                        } else {
+                            query.bottomN(condition.getTopN(), valueColumnName);
+                        }
+                        if (CollectionUtils.isNotEmpty(additionalConditions)) {
+                            additionalConditions.forEach(additionalCondition -> query
+                                    .and(eq(
+                                            additionalCondition.getKey(),
+                                            additionalCondition.getValue()
+                                    )));
+                        }
+                    }
+                });
+
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        final List<SelectedRecord> topNList = new ArrayList<>();
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            final SelectedRecord record = new SelectedRecord();
+            record.setId(dataPoint.getTagValue(Metrics.ENTITY_ID));
+            record.setValue(extractFieldValueAsString(valueColumnSpec, dataPoint.getFieldValue(valueColumnName)));
             topNList.add(record);
         }
 

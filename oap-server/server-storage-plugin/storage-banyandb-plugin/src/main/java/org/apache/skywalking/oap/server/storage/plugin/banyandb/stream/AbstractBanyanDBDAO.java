@@ -33,6 +33,7 @@ import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
@@ -95,7 +96,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 timestampRange,
                 number, sort);
         q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
-        if (!additionalConditions.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(additionalConditions)) {
             List<PairQueryCondition<?>> conditions = new ArrayList<>(additionalConditions.size());
             for (final KeyValue kv : additionalConditions) {
                 conditions.add(PairQueryCondition.StringQueryCondition.eq(kv.getKey(), kv.getValue()));
