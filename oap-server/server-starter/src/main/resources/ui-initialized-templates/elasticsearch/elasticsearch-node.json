@@ -853,7 +853,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"CPU Percent (%)"
+            "title":"CPU Usage (%)"
           }
         },
         {
