@@ -60,7 +60,7 @@
                     "tableHeaderCol2":""
                   },
                   "widget":{
-                    "title":"Cluster health"
+                    "title":"Cluster Health"
                   }
                 },
                 {
@@ -85,7 +85,7 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"Data nodes"
+                    "title":"Data Nodes"
                   }
                 },
                 {
@@ -135,7 +135,7 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"Pending tasks"
+                    "title":"Pending Tasks"
                   }
                 },
                 {
@@ -160,7 +160,7 @@
                     "showUnit":false
                   },
                   "widget":{
-                    "title":"Active primary shards"
+                    "title":"Active Primary Shards"
                   }
                 },
                 {
@@ -185,7 +185,7 @@
                     "showUnit":false
                   },
                   "widget":{
-                    "title":"Active shards"
+                    "title":"Active Shards"
                   }
                 },
                 {
@@ -210,7 +210,7 @@
                     "showUnit":false
                   },
                   "widget":{
-                    "title":"Initializing shards"
+                    "title":"Initializing Shards"
                   }
                 },
                 {
@@ -235,7 +235,7 @@
                     "showUnit":false
                   },
                   "widget":{
-                    "title":"Delayed unassigned shards"
+                    "title":"Delayed Unassigned Shards"
                   }
                 },
                 {
@@ -260,7 +260,7 @@
                     "showUnit":false
                   },
                   "widget":{
-                    "title":"Relocating shards"
+                    "title":"Relocating Shards"
                   }
                 },
                 {
@@ -285,7 +285,7 @@
                     "showUnit":false
                   },
                   "widget":{
-                    "title":"Unassigned shards"
+                    "title":"Unassigned Shards"
                   }
                 },
                 {
@@ -310,7 +310,7 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"Tripped of breakers"
+                    "title":"Tripped Of Breakers"
                   }
                 },
                 {
@@ -335,7 +335,7 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"CPU usage Avg (%)"
+                    "title":"CPU Usage Avg. (%)"
                   }
                 },
                 {
@@ -360,7 +360,7 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"JVM memory used Avg (%)"
+                    "title":"JVM Memory Used Avg. (%)"
                   }
                 },
                 {
@@ -375,7 +375,7 @@
                     "readMetricsValue"
                   ],
                   "metrics":[
-                    "meter_elasticsearch_cluster_open_file_descriptors"
+                    "meter_elasticsearch_cluster_open_file_count"
                   ],
                   "moved":false,
                   "graph":{
@@ -385,7 +385,7 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"Open files descriptors per cluster"
+                    "title":"Open Files"
                   }
                 },
                 {

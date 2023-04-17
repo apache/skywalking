@@ -38,7 +38,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
@@ -46,7 +46,7 @@
             }
           },
           "widget":{
-            "title":"Process CPU usage percent (%)"
+            "title":"Process CPU Usage Percent (%)"
           }
         },
         {
@@ -72,12 +72,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Load average"
+            "title":"Load Average"
           },
           "metricConfig":[
             {
@@ -128,7 +128,7 @@
             }
           ],
           "widget":{
-            "title":"JVM memory usage (MB)"
+            "title":"JVM Memory Usage (MB)"
           }
         },
         {
@@ -153,7 +153,7 @@
             "showYAxis":true
           },
           "widget":{
-            "title":"JVM pool peak used (MB)"
+            "title":"JVM Pool Peak Used (MB)"
           },
           "metricConfig":[
             {
@@ -184,7 +184,7 @@
             "showBackground":true
           },
           "widget":{
-            "title":"GC count"
+            "title":"GC Count"
           }
         },
         {
@@ -206,12 +206,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"GC time (ms/min)"
+            "title":"GC Time (ms/min)"
           },
           "metricConfig":[
             {
@@ -260,7 +260,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -292,12 +292,13 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Searching rate (reqps)"
+            "title":"Searching Rate",
+            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
           "metricConfig":[
 
@@ -322,12 +323,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Total translog operations"
+            "title":"Total Translog Operations"
           }
         },
         {
@@ -349,12 +350,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Total translog size (MB)"
+            "title":"Total Translog Size (MB)"
           },
           "metricConfig":[
             {
@@ -381,12 +382,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Tripped for breakers"
+            "title":"Tripped For Breakers"
           }
         },
         {
@@ -408,7 +409,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -418,7 +419,7 @@
             }
           ],
           "widget":{
-            "title":"Estimated size of breaker (MB)"
+            "title":"Estimated Size Of Breaker (MB)"
           }
         },
         {
@@ -440,7 +441,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -450,7 +451,7 @@
             }
           ],
           "widget":{
-            "title":"Current memory size of segments (MB)"
+            "title":"Current Memory Size Of Segments (MB)"
           }
         },
         {
@@ -472,7 +473,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
@@ -480,7 +481,7 @@
             }
           },
           "widget":{
-            "title":"Disk usage percent (%)"
+            "title":"Disk Usage Percent (%)"
           },
           "metricConfig":[
             {
@@ -507,7 +508,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -515,7 +516,7 @@
 
           ],
           "widget":{
-            "title":"Documents count"
+            "title":"Documents Count"
           }
         },
         {
@@ -538,7 +539,7 @@
             "showBackground":true
           },
           "widget":{
-            "title":"Count of index segments"
+            "title":"Count Of Index Segments"
           }
         },
         {
@@ -563,7 +564,7 @@
             "tableHeaderCol2":""
           },
           "widget":{
-            "title":"Node rules"
+            "title":"Node Rules"
           }
         },
         {
@@ -610,7 +611,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
@@ -618,7 +619,7 @@
             }
           },
           "widget":{
-            "title":"OS CPU usage persent (%)"
+            "title":"OS CPU Usage Persent (%)"
           }
         },
         {
@@ -640,7 +641,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
@@ -653,7 +654,7 @@
             }
           ],
           "widget":{
-            "title":"Disk usage (GB)"
+            "title":"Disk Usage (GB)"
           }
         },
         {
@@ -677,7 +678,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
@@ -707,7 +708,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -767,7 +768,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Open files"
+            "title":"Open Files"
           }
         },
         {
@@ -789,7 +790,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
@@ -827,7 +828,7 @@
             }
           ],
           "widget":{
-            "title":"JVM memory used (MB)"
+            "title":"JVM Memory Used (MB)"
           }
         },
         {
@@ -852,7 +853,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"CPU percent (%)"
+            "title":"CPU Percent (%)"
           }
         },
         {
@@ -882,7 +883,7 @@
             }
           ],
           "widget":{
-            "title":"Disk free space (GB)"
+            "title":"Disk Free Space (GB)"
           }
         },
         {
@@ -906,12 +907,13 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Indexing rate (reqps)"
+            "title":"Indexing Rate",
+            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           }
         },
         {
@@ -933,7 +935,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -960,12 +962,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Merged Documents / s"
+            "title":"Merged Documents Count"
           }
         },
         {
@@ -987,7 +989,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -1014,7 +1016,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -1041,12 +1043,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Merged documents rate (MB / s)"
+            "title":"Merged Documents Rate (MB / s)"
           },
           "metricConfig":[
             {

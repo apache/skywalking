@@ -40,12 +40,13 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Indexing rate"
+            "title":"Indexing Rate",
+            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           }
         },
         {
@@ -69,12 +70,13 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Searching rate"
+            "title":"Searching Rate",
+            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           }
         },
         {
@@ -116,7 +118,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -169,12 +171,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"All Operations Runtime/s"
+            "title":"All Operations Runtime (s)"
           }
         },
         {
@@ -202,7 +204,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -235,7 +237,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -243,7 +245,7 @@
 
           ],
           "widget":{
-            "title":"Search Operations  Rate (req/s)"
+            "title":"Search Operations Rate (req/s)"
           }
         },
         {
@@ -265,12 +267,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Total size of stored index data (All Shards)"
+            "title":"Total Size Of Index (All Shards) (MB)"
           },
           "metricConfig":[
             {
@@ -297,7 +299,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -324,12 +326,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Documents Rate (All Shards)"
+            "title":"Documents Created Per Min (All Shards)"
           }
         },
         {
@@ -351,7 +353,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -378,12 +380,12 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
           "widget":{
-            "title":"Documents Rate (Primary Shards)"
+            "title":"Documents Created Per Min (Primary Shards)"
           }
         },
         {
@@ -405,7 +407,7 @@
             "type":"Line",
             "step":false,
             "smooth":false,
-            "showSymbol":false,
+            "showSymbol":true,
             "showXAxis":true,
             "showYAxis":true
           },
@@ -415,7 +417,7 @@
             }
           ],
           "widget":{
-            "title":"Total size of stored index data (Primary Shards) (MB)"
+            "title":"Total Size Of Index (Primary Shards) (MB)"
           }
         },
         {
@@ -500,7 +502,7 @@
             }
           ],
           "widget":{
-            "title":"Primary Data (GB)"
+            "title":"Data (Primary Shards) (GB)"
           }
         },
         {
@@ -550,7 +552,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Segments Primary"
+            "title":"Segments Count (Primary Shards)"
           }
         },
         {
@@ -605,7 +607,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Deleted Documents Primary"
+            "title":"Deleted Documents Count (Primary Shard)"
           }
         },
         {
@@ -630,7 +632,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Segments Memory Primary (MB)"
+            "title":"Segments Memory (Primary Shards) (MB)"
           },
           "metricConfig":[
             {
@@ -660,7 +662,7 @@
             "tableHeaderCol2":""
           },
           "widget":{
-            "title":"Shards documents"
+            "title":"Shards Documents"
           }
         }
       ],
