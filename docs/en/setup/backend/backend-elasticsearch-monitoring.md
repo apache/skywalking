@@ -15,8 +15,7 @@ Collector to transfer the metrics to
 ## Setup
 
 1. Setup [elasticsearch-exporter](https://github.com/prometheus-community/elasticsearch_exporter).
-2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). For details
-   on Redis Receiver in OpenTelemetry Collector, refer
+2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/elasticsearch/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
