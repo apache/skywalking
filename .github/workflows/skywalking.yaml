@@ -679,6 +679,8 @@ jobs:
             config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
           - name: Redis Prometheus
             config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
+          - name: Elasticsearch
+            config: test/e2e-v2/cases/elasticsearch/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:
