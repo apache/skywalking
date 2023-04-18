@@ -38,30 +38,25 @@ services:
       - node.name=node-e2e
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
-      interval: 5s
-      timeout: 60s
+      interval: 10s
+      timeout: 10s
       retries: 120
   es-exporter:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:v1.5.0
     expose:
-      - 9108
-    networks:
-      - e2e
-    environment:
-      - ES_URI=http://es:9200
-    depends_on:
-      - es
-      - oap
-  es-mock:
-    image: curlimages/curl:latest
+      - 9114
     networks:
       - e2e
     depends_on:
-      - es
-      - es-exporter
-      - oap
-    command: "sh -c ./es-e2e-data-mock.sh"
-
+      es:
+        condition: service_healthy
+    command:
+      - '--es.uri=http://es:9200'
+    healthcheck:
+      interval: 5s
+      timeout: 60s
+      retries: 120
+      test: ["CMD", "sh", "-c", "nc -vz localhost 9114"]
   otel-collector:
     image: otel/opentelemetry-collector:0.72.0
     networks:
@@ -74,6 +69,28 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+    healthcheck:
+      interval: 5s
+      timeout: 60s
+      retries: 120
+      test: ["CMD", "sh", "-c", "nc -vz localhost 55678"]
+  es-mock:
+    image: curlimages/curl:latest
+    networks:
+      - e2e
+    depends_on:
+      es:
+        condition: service_healthy
+      es-exporter:
+        condition: service_healthy
+      otel-collector:
+        condition: service_healthy
+      oap:
+        condition: service_healthy
+    command: >
+      sh -c "chmod +x /etc/es-e2e-data-mock.sh && /etc/es-e2e-data-mock.sh"
+    volumes:
+      - ./es-e2e-data-mock.sh:/etc/es-e2e-data-mock.sh
 
 networks:
   e2e:

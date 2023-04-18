@@ -20,7 +20,9 @@ E2E_ES_HOST="es:9200"
 
 INDEX_NAME_PREFIX="e2e-index-"
 
-for (( i = 0; i < 10; i++ )); do
+i=0
+while [ $i -lt 10 ]
+do
     curl -X PUT "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}${i}?pretty" -H 'Content-Type: application/json' -d'
     {
       "settings": {
@@ -31,17 +33,20 @@ for (( i = 0; i < 10; i++ )); do
       }
     }
     '
-done
 
-for (( i = 0; i < 10; i++ )); do
-    curl -X POST "${E2E_ES_HOST}/_bulk?pretty" -H 'Content-Type: application/json' -d'
-    { "index" : { "_index" : "'"${INDEX_NAME_PREFIX}${i}"'", "_id" : "1" } }
-    { "field1" : "value1" }
-    { "delete" : { "_index" : "'"${INDEX_NAME_PREFIX}${i}"'", "_id" : "2" } }
-    { "create" : { "_index" : "'"${INDEX_NAME_PREFIX}${i}"'", "_id" : "3" } }
-    { "field1" : "value3" }
-    { "update" : {"_id" : "1", "_index" : "'"${INDEX_NAME_PREFIX}${i}"'"} }
-    { "doc" : {"field2" : "value2"} }
+    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}${i}/_doc/?pretty" -H 'Content-Type: application/json' -d'
+    {
+      "@timestamp": "2099-11-15T13:12:00",
+      "message": "GET /search HTTP/1.1 200 1070000",
+      "user": {
+        "id": "kimchy"
+      }
+    }
     '
-done
 
+    if [ $i -eq 10 ]
+    then
+      break
+    fi
+    i=`expr $i + 1`
+done

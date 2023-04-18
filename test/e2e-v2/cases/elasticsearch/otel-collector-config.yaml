@@ -20,7 +20,7 @@ receivers:
        - job_name: 'elasticsearch-monitoring'
          scrape_interval: 30s
          static_configs:
-           - targets: ['es:9200']
+           - targets: ['es-exporter:9108']
 
 processors:
   batch:

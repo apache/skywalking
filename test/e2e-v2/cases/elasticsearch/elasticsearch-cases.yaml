@@ -18,4 +18,10 @@
 cases:
   # service list
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
-    expected:  expected/service.yml
+    expected: expected/service.yml
+  # instance list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=elasticsearch::cluster-e2e
+    expected: expected/instance.yml
+  # endpoint list
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=elasticsearch::cluster-e2e
+    expected: expected/endpoint.yml
