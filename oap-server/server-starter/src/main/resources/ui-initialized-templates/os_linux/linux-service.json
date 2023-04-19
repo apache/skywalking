@@ -44,7 +44,11 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "filefd_allocated"
+            }
+          ]
         },
         {
           "x": 8,
@@ -76,7 +80,23 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "tcp_curr_estab"
+            },
+            {
+              "label": "tcp_tw"
+            },
+            {
+              "label": "tcp_alloc"
+            },
+            {
+              "label": "sockets_used"
+            },
+            {
+              "label": "udp_inuse"
+            }
+          ]
         },
         {
           "x": 0,
@@ -102,7 +122,14 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "receive"
+            },
+            {
+              "label": "transmit"
+            }
+          ]
         },
         {
           "x": 16,
@@ -128,13 +155,14 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToKB"
+              "calculation": "byteToKB",
+              "label": "read"
             },
             {
-              "calculation": "byteToKB"
+              "calculation": "byteToKB",
+              "label": "written"
             }
           ]
         },
@@ -160,8 +188,7 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 0,
@@ -186,8 +213,7 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 16,
@@ -217,19 +243,22 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "used"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "total"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "available"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "buffer_cache"
             }
           ]
         },
@@ -261,16 +290,18 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "calculation": "percentage",
+              "label": "load5"
             },
             {
-              "calculation": "percentage"
+              "calculation": "percentage",
+              "label": "load1"
             },
             {
-              "calculation": "percentage"
+              "calculation": "percentage",
+              "label": "load15"
             }
           ]
         },
@@ -298,13 +329,14 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "free"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "total"
             }
           ]
         },
@@ -330,7 +362,6 @@
           "metricTypes": [
             "readMetricsValue"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "calculation": "percentage",
@@ -360,7 +391,6 @@
           "metricTypes": [
             "readMetricsValue"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "calculation": "byteToMB",
@@ -390,7 +420,6 @@
           "metricTypes": [
             "readMetricsValue"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "unit": "%"

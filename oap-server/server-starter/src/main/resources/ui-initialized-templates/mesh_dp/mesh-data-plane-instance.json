@@ -81,6 +81,14 @@
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "total_used"
+                    },
+                    {
+                      "label": "parent_used"
+                    }
                   ]
                 },
                 {
@@ -194,22 +202,28 @@
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "allocated_max"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap_used"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "allocated"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "physical_size"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "physical_size_max"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap_max_used"
                     }
                   ]
                 },
@@ -263,6 +277,14 @@
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "threads_max"
+                    },
+                    {
+                      "label": "threads"
+                    }
                   ]
                 },
                 {
@@ -331,16 +353,16 @@
               ]
             },
             {
-              "name":"Network Profiling",
-              "children":[
+              "name": "Network Profiling",
+              "children": [
                 {
-                  "x":0,
-                  "y":0,
-                  "w":24,
-                  "h":47,
-                  "i":"0",
-                  "type":"NetworkProfiling",
-                  "linkDashboard":"ServiceMesh-Data-Plane-Process-Relation-Metrics"
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 47,
+                  "i": "0",
+                  "type": "NetworkProfiling",
+                  "linkDashboard": "ServiceMesh-Data-Plane-Process-Relation-Metrics"
                 }
               ]
             }
