@@ -50,7 +50,7 @@ public class ServiceInstanceJVMClass extends Source {
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter

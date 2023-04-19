@@ -47,7 +47,7 @@ public class ServiceInstance extends Source {
     }
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter

@@ -40,7 +40,7 @@ public class BrowserAppSingleVersionPerf extends BrowserAppPerfSource {
     }
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
     private String serviceId;
     @Getter
     @Setter
