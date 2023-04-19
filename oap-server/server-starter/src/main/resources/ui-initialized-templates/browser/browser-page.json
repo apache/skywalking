@@ -63,8 +63,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "12-0-0",
-                  "label": "12-0-0",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -121,8 +119,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "12-0-1",
-                  "label": "Page_First_Pack_Latency",
                   "associate": [
                     {
                       "widgetId": "12-0-0"
@@ -179,8 +175,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "12-0-2",
-                  "label": "Page_FPT_Latency",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -237,8 +231,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "12-0-3",
-                  "label": "Page_DOM_Ready_Latency",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -295,8 +287,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "12-0-4",
-                  "label": "Page_TTL_Latency",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -353,8 +343,6 @@
                       "labelsIndex": "0,1,2,3,4"
                     }
                   ],
-                  "value": "12-0-8",
-                  "label": "Page_Load_Latency",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -422,8 +410,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "12-0-9",
-                  "label": "Page_Performance",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -445,6 +431,38 @@
                     },
                     {
                       "widgetId": "12-0-10"
+                    }
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "res_avg"
+                    },
+                    {
+                      "label": "load_page_avg"
+                    },
+                    {
+                      "label": "trans_avg"
+                    },
+                    {
+                      "label": "fpt_avg"
+                    },
+                    {
+                      "label": "dom_analysis_avg"
+                    },
+                    {
+                      "label": "dns_avg"
+                    },
+                    {
+                      "label": "dom_ready_avg"
+                    },
+                    {
+                      "label": "redirect_avg"
+                    },
+                    {
+                      "label": "tcp_avg"
+                    },
+                    {
+                      "label": "ttfb_avg"
                     }
                   ]
                 },
@@ -475,8 +493,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "12-0-10",
-                  "label": "Page_Error_Count_Layout",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -498,6 +514,20 @@
                     },
                     {
                       "widgetId": "12-0-0"
+                    }
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "resource_error_sum"
+                    },
+                    {
+                      "label": "js_error_sum"
+                    },
+                    {
+                      "label": "unknown_error_sum"
+                    },
+                    {
+                      "label": "ajax_error_sum"
                     }
                   ]
                 }

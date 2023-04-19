@@ -70,10 +70,6 @@
                       "widgetId": "0-0-10"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
@@ -123,10 +119,6 @@
                       "widgetId": "0-0-10"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
@@ -170,11 +162,7 @@
                     {
                       "widgetId": "0-0-10"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 28,
-                    "sourceId": "0-0-0"
-                  }
+                  ]
                 },
                 {
                   "x": 12,
@@ -214,11 +202,7 @@
                     {
                       "widgetId": "0-0-16"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -258,11 +242,7 @@
                     {
                       "widgetId": "0-0-10"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
-                  }
+                  ]
                 }
               ]
             },
@@ -327,16 +307,20 @@
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "noheap_max"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "noheap"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap_max"
                     }
                   ]
                 },
@@ -367,6 +351,17 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "live"
+                    },
+                    {
+                      "label": "daemon"
+                    },
+                    {
+                      "label": "peak"
+                    }
                   ]
                 },
                 {
@@ -394,6 +389,20 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "timed_waiting"
+                    },
+                    {
+                      "label": "blocked"
+                    },
+                    {
+                      "label": "waiting"
+                    },
+                    {
+                      "label": "runnable"
+                    }
                   ]
                 },
                 {
@@ -446,6 +455,17 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "loaded"
+                    },
+                    {
+                      "label": "total_loaded"
+                    },
+                    {
+                      "label": "total_unloaded"
+                    }
                   ]
                 },
                 {
@@ -475,6 +495,17 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "young_gc"
+                    },
+                    {
+                      "label": "old_gc"
+                    },
+                    {
+                      "label": "normal_gc"
+                    }
                   ]
                 },
                 {
@@ -500,6 +531,17 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "young_gc"
+                    },
+                    {
+                      "label": "old_gc"
+                    },
+                    {
+                      "label": "normal_gc"
+                    }
                   ]
                 }
               ]
@@ -534,6 +576,17 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "available_worker"
+                    },
+                    {
+                      "label": "available_completion_port"
+                    },
+                    {
+                      "label": "max_completion_port"
+                    }
                   ]
                 },
                 {
@@ -581,14 +634,25 @@
                     "showBackground": true
                   },
                   "metrics": [
-                    "instance_clr_gen1_collect_count",
                     "instance_clr_gen0_collect_count",
+                    "instance_clr_gen1_collect_count",
                     "instance_clr_gen2_collect_count"
                   ],
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "gen0"
+                    },
+                    {
+                      "label": "gen1"
+                    },
+                    {
+                      "label": "gen2"
+                    }
                   ]
                 },
                 {
@@ -739,6 +803,17 @@
                     "meter_jdbc_connections_active",
                     "meter_jdbc_connections_idle"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "max"
+                    },
+                    {
+                      "label": "active"
+                    },
+                    {
+                      "label": "idle"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -768,6 +843,17 @@
                     "meter_tomcat_sessions_active_max",
                     "meter_tomcat_sessions_active_current",
                     "meter_tomcat_sessions_rejected"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "active_max"
+                    },
+                    {
+                      "label": "active_current"
+                    },
+                    {
+                      "label": "rejected"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -821,6 +907,14 @@
                   "metrics": [
                     "meter_process_files_max",
                     "meter_process_files_open"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "max"
+                    },
+                    {
+                      "label": "open"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -889,14 +983,17 @@
                   "metricConfig": [
                     {
                       "calculation": "byteToMB",
+                      "label": "max",
                       "unit": "MB"
                     },
                     {
                       "calculation": "byteToMB",
+                      "label": "used",
                       "unit": "MB"
                     },
                     {
                       "calculation": "byteToMB",
+                      "label": "committed",
                       "unit": "MB"
                     }
                   ],
@@ -920,6 +1017,17 @@
                     "meter_jvm_threads_peak",
                     "meter_jvm_threads_live",
                     "meter_jvm_threads_daemon"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "peak"
+                    },
+                    {
+                      "label": "live"
+                    },
+                    {
+                      "label": "daemon"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -947,6 +1055,14 @@
                   "metrics": [
                     "meter_jvm_classes_loaded",
                     "meter_jvm_classes_unloaded"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "loaded"
+                    },
+                    {
+                      "label": "unloaded"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -1200,6 +1316,14 @@
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "total_cpu_utilization"
+                    },
+                    {
+                      "label": "process_cpu_utilization"
+                    }
                   ]
                 },
                 {
@@ -1250,6 +1374,17 @@
                     "readMetricsValues",
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "gc_g0"
+                    },
+                    {
+                      "label": "gc_g1"
+                    },
+                    {
+                      "label": "gc_g2"
+                    }
                   ]
                 },
                 {
@@ -1275,6 +1410,14 @@
                   "metricTypes": [
                     "readMetricsValues",
                     "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "total_mem_utilization"
+                    },
+                    {
+                      "label": "process_mem_utilization"
+                    }
                   ]
                 },
                 {

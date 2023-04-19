@@ -43,8 +43,7 @@
           ],
           "metricTypes": [
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 8,
@@ -72,13 +71,14 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToKB"
+              "calculation": "byteToKB",
+              "label": "receive"
             },
             {
-              "calculation": "byteToKB"
+              "calculation": "byteToKB",
+              "label": "transmit"
             }
           ]
         },
@@ -103,8 +103,7 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 8,
@@ -130,13 +129,14 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToGB"
+              "calculation": "byteToGB",
+              "label": "total"
             },
             {
-              "calculation": "byteToGB"
+              "calculation": "byteToGB",
+              "label": "allocatable"
             }
           ]
         },
@@ -168,7 +168,20 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "cores_limits"
+            },
+            {
+              "label": "cores_requests"
+            },
+            {
+              "label": "cores"
+            },
+            {
+              "label": "cores_allocatable"
+            }
+          ]
         },
         {
           "x": 0,
@@ -198,19 +211,22 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToGB"
+              "calculation": "byteToGB",
+              "label": "total"
             },
             {
-              "calculation": "byteToGB"
+              "calculation": "byteToGB",
+              "label": "limits"
             },
             {
-              "calculation": "byteToGB"
+              "calculation": "byteToGB",
+              "label": "allocatable"
             },
             {
-              "calculation": "byteToGB"
+              "calculation": "byteToGB",
+              "label": "requests"
             }
           ]
         },
@@ -238,7 +254,6 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "calculation": "byteToGB"
@@ -268,8 +283,7 @@
           ],
           "metricTypes": [
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         }
       ],
       "layer": "K8S",
