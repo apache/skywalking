@@ -56,8 +56,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "1-0-0",
-                  "label": "Instance_Latency",
                   "associate": [
                     {
                       "widgetId": "1-0-2"
@@ -68,11 +66,7 @@
                     {
                       "widgetId": "1-0-3"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 17,
-                    "sourceId": "1-0-3"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -99,8 +93,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "1-0-1",
-                  "label": "Instance_Successful_Rate",
                   "associate": [
                     {
                       "widgetId": "1-0-0"
@@ -111,11 +103,7 @@
                     {
                       "widgetId": "1-0-3"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 17,
-                    "sourceId": "1-0-3"
-                  }
+                  ]
                 },
                 {
                   "x": 11,
@@ -145,8 +133,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "1-0-2",
-                  "label": "Service_Instance_Throughput",
                   "associate": [
                     {
                       "widgetId": "1-0-0"
@@ -158,10 +144,14 @@
                       "widgetId": "1-0-3"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 17,
-                    "sourceId": "1-0-3"
-                  }
+                  "metricConfig": [
+                    {
+                      "label": "received"
+                    },
+                    {
+                      "label": "sent"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -188,8 +178,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "1-0-3",
-                  "label": "Instance_Load",
                   "associate": [
                     {
                       "widgetId": "1-0-0"
@@ -230,9 +218,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "value": "1-1-10",
-                  "label": "1-1-10"
+                  ]
                 },
                 {
                   "x": 6,
@@ -260,8 +246,14 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "1-1-11",
-                  "label": "1-1-11"
+                  "metricConfig": [
+                    {
+                      "label": "total"
+                    },
+                    {
+                      "label": "parent"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -286,9 +278,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "value": "1-1-12",
-                  "label": "1-1-12"
+                  ]
                 },
                 {
                   "x": 12,
@@ -313,9 +303,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "value": "1-1-13",
-                  "label": "1-1-13"
+                  ]
                 },
                 {
                   "x": 6,
@@ -340,9 +328,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "value": "1-1-14",
-                  "label": "1-1-14"
+                  ]
                 },
                 {
                   "x": 0,
@@ -380,26 +366,30 @@
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "allocated_max"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap_memory_used"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "allocated"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "physical_size"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "physical_size_max"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "max_used"
                     }
-                  ],
-                  "value": "1-1-15",
-                  "label": "1-1-15"
+                  ]
                 },
                 {
                   "x": 18,
@@ -424,9 +414,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "1-1-16",
-                  "label": "1-1-16"
+                  ]
                 },
                 {
                   "x": 12,
@@ -454,8 +442,14 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "1-1-17",
-                  "label": "1-1-17"
+                  "metricConfig": [
+                    {
+                      "label": "threads_max"
+                    },
+                    {
+                      "label": "threads"
+                    }
+                  ]
                 },
                 {
                   "x": 6,
@@ -480,9 +474,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "value": "1-1-18",
-                  "label": "1-1-18"
+                  ]
                 },
                 {
                   "x": 0,
@@ -507,9 +499,7 @@
                   ],
                   "metricTypes": [
                     "readLabeledMetricsValues"
-                  ],
-                  "value": "1-1-19",
-                  "label": "1-1-19"
+                  ]
                 },
                 {
                   "x": 12,
@@ -535,9 +525,7 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "value": "1-1-20",
-                  "label": "1-1-20"
+                  }
                 },
                 {
                   "x": 18,
@@ -563,9 +551,7 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "value": "1-1-21",
-                  "label": "1-1-21"
+                  }
                 }
               ]
             },

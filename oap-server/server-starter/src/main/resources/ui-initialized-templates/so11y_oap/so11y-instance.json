@@ -67,7 +67,8 @@
           ],
           "metricConfig": [
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "used"
             }
           ]
         },
@@ -117,6 +118,14 @@
           "metricTypes": [
             "readMetricsValues",
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "count"
+            },
+            {
+              "label": "error_count"
+            }
           ]
         },
         {
@@ -142,6 +151,12 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "labelsIndex": "50,70,90,99",
+              "label": "P50,P70,P90,P99"
+            }
           ]
         },
         {
@@ -169,6 +184,17 @@
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "loaded"
+            },
+            {
+              "label": "total_unloaded"
+            },
+            {
+              "label": "total_loaded"
+            }
           ]
         },
         {
@@ -192,6 +218,14 @@
           "metricTypes": [
             "readMetricsValues",
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "prepare_count"
+            },
+            {
+              "label": "execute_count"
+            }
           ]
         },
         {
@@ -221,6 +255,17 @@
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "live"
+            },
+            {
+              "label": "peak"
+            },
+            {
+              "label": "daemon"
+            }
           ]
         },
         {
@@ -246,6 +291,12 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "labelsIndex": "50,70,90,99",
+              "label": "P50,P70,P90,P99"
+            }
           ]
         },
         {
@@ -271,6 +322,12 @@
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "labelsIndex": "50,70,90,99",
+              "label": "P50,P70,P90,P99"
+            }
           ]
         },
         {
@@ -298,6 +355,20 @@
             "readMetricsValues",
             "readMetricsValues",
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "runnable"
+            },
+            {
+              "label": "timed_waiting"
+            },
+            {
+              "label": "blocked"
+            },
+            {
+              "label": "waiting"
+            }
           ]
         },
         {
@@ -351,7 +422,7 @@
           ],
           "metricConfig": [
             {
-              "label": "50,70,90,99",
+              "label": "P50,P70,P90,P99",
               "labelsIndex": "50,70,90,99"
             }
           ]
@@ -377,6 +448,14 @@
           "metricTypes": [
             "readMetricsValues",
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "count"
+            },
+            {
+              "label": "error_count"
+            }
           ]
         },
         {
@@ -402,6 +481,11 @@
           ],
           "metricTypes": [
             "readMetricsValues"
+          ],
+          "metricConfig": [
+            {
+              "label": "percentage"
+            }
           ]
         },
         {
