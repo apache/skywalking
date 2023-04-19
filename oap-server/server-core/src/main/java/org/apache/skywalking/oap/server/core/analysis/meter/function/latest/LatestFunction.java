@@ -59,7 +59,6 @@ public abstract class LatestFunction extends Meter implements AcceptableValue<Lo
     @Setter
     @Getter
     @Column(name = InstanceTraffic.SERVICE_ID)
-    @BanyanDB.TopNAggregation
     private String serviceId;
 
     @Getter
