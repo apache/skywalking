@@ -21,7 +21,7 @@ services:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
     ports:
-      - 12800
+      - "12800:12800"
     networks:
       - e2e
   es:
@@ -51,7 +51,17 @@ services:
       es:
         condition: service_healthy
     command:
+      - '--log.format=logfmt'
+      - '--log.level=info'
       - '--es.uri=http://es:9200'
+      - '--es.all'
+      - '--es.indices'
+      - '--es.indices_settings'
+      - '--es.indices_mappings'
+      - '--es.shards'
+      - '--es.snapshots'
+      - '--es.timeout=30s'
+      - '--web.telemetry-path=/metrics'
     healthcheck:
       interval: 5s
       timeout: 60s
@@ -69,11 +79,6 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-    healthcheck:
-      interval: 5s
-      timeout: 60s
-      retries: 120
-      test: ["CMD", "sh", "-c", "nc -vz localhost 55678"]
   es-mock:
     image: curlimages/curl:latest
     networks:
@@ -83,12 +88,9 @@ services:
         condition: service_healthy
       es-exporter:
         condition: service_healthy
-      otel-collector:
-        condition: service_healthy
       oap:
         condition: service_healthy
-    command: >
-      sh -c "chmod +x /etc/es-e2e-data-mock.sh && /etc/es-e2e-data-mock.sh"
+    command: "sh /etc/es-e2e-data-mock.sh"
     volumes:
       - ./es-e2e-data-mock.sh:/etc/es-e2e-data-mock.sh
 

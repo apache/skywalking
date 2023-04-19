@@ -15,7 +15,7 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
-  name: {{ b64enc "node-e2e" }}.1
+  name: node-e2e
   instanceuuid: {{ notEmpty .instanceuuid }}
   attributes: []
   language: UNKNOWN
