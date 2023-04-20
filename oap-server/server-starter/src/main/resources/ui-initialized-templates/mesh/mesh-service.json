@@ -56,9 +56,7 @@
                     {
                       "calculation": "apdex"
                     }
-                  ],
-                  "value": "0-0-0",
-                  "label": "0-0-0"
+                  ]
                 },
                 {
                   "x": 8,
@@ -87,9 +85,7 @@
                       "calculation": "percentage",
                       "unit": "%"
                     }
-                  ],
-                  "value": "0-0-1",
-                  "label": "0-0-1"
+                  ]
                 },
                 {
                   "x": 16,
@@ -117,9 +113,7 @@
                     {
                       "unit": "calls or packets / min"
                     }
-                  ],
-                  "value": "0-0-2",
-                  "label": "0-0-2"
+                  ]
                 },
                 {
                   "x": 8,
@@ -146,8 +140,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-3",
-                  "label": "Service_Response",
                   "associate": [
                     {
                       "widgetId": "0-0-9"
@@ -164,11 +156,7 @@
                     {
                       "widgetId": "0-0-7"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 27,
-                    "sourceId": "0-0-7"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -200,8 +188,6 @@
                       "calculation": "apdex"
                     }
                   ],
-                  "value": "0-0-4",
-                  "label": "Service_Apdex",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -218,11 +204,7 @@
                     {
                       "widgetId": "0-0-7"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 27,
-                    "sourceId": "0-0-7"
-                  }
+                  ]
                 },
                 {
                   "x": 16,
@@ -255,8 +237,6 @@
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
                   ],
-                  "value": "0-0-5",
-                  "label": "Service_Response_Percentile",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -273,11 +253,7 @@
                     {
                       "widgetId": "0-0-7"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 27,
-                    "sourceId": "0-0-7"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -309,8 +285,6 @@
                       "calculation": "percentage"
                     }
                   ],
-                  "value": "0-0-6",
-                  "label": "Success_Rate",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -327,11 +301,7 @@
                     {
                       "widgetId": "0-0-7"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 27,
-                    "sourceId": "0-0-7"
-                  }
+                  ]
                 },
                 {
                   "x": 8,
@@ -358,8 +328,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-7",
-                  "label": "Service_Load",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -406,8 +374,6 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-0-9",
-                  "label": "0-0-9",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -425,10 +391,14 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 27,
-                    "sourceId": "0-0-7"
-                  }
+                  "metricConfig": [
+                    {
+                      "label": "received"
+                    },
+                    {
+                      "label": "sent"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -448,9 +418,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "value": "0-0-11",
-                  "label": "0-0-11"
+                  ]
                 },
                 {
                   "x": 8,
@@ -471,9 +439,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "value": "0-0-12",
-                  "label": "0-0-12"
+                  ]
                 },
                 {
                   "x": 16,
@@ -500,9 +466,7 @@
                       "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
-                  ],
-                  "value": "0-0-13",
-                  "label": "0-0-13"
+                  ]
                 },
                 {
                   "x": 16,
@@ -529,9 +493,7 @@
                       "sortOrder": "ASC",
                       "calculation": "percentage"
                     }
-                  ],
-                  "value": "0-0-20",
-                  "label": "0-0-20"
+                  ]
                 },
                 {
                   "x": 8,
@@ -552,9 +514,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "value": "0-0-21",
-                  "label": "0-0-21"
+                  ]
                 },
                 {
                   "x": 0,
@@ -575,9 +535,7 @@
                   ],
                   "metricTypes": [
                     "sortMetrics"
-                  ],
-                  "value": "0-0-22",
-                  "label": "0-0-22"
+                  ]
                 },
                 {
                   "x": 0,
@@ -603,9 +561,7 @@
                   "widget": {
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
-                  },
-                  "value": "0-0-23",
-                  "label": "0-0-23"
+                  }
                 },
                 {
                   "x": 8,
@@ -631,9 +587,7 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  },
-                  "value": "0-0-24",
-                  "label": "0-0-24"
+                  }
                 }
               ]
             },
@@ -678,9 +632,7 @@
                       "label": "Latency",
                       "unit": "ms"
                     }
-                  ],
-                  "value": "0-1-0",
-                  "label": "0-1-0"
+                  ]
                 }
               ]
             },
@@ -727,9 +679,7 @@
                       "label": "Latency",
                       "unit": "ms"
                     }
-                  ],
-                  "value": "0-2-0",
-                  "label": "0-2-0"
+                  ]
                 }
               ]
             },
