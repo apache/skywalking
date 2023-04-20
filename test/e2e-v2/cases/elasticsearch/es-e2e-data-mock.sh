@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -32,43 +32,50 @@ do
 
     curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_doc/?pretty" -H 'Content-Type: application/json' -d'{"message": "GET /search HTTP/1.1 200 '${i}'","userid":"test"}'
 
-    curl -X GET "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?size=20&pretty" -H 'Content-Type: application/json' -d'
-    {
-      "query": {
-        "term": {
-          "userid": "test"
-        }
-      }
-    }
-    '
 
-    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?pretty" -H 'Content-Type: application/json' -d'
-    {
-      "suggest": {
-        "my-suggest-1" : {
-          "text" : "test",
-          "term" : {
-            "field" : "userid"
-          }
-        }
-      }
-    }
-    '
-
-    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?scroll=1m&pretty" -H 'Content-Type: application/json' -d'
-    {
-      "size": 100,
-      "query": {
-        "match": {
-          "userid": "test"
-        }
-      }
-    }
-    '
 
     if [ $i -eq 10 ]
     then
       break
     fi
     i=`expr $i + 1`
+done
+
+while true
+do
+      curl -X GET "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?size=20&pretty" -H 'Content-Type: application/json' -d'
+      {
+        "query": {
+          "term": {
+            "userid": "test"
+          }
+        }
+      }
+      '
+
+      curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?pretty" -H 'Content-Type: application/json' -d'
+      {
+        "suggest": {
+          "my-suggest-1" : {
+            "text" : "test",
+            "term" : {
+              "field" : "userid"
+            }
+          }
+        }
+      }
+      '
+
+      curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?scroll=1m&pretty" -H 'Content-Type: application/json' -d'
+      {
+        "size": 100,
+        "query": {
+          "match": {
+            "userid": "test"
+          }
+        }
+      }
+      '
+
+      sleep 2
 done
