@@ -66,6 +66,7 @@ public class UITemplateInitializer {
         Layer.AWS_DYNAMODB.name(),
         Layer.AWS_GATEWAY.name(),
         Layer.REDIS.name(),
+        Layer.ELASTICSEARCH.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
