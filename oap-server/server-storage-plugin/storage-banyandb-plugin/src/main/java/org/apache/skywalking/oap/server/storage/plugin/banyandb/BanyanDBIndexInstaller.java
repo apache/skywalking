@@ -92,7 +92,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     ((BanyanDBStorageClient) client).define(measure);
                     final BanyanDBClient c = ((BanyanDBStorageClient) this.client).client;
                     MetadataRegistry.INSTANCE.findMetadata(model).installTopNAggregation(c);
-                    log.info("installed TopN schema for measure {}", measure.name());
                 }
             }
         } catch (IOException ex) {

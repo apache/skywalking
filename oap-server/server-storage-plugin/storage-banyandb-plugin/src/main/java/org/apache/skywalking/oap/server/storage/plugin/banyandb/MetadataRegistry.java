@@ -694,6 +694,7 @@ public enum MetadataRegistry {
                     .setCountersNumber(this.getTopNSpec().getCountersNumber())
                     .setLruSize(this.getTopNSpec().getLruSize())
                     .build());
+            log.info("installed TopN schema for measure {}", getMetadata().name());
         }
     }
 
