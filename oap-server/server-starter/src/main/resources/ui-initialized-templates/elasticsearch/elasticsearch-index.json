@@ -46,8 +46,16 @@
           },
           "widget":{
             "title":"Indexing Rate",
-            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
-          }
+            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          },
+          "metricConfig":[
+            {
+              "label":"req rate"
+            },
+            {
+              "label":"proc rate"
+            }
+          ]
         },
         {
           "x":12,
@@ -76,8 +84,16 @@
           },
           "widget":{
             "title":"Searching Rate",
-            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
-          }
+            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          },
+          "metricConfig":[
+            {
+              "label":"req rate"
+            },
+            {
+              "label":"proc rate"
+            }
+          ]
         },
         {
           "x":0,
@@ -124,7 +140,42 @@
           },
           "widget":{
             "title":"All Operations ReqRate"
-          }
+          },
+          "metricConfig":[
+            {
+              "label":"merge"
+            },
+            {
+              "label":"flush"
+            },
+            {
+              "label":"refresh"
+            },
+            {
+              "label":"warmer"
+            },
+            {
+              "label":"indexing delete"
+            },
+            {
+              "label":"search fetch"
+            },
+            {
+              "label":"search query"
+            },
+            {
+              "label":"search scroll"
+            },
+            {
+              "label":"search suggest"
+            },
+            {
+              "label":"indexing index"
+            },
+            {
+              "label":"get"
+            }
+          ]
         },
         {
           "x":12,
@@ -177,7 +228,51 @@
           },
           "widget":{
             "title":"All Operations Runtime (s)"
-          }
+          },
+          "metricConfig":[
+            {
+              "label":"merge"
+            },
+            {
+              "label":"flush"
+            },
+            {
+              "label":"refresh"
+            },
+            {
+              "label":"warmer"
+            },
+            {
+              "label":"indexing delete"
+            },
+            {
+              "label":"search fetch"
+            },
+            {
+              "label":"search query"
+            },
+            {
+              "label":"search scroll"
+            },
+            {
+              "label":"search suggest"
+            },
+            {
+              "label":"indexing index"
+            },
+            {
+              "label":"get"
+            },
+            {
+              "label":"merge stopped"
+            },
+            {
+              "label":"merge throttle"
+            },
+            {
+              "label":"indexing throttle"
+            }
+          ]
         },
         {
           "x":0,
@@ -210,7 +305,21 @@
           },
           "widget":{
             "title":"Avg. Search Time Execute / Request (s)"
-          }
+          },
+          "metricConfig":[
+            {
+              "label":"search fetch"
+            },
+            {
+              "label":"search query"
+            },
+            {
+              "label":"search scroll"
+            },
+            {
+              "label":"search suggest"
+            }
+          ]
         },
         {
           "x":8,
@@ -242,7 +351,18 @@
             "showYAxis":true
           },
           "metricConfig":[
-
+            {
+              "label":"search fetch"
+            },
+            {
+              "label":"search query"
+            },
+            {
+              "label":"search scroll"
+            },
+            {
+              "label":"search suggest"
+            }
           ],
           "widget":{
             "title":"Search Operations Rate (req/s)"

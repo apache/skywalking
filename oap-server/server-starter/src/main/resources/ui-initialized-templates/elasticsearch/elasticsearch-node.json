@@ -42,7 +42,7 @@
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
-              "show":true
+              "show":false
             }
           },
           "widget":{
@@ -81,13 +81,16 @@
           },
           "metricConfig":[
             {
-              "calculation":"percentage"
+              "calculation":"percentage",
+              "label":"load1"
             },
             {
-              "calculation":"percentage"
+              "calculation":"percentage",
+              "label":"load5"
             },
             {
-              "calculation":"percentage"
+              "calculation":"percentage",
+              "label":"load15"
             }
           ]
         },
@@ -118,13 +121,16 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "label":"heap used"
             },
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "label":"heap max"
             },
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "label":"nonheap used"
             }
           ],
           "widget":{
@@ -268,7 +274,42 @@
             "title":"All Operations ReqRate"
           },
           "metricConfig":[
-
+            {
+              "label":"indexing index"
+            },
+            {
+              "label":"search query"
+            },
+            {
+              "label":"search fetch"
+            },
+            {
+              "label":"merges"
+            },
+            {
+              "label":"refresh"
+            },
+            {
+              "label":"flush"
+            },
+            {
+              "label":"get exists"
+            },
+            {
+              "label":"get missing"
+            },
+            {
+              "label":"get"
+            },
+            {
+              "label":"indexing delete"
+            },
+            {
+              "label":"search scroll"
+            },
+            {
+              "label":"suggest"
+            }
           ]
         },
         {
@@ -298,10 +339,15 @@
           },
           "widget":{
             "title":"Searching Rate",
-            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
           "metricConfig":[
-
+            {
+              "label":"proc rate"
+            },
+            {
+              "label":"req rate"
+            }
           ]
         },
         {
@@ -615,7 +661,7 @@
             "showXAxis":true,
             "showYAxis":true,
             "legend":{
-              "show":true
+              "show":false
             }
           },
           "widget":{
@@ -687,7 +733,15 @@
           },
           "widget":{
             "title":"Network (bytes/sec)"
-          }
+          },
+          "metricConfig":[
+            {
+              "label":"sead"
+            },
+            {
+              "label":"receive"
+            }
+          ]
         },
         {
           "x":12,
@@ -913,8 +967,16 @@
           },
           "widget":{
             "title":"Indexing Rate",
-            "tips":"`ProcRate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
-          }
+            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          },
+          "metricConfig":[
+            {
+              "label":"proc rate"
+            },
+            {
+              "label":"req rate"
+            }
+          ]
         },
         {
           "x":0,
@@ -937,7 +999,10 @@
             "smooth":false,
             "showSymbol":true,
             "showXAxis":true,
-            "showYAxis":true
+            "showYAxis":true,
+            "legend":{
+              "show":false
+            }
           },
           "widget":{
             "title":"Documents Index Rate (calls/s)"
