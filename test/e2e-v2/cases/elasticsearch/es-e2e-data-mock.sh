@@ -30,12 +30,38 @@ do
     }
     '
 
-    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}${i}/_doc/?pretty" -H 'Content-Type: application/json' -d'
+    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_doc/?pretty" -H 'Content-Type: application/json' -d'{"message": "GET /search HTTP/1.1 200 '${i}'","userid":"test"}'
+
+    curl -X GET "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?size=20&pretty" -H 'Content-Type: application/json' -d'
     {
-      "@timestamp": "2099-11-15T13:12:00",
-      "message": "GET /search HTTP/1.1 200 1070000",
-      "user": {
-        "id": "kimchy"
+      "query": {
+        "term": {
+          "userid": "test"
+        }
+      }
+    }
+    '
+
+    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?pretty" -H 'Content-Type: application/json' -d'
+    {
+      "suggest": {
+        "my-suggest-1" : {
+          "text" : "test",
+          "term" : {
+            "field" : "userid"
+          }
+        }
+      }
+    }
+    '
+
+    curl -X POST "${E2E_ES_HOST}/${INDEX_NAME_PREFIX}0/_search?scroll=1m&pretty" -H 'Content-Type: application/json' -d'
+    {
+      "size": 100,
+      "query": {
+        "match": {
+          "userid": "test"
+        }
       }
     }
     '
