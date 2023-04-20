@@ -46,14 +46,14 @@
           },
           "widget":{
             "title":"Indexing Rate",
-            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
           "metricConfig":[
             {
-              "label":"req rate"
+              "label":"req_rate"
             },
             {
-              "label":"proc rate"
+              "label":"proc_rate"
             }
           ]
         },
@@ -84,14 +84,14 @@
           },
           "widget":{
             "title":"Searching Rate",
-            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
           "metricConfig":[
             {
-              "label":"req rate"
+              "label":"req_rate"
             },
             {
-              "label":"proc rate"
+              "label":"proc_rate"
             }
           ]
         },
@@ -155,22 +155,22 @@
               "label":"warmer"
             },
             {
-              "label":"indexing delete"
+              "label":"indexing_delete"
             },
             {
-              "label":"search fetch"
+              "label":"search_fetch"
             },
             {
-              "label":"search query"
+              "label":"search_query"
             },
             {
-              "label":"search scroll"
+              "label":"search_scroll"
             },
             {
-              "label":"search suggest"
+              "label":"search_suggest"
             },
             {
-              "label":"indexing index"
+              "label":"indexing_index"
             },
             {
               "label":"get"
@@ -243,34 +243,34 @@
               "label":"warmer"
             },
             {
-              "label":"indexing delete"
+              "label":"indexing_delete"
             },
             {
-              "label":"search fetch"
+              "label":"search_fetch"
             },
             {
-              "label":"search query"
+              "label":"search_query"
             },
             {
-              "label":"search scroll"
+              "label":"search_scroll"
             },
             {
-              "label":"search suggest"
+              "label":"search_suggest"
             },
             {
-              "label":"indexing index"
+              "label":"indexing_index"
             },
             {
               "label":"get"
             },
             {
-              "label":"merge stopped"
+              "label":"merge_stopped"
             },
             {
-              "label":"merge throttle"
+              "label":"merge_throttle"
             },
             {
-              "label":"indexing throttle"
+              "label":"indexing_throttle"
             }
           ]
         },
@@ -308,16 +308,16 @@
           },
           "metricConfig":[
             {
-              "label":"search fetch"
+              "label":"search_fetch"
             },
             {
-              "label":"search query"
+              "label":"search_query"
             },
             {
-              "label":"search scroll"
+              "label":"search_scroll"
             },
             {
-              "label":"search suggest"
+              "label":"search_suggest"
             }
           ]
         },
@@ -352,16 +352,16 @@
           },
           "metricConfig":[
             {
-              "label":"search fetch"
+              "label":"search_fetch"
             },
             {
-              "label":"search query"
+              "label":"search_query"
             },
             {
-              "label":"search scroll"
+              "label":"search_scroll"
             },
             {
-              "label":"search suggest"
+              "label":"search_suggest"
             }
           ],
           "widget":{

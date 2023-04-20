@@ -122,15 +122,15 @@
           "metricConfig":[
             {
               "calculation":"byteToMB",
-              "label":"heap used"
+              "label":"heap_used"
             },
             {
               "calculation":"byteToMB",
-              "label":"heap max"
+              "label":"heap_max"
             },
             {
               "calculation":"byteToMB",
-              "label":"nonheap used"
+              "label":"nonheap_used"
             }
           ],
           "widget":{
@@ -275,13 +275,13 @@
           },
           "metricConfig":[
             {
-              "label":"indexing index"
+              "label":"indexing_index"
             },
             {
-              "label":"search query"
+              "label":"search_query"
             },
             {
-              "label":"search fetch"
+              "label":"search_fetch"
             },
             {
               "label":"merges"
@@ -293,19 +293,19 @@
               "label":"flush"
             },
             {
-              "label":"get exists"
+              "label":"get_exists"
             },
             {
-              "label":"get missing"
+              "label":"get_missing"
             },
             {
               "label":"get"
             },
             {
-              "label":"indexing delete"
+              "label":"indexing_delete"
             },
             {
-              "label":"search scroll"
+              "label":"search_scroll"
             },
             {
               "label":"suggest"
@@ -339,14 +339,14 @@
           },
           "widget":{
             "title":"Searching Rate",
-            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
           "metricConfig":[
             {
-              "label":"proc rate"
+              "label":"proc_rate"
             },
             {
-              "label":"req rate"
+              "label":"req_rate"
             }
           ]
         },
@@ -967,14 +967,14 @@
           },
           "widget":{
             "title":"Indexing Rate",
-            "tips":"`proc rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
           "metricConfig":[
             {
-              "label":"proc rate"
+              "label":"proc_rate"
             },
             {
-              "label":"req rate"
+              "label":"req_rate"
             }
           ]
         },
