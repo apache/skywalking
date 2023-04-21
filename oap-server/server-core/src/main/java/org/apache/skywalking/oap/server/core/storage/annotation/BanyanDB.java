@@ -181,6 +181,9 @@ public @interface BanyanDB {
     @interface TopNAggregation {
         int lruSize() default 2;
 
+        /**
+         * The max size of buffer for the pre-aggregation
+         */
         int countersNumber() default 1000;
     }
 }
