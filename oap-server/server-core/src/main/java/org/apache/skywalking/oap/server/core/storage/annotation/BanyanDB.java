@@ -179,6 +179,12 @@ public @interface BanyanDB {
     @Retention(RetentionPolicy.RUNTIME)
     @Inherited
     @interface TopNAggregation {
+        /**
+         * The size of LRU determines the max tolerant time range.
+         * The data in [T - lruSize * n, T] would be accepted in the pre-aggregation process.
+         * T = the current time in the current dimensionality.
+         * n = interval in the current dimensionality.
+         */
         int lruSize() default 2;
 
         /**
