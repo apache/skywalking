@@ -143,11 +143,11 @@ public class GRPCCallback implements AlarmCallback {
         if (grpcAlarmSetting == null) {
             if (grpcClient != null) {
                 grpcClient.shutdown();
+                log.debug("gRPC alarm hook target is empty, shutdown the old gRPC client.");
             }
             alarmServiceStub = null;
             alarmSetting = null;
 
-            log.warn("gRPC alarm hook settings about host is empty, shutdown the old gRPC client.");
             return;
         }
 
@@ -155,6 +155,7 @@ public class GRPCCallback implements AlarmCallback {
             alarmSetting = grpcAlarmSetting;
             if (grpcClient != null) {
                 grpcClient.shutdown();
+                log.debug("gRPC alarm hook target is changed, shutdown the old gRPC client.");
             }
             grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
             grpcClient.connect();
