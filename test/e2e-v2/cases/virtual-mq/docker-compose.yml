@@ -66,7 +66,7 @@ services:
     networks:
       e2e:
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: 'bitnami/kafka:2.4.1'
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
