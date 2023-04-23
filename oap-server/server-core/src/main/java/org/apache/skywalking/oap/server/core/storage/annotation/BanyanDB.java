@@ -49,7 +49,7 @@ public @interface BanyanDB {
 
     /**
      * Series key is used to group time series data per metric of one entity in one place.
-     *
+     * <p>
      * For example,
      * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
      * by service ID
@@ -76,7 +76,7 @@ public @interface BanyanDB {
     @interface SeriesID {
         /**
          * Relative entity tag
-         *
+         * <p>
          * The index number determines the order of the column placed in the SeriesID.
          * BanyanDB SeriesID searching procedure uses a prefix-scanning strategy.
          * Searching series against a prefix could improve the performance.
@@ -144,13 +144,13 @@ public @interface BanyanDB {
 
     /**
      * MeasureField defines a column as a measure's field.
-     *
+     * <p>
      * Annotated: the column is a measure field.
      * Unannotated: the column is a measure tag.
-     *   storageOnly=true: the column is a measure tag that is not indexed.
-     *   storageOnly=false: the column is a measure tag that is indexed.
-     *   indexOnly=true: the column is a measure tag that is indexed, but not stored.
-     *   indexOnly=false: the column is a measure tag that is indexed and stored.
+     * storageOnly=true: the column is a measure tag that is not indexed.
+     * storageOnly=false: the column is a measure tag that is indexed.
+     * indexOnly=true: the column is a measure tag that is indexed, but not stored.
+     * indexOnly=false: the column is a measure tag that is indexed and stored.
      *
      * @since 9.4.0
      */
@@ -180,15 +180,16 @@ public @interface BanyanDB {
     @Inherited
     @interface TopNAggregation {
         /**
-         * The size of LRU determines the max tolerant time range.
-         * The data in [T - lruSize * n, T] would be accepted in the pre-aggregation process.
+         * The size of LRU determines the maximally tolerated time range.
+         * The buffers in the time range are kept in the memory so that
+         * the data in [T - lruSize * n, T] would be accepted in the pre-aggregation process.
          * T = the current time in the current dimensionality.
          * n = interval in the current dimensionality.
          */
         int lruSize() default 2;
 
         /**
-         * The max size of buffer for the pre-aggregation
+         * The max size of entries in a time window for the pre-aggregation.
          */
         int countersNumber() default 1000;
     }

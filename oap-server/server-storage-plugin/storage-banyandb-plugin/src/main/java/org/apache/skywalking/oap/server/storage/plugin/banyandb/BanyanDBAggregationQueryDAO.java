@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -36,10 +37,8 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractB
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID);
@@ -64,6 +63,13 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
         // BanyanDB server-side TopN support for metrics pre-aggregation.
         if (schema.getTopNSpec() != null) {
+            // check if additional conditions are registered
+            if (CollectionUtils.isNotEmpty(additionalConditions)) {
+                final Set<String> additionalConditionNames = additionalConditions.stream().map(KeyValue::getKey).collect(Collectors.toSet());
+                if (!ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNames()).containsAll(additionalConditionNames)) {
+                    throw new IOException("[" + Strings.join(additionalConditionNames, ',') + "] conditions are not registered as groupBy tags");
+                }
+            }
             return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
         }
 
