@@ -21,6 +21,13 @@ cases:
     expected: expected/instance-traffic.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=endpoint_traffic{layer="GENERAL", service="e2e-service-provider", keyword="POST:/users"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-traffic.yml
+  # metrics series
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_cpm&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/service-metric-series.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=service_instance_cpm&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/instance-metric-series.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/series -d 'match[]=endpoint_cpm&start='$(($(date +%s)-1800))'&end='$(date +%s)
+    expected: expected/endpoint-metric-series.yml
   # metrics names query
   - query: curl -X  GET http://${oap_host}:${oap_9090}/api/v1/label/__name__/values
     expected: expected/metrics-names.yml
