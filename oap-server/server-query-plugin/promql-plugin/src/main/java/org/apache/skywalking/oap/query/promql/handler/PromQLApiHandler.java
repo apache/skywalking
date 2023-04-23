@@ -500,11 +500,13 @@ public class PromQLApiHandler {
                 break;
             case ServiceInstance:
                 metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.ServiceInstance.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE, ""));
                 metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE_INSTANCE, ""));
                 metricInfo.getLabels().add(new LabelValuePair(LabelName.PARENT_SERVICE, ""));
                 break;
             case Endpoint:
                 metricInfo.getLabels().add(new LabelValuePair(LabelName.SCOPE, Scope.Endpoint.name()));
+                metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE, ""));
                 metricInfo.getLabels().add(new LabelValuePair(LabelName.ENDPOINT, ""));
                 metricInfo.getLabels().add(new LabelValuePair(LabelName.PARENT_SERVICE, ""));
                 break;
