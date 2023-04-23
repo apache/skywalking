@@ -146,10 +146,7 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
     expected: expected/metrics-has-value-percentile.yml
   # Endpoint TopN with service_id
-  - query: |
-      curl -s -XPOST http://${provider_host}:${provider_9090}/users -d '{"id":"123","name":"SinglesBar"}' -H "Content-Type: application/json" > /dev/null;
-      sleep 5;
-      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics top --name endpoint_cpm --service-name e2e-service-provider 5
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics top --name endpoint_cpm --service-name e2e-service-provider 5
     expected: expected/metrics-top-endpoint.yml
   # native event: event list
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql event list
