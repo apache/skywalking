@@ -62,7 +62,7 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             throw new IOException("field spec is not registered");
         }
 
-        // BanyanDB server-side TopN support: for metrics aggregated at instance, endpoint levels
+        // BanyanDB server-side TopN support for metrics pre-aggregation.
         if (schema.getTopNSpec() != null) {
             return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
         }
