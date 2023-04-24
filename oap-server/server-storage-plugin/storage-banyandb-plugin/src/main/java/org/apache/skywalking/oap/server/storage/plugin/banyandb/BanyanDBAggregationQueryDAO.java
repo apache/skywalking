@@ -66,14 +66,13 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
 
         // BanyanDB server-side TopN support for metrics pre-aggregation.
         if (schema.getTopNSpec() != null) {
-            // check if additional conditions are registered
-            if (CollectionUtils.isNotEmpty(additionalConditions)) {
-                final Set<String> additionalConditionNames = additionalConditions.stream().map(KeyValue::getKey).collect(Collectors.toSet());
-                if (!ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNames()).containsAll(additionalConditionNames)) {
-                    throw new IOException("[" + Strings.join(additionalConditionNames, ',') + "] conditions are not registered as groupBy tags");
-                }
+            // 1) no additional conditions
+            // 2) additional conditions are all group by tags
+            if (CollectionUtils.isEmpty(additionalConditions) ||
+                    additionalConditions.stream().map(KeyValue::getKey).collect(Collectors.toSet())
+                            .equals(ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNames()))) {
+                return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
             }
-            return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
         }
 
         return directMetricsTopN(condition, valueColumnName, spec, timestampRange, additionalConditions);
