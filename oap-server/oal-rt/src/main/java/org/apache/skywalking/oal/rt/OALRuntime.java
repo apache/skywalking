@@ -277,6 +277,11 @@ public class OALRuntime implements OALEngine {
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 
+                if (field.isGroupByCondInTopN()) {
+                    Annotation banyanTopNAggregationAnnotation = new Annotation(BanyanDB.TopNAggregation.class.getName(), constPool);
+                    annotationsAttribute.addAnnotation(banyanTopNAggregationAnnotation);
+                }
+
                 newField.getFieldInfo().addAttribute(annotationsAttribute);
             } catch (CannotCompileException e) {
                 log.error(

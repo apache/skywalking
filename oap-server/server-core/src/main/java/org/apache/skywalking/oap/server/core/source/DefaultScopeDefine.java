@@ -205,7 +205,7 @@ public class DefaultScopeDefine {
         if (virtualColumn != null) {
             scopeDefaultColumns.add(
                 new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(), virtualColumn
-                    .type(), virtualColumn.isID(), virtualColumn.length()));
+                    .type(), virtualColumn.isID(), virtualColumn.length(), false));
         }
         Field[] scopeClassField = originalClass.getDeclaredFields();
         if (scopeClassField != null) {
@@ -217,7 +217,7 @@ public class DefaultScopeDefine {
                         scopeDefaultColumns.add(
                             new ScopeDefaultColumn(
                                 field.getName(), definedByField.columnName(), field.getType(), false,
-                                definedByField.length()
+                                definedByField.length(), definedByField.groupByCondInTopN()
                             ));
                     }
                 }

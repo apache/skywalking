@@ -23,6 +23,7 @@ import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID);
@@ -51,7 +53,59 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
     public List<SelectedRecord> sortMetrics(TopNCondition condition, String valueColumnName, Duration duration, List<KeyValue> additionalConditions) throws IOException {
         final String modelName = condition.getName();
         final TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        MeasureQueryResponse resp = query(modelName, TAGS, Collections.singleton(valueColumnName),
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+
+        MetadataRegistry.ColumnSpec spec = schema.getSpec(valueColumnName);
+        if (spec == null) {
+            throw new IOException("field spec is not registered");
+        }
+
+        // BanyanDB server-side TopN support for metrics pre-aggregation.
+        if (schema.getTopNSpec() != null) {
+            // 1) no additional conditions
+            // 2) additional conditions are all group by tags
+            if (CollectionUtils.isEmpty(additionalConditions) ||
+                    additionalConditions.stream().map(KeyValue::getKey).collect(Collectors.toSet())
+                            .equals(ImmutableSet.copyOf(schema.getTopNSpec().getGroupByTagNames()))) {
+                return serverSideTopN(condition, schema, spec, timestampRange, additionalConditions);
+            }
+        }
+
+        return directMetricsTopN(condition, valueColumnName, spec, timestampRange, additionalConditions);
+    }
+
+    List<SelectedRecord> serverSideTopN(TopNCondition condition, MetadataRegistry.Schema schema, MetadataRegistry.ColumnSpec valueColumnSpec,
+                                        TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
+        TopNQueryResponse resp = null;
+        if (condition.getOrder() == Order.DES) {
+            resp = topN(schema, timestampRange, condition.getTopN(), additionalConditions);
+        } else {
+            resp = bottomN(schema, timestampRange, condition.getTopN(), additionalConditions);
+        }
+
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        } else if (resp.size() > 1) { // since we have done aggregation, i.e. MEAN
+            throw new IOException("invalid TopN response");
+        }
+
+        final List<SelectedRecord> topNList = new ArrayList<>();
+        for (TopNQueryResponse.Item item : resp.getTopNLists().get(0).getItems()) {
+            SelectedRecord record = new SelectedRecord();
+            record.setId((String) item.getTagValuesMap().get(Metrics.ENTITY_ID).getValue());
+            record.setValue(extractFieldValueAsString(valueColumnSpec, item.getValue()));
+            topNList.add(record);
+        }
+
+        return topNList;
+    }
+
+    List<SelectedRecord> directMetricsTopN(TopNCondition condition, String valueColumnName, MetadataRegistry.ColumnSpec valueColumnSpec,
+                                           TimestampRange timestampRange, List<KeyValue> additionalConditions) throws IOException {
+        MeasureQueryResponse resp = query(condition.getName(), TAGS, Collections.singleton(valueColumnName),
                 timestampRange, new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
@@ -75,34 +129,24 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             return Collections.emptyList();
         }
 
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
-        if (schema == null) {
-            throw new IOException("schema is not registered");
-        }
-
-        MetadataRegistry.ColumnSpec spec = schema.getSpec(valueColumnName);
-        if (spec == null) {
-            throw new IOException("field spec is not registered");
-        }
-
         final List<SelectedRecord> topNList = new ArrayList<>();
-        for (DataPoint dataPoint : resp.getDataPoints()) {
-            SelectedRecord record = new SelectedRecord();
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            final SelectedRecord record = new SelectedRecord();
             record.setId(dataPoint.getTagValue(Metrics.ENTITY_ID));
-            record.setValue(extractFieldValueAsString(spec, valueColumnName, dataPoint));
+            record.setValue(extractFieldValueAsString(valueColumnSpec, dataPoint.getFieldValue(valueColumnName)));
             topNList.add(record);
         }
 
         return topNList;
     }
 
-    private String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, String fieldName, DataPoint dataPoint) throws IOException {
+    private static String extractFieldValueAsString(MetadataRegistry.ColumnSpec spec, Object fieldValue) {
         if (double.class.equals(spec.getColumnClass())) {
-            return String.valueOf(ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName)).longValue());
+            return String.valueOf(ByteUtil.bytes2Double((byte[]) fieldValue).longValue());
         } else if (String.class.equals(spec.getColumnClass())) {
-            return dataPoint.getFieldValue(fieldName);
+            return (String) fieldValue;
         } else {
-            return String.valueOf(((Number) dataPoint.getFieldValue(fieldName)).longValue());
+            return String.valueOf(((Number) fieldValue).longValue());
         }
     }
 }

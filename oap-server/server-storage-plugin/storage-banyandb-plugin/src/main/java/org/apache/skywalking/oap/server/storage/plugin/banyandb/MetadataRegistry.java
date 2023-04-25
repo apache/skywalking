@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import lombok.Builder;
 import lombok.Data;
@@ -47,6 +48,7 @@ import lombok.Setter;
 import lombok.Singular;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Catalog;
@@ -59,6 +61,7 @@ import org.apache.skywalking.banyandb.v1.client.metadata.NamedSchema;
 import org.apache.skywalking.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TagFamilySpec;
+import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -72,6 +75,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
@@ -132,7 +136,7 @@ public enum MetadataRegistry {
         // parse and set sharding keys
         List<String> shardingColumns = parseEntityNames(modelColumnMap);
         if (shardingColumns.isEmpty()) {
-           throw new StorageException("model " + model.getName() + " doesn't contain series id");
+            throw new StorageException("model " + model.getName() + " doesn't contain series id");
         }
         // parse tag metadata
         // this can be used to build both
@@ -167,8 +171,36 @@ public enum MetadataRegistry {
             builder.addField(field);
             schemaBuilder.field(field.getName());
         }
+        // parse TopN
+        schemaBuilder.topNSpec(parseTopNSpec(model, schemaMetadata.name()));
+
         registry.put(schemaMetadata.name(), schemaBuilder.build());
         return builder.build();
+    }
+
+    private TopNSpec parseTopNSpec(final Model model, final String measureName)
+            throws StorageException {
+        if (model.getBanyanDBModelExtension().getTopN() == null) {
+            return null;
+        }
+
+        final Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(model.getName());
+        if (valueColumnOpt.isEmpty() || valueColumnOpt.get().getDataType() != Column.ValueDataType.COMMON_VALUE) {
+            // skip non-single valued metrics
+            return null;
+        }
+
+        if (CollectionUtils.isEmpty(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())) {
+            throw new StorageException("invalid groupBy tags: " + model.getBanyanDBModelExtension().getTopN().getGroupByTagNames());
+        }
+        return TopNSpec.builder()
+                .name(measureName + "_topn")
+                .lruSize(model.getBanyanDBModelExtension().getTopN().getLruSize())
+                .countersNumber(model.getBanyanDBModelExtension().getTopN().getCountersNumber())
+                .fieldName(valueColumnOpt.get().getValueCName())
+                .groupByTagNames(model.getBanyanDBModelExtension().getTopN().getGroupByTagNames())
+                .sort(AbstractQuery.Sort.UNSPECIFIED) // include both TopN and BottomN
+                .build();
     }
 
     public Schema findMetadata(final Model model) {
@@ -339,8 +371,6 @@ public enum MetadataRegistry {
      */
     MeasureMetadata parseTagAndFieldMetadata(Model model, Schema.SchemaBuilder builder, List<String> shardingColumns) {
         // skip metric
-        Optional<ValueColumnMetadata.ValueColumn> valueColumnOpt = ValueColumnMetadata.INSTANCE
-                .readValueColumnDefinition(model.getName());
         MeasureMetadata.MeasureMetadataBuilder result = MeasureMetadata.builder();
         for (final ModelColumn col : model.getColumns()) {
             final String columnStorageName = col.getColumnName().getStorageName();
@@ -575,6 +605,9 @@ public enum MetadataRegistry {
             }
         }
 
+        /**
+         * @return name of the Stream/Measure in the BanyanDB
+         */
         public String name() {
             if (this.kind == Kind.MEASURE) {
                 return formatName(this.modelName, this.downSampling);
@@ -638,9 +671,44 @@ public enum MetadataRegistry {
         @Getter
         private final String timestampColumn4Stream;
 
+        @Getter
+        @Nullable
+        private final TopNSpec topNSpec;
+
         public ColumnSpec getSpec(String columnName) {
             return this.specs.get(columnName);
         }
+
+        public void installTopNAggregation(BanyanDBClient client) throws BanyanDBException {
+            if (this.getTopNSpec() == null) {
+                if (this.metadata.kind == Kind.MEASURE) {
+                    log.debug("skip null TopN Schema for [{}]", metadata.getModelName());
+                }
+                return;
+            }
+            client.define(TopNAggregation.create(getMetadata().getGroup(), this.getTopNSpec().getName())
+                    .setSourceMeasureName(getMetadata().name())
+                    .setFieldValueSort(this.getTopNSpec().getSort())
+                    .setFieldName(this.getTopNSpec().getFieldName())
+                    .setGroupByTagNames(this.getTopNSpec().getGroupByTagNames())
+                    .setCountersNumber(this.getTopNSpec().getCountersNumber())
+                    .setLruSize(this.getTopNSpec().getLruSize())
+                    .build());
+            log.info("installed TopN schema for measure {}", getMetadata().name());
+        }
+    }
+
+    @Builder
+    @EqualsAndHashCode
+    @Getter
+    public static class TopNSpec {
+        private final String name;
+        @Singular
+        private final List<String> groupByTagNames;
+        private final String fieldName;
+        private final AbstractQuery.Sort sort;
+        private final int lruSize;
+        private final int countersNumber;
     }
 
     @RequiredArgsConstructor

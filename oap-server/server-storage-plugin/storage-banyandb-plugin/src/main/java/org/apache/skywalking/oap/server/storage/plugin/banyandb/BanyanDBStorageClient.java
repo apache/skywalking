@@ -28,11 +28,14 @@ import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
+import org.apache.skywalking.banyandb.v1.client.TopNQuery;
+import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.Property;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
+import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
 import org.apache.skywalking.oap.server.library.client.healthcheck.HealthCheckable;
@@ -118,6 +121,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public TopNQueryResponse query(TopNQuery q) throws IOException {
+        try {
+            TopNQueryResponse response = this.client.query(q);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query topn", ex);
+        }
+    }
+
     public void define(Property property) throws IOException {
         try {
             this.client.apply(property);
@@ -158,6 +172,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
             throw new IOException("fail to define group", ex);
+        }
+    }
+
+    public void define(TopNAggregation topNAggregation) throws IOException {
+        try {
+            this.client.define(topNAggregation);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to define TopNAggregation", ex);
         }
     }
 
