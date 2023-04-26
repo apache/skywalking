@@ -388,6 +388,7 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
             dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRule4OpenapiWatcher);
         }
+        dynamicConfigurationService.registerConfigChangeWatcher(moduleConfig.getSearchableTracesTagsWatcher());
     }
 
     @Override
