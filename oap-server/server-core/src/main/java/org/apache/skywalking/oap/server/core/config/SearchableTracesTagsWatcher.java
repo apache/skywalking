@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
-
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SearchableTracesTagsWatcher extends ConfigChangeWatcher {

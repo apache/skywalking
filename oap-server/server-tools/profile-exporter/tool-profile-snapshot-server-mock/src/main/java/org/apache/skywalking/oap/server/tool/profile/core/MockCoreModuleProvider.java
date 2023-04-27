@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.server.tool.profile.core;
 
-import java.io.IOException;
-import java.util.Collections;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
@@ -73,6 +71,9 @@ import org.apache.skywalking.oap.server.tool.profile.core.mock.MockSourceReceive
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockStreamAnnotationListener;
 import org.apache.skywalking.oap.server.tool.profile.core.mock.MockWorkerInstancesService;
 
+import java.io.IOException;
+import java.util.Collections;
+
 public class MockCoreModuleProvider extends CoreModuleProvider {
 
     private final StorageModels storageModels;
@@ -119,7 +120,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         this.registerServiceImplementation(MeterSystem.class, new MeterSystem(getManager()));
 
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
-        this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig));
+        this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
         this.registerServiceImplementation(
                 DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
 
