@@ -37,6 +37,7 @@
 * Support Elasticsearch Monitoring.
 * Fix PromQL HTTP API `/api/v1/series` response missing `service` label when matching metric.
 * Support ServerSide TopN for BanyanDB.
+* Add component ID for Jersey
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
