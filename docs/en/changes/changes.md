@@ -57,6 +57,9 @@
 * [Clean UI templates before upgrade] Set `showSymbol: true`, and make the data point shows on the Line graph.
   Please clean `ui_template` index in elasticsearch storage or table in JDBC storage.
 * [Clean UI templates before upgrade] UI templates: Simplify metric name with the label.
+* Add MQ menu.
+* Add Jeysey icon.
+* Fix: set endpoint and instance selectors with url parameters correctly.
 
 #### Documentation
 
