@@ -131,8 +131,18 @@ catalog:
             path: "/en/setup/backend/backend-alarm"
       - name: "Logging"
         catalog:
-          - name: "Log Collecting And Analysis"
-            path: "/en/setup/backend/log-analyzer"
+          - name: "Persistent Logging"
+            catalog:
+              - name: "Native Logging"
+                catalog:
+                  - name: "Collecting File Log"
+                    path: "/en/setup/backend/filelog-native"
+                  - name: "Collecting Logs by Agents"
+                    path: "/en/setup/backend/log-agent-native"
+              - name: "OpenTelemetry Logging Exporter"
+                path: "/en/setup/backend/log-otlp"
+              - name: "Log Analysis"
+                path: "/en/setup/backend/log-analyzer"
           - name: "On Demand Pod Logs"
             path: "/en/setup/backend/on-demand-pod-log"
       - name: "Profiling"
