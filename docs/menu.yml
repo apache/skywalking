@@ -133,13 +133,11 @@ catalog:
         catalog:
           - name: "Persistent Logging"
             catalog:
-              - name: "Native Logging"
-                catalog:
-                  - name: "Collecting File Log"
-                    path: "/en/setup/backend/filelog-native"
-                  - name: "Collecting Logs by Agents"
-                    path: "/en/setup/backend/log-agent-native"
-              - name: "OpenTelemetry Logging Exporter"
+              - name: "Native Logging from Files"
+                path: "/en/setup/backend/filelog-native"
+              - name: "Native Logging from Agents"
+                path: "/en/setup/backend/log-agent-native"
+              - name: "OpenTelemetry Logging"
                 path: "/en/setup/backend/log-otlp"
               - name: "Log Analysis"
                 path: "/en/setup/backend/log-analyzer"
