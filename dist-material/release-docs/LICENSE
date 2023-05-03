@@ -493,8 +493,8 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/element-plus/v/2.1.0 2.1.0 MIT
     https://npmjs.com/package/element-plus/node_modules/@vueuse/core/v/7.7.1 7.7.1 MIT
     https://npmjs.com/package/element-plus/node_modules/@vueuse/core/node_modules/@vueuse/shared/v/7.7.1 7.7.1 MIT
-    https://npmjs.com/package/element-plus/node_modules/@vueuse/core/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
     https://npmjs.com/package/escape-html/v/1.0.3 1.0.3 MIT
+    https://npmjs.com/package/element-plus/node_modules/@vueuse/core/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
     https://npmjs.com/package/element-resize-detector/v/1.2.4 1.2.4 MIT
     https://npmjs.com/package/estree-walker/v/2.0.2 2.0.2 MIT
     https://npmjs.com/package/follow-redirects/v/1.15.2 1.15.2 MIT
