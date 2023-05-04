@@ -18,16 +18,16 @@
 
 package org.apache.skywalking.oap.server.receiver.otel;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.apache.skywalking.oap.server.receiver.otel.oc.OCMetricHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OtelMetricReceiverProvider extends ModuleProvider {
     public static final String NAME = "default";
@@ -74,10 +74,6 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
             getManager(), metricRequestProcessor);
         if (enabledHandlers.contains(openTelemetryMetricHandler.type())) {
             handlers.add(openTelemetryMetricHandler);
-        }
-        final OCMetricHandler ocMetricHandler = new OCMetricHandler(getManager(), config);
-        if (enabledHandlers.contains(ocMetricHandler.type())) {
-            handlers.add(ocMetricHandler);
         }
         this.handlers = handlers;
     }

@@ -63,7 +63,6 @@ header:
     - '**/src/main/proto/prometheus/client_model/metrics.proto'
     - '**/src/main/proto/protoc-gen-swagger/**'
     - '**/src/main/proto/validate/validate.proto'
-    - '**/src/main/proto/opencensus/**'
     - '**/src/main/proto/opentelemetry/**'
     - 'oap-server/server-starter/src/main/resources/version.properties'
     - '**/mockito-extensions/**'

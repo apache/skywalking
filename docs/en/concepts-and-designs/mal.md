@@ -2,7 +2,7 @@
 
 The meter system provides a functional analysis language called MAL (Meter Analysis Language) that lets users analyze and
 aggregate meter data in the OAP streaming system. The result of an expression can either be ingested by the agent analyzer,
-or the OC/Prometheus analyzer.
+or the OpenTelemetry/Prometheus analyzer.
 
 ## Language data type
 

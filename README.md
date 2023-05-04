@@ -30,7 +30,7 @@ in Cloud Native architecture.
 * Native APM Database
   * BanyanDB, an observability database, created in 2022, aims to ingest, analyze and store telemetry/observability data.
 * Consistent Metrics Aggregation
-  * SkyWalking native meter format and widely known metrics format(OpenCensus, OTLP, Telegraf, Zabbix, e.g.) are processed through the same script pipeline.
+  * SkyWalking native meter format and widely known metrics format(OpenTelemetry, Telegraf, Zabbix, e.g.) are processed through the same script pipeline.
 * Log Management Pipeline
   * Support log formatting, extract metrics, various sampling policies through script pipeline in high performance.
 * Alerting and Telemetry Pipelines

@@ -26,23 +26,10 @@ processors:
   batch:
 
 exporters:
-  ####################################################################################
-  # If you want to use otlp exporter please ensure that your OAP version is >= 9.2.0 #
-  # or you can use oc exporter, The config format should be:                         #
-  # opencensus:                                                                      #
-  #   endpoint: "oap:11800"                                                          #
-  #   tls:                                                                           #
-  #      insecure: true                                                              #
-  ####################################################################################
   otlp:
     endpoint: "oap:11800" # The OAP Server address
-    ###############################################################################
-    # OTEL previous version before 0.34.0 the config format, eg. 0.29.0 should be:#
-    # insecure: true                                                              #
-    # The new version should be:                                                  #
-    # tls:                                                                        #
-    #   insecure: true                                                            #
-    ###############################################################################
+    # The config format of OTEL version prior to 0.34.0, eg. 0.29.0, should be:
+    # insecure: true
     tls:
       insecure: true
     #insecure: true
@@ -55,8 +42,4 @@ service:
     metrics:
       receivers: [prometheus]
       processors: [batch]
-      #########################################
-      # oc exporter config format:            #
-      # exporters: [opencensus,logging]       #
-      #########################################
       exporters: [otlp, logging]
