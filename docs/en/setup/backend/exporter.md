@@ -81,8 +81,7 @@ exporter:
     # Kafka producer config, JSON format as Properties.
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
     kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-trace}
-    # Trace filter
-    kafkaTraceFilterError: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
+    exportErrorStatusTraceOnly: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
     ...
 ```
 
