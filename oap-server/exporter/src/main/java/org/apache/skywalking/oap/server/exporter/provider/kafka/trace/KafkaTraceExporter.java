@@ -90,7 +90,7 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
             if (segmentRecord != null) {
                 try {
                     SegmentObject segmentObject = SegmentObject.parseFrom(segmentRecord.getDataBinary());
-                    if(setting.isKafkaTraceFilterError() && isError(segmentObject)){
+                    if(setting.exportErrorStatusTraceOnly() && isError(segmentObject)){
                         continue;
                     }
                     ProducerRecord<String, Bytes> record = new ProducerRecord<>(
