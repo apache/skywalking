@@ -90,6 +90,9 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
             if (segmentRecord != null) {
                 try {
                     SegmentObject segmentObject = SegmentObject.parseFrom(segmentRecord.getDataBinary());
+                    if(setting.isKafkaTraceFilterError() && isError(segmentObject)){
+                        continue;
+                    }
                     ProducerRecord<String, Bytes> record = new ProducerRecord<>(
                         setting.getKafkaTopicTrace(),
                         segmentObject.getTraceSegmentId(),
@@ -110,6 +113,15 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
                 }
             }
         }
+    }
+
+    private boolean isError(SegmentObject segmentObject) {
+        for (SpanObject spanObject : segmentObject.getSpansList()) {
+            if (spanObject.getIsError()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

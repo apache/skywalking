@@ -509,6 +509,8 @@ exporter:
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
     kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-export-trace}
     kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-export-log}
+    # Trace filter
+    kafkaTraceFilterError: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
 
 health-checker:
   selector: ${SW_HEALTH_CHECKER:-}
