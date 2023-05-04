@@ -47,7 +47,6 @@ public class SearchableTracesTagsWatcherTest {
         searchableTracesTagsWatcher = new SearchableTracesTagsWatcher(moduleConfig.getSearchableTracesTags(), provider);
     }
 
-
     @Test
     public void testGetDefaultSearchableTags() {
 
@@ -69,7 +68,6 @@ public class SearchableTracesTagsWatcherTest {
         Assertions.assertEquals(searchableTracesTagsWatcher.getSearchableTags(),
                 Arrays.stream(addSearchableTracesTagsStr.split(",")).collect(Collectors.toSet()));
 
-
         //modify
         String modifySearchableTracesTagsStr = moduleConfig.getSearchableTracesTags() + ",userId,orderId";
         ConfigChangeWatcher.ConfigChangeEvent modifyEvent =
@@ -81,7 +79,6 @@ public class SearchableTracesTagsWatcherTest {
         Assertions.assertEquals(searchableTracesTagsWatcher.getSearchableTags(),
                 Arrays.stream(modifySearchableTracesTagsStr.split(",")).collect(Collectors.toSet()));
 
-
         //delete
         ConfigChangeWatcher.ConfigChangeEvent deleteEvent =
                 new ConfigChangeWatcher.ConfigChangeEvent(null,
@@ -90,7 +87,6 @@ public class SearchableTracesTagsWatcherTest {
 
         Assertions.assertEquals(searchableTracesTagsWatcher.getSearchableTags(),
                 Arrays.stream(moduleConfig.getSearchableTracesTags().split(",")).collect(Collectors.toSet()));
-
     }
 
 }
