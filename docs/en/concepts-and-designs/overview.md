@@ -31,7 +31,7 @@ Kubernetes(k8s layer). All detected instances belong to a layer to represent the
 the service would have one or multiple layer definitions according to its instances.
 
 In addition, you can integrate 
-1. Other distributed tracing using SkyWalking native agents and SDKs with Zipkin, Jaeger and OpenCensus.
+1. Other distributed tracing using SkyWalking native agents and SDKs with Zipkin and Jaeger.
 1. Other metrics systems, such as Prometheus, Sleuth(Micrometer), OpenTelemetry.
 
 

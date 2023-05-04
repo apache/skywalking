@@ -37,7 +37,8 @@
 * Support Elasticsearch Monitoring.
 * Fix PromQL HTTP API `/api/v1/series` response missing `service` label when matching metric.
 * Support ServerSide TopN for BanyanDB.
-* Add component ID for Jersey
+* Add component ID for Jersey.
+* Remove OpenCensus support, the related codes and docs as [it's sunsetting](https://opentelemetry.io/blog/2023/sunsetting-opencensus/).
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
