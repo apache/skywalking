@@ -1,5 +1,5 @@
 # Meter APIs
-SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenCensus, OpenTelemetry, and Zabbix.
+SkyWalking has a native metrics format, and supports widely used metric formats, such as Prometheus, OpenTelemetry, and Zabbix.
 
 ```protobuf
 syntax = "proto3";

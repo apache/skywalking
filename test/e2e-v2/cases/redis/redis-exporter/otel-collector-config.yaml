@@ -27,14 +27,6 @@ processors:
   batch:
 
 exporters:
-  ####################################################################################
-  # If you want to use otlp exporter please ensure that your OAP version is >= 9.2.0 #
-  # or you can use oc exporter, The config format should be:                         #
-  # opencensus:                                                                      #
-  #   endpoint: "oap:11800"                                                          #
-  #   tls:                                                                           #
-  #      insecure: true                                                              #
-  ####################################################################################
   otlp:
     endpoint: oap:11800
     tls:
@@ -47,8 +39,4 @@ service:
       processors:
       - batch
       exporters:
-      #########################################
-      # oc exporter config format:            #
-      # - opencensus                          #
-      #########################################
       - otlp

@@ -487,6 +487,9 @@ amqp-producer:
 amqp-consumer:
   id: 145
   languages: PHP
+Jersey:
+  id: 146
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

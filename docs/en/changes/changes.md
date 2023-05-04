@@ -37,6 +37,8 @@
 * Support Elasticsearch Monitoring.
 * Fix PromQL HTTP API `/api/v1/series` response missing `service` label when matching metric.
 * Support ServerSide TopN for BanyanDB.
+* Add component ID for Jersey.
+* Remove OpenCensus support, the related codes and docs as [it's sunsetting](https://opentelemetry.io/blog/2023/sunsetting-opencensus/).
 * Support dynamic configuration of searchableTracesTags
 
 #### UI
@@ -57,10 +59,15 @@
 * [Clean UI templates before upgrade] Set `showSymbol: true`, and make the data point shows on the Line graph.
   Please clean `ui_template` index in elasticsearch storage or table in JDBC storage.
 * [Clean UI templates before upgrade] UI templates: Simplify metric name with the label.
+* Add MQ menu.
+* Add Jeysey icon.
+* Fix: set endpoint and instance selectors with url parameters correctly.
+* Bump up dependencies versions icons-vue 1.1.4, element-plus 2.1.0, nanoid 3.3.6, postcss 8.4.23
 
 #### Documentation
 
 * Add Profiling related documentations.
 * Add `SUM_PER_MIN` to MAL documentation.
+* Make the log relative docs more clear, and easier for further more formats support.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/169?closed=1)
