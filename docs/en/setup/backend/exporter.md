@@ -86,7 +86,7 @@ exporter:
     ...
 ```
 
-- `exportErrorStatusTraceOnly=true` represents that export the trace segments only through the Kafka channel.
+- `exportErrorStatusTraceOnly=true` represents that only export the error status trace segments through the Kafka channel.
 
 ### Log Kafka Exporter
 Log kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-log` to export the log. Here is the message:
