@@ -20,23 +20,28 @@ package org.apache.skywalking.oap.server.core.config;
 
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 @Getter
 public class ConfigService implements Service {
     private final String gRPCHost;
     private final int gRPCPort;
-    private final String searchableTracesTags;
+    private final SearchableTracesTagsWatcher searchableTracesTags;
     private final String searchableLogsTags;
     private final String searchableAlarmTags;
     private final int metricsDataTTL;
     private final int recordDataTTL;
     private final int persistentPeriod;
 
-    public ConfigService(CoreModuleConfig moduleConfig) {
+    public ConfigService(CoreModuleConfig moduleConfig, ModuleProvider provider) {
         this.gRPCHost = moduleConfig.getGRPCHost();
         this.gRPCPort = moduleConfig.getGRPCPort();
-        this.searchableTracesTags = moduleConfig.getSearchableTracesTags();
+
+        this.searchableTracesTags =
+                new SearchableTracesTagsWatcher(moduleConfig.getSearchableTracesTags(), provider);
+        moduleConfig.setSearchableTracesTagsWatcher(this.searchableTracesTags);
+
         this.searchableLogsTags = moduleConfig.getSearchableLogsTags();
         this.searchableAlarmTags = moduleConfig.getSearchableAlarmTags();
         this.metricsDataTTL = moduleConfig.getMetricsDataTTL();

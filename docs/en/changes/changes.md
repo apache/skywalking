@@ -39,6 +39,7 @@
 * Support ServerSide TopN for BanyanDB.
 * Add component ID for Jersey.
 * Remove OpenCensus support, the related codes and docs as [it's sunsetting](https://opentelemetry.io/blog/2023/sunsetting-opencensus/).
+* Support dynamic configuration of searchableTracesTags
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

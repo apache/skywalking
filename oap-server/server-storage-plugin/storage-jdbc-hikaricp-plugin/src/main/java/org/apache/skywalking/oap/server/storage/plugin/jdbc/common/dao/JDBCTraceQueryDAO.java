@@ -22,12 +22,12 @@ import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.config.SearchableTracesTagsWatcher;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.BasicTrace;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
@@ -47,12 +47,9 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
@@ -66,7 +63,7 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
 
-    private Set<String> searchableTagKeys;
+    private SearchableTracesTagsWatcher searchableTagKeys;
 
     private static String DETAIL_SELECT_QUERY = "select " + SegmentRecord.SEGMENT_ID + ", " +
         SegmentRecord.TRACE_ID + ", " +
@@ -96,12 +93,12 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()
                                                        .getService(ConfigService.class);
-            searchableTagKeys = new HashSet<>(Arrays.asList(configService.getSearchableTracesTags().split(Const.COMMA)));
+            searchableTagKeys = configService.getSearchableTracesTags();
         }
-        if (tags != null && !searchableTagKeys.containsAll(tags.stream().map(Tag::getKey).collect(toSet()))) {
+        if (tags != null && !searchableTagKeys.getSearchableTags().containsAll(tags.stream().map(Tag::getKey).collect(toSet()))) {
             log.warn(
                 "Searching tags that are not searchable: {}",
-                tags.stream().map(Tag::getKey).filter(not(searchableTagKeys::contains)).collect(toSet()));
+                tags.stream().map(Tag::getKey).filter(not(searchableTagKeys.getSearchableTags()::contains)).collect(toSet()));
             return new TraceBrief();
         }
 
