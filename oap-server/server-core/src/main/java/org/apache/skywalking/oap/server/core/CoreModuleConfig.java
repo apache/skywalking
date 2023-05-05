@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.config.SearchableTracesTagsWatcher;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
@@ -138,6 +139,10 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+    @Setter
+    @Getter
+    private SearchableTracesTagsWatcher searchableTracesTagsWatcher;
+
     /**
      * Define the set of logs tag keys, which should be searchable through the GraphQL.
      *
