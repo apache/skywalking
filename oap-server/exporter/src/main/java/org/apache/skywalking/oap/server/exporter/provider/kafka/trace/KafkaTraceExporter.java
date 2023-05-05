@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.exporter.TraceExportService;
@@ -90,7 +91,7 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
             if (segmentRecord != null) {
                 try {
                     SegmentObject segmentObject = SegmentObject.parseFrom(segmentRecord.getDataBinary());
-                    if (setting.exportErrorStatusTraceOnly() && !isError(segmentObject)) {
+                    if (setting.isExportErrorStatusTraceOnly() && !isError(segmentObject)) {
                         continue;
                     }
                     ProducerRecord<String, Bytes> record = new ProducerRecord<>(
