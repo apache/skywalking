@@ -8,7 +8,8 @@ The exporter is an independent module that has to be manually activated.
 Right now, we provide the following exporting channels:
 1. gRPC Exporter
 - [Metrics](#metrics-grpc-exporter)
-1. Kafka Exporter
+
+2. Kafka Exporter
 - [Trace](#trace-kafka-exporter)
 - [Log](#log-kafka-exporter)
 
@@ -81,8 +82,11 @@ exporter:
     # Kafka producer config, JSON format as Properties.
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
     kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-trace}
+    exportErrorStatusTraceOnly: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
     ...
 ```
+
+- `exportErrorStatusTraceOnly=true` represents that only export the error status trace segments through the Kafka channel.
 
 ### Log Kafka Exporter
 Log kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-log` to export the log. Here is the message:

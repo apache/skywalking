@@ -38,4 +38,5 @@ public class ExporterSetting extends ModuleConfig {
     private String kafkaProducerConfig;
     private String kafkaTopicTrace = "skywalking-export-trace";
     private String kafkaTopicLog = "skywalking-export-log";
+    private boolean exportErrorStatusTraceOnly = false;
 }
