@@ -490,6 +490,9 @@ amqp-consumer:
 Jersey:
   id: 146
   languages: Java
+Grizzly:
+  id: 147
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
