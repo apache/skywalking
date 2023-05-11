@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.query.zipkin.handler;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.gson.Gson;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpStatus;
@@ -36,23 +37,44 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import org.apache.skywalking.apm.network.common.v3.KeyIntValuePair;
+import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.joda.time.DateTime;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Tag;
 import zipkin2.Span;
 import zipkin2.codec.SpanBytesEncoder;
 import zipkin2.storage.QueryRequest;
@@ -70,6 +92,7 @@ public class ZipkinQueryHandler {
     private final ZipkinQueryConfig config;
     private final ModuleManager moduleManager;
     private IZipkinQueryDAO zipkinQueryDAO;
+    private ISpanAttachedEventQueryDAO spanAttachedEventQueryDAO;
     private TagAutoCompleteQueryService tagQueryService;
     private final long defaultLookback;
     private final int namesMaxAge;
@@ -97,6 +120,13 @@ public class ZipkinQueryHandler {
             this.tagQueryService = moduleManager.find(CoreModule.NAME).provider().getService(TagAutoCompleteQueryService.class);
         }
         return tagQueryService;
+    }
+
+    private ISpanAttachedEventQueryDAO getSpanAttachedEventQueryDAO() {
+        if (spanAttachedEventQueryDAO == null) {
+            this.spanAttachedEventQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(ISpanAttachedEventQueryDAO.class);
+        }
+        return spanAttachedEventQueryDAO;
     }
 
     @Get("/config.json")
@@ -149,6 +179,7 @@ public class ZipkinQueryHandler {
         if (CollectionUtils.isEmpty(trace)) {
             return AggregatedHttpResponse.of(NOT_FOUND, ANY_TEXT_TYPE, traceId + " not found");
         }
+        appendEvents(trace, getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(traceId)));
         return response(SpanBytesEncoder.JSON_V2.encodeList(trace));
     }
 
@@ -183,6 +214,7 @@ public class ZipkinQueryHandler {
         duration.setStart(startTime.toString("yyyy-MM-dd HHmmss"));
         duration.setEnd(endTime.toString("yyyy-MM-dd HHmmss"));
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(queryRequest, duration);
+        appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
 
@@ -202,6 +234,7 @@ public class ZipkinQueryHandler {
         }
 
         List<List<Span>> traces = getZipkinQueryDAO().getTraces(normalizeTraceIds);
+        appendEventsToTraces(traces);
         return response(encodeTraces(traces));
     }
 
@@ -273,5 +306,114 @@ public class ZipkinQueryHandler {
         }
         buff.put((byte) ']');
         return buff.array();
+    }
+
+    private void appendEventsToTraces(List<List<Span>> traces) throws IOException {
+        final Map<String, List<Span>> traceIdWithSpans = traces.stream().filter(CollectionUtils::isNotEmpty)
+            .collect(Collectors.toMap(s -> s.get(0).traceId(), Function.identity(), (s1, s2) -> s1));
+        if (CollectionUtils.isEmpty(traceIdWithSpans)) {
+            return;
+        }
+
+        final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().querySpanAttachedEvents(SpanAttachedEventTraceType.ZIPKIN,
+            new ArrayList<>(traceIdWithSpans.keySet()));
+        final Map<String, List<SpanAttachedEventRecord>> traceEvents = records.stream().collect(Collectors.groupingBy(SpanAttachedEventRecord::getRelatedTraceId));
+        for (Map.Entry<String, List<SpanAttachedEventRecord>> entry : traceEvents.entrySet()) {
+            appendEvents(traceIdWithSpans.get(entry.getKey()), entry.getValue());
+        }
+    }
+
+    private void appendEvents(List<Span> spans, List<SpanAttachedEventRecord> events) throws InvalidProtocolBufferException {
+        if (CollectionUtils.isEmpty(spans) || CollectionUtils.isEmpty(events)) {
+            return;
+        }
+
+        final List<Tuple2<Integer, Span>> spanWithIndex = IntStream.range(0, spans.size()).mapToObj(i -> Tuple.of(i, spans.get(i))).collect(Collectors.toList());
+
+        // sort by start time
+        events.sort((e1, e2) -> {
+            final int second = Long.compare(e1.getStartTimeSecond(), e2.getStartTimeSecond());
+            if (second == 0) {
+                return Long.compare(e1.getStartTimeNanos(), e2.getStartTimeNanos());
+            }
+            return second;
+        });
+
+        final Map<String, List<SpanAttachedEventRecord>> namedEvents = events.stream()
+            .collect(Collectors.groupingBy(SpanAttachedEventRecord::getEvent, Collectors.toList()));
+
+        final Map<String, Tuple2<Span.Builder, Integer>> spanCache = new HashMap<>();
+        for (Map.Entry<String, List<SpanAttachedEventRecord>> namedEntry : namedEvents.entrySet()) {
+            for (int i = 1; i <= namedEntry.getValue().size(); i++) {
+                final SpanAttachedEventRecord record = namedEntry.getValue().get(i - 1);
+                String eventName = record.getEvent() + (namedEntry.getValue().size() == 1 ? "" : "-" + i);
+                final SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
+
+                // find matched span
+                Tuple2<Span.Builder, Integer> spanBuilder = spanCache.get(record.getTraceSpanId());
+                if (spanBuilder == null) {
+                    Tuple2<Integer, Span> matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.id(), record.getTraceSpanId())).
+                        findFirst().orElse(null);
+                    if (matchesSpan == null) {
+                        continue;
+                    }
+
+                    // if the event is server side, then needs to change to the upstream span
+                    final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
+                    final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
+                    if (("request".equals(type) && "inbound".equals(direction)) || ("response".equals(type) && "outbound".equals(direction))) {
+                        final String parentSpanId = matchesSpan._2.id();
+                        matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.parentId(), parentSpanId)
+                            && Objects.equals(s._2.kind(), Span.Kind.SERVER)).findFirst().orElse(matchesSpan);
+                    }
+
+                    spanBuilder = Tuple.of(matchesSpan._2.toBuilder(), matchesSpan._1);
+                    spanCache.put(record.getTraceSpanId(), spanBuilder);
+                }
+
+                appendEvent(spanBuilder._1, eventName, event);
+            }
+        }
+
+        // re-build modified spans
+        for (Map.Entry<String, Tuple2<Span.Builder, Integer>> entry : spanCache.entrySet()) {
+            spans.set(entry.getValue()._2, entry.getValue()._1.build());
+        }
+    }
+
+    private void appendEvent(Span.Builder span, String eventName, SpanAttachedEvent event) {
+        span.addAnnotation(
+            TimeUnit.SECONDS.toMicros(event.getStartTime().getSeconds()) + TimeUnit.NANOSECONDS.toMicros(event.getStartTime().getNanos()),
+            "Start " + eventName);
+        span.addAnnotation(
+            TimeUnit.SECONDS.toMicros(event.getEndTime().getSeconds()) + TimeUnit.NANOSECONDS.toMicros(event.getEndTime().getNanos()),
+            "Finished " + eventName);
+
+        final Yaml yaml = new Yaml();
+        if (event.getSummaryList().size() > 0) {
+            final Map<String, Long> summaries = event.getSummaryList().stream().collect(Collectors.toMap(
+                KeyIntValuePair::getKey, KeyIntValuePair::getValue, (s1, s2) -> s1));
+            String summary = yaml.dumpAs(summaries, Tag.MAP, DumperOptions.FlowStyle.AUTO);
+            span.putTag(formatEventTagKey(eventName + ".summary"), summary);
+        }
+        if (event.getTagsList().size() > 0) {
+            final Map<String, String> tags = event.getTagsList().stream().collect(Collectors.toMap(
+                KeyStringValuePair::getKey, KeyStringValuePair::getValue, (s1, s2) -> s1));
+            String summary = yaml.dumpAs(tags, Tag.MAP, DumperOptions.FlowStyle.AUTO);
+            span.putTag(formatEventTagKey(eventName + ".tags"), summary);
+        }
+    }
+
+    private String formatEventTagKey(String name) {
+        return name.replaceAll(" ", ".").toLowerCase(Locale.ROOT);
+    }
+
+    private String getSpanAttachedEventTagValue(List<KeyStringValuePair> values, String tagKey) {
+        for (KeyStringValuePair pair : values) {
+            if (Objects.equals(pair.getKey(), tagKey)) {
+                return pair.getValue();
+            }
+        }
+        return null;
     }
 }

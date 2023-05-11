@@ -18,15 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.config.group;
 
-import java.io.FileNotFoundException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.io.FileNotFoundException;
 
 public class EndpointNameGroupingRuleWatcherTest {
     @Test
@@ -70,7 +71,7 @@ public class EndpointNameGroupingRuleWatcherTest {
                     return new String[0];
                 }
             }, endpointNameGrouping);
-        Assert.assertEquals("/prod/{id}", endpointNameGrouping.format("serviceA", "/prod/123"));
+        Assertions.assertEquals("/prod/{id}", endpointNameGrouping.format("serviceA", "/prod/123"));
 
         watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
             "# Licensed to the Apache Software Foundation (ASF) under one or more\n" +
@@ -105,9 +106,9 @@ public class EndpointNameGroupingRuleWatcherTest {
             , ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        Assert.assertEquals("/prod/order-id", endpointNameGrouping.format("serviceA", "/prod/123"));
+        Assertions.assertEquals("/prod/order-id", endpointNameGrouping.format("serviceA", "/prod/123"));
 
         watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent("", ConfigChangeWatcher.EventType.DELETE));
-        Assert.assertEquals("/prod/123", endpointNameGrouping.format("serviceA", "/prod/123"));
+        Assertions.assertEquals("/prod/123", endpointNameGrouping.format("serviceA", "/prod/123"));
     }
 }

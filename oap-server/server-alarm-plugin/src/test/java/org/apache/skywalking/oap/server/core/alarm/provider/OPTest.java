@@ -18,27 +18,41 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OPTest {
     @Test
     public void test() {
-        assertTrue(OP.EQUAL.test(123, 123));
-        assertTrue(OP.EQUAL.test(123L, 123L));
-        assertTrue(OP.EQUAL.test(123.0D, 123.0D));
+        assertTrue(OP.EQ.test(123, 123));
+        assertTrue(OP.EQ.test(123L, 123L));
+        assertTrue(OP.EQ.test(123.0D, 123.0D));
 
-        assertTrue(OP.GREATER.test(122, 123));
-        assertTrue(OP.GREATER.test(122L, 123L));
-        assertTrue(OP.GREATER.test(122.0D, 123.0D));
+        assertTrue(OP.NEQ.test(124, 123));
+        assertTrue(OP.NEQ.test(124L, 123L));
+        assertTrue(OP.NEQ.test(124.0D, 123.0D));
 
-        assertTrue(OP.GREATER_EQ.test(122, 123));
-        assertTrue(OP.GREATER_EQ.test(122L, 123L));
-        assertTrue(OP.GREATER_EQ.test(122.0D, 123.0D));
+        assertTrue(OP.GT.test(122, 123));
+        assertTrue(OP.GT.test(122L, 123L));
+        assertTrue(OP.GT.test(122.0D, 123.0D));
 
-        assertTrue(OP.LESS.test(124, 123));
-        assertTrue(OP.LESS.test(124L, 123L));
-        assertTrue(OP.LESS.test(124.0D, 123.0D));
+        assertTrue(OP.GTE.test(122, 123));
+        assertTrue(OP.GTE.test(122L, 123L));
+        assertTrue(OP.GTE.test(122.0D, 123.0D));
+        assertTrue(OP.GTE.test(122, 122));
+        assertTrue(OP.GTE.test(122L, 122L));
+        assertTrue(OP.GTE.test(122.0D, 122.0D));
+
+        assertTrue(OP.LT.test(124, 123));
+        assertTrue(OP.LT.test(124L, 123L));
+        assertTrue(OP.LT.test(124.0D, 123.0D));
+
+        assertTrue(OP.LTE.test(124, 124));
+        assertTrue(OP.LTE.test(124L, 124L));
+        assertTrue(OP.LTE.test(124.0D, 124.0D));
+        assertTrue(OP.LTE.test(124, 123));
+        assertTrue(OP.LTE.test(124L, 123L));
+        assertTrue(OP.LTE.test(124.0D, 123.0D));
     }
 }

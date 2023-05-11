@@ -38,6 +38,9 @@ final class V6IndexRequestSerializer extends JsonSerializer<IndexRequest> {
                 gen.writeStringField("_index", value.getIndex());
                 gen.writeStringField("_type", value.getType());
                 gen.writeStringField("_id", value.getId());
+                if (value.getRouting().isPresent()) {
+                    gen.writeStringField("routing", value.getRouting().get());
+                }
             }
             gen.writeEndObject();
         }

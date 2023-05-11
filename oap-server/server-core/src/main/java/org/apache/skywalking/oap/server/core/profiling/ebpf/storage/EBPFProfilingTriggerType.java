@@ -36,6 +36,11 @@ public enum EBPFProfilingTriggerType {
      * Appoint the task start time
      */
     FIXED_TIME(1),
+
+    /**
+     * Trigger by the reach the continuous profiling policy
+     */
+    CONTINUOUS_PROFILING(2)
     ;
     private final int value;
     private static final Map<Integer, EBPFProfilingTriggerType> DICTIONARY = new HashMap<>();

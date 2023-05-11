@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * MetricsMetadataQueryService provides the metadata of metrics to other modules.
  */
 public class MetricsMetadataQueryService implements Service {
-    public MetricsType typeOfMetrics(String metricsName) {
+    public static MetricsType typeOfMetrics(String metricsName) {
         final Optional<ValueColumnMetadata.ValueColumn> valueColumn
             = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(metricsName);
         if (valueColumn.isPresent()) {

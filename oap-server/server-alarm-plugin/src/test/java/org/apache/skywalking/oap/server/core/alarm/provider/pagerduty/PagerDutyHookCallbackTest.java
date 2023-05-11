@@ -22,17 +22,17 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class PagerDutyHookCallbackTest {
 
-    @Ignore
     @Test
-    public void testWithRealAccount() {
+    @Disabled
+    public void testWithRealAccount() throws Exception {
         // replace this with your actual integration key(s) and run this test manually
         List<String> integrationKeys = Arrays.asList(
                 "dummy-integration-key"

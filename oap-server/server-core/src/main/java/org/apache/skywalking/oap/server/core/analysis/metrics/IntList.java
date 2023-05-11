@@ -24,6 +24,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * IntList is a serializable array list carrying int values.
@@ -65,6 +66,10 @@ public class IntList implements StorageDataComplexObject<IntList> {
 
     @Override
     public void toObject(final String data) {
+        if (StringUtil.isBlank(data)) {
+            this.data = new ArrayList<>(3);
+            return;
+        }
         String[] elements = data.split(Const.ARRAY_PARSER_SPLIT);
         this.data = new ArrayList<>(elements.length);
         for (String element : elements) {
@@ -77,8 +82,8 @@ public class IntList implements StorageDataComplexObject<IntList> {
         this.data.addAll(source.data);
     }
 
-    public void add(final int rank) {
-        this.data.add(rank);
+    public void add(final int value) {
+        this.data.add(value);
     }
 
     public int get(final int idx) {

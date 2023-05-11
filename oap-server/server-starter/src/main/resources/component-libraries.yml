@@ -28,10 +28,21 @@
 # languages
 # ######
 # Languages declare which languages are using this component. Multi languages should be separated by `,`
+#
+# ######
+# priority
+# ######
+# Component ID priority represents the component is degree of closeness between the library and business codes
+# The higher the atomic number, the higher the priority, which mean it is closer to the business codes,
+# further away from OS kernel or general Computer Science concept.
+# The range of priorities is [0, 100], both sided included. 0 is the highest priority.
+# To keep forward compatibility, the default(when not set) priority is 50.
+# For example, a typical priority sequence is TCP < TLS(TCP) < RPC < HTTP < HTTPS < gRPC/SpringMVC/Dubbo
 
 Unknown:
   id: 0
   language: All
+  priority: 0
 Tomcat:
   id: 1
   languages: Java
@@ -74,9 +85,11 @@ SpringRestTemplate:
 SpringMVC:
   id: 14
   languages: Java
+  priority: 60
 Struts2:
   id: 15
   languages: Java
+  priority: 60
 NutzMVC:
   id: 16
   languages: Java
@@ -179,9 +192,11 @@ transport-client:
 http:
   id: 49
   languages: Java,C#,Node.js
+  priority: 45
 rpc:
   id: 50
   languages: Java,C#,Node.js
+  priority: 20
 RabbitMQ:
   id: 51
   languages: Java
@@ -313,7 +328,7 @@ spring-annotation:
   languages: Java
 HBase:
   id: 94
-  languages: Java
+  languages: Java,Python
 spring-kafka-consumer:
   id: 95
   languages: Java
@@ -362,6 +377,7 @@ MyBatis:
 tcp:
   id: 110
   languages: Java
+  priority: 10
 AzureHttpTrigger:
   id: 111
   languages: Java,C#,Node.js,Python
@@ -419,9 +435,11 @@ Hutool:
 https:
   id: 129
   languages: ebpf
+  priority: 46
 tls:
   id: 130
-  languages: ebpf
+  languages: ebpf, mesh
+  priority: 11
 Micronaut:
   id: 131
   languages: Java
@@ -433,6 +451,47 @@ Impala-jdbc-driver:
   languages: Java
 Impala:
   id: 134
+  languages: Java
+EventMesh:
+  id: 135
+  languages: Java
+eventmesh-producer:
+  id: 136
+  languages: Java
+eventmesh-consumer:
+  id: 137
+  languages: Java
+AWSDynamoDB:
+  id: 138
+  languages: Java,C#,Node.js,Python
+AWSSNS:
+  id: 139
+  languages: Java,C#,Node.js,Python
+AWSSQS:
+  id: 140
+  languages: Java,C#,Node.js,Python
+Micrometer:
+  id: 141
+  languages: Java
+mtls:
+  id: 142
+  languages: ebpf, mesh
+  priority: 12
+amqp:
+  id: 143
+  languages: PHP
+  priority: 45
+amqp-producer:
+  id: 144
+  languages: PHP
+amqp-consumer:
+  id: 145
+  languages: PHP
+Jersey:
+  id: 146
+  languages: Java
+Grizzly:
+  id: 147
   languages: Java
 
 # .NET/.NET Core components
@@ -487,6 +546,9 @@ SmartSql:
   languages: C#
 FreeSql:
   id: 3017
+  languages: C#
+FreeRedis:
+  id: 3018
   languages: C#
 
 # NoeJS components
@@ -616,6 +678,12 @@ AsyncPG:
 AIORedis:
   id: 7017
   languages: Python
+Websockets:
+  id: 7018
+  languages: Python
+HTTPX:
+  id: 7019
+  languages: Python
 
 # PHP components
 # [8000, 9000) for PHP agent
@@ -678,6 +746,7 @@ Component-Server-Mappings:
   h2-jdbc-driver: H2
   mysql-connector-java: Mysql
   Jedis: Redis
+  FreeRedis: Redis
   StackExchange.Redis: Redis
   Redisson: Redis
   Lettuce: Redis
@@ -711,3 +780,7 @@ Component-Server-Mappings:
   AsyncPG: PostgreSQL
   AIORedis: Redis
   Impala-jdbc-driver: Impala
+  eventmesh-producer: EventMesh
+  eventmesh-consumer: EventMesh
+  amqp-producer: amqp
+  amqp-consumer: amqp

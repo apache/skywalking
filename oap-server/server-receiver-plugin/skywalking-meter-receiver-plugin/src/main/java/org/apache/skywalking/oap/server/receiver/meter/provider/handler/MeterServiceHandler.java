@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.meter.provider.handler;
 
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -76,6 +77,13 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
             @Override
             public void onError(Throwable throwable) {
                 processor.process();
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 log.error(throwable.getMessage(), throwable);
             }
 
@@ -105,6 +113,13 @@ public class MeterServiceHandler extends MeterReportServiceGrpc.MeterReportServi
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(throwable.getMessage(), throwable);
+                    }
+                    return;
+                }
                 log.error(throwable.getMessage(), throwable);
             }
 

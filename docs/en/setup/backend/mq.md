@@ -5,7 +5,7 @@ blocking RPC and eventually improve user experience. But in this async way, the 
 latency becomes significant.
 
 Since 8.9.0, SkyWalking leverages native tracing agent and [**Extension Header
-Item** of SkyWalking Cross Process Propagation Headers Protocol v3](../../protocols/Skywalking-Cross-Process-Propagation-Headers-Protocol-v3.md#extension-header-item)
+Item** of SkyWalking Cross Process Propagation Headers Protocol v3](../../api/x-process-propagation-headers-v3.md#extension-header-item)
 To provide performance monitoring for the Message Queue systems.
 
 In default, we provide `Message Queue Consuming Count` and `Message Queue Avg Consuming Latency` metrics for service and

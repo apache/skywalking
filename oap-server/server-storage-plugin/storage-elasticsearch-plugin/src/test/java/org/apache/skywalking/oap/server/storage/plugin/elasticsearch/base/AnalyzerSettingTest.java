@@ -19,11 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import com.google.gson.Gson;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class AnalyzerSettingTest {
 
@@ -35,15 +36,15 @@ public class AnalyzerSettingTest {
     public void combine() {
         StorageModuleElasticsearchConfig elasticsearchConfig = new StorageModuleElasticsearchConfig();
         AnalyzerSetting oapAnalyzerSetting = gson.fromJson(elasticsearchConfig.getOapAnalyzer(), AnalyzerSetting.class);
-        Assert.assertEquals(oapAnalyzerSetting, getDefaultOapAnalyzer());
+        Assertions.assertEquals(oapAnalyzerSetting, getDefaultOapAnalyzer());
         AnalyzerSetting oapLogAnalyzerSetting = gson.fromJson(
             elasticsearchConfig.getOapLogAnalyzer(), AnalyzerSetting.class);
-        Assert.assertEquals(oapLogAnalyzerSetting, getDefaultOapLogAnalyzer());
+        Assertions.assertEquals(oapLogAnalyzerSetting, getDefaultOapLogAnalyzer());
         AnalyzerSetting testAnalyzerSetting = gson.fromJson(ANALYZER_JSON, AnalyzerSetting.class);
-        Assert.assertEquals(testAnalyzerSetting, getTestOapAnalyzerSetting());
+        Assertions.assertEquals(testAnalyzerSetting, getTestOapAnalyzerSetting());
         oapAnalyzerSetting.combine(oapLogAnalyzerSetting);
         oapAnalyzerSetting.combine(testAnalyzerSetting);
-        Assert.assertEquals(oapAnalyzerSetting, getMergedAnalyzerSetting());
+        Assertions.assertEquals(oapAnalyzerSetting, getMergedAnalyzerSetting());
     }
 
     private AnalyzerSetting getMergedAnalyzerSetting() {

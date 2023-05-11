@@ -18,16 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
@@ -35,6 +34,9 @@ import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+
+import java.util.List;
+
 import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ALARM;
 
@@ -43,6 +45,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @ScopeDeclaration(id = ALARM, name = "Alarm")
 @Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
+@BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
 public class AlarmRecord extends Record {
 
     public static final String INDEX_NAME = "alarm_record";
@@ -58,30 +61,34 @@ public class AlarmRecord extends Record {
     public static final String TAGS_RAW_DATA = "tags_raw_data";
 
     @Override
-    public String id() {
-        return getTimeBucket() + Const.ID_CONNECTOR + ruleName + Const.ID_CONNECTOR + id0 + Const.ID_CONNECTOR + id1;
+    public StorageID id() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(RULE_NAME, ruleName)
+            .append(ID0, id0)
+            .append(ID1, id1);
     }
 
-    @Column(columnName = SCOPE)
+    @Column(name = SCOPE)
     private int scope;
-    @Column(columnName = NAME, storageOnly = true)
+    @Column(name = NAME, storageOnly = true, length = 512)
     private String name;
-    @Column(columnName = ID0, storageOnly = true)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = ID0, storageOnly = true, length = 512)
+    @BanyanDB.SeriesID(index = 0)
     private String id0;
-    @Column(columnName = ID1, storageOnly = true)
+    @Column(name = ID1, storageOnly = true)
     private String id1;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = ALARM_MESSAGE)
+    @Column(name = ALARM_MESSAGE)
     @ElasticSearch.MatchQuery
     private String alarmMessage;
-    @Column(columnName = RULE_NAME)
+    @Column(name = RULE_NAME)
     private String ruleName;
-    @Column(columnName = TAGS, indexOnly = true)
+    @Column(name = TAGS, indexOnly = true)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
-    @Column(columnName = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)
     private byte[] tagsRawData;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {

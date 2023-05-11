@@ -60,18 +60,14 @@ public class GRPCCallback implements AlarmCallback {
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessage) {
 
-        if (alarmSetting == null || alarmSetting.isEmptySetting()) {
-            return;
-        }
-
         // recreate gRPC client and stub if host and port configuration changed.
         onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
 
-        GRPCStreamStatus status = new GRPCStreamStatus();
-
-        if (alarmServiceStub == null) {
+        if (alarmSetting == null || alarmSetting.isEmptySetting() || alarmServiceStub == null) {
             return;
         }
+
+        GRPCStreamStatus status = new GRPCStreamStatus();
 
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
             alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarm(new StreamObserver<Response>() {
@@ -147,17 +143,19 @@ public class GRPCCallback implements AlarmCallback {
         if (grpcAlarmSetting == null) {
             if (grpcClient != null) {
                 grpcClient.shutdown();
+                log.debug("gRPC alarm hook target is empty, shutdown the old gRPC client.");
             }
             alarmServiceStub = null;
             alarmSetting = null;
 
-            log.warn("gRPC alarm hook settings about host is empty, shutdown the old gRPC client.");
             return;
         }
 
         if (!grpcAlarmSetting.equals(alarmSetting)) {
+            alarmSetting = grpcAlarmSetting;
             if (grpcClient != null) {
                 grpcClient.shutdown();
+                log.debug("gRPC alarm hook target is changed, shutdown the old gRPC client.");
             }
             grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
             grpcClient.connect();

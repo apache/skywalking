@@ -53,6 +53,9 @@ public class CacheSlowAccess extends Source {
     @Getter
     @Setter
     private VirtualCacheOperation operation;
+    @Getter
+    @Setter
+    private long timestamp;
 
     @Override
     public int scope() {

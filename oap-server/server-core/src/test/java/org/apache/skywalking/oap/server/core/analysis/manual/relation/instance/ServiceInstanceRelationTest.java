@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.relation.instance;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ServiceInstanceRelationTest {
     @Test
@@ -34,7 +34,7 @@ public class ServiceInstanceRelationTest {
             "em1jLWJlYWNvbi1taWRkbGV3YXJlQDExMTIz.1_MTAuMTExLjIzMi4yMDc=-MTkyLjE2OC40Ni4xNDM6NDY2MDY=.0_MTkyLjE2OC40Ni4xNDM6NDY2MDY=");
         otherObject.setTimeBucket(202101071505L);
 
-        Assert.assertTrue(thisObject.equals(otherObject));
+        Assertions.assertTrue(thisObject.equals(otherObject));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class ServiceInstanceRelationTest {
             "em1jLWJlYWNvbi1taWRkbGV3YXJlQDExMTIz.1_MTAuMTExLjIzMi4yMDc=-MTkyLjE2OC40Ni4xNDM6NDY2MDY=.0_MTkyLjE2OC40Ni4xNDM6NDY2MDY=");
         otherObject.setTimeBucket(202101071506L);
 
-        Assert.assertFalse(thisObject.equals(otherObject));
+        Assertions.assertFalse(thisObject.equals(otherObject));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ServiceInstanceRelationTest {
             "em1jLWJlYWNvbi1taWRkbGV3YXJlQDExMTIz.1_MTAuMTExLjIzMi4yMDc=-MTkyLjE2OC40Ni4xNDM6NDY2MDY=.0_MTkyLjE2OC40Ni4xNDM6NDY2MDY=");
         otherObject.setTimeBucket(202101071505L);
 
-        Assert.assertTrue(thisObject.equals(otherObject));
+        Assertions.assertTrue(thisObject.equals(otherObject));
     }
 
     @Test
@@ -79,6 +79,6 @@ public class ServiceInstanceRelationTest {
             "em1jLWJlYWNvbi1taWRkbGV3YXJlQDExMTIz.1_MTAuMTExLjIzMi4yMDc=-MTkyLjE2OC40Ni4xNDM6NDY2MDY=.0_MTkyLjE2OC40Ni4xNDM6NDY2MDY=");
         otherObject.setTimeBucket(202101071506L);
 
-        Assert.assertFalse(thisObject.equals(otherObject));
+        Assertions.assertFalse(thisObject.equals(otherObject));
     }
 }

@@ -5,7 +5,7 @@ SkyWalking leverages postgres-exporter for collecting metrics data from PostgreS
 
 ### Data flow
 1. postgres-exporter collect metrics data from PostgreSQL.
-2. OpenTelemetry Collector fetches metrics from postgres-exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via the OpenCensus gRPC Exporter or OpenTelemetry gRPC exporter.
+2. OpenTelemetry Collector fetches metrics from postgres-exporter via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ### Set up
@@ -14,8 +14,7 @@ SkyWalking leverages postgres-exporter for collecting metrics data from PostgreS
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ### PostgreSQL Monitoring
-PostgreSQL monitoring provides monitoring of the status and resources of the PostgreSQL server.PostgreSQL server as a `Service` in OAP, and land on the `Layer: POSTGRESQL`.
-
+PostgreSQL cluster is cataloged as a `Layer: PostgreSQL` `Service` in OAP. Each PostgreSQL server is cataloged as an `Instance` in OAP.
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
@@ -47,7 +46,7 @@ PostgreSQL monitoring provides monitoring of the status and resources of the Pos
 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
-The metrics definition and expression rules are found in `/config/otel-rules/postgresql.yaml`.
+The metrics definition and expression rules are found in `/config/otel-rules/postgresql`.
 The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.
 
 ## Collect sampled slow SQLs
@@ -64,8 +63,8 @@ SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for 
 3. Config PostgreSQL to enable slow log. [Example](../../../../test/e2e-v2/cases/postgresql/postgres-exporter/postgresql.conf).
 
 ### Slow SQL Monitoring
-Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL server is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
-
+Slow SQL monitoring provides monitoring of the slow SQL statements of the PostgreSQL server. PostgreSQL Cluster is cataloged as a `Layer: POSTGRESQL` `Service` in OAP.
+Each PostgreSQL server is cataloged as an `Instance` in OAP.
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|

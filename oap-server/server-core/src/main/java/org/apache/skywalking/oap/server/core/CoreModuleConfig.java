@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.config.SearchableTracesTagsWatcher;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
@@ -50,10 +51,6 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private long l1FlushPeriod = 500;
     /**
-     * Enable database flush session.
-     */
-    private boolean enableDatabaseSession;
-    /**
      * The threshold of session time. Unit is ms. Default value is 70s.
      */
     private long storageSessionTimeout = 70_000;
@@ -62,7 +59,7 @@ public class CoreModuleConfig extends ModuleConfig {
      * The period of doing data persistence. Unit is second.
      */
     @Setter
-    private long persistentPeriod = 25;
+    private int persistentPeriod = 25;
 
     private boolean enableDataKeeperExecutor = true;
 
@@ -116,7 +113,7 @@ public class CoreModuleConfig extends ModuleConfig {
      * load for memory, network of OAP and storage.
      *
      * But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party
-     * tool, such as Kibana->ES, to query the data by themselves.
+     * tool, such as Kibana-&gt;ES, to query the data by themselves.
      */
     private boolean activeExtraModelColumns = false;
     /**
@@ -142,6 +139,10 @@ public class CoreModuleConfig extends ModuleConfig {
     @Setter
     @Getter
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
+    @Setter
+    @Getter
+    private SearchableTracesTagsWatcher searchableTracesTagsWatcher;
+
     /**
      * Define the set of logs tag keys, which should be searchable through the GraphQL.
      *

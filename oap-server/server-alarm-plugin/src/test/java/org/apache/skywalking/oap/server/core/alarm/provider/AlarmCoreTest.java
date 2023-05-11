@@ -18,17 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import org.joda.time.LocalDateTime;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
+import org.powermock.reflect.Whitebox;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.joda.time.LocalDateTime;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.reflect.Whitebox;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 /**
  * Alarm core is the trigger, which should run once per minute, also run after the first quarter in one single minute.
@@ -53,19 +55,16 @@ public class AlarmCoreTest {
         Map<String, List<RunningRule>> runningContext = Whitebox.getInternalState(core, "runningContext");
 
         List<RunningRule> rules = new ArrayList<>(1);
-        RunningRule mockRule = PowerMockito.mock(RunningRule.class);
+        RunningRule mockRule = mock(RunningRule.class);
 
         List<LocalDateTime> checkTime = new LinkedList<>();
         final boolean[] isAdd = {true};
 
-        PowerMockito.doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock mock) throws Throwable {
-                if (isAdd[0]) {
-                    checkTime.add(LocalDateTime.now());
-                }
-                return new ArrayList<>(0);
+        doAnswer((Answer<Object>) mock -> {
+            if (isAdd[0]) {
+                checkTime.add(LocalDateTime.now());
             }
+            return new ArrayList<>(0);
         }).when(mockRule).check();
 
         rules.add(mockRule);
@@ -77,11 +76,11 @@ public class AlarmCoreTest {
             Thread.sleep(60 * 1000L);
             if (checkTime.size() >= 3) {
                 isAdd[0] = false;
-                Assert.assertTrue(checkTimePoints(checkTime));
+                Assertions.assertTrue(checkTimePoints(checkTime));
                 break;
             }
             if (i == 9) {
-                Assert.assertTrue(false);
+                Assertions.assertTrue(false);
             }
         }
     }

@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.management.ManagementData;
 import org.apache.skywalking.oap.server.core.analysis.worker.ManagementStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
@@ -46,21 +47,21 @@ public class UITemplate extends ManagementData {
     public static final String UPDATE_TIME = "update_time";
     public static final String DISABLED = "disabled";
 
-    @Column(columnName = TEMPLATE_ID)
+    @Column(name = TEMPLATE_ID)
     private String templateId;
     /**
      * Configuration in JSON format.
      */
-    @Column(columnName = CONFIGURATION, storageOnly = true, length = 1_000_000)
+    @Column(name = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configuration;
-    @Column(columnName = UPDATE_TIME)
+    @Column(name = UPDATE_TIME)
     private long updateTime;
-    @Column(columnName = DISABLED)
+    @Column(name = DISABLED)
     private int disabled;
 
     @Override
-    public String id() {
-        return templateId;
+    public StorageID id() {
+        return new StorageID().append(TEMPLATE_ID, templateId);
     }
 
     public static class Builder implements StorageBuilder<UITemplate> {

@@ -43,7 +43,7 @@ public final class ElasticSearchVersion {
         this.minor = minor;
 
         if (distribution.equalsIgnoreCase("OpenSearch")) {
-            requestFactory = new V78RequestFactory(this);
+            requestFactory = new V81RequestFactory(this);
             codec = V78Codec.INSTANCE;
             return;
         }

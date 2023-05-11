@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.sampling;
 
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -32,15 +33,15 @@ import java.util.Objects;
  * SamplingPolicySettings}.
  */
 public class SamplingPolicySettingsReader {
-    private Map yamlData;
+    private Map<String, ?> yamlData;
 
     public SamplingPolicySettingsReader(InputStream inputStream) {
-        Yaml yaml = new Yaml(new SafeConstructor());
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         yamlData = yaml.load(inputStream);
     }
 
     public SamplingPolicySettingsReader(Reader io) {
-        Yaml yaml = new Yaml(new SafeConstructor());
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         yamlData = yaml.load(io);
     }
 

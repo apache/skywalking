@@ -1,0 +1,328 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "AWS_EKS-service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 52,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Pod",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CPU Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_service_pod_cpu_utilization"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Memory Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_service_pod_memory_utilization"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network RX (KB per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_service_pod_net_rx_bytes"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToKB"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network RX Error Count (per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_service_pod_net_rx_error"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network TX (KB per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_service_pod_net_tx_bytes"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "calculation": "byteToKB"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Network TX Error Count (per second)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "eks_cluster_service_pod_net_tx_error"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "1"
+                    },
+                    {
+                      "widgetId": "2"
+                    },
+                    {
+                      "widgetId": "3"
+                    },
+                    {
+                      "widgetId": "4"
+                    },
+                    {
+                      "widgetId": "5"
+                    },
+                    {
+                      "widgetId": "6"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+
+      ],
+
+      "layer": "AWS_EKS",
+      "entity": "Endpoint",
+      "name": "AWS_EKS-service",
+      "id": "AWS_EKS-service",
+      "isRoot": false
+    }
+  }
+]

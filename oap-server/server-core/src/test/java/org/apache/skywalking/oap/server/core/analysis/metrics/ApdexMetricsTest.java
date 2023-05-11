@@ -19,15 +19,15 @@
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.junit.Before;
-import org.junit.Test;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class ApdexMetricsTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ApdexMetrics.setDICT(name -> name.equals("foo") ? 500 : 1000);
     }
@@ -37,47 +37,47 @@ public class ApdexMetricsTest {
         ApdexMetrics apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(10000));
+        assertThat(apdex.getValue()).isEqualTo(10000);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(1000, "foo", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(5000));
+        assertThat(apdex.getValue()).isEqualTo(5000);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(2000, "foo", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(5000));
+        assertThat(apdex.getValue()).isEqualTo(5000);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(300, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(10000));
+        assertThat(apdex.getValue()).isEqualTo(10000);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(1500, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(7500));
+        assertThat(apdex.getValue()).isEqualTo(7500);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(300, "bar", false);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(5000));
+        assertThat(apdex.getValue()).isEqualTo(5000);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(1500, "bar", false);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(5000));
+        assertThat(apdex.getValue()).isEqualTo(5000);
 
         apdex = new ApdexMetricsImpl();
         apdex.combine(200, "foo", true);
         apdex.combine(5000, "bar", true);
         apdex.calculate();
-        assertThat(apdex.getValue(), is(5000));
+        assertThat(apdex.getValue()).isEqualTo(5000);
     }
 
     @Test
@@ -98,13 +98,13 @@ public class ApdexMetricsTest {
 
         apdex1.combine(apdex2);
         apdex1.calculate();
-        assertThat(apdex1.getValue(), is(6500));
+        assertThat(apdex1.getValue()).isEqualTo(6500);
     }
 
     public class ApdexMetricsImpl extends ApdexMetrics {
 
         @Override
-        protected String id0() {
+        protected StorageID id0() {
             return null;
         }
 

@@ -46,7 +46,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -56,8 +56,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-0",
-                  "label": "Instance_Latency",
                   "associate": [
                     {
                       "widgetId": "0-0-16"
@@ -72,9 +70,9 @@
                       "widgetId": "0-0-10"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -92,7 +90,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -107,8 +105,6 @@
                       "calculation": "percentage"
                     }
                   ],
-                  "value": "0-0-1",
-                  "label": "Instance_Success_Rate",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -123,9 +119,9 @@
                       "widgetId": "0-0-10"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -137,14 +133,13 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Service Instance Load (calls / min)",
-                    "tips": "For HTTP 1/2, gRPC, RPC services, this means Calls Per Minute (calls / min), for TCP services, this means Packets Per Minute (PPM)",
                     "name": "Instance_Load"
                   },
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -154,8 +149,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-3",
-                  "label": "Instance_Load",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -169,11 +162,7 @@
                     {
                       "widgetId": "0-0-10"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 28,
-                    "sourceId": "0-0-0"
-                  }
+                  ]
                 },
                 {
                   "x": 12,
@@ -190,7 +179,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -200,8 +189,6 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "value": "0-0-10",
-                  "label": "Database_Connection_Pool",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -215,11 +202,7 @@
                     {
                       "widgetId": "0-0-16"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -236,7 +219,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -246,8 +229,6 @@
                   "metricTypes": [
                     "readLabeledMetricsValues"
                   ],
-                  "value": "0-0-16",
-                  "label": "0-0-16",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -261,11 +242,7 @@
                     {
                       "widgetId": "0-0-10"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 9,
-                    "sourceId": "0-0-3"
-                  }
+                  ]
                 }
               ]
             },
@@ -312,7 +289,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -330,20 +307,22 @@
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "noheap_max"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "noheap"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap"
                     },
                     {
-                      "calculation": "byteToMB"
+                      "calculation": "byteToMB",
+                      "label": "heap_max"
                     }
-                  ],
-                  "value": "0-3-5",
-                  "label": "0-3-5"
+                  ]
                 },
                 {
                   "x": 8,
@@ -359,7 +338,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -373,8 +352,17 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-3-12",
-                  "label": "0-3-12"
+                  "metricConfig": [
+                    {
+                      "label": "live"
+                    },
+                    {
+                      "label": "daemon"
+                    },
+                    {
+                      "label": "peak"
+                    }
+                  ]
                 },
                 {
                   "x": 16,
@@ -402,8 +390,20 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-3-13",
-                  "label": "0-3-13"
+                  "metricConfig": [
+                    {
+                      "label": "timed_waiting"
+                    },
+                    {
+                      "label": "blocked"
+                    },
+                    {
+                      "label": "waiting"
+                    },
+                    {
+                      "label": "runnable"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -419,7 +419,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -428,9 +428,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-3-14",
-                  "label": "0-3-14"
+                  ]
                 },
                 {
                   "x": 0,
@@ -458,8 +456,17 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-3-15",
-                  "label": "0-3-15"
+                  "metricConfig": [
+                    {
+                      "label": "loaded"
+                    },
+                    {
+                      "label": "total_loaded"
+                    },
+                    {
+                      "label": "total_unloaded"
+                    }
+                  ]
                 },
                 {
                   "x": 16,
@@ -475,7 +482,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -489,8 +496,17 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-3-6",
-                  "label": "0-3-6"
+                  "metricConfig": [
+                    {
+                      "label": "young_gc"
+                    },
+                    {
+                      "label": "old_gc"
+                    },
+                    {
+                      "label": "normal_gc"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -516,8 +532,17 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-3-7",
-                  "label": "0-3-7"
+                  "metricConfig": [
+                    {
+                      "label": "young_gc"
+                    },
+                    {
+                      "label": "old_gc"
+                    },
+                    {
+                      "label": "normal_gc"
+                    }
+                  ]
                 }
               ]
             },
@@ -538,7 +563,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -552,8 +577,17 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-4-4",
-                  "label": "0-4-4"
+                  "metricConfig": [
+                    {
+                      "label": "available_worker"
+                    },
+                    {
+                      "label": "available_completion_port"
+                    },
+                    {
+                      "label": "max_completion_port"
+                    }
+                  ]
                 },
                 {
                   "x": 12,
@@ -569,7 +603,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -583,9 +617,7 @@
                     {
                       "calculation": "byteToMB"
                     }
-                  ],
-                  "value": "0-4-8",
-                  "label": "0-4-8"
+                  ]
                 },
                 {
                   "x": 6,
@@ -602,8 +634,8 @@
                     "showBackground": true
                   },
                   "metrics": [
-                    "instance_clr_gen1_collect_count",
                     "instance_clr_gen0_collect_count",
+                    "instance_clr_gen1_collect_count",
                     "instance_clr_gen2_collect_count"
                   ],
                   "metricTypes": [
@@ -611,8 +643,17 @@
                     "readMetricsValues",
                     "readMetricsValues"
                   ],
-                  "value": "0-4-9",
-                  "label": "0-4-9"
+                  "metricConfig": [
+                    {
+                      "label": "gen0"
+                    },
+                    {
+                      "label": "gen1"
+                    },
+                    {
+                      "label": "gen2"
+                    }
+                  ]
                 },
                 {
                   "x": 0,
@@ -628,7 +669,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -637,9 +678,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-4-11",
-                  "label": "0-4-11"
+                  ]
                 }
               ]
             },
@@ -663,15 +702,13 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "HTTP Request (Count)"
-                  },
-                  "value": "0-5-0",
-                  "label": "0-5-0"
+                  }
                 },
                 {
                   "x": 6,
@@ -690,17 +727,14 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "HTTP Request Duration (ms)"
                   },
-                  "value": "0-5-1",
-                  "label": "0-5-1",
-                  "associate": [
-                  ]
+                  "associate": []
                 },
                 {
                   "x": 6,
@@ -719,15 +753,13 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "Instance CPU Usage (%)"
-                  },
-                  "value": "0-5-2",
-                  "label": "0-5-2"
+                  }
                 },
                 {
                   "x": 0,
@@ -746,15 +778,13 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "OS CPU Usage (%)"
-                  },
-                  "value": "0-5-3",
-                  "label": "0-5-3"
+                  }
                 },
                 {
                   "x": 12,
@@ -773,19 +803,28 @@
                     "meter_jdbc_connections_active",
                     "meter_jdbc_connections_idle"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "max"
+                    },
+                    {
+                      "label": "active"
+                    },
+                    {
+                      "label": "idle"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "JDBC Connections (Count)"
-                  },
-                  "value": "0-5-4",
-                  "label": "0-5-4"
+                  }
                 },
                 {
                   "x": 18,
@@ -805,19 +844,28 @@
                     "meter_tomcat_sessions_active_current",
                     "meter_tomcat_sessions_rejected"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "active_max"
+                    },
+                    {
+                      "label": "active_current"
+                    },
+                    {
+                      "label": "rejected"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "Tomcat Session (Count)"
-                  },
-                  "value": "0-5-5",
-                  "label": "0-5-5"
+                  }
                 },
                 {
                   "x": 12,
@@ -836,17 +884,14 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "OS System Load"
                   },
-                  "value": "0-5-6",
-                  "label": "0-5-6",
-                  "associate": [
-                  ]
+                  "associate": []
                 },
                 {
                   "x": 18,
@@ -863,21 +908,26 @@
                     "meter_process_files_max",
                     "meter_process_files_open"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "max"
+                    },
+                    {
+                      "label": "open"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "OS Process File (Count)"
                   },
-                  "value": "0-5-7",
-                  "label": "0-5-7",
-                  "associate": [
-                  ]
+                  "associate": []
                 },
                 {
                   "x": 0,
@@ -896,15 +946,13 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "JVM GC Pause Duration (ms)"
-                  },
-                  "value": "0-5-8",
-                  "label": "0-5-8"
+                  }
                 },
                 {
                   "x": 6,
@@ -927,31 +975,31 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "associate": [
-                  ],
+                  "associate": [],
                   "metricConfig": [
                     {
                       "calculation": "byteToMB",
+                      "label": "max",
                       "unit": "MB"
                     },
                     {
                       "calculation": "byteToMB",
+                      "label": "used",
                       "unit": "MB"
                     },
                     {
                       "calculation": "byteToMB",
+                      "label": "committed",
                       "unit": "MB"
                     }
                   ],
                   "widget": {
                     "title": "JVM Memory (MB)"
-                  },
-                  "value": "0-5-9",
-                  "label": "0-5-9"
+                  }
                 },
                 {
                   "x": 12,
@@ -970,19 +1018,28 @@
                     "meter_jvm_threads_live",
                     "meter_jvm_threads_daemon"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "peak"
+                    },
+                    {
+                      "label": "live"
+                    },
+                    {
+                      "label": "daemon"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
                   "widget": {
                     "title": "JVM Thread (Count)"
-                  },
-                  "value": "0-5-10",
-                  "label": "0-5-10"
+                  }
                 },
                 {
                   "x": 18,
@@ -999,11 +1056,19 @@
                     "meter_jvm_classes_loaded",
                     "meter_jvm_classes_unloaded"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "loaded"
+                    },
+                    {
+                      "label": "unloaded"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1015,7 +1080,7 @@
             },
             {
               "name": "Golang",
-              "children":  [
+              "children": [
                 {
                   "x": 0,
                   "y": 0,
@@ -1030,7 +1095,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1044,8 +1109,7 @@
                     {
                       "calculation": "byteToMB"
                     }
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 8,
@@ -1061,7 +1125,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1075,8 +1139,7 @@
                     {
                       "calculation": "byteToMB"
                     }
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 16,
@@ -1102,8 +1165,7 @@
                     {
                       "calculation": "nanosecondToMillisecond"
                     }
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 0,
@@ -1124,8 +1186,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 8,
@@ -1141,7 +1202,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1150,8 +1211,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 16,
@@ -1167,7 +1227,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1176,8 +1236,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 0,
@@ -1193,7 +1252,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1202,8 +1261,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "moved": false
+                  ]
                 },
                 {
                   "x": 8,
@@ -1219,7 +1277,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -1228,8 +1286,164 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "PVM",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "24",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Host CPU Utilization / PVM CPU Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_instance_pvm_total_cpu_utilization",
+                    "meter_instance_pvm_process_cpu_utilization"
                   ],
-                  "moved": false
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "total_cpu_utilization"
+                    },
+                    {
+                      "label": "process_cpu_utilization"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "16",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "PVM Thread Count"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_instance_pvm_thread_active_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "17",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "PVM GC Count"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metrics": [
+                    "meter_instance_pvm_gc_g0",
+                    "meter_instance_pvm_gc_g1",
+                    "meter_instance_pvm_gc_g2"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "gc_g0"
+                    },
+                    {
+                      "label": "gc_g1"
+                    },
+                    {
+                      "label": "gc_g2"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "18",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Host Mem Utilization / PVM Mem Utilization (%)"
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_instance_pvm_total_mem_utilization",
+                    "meter_instance_pvm_process_mem_utilization"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "total_mem_utilization"
+                    },
+                    {
+                      "label": "process_mem_utilization"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 13,
+                  "w": 8,
+                  "h": 13,
+                  "i": "19",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "PVM GC Time (ms)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metrics": [
+                    "meter_instance_pvm_gc_time"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues"
+                  ]
                 }
               ]
             }

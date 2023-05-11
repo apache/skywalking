@@ -18,7 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
-import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.ImmutableSet;
+ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
@@ -35,38 +36,40 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BanyanDBEBPFProfilingScheduleQueryDAO extends AbstractBanyanDBDAO implements IEBPFProfilingScheduleDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingScheduleRecord.START_TIME,
-            EBPFProfilingScheduleRecord.TASK_ID,
-            EBPFProfilingScheduleRecord.PROCESS_ID,
-            EBPFProfilingScheduleRecord.END_TIME);
+@Slf4j
+ public class BanyanDBEBPFProfilingScheduleQueryDAO extends AbstractBanyanDBDAO implements IEBPFProfilingScheduleDAO {
+     private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingScheduleRecord.START_TIME,
+             EBPFProfilingScheduleRecord.EBPF_PROFILING_SCHEDULE_ID,
+             EBPFProfilingScheduleRecord.TASK_ID,
+             EBPFProfilingScheduleRecord.PROCESS_ID,
+             EBPFProfilingScheduleRecord.END_TIME);
 
-    public BanyanDBEBPFProfilingScheduleQueryDAO(BanyanDBStorageClient client) {
-        super(client);
-    }
+     public BanyanDBEBPFProfilingScheduleQueryDAO(BanyanDBStorageClient client) {
+         super(client);
+     }
 
-    @Override
-    public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
-        MeasureQueryResponse resp = query(EBPFProfilingScheduleRecord.INDEX_NAME,
-                TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-                        query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingScheduleRecord.START_TIME, AbstractQuery.Sort.DESC));
-                    }
-                });
+     @Override
+     public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
+         MeasureQueryResponse resp = query(EBPFProfilingScheduleRecord.INDEX_NAME,
+                 TAGS,
+                 Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                     @Override
+                     protected void apply(MeasureQuery query) {
+                         query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
+                         query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingScheduleRecord.START_TIME, AbstractQuery.Sort.DESC));
+                     }
+                 });
 
-        return resp.getDataPoints().stream().map(this::buildEBPFProfilingSchedule).collect(Collectors.toList());
-    }
+         return resp.getDataPoints().stream().map(this::buildEBPFProfilingSchedule).collect(Collectors.toList());
+     }
 
-    private EBPFProfilingSchedule buildEBPFProfilingSchedule(DataPoint dataPoint) {
-        final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
-        schedule.setScheduleId(dataPoint.getId());
-        schedule.setTaskId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.TASK_ID));
-        schedule.setProcessId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.PROCESS_ID));
-        schedule.setStartTime(((Number) dataPoint.getTagValue(EBPFProfilingScheduleRecord.START_TIME)).longValue());
-        schedule.setEndTime(((Number) dataPoint.getTagValue(EBPFProfilingScheduleRecord.END_TIME)).longValue());
-        return schedule;
-    }
-}
+     private EBPFProfilingSchedule buildEBPFProfilingSchedule(DataPoint dataPoint) {
+         final EBPFProfilingSchedule schedule = new EBPFProfilingSchedule();
+         schedule.setScheduleId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.EBPF_PROFILING_SCHEDULE_ID));
+         schedule.setTaskId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.TASK_ID));
+         schedule.setProcessId(dataPoint.getTagValue(EBPFProfilingScheduleRecord.PROCESS_ID));
+         schedule.setStartTime(((Number) dataPoint.getTagValue(EBPFProfilingScheduleRecord.START_TIME)).longValue());
+         schedule.setEndTime(((Number) dataPoint.getTagValue(EBPFProfilingScheduleRecord.END_TIME)).longValue());
+         return schedule;
+     }
+ }

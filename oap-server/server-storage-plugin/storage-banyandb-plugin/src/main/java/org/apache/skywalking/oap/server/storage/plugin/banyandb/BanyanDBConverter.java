@@ -29,6 +29,9 @@ import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
@@ -37,17 +40,25 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 import java.util.List;
 
 public class BanyanDBConverter {
+
+    public static final String ID = "id";
+
     public static class StorageToStream implements Convert2Entity {
         private final MetadataRegistry.Schema schema;
         private final RowEntity rowEntity;
 
-        public StorageToStream(String modelName, RowEntity rowEntity) {
-            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        public StorageToStream(String streamModelName, RowEntity rowEntity) {
+            this.schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
             this.rowEntity = rowEntity;
         }
 
         @Override
         public Object get(String fieldName) {
+            if (fieldName.equals(Record.TIME_BUCKET)) {
+                final String timestampColumnName = schema.getTimestampColumn4Stream();
+                long timestampMillis = ((Number) this.get(timestampColumnName)).longValue();
+                return TimeBucket.getTimeBucket(timestampMillis, schema.getMetadata().getDownSampling());
+            }
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
             if (double.class.equals(spec.getColumnClass())) {
                 return ByteUtil.bytes2Double(rowEntity.getTagValue(fieldName));
@@ -70,9 +81,19 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(Record.TIME_BUCKET)) {
+                return;
+            }
+            if (fieldName.equals(this.schema.getTimestampColumn4Stream())) {
+                streamWrite.setTimestamp((long) fieldValue);
+            }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
-                throw new IllegalArgumentException("fail to find field[" + fieldName + "]");
+                throw new IllegalArgumentException("fail to find tag[" + fieldName + "]");
+            }
+            if (columnSpec.getColumnType() != MetadataRegistry.ColumnType.TAG) {
+                throw new IllegalArgumentException("ColumnType other than TAG is not supported for Stream, " +
+                        "it should be an internal error, please submit an issue to the SkyWalking community");
             }
             try {
                 this.streamWrite.tag(fieldName, buildTag(fieldValue, columnSpec.getColumnClass()));
@@ -118,9 +139,12 @@ public class BanyanDBConverter {
 
         @Override
         public void accept(String fieldName, Object fieldValue) {
+            if (fieldName.equals(Metrics.TIME_BUCKET)) {
+                return;
+            }
             MetadataRegistry.ColumnSpec columnSpec = this.schema.getSpec(fieldName);
             if (columnSpec == null) {
-                throw new IllegalArgumentException("fail to find field[" + fieldName + "]");
+                throw new IllegalArgumentException("fail to find tag/field[" + fieldName + "]");
             }
             try {
                 if (columnSpec.getColumnType() == MetadataRegistry.ColumnType.TAG) {
@@ -129,13 +153,13 @@ public class BanyanDBConverter {
                     this.measureWrite.field(fieldName, buildField(fieldValue, columnSpec.getColumnClass()));
                 }
             } catch (BanyanDBException ex) {
-                log.error("fail to add tag", ex);
+                log.error("fail to add tag/field", ex);
             }
         }
 
         public void acceptID(String id) {
             try {
-                this.measureWrite.setID(id);
+                this.measureWrite.tag(ID, TagAndValue.stringTagValue(id));
             } catch (BanyanDBException ex) {
                 log.error("fail to add ID tag", ex);
             }
@@ -215,13 +239,16 @@ public class BanyanDBConverter {
         private final MetadataRegistry.Schema schema;
         private final DataPoint dataPoint;
 
-        public StorageToMeasure(String modelName, DataPoint dataPoint) {
-            this.schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        public StorageToMeasure(MetadataRegistry.Schema schema, DataPoint dataPoint) {
+            this.schema = schema;
             this.dataPoint = dataPoint;
         }
 
         @Override
         public Object get(String fieldName) {
+            if (fieldName.equals(Metrics.TIME_BUCKET)) {
+                return TimeBucket.getTimeBucket(dataPoint.getTimestamp(), schema.getMetadata().getDownSampling());
+            }
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
             switch (spec.getColumnType()) {
                 case TAG:

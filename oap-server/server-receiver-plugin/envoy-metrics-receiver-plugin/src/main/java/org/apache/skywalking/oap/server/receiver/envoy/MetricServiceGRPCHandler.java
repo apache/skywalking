@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.envoy;
 import io.envoyproxy.envoy.service.metrics.v2.MetricsServiceGrpc;
 import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsMessage;
 import io.envoyproxy.envoy.service.metrics.v3.StreamMetricsResponse;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.prometheus.client.Metrics;
 import java.util.ArrayList;
@@ -129,6 +130,13 @@ public class MetricServiceGRPCHandler extends MetricsServiceGrpc.MetricsServiceI
 
             @Override
             public void onError(Throwable throwable) {
+                Status status = Status.fromThrowable(throwable);
+                if (Status.CANCELLED.getCode() == status.getCode()) {
+                    if (log.isDebugEnabled()) {
+                        log.error("Envoy client cancelled sending metrics", throwable);
+                    }
+                    return;
+                }
                 log.error("Error in receiving metrics from envoy", throwable);
             }
 

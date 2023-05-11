@@ -29,14 +29,11 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
  * original log data or task records. These data needs to persistent without further analysis.
  */
 public abstract class Record implements StorageData {
-
-    public static final String TIME_BUCKET = "time_bucket";
-
     /**
      * Time attribute, all storage data is time sensitive, as same as {@link Metrics}
      */
     @Getter
     @Setter
-    @Column(columnName = TIME_BUCKET)
+    @Column(name = TIME_BUCKET)
     private long timeBucket;
 }

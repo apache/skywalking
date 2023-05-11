@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 public interface IZipkinQueryDAO extends DAO {
     List<String> getServiceNames() throws IOException;

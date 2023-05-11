@@ -31,17 +31,21 @@ nodes:
 calls:
 {{- contains .calls }}
 - source: {{ b64enc "e2e-service-consumer"}}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - SpringRestTemplate
   target: {{ b64enc "go2sky"}}.1
-  targetcomponents: []
+  targetcomponents:
+    - GoHttpServer
   id: {{ b64enc "e2e-service-consumer"}}.1-{{ b64enc "go2sky"}}.1
   detectpoints:
     - CLIENT
     - SERVER
 - source: {{ b64enc "go2sky" }}.1
-  sourcecomponents: []
+  sourcecomponents:
+    - GoHttpClient
   target: {{ b64enc "e2e-service-provider"}}.1
-  targetcomponents: []
+  targetcomponents:
+    - Tomcat
   id: {{ b64enc "go2sky" }}.1-{{ b64enc "e2e-service-provider"}}.1
   detectpoints:
     - CLIENT

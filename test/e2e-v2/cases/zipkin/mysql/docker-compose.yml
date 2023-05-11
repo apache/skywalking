@@ -38,7 +38,7 @@ services:
       service: oap
     environment:
       SW_STORAGE: mysql
-      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
+      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
       SW_QUERY_ZIPKIN: default
       SW_RECEIVER_ZIPKIN: default
     expose:

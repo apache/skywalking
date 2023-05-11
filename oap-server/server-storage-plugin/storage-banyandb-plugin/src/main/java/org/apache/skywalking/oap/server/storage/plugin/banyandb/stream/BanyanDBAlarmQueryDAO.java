@@ -48,7 +48,7 @@ import java.util.Set;
 public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarmQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(AlarmRecord.SCOPE,
             AlarmRecord.NAME, AlarmRecord.ID0, AlarmRecord.ID1, AlarmRecord.ALARM_MESSAGE, AlarmRecord.START_TIME,
-            AlarmRecord.TIME_BUCKET, AlarmRecord.RULE_NAME, AlarmRecord.TAGS, AlarmRecord.TAGS_RAW_DATA);
+            AlarmRecord.RULE_NAME, AlarmRecord.TAGS, AlarmRecord.TAGS_RAW_DATA);
 
     public BanyanDBAlarmQueryDAO(BanyanDBStorageClient client) {
         super(client);

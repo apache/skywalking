@@ -37,9 +37,9 @@ import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointMeta;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.ISource;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -59,7 +59,7 @@ public class EndpointDepFromCrossThreadAnalysisListenerTest {
     private final String serviceId = IDManager.ServiceID.buildId("local-service", true);
     private final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, "local-instance");
 
-    @Before
+    @BeforeEach
     public void init() throws Exception {
         MockitoAnnotations.openMocks(this).close();
 
@@ -108,32 +108,32 @@ public class EndpointDepFromCrossThreadAnalysisListenerTest {
         listener.build();
         final List<ISource> receivedSources = mockReceiver.getReceivedSources();
         final EndpointMeta sourceEndpoint = (EndpointMeta) receivedSources.get(0);
-        Assert.assertEquals("local-service", sourceEndpoint.getServiceName());
-        Assert.assertEquals("/local.parentMethod", sourceEndpoint.getEndpoint());
-        Assert.assertTrue(sourceEndpoint.isServiceNormal());
+        Assertions.assertEquals("local-service", sourceEndpoint.getServiceName());
+        Assertions.assertEquals("/local.parentMethod", sourceEndpoint.getEndpoint());
+        Assertions.assertTrue(sourceEndpoint.isServiceNormal());
         sourceEndpoint.prepare();
-        Assert.assertEquals(serviceId, sourceEndpoint.getServiceId());
+        Assertions.assertEquals(serviceId, sourceEndpoint.getServiceId());
 
         final Endpoint targetEndpoint = (Endpoint) receivedSources.get(1);
-        Assert.assertEquals("local-service", targetEndpoint.getServiceName());
-        Assert.assertEquals("/local.method", targetEndpoint.getName());
-        Assert.assertTrue(targetEndpoint.getServiceLayer().isNormal());
+        Assertions.assertEquals("local-service", targetEndpoint.getServiceName());
+        Assertions.assertEquals("/local.method", targetEndpoint.getName());
+        Assertions.assertTrue(targetEndpoint.getServiceLayer().isNormal());
         targetEndpoint.prepare();
-        Assert.assertEquals(serviceId, targetEndpoint.getServiceId());
+        Assertions.assertEquals(serviceId, targetEndpoint.getServiceId());
 
         final EndpointRelation endpointRelation = (EndpointRelation) receivedSources.get(2);
-        Assert.assertEquals("local-service", endpointRelation.getServiceName());
-        Assert.assertEquals("local-service", endpointRelation.getChildServiceName());
-        Assert.assertEquals("local-instance", endpointRelation.getServiceInstanceName());
-        Assert.assertEquals("local-instance", endpointRelation.getChildServiceInstanceName());
-        Assert.assertEquals("/local.parentMethod", endpointRelation.getEndpoint());
-        Assert.assertEquals("/local.method", endpointRelation.getChildEndpoint());
-        Assert.assertEquals(10, endpointRelation.getComponentId());
-        Assert.assertEquals(Layer.GENERAL, endpointRelation.getServiceLayer());
-        Assert.assertEquals(Layer.GENERAL, endpointRelation.getChildServiceLayer());
-        Assert.assertFalse(endpointRelation.isStatus());
+        Assertions.assertEquals("local-service", endpointRelation.getServiceName());
+        Assertions.assertEquals("local-service", endpointRelation.getChildServiceName());
+        Assertions.assertEquals("local-instance", endpointRelation.getServiceInstanceName());
+        Assertions.assertEquals("local-instance", endpointRelation.getChildServiceInstanceName());
+        Assertions.assertEquals("/local.parentMethod", endpointRelation.getEndpoint());
+        Assertions.assertEquals("/local.method", endpointRelation.getChildEndpoint());
+        Assertions.assertEquals(10, endpointRelation.getComponentId());
+        Assertions.assertEquals(Layer.GENERAL, endpointRelation.getServiceLayer());
+        Assertions.assertEquals(Layer.GENERAL, endpointRelation.getChildServiceLayer());
+        Assertions.assertFalse(endpointRelation.isStatus());
         // No RPC/HTTP response code.
-        Assert.assertEquals(0, endpointRelation.getHttpResponseStatusCode());
-        Assert.assertEquals(null, endpointRelation.getRpcStatusCode());
+        Assertions.assertEquals(0, endpointRelation.getHttpResponseStatusCode());
+        Assertions.assertEquals(null, endpointRelation.getRpcStatusCode());
     }
 }

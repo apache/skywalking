@@ -21,100 +21,315 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 import io.kubernetes.client.openapi.models.V1ObjectMeta;
 import io.kubernetes.client.openapi.models.V1Pod;
 import io.kubernetes.client.openapi.models.V1PodStatus;
+import lombok.Getter;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
+import org.apache.skywalking.oap.server.core.cluster.ClusterWatcher;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
+import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.powermock.reflect.Whitebox;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.CoreModuleConfig;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
-import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
-import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.api.support.membermodification.MemberModifier;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
-import static org.mockito.Mockito.doNothing;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
+import static uk.org.webcompere.systemstubs.SystemStubs.withEnvironmentVariable;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"com.sun.org.apache.xerces.*", "javax.xml.*", "org.xml.*", "javax.management.*", "org.w3c.*"})
-@PrepareForTest({NamespacedPodListInformer.class})
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class KubernetesCoordinatorTest {
-
-    private KubernetesCoordinator coordinator;
-    private HealthCheckMetrics healthChecker = mock(HealthCheckMetrics.class);
-
     public static final String LOCAL_HOST = "127.0.0.1";
-    public static final Integer GRPC_PORT = 8454;
-    public static final Integer SELF_UID = 12345;
+    public static final String REMOTE_HOST = "127.0.0.2";
+    public static final Integer GRPC_PORT = 11800;
+    public static final String SELF_UID = "self";
+    public static final String REMOTE_UID = "remote";
 
-    private Address selfAddress;
-    private NamespacedPodListInformer informer;
+    @Mock
+    private ModuleManager moduleManager;
+    @Mock
+    private NoneTelemetryProvider telemetryProvider;
+    private ModuleProvider providerA;
+    private Address addressA;
+    private Address addressB;
+    private KubernetesCoordinator coordinatorA;
+    private KubernetesCoordinator coordinatorB;
+    private V1Pod podA;
+    private V1Pod podB;
 
-    @Before
-    public void prepare() throws IllegalAccessException {
-        coordinator = new KubernetesCoordinator(getManager(), new ClusterModuleKubernetesConfig());
-        Whitebox.setInternalState(coordinator, "healthChecker", healthChecker);
-        MemberModifier.field(KubernetesCoordinator.class, "uid").set(coordinator, String.valueOf(SELF_UID));
-        selfAddress = new Address(LOCAL_HOST, GRPC_PORT, true);
-        informer = PowerMockito.mock(NamespacedPodListInformer.class);
+    @BeforeEach
+    public void prepare() {
+        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
+               .thenReturn(new MetricsCreatorNoop());
+        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
+        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
+        NamespacedPodListInformer informer = mock(NamespacedPodListInformer.class);
         Whitebox.setInternalState(NamespacedPodListInformer.class, "INFORMER", informer);
-        doNothing().when(healthChecker).health();
+        when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(mock(ModuleProviderHolder.class));
+        when(moduleManager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
+        when(moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class)).thenReturn(
+            mock(ConfigService.class));
+        when(moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class).getGRPCPort()).thenReturn(
+            GRPC_PORT);
+
+        addressA = new Address(LOCAL_HOST, GRPC_PORT, true);
+        addressB = new Address(REMOTE_HOST, GRPC_PORT, true);
+        podA = mockPod(SELF_UID, LOCAL_HOST);
+        podB = mockPod(REMOTE_UID, REMOTE_HOST);
     }
 
     @Test
     public void queryRemoteNodesWhenInformerNotwork() throws Exception {
-        PowerMockito.doReturn(Optional.empty()).when(NamespacedPodListInformer.INFORMER).listPods();
-        List<RemoteInstance> remoteInstances = Whitebox.invokeMethod(coordinator, "queryRemoteNodes");
-        Assert.assertEquals(1, remoteInstances.size());
-        Assert.assertEquals(selfAddress, remoteInstances.get(0).getAddress());
+        withEnvironmentVariable(SELF_UID, SELF_UID + "0").execute(() -> {
+            providerA = createProvider(SELF_UID);
+            coordinatorA = getClusterCoordinator(providerA);
+            coordinatorA.start();
+        });
 
+        KubernetesCoordinator coordinator = getClusterCoordinator(providerA);
+        doReturn(Optional.empty()).when(NamespacedPodListInformer.INFORMER).listPods();
+        List<RemoteInstance> remoteInstances = Whitebox.invokeMethod(coordinator, "queryRemoteNodes");
+        Assertions.assertEquals(1, remoteInstances.size());
+        Assertions.assertEquals(addressA, remoteInstances.get(0).getAddress());
     }
 
     @Test
     public void queryRemoteNodesWhenInformerWork() throws Exception {
-        PowerMockito.doReturn(Optional.of(mockPodList())).when(NamespacedPodListInformer.INFORMER).listPods();
-        List<RemoteInstance> remoteInstances = Whitebox.invokeMethod(coordinator, "queryRemoteNodes");
-        Assert.assertEquals(5, remoteInstances.size());
-        List<RemoteInstance> self = remoteInstances.stream()
-                                                   .filter(item -> item.getAddress().isSelf())
-                                                   .collect(Collectors.toList());
-        List<RemoteInstance> others = remoteInstances.stream()
-                                                     .filter(item -> !item.getAddress().isSelf())
-                                                     .collect(Collectors.toList());
+        withEnvironmentVariable(SELF_UID + "0", SELF_UID + "0")
+                .execute(() -> {
+                    ModuleProvider provider = createProvider(SELF_UID + "0");
+                    KubernetesCoordinator coordinator = getClusterCoordinator(provider);
+                    coordinator.start();
+                    doReturn(Optional.of(mockPodList())).when(NamespacedPodListInformer.INFORMER).listPods();
+                    List<RemoteInstance> remoteInstances = Whitebox.invokeMethod(coordinator, "queryRemoteNodes");
+                    Assertions.assertEquals(5, remoteInstances.size());
+                    List<RemoteInstance> self = remoteInstances.stream()
+                            .filter(item -> item.getAddress().isSelf())
+                            .collect(Collectors.toList());
+                    List<RemoteInstance> others = remoteInstances.stream()
+                            .filter(item -> !item.getAddress().isSelf())
+                            .collect(Collectors.toList());
 
-        Assert.assertEquals(1, self.size());
-        Assert.assertEquals(4, others.size());
-
+                    Assertions.assertEquals(1, self.size());
+                    Assertions.assertEquals(4, others.size());
+                });
     }
 
-    private ModuleManagerTesting getManager() {
-        ModuleManagerTesting moduleManagerTesting = new ModuleManagerTesting();
-        ModuleDefineTesting coreModuleDefine = new ModuleDefineTesting();
-        moduleManagerTesting.put(CoreModule.NAME, coreModuleDefine);
-        CoreModuleConfig config = PowerMockito.mock(CoreModuleConfig.class);
-        when(config.getGRPCHost()).thenReturn(LOCAL_HOST);
-        when(config.getGRPCPort()).thenReturn(GRPC_PORT);
-        moduleManagerTesting.put(TelemetryModule.NAME, coreModuleDefine);
-        coreModuleDefine.provider().registerServiceImplementation(ConfigService.class, new ConfigService(config));
-        coreModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
-        return moduleManagerTesting;
+    @Test
+    public void registerRemote() throws Exception {
+        RemoteInstance instance = new RemoteInstance(addressA);
+        withEnvironmentVariable(SELF_UID, SELF_UID).execute(() -> {
+            providerA = createProvider(SELF_UID);
+            coordinatorA = getClusterCoordinator(providerA);
+            coordinatorA.start();
+        });
+        doReturn(Optional.of(Collections.singletonList(podA)))
+                .when(NamespacedPodListInformer.INFORMER)
+                .listPods();
+
+        ClusterMockWatcher watcher = new ClusterMockWatcher();
+        coordinatorA.registerWatcher(watcher);
+        coordinatorA.registerRemote(instance);
+        KubernetesCoordinator.K8sResourceEventHandler listener = coordinatorA.new K8sResourceEventHandler();
+        listener.onAdd(podA);
+
+        List<RemoteInstance> remoteInstances = watcher.getRemoteInstances();
+        assertEquals(1, remoteInstances.size());
+        assertEquals(1, coordinatorA.queryRemoteNodes().size());
+        Address queryAddress = remoteInstances.get(0).getAddress();
+        assertEquals(addressA, queryAddress);
+        assertTrue(queryAddress.isSelf());
+    }
+
+    @Test
+    public void registerRemoteOfReceiver() throws Exception {
+        withEnvironmentVariable(SELF_UID, SELF_UID + "0").execute(() -> {
+            providerA = createProvider(SELF_UID);
+            coordinatorA = getClusterCoordinator(providerA);
+            coordinatorA.start();
+        });
+        withEnvironmentVariable(REMOTE_UID, REMOTE_UID).execute(() -> {
+            ModuleProvider providerB = createProvider(REMOTE_UID);
+            coordinatorB = getClusterCoordinator(providerB);
+        });
+        coordinatorB.start();
+
+        ClusterMockWatcher watcherB = new ClusterMockWatcher();
+        coordinatorB.registerWatcher(watcherB);
+
+        doReturn(Optional.of(Collections.singletonList(podA)))
+                .when(NamespacedPodListInformer.INFORMER)
+                .listPods();
+        RemoteInstance instance = new RemoteInstance(addressA);
+        coordinatorA.registerRemote(instance);
+        KubernetesCoordinator.K8sResourceEventHandler listener = coordinatorB.new K8sResourceEventHandler();
+        listener.onAdd(podA);
+
+        // Receiver
+        List<RemoteInstance> remoteInstances = watcherB.getRemoteInstances();
+        assertEquals(1, remoteInstances.size());
+        assertEquals(1, coordinatorB.queryRemoteNodes().size());
+        Address queryAddress = remoteInstances.get(0).getAddress();
+        assertEquals(addressA, queryAddress);
+        assertFalse(queryAddress.isSelf());
+    }
+
+    @Test
+    public void registerRemoteOfCluster() throws Exception {
+        withEnvironmentVariable(SELF_UID, SELF_UID).execute(() -> {
+            providerA = createProvider(SELF_UID);
+            coordinatorA = getClusterCoordinator(providerA);
+            coordinatorA.start();
+        });
+        withEnvironmentVariable(REMOTE_UID, REMOTE_UID).execute(() -> {
+            ModuleProvider providerB = createProvider(REMOTE_UID);
+            coordinatorB = getClusterCoordinator(providerB);
+        });
+        coordinatorB.start();
+
+        ClusterMockWatcher watcherA = new ClusterMockWatcher();
+        coordinatorA.registerWatcher(watcherA);
+        ClusterMockWatcher watcherB = new ClusterMockWatcher();
+        coordinatorB.registerWatcher(watcherB);
+
+        doReturn(Optional.of(Arrays.asList(podA, podB)))
+                .when(NamespacedPodListInformer.INFORMER)
+                .listPods();
+        RemoteInstance instanceA = new RemoteInstance(addressA);
+        RemoteInstance instanceB = new RemoteInstance(addressB);
+        coordinatorA.registerRemote(instanceA);
+        coordinatorB.registerRemote(instanceB);
+
+        KubernetesCoordinator.K8sResourceEventHandler listenerA = coordinatorA.new K8sResourceEventHandler();
+        listenerA.onAdd(podA);
+        listenerA.onAdd(podB);
+        KubernetesCoordinator.K8sResourceEventHandler listenerB = coordinatorB.new K8sResourceEventHandler();
+        listenerB.onAdd(podA);
+        listenerB.onAdd(podB);
+
+        List<RemoteInstance> remoteInstancesOfA = watcherA.getRemoteInstances();
+        validateServiceInstance(addressA, addressB, remoteInstancesOfA);
+        assertEquals(2, coordinatorA.queryRemoteNodes().size());
+
+        List<RemoteInstance> remoteInstancesOfB = watcherB.getRemoteInstances();
+        validateServiceInstance(addressB, addressA, remoteInstancesOfB);
+        assertEquals(2, coordinatorB.queryRemoteNodes().size());
+    }
+
+    @Test
+    public void deregisterRemoteOfCluster() throws Exception {
+        withEnvironmentVariable(SELF_UID, SELF_UID).execute(() -> {
+            providerA = createProvider(SELF_UID);
+            coordinatorA = getClusterCoordinator(providerA);
+            coordinatorA.start();
+        });
+        withEnvironmentVariable(REMOTE_UID, REMOTE_UID).execute(() -> {
+            ModuleProvider providerB = createProvider(REMOTE_UID);
+            coordinatorB = getClusterCoordinator(providerB);
+        });
+        coordinatorB.start();
+
+        ClusterMockWatcher watcherA = new ClusterMockWatcher();
+        coordinatorA.registerWatcher(watcherA);
+
+        ClusterMockWatcher watcherB = new ClusterMockWatcher();
+        coordinatorB.registerWatcher(watcherB);
+
+        doReturn(Optional.of(Arrays.asList(podA, podB)))
+                .when(NamespacedPodListInformer.INFORMER)
+                .listPods();
+        RemoteInstance instanceA = new RemoteInstance(addressA);
+        RemoteInstance instanceB = new RemoteInstance(addressB);
+        coordinatorA.registerRemote(instanceA);
+        coordinatorB.registerRemote(instanceB);
+
+        KubernetesCoordinator.K8sResourceEventHandler listenerA = coordinatorA.new K8sResourceEventHandler();
+        listenerA.onAdd(podA);
+        listenerA.onAdd(podB);
+        KubernetesCoordinator.K8sResourceEventHandler listenerB = coordinatorB.new K8sResourceEventHandler();
+        listenerB.onAdd(podA);
+        listenerB.onAdd(podB);
+
+        List<RemoteInstance> remoteInstancesOfA = watcherA.getRemoteInstances();
+        validateServiceInstance(addressA, addressB, remoteInstancesOfA);
+        assertEquals(2, coordinatorA.queryRemoteNodes().size());
+
+        List<RemoteInstance> remoteInstancesOfB = watcherB.getRemoteInstances();
+        validateServiceInstance(addressB, addressA, remoteInstancesOfB);
+        assertEquals(2, coordinatorB.queryRemoteNodes().size());
+
+        // deregister A
+        listenerB.onDelete(podA, false);
+        doReturn(Optional.of(Collections.singletonList(podB)))
+                .when(NamespacedPodListInformer.INFORMER)
+                .listPods();
+        // only B
+        remoteInstancesOfB = watcherB.getRemoteInstances();
+        assertEquals(1, remoteInstancesOfB.size());
+        assertEquals(1, coordinatorB.queryRemoteNodes().size());
+
+        Address address = remoteInstancesOfB.get(0).getAddress();
+        assertEquals(addressB, address);
+        assertTrue(address.isSelf());
+    }
+
+    private ClusterModuleKubernetesProvider createProvider(String uidEnvName)
+        throws ModuleStartException {
+        ClusterModuleKubernetesProvider provider = new ClusterModuleKubernetesProvider();
+
+        ClusterModuleKubernetesConfig config = new ClusterModuleKubernetesConfig();
+        provider.newConfigCreator().onInitialized(config);
+        config.setNamespace("default");
+        config.setLabelSelector("app=oap");
+        config.setUidEnvName(uidEnvName);
+
+        provider.setManager(moduleManager);
+        provider.prepare();
+        provider.start();
+        provider.notifyAfterCompleted();
+        return provider;
+    }
+
+    private KubernetesCoordinator getClusterCoordinator(ModuleProvider provider) {
+        return (KubernetesCoordinator) provider.getService(ClusterCoordinator.class);
+    }
+
+    private V1Pod mockPod(String uid, String ip) {
+        V1Pod v1Pod = new V1Pod();
+        v1Pod.setMetadata(new V1ObjectMeta());
+        v1Pod.setStatus(new V1PodStatus());
+        v1Pod.getStatus().setPhase("Running");
+        v1Pod.getMetadata().setUid(uid);
+        v1Pod.getStatus().setPodIP(ip);
+        return v1Pod;
     }
 
     private List<V1Pod> mockPodList() {
@@ -123,10 +338,39 @@ public class KubernetesCoordinatorTest {
             V1Pod v1Pod = new V1Pod();
             v1Pod.setMetadata(new V1ObjectMeta());
             v1Pod.setStatus(new V1PodStatus());
-            v1Pod.getMetadata().setUid(String.valueOf(SELF_UID + i));
+            v1Pod.getMetadata().setUid(SELF_UID + i);
             v1Pod.getStatus().setPodIP(LOCAL_HOST);
             pods.add(v1Pod);
         }
         return pods;
+    }
+
+    private void validateServiceInstance(Address selfAddress, Address otherAddress,
+                                         List<RemoteInstance> queryResult) {
+        assertEquals(2, queryResult.size());
+
+        boolean selfExist = false, otherExist = false;
+
+        for (RemoteInstance instance : queryResult) {
+            Address queryAddress = instance.getAddress();
+            if (queryAddress.equals(selfAddress) && queryAddress.isSelf()) {
+                selfExist = true;
+            } else if (queryAddress.equals(otherAddress) && !queryAddress.isSelf()) {
+                otherExist = true;
+            }
+        }
+
+        assertTrue(selfExist);
+        assertTrue(otherExist);
+    }
+
+    static class ClusterMockWatcher implements ClusterWatcher {
+        @Getter
+        private List<RemoteInstance> remoteInstances = new ArrayList<>();
+
+        @Override
+        public void onClusterNodesChanged(final List<RemoteInstance> remoteInstances) {
+            this.remoteInstances = remoteInstances;
+        }
     }
 }

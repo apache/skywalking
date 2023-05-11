@@ -119,12 +119,13 @@ public enum Layer {
     K8S_SERVICE(17, true),
 
     /**
-     * MySQL Server, also known as mysqld, is a single multithreaded program that does most of the work in a MySQL installation. 
+     * MySQL Server, also known as mysqld, is a single multithreaded program that does most of the work in a MySQL
+     * installation.
      */
     MYSQL(18, true),
 
     /**
-     * Cache conjectured by client side plugin(eg. skywalking-java -> JedisPlugin LettucePlugin)
+     * Cache conjectured by client side plugin(eg. skywalking-java -&gt; JedisPlugin LettucePlugin)
      */
     VIRTUAL_CACHE(19, false),
 
@@ -136,7 +137,46 @@ public enum Layer {
     /**
      * Apache APISIX is an open source, dynamic, scalable, and high-performance cloud native API gateway.
      */
-    APISIX(21, true);
+    APISIX(21, true),
+
+    /**
+     * EKS (Amazon Elastic Kubernetes Service) is k8s service provided by AWS Cloud
+     */
+    AWS_EKS(22, true),
+
+    /**
+     * Windows Machine
+     */
+    OS_WINDOWS(23, true),
+
+    /**
+     * Amazon Simple Storage Service (Amazon S3) is an object storage service provided by AWS Cloud
+     */
+    AWS_S3(24, true),
+
+    /**
+     * Amazon DynamoDB is a fully managed NoSQL database service that provides
+     * fast and predictable performance with seamless scalability.
+     */
+    AWS_DYNAMODB(25, true),
+
+    /**
+     * Amazon API Gateway is an AWS service for creating, publishing, maintaining, monitoring, and securing REST, HTTP,
+     * and WebSocket APIs at any scale.
+     */
+    AWS_GATEWAY(26, true),
+
+    /*
+     * Redis is an open source (BSD licensed), in-memory data structure store,
+     * used as a database, cache, and message broker.
+     */
+    REDIS(27, true),
+
+    /*
+     * Elasticsearch is a distributed, open source search and analytics engine for all types of data,
+     * including textual, numerical, geospatial, structured, and unstructured.
+     */
+    ELASTICSEARCH(28, true);
 
     private final int value;
     /**

@@ -51,6 +51,26 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
+  postgres_2: &pgsql
+    image: postgres:14.1
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=skywalking
+    ports:
+      - 5432
+    command: postgres -c config_file=/etc/postgresql.conf
+    volumes:
+      - ./postgresql.conf:/etc/postgresql.conf
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5432" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+  postgres_3:
+    <<: *pgsql
   postgres-load:
     image: postgres:14.1
     environment:
@@ -73,6 +93,26 @@ services:
       - 9187
     environment:
       - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres:5432/postgres?sslmode=disable
+    networks:
+      - e2e
+  postgres-exporter_2:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.11.0
+    depends_on:
+      - postgres
+    ports:
+      - 9187
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres_2:5432/postgres?sslmode=disable
+    networks:
+      - e2e
+  postgres-exporter_3:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.11.0
+    depends_on:
+      - postgres
+    ports:
+      - 9187
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:123456@postgres_3:5432/postgres?sslmode=disable
     networks:
       - e2e
   fluentbit:

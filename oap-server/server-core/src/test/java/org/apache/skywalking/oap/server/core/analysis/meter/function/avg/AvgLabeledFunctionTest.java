@@ -19,9 +19,6 @@
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
 import io.vavr.collection.Stream;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -29,33 +26,36 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.COUNT;
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.SUMMATION;
 import static org.apache.skywalking.oap.server.core.analysis.meter.function.avg.AvgLabeledFunction.VALUE;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AvgLabeledFunctionTest {
     @Spy
     private AvgLabeledFunction function;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
         MeterEntity.setNamingControl(null);
     }
@@ -78,8 +78,8 @@ public class AvgLabeledFunctionTest {
             MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "500"), asList(2L, 3L)));
         function.calculate();
 
-        assertThat(function.getValue().sortedKeys(Comparator.naturalOrder()), is(asList("200", "404", "500")));
-        assertThat(function.getValue().sortedValues(Comparator.naturalOrder()), is(asList(6L, 2L, 3L)));
+        assertThat(function.getValue().sortedKeys(Comparator.naturalOrder())).isEqualTo(asList("200", "404", "500"));
+        assertThat(function.getValue().sortedValues(Comparator.naturalOrder())).isEqualTo(asList(6L, 2L, 3L));
     }
 
     @Test
@@ -88,8 +88,8 @@ public class AvgLabeledFunctionTest {
             MeterEntity.newService("request_count", Layer.GENERAL), build(asList("200", "404"), asList(10L, 2L)));
         AvgLabeledFunction function2 = Mockito.spy(AvgLabeledFunction.class);
         function2.deserialize(function.serialize().build());
-        assertThat(function2.getEntityId(), is(function.getEntityId()));
-        assertThat(function2.getTimeBucket(), is(function.getTimeBucket()));
+        assertThat(function2.getEntityId()).isEqualTo(function.getEntityId());
+        assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());
     }
 
     @Test
@@ -107,7 +107,7 @@ public class AvgLabeledFunctionTest {
         map.put(VALUE, ((DataTable) map.get(VALUE)).toStorageData());
 
         AvgLabeledFunction function2 = storageBuilder.storage2Entity(new HashMapConverter.ToEntity(map));
-        assertThat(function2.getValue(), is(function.getValue()));
+        assertThat(function2.getValue()).isEqualTo(function.getValue());
     }
 
     private DataTable build(List<String> keys, List<Long> values) {
@@ -123,15 +123,15 @@ public class AvgLabeledFunctionTest {
 
     private void assertCount(List<String> expectedKeys, List<Long> expectedCount) {
         List<String> keys = function.getCount().sortedKeys(Comparator.comparingInt(Integer::parseInt));
-        assertThat(keys, is(expectedKeys));
+        assertThat(keys).isEqualTo(expectedKeys);
         List<Long> values = function.getCount().sortedValues(Comparator.comparingLong(Long::parseLong));
-        assertThat(values, is(expectedCount));
+        assertThat(values).isEqualTo(expectedCount);
     }
 
     private void assertSummation(List<String> expectedKeys, List<Long> expectedValues) {
         List<String> keys = function.getSummation().sortedKeys(Comparator.comparingInt(Integer::parseInt));
-        assertThat(keys, is(expectedKeys));
+        assertThat(keys).isEqualTo(expectedKeys);
         List<Long> values = function.getSummation().sortedValues(Comparator.comparingLong(Long::parseLong));
-        assertThat(values, is(expectedValues));
+        assertThat(values).isEqualTo(expectedValues);
     }
 }

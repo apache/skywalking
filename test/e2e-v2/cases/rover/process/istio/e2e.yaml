@@ -47,22 +47,18 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
     - name: Install SkyWalking
       command: |
-        rm -rf skywalking-kubernetes && git clone https://github.com/apache/skywalking-kubernetes.git
-        cd skywalking-kubernetes
-        git reset --hard $SW_KUBERNETES_COMMIT_SHA
-        cd chart
-        helm dep up skywalking
-        helm -n istio-system install skywalking skywalking \
-                       --set fullnameOverride=skywalking \
-                       --set elasticsearch.replicas=1 \
-                       --set elasticsearch.minimumMasterNodes=1 \
-                       --set elasticsearch.imageTag=7.5.1 \
-                       --set oap.replicas=1 \
-                       --set ui.image.repository=skywalking/ui \
-                       --set ui.image.tag=latest \
-                       --set oap.image.tag=latest \
-                       --set oap.image.repository=skywalking/oap \
-                       --set oap.storageType=elasticsearch
+        helm -n istio-system install skywalking \
+          oci://ghcr.io/apache/skywalking-kubernetes/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
+          --set fullnameOverride=skywalking \
+          --set elasticsearch.replicas=1 \
+          --set elasticsearch.minimumMasterNodes=1 \
+          --set oap.replicas=1 \
+          --set ui.image.repository=skywalking/ui \
+          --set ui.image.tag=latest \
+          --set oap.image.tag=latest \
+          --set oap.image.repository=skywalking/oap \
+          --set oap.storageType=elasticsearch
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap

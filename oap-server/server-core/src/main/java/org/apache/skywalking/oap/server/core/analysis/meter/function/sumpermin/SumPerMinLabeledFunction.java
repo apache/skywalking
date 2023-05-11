@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function.sumpermin;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -33,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
@@ -49,23 +49,25 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
 
     @Setter
     @Getter
-    @Column(columnName = ENTITY_ID, length = 512)
-    @BanyanDB.ShardingKey(index = 0)
+    @Column(name = ENTITY_ID, length = 512)
+    @BanyanDB.SeriesID(index = 0)
     private String entityId;
 
     @Setter
     @Getter
-    @Column(columnName = InstanceTraffic.SERVICE_ID)
+    @Column(name = InstanceTraffic.SERVICE_ID)
     private String serviceId;
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 
     @Getter
     @Setter
-    @Column(columnName = TOTAL, storageOnly = true)
+    @Column(name = TOTAL, storageOnly = true)
+    @BanyanDB.MeasureField
     private DataTable total = new DataTable(30);
 
     @Entrance
@@ -109,7 +111,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setServiceId(getServiceId());
-        metrics.setTotal(getTotal());
+        metrics.getTotal().copyFrom(getTotal());
         return metrics;
     }
 
@@ -119,13 +121,15 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setServiceId(getServiceId());
-        metrics.setTotal(getTotal());
+        metrics.getTotal().copyFrom(getTotal());
         return metrics;
     }
 
     @Override
-    protected String id0() {
-        return getTimeBucket() + Const.ID_CONNECTOR + getEntityId();
+    protected StorageID id0() {
+        return new StorageID()
+            .append(TIME_BUCKET, getTimeBucket())
+            .append(ENTITY_ID, getEntityId());
     }
 
     @Override
@@ -180,5 +184,23 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
             converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
             converter.accept(ENTITY_ID, storageData.getEntityId());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SumPerMinLabeledFunction)) {
+            return false;
+        }
+        SumPerMinLabeledFunction function = (SumPerMinLabeledFunction) o;
+        return Objects.equals(entityId, function.entityId) &&
+            getTimeBucket() == function.getTimeBucket();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(entityId, getTimeBucket());
     }
 }

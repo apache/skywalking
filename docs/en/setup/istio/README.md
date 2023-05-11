@@ -6,55 +6,53 @@ This document provides instructions on transporting Istio's metrics to the SkyWa
 
 Istio should be installed in a Kubernetes cluster. Simply follow the steps in [Getting Started in Istio](https://istio.io/docs/setup/getting-started/).
 
-## Deploying SkyWalking backend
+## Deploy SkyWalking backend
 
 Follow the steps in [deploying backend in Kubernetes](../backend/backend-k8s.md) to install the OAP server in the Kubernetes cluster.
 Refer to [OpenTelemetry receiver](../backend/opentelemetry-receiver.md) to ingest metrics.
-`otel-receiver` is disabled by default. Set env var `SW_OTEL_RECEIVER` to `default` to enable it.
 
 
-## Deploying OpenTelemetry Collector
+## Deploy OpenTelemetry Collector
 OpenTelemetry Collector is the location where Istio telemetry sends metrics, which are then processed and shipped to SkyWalking
 backend.
 
-To deploy this collector, follow the steps in [Getting Started in OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/). Several components are available in the collector, and they could be combined for different use cases.
+To deploy this collector, follow the steps in [Getting Started in OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/).
+Several components are available in the collector, and they could be combined for different use cases.
 
-For the sake of brevity, we use the Prometheus receiver to retrieve metrics from Istio control and data plane,  then send them to SkyWalking by OpenCensus exporter.
+After installing the collector, you may configure it to scrape metrics from Istio and send them to SkyWalking backend.
 
-#### Prometheus Receiver
-Refer to [Prometheus Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/150692dbbceb3ff0df75c912e835f1feaac0be93/receiver/prometheusreceiver/README.md)
- to set up this receiver. You could find more configuration details in [Prometheus Integration of Istio](https://istio.io/latest/docs/ops/integrations/prometheus/#configuration)
- to figure out how to direct Prometheus Receiver to query Istio metrics.
- 
-SkyWalking supports receiving multi-cluster metrics in a single OAP cluster. A `cluster` label should be appended to every metric
-fetched by this receiver even if there's only a single cluster needed to be collected.
-You could use `relabel` to add it, like this:
+The job configuration to scrape metrics from Istio and send them to SkyWalking backend is as follows:
 
+```yaml
+receivers:
+  prometheus:
+    config:
+     scrape_configs:
+     - job_name: 'istiod-monitor'
+       kubernetes_sd_configs:
+        - role: endpoints
+       relabel_configs:
+        - source_labels: [ __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name ]
+          action: keep
+          regex: istiod;http-monitoring
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels: [ ]
+          target_label: cluster
+          replacement: your-cluster # replace this with your cluster name
+
+exporters:
+  otlp:
+    endpoint: oap.skywalking:11800 # replace this with the OAP gRPC service address
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [ prometheus ]
+      exporters: [ otlp,logging ]
 ```
-relabel_configs:
-- source_labels: []
-  target_label: cluster
-  replacement: <cluster name>
-```
-
-or you can do so through [Resource Processor](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/a08903f05d3a544f548535c222b1c205b9f5a154/processor/resourceprocessor/README.md):
-
-```
-processors:
-  resource:
-    attributes:
-    - key: cluster
-      value: "<cluster name>"
-      action: upsert
-```
-
-Note: If you try the sample Istio Prometheus Kubernetes configuration, 
-you may experience [an issue](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/4980). 
-Try to fix it using the solution described in the issue.
-
-#### OpenCensus exporter
-Follow [OpenCensus exporter configuration](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/a08903f05d3a544f548535c222b1c205b9f5a154/exporter/opencensusexporter/README.md)
-to set up a connection between OpenTelemetry Collector and OAP cluster. `endpoint` is the address of the OAP gRPC service.
 
 ## Observing Istio
 

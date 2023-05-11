@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.remote;
 
+import io.grpc.ManagedChannel;
+import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.stub.StreamObserver;
-import io.grpc.testing.GrpcCleanupRule;
-import java.io.IOException;
+import io.grpc.util.MutableHandlerRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.Empty;
@@ -42,9 +43,14 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -52,8 +58,43 @@ import static org.mockito.Mockito.when;
 
 public class RemoteServiceHandlerTestCase {
 
-    @Rule
-    public final GrpcCleanupRule gRPCCleanup = new GrpcCleanupRule();
+    private Server server;
+    private ManagedChannel channel;
+    private MutableHandlerRegistry serviceRegistry;
+
+    @BeforeEach
+    public void beforeEach() throws IOException {
+        serviceRegistry = new MutableHandlerRegistry();
+        final String name = UUID.randomUUID().toString();
+        InProcessServerBuilder serverBuilder =
+                InProcessServerBuilder
+                        .forName(name)
+                        .fallbackHandlerRegistry(serviceRegistry);
+
+        server = serverBuilder.build();
+        server.start();
+
+        channel = InProcessChannelBuilder.forName(name).build();
+    }
+
+    @AfterEach
+    public void after() {
+        channel.shutdown();
+        server.shutdown();
+
+        try {
+            channel.awaitTermination(1L, TimeUnit.MINUTES);
+            server.awaitTermination(1L, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } finally {
+            channel.shutdownNow();
+            channel = null;
+            server.shutdownNow();
+            server = null;
+        }
+    }
 
     @Test
     public void callTest() throws DuplicateProviderException, ProviderNotFoundException, IOException {
@@ -99,16 +140,7 @@ public class RemoteServiceHandlerTestCase {
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
         telemetryModuleDefine.provider().registerServiceImplementation(MetricsCreator.class, metricsCreator);
 
-        gRPCCleanup.register(InProcessServerBuilder.forName(serverName)
-                                                   .directExecutor()
-                                                   .addService(new RemoteServiceHandler(moduleManager))
-                                                   .build()
-                                                   .start());
-
-        RemoteServiceGrpc.RemoteServiceStub remoteServiceStub = RemoteServiceGrpc.newStub(gRPCCleanup.register(InProcessChannelBuilder
-            .forName(serverName)
-            .directExecutor()
-            .build()));
+        RemoteServiceGrpc.RemoteServiceStub remoteServiceStub = RemoteServiceGrpc.newStub(channel);
 
         StreamObserver<RemoteMessage> streamObserver = remoteServiceStub.call(new StreamObserver<Empty>() {
             @Override
@@ -161,10 +193,10 @@ public class RemoteServiceHandlerTestCase {
             long1 = remoteData.getDataLongs(0);
             long2 = remoteData.getDataLongs(1);
 
-            Assert.assertEquals("test1", str1);
-            Assert.assertEquals("test2", str2);
-            Assert.assertEquals(10, long1);
-            Assert.assertEquals(20, long2);
+            Assertions.assertEquals("test1", str1);
+            Assertions.assertEquals("test2", str2);
+            Assertions.assertEquals(10, long1);
+            Assertions.assertEquals(20, long2);
         }
 
         @Override
@@ -183,10 +215,10 @@ public class RemoteServiceHandlerTestCase {
         public void in(Object o) {
             TestRemoteData data = (TestRemoteData) o;
 
-            Assert.assertEquals("test1", data.str1);
-            Assert.assertEquals("test2", data.str2);
-            Assert.assertEquals(10, data.long1);
-            Assert.assertEquals(20, data.long2);
+            Assertions.assertEquals("test1", data.str1);
+            Assertions.assertEquals("test2", data.str2);
+            Assertions.assertEquals(10, data.long1);
+            Assertions.assertEquals(20, data.long2);
         }
     }
 }

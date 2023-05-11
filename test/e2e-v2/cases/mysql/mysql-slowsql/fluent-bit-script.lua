@@ -15,102 +15,124 @@
 -- limitations under the License.
 --
 
+-- The following is an example of a simple MySQL slow log
+--   # Time: 2022-12-06T15:11:00.449826Z
+--   # User@Host: root[root] @  [127.0.0.1]  Id:    29
+--   # Query_time: 11.000312  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 0
+--   SET timestamp=1670339460;
+--   SELECT SLEEP(11);
 function rewrite_body(tag, timestamp, record)
-    log = record["log"]
-    record["log"] = nil
-    record["date"] = nil
-    record["tags"] = {data={{key="LOG_KIND", value="SLOW_SQL"}}}
-    arr = split(log,"\n")
-    re1 = {}
-    
-    time = string.sub(arr[1], 9)
-    time = string.sub(time,1,19)
-    time = string.gsub(time,"-","");
-    time = string.gsub(time,"T","");
-    time = string.gsub(time,":","");
-    y1 = string.sub(time,1,4)
-    m1 = string.sub(time,5,6)
-    d1 = string.sub(time,7,8)
-    h1 = string.sub(time,9,10)
-    min1 = string.sub(time,11,12)
-    s1 = string.sub(time,13,14)
-    re1["time"] = os.time()
+  local log = record.log
+  record.log = nil
+  record.tags = { data = { { key = "LOG_KIND", value = "SLOW_SQL" } } }
 
-    re1["layer"] = "MYSQL"
-    record["layer"] = "MYSQL"
-    id1,_ = string.find(arr[2],"Id:")
-    service = string.sub(arr[2],14,id1-1)
-    service = string.gsub(service," ","");
-    service = string.sub(service,1,10)
-    service = "mysql::"..service
-    record["service"]=service
-    re1["service"]= service
+  local lines = {}
+  for line in string.gmatch(log, "[^\n]+") do
+    table.insert(lines, line)
+  end
+  inner_record = {}
 
-    f1,_ = string.find(arr[3],"Lock")
-    query_time = string.sub(arr[3],15,f1-3)
-    local qt,_ = math.modf(query_time*1000)
-    re1["query_time"] = qt
-    re1["statement"] = ""
+  inner_record.time = os.time() * 1000
+  inner_record.layer = "MYSQL"
 
-    re1["id"] = uuid()
+  record.layer = "MYSQL"
 
-    for i=4,#arr,1 do
-        re1["statement"] = re1["statement"]..arr[i]
-    end
-    jsonstr = table2json(re1)
-    record["body"]={json={}}
-    record["body"]["json"]["json"] = jsonstr
-    return 1, timestamp, record
-end
-function split(input, delimiter)
-    input = tostring(input)
-    delimiter = tostring(delimiter)
-    if (delimiter == "") then return false end
-    local pos, arr = 0, {}
-    for st, sp in function() return string.find(input, delimiter, pos, true) end do
-        table.insert(arr, string.sub(input, pos, st - 1))
-        pos = sp + 1
-    end
-    table.insert(arr, string.sub(input, pos))
-    return arr
+  -- Here simply set the service name to `root[root]`, you can also get the part you want from the second line of the log as the service name
+  record.service = "mysql::" .. "root[root]"
+  inner_record.service = "mysql::" .. "root[root]"
+
+  local query_time = lines[3]:match("%s(%S+)%s+Lock")
+  local qt = math.floor(query_time * 1000)
+  inner_record.query_time = qt
+  inner_record.statement = ""
+
+  inner_record.id = uuid()
+
+  for i = 4, #lines, 1 do
+    inner_record.statement = inner_record.statement .. lines[i]
+  end
+  inner_record.statement = string.gsub(inner_record.statement, '"', '\\"')
+
+  local jsonstr = table2json(inner_record)
+  record.body = { json = { json = jsonstr } }
+
+  return 1, timestamp, record
 end
 
-function uuid()
-    local seed={'e','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}
-    local tb={}
-    for i=1,32 do
-        table.insert(tb,seed[math.random(1,16)])
-    end
-    local sid=table.concat(tb)
-    return string.format('%s-%s-%s-%s-%s',
-        string.sub(sid,1,8),
-        string.sub(sid,9,12),
-        string.sub(sid,13,16),
-        string.sub(sid,17,20),
-        string.sub(sid,21,32)
-    )
+local UUID_TEMPLATE = '%s-%s-%s-%s-%s'
+
+local random_hex = {}
+
+function random_hex.generate(n)
+  local seed = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}
+  local s = ""
+  for i = 1, n do
+    s = s .. seed[math.random(1, 16)]
+  end
+  return s
+end
+
+function uuid(seed)
+  if seed then
+    math.randomseed(seed)
+  else
+    math.randomseed(os.time())
+  end
+  local sid = string.format(UUID_TEMPLATE,
+          random_hex.generate(4), random_hex.generate(4), random_hex.generate(4),
+          random_hex.generate(4), random_hex.generate(8)
+  )
+  return sid
 end
 
 function table2json(t)
-  local function serialize(tbl)
+  local function serialize(tbl, structure)
     local tmp = {}
     for k, v in pairs(tbl) do
       local k_type = type(k)
       local v_type = type(v)
-      local key = (k_type == "string" and '"' .. k .. '":') or (k_type == "number" and "")
-      local value =
-        (v_type == "table" and serialize(v)) or (v_type == "boolean" and tostring(v)) or
-        (v_type == "string" and '"' .. v .. '"') or
-        (v_type == "number" and v)
+      local key
+      if k_type == "string" then
+        key = '"' .. k .. '":'
+      elseif k_type == "number" then
+        key = ""
+        if structure == "array" then
+          key = ""
+        else
+          key = '"' .. k .. '":'
+        end
+      else
+        key = '"' .. tostring(k) .. '":'
+      end
+      local value
+      if v_type == "table" then
+        if next(v) == nil then
+          value = "null"
+        else
+          value = serialize(v, structure)
+        end
+      elseif v_type == "boolean" then
+        value = tostring(v)
+      elseif v_type == "string" then
+        value = '"' .. v .. '"'
+      else
+        value = v
+      end
       tmp[#tmp + 1] = key and value and tostring(key) .. tostring(value) or nil
     end
-    if table.maxn(tbl) == 0 then
-      return "{" .. table.concat(tmp, ",") .. "}"
-    else
+    if structure == "array" then
       return "[" .. table.concat(tmp, ",") .. "]"
+    else
+      return "{" .. table.concat(tmp, ",") .. "}"
     end
   end
   assert(type(t) == "table")
-  return serialize(t)
+  if next(t) == nil then
+    return "null"
+  elseif next(t, next(t)) == nil and type(next(t)) == "number" then
+    return serialize(t, "array")
+  else
+    return serialize(t, "table")
+  end
 end
 

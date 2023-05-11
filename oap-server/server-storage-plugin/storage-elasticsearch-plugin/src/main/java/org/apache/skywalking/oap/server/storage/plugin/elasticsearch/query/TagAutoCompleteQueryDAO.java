@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -62,7 +63,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         }
         BoolQueryBuilder query = Query.bool();
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(TagAutocompleteData.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query);
@@ -77,16 +78,19 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
             ),
             search.build()
         );
-        Map<String, Object> terms =
-            (Map<String, Object>) response.getAggregations().get(TagAutocompleteData.TAG_KEY);
-        List<Map<String, Object>> buckets = (List<Map<String, Object>>) terms.get("buckets");
         Set<String> tagKeys = new HashSet<>();
-        for (Map<String, Object> bucket : buckets) {
-            String tagKey = (String) bucket.get("key");
-            if (StringUtil.isEmpty(tagKey)) {
-                continue;
+        if (Objects.nonNull(response.getAggregations())) {
+            Map<String, Object> terms =
+                (Map<String, Object>) response.getAggregations().get(TagAutocompleteData.TAG_KEY);
+            List<Map<String, Object>> buckets = (List<Map<String, Object>>) terms.get("buckets");
+
+            for (Map<String, Object> bucket : buckets) {
+                String tagKey = (String) bucket.get("key");
+                if (StringUtil.isEmpty(tagKey)) {
+                    continue;
+                }
+                tagKeys.add(tagKey);
             }
-            tagKeys.add(tagKey);
         }
         return tagKeys;
     }
@@ -103,7 +107,7 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
         }
         BoolQueryBuilder query = Query.bool().must(Query.term(TagAutocompleteData.TAG_KEY, tagKey));
         query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(TagAutocompleteData.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(limit);

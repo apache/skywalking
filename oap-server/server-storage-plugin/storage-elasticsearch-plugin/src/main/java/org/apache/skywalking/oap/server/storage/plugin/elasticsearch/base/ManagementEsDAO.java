@@ -38,7 +38,7 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
     @Override
     public void insert(Model model, ManagementData managementData) throws IOException {
         String tableName = IndexController.INSTANCE.getTableName(model);
-        String docId = IndexController.INSTANCE.generateDocId(model, managementData.id());
+        String docId = IndexController.INSTANCE.generateDocId(model, managementData.id().build());
         final boolean exist = getClient().existDoc(tableName, docId);
         if (exist) {
             return;

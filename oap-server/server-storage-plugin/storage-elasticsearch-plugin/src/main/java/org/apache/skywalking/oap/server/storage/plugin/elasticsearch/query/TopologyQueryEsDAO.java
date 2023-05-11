@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.Pr
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
@@ -87,8 +88,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                             .must(Query.range(ServiceRelationServerSideMetrics.TIME_BUCKET)
                                                        .gte(duration.getStartTimeBucket())
                                                        .lte(duration.getEndTimeBucket()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceRelationServerSideMetrics.INDEX_NAME)) {
-            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceRelationServerSideMetrics.INDEX_NAME));
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceRelationServerSideMetrics.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                                  ServiceRelationServerSideMetrics.INDEX_NAME
+            ));
         }
         sourceBuilder.query(query).size(0);
 
@@ -103,8 +106,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                             .must(Query.range(ServiceRelationClientSideMetrics.TIME_BUCKET)
                                                        .gte(duration.getStartTimeBucket())
                                                        .lte(duration.getEndTimeBucket()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceRelationClientSideMetrics.INDEX_NAME)) {
-            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceRelationClientSideMetrics.INDEX_NAME));
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceRelationClientSideMetrics.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                                  ServiceRelationClientSideMetrics.INDEX_NAME
+            ));
         }
         sourceBuilder.query(query).size(0);
 
@@ -117,7 +122,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                                                           String serverServiceId,
                                                                           Duration duration) {
         final SearchBuilder search = Search.builder().size(0);
-        setInstanceQueryCondition(search, duration, clientServiceId, serverServiceId, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
+        setInstanceQueryCondition(
+            search, duration, clientServiceId, serverServiceId, ServiceInstanceRelationServerSideMetrics.INDEX_NAME);
 
         return buildInstanceRelation(
             search, ServiceInstanceRelationServerSideMetrics.INDEX_NAME, DetectPoint.SERVER);
@@ -128,7 +134,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                                                                           String serverServiceId,
                                                                           Duration duration) {
         final SearchBuilder search = Search.builder().size(0);
-        setInstanceQueryCondition(search, duration, clientServiceId, serverServiceId, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
+        setInstanceQueryCondition(
+            search, duration, clientServiceId, serverServiceId, ServiceInstanceRelationClientSideMetrics.INDEX_NAME);
 
         return buildInstanceRelation(
             search, ServiceInstanceRelationClientSideMetrics.INDEX_NAME, DetectPoint.CLIENT);
@@ -173,7 +180,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                             .gte(duration.getStartTimeBucket())
                             .lte(duration.getEndTimeBucket()))
                  .must(serviceIdBoolQuery);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             boolQuery.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         search.query(boolQuery);
@@ -199,8 +206,10 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             Query.term(
                 EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId
             ));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(EndpointRelationServerSideMetrics.INDEX_NAME)) {
-            boolQuery.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, EndpointRelationServerSideMetrics.INDEX_NAME));
+        if (IndexController.LogicIndicesRegister.isMergedTable(EndpointRelationServerSideMetrics.INDEX_NAME)) {
+            boolQuery.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                                      EndpointRelationServerSideMetrics.INDEX_NAME
+            ));
         }
         sourceBuilder.query(boolQuery);
 
@@ -209,19 +218,25 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, Duration duration) throws IOException {
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId,
+                                                                         Duration duration) throws IOException {
         return buildProcessRelation(serviceInstanceId, duration, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, Duration duration) throws IOException {
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId,
+                                                                         Duration duration) throws IOException {
         return buildProcessRelation(serviceInstanceId, duration, DetectPoint.SERVER);
     }
 
-    private List<Call.CallDetail> buildProcessRelation(String serviceInstanceId, Duration duration, DetectPoint detectPoint) throws IOException {
+    private List<Call.CallDetail> buildProcessRelation(String serviceInstanceId,
+                                                       Duration duration,
+                                                       DetectPoint detectPoint) throws IOException {
         final SearchBuilder sourceBuilder = Search.builder().size(0);
         final BoolQueryBuilder query = Query.bool()
-                                            .must(Query.term(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId))
+                                            .must(Query.term(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID,
+                                                             serviceInstanceId
+                                            ))
                                             .must(Query.range(EndpointRelationServerSideMetrics.TIME_BUCKET)
                                                        .gte(duration.getStartTimeBucket())
                                                        .lte(duration.getEndTimeBucket()));
@@ -231,9 +246,9 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
                 .subAggregation(
                     Aggregation.terms(ProcessRelationServerSideMetrics.COMPONENT_ID)
-                        .field(ProcessRelationServerSideMetrics.COMPONENT_ID)
-                        .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
-                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
+                               .field(ProcessRelationServerSideMetrics.COMPONENT_ID)
+                               .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
+                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
@@ -242,7 +257,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             ProcessRelationServerSideMetrics.INDEX_NAME : ProcessRelationClientSideMetrics.INDEX_NAME;
 
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(indexName);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         final SearchResponse response = getClient().search(index, sourceBuilder.build());
@@ -256,7 +271,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             String entityId = (String) entityBucket.get("key");
             final Map<String, Object> componentTerms =
                 (Map<String, Object>) entityBucket.get(
-                    ServiceRelationServerSideMetrics.COMPONENT_ID);
+                    ProcessRelationServerSideMetrics.COMPONENT_ID);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
             final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
@@ -275,8 +290,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             Aggregation
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
                 .subAggregation(
-                    Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_ID)
-                               .field(ServiceRelationServerSideMetrics.COMPONENT_ID)
+                    Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_IDS)
+                               .field(ServiceRelationServerSideMetrics.COMPONENT_IDS)
                                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                                .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
@@ -296,14 +311,16 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
             String entityId = (String) entityBucket.get("key");
             final Map<String, Object> componentTerms =
                 (Map<String, Object>) entityBucket.get(
-                    ServiceRelationServerSideMetrics.COMPONENT_ID);
+                    ServiceRelationServerSideMetrics.COMPONENT_IDS);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
-            final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
+            final IntList componentIds = new IntList((String) subAgg.iterator().next().get("key"));
 
-            Call.CallDetail call = new Call.CallDetail();
-            call.buildFromServiceRelation(entityId, componentId, detectPoint);
-            calls.add(call);
+            for (int i = 0; i < componentIds.size(); i++) {
+                Call.CallDetail call = new Call.CallDetail();
+                call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
+                calls.add(call);
+            }
         }
         return calls;
     }
@@ -314,11 +331,6 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         sourceBuilder.aggregation(
             Aggregation
                 .terms(Metrics.ENTITY_ID).field(Metrics.ENTITY_ID)
-                .subAggregation(
-                    Aggregation.terms(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
-                               .field(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID)
-                               .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
-                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
@@ -330,18 +342,14 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         List<Call.CallDetail> calls = new ArrayList<>();
         final Map<String, Object> entityTerms =
             (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
+
         final List<Map<String, Object>> buckets =
             (List<Map<String, Object>>) entityTerms.get("buckets");
-        for (Map<String, Object> entityBucket : buckets) {
-            final String entityId = (String) entityBucket.get("key");
-            final Map<String, Object> componentTerms = (Map<String, Object>) entityBucket.get(
-                ServiceInstanceRelationServerSideMetrics.COMPONENT_ID);
-            final List<Map<String, Object>> subAgg =
-                (List<Map<String, Object>>) componentTerms.get("buckets");
-            final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
+        for (final Map<String, Object> entityBucket : buckets) {
+            String entityId = (String) entityBucket.get("key");
 
             Call.CallDetail call = new Call.CallDetail();
-            call.buildFromInstanceRelation(entityId, componentId, detectPoint);
+            call.buildFromInstanceRelation(entityId, detectPoint);
             calls.add(call);
         }
         return calls;
@@ -385,7 +393,7 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
         final BoolQueryBuilder serviceIdBoolQuery = Query.bool();
 
         query.must(serviceIdBoolQuery);
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(indexName)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(indexName)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, indexName));
         }
         if (serviceIds.size() == 1) {

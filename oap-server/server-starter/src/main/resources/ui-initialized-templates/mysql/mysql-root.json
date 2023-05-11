@@ -17,7 +17,7 @@
 
 [
    {
-      "id":"b6e3763c-882d-417f-8556-3cf0187cb8db",
+      "id":"mysql-root",
       "configuration":{
          "children":[
             {
@@ -46,14 +46,14 @@
                "graph":{
                   "fontColor":"blue",
                   "backgroundColor":"white",
-                  "content":"Provide MySQL Server monitoring through OpenTelemetry's Prometheus Receiver",
+                  "content":"Provide MySQL and MariaDB Server monitoring through OpenTelemetry's Prometheus Receiver",
                   "fontSize":14,
                   "textAlign":"left",
                   "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-mysql-monitoring/"
                }
             }
          ],
-         "id":"b6e3763c-882d-417f-8556-3cf0187cb8db",
+         "id":"mysql-root",
          "layer":"MYSQL",
          "entity":"All",
          "name":"MySQL-Root",

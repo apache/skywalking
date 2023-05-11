@@ -20,12 +20,34 @@ package org.apache.skywalking.oap.server.core.query.type;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.query.NotGraphQLField;
 
-@Getter
-@Setter
 public class Node {
+    @Getter
+    @Setter
     private String id;
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private String type;
+    @Getter
+    @Setter
     private boolean isReal;
+
+    /**
+     * A flag indicate whether the {@link #type} has been set from the call detected from service side.
+     */
+    @NotGraphQLField
+    private boolean hasSetOnceAtServerSide = false;
+
+    public boolean hasSetOnceAtServerSide() {
+        return hasSetOnceAtServerSide;
+    }
+
+    public void setTypeFromServerSide(String type) {
+        hasSetOnceAtServerSide = true;
+        this.type = type;
+    }
 }

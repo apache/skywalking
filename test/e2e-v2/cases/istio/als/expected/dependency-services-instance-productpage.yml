@@ -19,7 +19,7 @@ nodes:
   name: {{ notEmpty .name }}
   serviceid: {{ b64enc "e2e::reviews" }}.1
   servicename: e2e::reviews
-  type: http
+  type: ""
   isreal: true
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}

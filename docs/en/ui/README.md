@@ -55,6 +55,7 @@ To display one or more metrics in a graph, the following information is required
 |read all values of labels in the duration|Table|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-tables.png" />|
 |read all values in the duration|Area|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-area.png" />|
 |read all values in the duration|Service/Instance/Endpoint List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customize-dashboard-metrics-20220817-entity-table.png" />|
+|read sampled records in the duration|Records List|<img src="https://skywalking.apache.org/screenshots/9.2.0/customized-dashboard-metrics-20221201-sampled-records.png" />|
 
 #### Calculations
 
@@ -93,6 +94,15 @@ Define the following properties of the widget:
 
 Widget provides the ability to associate with other widgets to show axis pointer with tips for the same time point, in order to help users to understand
 the connectivity among metrics.
+
+### Widget Static Link
+On the right top of every widget on the dashboard, there is a `Generate Link` option, which could generate a static 
+link to represent this widget.
+By using this link, users could share this widget, or integrate it into any 3rd party iFrame to build a 
+network operations center(NOC) dashboard on the wall easily.
+About this link, there are several customizable options
+1. `Lock Query Duration`. Set the query duration manually. It is OFF by default. 
+2. `Auto Fresh` option is ON with 6s query period and last 30 mins time range. Query period and range are customizable.
 
 ## Settings
 

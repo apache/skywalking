@@ -23,28 +23,29 @@ import com.google.gson.JsonObject;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
-import com.linecorp.armeria.testing.junit4.server.ServerRule;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FeishuHookCallbackTest {
-    private final AtomicBoolean isSuccess = new AtomicBoolean();
-    private final AtomicBoolean checkSign = new AtomicBoolean();
-    private final AtomicInteger count = new AtomicInteger();
+    private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
+    private static final AtomicBoolean CHECK_SIGN = new AtomicBoolean();
+    private static final AtomicInteger COUNT = new AtomicInteger();
     private final String secret = "dummy-secret";
 
-    @Rule
-    public final ServerRule server = new ServerRule() {
+    @RegisterExtension
+    public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
             sb.service("/feishuhook/receiveAlarm", (ctx, req) -> HttpResponse.from(
@@ -52,7 +53,7 @@ public class FeishuHookCallbackTest {
                     final String content = r.content().toStringUtf8();
                     final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
                     final String type = jsonObject.get("msg_type").getAsString();
-                    if (checkSign.get()) {
+                    if (CHECK_SIGN.get()) {
                         String timestamp = jsonObject.get("timestamp").getAsString();
                         String sign = jsonObject.get("sign").getAsString();
                         if (StringUtil.isEmpty(timestamp) || StringUtil.isEmpty(sign)) {
@@ -60,9 +61,9 @@ public class FeishuHookCallbackTest {
                         }
                     }
                     if (type.equalsIgnoreCase("text")) {
-                        count.incrementAndGet();
-                        if (count.get() == 2) {
-                            isSuccess.set(true);
+                        COUNT.incrementAndGet();
+                        if (COUNT.get() == 2) {
+                            IS_SUCCESS.set(true);
                         }
                         return HttpResponse.of(HttpStatus.OK);
                     }
@@ -72,9 +73,9 @@ public class FeishuHookCallbackTest {
     };
 
     @Test
-    public void testFeishuWebhookWithoutSign() {
+    public void testFeishuWebhookWithoutSign() throws Exception {
         List<FeishuSettings.WebHookUrl> webHooks = new ArrayList<>();
-        webHooks.add(new FeishuSettings.WebHookUrl("", "http://127.0.0.1:" + server.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
+        webHooks.add(new FeishuSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"}}";
         rules.setFeishus(FeishuSettings.builder().webhooks(webHooks).textTemplate(template).build());
@@ -93,14 +94,14 @@ public class FeishuHookCallbackTest {
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
-        Assert.assertTrue(isSuccess.get());
+        Assertions.assertTrue(IS_SUCCESS.get());
     }
 
     @Test
-    public void testFeishuWebhookWithSign() {
-        checkSign.set(true);
+    public void testFeishuWebhookWithSign() throws Exception {
+        CHECK_SIGN.set(true);
         List<FeishuSettings.WebHookUrl> webHooks = new ArrayList<>();
-        webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + server.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
+        webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"}}";
         rules.setFeishus(FeishuSettings.builder().webhooks(webHooks).textTemplate(template).build());
@@ -119,14 +120,14 @@ public class FeishuHookCallbackTest {
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
-        Assert.assertTrue(isSuccess.get());
+        Assertions.assertTrue(IS_SUCCESS.get());
     }
 
     @Test
-    public void testFeishuWebhookWithSignAndAt() {
-        checkSign.set(true);
+    public void testFeishuWebhookWithSignAndAt() throws Exception {
+        CHECK_SIGN.set(true);
         List<FeishuSettings.WebHookUrl> webHooks = new ArrayList<>();
-        webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + server.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
+        webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"},\"ats\":\"123\"}";
         rules.setFeishus(FeishuSettings.builder().webhooks(webHooks).textTemplate(template).build());
@@ -145,6 +146,6 @@ public class FeishuHookCallbackTest {
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
-        Assert.assertTrue(isSuccess.get());
+        Assertions.assertTrue(IS_SUCCESS.get());
     }
 }

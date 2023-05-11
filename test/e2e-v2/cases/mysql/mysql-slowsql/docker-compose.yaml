@@ -30,10 +30,8 @@ services:
       - SW_STORAGE=mysql
       - SW_DATA_SOURCE_USER=root
       - SW_DATA_SOURCE_PASSWORD=password
-      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest
+      - SW_JDBC_URL=jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
       - SW_CORE_TOPN_REPORT_PERIOD=2
-      - SW_OTEL_RECEIVER=default
-      - SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=mysql
     depends_on:
       mysql:
         condition: service_healthy
@@ -48,12 +46,25 @@ services:
       - "MYSQL_ROOT_PASSWORD=password"
       - "MYSQL_DATABASE=swtest"
     ports:
-      - 3306:3306
+      - 3306
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
       interval: 5s
       timeout: 60s
       retries: 120
+  mysql_2: &mysql
+    image: mysql:8.0.13
+    networks:
+      - e2e
+    volumes:
+      - ../mysql-slowsql/my.cnf:/etc/my.cnf
+    environment:
+      - "MYSQL_ROOT_PASSWORD=password"
+      - "MYSQL_DATABASE=swtest"
+    ports:
+      - 3306
+  mysql_3:
+    <<: *mysql
   mysql-load:
     image: mysql:8.0.13
     depends_on:
@@ -67,6 +78,32 @@ services:
     command:
       - -c
       - "mysql -h mysql -uroot -ppassword < /docker/mock.sql"
+  mysql-load_2:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+      - ./mock.sql:/docker/mock.sql
+    command:
+      - -c
+      - "mysql -h mysql_2 -uroot -ppassword < /docker/mock.sql"
+  mysql-load_3:
+    image: mysql:8.0.13
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    entrypoint: bash
+    volumes:
+      - ./mock.sql:/docker/mock.sql
+    command:
+      - -c
+      - "mysql -h mysql_3 -uroot -ppassword < /docker/mock.sql"
   fluentbit:
     image: fluent/fluent-bit:1.9
     environment:
@@ -90,6 +127,26 @@ services:
       - e2e
     depends_on:
       - mysql
+  mysql-service_2:
+    image: prom/mysqld-exporter:v0.14.0
+    ports:
+      - 9104
+    environment:
+      - DATA_SOURCE_NAME=root:password@(mysql_2:3306)/
+    networks:
+      - e2e
+    depends_on:
+      - mysql_2
+  mysql-service_3:
+    image: prom/mysqld-exporter:v0.14.0
+    ports:
+      - 9104
+    environment:
+      - DATA_SOURCE_NAME=root:password@(mysql_3:3306)/
+    networks:
+      - e2e
+    depends_on:
+      - mysql_3
   otel-collector:
     image: otel/opentelemetry-collector:0.50.0
     networks:

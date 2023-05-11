@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 
 /**
  * Percentile is a better implementation than deprecated PxxMetrics in older releases.
@@ -39,7 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
     protected static final String DATASET = "dataset";
-    protected static final String VALUE = "value";
+    protected static final String VALUE = "datatable_value";
     protected static final String PRECISION = "precision";
 
     private static final int[] RANKS = {
@@ -52,16 +53,19 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     @Getter
     @Setter
-    @Column(columnName = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(columnAlias = "datatable_value")
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @ElasticSearch.Column(legacyName = "value")
+    @BanyanDB.MeasureField
     private DataTable percentileValues;
     @Getter
     @Setter
-    @Column(columnName = PRECISION, storageOnly = true)
+    @Column(name = PRECISION, storageOnly = true)
+    @BanyanDB.MeasureField
     private int precision;
     @Getter
     @Setter
-    @Column(columnName = DATASET, storageOnly = true)
+    @Column(name = DATASET, storageOnly = true)
+    @BanyanDB.MeasureField
     private DataTable dataset;
 
     private boolean isCalculated;

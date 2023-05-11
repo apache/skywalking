@@ -21,24 +21,30 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class IndexStructures {
-    private final Map<String, Fields> structures;
+    private final Map<String, Fields> mappingStructures;
+    private final Map<String, UpdatableIndexSettings> indexSettingStructures;
 
     public IndexStructures() {
-        this.structures = new HashMap<>();
+        this.mappingStructures = new HashMap<>();
+        this.indexSettingStructures = new HashMap<>();
     }
 
     public Mappings getMapping(String tableName) {
         Map<String, Object> properties =
-            structures.containsKey(tableName) ?
-                structures.get(tableName).properties : new HashMap<>();
+            mappingStructures.containsKey(tableName) ?
+                mappingStructures.get(tableName).properties : new HashMap<>();
         Mappings.Source source =
-                    structures.containsKey(tableName) ?
-                        structures.get(tableName).source : new Mappings.Source();
+                    mappingStructures.containsKey(tableName) ?
+                        mappingStructures.get(tableName).source : new Mappings.Source();
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(properties)
@@ -47,20 +53,24 @@ public class IndexStructures {
     }
 
     /**
-     * Add or append field when the current structures don't contain the input structure or having
+     * Add or append mapping/settings when the current structures don't contain the input structure or having
      * new fields in it.
      */
-    public void putStructure(String tableName, Mappings mapping) {
+    public void putStructure(String tableName, Mappings mapping, Map<String, Object> settings) {
+        if (CollectionUtils.isNotEmpty(settings) && Objects.nonNull(settings.get("index"))) {
+            this.indexSettingStructures.putIfAbsent(tableName, new UpdatableIndexSettings(
+                (Map<String, Object>) settings.get("index")));
+        }
         if (Objects.isNull(mapping)
             || Objects.isNull(mapping.getProperties())
             || mapping.getProperties().isEmpty()) {
             return;
         }
         Fields fields = new Fields(mapping);
-        if (structures.containsKey(tableName)) {
-            structures.get(tableName).appendNewFields(fields);
+        if (mappingStructures.containsKey(tableName)) {
+            mappingStructures.get(tableName).appendNewFields(fields);
         } else {
-            structures.put(tableName, fields);
+            mappingStructures.put(tableName, fields);
         }
     }
 
@@ -69,13 +79,12 @@ public class IndexStructures {
      * The input mappings should be history mapping from current index.
      * Do not return _source config to avoid current index update conflict.
      */
-    public Mappings diffStructure(String tableName, Mappings mappings) {
-        if (!structures.containsKey(tableName)) {
+    public Mappings diffMappings(String tableName, Mappings mappings) {
+        if (!mappingStructures.containsKey(tableName)) {
             return new Mappings();
         }
-        Map<String, Object> properties = mappings.getProperties();
         Map<String, Object> diffProperties =
-            structures.get(tableName).diffFields(new Fields(mappings));
+            mappingStructures.get(tableName).diffFields(new Fields(mappings));
         return Mappings.builder()
                        .type(ElasticSearchClient.TYPE)
                        .properties(diffProperties)
@@ -86,23 +95,54 @@ public class IndexStructures {
      * Returns true when the current structures already contains the properties of the input
      * mappings.
      */
-    public boolean containsStructure(String tableName, Mappings mappings) {
+    public boolean containsMapping(String tableName, Mappings mappings) {
         if (Objects.isNull(mappings) ||
-            Objects.isNull(mappings.getProperties()) ||
-            mappings.getProperties().isEmpty()) {
+            CollectionUtils.isEmpty(mappings.getProperties())) {
             return true;
         }
-        return structures.containsKey(tableName)
-            && structures.get(tableName)
-                         .containsAllFields(new Fields(mappings));
+
+        return mappingStructures.containsKey(tableName)
+            && mappingStructures.get(tableName)
+                                .containsAllFields(new Fields(mappings));
     }
 
     /**
-     * The properties of the template or index.
+     * Check whether all the fields are already defined regardless of the field types.
+     * When OAP runs in no-init mode, it doesn't care about the field types, it just
+     * cares about whether the data can be ingested without reporting error.
+     * OAP running in init mode should take care of the field types.
+     */
+    public boolean containsFieldNames(String tableName, Mappings mappings) {
+        if (Objects.isNull(mappings) ||
+            CollectionUtils.isEmpty(mappings.getProperties())) {
+            return true;
+        }
+
+        return mappingStructures.containsKey(tableName) &&
+                mappingStructures.get(tableName)
+                        .containsAllFieldNames(new Fields(mappings));
+    }
+
+    /**
+     * Returns true when the current index setting equals the input.
+     */
+    public boolean compareIndexSetting(String tableName, Map<String, Object> settings) {
+        if ((CollectionUtils.isEmpty(settings) || CollectionUtils.isEmpty((Map) settings.get("index")))
+            && Objects.isNull(indexSettingStructures.get(tableName))) {
+            return true;
+        }
+
+        return indexSettingStructures.containsKey(tableName)
+            && indexSettingStructures.get(tableName).
+                                     equals(new UpdatableIndexSettings((Map<String, Object>) settings.get("index")));
+    }
+
+    /**
+     * The mapping properties of the template or index.
      */
     public static class Fields {
         private final Map<String, Object> properties;
-        private Mappings.Source source;
+        private final Mappings.Source source;
 
         private Fields(Mappings mapping) {
             this.properties = mapping.getProperties();
@@ -121,17 +161,43 @@ public class IndexStructures {
             if (!isContains) {
                 return false;
             }
-            return fields.source.getExcludes().containsAll(this.source.getExcludes());
+            Set<String> inputExcludes = fields.source.getExcludes();
+            Set<String> excludes = source.getExcludes();
+            //need to add new excludes
+            if (!excludes.containsAll(inputExcludes)) {
+                return false;
+            }
+            //need to delete existing excludes
+            for (String p : fields.properties.keySet()) {
+                if (!inputExcludes.contains(p) && excludes.contains(p)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private boolean containsAllFieldNames(Fields fields) {
+            if (this.properties.size() < fields.properties.size()) {
+                return false;
+            }
+            return this.properties.keySet().containsAll(fields.properties.keySet());
         }
 
         /**
          * Append new fields and update.
          * Properties combine input and exist, update property's attribute, won't remove old one.
-         * Source will be updated to the input.
+         * If the existed `excludes` contains a not existing property, the excluded field would be removed.
          */
         private void appendNewFields(Fields fields) {
             properties.putAll(fields.properties);
-            source = fields.source;
+            Set<String> inputExcludes = fields.source.getExcludes();
+            Set<String> excludes = source.getExcludes();
+            excludes.addAll(inputExcludes);
+            fields.properties.keySet().forEach(p -> {
+                if (!inputExcludes.contains(p) && excludes.contains(p)) {
+                    excludes.remove(p);
+                }
+            });
         }
 
         /**
@@ -144,6 +210,20 @@ public class IndexStructures {
                                       Map.Entry::getKey,
                                       Map.Entry::getValue
                                   ));
+        }
+    }
+
+    /**
+     * The index settings structure which only includes needs to compare for update fields
+     */
+    @EqualsAndHashCode
+    public static class UpdatableIndexSettings {
+        private final String replicas;
+        private final String shards;
+
+        public UpdatableIndexSettings(Map<String, Object> indexSettings) {
+            this.replicas = String.valueOf(indexSettings.getOrDefault("number_of_replicas", Const.EMPTY_STRING));
+            this.shards = String.valueOf(indexSettings.getOrDefault("number_of_shards", Const.EMPTY_STRING));
         }
     }
 }

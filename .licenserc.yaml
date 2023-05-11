@@ -42,6 +42,7 @@ header:
     - '**/*.ini'
     - '**/*.crt'
     - '**/*.pem'
+    - '**/*.txt'
     - 'LICENSE'
     - 'NOTICE'
     - 'skywalking-ui/dist'
@@ -62,9 +63,9 @@ header:
     - '**/src/main/proto/prometheus/client_model/metrics.proto'
     - '**/src/main/proto/protoc-gen-swagger/**'
     - '**/src/main/proto/validate/validate.proto'
-    - '**/src/main/proto/opencensus/**'
     - '**/src/main/proto/opentelemetry/**'
     - 'oap-server/server-starter/src/main/resources/version.properties'
+    - '**/mockito-extensions/**'
 
   comment: on-failure
 
@@ -76,6 +77,8 @@ dependency:
     - name: org.openjdk.jmh:jmh-core # We don't distribute the dependencies, they are just for the build process
       recursive: true
     - name: org.apache.skywalking:* # Exclude self dependencies
+    - name: org.apache.skywalking:microbench
+      recursive: true
   licenses:
     - name: org.slf4j:slf4j-api
       version: 1.7.30,1.7.32
@@ -87,7 +90,7 @@ dependency:
       version: 9999.0-empty-to-avoid-conflict-with-guava
       license: Apache-2.0
     - name: io.swagger:swagger-annotations
-      version: 1.6.6
+      version: 1.6.9
       license: Apache-2.0
     - name: com.squareup.okio:okio
       version: 1.15.0,1.17.2
@@ -102,7 +105,7 @@ dependency:
       version: 2.13.4
       license: Apache-2.0
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
-      version: 2.13.2
+      version: 2.14.2
       license: Apache-2.0
     - name: com.graphql-java:graphql-java-extended-scalars
       version: 18.1
@@ -114,8 +117,18 @@ dependency:
       version: 2.1.212
       license: MPL-2.0
     - name: org.antlr:antlr4-runtime
-      version: 4.9.2
+      version: 4.11.1
       license: BSD-3-Clause
     - name: com.google.flatbuffers:flatbuffers-java
       version: 1.12.0
       license: Apache-2.0
+    - name: build.buf.protoc-gen-validate:pgv-java-stub
+      version: 0.6.13
+      license: Apache-2.0
+    - name: build.buf.protoc-gen-validate:protoc-gen-validate
+      version: 0.6.13
+      license: Apache-2.0
+    - name: com.aayushatharva.brotli4j:service
+      version: 1.11.0
+      license: Apache-2.0
+

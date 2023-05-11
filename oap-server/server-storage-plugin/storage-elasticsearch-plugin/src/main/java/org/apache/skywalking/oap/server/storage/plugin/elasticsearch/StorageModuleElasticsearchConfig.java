@@ -59,6 +59,14 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
     private int indexReplicasNumber = 0;
     private int indexShardsNumber = 1;
     /**
+     * @since 9.3.0, Specify the settings for each index individually.
+     * Use JSON format and the index name in the config should exclude the `${SW_NAMESPACE}` e.g.
+     * {"metrics-all":{"number_of_shards":"3","number_of_replicas":"2"},"segment":{"number_of_shards":"6","number_of_replicas":"1"}}
+     * If configured, this setting has the highest priority and overrides the generic settings.
+     */
+    private String specificIndexSettings;
+
+    /**
      * @since 8.2.0, the record day step is for super size dataset record index rolling when the value of it is greater
      * than 0
      */
@@ -80,15 +88,13 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 8.7.0 This setting affects all traces/logs/metrics/metadata flush policy.
      */
     private int bulkActions = 5000;
+
+    private int batchOfBytes = 1024 * 1024 * 10;
     /**
      * Period of flush, no matter `bulkActions` reached or not.
-     * INT(flushInterval * 2/3) would be used for index refresh period.
      * Unit is second.
-     *
-     * @since 8.7.0 increase to 15s from 10s
-     * @since 8.7.0 use INT(flushInterval * 2/3) as ElasticSearch index refresh interval. Default is 10s.
      */
-    private int flushInterval = 15;
+    private int flushInterval = 5;
     private int concurrentRequests = 2;
     /**
      * @since 7.0.0 This could be managed inside {@link #secretsManagementFile}
@@ -139,7 +145,7 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
 
     /**
      * The number of threads for the underlying HTTP client to perform socket I/O.
-     * If the value is <= 0, the number of available processors will be used.
+     * If the value is {@code <= 0}, the number of available processors will be used.
      */
     private int numHttpClientThread;
 
@@ -150,4 +156,9 @@ public class StorageModuleElasticsearchConfig extends ModuleConfig {
      * @since 9.2.0
      */
     private boolean logicSharding = false;
+
+    /**
+     * if enabled, custom routing values will be used, to reduce the number of shards that need to be searched.
+     */
+    private boolean enableCustomRouting = false;
 }

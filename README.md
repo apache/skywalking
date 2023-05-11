@@ -16,50 +16,31 @@ microservices, cloud native and container-based architectures.
 # Abstract
 **SkyWalking** is an open source APM system, including monitoring, tracing, diagnosing capabilities for distributed system
 in Cloud Native architecture.
-The core features are following.
 
-- Service, service instance, endpoint(URI) metrics analysis.
-  - Distributed tracing.
-  - Metrics collecting, analysis, and customization.
-  - Logging collecting and extracting metrics from them.
-  - Distributed tracing and context propagation.
-  - Collaboration across metrics, traces, and logs
-- Root cause analysis.
-  - Profile the code on the runtime powered by in-process agent and ebpf profiler.
-  - Network profiler for TCP, TCP/TLS, HTTP(s) traffic.
-- Service topology map analysis.
-- Service instance and endpoint(URI) dependency analysis.
-- Slow services and endpoints detecting.
-- Performance optimization.
-- In memory and remote cache performance monitoring, including Read and Write performance. Detect slow Cache access with keys. 
-- Database performance monitoring. Detect slow SQL statements.
-- Message Queue performance and consuming latency monitoring.
-- Browser performance monitoring, and start tracing from browser.
-- Infrastructure monitoring. Kubernetes and Linux(VM, network, disk etc.).
-- Alerting.
+* Distributed Tracing
+  * End-to-end distributed tracing. Service topology analysis, service-centric observability and APIs dashboards.
+* Agents for your stack
+  * Java, .Net Core, PHP, NodeJS, Golang, LUA, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
+* eBPF early adoption
+  * Rover agent works as metrics collector and profiler powered by eBPF to diagnose CPU and network performance.
+* Scaling
+  * 100+ billion telemetry data could be collected and analyzed from one SkyWalking cluster.
+* Mature Telemetry Ecosystems Supported
+  * Metrics, Traces, and Logs from mature ecosystems are supported, e.g. Zipkin, OpenTelemetry, Prometheus, Zabbix, Fluentd
+* Native APM Database
+  * BanyanDB, an observability database, created in 2022, aims to ingest, analyze and store telemetry/observability data.
+* Consistent Metrics Aggregation
+  * SkyWalking native meter format and widely known metrics format(OpenTelemetry, Telegraf, Zabbix, e.g.) are processed through the same script pipeline.
+* Log Management Pipeline
+  * Support log formatting, extract metrics, various sampling policies through script pipeline in high performance.
+* Alerting and Telemetry Pipelines
+  * Support service-centric, deployment-centric, API-centric alarm rule setting. Support forwarding alarms and all telemetry data to 3rd party.
 
 <img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220513"/>
-
-SkyWalking supports to collect telemetry (metrics, traces, and logs) data from multiple sources
-and multiple formats, including
-1. Java, .NET Core, NodeJS, PHP, and Python auto-instrument agents.
-2. Go, C++, and Rust SDKs.
-3. [Agent profiling](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/sdk-profiling/) for Java and Python.
-4. [ebpf](https://github.com/apache/skywalking-rover) network profiling and ON/OFF CPU profiling.
-5. LUA agent especially for Nginx, OpenResty and Apache APISIX.
-6. Browser agent.
-7. Service Mesh Observability. Control plane and data plane.
-8. Metrics system, including Prometheus, OpenTelemetry, Micrometer(Spring Sleuth), Zabbix.
-9. Logs, including OpenTelemetry.
-10. Zipkin v1/v2 trace.(No Analysis).
 
 # Documentation
 - [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
 
-NOTICE, SkyWalking 8.0+ uses [v3 protocols](docs/en/protocols/README.md). They are incompatible with previous releases.
-
-SkyWalking OAP is using the STAM(Streaming Topology Analysis Method) to analysis topology in the tracing based agent scenario
-for better performance. Read [the paper of STAM](https://wu-sheng.github.io/STAM/) for more details.
 
 # Downloads
 Please head to the [releases page](https://skywalking.apache.org/downloads/) to download a release of Apache SkyWalking.

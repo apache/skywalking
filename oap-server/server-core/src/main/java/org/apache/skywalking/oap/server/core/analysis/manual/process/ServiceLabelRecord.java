@@ -20,21 +20,17 @@ package org.apache.skywalking.oap.server.core.analysis.manual.process;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_LABEL;
 
@@ -47,21 +43,22 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 @Getter
 @Stream(name = ServiceLabelRecord.INDEX_NAME, scopeId = SERVICE_LABEL,
         builder = ServiceLabelRecord.Builder.class, processor = MetricsStreamProcessor.class)
-@MetricsExtension(supportDownSampling = false, supportUpdate = false)
+@MetricsExtension(supportDownSampling = false, supportUpdate = false, timeRelativeID = false)
 @EqualsAndHashCode(of = {
         "serviceId",
         "label"
 })
-@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class ServiceLabelRecord extends Metrics {
 
     public static final String INDEX_NAME = "service_label";
     public static final String SERVICE_ID = "service_id";
     public static final String LABEL = "label";
 
-    @Column(columnName = SERVICE_ID)
+    @BanyanDB.SeriesID(index = 0)
+    @Column(name = SERVICE_ID)
     private String serviceId;
-    @Column(columnName = LABEL, length = 50)
+    @BanyanDB.SeriesID(index = 1)
+    @Column(name = LABEL, length = 50)
     private String label;
 
     @Override
@@ -84,9 +81,10 @@ public class ServiceLabelRecord extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return this.serviceId + Const.ID_CONNECTOR + new String(Base64.getEncoder()
-                .encode(label.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+    protected StorageID id0() {
+        return new StorageID()
+            .append(SERVICE_ID, serviceId)
+            .append(LABEL, label);
     }
 
     @Override

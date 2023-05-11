@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
-import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
@@ -31,50 +30,55 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({DefaultScopeDefine.class})
-@PowerMockIgnore({
-    "com.sun.org.apache.xerces.*",
-    "javax.xml.*",
-    "org.xml.*",
-    "javax.management.*",
-    "org.w3c.*"
-})
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.mockStatic;
+
+@ExtendWith(MockitoExtension.class)
 public class StorageModelsTest {
-    @BeforeClass
+
+    private static MockedStatic<DefaultScopeDefine> DEFAULT_SCOPE_DEFINE_MOCKED_STATIC;
+
+    @BeforeAll
     public static void setup() {
-        PowerMockito.mockStatic(DefaultScopeDefine.class);
-        PowerMockito.when(DefaultScopeDefine.nameOf(-1)).thenReturn("any");
+        DEFAULT_SCOPE_DEFINE_MOCKED_STATIC = mockStatic(DefaultScopeDefine.class);
+        DEFAULT_SCOPE_DEFINE_MOCKED_STATIC.when(() -> DefaultScopeDefine.nameOf(-1)).thenReturn("any");
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        DEFAULT_SCOPE_DEFINE_MOCKED_STATIC.close();
     }
 
     @Test
     public void testStorageModels() throws StorageException {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
-                   new Storage("StorageModelsTest", false, DownSampling.Hour),
-                   false
+                   new Storage("StorageModelsTest", false, DownSampling.Hour)
         );
 
         final List<Model> allModules = models.allModels();
-        Assert.assertEquals(1, allModules.size());
+        assertEquals(1, allModules.size());
 
         final Model model = allModules.get(0);
-        Assert.assertEquals(4, model.getColumns().size());
-        Assert.assertEquals(false, model.getColumns().get(0).isStorageOnly());
-        Assert.assertEquals(false, model.getColumns().get(1).isStorageOnly());
-        Assert.assertEquals(false, model.getColumns().get(2).isStorageOnly());
-        Assert.assertEquals(true, model.getColumns().get(3).isStorageOnly());
+        assertEquals(4, model.getColumns().size());
+        assertFalse(model.getColumns().get(0).isStorageOnly());
+        assertFalse(model.getColumns().get(1).isStorageOnly());
+        assertFalse(model.getColumns().get(2).isStorageOnly());
+        Assertions.assertTrue(model.getColumns().get(3).isStorageOnly());
 
-        Assert.assertArrayEquals(new String[] {
+        assertArrayEquals(new String[] {
             "column2",
             "column"
         }, model.getColumns().get(2).getSqlDatabaseExtension().getIndices().get(1).getColumns());
@@ -82,19 +86,19 @@ public class StorageModelsTest {
 
     @Stream(name = "StorageModelsTest", scopeId = -1, builder = TestModel.Builder.class, processor = MetricsStreamProcessor.class)
     private static class TestModel {
-        @Column(columnName = "column")
+        @Column(name = "column")
         private String column;
 
-        @Column(columnName = "column1")
-        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column2"})
+        @Column(name = "column1")
+        @SQLDatabase.CompositeIndex(withColumns = {"column2"})
         private String column1;
 
-        @Column(columnName = "column2")
-        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column1"})
-        @SQLDatabase.QueryUnifiedIndex(withColumns = {"column"})
+        @Column(name = "column2")
+        @SQLDatabase.CompositeIndex(withColumns = {"column1"})
+        @SQLDatabase.CompositeIndex(withColumns = {"column"})
         private String column2;
 
-        @Column(columnName = "column", storageOnly = true)
+        @Column(name = "column", storageOnly = true)
         private String column4;
 
         static class Builder implements StorageBuilder<StorageData> {

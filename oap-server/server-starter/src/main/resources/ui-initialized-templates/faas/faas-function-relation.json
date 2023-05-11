@@ -46,7 +46,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -84,6 +84,9 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true
                   }
                 },
                 {
@@ -101,7 +104,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -140,7 +143,11 @@
                     {
                       "widgetId": "0-0-7"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  }
                 },
                 {
                   "x": 12,
@@ -157,7 +164,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -202,6 +209,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -219,7 +230,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -257,6 +268,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -274,7 +289,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -312,6 +327,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -329,7 +348,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -374,6 +393,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -391,7 +414,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -434,6 +457,10 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -451,7 +478,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -461,8 +488,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-7",
-                  "label": "Load_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-1"
@@ -489,6 +514,9 @@
                   "filters": {
                     "dataIndex": 15,
                     "sourceId": "0-0-1"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true
                   }
                 }
               ]

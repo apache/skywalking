@@ -18,21 +18,31 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.AbstractQuery;
+import org.apache.skywalking.banyandb.v1.client.And;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.Or;
 import org.apache.skywalking.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.banyandb.v1.client.TopNQuery;
+import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.AbstractDAO;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
     private static final Instant UPPER_BOUND = Instant.ofEpochSecond(0, Long.MAX_VALUE);
@@ -43,21 +53,21 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         super(client);
     }
 
-    protected StreamQueryResponse query(String modelName, Set<String> tags, QueryBuilder<StreamQuery> builder) throws IOException {
-        return this.query(modelName, tags, null, builder);
+    protected StreamQueryResponse query(String streamModelName, Set<String> tags, QueryBuilder<StreamQuery> builder) throws IOException {
+        return this.query(streamModelName, tags, null, builder);
     }
 
-    protected StreamQueryResponse query(String modelName, Set<String> tags, TimestampRange timestampRange,
+    protected StreamQueryResponse query(String streamModelName, Set<String> tags, TimestampRange timestampRange,
                                         QueryBuilder<StreamQuery> builder) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
         if (schema == null) {
-            throw new IllegalStateException("schema is not registered");
+            throw new IllegalArgumentException("schema is not registered");
         }
         final StreamQuery query;
         if (timestampRange == null) {
-            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), LARGEST_TIME_RANGE, tags);
+            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags);
         } else {
-            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), timestampRange, tags);
+            query = new StreamQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), timestampRange, tags);
         }
 
         builder.apply(query);
@@ -65,22 +75,53 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         return getClient().query(query);
     }
 
-    protected MeasureQueryResponse query(String modelName, Set<String> tags, Set<String> fields,
+    protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
                                          QueryBuilder<MeasureQuery> builder) throws IOException {
-        return this.query(modelName, tags, fields, null, builder);
+        return this.query(measureModelName, tags, fields, null, builder);
     }
 
-    protected MeasureQueryResponse query(String modelName, Set<String> tags, Set<String> fields,
-                                         TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName);
-        if (schema == null) {
-            throw new IllegalStateException("schema is not registered");
+    protected TopNQueryResponse topN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
+                                     List<KeyValue> additionalConditions) throws IOException {
+        return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.DESC, additionalConditions);
+    }
+
+    protected TopNQueryResponse bottomN(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
+                                        List<KeyValue> additionalConditions) throws IOException {
+        return topNQuery(schema, timestampRange, number, AbstractQuery.Sort.ASC, additionalConditions);
+    }
+
+    private TopNQueryResponse topNQuery(MetadataRegistry.Schema schema, TimestampRange timestampRange, int number,
+                                        AbstractQuery.Sort sort, List<KeyValue> additionalConditions) throws IOException {
+        final TopNQuery q = new TopNQuery(schema.getMetadata().getGroup(), schema.getTopNSpec().getName(),
+                timestampRange,
+                number, sort);
+        q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
+        if (CollectionUtils.isNotEmpty(additionalConditions)) {
+            List<PairQueryCondition<?>> conditions = new ArrayList<>(additionalConditions.size());
+            for (final KeyValue kv : additionalConditions) {
+                conditions.add(PairQueryCondition.StringQueryCondition.eq(kv.getKey(), kv.getValue()));
+            }
+            q.setConditions(conditions);
         }
+        return getClient().query(q);
+    }
+
+    protected MeasureQueryResponse query(String measureModelName, Set<String> tags, Set<String> fields,
+                                         TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(measureModelName, DownSampling.Minute);
+        if (schema == null) {
+            throw new IllegalArgumentException("measure is not registered");
+        }
+        return this.query(schema, tags, fields, timestampRange, builder);
+    }
+
+    protected MeasureQueryResponse query(MetadataRegistry.Schema schema, Set<String> tags, Set<String> fields,
+                                         TimestampRange timestampRange, QueryBuilder<MeasureQuery> builder) throws IOException {
         final MeasureQuery query;
         if (timestampRange == null) {
-            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), LARGEST_TIME_RANGE, tags, fields);
+            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), LARGEST_TIME_RANGE, tags, fields);
         } else {
-            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().getName(), timestampRange, tags, fields);
+            query = new MeasureQuery(schema.getMetadata().getGroup(), schema.getMetadata().name(), timestampRange, tags, fields);
         }
 
         builder.apply(query);
@@ -123,8 +164,51 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             return PairQueryCondition.StringQueryCondition.eq(name, value);
         }
 
+        protected PairQueryCondition<List<String>> in(String name, List<String> values) {
+            return PairQueryCondition.StringArrayQueryCondition.in(name, values);
+        }
+
+        protected PairQueryCondition<List<String>> notIn(String name, List<String> values) {
+            return PairQueryCondition.StringArrayQueryCondition.in(name, values);
+        }
+
         protected PairQueryCondition<Long> ne(String name, long value) {
             return PairQueryCondition.LongQueryCondition.ne(name, value);
+        }
+
+        protected AbstractQuery.OrderBy desc(String name) {
+            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.DESC);
+        }
+
+        protected AbstractQuery.OrderBy asc(String name) {
+            return new AbstractQuery.OrderBy(name, AbstractQuery.Sort.ASC);
+        }
+
+        protected AbstractCriteria and(List<? extends AbstractCriteria> conditions) {
+            if (conditions.isEmpty()) {
+                return null;
+            }
+            if (conditions.size() == 1) {
+                return conditions.get(0);
+            }
+
+            return conditions.subList(2, conditions.size()).stream().reduce(
+                    And.create(conditions.get(0), conditions.get(1)),
+                    (BiFunction<AbstractCriteria, AbstractCriteria, AbstractCriteria>) And::create,
+                    And::create);
+        }
+
+        protected AbstractCriteria or(List<? extends AbstractCriteria> conditions) {
+            if (conditions.isEmpty()) {
+                return null;
+            }
+            if (conditions.size() == 1) {
+                return conditions.get(0);
+            }
+            return conditions.subList(2, conditions.size()).stream().reduce(
+                    Or.create(conditions.get(0), conditions.get(1)),
+                    (BiFunction<AbstractCriteria, AbstractCriteria, AbstractCriteria>) Or::create,
+                    Or::create);
         }
     }
 }

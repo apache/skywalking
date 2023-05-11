@@ -18,22 +18,26 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.database;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
+import java.util.Objects;
+
 /**
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
 @Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
+@BanyanDB.TimestampColumn(TopN.TIMESTAMP)
 public class TopNDatabaseStatement extends TopN {
     public static final String INDEX_NAME = "top_n_database_statement";
 
@@ -41,12 +45,12 @@ public class TopNDatabaseStatement extends TopN {
     private String id;
     @Getter
     @Setter
-    @Column(columnName = STATEMENT, length = 2000, lengthEnvVariable = "SW_SLOW_DB_THRESHOLD", storageOnly = true)
+    @Column(name = STATEMENT, length = 2000, storageOnly = true)
     private String statement;
 
     @Override
-    public String id() {
-        return id;
+    public StorageID id() {
+        return new StorageID().appendMutant(null, id);
     }
 
     @Override
@@ -73,6 +77,7 @@ public class TopNDatabaseStatement extends TopN {
             statement.setLatency(((Number) converter.get(LATENCY)).longValue());
             statement.setEntityId((String) converter.get(ENTITY_ID));
             statement.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            statement.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             return statement;
         }
 
@@ -83,6 +88,7 @@ public class TopNDatabaseStatement extends TopN {
             converter.accept(LATENCY, storageData.getLatency());
             converter.accept(ENTITY_ID, storageData.getEntityId());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(TIMESTAMP, storageData.getTimestamp());
         }
     }
 }

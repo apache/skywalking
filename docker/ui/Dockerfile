@@ -17,7 +17,8 @@
 FROM eclipse-temurin:11-jre
 
 ENV JAVA_OPTS=" -Xms256M " \
-    SW_OAP_ADDRESS="127.0.0.1:12800"
+    SW_OAP_ADDRESS="http://127.0.0.1:12800" \
+    SW_ZIPKIN_ADDRESS="http://127.0.0.1:9412"
 
 WORKDIR skywalking
 

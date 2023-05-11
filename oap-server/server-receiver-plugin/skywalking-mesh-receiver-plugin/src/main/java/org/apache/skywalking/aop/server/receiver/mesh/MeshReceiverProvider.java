@@ -68,7 +68,6 @@ public class MeshReceiverProvider extends ModuleProvider {
                                                   .getService(GRPCHandlerRegister.class);
         MeshGRPCHandler meshGRPCHandler = new MeshGRPCHandler(getManager());
         service.addHandler(meshGRPCHandler);
-        service.addHandler(new MeshGRPCHandlerCompat(meshGRPCHandler));
     }
 
     @Override

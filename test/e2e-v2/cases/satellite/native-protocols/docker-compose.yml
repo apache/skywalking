@@ -45,7 +45,7 @@ services:
     environment:
       SW_LOG_LAL_FILES: test
       SW_CLUSTER: etcd
-      SW_METER_ANALYZER_ACTIVE_FILES: spring-sleuth
+      SW_METER_ANALYZER_ACTIVE_FILES: spring-micrometer
       SW_CONFIGURATION: etcd
     volumes:
       - ./lal.yaml:/skywalking/config/lal/test.yaml
@@ -70,6 +70,9 @@ services:
       SATELLITE_GRPC_ACCEPT_LIMIT_CPU_UTILIZATION: 100
     networks:
       - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -zn 127.0.0.1 11800" ]
       interval: 5s

@@ -1,112 +1,75 @@
-## 9.3.0
+## 9.5.0
 
 #### Project
 
-* Bump up the embedded `swctl` version in OAP Docker image.
+* Fix `Duplicate class found` due to the `delombok` goal.
 
 #### OAP Server
 
-* Add component ID(133) for impala JDBC Java agent plugin and component ID(134) for impala server.
-* Use prepareStatement in H2SQLExecutor#getByIDs.(No function change).
-* Bump up snakeyaml to 1.32 for fixing CVE.
-* Fix `DurationUtils.convertToTimeBucket` missed verify date format.
-* Enhance LAL to support converting LogData to DatabaseSlowStatement.
-* [**Breaking Change**] Change the LAL script format(Add layer property).
-* Adapt ElasticSearch 8.1+, migrate from removed APIs to recommended APIs.
-* Support monitoring MySQL slow SQLs.
-* Support analyzing cache related spans to provide metrics and slow commands for cache services from client side
-* Optimize virtual database, fix dynamic config watcher NPE when default value is null
-* Remove physical index existing check and keep template existing check only to avoid meaningless `retry wait`
-  in `no-init` mode.
-* Make sure instance list ordered in TTL processor to avoid TTL timer never runs.
-* Support monitoring PostgreSQL slow SQLs.
-* [**Breaking Change**] Support sharding MySQL database instances and tables
-  by [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy).
-  SQL-Database requires removing tables `log_tag/segment_tag/zipkin_query` before OAP starts, if bump up from previous
-  releases.
-* Fix meter functions `avgHistogram`, `avgHistogramPercentile`, `avgLabeled`, `sumHistogram` having data conflict when
-  downsampling.
-* Do sorting `readLabeledMetricsValues` result forcedly in case the storage(database) doesn't return data consistent
-  with the parameter list.
-* Fix the wrong watch semantics in Kubernetes watchers, which causes heavy traffic to API server in some Kubernetes
-  clusters,
-  we should use `Get State and Start at Most Recent` semantic instead of `Start at Exact`
-  because we don't need the changing history events,
-  see https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch.
-* Unify query services and DAOs codes time range condition to `Duration`.
-* [**Breaking Change**]: Remove prometheus-fetcher plugin, please use OpenTelemetry to scrape Prometheus metrics and
-  set up SkyWalking OpenTelemetry receiver instead.
-* BugFix: histogram metrics sent to MAL should be treated as OpenTelemetry style, not Prometheus style:
-  ```
-  (-infinity, explicit_bounds[i]] for i == 0
-  (explicit_bounds[i-1], explicit_bounds[i]] for 0 < i < size(explicit_bounds)
-  (explicit_bounds[i-1], +infinity) for i == size(explicit_bounds)
-  ```
-* Support Golang runtime metrics analysis.
-* Add APISIX metrics monitoring
-* Support skywalking-client-js report empty `service version` and `page path` , set default version as `latest` and
-  default page path as `/`(root). Fix the
-  error `fetching data (/browser_app_page_pv0) : Can't split endpoint id into 2 parts`.
-* [**Breaking Change**] Limit the max length of trace/log/alarm tag's `key=value`, set the max length of column `tags`
-  in tables`log_tag/segment_tag/alarm_record_tag` and column `query` in `zipkin_query` and column `tag_value` in `tag_autocomplete` to 256.
-  SQL-Database requires altering these columns' length or removing these tables before OAP starts, if bump up from previous releases.
-* Optimize the creation conditions of profiling task.
-* Lazy load the Kubernetes metadata and switch from event-driven to polling.
-  Previously we set up watchers to watch the Kubernetes metadata changes, this is perfect when there are deployments changes and
-  SkyWalking can react to the changes in real time. However when the cluster has many events (such as in large cluster
-  or some special Kubernetes engine like OpenShift), the requests sent from SkyWalking becomes unpredictable, i.e. SkyWalking might
-  send massive requests to Kubernetes API server, causing heavy load to the API server.
-  This PR switches from the watcher mechanism to polling mechanism, SkyWalking polls the metadata in a specified interval,
-  so that the requests sent to API server is predictable (~10 requests every `interval`, 3 minutes), and the requests count is constant
-  regardless of the cluster's changes. However with this change SkyWalking can't react to the cluster changes in time, but the delay
-  is acceptable in our case.
-* Optimize the query time of tasks in ProfileTaskCache.
-* Fix metrics was put into wrong slot of the window in the alerting kernel.
-* Support `sumPerMinLabeled` in `MAL`.
-* Bump up jackson databind, snakeyaml, grpc dependencies.
-* Support export `Trace` and `Log` through Kafka.
-* Add new config initialization mechanism of module provider. This is a ModuleManager lib kernel level change.
-* [**Breaking Change**] Support new records query protocol, rename the column named `service_id` to `entity_id` for support difference entity.
-  Please re-create `top_n_database_statement` index/table.
-* Remove improper self-obs metrics in JvmMetricsHandler(for Kafka channel).
+* Fix wrong layer of metric `user error` in DynamoDB monitoring.
+* ElasticSearch storage does not check field types when OAP running in `no-init` mode.
+* Support to bind TLS status as a part of component for service topology.
+* Fix component ID priority bug.
+* Fix component ID of topology overlap due to storage layer bugs.
+* [Breaking Change] Enhance JDBC storage through merging tables and managing day-based table rolling.
+* [Breaking Change] Sharding-MySQL implementations and tests get removed due to we have the day-based rolling mechanism by default
+* Fix otel k8s-cluster rule add namespace dimension for MAL aggregation calculation(Deployment Status,Deployment Spec Replicas)
+* Support continuous profiling feature.
+* Support collect process level related metrics.
+* Fix K8sRetag reads the wrong k8s service from the cache due to a possible namespace mismatch.
+* [Breaking Change] Support cross-thread trace profiling. The data structure and query APIs are changed.
+* Fix PromQL HTTP API `/api/v1/labels` response missing `service` label.
+* Fix possible NPE when initialize `IntList`.
+* Support parse PromQL expression has empty labels in the braces for metadata query.
+* Support alarm metric OP `!=`.
+* Support metrics query indicates whether value == 0 represents actually zero or no data.
+* Fix `NPE` when query the not exist series indexes in ElasticSearch storage. 
+* Support collecting memory buff/cache metrics in VM monitoring.
+* PromQL: Remove empty values from the query result, fix `/api/v1/metadata` param `limit` could cause out of bound.
+* Support monitoring the total number metrics of k8s StatefulSet and DaemonSet.
+* Support Amazon API Gateway monitoring.
+* Bump up graphql-java to fix cve.
+* Bump up Kubernetes Java client.
+* Support Redis Monitoring.
+* Add component ID for amqp, amqp-producer and amqp-consumer.
+* Support no-proxy mode for aws-firehose receiver
+* Bump up armeria to 1.23.1
+* Support Elasticsearch Monitoring.
+* Fix PromQL HTTP API `/api/v1/series` response missing `service` label when matching metric.
+* Support ServerSide TopN for BanyanDB.
+* Add component ID for Jersey.
+* Remove OpenCensus support, the related codes and docs as [it's sunsetting](https://opentelemetry.io/blog/2023/sunsetting-opencensus/).
+* Support dynamic configuration of searchableTracesTags
+* Support `exportErrorStatusTraceOnly` for export the error status trace segments through the Kafka channel
+* Add component ID for Grizzly.
 
 #### UI
-
-* Fix: tab active incorrectly, when click tab space
-* Add impala icon for impala JDBC Java agent plugin.
-* (Webapp)Bump up snakeyaml to 1.31 for fixing CVE-2022-25857
-* [Breaking Change]: migrate from Spring Web to Armeria, now you should use the environment variable
-  name `SW_OAP_ADDRESS`
-  to change the OAP backend service addresses, like `SW_OAP_ADDRESS=localhost:12800,localhost:12801`, and use
-  environment
-  variable `SW_SERVER_PORT` to change the port. Other Spring-related configurations don't take effect anymore.
-* Polish the endpoint list graph.
-* Fix styles for an adaptive height.
-* Fix setting up a new time range after clicking the refresh button.
-* Enhance the process topology graph to support dragging nodes.
-* UI-template: Fix metrics calculation in `general-service/mesh-service/faas-function` top-list dashboard.
-* Update MySQL dashboard to visualize collected slow SQLs.
-* Add virtual cache dashboard
-* Remove `responseCode` fields of all OAL sources, as well as examples to avoid user's confusion.
-* Remove All from the endpoints selector.
-* Enhance menu configurations to make it easier to change.
-* Update PostgreSQL dashboard to visualize collected slow SQLs.
-* Add Golang runtime metrics and cpu/memory used rate panels in General-Instance dashboard
-* Add gateway apisix menu
-* Query logs with the specific service ID
-* Bump d3-color from 3.0.1 to 3.1.0
-* Add Golang runtime metrics and cpu/memory used rate panels in FaaS-Instance dashboard
+* Revert: cpm5d function. This feature is cancelled from backend.
+* Fix: alerting link breaks on the topology.
+* Refactor Topology widget to make it more hierarchical.
+  1. Choose `User` as the first node.
+  2. If `User` node is absent, choose the busiest node(which has the most calls of all).
+  3. Do a left-to-right flow process.
+  4. At the same level, list nodes from top to bottom in alphabetical order.
+* Fix filter ID when ReadRecords metric associates with trace.
+* Add AWS API Gateway menu.
+* Change trace profiling protocol.
+* Add Redis menu.
+* Optimize data types.
+* Support isEmptyValue flag for metrics query.
+* Add elasticsearch menu.
+* [Clean UI templates before upgrade] Set `showSymbol: true`, and make the data point shows on the Line graph.
+  Please clean `ui_template` index in elasticsearch storage or table in JDBC storage.
+* [Clean UI templates before upgrade] UI templates: Simplify metric name with the label.
+* Add MQ menu.
+* Add Jeysey icon.
+* Fix: set endpoint and instance selectors with url parameters correctly.
+* Bump up dependencies versions icons-vue 1.1.4, element-plus 2.1.0, nanoid 3.3.6, postcss 8.4.23
 
 #### Documentation
 
-* Add `metadata-uid` setup doc about Kubernetes coordinator in the cluster management.
-* Add a doc for adding menus to booster UI.
-* Move general good read blogs from `Agent Introduction` to `Academy`.
-* Add re-post for blog `Scaling with Apache SkyWalking` in the academy list.
-* Add re-post for blog `Diagnose Service Mesh Network Performance with eBPF` in the academy list.
-* Add **Security Notice** doc.
-* Add new docs for `Report Span Attached Events` data collecting protocol.
-* Add new docs for `Record` query protocol
-* Update `Server Agents` and `Compatibility` for PHP agent.
+* Add Profiling related documentations.
+* Add `SUM_PER_MIN` to MAL documentation.
+* Make the log relative docs more clear, and easier for further more formats support.
 
-All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/149?closed=1)
+All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/169?closed=1)

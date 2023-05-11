@@ -35,7 +35,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -51,8 +51,6 @@
               "labelsIndex": "0,1,2,3,4"
             }
           ],
-          "value": "0",
-          "label": "0",
           "associate": [
             {
               "widgetId": "1"
@@ -67,6 +65,10 @@
           "filters": {
             "dataIndex": 15,
             "sourceId": "3"
+          },
+          "relatedTrace": {
+            "enableRelate": true,
+            "latency": true
           }
         },
         {
@@ -84,7 +86,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -99,8 +101,6 @@
               "calculation": "percentage"
             }
           ],
-          "value": "1",
-          "label": "Success_Rate",
           "associate": [
             {
               "widgetId": "0"
@@ -115,6 +115,10 @@
           "filters": {
             "dataIndex": 15,
             "sourceId": "3"
+          },
+          "relatedTrace": {
+            "enableRelate": true,
+            "status": "ERROR"
           }
         },
         {
@@ -132,7 +136,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -142,8 +146,6 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "value": "2",
-          "label": "Load",
           "associate": [
             {
               "widgetId": "1"
@@ -175,7 +177,7 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
@@ -185,8 +187,6 @@
           "metricTypes": [
             "readMetricsValues"
           ],
-          "value": "3",
-          "label": "Response_Time",
           "associate": [
             {
               "widgetId": "1"
@@ -197,7 +197,11 @@
             {
               "widgetId": "0"
             }
-          ]
+          ],
+          "relatedTrace": {
+            "enableRelate": true,
+            "latency": true
+          }
         }
       ],
       "layer": "GENERAL",

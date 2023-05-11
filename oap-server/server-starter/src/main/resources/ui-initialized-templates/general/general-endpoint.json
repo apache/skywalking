@@ -46,7 +46,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -62,8 +62,6 @@
                       "labelsIndex": "0, 1, 2, 3, 4"
                     }
                   ],
-                  "value": "0-0-3",
-                  "label": "Endpoint_Response_Percentile",
                   "associate": [
                     {
                       "widgetId": "0-0-5"
@@ -80,7 +78,11 @@
                     {
                       "widgetId": "0-0-8"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
                   "x": 8,
@@ -97,7 +99,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -107,8 +109,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-4",
-                  "label": "Endpoint_Avg_Response",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -125,10 +125,14 @@
                     {
                       "widgetId": "0-0-8"
                     }
-                  ]
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
+                  }
                 },
                 {
-                  "x": 16,
+                  "x": 8,
                   "y": 13,
                   "w": 8,
                   "h": 13,
@@ -143,7 +147,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -153,8 +157,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-5",
-                  "label": "0-0-5",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -164,52 +166,6 @@
                     },
                     {
                       "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    }
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Message Queue Consuming Count",
-                    "tips": "The number of consumed messages.",
-                    "name": "Message_Consuming_Count"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": false,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "endpoint_mq_consume_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "value": "0-0-6",
-                  "label": "Message_Consuming_Count",
-                  "associate": [
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
                     },
                     {
                       "widgetId": "0-0-7"
@@ -234,7 +190,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -244,8 +200,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-7",
-                  "label": "Endpoint_Success_Rate",
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -262,6 +216,15 @@
                     {
                       "widgetId": "0-0-8"
                     }
+                  ],
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
+                  },
+                  "metricConfig": [
+                    {
+                      "calculation": "percentage"
+                    }
                   ]
                 },
                 {
@@ -273,13 +236,14 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Endpoint Load (calls / min)",
-                    "name": "Endpoint_Load"
+                    "name": "Endpoint_Load",
+                    "tips": "requests(HTTP / RPC) / min, consuming messages(MQ) / min"
                   },
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -289,8 +253,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-8",
-                  "label": "Endpoint_Load",
                   "associate": [
                     {
                       "widgetId": "0-0-3"

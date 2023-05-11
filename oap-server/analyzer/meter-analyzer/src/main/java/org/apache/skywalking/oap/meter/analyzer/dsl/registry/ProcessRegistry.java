@@ -79,6 +79,6 @@ public class ProcessRegistry {
         traffic.setTimeBucket(timeBucket);
         traffic.setLastPingTimestamp(timeBucket);
         MetricsStreamProcessor.getInstance().in(traffic);
-        return traffic.id();
+        return traffic.id().build();
     }
 }

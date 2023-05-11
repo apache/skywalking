@@ -79,7 +79,7 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             endSecondTB = duration.getEndTimeBucketInSec();
         }
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(LogRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(LogRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, LogRecord.INDEX_NAME));
         }
         if (startSecondTB != 0 && endSecondTB != 0) {

@@ -46,7 +46,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -56,8 +56,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-0",
-                  "label": "Load_Server",
                   "associate": [
                     {
                       "widgetId": "0-0-4"
@@ -101,7 +99,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -116,8 +114,6 @@
                       "calculation": "percentage"
                     }
                   ],
-                  "value": "0-0-1",
-                  "label": "Success_Rate_Server",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -144,6 +140,10 @@
                   "filters": {
                     "dataIndex": 8,
                     "sourceId": "0-0-4"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -161,7 +161,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -178,8 +178,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "0-0-2",
-                  "label": "Response_Percentile_Server",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -206,6 +204,10 @@
                   "filters": {
                     "dataIndex": 8,
                     "sourceId": "0-0-4"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -223,7 +225,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -233,8 +235,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-3",
-                  "label": "Response_Time_Server",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -261,6 +261,10 @@
                   "filters": {
                     "dataIndex": 8,
                     "sourceId": "0-0-4"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -278,7 +282,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -288,8 +292,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-4",
-                  "label": "Response_Time_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -316,6 +318,10 @@
                   "filters": {
                     "dataIndex": 19,
                     "sourceId": "0-0-3"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -333,7 +339,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -350,8 +356,6 @@
                       "label": "P50, P75, P90, P95, P99"
                     }
                   ],
-                  "value": "0-0-5",
-                  "label": "Response_Percentile_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -378,6 +382,10 @@
                   "filters": {
                     "dataIndex": 8,
                     "sourceId": "0-0-4"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "latency": true
                   }
                 },
                 {
@@ -395,7 +403,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -410,8 +418,6 @@
                       "calculation": "percentage"
                     }
                   ],
-                  "value": "0-0-6",
-                  "label": "Success_Rate_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -438,6 +444,10 @@
                   "filters": {
                     "dataIndex": 8,
                     "sourceId": "0-0-4"
+                  },
+                  "relatedTrace": {
+                    "enableRelate": true,
+                    "status": "ERROR"
                   }
                 },
                 {
@@ -455,7 +465,7 @@
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": false,
+                    "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
                   },
@@ -465,8 +475,6 @@
                   "metricTypes": [
                     "readMetricsValues"
                   ],
-                  "value": "0-0-7",
-                  "label": "Load_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-0"

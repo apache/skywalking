@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class UITemplateTest {
     @Test
@@ -35,10 +35,10 @@ public class UITemplateTest {
         builder.entity2Storage(uiTemplate, toStorage);
         final UITemplate uiTemplate2 = builder.storage2Entity(new HashMapConverter.ToEntity(toStorage.obtain()));
 
-        Assert.assertEquals(uiTemplate, uiTemplate2);
+        Assertions.assertEquals(uiTemplate, uiTemplate2);
 
         uiTemplate2.setConfiguration("configuration2");
         // Equals method is only for `templateId` field.
-        Assert.assertEquals(uiTemplate, uiTemplate2);
+        Assertions.assertEquals(uiTemplate, uiTemplate2);
     }
 }

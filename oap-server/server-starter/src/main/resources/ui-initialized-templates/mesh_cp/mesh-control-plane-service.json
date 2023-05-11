@@ -36,16 +36,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "unit": "%"
-          },
           "metrics": [
             "meter_istio_cpu"
           ],
           "metricTypes": [
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 18,
@@ -63,14 +59,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_go_goroutines"
           ],
           "metricTypes": [
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 0,
@@ -88,14 +82,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_pilot_version"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 6,
@@ -113,17 +105,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "0": "1",
-            "1": "0",
-            "2": "4",
-            "3": "8",
-            "4": "5",
-            "5": "7",
-            "6": "6",
-            "unit": "MB",
-            "divide": "1048576"
-          },
           "metrics": [
             "meter_istio_go_stack_inuse",
             "meter_istio_virtual_memory",
@@ -138,22 +119,26 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false,
           "metricConfig": [
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "go_stack_inuse"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "virtual_memory"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "go_alloc"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "resident_memory"
             },
             {
-              "calculation": "byteToMB"
+              "calculation": "byteToMB",
+              "label": "go_heap_inuse"
             }
           ]
         },
@@ -173,7 +158,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_pilot_xds_cds_reject",
             "meter_istio_pilot_xds_eds_reject",
@@ -188,7 +172,23 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "xds_cds_reject"
+            },
+            {
+              "label": "xds_eds_reject"
+            },
+            {
+              "label": "xds_rds_reject"
+            },
+            {
+              "label": "xds_lds_reject"
+            },
+            {
+              "label": "xds_write_timeout"
+            }
+          ]
         },
         {
           "x": 16,
@@ -206,16 +206,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {
-            "unit": "%"
-          },
           "metrics": [
             "meter_istio_pilot_proxy_push_percentile"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "labelsIndex": "50,90,99",
+              "label": "P50,P90,P99"
+            }
+          ]
         },
         {
           "x": 0,
@@ -231,14 +233,12 @@
             "type": "Bar",
             "showBackground": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_pilot_xds_pushes"
           ],
           "metricTypes": [
             "readLabeledMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 12,
@@ -256,14 +256,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_sidecar_injection_success_total"
           ],
           "metricTypes": [
             "readMetricsValues"
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 12,
@@ -281,7 +279,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
@@ -292,7 +289,17 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "xds"
+            },
+            {
+              "label": "services"
+            },
+            {
+              "label": "virt_services"
+            }
+          ]
         },
         {
           "x": 0,
@@ -308,11 +315,10 @@
             "type": "Line",
             "step": false,
             "smooth": false,
-            "showSymbol": false,
+            "showSymbol": true,
             "showXAxis": true,
             "showYAxis": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_galley_validation_passed",
             "meter_istio_galley_validation_failed"
@@ -321,7 +327,14 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "galley_validation_passed"
+            },
+            {
+              "label": "galley_validation_failed"
+            }
+          ]
         },
         {
           "x": 0,
@@ -337,7 +350,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "standard": {},
           "metrics": [
             "meter_istio_pilot_conflict_ol_tcp_tcp",
             "meter_istio_pilot_conflict_il",
@@ -350,7 +362,20 @@
             "readMetricsValues",
             "readMetricsValues"
           ],
-          "moved": false
+          "metricConfig": [
+            {
+              "label": "ol_tpc_tpc"
+            },
+            {
+              "label": "il"
+            },
+            {
+              "label": "ol_tcp_http"
+            },
+            {
+              "label": "ol_http_tcp"
+            }
+          ]
         }
       ],
       "layer": "MESH_CP",

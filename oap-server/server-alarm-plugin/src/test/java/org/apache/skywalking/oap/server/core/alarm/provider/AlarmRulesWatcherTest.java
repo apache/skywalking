@@ -18,24 +18,24 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.spy;
 
 public class AlarmRulesWatcherTest {
@@ -67,7 +67,7 @@ public class AlarmRulesWatcherTest {
                                                                        }})
                                                                        .threshold("2");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
@@ -129,10 +129,9 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(2, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).size());
-        assertEquals("The same alarm rule should map to the same existed running rule", runningRule, alarmRulesWatcher.getRunningContext()
-                                                                                                                      .get(rule
-                                                                                                                          .getMetricsName())
-                                                                                                                      .get(0));
+        assertEquals(
+                runningRule, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).get(0),
+                "The same alarm rule should map to the same existed running rule");
     }
 
     @Test
@@ -156,10 +155,9 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(1, alarmRulesWatcher.getRunningContext().size());
         assertEquals(1, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).size());
-        assertNotEquals("The new alarm rule should map to a different running rule", runningRule, alarmRulesWatcher.getRunningContext()
-                                                                                                                   .get(rule
-                                                                                                                       .getMetricsName())
-                                                                                                                   .get(0));
+        assertNotEquals(
+                runningRule, alarmRulesWatcher.getRunningContext().get(rule.getMetricsName()).get(0),
+                "The new alarm rule should map to a different running rule");
     }
 
     @Test

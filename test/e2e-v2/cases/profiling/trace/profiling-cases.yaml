@@ -55,22 +55,22 @@
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
         )
       expected: expected/profile-segment-list.yml
-    # profiled segment detail
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace profiled-segment --segment-id=$( \
-          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
-            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
-          ) | yq e '.[0].segmentid' - \
-        )
-      expected: expected/profile-segment-detail.yml
     # query profiled segment analyze
     - query: |
         segmentid=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
             swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
-          ) | yq e '.[0].segmentid' - \
+          ) | yq e '.[0].spans.[] | select(.spanid == 0) | .segmentid' - \
         );
-        start=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace profiled-segment --segment-id=$segmentid | yq e '.spans[] | select(.spanid == 0).starttime' -);
-        end=$(swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace profiled-segment --segment-id=$segmentid | yq e '.spans[] | select(.spanid == 0).endtime' -);
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace analysis --segment-id=$segmentid --time-ranges=$(echo $start"-"$end)
+        start=$(
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
+          ) | yq e '.[0].spans.[] | select(.spanid == 0) | .starttime' - \
+        );
+        end=$(
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace segment-list --task-id=$( \
+            swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace list --service-name=e2e-service-provider --endpoint-name=POST:/profile/{name} | yq e '.[0].id' - \
+          ) | yq e '.[0].spans.[] | select(.spanid == 0) | .endtime' - \
+        );
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql profiling trace analysis --segment-ids=$segmentid --time-ranges=$(echo $start"-"$end)
       expected: expected/profile-segment-analyze.yml

@@ -28,8 +28,9 @@ import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportS
 import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS;
+import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PROCESS_CATALOG_NAME;
 
-@ScopeDeclaration(id = PROCESS, name = "Process")
+@ScopeDeclaration(id = PROCESS, name = "Process", catalog = PROCESS_CATALOG_NAME)
 @ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class Process extends Source {
     private volatile String entityId;

@@ -18,11 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 public class ServiceTrafficTest {
     @Test
@@ -33,7 +34,7 @@ public class ServiceTrafficTest {
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
         new ServiceTraffic.Builder().entity2Storage(traffic, toStorage);
         final Map<String, Object> stringObjectMap = toStorage.obtain();
-        Assert.assertEquals("group-name", stringObjectMap.get(ServiceTraffic.GROUP));
+        Assertions.assertEquals("group-name", stringObjectMap.get(ServiceTraffic.GROUP));
     }
 
     @Test
@@ -44,6 +45,6 @@ public class ServiceTrafficTest {
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();
         new ServiceTraffic.Builder().entity2Storage(traffic, toStorage);
         final Map<String, Object> stringObjectMap = toStorage.obtain();
-        Assert.assertNull(stringObjectMap.get(ServiceTraffic.GROUP));
+        Assertions.assertNull(stringObjectMap.get(ServiceTraffic.GROUP));
     }
 }

@@ -30,6 +30,8 @@ import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraf
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.analyze.EBPFProfilingAnalyzer;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
+import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
@@ -37,6 +39,8 @@ import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggr
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeTimeRange;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingSchedule;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTask;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskContinuousProfiling;
+import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskExtension;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskPrepare;
 import org.apache.skywalking.oap.server.core.query.type.Process;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
@@ -57,11 +61,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -173,26 +177,53 @@ public class EBPFProfilingQueryService implements Service {
         return prepare;
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets) throws IOException {
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets, EBPFProfilingTriggerType triggerType) throws IOException {
         if (CollectionUtils.isEmpty(targets)) {
             targets = Arrays.asList(EBPFProfilingTargetType.values());
         }
-        final List<EBPFProfilingTask> tasks = getTaskDAO().queryTasksByTargets(serviceId, serviceInstanceId, targets, 0, 0);
+        final List<EBPFProfilingTaskRecord> tasks = getTaskDAO().queryTasksByTargets(serviceId, serviceInstanceId, targets, triggerType, 0, 0);
         // combine same id tasks
-        final LinkedHashMap<String, EBPFProfilingTask> tmpMap = new LinkedHashMap<>();
-        for (EBPFProfilingTask task : tasks) {
-            final EBPFProfilingTask p = tmpMap.get(task.getTaskId());
-            if (p == null) {
-                tmpMap.put(task.getTaskId(), task);
-                continue;
-            }
-            p.combine(task);
-        }
-        return new ArrayList<>(tmpMap.values());
+        final Map<String, EBPFProfilingTaskRecord> records = tasks.stream().collect(Collectors.toMap(EBPFProfilingTaskRecord::getLogicalId, Function.identity(), EBPFProfilingTaskRecord::combine));
+        return records.values().stream().map(this::parseTask).collect(Collectors.toList());
     }
 
-    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws IOException {
+    private EBPFProfilingTask parseTask(EBPFProfilingTaskRecord record) {
+        final EBPFProfilingTask result = new EBPFProfilingTask();
+        result.setTaskId(record.getLogicalId());
+        result.setServiceId(record.getServiceId());
+        result.setServiceName(IDManager.ServiceID.analysisId(record.getServiceId()).getName());
+        if (StringUtil.isNotEmpty(record.getProcessLabelsJson())) {
+            result.setProcessLabels(GSON.<List<String>>fromJson(record.getProcessLabelsJson(), ArrayList.class));
+        } else {
+            result.setProcessLabels(Collections.emptyList());
+        }
+        if (StringUtil.isNotEmpty(record.getInstanceId())) {
+            result.setServiceInstanceId(record.getInstanceId());
+            result.setServiceInstanceName(IDManager.ServiceInstanceID.analysisId(record.getInstanceId()).getName());
+        }
+        result.setTaskStartTime(record.getStartTime());
+        result.setTriggerType(EBPFProfilingTriggerType.valueOf(record.getTriggerType()));
+        result.setFixedTriggerDuration(record.getFixedTriggerDuration());
+        result.setTargetType(EBPFProfilingTargetType.valueOf(record.getTargetType()));
+        result.setCreateTime(record.getCreateTime());
+        result.setLastUpdateTime(record.getLastUpdateTime());
+        if (StringUtil.isNotEmpty(record.getExtensionConfigJson())) {
+            result.setExtensionConfig(GSON.fromJson(record.getExtensionConfigJson(), EBPFProfilingTaskExtension.class));
+        }
+        if (StringUtil.isNotEmpty(record.getContinuousProfilingJson())) {
+            final EBPFProfilingTaskContinuousProfiling continuousProfiling = GSON.fromJson(record.getContinuousProfilingJson(), EBPFProfilingTaskContinuousProfiling.class);
+            result.setProcessId(continuousProfiling.getProcessId());
+            result.setProcessName(continuousProfiling.getProcessName());
+            result.setContinuousProfilingCauses(continuousProfiling.getCauses());
+        }
+        return result;
+    }
+
+    public List<EBPFProfilingSchedule> queryEBPFProfilingSchedules(String taskId) throws Exception {
         final List<EBPFProfilingSchedule> schedules = getScheduleDAO().querySchedules(taskId);
+
+        log.info("schedules: {}", GSON.toJson(schedules));
+
         if (CollectionUtils.isNotEmpty(schedules)) {
             final Model processModel = getProcessModel();
             final List<Metrics> processMetrics = schedules.stream()
@@ -203,9 +234,11 @@ public class EBPFProfilingQueryService implements Service {
                     }).collect(Collectors.toList());
             final List<Metrics> processes = getProcessMetricsDAO().multiGet(processModel, processMetrics);
 
+            log.info("processes: {}", GSON.toJson(processes));
+
             final Map<String, Process> processMap = processes.stream()
-                    .map(t -> (ProcessTraffic) t)
-                    .collect(Collectors.toMap(Metrics::id, this::convertProcess));
+                                                                .map(t -> (ProcessTraffic) t)
+                                                                .collect(Collectors.toMap(m -> m.id().build(), this::convertProcess));
             schedules.forEach(p -> p.setProcess(processMap.get(p.getProcessId())));
         }
         return schedules;
@@ -219,7 +252,7 @@ public class EBPFProfilingQueryService implements Service {
 
     private Process convertProcess(ProcessTraffic traffic) {
         final Process process = new Process();
-        process.setId(traffic.id());
+        process.setId(traffic.id().build());
         process.setName(traffic.getName());
         final String serviceId = traffic.getServiceId();
         process.setServiceId(serviceId);

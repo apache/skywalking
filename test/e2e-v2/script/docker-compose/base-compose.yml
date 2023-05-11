@@ -31,7 +31,7 @@ services:
     environment:
       SW_CLUSTER_ZK_HOST_PORT: zk:2181
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
-      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest
+      SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
       SW_STORAGE_BANYANDB_HOST: "banyandb"
       SW_CONFIG_ETCD_PERIOD: 1
@@ -51,6 +51,7 @@ services:
       - e2e
     environment:
       - SW_OAP_ADDRESS=http://oap:12800
+      - SW_ZIPKIN_ADDRESS=http://oap:9412
 
   banyandb:
     image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}"

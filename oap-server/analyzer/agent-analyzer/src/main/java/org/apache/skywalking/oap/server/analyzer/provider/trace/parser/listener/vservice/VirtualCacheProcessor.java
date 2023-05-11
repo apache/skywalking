@@ -89,6 +89,7 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
             slowAccess.setCommand(tags.get(SpanTags.CACHE_CMD));
             slowAccess.setKey(tags.get(SpanTags.CACHE_KEY));
             slowAccess.setTimeBucket(TimeBucket.getRecordTimeBucket(span.getStartTime()));
+            slowAccess.setTimestamp(span.getStartTime());
             slowAccess.setOperation(op);
             sourceList.add(slowAccess);
         }

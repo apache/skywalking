@@ -109,6 +109,22 @@ public class DefaultScopeDefine {
     public static final int CACHE_ACCESS = 55;
     public static final int CACHE_SLOW_ACCESS = 56;
 
+    public static final int TCP_SERVICE = 57;
+    public static final int TCP_SERVICE_INSTANCE = 58;
+    public static final int TCP_SERVICE_RELATION = 59;
+    public static final int TCP_SERVICE_INSTANCE_RELATION = 60;
+    public static final int TCP_SERVICE_INSTANCE_UPDATE = 61;
+    public static final int SAMPLED_SLOW_TRACE = 62;
+
+    public static final int MESSAGE_QUEUE_ACCESS = 63;
+    public static final int MESSAGE_QUEUE_ENDPOINT_ACCESS = 64;
+
+    public static final int SPAN_ATTACHED_EVENT = 65;
+    public static final int SAMPLED_STATUS_4XX_TRACE = 66;
+    public static final int SAMPLED_STATUS_5XX_TRACE = 67;
+
+    public static final int CONTINUOUS_PROFILING_POLICY = 68;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
@@ -161,7 +177,7 @@ public class DefaultScopeDefine {
      * @param declaration   includes the definition.
      * @param originalClass represents the class having the {@link ScopeDeclaration} annotation
      */
-    private static final void addNewScope(ScopeDeclaration declaration, Class originalClass) {
+    private static void addNewScope(ScopeDeclaration declaration, Class originalClass) {
         int id = declaration.id();
         if (ID_2_NAME.containsKey(id)) {
             throw new UnexpectedException(
@@ -189,7 +205,7 @@ public class DefaultScopeDefine {
         if (virtualColumn != null) {
             scopeDefaultColumns.add(
                 new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(), virtualColumn
-                    .type(), virtualColumn.isID(), virtualColumn.length()));
+                    .type(), virtualColumn.isID(), virtualColumn.length(), false));
         }
         Field[] scopeClassField = originalClass.getDeclaredFields();
         if (scopeClassField != null) {
@@ -201,7 +217,7 @@ public class DefaultScopeDefine {
                         scopeDefaultColumns.add(
                             new ScopeDefaultColumn(
                                 field.getName(), definedByField.columnName(), field.getType(), false,
-                                definedByField.length()
+                                definedByField.length(), definedByField.groupByCondInTopN()
                             ));
                     }
                 }

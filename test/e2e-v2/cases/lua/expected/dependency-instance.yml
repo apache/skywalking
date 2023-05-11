@@ -19,7 +19,7 @@ nodes:
   name: User_Service_Instance_Name
   serviceid: {{ b64enc "User_Service_Name" }}.1
   servicename: User_Service_Name
-  type: Nginx
+  type: ""
   isreal: true
 - id: {{ b64enc "e2e-service-entry-provider" }}.1_{{ b64enc "provider1" }}
   name: provider1

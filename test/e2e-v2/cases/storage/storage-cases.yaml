@@ -57,8 +57,16 @@ cases:
       )
     expected: expected/trace-users-detail.yml
   # service metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics single --name=service_sla --service-name=e2e-service-provider
+    expected: expected/metrics-single-sla.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics nullable --name=service_sla --service-name=e2e-service-provider
+    expected: expected/metrics-nullable-single-sla.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics nullable --name=service_sla --service-name=e2e-service-provider --start "2023-01-08" --end "2023-01-09"
+    expected: expected/metrics-nullable-single-sla-empty.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics sorted --name service_apdex 5
+    expected: expected/metrics-top-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics top --name service_sla 5
-    expected: expected/metrics-top-service-sla.yml
+    expected: expected/metrics-top-service.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=e2e-service-provider |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=e2e-service-provider |yq e 'to_entries' -
@@ -137,7 +145,9 @@ cases:
     expected: expected/metrics-has-value-percentile.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
     expected: expected/metrics-has-value-percentile.yml
-
+  # Endpoint TopN with service_id
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics top --name endpoint_cpm --service-name e2e-service-provider 5
+    expected: expected/metrics-top-endpoint.yml
   # native event: event list
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql event list
     expected: expected/event-list.yml

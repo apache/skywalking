@@ -61,14 +61,15 @@
                 <include>trace-sampling-policy-settings.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
-                <include>envoy-metrics-rules/*.yaml</include>
+                <include>envoy-metrics-rules/**</include>
                 <include>meter-analyzer-config/*.yaml</include>
                 <include>zabbix-rules/*.yaml</include>
                 <include>openapi-definitions/*/*.yaml</include>
-                <include>otel-rules/*</include>
+                <include>otel-rules/**</include>
                 <include>ui-initialized-templates/*/*.json</include>
                 <include>lal/*</include>
-                <include>log-mal-rules/*</include>
+                <include>log-mal-rules/**</include>
+                <include>telegraf-rules/*</include>
             </includes>
             <outputDirectory>config</outputDirectory>
         </fileSet>

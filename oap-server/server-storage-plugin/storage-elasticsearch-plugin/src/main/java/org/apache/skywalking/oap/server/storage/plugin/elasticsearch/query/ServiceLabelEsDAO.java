@@ -46,7 +46,7 @@ public class ServiceLabelEsDAO extends EsDAO implements IServiceLabelDAO {
         final String index =
                 IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceLabelRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(ServiceLabelRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceLabelRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceLabelRecord.INDEX_NAME));
         }
         query.must(Query.term(ServiceLabelRecord.SERVICE_ID, serviceId));

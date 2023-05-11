@@ -18,13 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
-import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -35,11 +28,18 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
+import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
     public RecordsQueryEsDAO(ElasticSearchClient client) {
@@ -55,13 +55,10 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
                  .must(Query.range(TopN.TIME_BUCKET)
                             .gte(duration.getStartTimeBucketInSec())
                             .lte(duration.getEndTimeBucketInSec()));
-        if (IndexController.LogicIndicesRegister.isPhysicalTable(condition.getName())) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, condition.getName()));
         }
-
-        if (condition.getParentEntity() != null && condition.getParentEntity().buildId() != null) {
-            query.must(Query.term(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
-        }
+        query.must(Query.term(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
 
         final SearchBuilder search =
             Search.builder()
@@ -86,7 +83,7 @@ public class RecordsQueryEsDAO extends EsDAO implements IRecordsQueryDAO {
             final String refId = (String) sourceAsMap.get(TopN.TRACE_ID);
             record.setRefId(StringUtil.isEmpty(refId) ? "" : refId);
             record.setId(record.getRefId());
-            record.setValue(sourceAsMap.get(valueColumnName).toString());
+            record.setValue(sourceAsMap.getOrDefault(valueColumnName, "0").toString());
             results.add(record);
         }
 

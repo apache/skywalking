@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.exporter.provider.kafka.log;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.util.List;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.utils.Bytes;
@@ -95,11 +94,6 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
     }
 
     @Override
-    public void init(final Properties properties) {
-
-    }
-
-    @Override
     public void consume(final List<LogRecord> data) {
         for (LogRecord logRecord : data) {
             if (logRecord != null) {
@@ -107,7 +101,7 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
                     LogData logData = transLogData(logRecord);
                     ProducerRecord<String, Bytes> record = new ProducerRecord<>(
                         setting.getKafkaTopicLog(),
-                        logRecord.id(),
+                        logRecord.id().build(),
                         Bytes.wrap(logData.toByteArray())
                     );
                     super.getProducer().send(record, (metadata, ex) -> {
@@ -131,26 +125,21 @@ public class KafkaLogExporter extends KafkaExportProducer implements LogExportSe
 
     }
 
-    @Override
-    public void onExit() {
-
-    }
-
     private LogData transLogData(LogRecord logRecord) throws InvalidProtocolBufferException {
         LogData.Builder builder = LogData.newBuilder();
         LogDataBody.Builder bodyBuilder = LogDataBody.newBuilder();
         switch (ContentType.instanceOf(logRecord.getContentType())) {
             case JSON:
                 bodyBuilder.setType(ContentType.JSON.name());
-                bodyBuilder.setJson(JSONLog.newBuilder().setJson(logRecord.getContent()));
+                bodyBuilder.setJson(JSONLog.newBuilder().setJson(logRecord.getContent().getText()));
                 break;
             case YAML:
                 bodyBuilder.setType(ContentType.YAML.name());
-                bodyBuilder.setYaml(YAMLLog.newBuilder().setYaml(logRecord.getContent()));
+                bodyBuilder.setYaml(YAMLLog.newBuilder().setYaml(logRecord.getContent().getText()));
                 break;
             case TEXT:
                 bodyBuilder.setType(ContentType.TEXT.name());
-                bodyBuilder.setText(TextLog.newBuilder().setText(logRecord.getContent()));
+                bodyBuilder.setText(TextLog.newBuilder().setText(logRecord.getContent().getText()));
                 break;
             case NONE:
                 bodyBuilder.setType(ContentType.NONE.name());

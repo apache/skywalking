@@ -59,6 +59,14 @@ public class UITemplateInitializer {
         Layer.SO11Y_SATELLITE.name(),
         Layer.FAAS.name(),
         Layer.APISIX.name(),
+        Layer.VIRTUAL_MQ.name(),
+        Layer.AWS_EKS.name(),
+        Layer.OS_WINDOWS.name(),
+        Layer.AWS_S3.name(),
+        Layer.AWS_DYNAMODB.name(),
+        Layer.AWS_GATEWAY.name(),
+        Layer.REDIS.name(),
+        Layer.ELASTICSEARCH.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

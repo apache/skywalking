@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.network.trace.component.command;
 
 import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.skywalking.apm.network.common.v3.Command;
@@ -31,6 +32,7 @@ import java.util.List;
  */
 public class EBPFProfilingTaskCommand extends BaseCommand implements Serializable {
     public static final String NAME = "EBPFProfilingTaskQuery";
+    private static final Gson GSON = new Gson();
 
     private String taskId;
     private List<String> processIdList;
@@ -39,10 +41,11 @@ public class EBPFProfilingTaskCommand extends BaseCommand implements Serializabl
     private String triggerType;
     private FixedTrigger fixedTrigger;
     private String targetType;
+    private EBPFProfilingTaskExtensionConfig extensionConfig;
 
     public EBPFProfilingTaskCommand(String serialNumber, String taskId, List<String> processIdList, long taskStartTime,
                                     long taskUpdateTime, String triggerType, FixedTrigger fixedTrigger,
-                                    String targetType) {
+                                    String targetType, EBPFProfilingTaskExtensionConfig extensionConfig) {
         super(NAME, serialNumber);
         this.taskId = taskId;
         this.processIdList = processIdList;
@@ -51,6 +54,7 @@ public class EBPFProfilingTaskCommand extends BaseCommand implements Serializabl
         this.triggerType = triggerType;
         this.fixedTrigger = fixedTrigger;
         this.targetType = targetType;
+        this.extensionConfig = extensionConfig;
     }
 
     @Override
@@ -61,7 +65,8 @@ public class EBPFProfilingTaskCommand extends BaseCommand implements Serializabl
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TaskUpdateTime").setValue(String.valueOf(taskUpdateTime)))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TriggerType").setValue(triggerType))
                 .addArgs(KeyStringValuePair.newBuilder().setKey("TargetType").setValue(targetType))
-                .addArgs(KeyStringValuePair.newBuilder().setKey("TaskStartTime").setValue(String.valueOf(taskStartTime)));
+                .addArgs(KeyStringValuePair.newBuilder().setKey("TaskStartTime").setValue(String.valueOf(taskStartTime)))
+                .addArgs(KeyStringValuePair.newBuilder().setKey("ExtensionConfigJSON").setValue(GSON.toJson(extensionConfig)));
 
         if (fixedTrigger != null) {
             builder.addArgs(KeyStringValuePair.newBuilder().setKey("FixedTriggerDuration").setValue(String.valueOf(fixedTrigger.duration)));

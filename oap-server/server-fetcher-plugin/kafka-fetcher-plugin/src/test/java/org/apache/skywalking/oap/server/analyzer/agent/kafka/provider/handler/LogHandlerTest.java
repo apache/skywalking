@@ -25,15 +25,15 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LogHandlerTest {
     private static final String TOPIC_NAME = "skywalking-logs";
@@ -42,7 +42,7 @@ public class LogHandlerTest {
 
     private ModuleManager manager;
 
-    @Before
+    @BeforeEach
     public void setup() {
         final ModuleManager manager = mock(ModuleManager.class, RETURNS_DEEP_STUBS);
         when(manager.find(LogAnalyzerModule.NAME).provider().getService(any()))

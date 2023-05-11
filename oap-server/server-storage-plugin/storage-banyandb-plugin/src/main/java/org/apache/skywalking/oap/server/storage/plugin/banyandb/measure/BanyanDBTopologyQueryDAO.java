@@ -19,6 +19,17 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
+import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.TimestampRange;
@@ -31,19 +42,12 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.Pr
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
@@ -57,58 +61,53 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration, List<String> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration,
+                                                                          List<String> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
 
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = buildServiceRelationsQueries(serviceIds);
+        QueryBuilder<MeasureQuery> queryBuilder = buildServiceRelationsQuery(serviceIds);
 
-        return queryServiceRelation(duration, queryBuilderList, DetectPoint.SERVER);
+        return queryServiceRelation(duration, queryBuilder, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration, List<String> serviceIds) throws IOException {
+    public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration,
+                                                                         List<String> serviceIds) throws IOException {
         if (CollectionUtils.isEmpty(serviceIds)) {
             throw new UnexpectedException("Service id is empty");
         }
 
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = buildServiceRelationsQueries(serviceIds);
+        QueryBuilder<MeasureQuery> queryBuilder = buildServiceRelationsQuery(serviceIds);
 
-        return queryServiceRelation(duration, queryBuilderList, DetectPoint.CLIENT);
+        return queryServiceRelation(duration, queryBuilder, DetectPoint.CLIENT);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration) throws IOException {
-        return queryServiceRelation(duration, Collections.singletonList(emptyMeasureQuery()), DetectPoint.SERVER);
+        return queryServiceRelation(duration, emptyMeasureQuery(), DetectPoint.SERVER);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration) throws IOException {
-        return queryServiceRelation(duration, Collections.singletonList(emptyMeasureQuery()), DetectPoint.CLIENT);
+        return queryServiceRelation(duration, emptyMeasureQuery(), DetectPoint.CLIENT);
     }
 
-    private List<QueryBuilder<MeasureQuery>> buildServiceRelationsQueries(List<String> serviceIds) {
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = new ArrayList<>(serviceIds.size());
-        for (final String serviceId : serviceIds) {
-            queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.and(eq(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceId));
-                }
-            });
-
-            queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.and(eq(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceId));
-                }
-            });
-        }
-        return queryBuilderList;
+    private QueryBuilder<MeasureQuery> buildServiceRelationsQuery(List<String> serviceIds) {
+        return new QueryBuilder<MeasureQuery>() {
+            @Override
+            protected void apply(MeasureQuery query) {
+                query.or(in(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds))
+                        .or(in(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
+                query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ServiceRelationServerSideMetrics.COMPONENT_IDS)));
+            }
+        };
     }
 
-    List<Call.CallDetail> queryServiceRelation(Duration duration, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryServiceRelation(Duration duration,
+                                               QueryBuilder<MeasureQuery> queryBuilder,
+                                               DetectPoint detectPoint) throws IOException {
         long startTB = 0;
         long endTB = 0;
         if (nonNull(duration)) {
@@ -121,59 +120,77 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         }
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceRelationServerSideMetrics.INDEX_NAME :
                 ServiceRelationClientSideMetrics.INDEX_NAME;
-        final Map<String, Call.CallDetail> callMap = new HashMap<>();
-        for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
-            MeasureQueryResponse resp = query(modelName,
-                    ImmutableSet.of(ServiceRelationClientSideMetrics.COMPONENT_ID,
-                            ServiceRelationClientSideMetrics.SOURCE_SERVICE_ID,
-                            ServiceRelationClientSideMetrics.DEST_SERVICE_ID,
-                            Metrics.ENTITY_ID),
-                    Collections.emptySet(), timestampRange, q);
-            if (resp.size() == 0) {
-                continue;
-            }
-            final Call.CallDetail call = new Call.CallDetail();
-            final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
-            final int componentId = ((Number) resp.getDataPoints().get(0).getTagValue(ServiceRelationClientSideMetrics.COMPONENT_ID)).intValue();
-            call.buildFromServiceRelation(entityId, componentId, detectPoint);
-            callMap.putIfAbsent(entityId, call);
+
+        MeasureQueryResponse resp = query(modelName,
+                ImmutableSet.of(
+                        ServiceRelationClientSideMetrics.COMPONENT_IDS,
+                        Metrics.ENTITY_ID
+                ),
+                Collections.emptySet(), timestampRange, queryBuilder
+        );
+        if (resp.size() == 0) {
+            return Collections.emptyList();
         }
-        return new ArrayList<>(callMap.values());
+        List<Call.CallDetail> calls = new ArrayList<>(resp.size());
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            final String entityId = dataPoint.getTagValue(Metrics.ENTITY_ID);
+            final IntList componentIds = new IntList(
+                    dataPoint.getTagValue(ServiceRelationClientSideMetrics.COMPONENT_IDS));
+            for (int i = 0; i < componentIds.size(); i++) {
+                final Call.CallDetail call = new Call.CallDetail();
+                call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
+                calls.add(call);
+            }
+        }
+        return calls;
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId, String serverServiceId, Duration duration) throws IOException {
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = buildInstanceRelationsQueries(clientServiceId, serverServiceId);
-        return queryInstanceRelation(duration, queryBuilderList, DetectPoint.SERVER);
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
+                                                                          String serverServiceId,
+                                                                          Duration duration) throws IOException {
+        QueryBuilder<MeasureQuery> queryBuilder = buildInstanceRelationsQuery(
+                clientServiceId, serverServiceId);
+        return queryInstanceRelation(duration, queryBuilder, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId, String serverServiceId, Duration duration) throws IOException {
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = buildInstanceRelationsQueries(clientServiceId, serverServiceId);
-        return queryInstanceRelation(duration, queryBuilderList, DetectPoint.CLIENT);
+    public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
+                                                                          String serverServiceId,
+                                                                          Duration duration) throws IOException {
+        QueryBuilder<MeasureQuery> queryBuilder = buildInstanceRelationsQuery(
+                clientServiceId, serverServiceId);
+        return queryInstanceRelation(duration, queryBuilder, DetectPoint.CLIENT);
     }
 
-    private List<QueryBuilder<MeasureQuery>> buildInstanceRelationsQueries(String clientServiceId, String serverServiceId) {
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = new ArrayList<>(2);
-        queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
+    private QueryBuilder<MeasureQuery> buildInstanceRelationsQuery(String clientServiceId,
+                                                                   String serverServiceId) {
+        return new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
-                query.and(eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId))
-                        .and(eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId));
-            }
-        });
+                List<AbstractCriteria> instanceRelationsQueryConditions = new ArrayList<>(2);
 
-        queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                query.and(eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId))
-                        .and(eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId));
+                instanceRelationsQueryConditions.add(
+                        // source_service_id = clientServiceId AND dest_service_id = serverServiceId
+                        and(Lists.newArrayList(
+                                eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId),
+                                eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId))
+                        ));
+                instanceRelationsQueryConditions.add(
+                        // dest_service_id = clientServiceId AND source_service_id = serverServiceId
+                        and(Lists.newArrayList(
+                                eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId),
+                                eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId)
+                        ))
+                );
+                query.criteria(or(instanceRelationsQueryConditions));
             }
-        });
-        return queryBuilderList;
+        };
     }
 
-    List<Call.CallDetail> queryInstanceRelation(Duration duration, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryInstanceRelation(Duration duration,
+                                                QueryBuilder<MeasureQuery> queryBuilder,
+                                                DetectPoint detectPoint) throws IOException {
         long startTB = 0;
         long endTB = 0;
         if (nonNull(duration)) {
@@ -185,62 +202,61 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceInstanceRelationServerSideMetrics.INDEX_NAME :
-            ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
-        final Map<String, Call.CallDetail> callMap = new HashMap<>();
-        for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
-            MeasureQueryResponse resp = query(modelName,
-                    ImmutableSet.of(ServiceInstanceRelationServerSideMetrics.COMPONENT_ID,
-                            ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID,
-                            ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID,
-                            Metrics.ENTITY_ID),
-                    Collections.emptySet(), timestampRange, q);
-            if (resp.size() == 0) {
-                continue;
-            }
-            final Call.CallDetail call = new Call.CallDetail();
-            final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
-            final int componentId = ((Number) resp.getDataPoints().get(0).getTagValue(ServiceRelationClientSideMetrics.COMPONENT_ID)).intValue();
-            call.buildFromInstanceRelation(entityId, componentId, detectPoint);
-            callMap.putIfAbsent(entityId, call);
+                ServiceInstanceRelationClientSideMetrics.INDEX_NAME;
+
+        MeasureQueryResponse resp = query(modelName,
+                ImmutableSet.of(
+                        Metrics.ENTITY_ID
+                ),
+                Collections.emptySet(), timestampRange, queryBuilder
+        );
+        if (resp.size() == 0) {
+            return Collections.emptyList();
         }
-        return new ArrayList<>(callMap.values());
+
+        List<Call.CallDetail> calls = new ArrayList<>(resp.size());
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            final Call.CallDetail call = new Call.CallDetail();
+            final String entityId = dataPoint.getTagValue(Metrics.ENTITY_ID);
+            call.buildFromInstanceRelation(entityId, detectPoint);
+            calls.add(call);
+        }
+        return calls;
     }
 
     @Override
     public List<Call.CallDetail> loadEndpointRelation(Duration duration, String destEndpointId) throws IOException {
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = buildEndpointRelationsQueries(destEndpointId);
-        return queryEndpointRelation(duration, queryBuilderList, DetectPoint.SERVER);
+        QueryBuilder<MeasureQuery> queryBuilder = buildEndpointRelationsQueries(destEndpointId);
+        return queryEndpointRelation(duration, queryBuilder, DetectPoint.SERVER);
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId, Duration duration) throws IOException {
+    public List<Call.CallDetail> loadProcessRelationDetectedAtClientSide(String serviceInstanceId,
+                                                                         Duration duration) throws IOException {
         return queryProcessRelation(duration, serviceInstanceId, DetectPoint.CLIENT);
     }
 
     @Override
-    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId, Duration duration) throws IOException {
+    public List<Call.CallDetail> loadProcessRelationDetectedAtServerSide(String serviceInstanceId,
+                                                                         Duration duration) throws IOException {
         return queryProcessRelation(duration, serviceInstanceId, DetectPoint.SERVER);
     }
 
-    private List<QueryBuilder<MeasureQuery>> buildEndpointRelationsQueries(String destEndpointId) {
-        List<QueryBuilder<MeasureQuery>> queryBuilderList = new ArrayList<>(2);
-        queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
+    private QueryBuilder<MeasureQuery> buildEndpointRelationsQueries(String destEndpointId) {
+        return new QueryBuilder<MeasureQuery>() {
             @Override
             protected void apply(MeasureQuery query) {
-                query.and(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId));
-            }
-        });
+                query.or(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId))
+                        .or(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
 
-        queryBuilderList.add(new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                query.and(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
+                query.groupBy(Sets.newHashSet(Metrics.ENTITY_ID));
             }
-        });
-        return queryBuilderList;
+        };
     }
 
-    List<Call.CallDetail> queryEndpointRelation(Duration duration, List<QueryBuilder<MeasureQuery>> queryBuilderList, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryEndpointRelation(Duration duration,
+                                                QueryBuilder<MeasureQuery> queryBuilder,
+                                                DetectPoint detectPoint) throws IOException {
         long startTB = 0;
         long endTB = 0;
         if (nonNull(duration)) {
@@ -251,25 +267,29 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         if (startTB > 0 && endTB > 0) {
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
-        final Map<String, Call.CallDetail> callMap = new HashMap<>();
-        for (final QueryBuilder<MeasureQuery> q : queryBuilderList) {
-            MeasureQueryResponse resp = query(EndpointRelationServerSideMetrics.INDEX_NAME,
-                    ImmutableSet.of(EndpointRelationServerSideMetrics.DEST_ENDPOINT,
-                            EndpointRelationServerSideMetrics.SOURCE_ENDPOINT,
-                            Metrics.ENTITY_ID),
-                    Collections.emptySet(), timestampRange, q);
-            if (resp.size() == 0) {
-                continue;
-            }
-            final Call.CallDetail call = new Call.CallDetail();
-            final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
-            call.buildFromEndpointRelation(entityId, detectPoint);
-            callMap.putIfAbsent(entityId, call);
+
+        MeasureQueryResponse resp = query(EndpointRelationServerSideMetrics.INDEX_NAME,
+                ImmutableSet.of(
+                        Metrics.ENTITY_ID
+                ),
+                Collections.emptySet(), timestampRange, queryBuilder
+        );
+        if (resp.size() == 0) {
+            return Collections.emptyList();
         }
-        return new ArrayList<>(callMap.values());
+        List<Call.CallDetail> resultSet = new ArrayList<>(resp.size());
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            final Call.CallDetail call = new Call.CallDetail();
+            final String entityId = dataPoint.getTagValue(Metrics.ENTITY_ID);
+            call.buildFromEndpointRelation(entityId, detectPoint);
+            resultSet.add(call);
+        }
+        return resultSet;
     }
 
-    List<Call.CallDetail> queryProcessRelation(Duration duration, String serviceInstanceId, DetectPoint detectPoint) throws IOException {
+    List<Call.CallDetail> queryProcessRelation(Duration duration,
+                                               String serviceInstanceId,
+                                               DetectPoint detectPoint) throws IOException {
         long startTB = 0;
         long endTB = 0;
         if (nonNull(duration)) {
@@ -281,21 +301,33 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
         final String modelName = detectPoint == DetectPoint.SERVER ? ProcessRelationServerSideMetrics.INDEX_NAME :
-            ProcessRelationClientSideMetrics.INDEX_NAME;
-        final Map<String, Call.CallDetail> callMap = new HashMap<>();
+                ProcessRelationClientSideMetrics.INDEX_NAME;
+
         MeasureQueryResponse resp = query(modelName,
-            ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
-            Collections.emptySet(), timestampRange, new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
+                ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
+                Collections.emptySet(), timestampRange, new QueryBuilder<MeasureQuery>() {
+                    @Override
+                    protected void apply(MeasureQuery query) {
+                        query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
+                        query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID)));
+                    }
                 }
-            });
-        final Call.CallDetail call = new Call.CallDetail();
-        final String entityId = resp.getDataPoints().get(0).getTagValue(Metrics.ENTITY_ID);
-        final int componentId = ((Number) resp.getDataPoints().get(0).getTagValue(ProcessRelationClientSideMetrics.COMPONENT_ID)).intValue();
-        call.buildProcessRelation(entityId, componentId, detectPoint);
-        callMap.putIfAbsent(entityId, call);
-        return new ArrayList<>(callMap.values());
+        );
+
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+
+        List<Call.CallDetail> calls = new ArrayList<>(resp.size());
+        for (final DataPoint dataPoint : resp.getDataPoints()) {
+            final String entityId = dataPoint.getTagValue(Metrics.ENTITY_ID);
+            final Number componentIdNumber = dataPoint.getTagValue(ProcessRelationClientSideMetrics.COMPONENT_ID);
+            final int componentId = componentIdNumber.intValue();
+            Call.CallDetail call = new Call.CallDetail();
+            call.buildProcessRelation(entityId, componentId, detectPoint);
+            calls.add(call);
+        }
+
+        return calls;
     }
 }

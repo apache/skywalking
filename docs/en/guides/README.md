@@ -32,16 +32,16 @@ as well as write some unit test (UT) codes to verify that the new codes would wo
 If the new codes involve other components or libraries, you should also write integration tests (IT).
 
 SkyWalking leverages the plugin `maven-surefire-plugin` to run the UTs and uses `maven-failsafe-plugin`
-to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts with `IT`)
-and leaves them for `maven-failsafe-plugin` to run, which is bound to the `verify` goal.
+to run the ITs. `maven-surefire-plugin` excludes ITs (whose class name starts or ends with `*IT`, `IT*`)
+and leaves them for `maven-failsafe-plugin` to run, which is bound to the `integration-test` goal.
 Therefore, to run the UTs, try `./mvnw clean test`, which only runs the UTs but not the ITs.
 
-If you would like to run the ITs, please set the property `skipITs` to false
-as well as the profiles of the modules whose ITs you want to run.
-E.g. if you would like to run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipITs=false`,
-and if you would like to run all the ITs, simply run `./mvnw clean verify -DskipITs=false`.
+If you would like to run the ITs, please run `./mvnw integration-test` as well as the profiles of the modules whose ITs you want to run.
+If you don't want to run UTs, please add `-DskipUTs=true`.
+E.g. if you would like to only run the ITs in `oap-server`, try `./mvnw -Pbackend clean verify -DskipUTs=true`,
+and if you would like to run all the ITs, simply run `./mvnw clean integration-test -DskipUTs=true`.
 
-Please be advised that if you're writing integration tests, name it with the pattern `IT*` so they would only run when property `skipITs` is set to false.
+Please be advised that if you're writing integration tests, name it with the pattern `IT*` or `*IT` so they would only run in goal `integration-test`.
 
 ### Java Microbenchmark Harness (JMH)
 JMH is a Java harness for building, running, and analysing nano/micro/milli/macro benchmarks written in Java and other languages targeting the JVM.
@@ -127,12 +127,6 @@ We use [license-eye](https://github.com/apache/skywalking-eyes) to help you make
   check whether the new dependencies' licenses are compatible with Apache 2.0.
 - Add the new dependencies' notice files (if any) to `./dist-material/release-docs/NOTICE` if they are Apache 2.0 license. Copy their license files to `./dist-material/release-docs/licenses` if they are not standard Apache 2.0 license.
 - Copy the new dependencies' license file to `./dist-material/release-docs/licenses` if they are not standard Apache 2.0 license.
-
-## Profile
-The performance profile is an enhancement feature in the APM system. We use thread dump to estimate the method execution time, rather than adding multiple local spans. In this way, the cost would be significantly reduced compared to using distributed tracing to locate the slow method. This feature is suitable in the production environment. The following documents are key to understanding the essential parts of this feature.
-- [Profile data report protocol](https://github.com/apache/skywalking-data-collect-protocol/tree/master/profile) is provided through gRPC, just like other traces and JVM data.
-- [Thread dump merging mechanism](backend-profile.md) introduces the merging mechanism. This mechanism helps end users understand profile reports.
-- [Exporter tool of profile raw data](backend-profile-export.md) guides you on how to package the original profile data for issue reports when the visualization doesn't work well on the official UI.
 
 ## Release
 If you're a committer, read the [Apache Release Guide](How-to-release.md) to learn about how to create an official Apache version release in accordance with avoid Apache's rules. As long as you keep our LICENSE and NOTICE, the Apache license allows everyone to redistribute.

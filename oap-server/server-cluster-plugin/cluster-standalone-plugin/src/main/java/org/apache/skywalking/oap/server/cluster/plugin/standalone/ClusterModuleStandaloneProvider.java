@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.standalone;
 
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterRegister;
@@ -26,6 +27,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 public class ClusterModuleStandaloneProvider extends ModuleProvider {
+    private StandaloneManager standaloneManager;
+
     public ClusterModuleStandaloneProvider() {
         super();
     }
@@ -47,9 +50,10 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
-        StandaloneManager standaloneManager = new StandaloneManager();
+        standaloneManager = new StandaloneManager();
         this.registerServiceImplementation(ClusterRegister.class, standaloneManager);
         this.registerServiceImplementation(ClusterNodesQuery.class, standaloneManager);
+        this.registerServiceImplementation(ClusterCoordinator.class, standaloneManager);
     }
 
     @Override
@@ -58,6 +62,7 @@ public class ClusterModuleStandaloneProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
+        standaloneManager.notifyWatchers();
     }
 
     @Override

@@ -20,21 +20,13 @@ receivers:
         - job_name: "postgresql-monitoring"
           scrape_interval: 5s
           static_configs:
-            - targets: ["postgres-exporter:9187"]
+            - targets: ["postgres-exporter:9187","postgres-exporter_2:9187","postgres-exporter_3:9187"]
               labels:
                 host_name: postgres:5432
 processors:
   batch:
 
 exporters:
-  ####################################################################################
-  # If you want to use otlp exporter please ensure that your OAP version is >= 9.2.0 #
-  # or you can use oc exporter, The config format should be:                         #
-  # opencensus:                                                                      #
-  #   endpoint: "oap:11800"                                                          #
-  #   tls:                                                                           #
-  #      insecure: true                                                              #
-  ####################################################################################
   otlp:
     endpoint: oap:11800
     tls:
@@ -49,9 +41,5 @@ service:
       processors:
         - batch
       exporters:
-        #########################################
-        # oc exporter config format:            #
-        # - opencensus                          #
-        #########################################
         - logging
         - otlp

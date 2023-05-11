@@ -26,9 +26,9 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
-import org.apache.skywalking.oap.server.core.storage.ShardingAlgorithm;
+import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
-import org.apache.skywalking.oap.server.core.storage.annotation.SQLDatabase;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -43,14 +43,13 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Setter
 @Getter
 @Stream(name = EBPFProfilingScheduleRecord.INDEX_NAME, scopeId = EBPF_PROFILING_SCHEDULE,
-        builder = EBPFProfilingScheduleRecord.Builder.class, processor = MetricsStreamProcessor.class)
+    builder = EBPFProfilingScheduleRecord.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = true)
 @EqualsAndHashCode(of = {
-        "taskId",
-        "processId",
-        "startTime",
+    "taskId",
+    "processId",
+    "startTime",
 })
-@SQLDatabase.Sharding(shardingAlgorithm = ShardingAlgorithm.NO_SHARDING)
 public class EBPFProfilingScheduleRecord extends Metrics {
 
     public static final String INDEX_NAME = "ebpf_profiling_schedule";
@@ -60,15 +59,16 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     public static final String END_TIME = "end_time";
     public static final String EBPF_PROFILING_SCHEDULE_ID = "ebpf_profiling_schedule_id";
 
-    @Column(columnName = TASK_ID, length = 600)
+    @Column(name = TASK_ID)
     private String taskId;
-    @Column(columnName = PROCESS_ID, length = 600)
+    @Column(name = PROCESS_ID, length = 600)
     private String processId;
-    @Column(columnName = START_TIME)
+    @Column(name = START_TIME)
     private long startTime;
-    @Column(columnName = END_TIME)
+    @Column(name = END_TIME)
     private long endTime;
-    @Column(columnName = EBPF_PROFILING_SCHEDULE_ID)
+    @Column(name = EBPF_PROFILING_SCHEDULE_ID)
+    @BanyanDB.SeriesID(index = 0)
     private String scheduleId;
 
     @Override
@@ -95,8 +95,8 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     }
 
     @Override
-    protected String id0() {
-        return scheduleId;
+    protected StorageID id0() {
+        return new StorageID().append(EBPF_PROFILING_SCHEDULE_ID, scheduleId);
     }
 
     @Override

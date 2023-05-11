@@ -71,7 +71,7 @@ public class PrometheusMetricConverter {
 
     public PrometheusMetricConverter(Rule rule, MeterSystem service) {
         this.convert = new MetricConvert(rule, service);
-        this.metricsNameEscapePattern = Pattern.compile("\\.");
+        this.metricsNameEscapePattern = Pattern.compile("[/.]");
     }
 
     /**
@@ -160,7 +160,7 @@ public class PrometheusMetricConverter {
         return Optional.of(Tuple.of(escapedName(metric.getName()), SampleFamilyBuilder.newBuilder(ss).build()));
     }
 
-    // Returns the escaped name of the given one, with "." replaced by "_"
+    // Returns the escaped name of the given one, with "." and "/" replaced by "_"
     protected String escapedName(final String name) {
         try {
             return escapedMetricsNameCache.get(name);

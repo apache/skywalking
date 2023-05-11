@@ -12,8 +12,6 @@ Natively supported storage:
 - OpenSearch
 - ElasticSearch 6, 7, 8
 - MySQL
-- MySQL-Sharding(Shardingsphere-Proxy 5.1.2)
-- TiDB
 - PostgreSQL
 - BanyanDB
 
@@ -41,6 +39,11 @@ OpenSearch is a fork from ElasticSearch 7.11 but licensed in Apache 2.0.
 OpenSearch storage shares the same configurations as ElasticSearch.
 In order to activate OpenSearch as storage, set the storage provider to **elasticsearch**.
 
+We support and tested the following versions of OpenSearch:
+
+- 1.1.0, 1.3.6
+- 2.4.0
+
 ## ElasticSearch
 
 **NOTE:** Elastic announced through their blog that Elasticsearch will be moving over to a Server Side Public
@@ -48,25 +51,17 @@ License (SSPL), which is incompatible with Apache License 2.0. This license chan
 version 7.11. So please choose the suitable ElasticSearch version according to your usage.
 If you have concerns about SSPL, choose the versions before 7.11 or switch to OpenSearch.
 
-Since 9.2.0, SkyWalking provides no-sharding/one-index mode to merge all metrics/meter and records(without super datasets)
-indices into one physical index template `metrics-all` and `records-all` on the default setting.
-In the current one index mode, users still could choose to adjust ElasticSearch's shard number(`SW_STORAGE_ES_INDEX_SHARDS_NUMBER`) to scale out.
-After merge all indices, the following indices are available:
+By default, SkyWalking uses following indices for various telemetry data.
 
-* sw_ui_template
-* sw_metrics-all-`${day-format}`
-* sw_log-`${day-format}`
-* sw_segment-`${day-format}`
-* sw_browser_error_log-`${day-format}`
-* sw_zipkin_span-`${day-format}`
-* sw_records-all-`${day-format}`
+* sw_ui_template (UI dashboard settings)
+* sw_metrics-all-`${day-format}` (All metrics/meters generated through MAL and OAL engines, and metadata of service/instance/endpoint)
+* sw_log-`${day-format}` (Collected logs, exclude browser logs)
+* sw_segment-`${day-format}` (Native trace segments)
+* sw_browser_error_log-`${day-format}` (Collected browser logs)
+* sw_zipkin_span-`${day-format}` (Zipkin trace spans)
+* sw_records-all-`${day-format}` (All sampled records, e.g. slow SQLs, agent profiling, and ebpf profiling)
 
-___
-Provide system environment variable(`SW_STORAGE_ES_LOGIC_SHARDING`). Set it to `true` could shard metrics indices into multi-physical indices
-as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
-___
-
-Since 8.8.0, SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
+SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API and automatically picks up
 correct request formats according to the server-side version, hence you don't need to download different binaries
 and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
@@ -88,9 +83,12 @@ storage:
     dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
     indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
     indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} # Replicas number of new indexes
+    # Specify the settings for each index individually.
+    # If configured, this setting has the highest priority and overrides the generic settings.
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
     # Super data set has been defined in the codes, such as trace segments.The following 3 config would be improve es performance when storage super size data in es.
-    superDatasetDayStep: ${SW_SUPERDATASET_STORAGE_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
-    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin and Jaeger traces.
+    superDatasetDayStep: ${SW_STORAGE_ES_SUPER_DATASET_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin traces.
     superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
     indexTemplateOrder: ${SW_STORAGE_ES_INDEX_TEMPLATE_ORDER:0} # the order of index template
     bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:1000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
@@ -104,7 +102,11 @@ storage:
     oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
     oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
     advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    # Set it to `true` could shard metrics indices into multi-physical indices
+    # as same as the versions(one index template per metric/meter aggregation function) before 9.2.0.
     logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
+    # Custom routing can reduce the impact of searches. Instead of having to fan out a search request to all the shards in an index, the request can be sent to just the shard that matches the specific routing value (or values).
+    enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
 ```
 
 ### ElasticSearch With Https SSL Encrypting communications.
@@ -157,7 +159,33 @@ Once it is changed manually or through a 3rd party tool, such as [Vault](https:/
 the storage provider will use the new username, password, and JKS password to establish the connection and close the old one. If the information exists in the file,
 the `user/password` will be overridden.
 
-### Advanced Configurations For Elasticsearch Index
+
+### Index Settings
+The following settings control the number of shards and replicas for new and existing index templates. The update only got applied after OAP reboots.
+```yaml
+storage:
+  elasticsearch:
+    # ......
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1}
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1}
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5}
+    superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0}
+```
+The following table shows the relationship between those config items and Elasticsearch `index number_of_shards/number_of_replicas`.
+And also you can [specify the settings for each index individually.](#specify-settings-for-each-elasticsearch-index-individually)
+
+| index                                | number_of_shards | number_of_replicas   |
+|--------------------------------------|------------------|----------------------|
+| sw_ui_template                       | indexShardsNumber | indexReplicasNumber  |
+| sw_metrics-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  |
+| sw_log-`${day-format}`               | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_segment-`${day-format}`           | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_browser_error_log-`${day-format}` | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_zipkin_span-`${day-format}`       | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_records-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  |
+
+#### Advanced Configurations For Elasticsearch Index
 You can add advanced configurations in `JSON` format to set `ElasticSearch index settings` by following [ElasticSearch doc](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules.html)
 
 For example, set [translog](https://www.elastic.co/guide/en/elasticsearch/reference/master/index-modules-translog.html) settings:
@@ -167,6 +195,39 @@ storage:
   elasticsearch:
     # ......
     advanced: ${SW_STORAGE_ES_ADVANCED:"{\"index.translog.durability\":\"request\",\"index.translog.sync_interval\":\"5s\"}"}
+```
+
+#### Specify Settings For Each Elasticsearch Index Individually
+You can specify the settings for one or more indexes individually by using `SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS`.
+
+**NOTE:**
+Supported settings:
+- number_of_shards
+- number_of_replicas
+
+**NOTE:** These settings have the highest priority and will override the existing
+generic settings mentioned in [index settings doc](#index-settings).
+
+The settings are in `JSON` format. The index name here is logic entity name, which should exclude the `${SW_NAMESPACE}` which is `sw` by default, e.g.
+```json
+{
+  "metrics-all":{
+    "number_of_shards":"3",
+    "number_of_replicas":"2"
+  },
+  "segment":{
+    "number_of_shards":"6",
+    "number_of_replicas":"1"
+  }
+}
+```
+
+This configuration in the YAML file is like this,
+```yaml
+storage:
+  elasticsearch:
+    # ......
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:"{\"metrics-all\":{\"number_of_shards\":\"3\",\"number_of_replicas\":\"2\"},\"segment\":{\"number_of_shards\":\"6\",\"number_of_replicas\":\"1\"}}"}
 ```
 
 ### Recommended ElasticSearch server-side configurations
@@ -197,7 +258,7 @@ storage:
   selector: ${SW_STORAGE:mysql}
   mysql:
     properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true"}
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true&allowMultiQueries=true"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
       dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
       dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
@@ -212,60 +273,8 @@ All connection-related settings, including URL link, username, and password, are
 Only part of the settings is listed here. See the [HikariCP](https://github.com/brettwooldridge/HikariCP) connection pool document for full settings.
 To understand the function of the parameter `rewriteBatchedStatements=true` in MySQL, see the [MySQL official document](https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-connp-props-performance-extensions.html#cj-conn-prop_rewriteBatchedStatements).
 
-## MySQL-Sharding
-MySQL-Sharding plugin provides the MySQL database sharding and table sharding, this feature
-leverage [Shardingsphere-Proxy](https://shardingsphere.apache.org/document/current/en/overview/#shardingsphere-proxy)
-to manage the JDBC between OAP and multi-database instances, and according to the sharding rules do routing to the database and table sharding.
-
-Tested Shardingsphere-Proxy 5.1.2 version, and MySQL Client driver 8.0.13 version is currently available.
-Activate MySQL and Shardingsphere-Proxy as storage, and set storage provider to **mysql-sharding**.
-
-**NOTE:** MySQL driver is NOT allowed in Apache official distribution and source codes.
-Please download the MySQL driver on your own. Copy the connection driver jar to `oap-libs`.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:mysql-sharding}
-  mysql-sharding:
-    properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:13307/swtest?rewriteBatchedStatements=true"}
-      dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root}
-    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
-    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-    # The dataSources are configured in ShardingSphere-Proxy config-sharding.yaml
-    # The dataSource name should include the prefix "ds_" and separated by ","
-    dataSources: ${SW_JDBC_SHARDING_DATA_SOURCES:ds_0,ds_1}
-
-```
-
-## TiDB
-Tested TiDB Server 4.0.8 version, and MySQL Client driver 8.0.13 version is currently available.
-Activate TiDB as storage, and set storage provider to **tidb**.
-
-```yaml
-storage:
-  selector: ${SW_STORAGE:tidb}
-  tidb:
-    properties:
-      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:4000/swtest?rewriteBatchedStatements=true"}
-      dataSource.user: ${SW_DATA_SOURCE_USER:root}
-      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:""}
-      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
-      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
-      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
-      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
-      dataSource.useAffectedRows: ${SW_DATA_SOURCE_USE_AFFECTED_ROWS:true}
-    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
-    maxSizeOfArrayColumn: ${SW_STORAGE_MAX_SIZE_OF_ARRAY_COLUMN:20}
-    numOfSearchableValuesPerTag: ${SW_STORAGE_NUM_OF_SEARCHABLE_VALUES_PER_TAG:2}
-    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
-    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
-```
-All connection-related settings, including URL link, username, and password are found in `application.yml`.
-For details on settings, refer to the configuration of *MySQL* above.
-To understand the function of the parameter `rewriteBatchedStatements=true` in TiDB, see the document of [TiDB best practices](https://docs.pingcap.com/tidb/stable/java-app-best-practices#use-batch-api).
+In theory, all other databases that are compatible with MySQL protocol should be able to use this storage plugin,
+such as TiDB. Please compose the JDBC URL according to the database's documentation.
 
 ## PostgreSQL
 PostgreSQL JDBC driver uses version 42.3.2. It supports PostgreSQL 8.2 or newer.
@@ -308,6 +317,10 @@ storage:
     superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
     concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
     profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
+    streamBlockInterval: ${SW_STORAGE_BANYANDB_STREAM_BLOCK_INTERVAL:4} # Unit is hour
+    streamSegmentInterval: ${SW_STORAGE_BANYANDB_STREAM_SEGMENT_INTERVAL:24} # Unit is hour
+    measureBlockInterval: ${SW_STORAGE_BANYANDB_MEASURE_BLOCK_INTERVAL:4} # Unit is hour
+    measureSegmentInterval: ${SW_STORAGE_BANYANDB_MEASURE_SEGMENT_INTERVAL:24} # Unit is hour
 ```
 
 For more details, please refer to the documents of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/)

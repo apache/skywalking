@@ -1,0 +1,41 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Policy config
+# policy: the policy config list
+# - type: the profiling target type when reached the threshold, support: "ON_CPU", "OFF_CPU", "NETWORK"
+#   checks: define the thresholds, when any configuration item reaches the threshold, it will trigger profiling task
+#     - type: monitoring type, please see the below monitoring type with threshold description
+#       threshold: monitor threshold, please see the below monitoring type with threshold description
+#       period: the length of time to evaluate the metrics
+#       count: how many times after the metrics match the threshold, will trigger profiling
+#       uriList: the URI paths filter when monitor the HTTP related types
+#       uriRegex: the URI regex filter when monitor the HTTP related types
+
+# Monitoring type with threshold
+# PROCESS_CPU: Monitoring Process CPU percent, threshold value in [0-100]
+# PROCESS_THREAD_COUNT: Monitoring process thread count, threshold value must bigger than zero
+# SYSTEM_LOAD: Monitoring current system load, threshold value must bigger than zero
+# HTTP_ERROR_RATE: Monitoring the process HTTP response error(status>=500) percent, threshold value in [0-100]
+# HTTP_AVG_RESPONSE_TIME: Monitoring the process HTTP response duration(ms), threshold value must be bigger than zero
+
+policy:
+  - type: ON_CPU
+    checkers:
+      - type: PROCESS_CPU
+        threshold: 10
+        period: 10
+        count: 3

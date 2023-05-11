@@ -17,11 +17,14 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
 
 @Getter
+@RequiredArgsConstructor
 public class BrowserErrorLogs {
     private final List<BrowserErrorLog> logs;
 

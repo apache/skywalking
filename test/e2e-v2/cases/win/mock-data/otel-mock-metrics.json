@@ -1,0 +1,177 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "windows-monitoring"
+            }
+          },
+          {
+            "key": "net.host.name",
+            "value": {
+              "stringValue": "10.211.55.3"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "10.211.55.3:9182"
+            }
+          },
+          {
+            "key": "net.host.port",
+            "value": {
+              "stringValue": "9182"
+            }
+          },
+          {
+            "key": "http.scheme",
+            "value": {
+              "stringValue": "http"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {},
+          "metrics": [
+            {
+              "name": "windows_cpu_time_total",
+              "description": "Time that processor spent in different modes (dpc, idle, interrupt, privileged, user)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140395007000000",
+                    "asDouble": 3.4375,
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0.0"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140395007000000",
+                    "asDouble": 707.984375,
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0.0"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "idle"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "windows-monitoring"
+            }
+          },
+          {
+            "key": "net.host.name",
+            "value": {
+              "stringValue": "10.211.55.3"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "10.211.55.3:9182"
+            }
+          },
+          {
+            "key": "net.host.port",
+            "value": {
+              "stringValue": "9182"
+            }
+          },
+          {
+            "key": "http.scheme",
+            "value": {
+              "stringValue": "http"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {},
+          "metrics": [
+            {
+              "name": "windows_os_virtual_memory_bytes",
+              "description": "OperatingSystem.TotalVirtualMemorySize",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 8.8387584E9
+                  }
+                ]
+              }
+            },
+            {
+              "name": "windows_logical_disk_write_seconds_total",
+              "description": "Seconds that the disk was busy servicing write requests (LogicalDisk.PercentDiskWriteTime)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 9.669203699999999,
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "C:"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 8.321E-4,
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "HarddiskVolume1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+

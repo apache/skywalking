@@ -23,7 +23,6 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessDetectType;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ProcessTraffic;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.type.Call;
 import org.apache.skywalking.oap.server.core.query.type.ProcessNode;
@@ -36,7 +35,6 @@ import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -70,7 +68,7 @@ public class ProcessTopologyBuilder {
     }
 
     ProcessTopology build(List<Call.CallDetail> clientCalls,
-                          List<Call.CallDetail> serverCalls) throws IOException {
+                          List<Call.CallDetail> serverCalls) throws Exception {
         List<Call> calls = new LinkedList<>();
         HashMap<String, Call> callMap = new HashMap<>();
 
@@ -88,7 +86,7 @@ public class ProcessTopologyBuilder {
                     return p;
                 }).collect(Collectors.toList())).stream()
             .map(t -> (ProcessTraffic) t)
-            .collect(Collectors.toMap(Metrics::id, this::buildNode));
+            .collect(Collectors.toMap(m -> m.id().build(), this::buildNode));
 
         for (Call.CallDetail clientCall : clientCalls) {
             if (!callMap.containsKey(clientCall.getId())) {
@@ -128,7 +126,7 @@ public class ProcessTopologyBuilder {
 
     private ProcessNode buildNode(ProcessTraffic traffic) {
         ProcessNode processNode = new ProcessNode();
-        processNode.setId(traffic.id());
+        processNode.setId(traffic.id().build());
         processNode.setServiceId(traffic.getServiceId());
         processNode.setServiceName(IDManager.ServiceID.analysisId(traffic.getServiceId()).getName());
         processNode.setServiceInstanceId(traffic.getInstanceId());

@@ -223,7 +223,7 @@ log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
     lalFiles: ${SW_LOG_LAL_FILES:my-lal-config} # files are under "lal" directory
-    malFiles: ${SW_LOG_MAL_FILES:my-lal-mal-config,another-lal-mal-config} # files are under "log-mal-rules" directory
+    malFiles: ${SW_LOG_MAL_FILES:my-lal-mal-config, folder1/another-lal-mal-config, folder2/*} # files are under "log-mal-rules" directory
 ```
 
 Examples are as follows:
@@ -280,6 +280,10 @@ metrics:
 `slowSql` aims to convert LogData to DatabaseSlowStatement. It extracts data from `parsed` result and save them as DatabaseSlowStatement. SlowSql will not abort or edit logs, you can use other LAL for further processing.
 SlowSql will reuse `service`, `layer` and `timestamp` of extractor, so it is necessary to use `SlowSQL` after setting these.
 We require a log tag `"LOG_KIND" = "SLOW_SQL"` to make OAP distinguish slow SQL logs from other log reports.
+
+**Note**, slow SQL sampling would only flag this SQL in the candidate list. The OAP server would run statistic per service
+and only persistent the top 50 every 10(controlled by `topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10}`) minutes by default.  
+
 An example of JSON sent to OAP is as following:
 ``` json
 [
@@ -336,6 +340,77 @@ filter {
       }
     }
   }
+}
+```
+- `sampledTrace`
+
+`sampledTrace` aims to convert LogData to SampledTrace Records. It extracts data from `parsed` result and save them as SampledTraceRecord. SampledTrace will not abort or edit logs, you can use other LAL for further processing.
+We require a log tag `"LOG_KIND" = "NET_PROFILING_SAMPLED_TRACE"` to make OAP distinguish slow trace logs from other log reports.
+An example of JSON sent to OAP is as following:
+``` json
+[
+   {
+      "tags":{
+         "data":[
+            {
+               "key":"LOG_KIND",
+               "value":"NET_PROFILING_SAMPLED_TRACE"
+            }
+         ]
+      },
+      "layer":"MESH",
+      "body":{
+         "json":{
+            "json":"{\"uri\":\"/provider\",\"reason\":\"slow\",\"latency\":2048,\"client_process\":{\"process_id\":\"c1519f4555ec11eda8df0242ac1d0002\",\"local\":false,\"address\":\"\"},\"server_process\":{\"process_id\":\"\",\"local\":false,\"address\":\"172.31.0.3:443\"},\"detect_point\":\"client\",\"component\":\"http\",\"ssl\":true}"
+         }
+      },
+      "service":"test-service",
+      "serviceInstance":"test-service-instance",
+      "timestamp": 1666916962406,
+   }
+]
+```
+Examples are as follows:
+
+```groovy
+filter {
+    json {
+    }
+    if (tag("LOG_KIND") == "NET_PROFILING_SAMPLED_TRACE") {
+        sampledTrace {
+            latency parsed.latency as Long
+            uri parsed.uri as String
+            reason parsed.reason as String
+
+            if (parsed.client_process.process_id as String != "") {
+                processId parsed.client_process.process_id as String
+            } else if (parsed.client_process.local as Boolean) {
+                processId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
+            } else {
+                processId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.client_process.address as String) as String
+            }
+
+            if (parsed.server_process.process_id as String != "") {
+                destProcessId parsed.server_process.process_id as String
+            } else if (parsed.server_process.local as Boolean) {
+                destProcessId ProcessRegistry.generateVirtualLocalProcess(parsed.service as String, parsed.serviceInstance as String) as String
+            } else {
+                destProcessId ProcessRegistry.generateVirtualRemoteProcess(parsed.service as String, parsed.serviceInstance as String, parsed.server_process.address as String) as String
+            }
+
+            detectPoint parsed.detect_point as String
+
+            if (parsed.component as String == "http" && parsed.ssl as Boolean) {
+                componentId 129
+            } else if (parsed.component as String == "http") {
+                componentId 49
+            } else if (parsed.ssl as Boolean) {
+                componentId 130
+            } else {
+                componentId 110
+            }
+        }
+    }
 }
 ```
 

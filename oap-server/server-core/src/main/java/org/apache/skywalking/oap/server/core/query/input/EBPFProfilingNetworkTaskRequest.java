@@ -22,10 +22,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class EBPFProfilingNetworkTaskRequest {
     // Define which processes under the service instance need to be profiling
     private String instanceId;
+
+    // The rule list for network profiling.
+    // Set various rules for different HTTP URIs if necessary.
+    private List<EBPFNetworkSamplingRule> samplings;
 }

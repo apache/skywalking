@@ -20,81 +20,107 @@ function rewrite_body(tag, timestamp, record)
     record["log"] = nil
     record["date"] = nil
     record["tags"] = {data={{key="LOG_KIND", value="SLOW_SQL"}}}
-    arr = split(log,"\n")
-    re1 = {}
-    
-    re1["time"] = os.time()
 
-    re1["layer"] = "POSTGRESQL"
+    res = {}
+
+    res["time"] = os.time() * 1000
+
+    res["layer"] = "POSTGRESQL"
     record["layer"] = "POSTGRESQL"
-    _,durationIndex = string.find(log,"duration: ")
-    msIndex,_ = string.find(log," ms")
-    duration = string.sub(log,durationIndex+1,msIndex)
-    _,statementAf = string.find(log,"statement: ")
-    re1["statement"] = string.sub(log,statementAf+1)
-    duration = string.sub(log,durationIndex+1,msIndex-1)
-    d1 = math.floor(tonumber(duration))
-    re1["query_time"] = d1
+
+
+    res["statement"] = log:match("statement: (.+)", statementIndex)
+    res["statement"] = string.gsub(res["statement"], '"', '\\"')
+
+
+    local durationString = log:match("duration: (%d+.%d+) ms", durationIndex)
+    res["query_time"] = math.floor(tonumber(durationString))
 
     record["service"]="postgresql::postgres:5432"
-    re1["service"]= "postgresql::postgres:5432"
+    res["service"]= "postgresql::postgres:5432"
 
-    re1["id"] = uuid()
+    res["id"] = uuid()
 
-    jsonstr = table2json(re1)
+    jsonstr = table2json(res)
     record["body"]={json={}}
     record["body"]["json"]["json"] = jsonstr
     return 1, timestamp, record
 end
-function split(input, delimiter)
-    input = tostring(input)
-    delimiter = tostring(delimiter)
-    if (delimiter == "") then return false end
-    local pos, arr = 0, {}
-    for st, sp in function() return string.find(input, delimiter, pos, true) end do
-        table.insert(arr, string.sub(input, pos, st - 1))
-        pos = sp + 1
+
+local UUID_TEMPLATE = '%s-%s-%s-%s-%s'
+
+local random_hex = {}
+
+function random_hex.generate(n)
+    local seed = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}
+    local s = ""
+    for i = 1, n do
+        s = s .. seed[math.random(1, 16)]
     end
-    table.insert(arr, string.sub(input, pos))
-    return arr
+    return s
 end
 
-function uuid()
-    local seed={'e','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}
-    local tb={}
-    for i=1,32 do
-        table.insert(tb,seed[math.random(1,16)])
+function uuid(seed)
+    if seed then
+        math.randomseed(seed)
+    else
+        math.randomseed(os.time())
     end
-    local sid=table.concat(tb)
-    return string.format('%s-%s-%s-%s-%s',
-        string.sub(sid,1,8),
-        string.sub(sid,9,12),
-        string.sub(sid,13,16),
-        string.sub(sid,17,20),
-        string.sub(sid,21,32)
+    local sid = string.format(UUID_TEMPLATE,
+            random_hex.generate(4), random_hex.generate(4), random_hex.generate(4),
+            random_hex.generate(4), random_hex.generate(8)
     )
+    return sid
 end
 
 function table2json(t)
-  local function serialize(tbl)
-    local tmp = {}
-    for k, v in pairs(tbl) do
-      local k_type = type(k)
-      local v_type = type(v)
-      local key = (k_type == "string" and '"' .. k .. '":') or (k_type == "number" and "")
-      local value =
-        (v_type == "table" and serialize(v)) or (v_type == "boolean" and tostring(v)) or
-        (v_type == "string" and '"' .. v .. '"') or
-        (v_type == "number" and v)
-      tmp[#tmp + 1] = key and value and tostring(key) .. tostring(value) or nil
+    local function serialize(tbl, structure)
+        local tmp = {}
+        for k, v in pairs(tbl) do
+            local k_type = type(k)
+            local v_type = type(v)
+            local key
+            if k_type == "string" then
+                key = '"' .. k .. '":'
+            elseif k_type == "number" then
+                key = ""
+                if structure == "array" then
+                    key = ""
+                else
+                    key = '"' .. k .. '":'
+                end
+            else
+                key = '"' .. tostring(k) .. '":'
+            end
+            local value
+            if v_type == "table" then
+                if next(v) == nil then
+                    value = "null"
+                else
+                    value = serialize(v, structure)
+                end
+            elseif v_type == "boolean" then
+                value = tostring(v)
+            elseif v_type == "string" then
+                value = '"' .. v .. '"'
+            else
+                value = v
+            end
+            tmp[#tmp + 1] = key and value and tostring(key) .. tostring(value) or nil
+        end
+        if structure == "array" then
+            return "[" .. table.concat(tmp, ",") .. "]"
+        else
+            return "{" .. table.concat(tmp, ",") .. "}"
+        end
     end
-    if table.maxn(tbl) == 0 then
-      return "{" .. table.concat(tmp, ",") .. "}"
+    assert(type(t) == "table")
+    if next(t) == nil then
+        return "null"
+    elseif next(t, next(t)) == nil and type(next(t)) == "number" then
+        return serialize(t, "array")
     else
-      return "[" .. table.concat(tmp, ",") .. "]"
+        return serialize(t, "table")
     end
-  end
-  assert(type(t) == "table")
-  return serialize(t)
 end
 

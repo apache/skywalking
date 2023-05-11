@@ -41,9 +41,9 @@ public class ProfileSnapshotExporterBootstrap {
 
             // prepare basic info
             ProfiledBasicInfo profiledBaseInfo = ProfiledBasicInfo.build(exporterConfig, manager);
-            log.info("Queried profiled basic info, profiled segment start time:{}, duration:{}, total span count:{}, snapshot count:{}",
-                    profiledBaseInfo.getSegmentStartTime(), profiledBaseInfo.getDuration(), profiledBaseInfo.getProfiledSegmentSpans().size(),
-                    profiledBaseInfo.getMaxSequence() - profiledBaseInfo.getMinSequence());
+            log.info("Queried profiled basic info, segment count: {}, total span count:{}",
+                    profiledBaseInfo.getSegments().size(),
+                    profiledBaseInfo.getProfiledSegmentSpans().size());
 
             // write basic info to file
             File basicInfoFile = profiledBaseInfo.writeFile();
