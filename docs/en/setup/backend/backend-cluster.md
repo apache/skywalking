@@ -1,28 +1,59 @@
 # Cluster Management
 
-In many production environments, the backend needs to support high throughput and provide high availability (HA) to
-maintain robustness,
-so you always need cluster management in product env.
+In many production environments, the backend needs to support **distributed aggregation**, high throughput 
+and provide high availability (HA) to maintain robustness, so **you always need to setup CLUSTER management in product env**.
+Otherwise, you would face metrics **inaccurate**.
+
+`core/gRPCHost` is listening on `0.0.0.0` for quick start as the single mode for most cases.
+Besides the `Kubernetes` coordinator, which is using the cloud-native mode to establish cluster, all other coordinators
+requires `core/gRPCHost` updated to real IP addresses or take reference of `internalComHost` and `internalComPort` in each
+coordinator doc.
 
 NOTICE, cluster management doesn't provide a service discovery mechanism for agents and probes. We recommend
-agents/probes using
-gateway to load balancer to access OAP clusters.
-
-The core feature of cluster management is supporting the whole OAP cluster running distributed aggregation and analysis
-for telemetry data.
+agents/probes using gateway to load balancer to access OAP clusters.
 
 There are various ways to manage the cluster in the backend. Choose the one that best suits your needs.
 
-- [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let the backend instances detect and communicate
-  with each other.
 - [Kubernetes](#kubernetes). When the backend clusters are deployed inside Kubernetes, you could make use of this method
   by using k8s native APIs to manage clusters.
+- [Zookeeper coordinator](#zookeeper-coordinator). Use Zookeeper to let the backend instances detect and communicate
+  with each other.
 - [Consul](#consul). Use Consul as the backend cluster management implementor and coordinate backend instances.
 - [Etcd](#etcd). Use Etcd to coordinate backend instances.
 - [Nacos](#nacos). Use Nacos to coordinate backend instances.
-  In the `application.yml` file, there are default configurations for the aforementioned coordinators under the
-  section `cluster`.
-  You can specify any of them in the `selector` property to enable it.
+
+In the `application.yml` file, there are default configurations for the aforementioned coordinators under the
+section `cluster`. You can specify any of them in the `selector` property to enable it.
+
+## Kubernetes
+
+The required backend clusters are deployed inside Kubernetes. See the guides in [Deploy in kubernetes](backend-k8s.md).
+Set the selector to `kubernetes`.
+
+```yaml
+cluster:
+  selector: ${SW_CLUSTER:kubernetes}
+  # other configurations
+```
+Meanwhile, the OAP cluster requires the pod's UID which is laid at `metadata.uid` as the value of the system environment variable **SKYWALKING_COLLECTOR_UID**
+
+```yaml
+containers:
+  # Original configurations of OAP container
+  - name: {{ .Values.oap.name }}
+    image: {{ .Values.oap.image.repository }}:{{ required "oap.image.tag is required" .Values.oap.image.tag }}
+    # ...
+    # ...
+    env:
+    # Add metadata.uid as the system environment variable, SKYWALKING_COLLECTOR_UID 
+    - name: SKYWALKING_COLLECTOR_UID
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.uid
+```
+
+Read [the complete helm](https://github.com/apache/skywalking-kubernetes/blob/476afd51d44589c77a4cbaac950272cd5d064ea9/chart/skywalking/templates/oap-deployment.yaml#L125) for more details.
+
 
 ## Zookeeper coordinator
 
@@ -73,36 +104,7 @@ zookeeper:
   enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
   schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
   expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
-``` 
-
-## Kubernetes
-
-The required backend clusters are deployed inside Kubernetes. See the guides in [Deploy in kubernetes](backend-k8s.md).
-Set the selector to `kubernetes`.
-
-```yaml
-cluster:
-  selector: ${SW_CLUSTER:kubernetes}
-  # other configurations
 ```
-Meanwhile, the OAP cluster requires the pod's UID which is laid at `metadata.uid` as the value of the system environment variable **SKYWALKING_COLLECTOR_UID**
-
-```yaml
-containers:
-  # Original configurations of OAP container
-  - name: {{ .Values.oap.name }}
-    image: {{ .Values.oap.image.repository }}:{{ required "oap.image.tag is required" .Values.oap.image.tag }}
-    # ...
-    # ...
-    env:
-    # Add metadata.uid as the system environment variable, SKYWALKING_COLLECTOR_UID 
-    - name: SKYWALKING_COLLECTOR_UID
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.uid
-```
-
-Read [the complete helm](https://github.com/apache/skywalking-kubernetes/blob/476afd51d44589c77a4cbaac950272cd5d064ea9/chart/skywalking/templates/oap-deployment.yaml#L125) for more details.
 
 ## Consul
 

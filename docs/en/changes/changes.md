@@ -71,5 +71,6 @@
 * Add Profiling related documentations.
 * Add `SUM_PER_MIN` to MAL documentation.
 * Make the log relative docs more clear, and easier for further more formats support.
+* Update the cluster management and advanced deployment docs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/169?closed=1)
