@@ -262,7 +262,9 @@ public class ZipkinSpanRecord extends Record {
         span.traceId(record.getTraceId());
         span.id(record.getSpanId());
         span.parentId(record.getParentId());
-        span.kind(Span.Kind.valueOf(record.getKind()));
+        if (!StringUtil.isEmpty(record.getKind())) {
+            span.kind(Span.Kind.valueOf(record.getKind()));
+        }
         span.timestamp(record.getTimestamp());
         span.duration(record.getDuration());
         span.name(record.getName());

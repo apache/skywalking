@@ -321,7 +321,10 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         span.traceId(resultSet.getString(ZipkinSpanRecord.TRACE_ID));
         span.id(resultSet.getString(ZipkinSpanRecord.SPAN_ID));
         span.parentId(resultSet.getString(ZipkinSpanRecord.PARENT_ID));
-        span.kind(Span.Kind.valueOf(resultSet.getString(ZipkinSpanRecord.KIND)));
+        String kind = resultSet.getString(ZipkinSpanRecord.KIND);
+        if (!StringUtil.isEmpty(kind)) {
+            span.kind(Span.Kind.valueOf(kind));
+        }
         span.timestamp(resultSet.getLong(ZipkinSpanRecord.TIMESTAMP));
         span.duration(resultSet.getLong(ZipkinSpanRecord.DURATION));
         span.name(resultSet.getString(ZipkinSpanRecord.NAME));

@@ -79,13 +79,17 @@ public class SpanForward {
             zipkinSpan.setParentId(span.parentId());
             zipkinSpan.setName(namingControl.formatEndpointName(serviceName, span.name()));
             zipkinSpan.setDuration(span.duration());
-            zipkinSpan.setKind(span.kind().name());
+            if (span.kind() != null) {
+                zipkinSpan.setKind(span.kind().name());
+            }
             zipkinSpan.setLocalEndpointServiceName(namingControl.formatServiceName(serviceName));
-            zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
-            zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
-            Integer localPort = span.localEndpoint().port();
-            if (localPort != null) {
-                zipkinSpan.setLocalEndpointPort(localPort);
+            if (span.localEndpoint() != null) {
+                zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
+                zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
+                Integer localPort = span.localEndpoint().port();
+                if (localPort != null) {
+                    zipkinSpan.setLocalEndpointPort(localPort);
+                }
             }
             if (span.remoteEndpoint() != null) {
                 zipkinSpan.setRemoteEndpointServiceName(namingControl.formatServiceName(span.remoteServiceName()));
