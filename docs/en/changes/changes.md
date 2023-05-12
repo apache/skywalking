@@ -42,6 +42,7 @@
 * Support dynamic configuration of searchableTracesTags
 * Support `exportErrorStatusTraceOnly` for export the error status trace segments through the Kafka channel
 * Add component ID for Grizzly.
+* Fix potential NPE in Zipkin receiver when the `Span` is missing some fields.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
@@ -71,5 +72,6 @@
 * Add Profiling related documentations.
 * Add `SUM_PER_MIN` to MAL documentation.
 * Make the log relative docs more clear, and easier for further more formats support.
+* Update the cluster management and advanced deployment docs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/169?closed=1)
