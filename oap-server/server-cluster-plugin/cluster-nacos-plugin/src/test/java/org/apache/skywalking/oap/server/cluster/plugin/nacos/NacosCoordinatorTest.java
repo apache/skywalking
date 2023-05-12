@@ -110,10 +110,10 @@ public class NacosCoordinatorTest {
         registerRemote(internalAddress);
     }
 
-    private void validate(Address originArress, RemoteInstance instance) {
+    private void validate(Address originAddress, RemoteInstance instance) {
         Address instanceAddress = instance.getAddress();
-        assertEquals(originArress.getHost(), instanceAddress.getHost());
-        assertEquals(originArress.getPort(), instanceAddress.getPort());
+        assertEquals(originAddress.getHost(), instanceAddress.getHost());
+        assertEquals(originAddress.getPort(), instanceAddress.getPort());
     }
 
     private void registerRemote(Address address) throws NacosException {
