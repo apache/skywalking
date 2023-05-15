@@ -34,39 +34,39 @@ metricPrefix: meter_elasticsearch_cluster
 metricsRules:
   # cluster health
   - name: health_status
-    exp: elasticsearch_cluster_health_status.valueEqual(1).sum(['cluster' , 'color'])
+    exp: elasticsearch_cluster_health_status.tagNotEqual('cluster','unknown_cluster').valueEqual(1).sum(['cluster' , 'color'])
   # elasticsearch_breakers_tripped
   - name: breakers_tripped
-    exp: elasticsearch_breakers_tripped.sum(['cluster']).increase('PT1M')
+    exp: elasticsearch_breakers_tripped.tagNotEqual('cluster','unknown_cluster').sum(['cluster']).increase('PT1M')
   # cluster nodes
   - name: nodes
-    exp: elasticsearch_cluster_health_number_of_nodes.sum(['cluster'])
+    exp: elasticsearch_cluster_health_number_of_nodes.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   # cluster data nodes
   - name: data_nodes
-    exp: elasticsearch_cluster_health_number_of_data_nodes.sum(['cluster'])
+    exp: elasticsearch_cluster_health_number_of_data_nodes.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   # pending tasks total
   - name: pending_tasks_total
-    exp: elasticsearch_cluster_health_number_of_pending_tasks.sum(['cluster'])
+    exp: elasticsearch_cluster_health_number_of_pending_tasks.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   # cpu usage avg
   - name: cpu_usage_avg
-    exp: elasticsearch_process_cpu_percent.avg(['cluster'])
+    exp: elasticsearch_process_cpu_percent.tagNotEqual('cluster','unknown_cluster').avg(['cluster'])
   # jvm used memory avg
   - name: jvm_memory_used_avg
-    exp: elasticsearch_jvm_memory_used_bytes.sum(['cluster']) / elasticsearch_jvm_memory_max_bytes.sum(['cluster'])  * 100
+    exp: elasticsearch_jvm_memory_used_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster']) / elasticsearch_jvm_memory_max_bytes.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])  * 100
   # open file count
   - name: open_file_count
-    exp: elasticsearch_process_open_files_count.sum(['cluster'])
+    exp: elasticsearch_process_open_files_count.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
 
   # shards
   - name: primary_shards_total
-    exp: elasticsearch_cluster_health_active_primary_shards.sum(['cluster'])
+    exp: elasticsearch_cluster_health_active_primary_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   - name: shards_total
-    exp: elasticsearch_cluster_health_active_shards.sum(['cluster'])
+    exp: elasticsearch_cluster_health_active_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   - name: initializing_shards_total
-    exp: elasticsearch_cluster_health_initializing_shards.sum(['cluster'])
+    exp: elasticsearch_cluster_health_initializing_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   - name: delayed_unassigned_shards_total
-    exp: elasticsearch_cluster_health_delayed_unassigned_shards.sum(['cluster'])
+    exp: elasticsearch_cluster_health_delayed_unassigned_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   - name: relocating_shards_total
-    exp: elasticsearch_cluster_health_relocating_shards.sum(['cluster'])
+    exp: elasticsearch_cluster_health_relocating_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
   - name: unassigned_shards_total
-    exp: elasticsearch_cluster_health_unassigned_shards.sum(['cluster'])
+    exp: elasticsearch_cluster_health_unassigned_shards.tagNotEqual('cluster','unknown_cluster').sum(['cluster'])
