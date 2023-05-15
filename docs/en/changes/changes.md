@@ -43,6 +43,7 @@
 * Support `exportErrorStatusTraceOnly` for export the error status trace segments through the Kafka channel
 * Add component ID for Grizzly.
 * Fix potential NPE in Zipkin receiver when the `Span` is missing some fields.
+* Filter out unknown_cluster metric data.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
