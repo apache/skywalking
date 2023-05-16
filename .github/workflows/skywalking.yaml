@@ -150,7 +150,7 @@ jobs:
       - name: List all modified files
         if: steps.filter-oap.outputs.any_modified == 'true' || steps.filter-ui.outputs.any_modified == 'true' || steps.filter-pom.outputs.any_modified == 'true'
         run: |
-          echo "All the files that have changed or modified:"
+          echo "Files that have changed or modified:"
           echo "OAP: ${{ steps.filter-oap.outputs.all_changed_and_modified_files }}"
           echo "POM: ${{ steps.filter-pom.outputs.all_changed_and_modified_files }}"
           echo "UI: ${{ steps.filter-ui.outputs.all_changed_and_modified_files }}"
