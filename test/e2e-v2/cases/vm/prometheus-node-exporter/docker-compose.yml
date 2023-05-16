@@ -22,7 +22,7 @@ services:
       service: oap
     environment:
       SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OTEL_RULES: vm
+      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: vm
     ports:
       - 12800
 

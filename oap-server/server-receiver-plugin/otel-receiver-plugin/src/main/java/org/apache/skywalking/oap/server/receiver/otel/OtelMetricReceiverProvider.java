@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryLogHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
@@ -70,10 +71,14 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
         final List<String> enabledHandlers = config.getEnabledHandlers();
         List<Handler> handlers = new ArrayList<>();
-        final OpenTelemetryMetricHandler openTelemetryMetricHandler = new OpenTelemetryMetricHandler(
-            getManager(), metricRequestProcessor);
+
+        final var openTelemetryMetricHandler = new OpenTelemetryMetricHandler(getManager(), metricRequestProcessor);
         if (enabledHandlers.contains(openTelemetryMetricHandler.type())) {
             handlers.add(openTelemetryMetricHandler);
+        }
+        final var openTelemetryLogHandler = new OpenTelemetryLogHandler(getManager());
+        if (enabledHandlers.contains(openTelemetryLogHandler.type())) {
+            handlers.add(openTelemetryLogHandler);
         }
         this.handlers = handlers;
     }
