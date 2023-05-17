@@ -1,0 +1,115 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+cases:
+  # service cases
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+    expected: expected/service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_memory_available_before_publisher_blocked --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_disk_space_available_before_publisher_blocked --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_file_descriptors_available --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_tcp_socket_available --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_message_ready_delivered_consumers --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_message_unacknowledged_delivered_consumers --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_messages_published --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_messages_confirmed --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_messages_routed --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_messages_unconfirmed --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_messages_unroutable_dropped --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_messages_unroutable_returned --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_queues --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_queues_declared_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_queues_created_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_queues_deleted_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_channels --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_channels_opened_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_channels_closed_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_connections --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_connections_opened_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_connections_closed_total --service-name=rabbitmq::rabbitmq-cluster | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+
+  # instance cases
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=rabbitmq::rabbitmq-cluster
+    expected: expected/instance.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_queue_messages_ready --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_incoming_messages --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_publisher_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_connections_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_queue_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_unacknowledged_messages --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_outgoing_messages_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_consumer_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_channel_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_allocated_used_percent --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_allocated_unused_percent --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_allocated_used_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_allocated_unused_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_allocated_total_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_rabbitmq_node_process_resident_memory_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries' -
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_by_type --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_multiblock_used --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_multiblock_unused --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_multiblock_pool_used --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_multiblock_pool_unused --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_singleblock_used --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_rabbitmq_node_allocated_singleblock_unused --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected: expected/metrics-has-value-label.yml
+
+
