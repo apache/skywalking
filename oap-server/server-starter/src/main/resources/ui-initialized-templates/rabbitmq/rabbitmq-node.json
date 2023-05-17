@@ -267,8 +267,14 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Allocated Used （%）"
-          }
+            "title":"Allocated Used"
+          },
+          "metricConfig":[
+            {
+              "unit":"%",
+              "calculation":"percentage"
+            }
+          ]
         },
         {
           "x":8,
@@ -292,11 +298,12 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Allocated Used （MB）"
+            "title":"Allocated Used"
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "unit":"MB"
             }
           ]
         },
@@ -322,11 +329,12 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Allocated Unused (MB)"
+            "title":"Allocated Unused"
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "unit":"MB"
             }
           ]
         },
@@ -352,11 +360,12 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Resident Set Size (MB)"
+            "title":"Resident Set Size"
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "unit":"MB"
             }
           ]
         },
@@ -382,8 +391,14 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Allocated Unused （%）"
-          }
+            "title":"Allocated Unused"
+          },
+          "metricConfig":[
+            {
+              "unit":"%",
+              "calculation":"percentage"
+            }
+          ]
         },
         {
           "x":16,
@@ -407,11 +422,12 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Allocated Total (MB)"
+            "title":"Allocated Total"
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "unit":"MB"
             }
           ]
         },
@@ -585,7 +601,8 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "calculation":"byteToMB",
+              "unit":""
             }
           ]
         },

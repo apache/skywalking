@@ -52,9 +52,9 @@ metricsRules:
     exp: rabbitmq_channels.sum(['cluster', 'node'])
 
   - name: allocated_used_percent
-    exp: erlang_vm_allocators.tagEqual('usage' , 'blocks_size').sum(['cluster', 'node']) / erlang_vm_allocators.tagEqual('usage' , 'carriers_size').sum(['cluster', 'node']) * 100
+    exp: erlang_vm_allocators.tagEqual('usage' , 'blocks_size').sum(['cluster', 'node']) / erlang_vm_allocators.tagEqual('usage' , 'carriers_size').sum(['cluster', 'node']) * 10000
   - name: allocated_unused_percent
-    exp: (erlang_vm_allocators.tagEqual('usage' , 'carriers_size').sum(['cluster', 'node']) - erlang_vm_allocators.tagEqual('usage' , 'blocks_size').sum(['cluster', 'node'])) / erlang_vm_allocators.tagEqual('usage' , 'carriers_size').sum(['cluster', 'node']) * 100
+    exp: (erlang_vm_allocators.tagEqual('usage' , 'carriers_size').sum(['cluster', 'node']) - erlang_vm_allocators.tagEqual('usage' , 'blocks_size').sum(['cluster', 'node'])) / erlang_vm_allocators.tagEqual('usage' , 'carriers_size').sum(['cluster', 'node']) * 10000
   - name: allocated_used_bytes
     exp: erlang_vm_allocators.tagEqual('usage' , 'blocks_size').sum(['cluster', 'node'])
   - name: allocated_unused_bytes
