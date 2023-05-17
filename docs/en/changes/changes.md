@@ -44,6 +44,7 @@
 * Add component ID for Grizzly.
 * Fix potential NPE in Zipkin receiver when the `Span` is missing some fields.
 * Filter out unknown_cluster metric data.
+* Support RabbitMQ Monitoring.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

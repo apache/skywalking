@@ -1,0 +1,80 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'rabbitmq-monitoring'
+          scrape_interval: 30s
+          static_configs:
+            - targets:
+                - rmq0:15692
+                - rmq1:15692
+                - rmq2:15692
+          relabel_configs:
+            - source_labels: [ ]
+              target_label: cluster
+              replacement: rabbitmq-cluster
+            - source_labels: [ __address__ ]
+              regex: (.+)
+              target_label: node
+              replacement: $$1
+
+########################################################################################
+# If you want to use kubernetes_sd_configs, please reference to the following cases.   #
+########################################################################################
+
+#        - job_name: rabbitmq-monitoring
+#          scrape_interval: 30s
+#          kubernetes_sd_configs:
+#            - role: pod
+#              namespaces:
+#                names:
+#                  - default
+#          relabel_configs:
+#            - source_labels: [ __meta_kubernetes_pod_container_name, __meta_kubernetes_pod_container_port_name ]
+#              action: keep
+#              regex: rabbitmq;metrics
+#            - source_labels: [ ]
+#              target_label: cluster
+#              replacement: rabbitmq-cluster
+#            - source_labels: [ __address__ ]
+#              target_label: node
+#              regex: (.+)
+#              replacement: $$1
+#              action: replace
+
+processors:
+  batch:
+
+exporters:
+  ####################################################################################
+  # If you want to use otlp exporter please ensure that your OAP version is >= 9.2.0 #
+  ####################################################################################
+  otlp:
+    endpoint: oap:11800
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlp
