@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
  * Layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer), Kubernetes(k8s
@@ -220,7 +221,7 @@ public enum Layer {
     public static Layer nameOf(String name) {
         Layer layer = DICTIONARY_NAME.get(name);
         if (layer == null) {
-            throw new UnexpectedException("Unknown Layer name");
+            return UNDEFINED;
         }
         return layer;
     }

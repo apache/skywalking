@@ -58,7 +58,7 @@ Set this up following these steps:
   ```
   SW_TELEMETRY=prometheus
   SW_OTEL_RECEIVER=default
-  SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=oap
+  SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES=oap
   ```
 
   Here is an example to install by Apache SkyWalking Kubernetes:
@@ -76,7 +76,7 @@ Set this up following these steps:
                --set oap.ports.prometheus-port=1234 \ # <<< Expose self observability metrics port
                --set oap.env.SW_TELEMETRY=prometheus \
                --set oap.env.SW_OTEL_RECEIVER=default \ # <<< Enable Otel receiver
-               --set oap.env.SW_OTEL_RECEIVER_ENABLED_OTEL_RULES=oap # <<< Add oap analyzer for Otel metrics
+               --set oap.env.SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES=oap # <<< Add oap analyzer for Otel metrics
   ```
 2. Set up OpenTelemetry Collector and config a scrape job:
 ``` yaml

@@ -24,14 +24,6 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.Sum;
 import io.opentelemetry.proto.metrics.v1.SummaryDataPoint;
 import io.vavr.Function1;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.MetricConvert;
@@ -49,6 +41,13 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Histogra
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Metric;
 import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA;
 import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED;
@@ -112,7 +111,8 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         final List<String> enabledRules =
             Splitter.on(",")
                     .omitEmptyStrings()
-                    .splitToList(config.getEnabledOtelRules());
+                    .trimResults()
+                    .splitToList(config.getEnabledOtelMetricsRules());
         final List<Rule> rules;
         try {
             rules = Rules.loadRules("otel-rules", enabledRules);
