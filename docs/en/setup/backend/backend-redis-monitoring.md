@@ -36,3 +36,29 @@ You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/redis`.
 The Redis dashboard panel configurations are found in `/config/ui-initialized-templates/redis`.
 
+## Collect sampled slow commands
+SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow commands from Redis.
+
+### Data flow
+1. fluentbit agent collects slow logs from Redis.
+2. fluentbit agent sends data to SkyWalking OAP Server using native meter APIs via HTTP.
+3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
+
+### Set up
+1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
+2. Config fluentbit from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/fluent-bit.conf) for Redis.
+3. Enable slow log from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/redis.conf) for Redis.
+
+### Slow Commands Monitoring
+Slow SQL monitoring provides monitoring of the slow commands of the Redis servers. Redis servers are cataloged as a `Layer: REDIS` `Service` in OAP.
+
+#### Supported Metrics
+| Monitoring Panel | Unit | Metric Name | Description                                      | Data Source |
+|-----|------|-----|--------------------------------------------------|-----|
+|Slow Statements |   ms   | top_n_database_statement | The latency and statement of Redis slow commands | fluentbit|
+
+### Customizations
+You can customize your own metrics/expression/dashboard panel.
+The slowsql expression rules are found in `/config/lal/redis-slowsql.yaml`
+The Redis dashboard panel configurations are found in `/config/ui-initialized-templates/redis`.
+`
