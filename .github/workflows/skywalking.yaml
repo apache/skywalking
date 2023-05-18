@@ -677,7 +677,7 @@ jobs:
             config: test/e2e-v2/cases/promql/e2e.yaml
           - name: AWS API Gateway
             config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
-          - name: Redis Prometheus
+          - name: Redis Prometheus and slow log
             config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
           - name: Elasticsearch
             config: test/e2e-v2/cases/elasticsearch/e2e.yaml
