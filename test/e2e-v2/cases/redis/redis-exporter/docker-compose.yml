@@ -110,7 +110,7 @@ services:
       - ./scripts:/scripts
     networks:
       - e2e
-    command: sh -c "/scripts/start.sh"
+    command: sh -c "chmod 777 /scripts/start.sh /scripts/slowlog.sh /scripts/slowlog.log && /scripts/start.sh"
 
 networks:
   e2e:
