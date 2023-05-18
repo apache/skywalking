@@ -5,8 +5,8 @@ SkyWalking can receive logs exported from OpenTelemetry collector, the data flow
 ```mermaid
 graph LR
     B[OpenTelemetry SDK 1]
-    C[OpenTelemetry SDK 2]
-    K[OpenTelemetry SDK ...]
+    C[FluentBit/FluentD, etc.]
+    K[Other sources that OpenTelemetry supports ...]
     D[OpenTelemetry Collector]
     E[SkyWalking OAP Server]
     B --> D
