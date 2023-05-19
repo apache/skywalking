@@ -22,7 +22,7 @@ Single configs in etcd are key/value pairs:
 
 | Key | Value |
 |-----|-----|
-| {namespace}/configKey | configVaule |
+| {namespace}/configKey | configValue |
 
 e.g. The config is:
 ```
