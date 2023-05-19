@@ -1,6 +1,6 @@
 --
 -- Licensed to the Apache Software Foundation (ASF) under one or more
--- contributor license agreements.  See the NOTICE file distributed with9
+-- contributor license agreements.  See the NOTICE file distributed with
 -- this work for additional information regarding copyright ownership.
 -- The ASF licenses this file to You under the Apache License, Version 2.0
 -- (the "License"); you may not use this file except in compliance with
@@ -15,12 +15,16 @@
 -- limitations under the License.
 --
 
--- The following is an example of a simple MySQL slow log
+-- The following is an example of a simple Redis slow log
 --     102 1684379526 2691 flushall 192.168.150.29:42904
 function rewrite_body(tag, timestamp, record)
   local log = record.log
   if isStringOnlyWhitespace(log) then
-  	return -1, timestamp, record
+    return -1, timestamp, record
+  end
+
+  if log:sub(1, 1) == "#" then
+    return -1, timestamp, record
   end
   record.log = nil
   record.tags = { data = { { key = "LOG_KIND", value = "SLOW_SQL" } } }
@@ -61,18 +65,18 @@ function rewrite_body(tag, timestamp, record)
 end
 
 function trim(str)
-    return str:gsub("^%s*(.-)%s*$", "%1")
+  return str:gsub("^%s*(.-)%s*$", "%1")
 end
 
 function split(str, delimiter)
-    local result = {}
-    for match in (str..delimiter):gmatch("(.-)"..delimiter) do
-        table.insert(result, match)
-    end
-    return result
+  local result = {}
+  for match in (str..delimiter):gmatch("(.-)"..delimiter) do
+    table.insert(result, match)
+  end
+  return result
 end
 function isStringOnlyWhitespace(str)
-    return str:match("^%s*$") ~= nil
+  return str:match("^%s*$") ~= nil
 end
 
 function table2json(t)
