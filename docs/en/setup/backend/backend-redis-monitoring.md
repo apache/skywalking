@@ -40,14 +40,21 @@ The Redis dashboard panel configurations are found in `/config/ui-initialized-te
 SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow commands from Redis.
 
 ### Data flow
-1. fluentbit agent collects slow logs from Redis.
-2. fluentbit agent sends data to SkyWalking OAP Server using native meter APIs via HTTP.
-3. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
+1. Execute [commands](../../../../test/e2e-v2/cases/redis/redis-exporter/scripts/slowlog.sh) periodically to collect slow logs from Redis and save the result locally.
+2. Fluent-bit agent collects slow logs from local file.
+3. fluent-bit agent sends data to SkyWalking OAP Server using native meter APIs via HTTP.
+4. The SkyWalking OAP Server parses the expression with [LAL](../../concepts-and-designs/lal.md) to parse/extract and store the results.
 
 ### Set up
 1. Set up [fluentbit](https://docs.fluentbit.io/manual/installation/docker).
 2. Config fluentbit from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/fluent-bit.conf) for Redis.
-3. Enable slow log from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/redis.conf) for Redis.
+3. Config slow log from [here](../../../../test/e2e-v2/cases/redis/redis-exporter/redis.conf) for Redis.
+4. Periodically execute the [commands](../../../../test/e2e-v2/cases/redis/redis-exporter/scripts/slowlog.sh).
+
+**Notice:**
+
+1.The `slowlog-log-slower-than` and `slowlog-max-len` configuration items in the configuration file are for the slow log, the former indicating that execution time longer than the specified time (in milliseconds) will be logged to the slowlog, and the latter indicating the maximum number of slow logs that will be stored in the slow log file.
+2.In the e2e test, SkyWalking uses cron to periodically execute the redis command to fetch the slow logs and write them to a local file, which is then collected by fluent-bit to send the data to the OAP. You can see the relevant configuration files [here](../../../../test/e2e-v2/cases/redis/redis-exporter).You can also get slow logs periodically and send them to OAP in other ways than using cron and fluent-bit.
 
 ### Slow Commands Monitoring
 Slow SQL monitoring provides monitoring of the slow commands of the Redis servers. Redis servers are cataloged as a `Layer: REDIS` `Service` in OAP.

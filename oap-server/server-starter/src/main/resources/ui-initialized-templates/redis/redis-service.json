@@ -313,7 +313,7 @@
               ]
             },
             {
-              "name":"Slow Statements",
+              "name":"Slow Commands",
               "children":[
                 {
                   "x":0,
@@ -333,7 +333,7 @@
                     "color":"purple"
                   },
                   "widget":{
-                    "title":"Slow Statements (ms)"
+                    "title":"Slow Commands (ms)"
                   },
                   "metricConfig":[
                     {
