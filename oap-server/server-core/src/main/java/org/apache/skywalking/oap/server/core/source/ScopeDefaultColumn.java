@@ -24,28 +24,22 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Define the default columns of source scope. These columns pass down into the persistent entity(OAL metrics entity)
  * automatically.
  */
 @Getter
+@RequiredArgsConstructor
 public class ScopeDefaultColumn {
-    private String fieldName;
-    private String columnName;
-    private Class<?> type;
-    private boolean isID;
-    private int length;
+    private final String fieldName;
+    private final String columnName;
+    private final Class<?> type;
+    private final boolean isID;
+    private final int length;
+    private final int idxOfCompositeID;
     private final boolean groupByCondInTopN;
-
-    public ScopeDefaultColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length, boolean groupByCondInTopN) {
-        this.fieldName = fieldName;
-        this.columnName = columnName;
-        this.type = type;
-        this.isID = isID;
-        this.length = length;
-        this.groupByCondInTopN = groupByCondInTopN;
-    }
 
     @Target({ElementType.FIELD})
     @Retention(RetentionPolicy.RUNTIME)
@@ -71,6 +65,17 @@ public class ScopeDefaultColumn {
          * @since 9.5.0
          */
         boolean groupByCondInTopN() default false;
+
+        /**
+         * Each metric should include all fields composing the raw ID.
+         * In the previous implementation, we build an entity_id by {@link VirtualColumnDefinition#isID()} == true,
+         * but in now, some storage like BanyanDB, it supports a composite ID by multiple existing fields natively,
+         * so, this new composite ID is created, logically as same as the virtual ID.
+         *
+         * @return the index of this field when it is a part of ID. Or return -1 if not a part of ID.
+         * @since 9.5.0
+         */
+        int idxOfCompositeID() default -1;
     }
 
     @Target({ElementType.TYPE})

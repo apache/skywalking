@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageCharacter;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -61,6 +62,9 @@ public class OALEngineLoaderService implements Service {
             engine.setStorageBuilderFactory(moduleManager.find(StorageModule.NAME)
                                                          .provider()
                                                          .getService(StorageBuilderFactory.class));
+            engine.setStorageCharacter(moduleManager.find(StorageModule.NAME)
+                                                         .provider()
+                                                         .getService(StorageCharacter.class));
 
             engine.start(OALEngineLoaderService.class.getClassLoader());
             engine.notifyAllListeners();

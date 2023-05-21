@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageCharacter;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
@@ -116,6 +117,15 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+        this.registerServiceImplementation(
+            StorageCharacter.class,
+            new StorageCharacter() {
+                @Override
+                public boolean supportCompositeID() {
+                    return true;
+                }
+            }
+        );
 
         this.client = new BanyanDBStorageClient(config.getHost(), config.getPort());
         this.modelInstaller = new BanyanDBIndexInstaller(client, getManager(), this.config);

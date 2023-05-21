@@ -203,9 +203,10 @@ public class DefaultScopeDefine {
         ScopeDefaultColumn.VirtualColumnDefinition virtualColumn = (ScopeDefaultColumn.VirtualColumnDefinition) originalClass
             .getAnnotation(ScopeDefaultColumn.VirtualColumnDefinition.class);
         if (virtualColumn != null) {
+            // Virtual column doesn't use composite ID mechanism.
             scopeDefaultColumns.add(
                 new ScopeDefaultColumn(virtualColumn.fieldName(), virtualColumn.columnName(), virtualColumn
-                    .type(), virtualColumn.isID(), virtualColumn.length(), false));
+                    .type(), virtualColumn.isID(), virtualColumn.length(), -1, false));
         }
         Field[] scopeClassField = originalClass.getDeclaredFields();
         if (scopeClassField != null) {
@@ -216,8 +217,14 @@ public class DefaultScopeDefine {
                     if (!definedByField.requireDynamicActive() || ACTIVE_EXTRA_MODEL_COLUMNS) {
                         scopeDefaultColumns.add(
                             new ScopeDefaultColumn(
-                                field.getName(), definedByField.columnName(), field.getType(), false,
-                                definedByField.length(), definedByField.groupByCondInTopN()
+                                field.getName(),
+                                definedByField.columnName(),
+                                field.getType(),
+                                // If the index for the composite ID, this column is an ID.
+                                definedByField.idxOfCompositeID() > -1,
+                                definedByField.length(),
+                                definedByField.idxOfCompositeID(),
+                                definedByField.groupByCondInTopN()
                             ));
                     }
                 }

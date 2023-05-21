@@ -20,6 +20,17 @@ package org.apache.skywalking.oal.rt;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -59,24 +70,13 @@ import org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.Dispatcher
 import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.MetricClassPackageHolder;
 import org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder.MetricBuilderClassPackageHolder;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageCharacter;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
@@ -115,6 +115,7 @@ public class OALRuntime implements OALEngine {
     private StreamAnnotationListener streamAnnotationListener;
     private DispatcherDetectorListener dispatcherDetectorListener;
     private StorageBuilderFactory storageBuilderFactory;
+    private StorageCharacter character;
     private final List<Class> metricsClasses;
     private final List<Class> dispatcherClasses;
     private final boolean openEngineDebug;
@@ -191,6 +192,11 @@ public class OALRuntime implements OALEngine {
         }
     }
 
+    @Override
+    public void setStorageCharacter(final StorageCharacter character) {
+        this.character = character;
+    }
+
     private void generateClassAtRuntime(OALScripts oalScripts) throws OALCompileException {
         List<AnalysisResult> metricsStmts = oalScripts.getMetricsStmts();
         metricsStmts.forEach(this::buildDispatcherContext);
@@ -248,8 +254,15 @@ public class OALRuntime implements OALEngine {
          *
          * private ${sourceField.typeName} ${sourceField.fieldName};
          */
+        List<SourceColumn> excludedFields = new ArrayList<>(1);
         for (SourceColumn field : metricsStmt.getFieldsFromSource()) {
             try {
+                if (field.isID() && field.getIdxOfCompositeID() < 0 && character.supportCompositeID()) {
+                    // Skip virtual column when storage supports composite ID.
+                    excludedFields.add(field);
+                    continue;
+                }
+
                 CtField newField = CtField.make(
                     "private " + field.getType()
                                       .getName() + " " + field.getFieldName() + ";", metricsClass);
@@ -271,9 +284,10 @@ public class OALRuntime implements OALEngine {
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
                 if (field.isID()) {
-                    // Add SeriesID = 0 annotation to ID field.
+                    // Add SeriesID = 0 annotation to ID field if no index declared, such as virtual columen as ID.
+                    int seriesIDIdx = field.getIdxOfCompositeID() < 0 ? 0 : field.getIdxOfCompositeID();
                     Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
-                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
+                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, seriesIDIdx));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 
@@ -289,6 +303,7 @@ public class OALRuntime implements OALEngine {
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
+        metricsStmt.getFieldsFromSource().removeAll(excludedFields);
 
         /**
          * Generate methods

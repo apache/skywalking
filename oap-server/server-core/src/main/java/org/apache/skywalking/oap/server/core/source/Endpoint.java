@@ -51,10 +51,10 @@ public class Endpoint extends Source {
 
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true, idxOfCompositeID = 1)
     private String name;
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true, idxOfCompositeID = 0)
     private String serviceId;
     @Getter
     @Setter

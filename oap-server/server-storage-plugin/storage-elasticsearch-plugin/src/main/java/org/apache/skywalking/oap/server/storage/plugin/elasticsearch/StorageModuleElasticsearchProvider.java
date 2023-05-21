@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageCharacter;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
@@ -132,6 +133,11 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
+
+        this.registerServiceImplementation(
+            StorageCharacter.class,
+            new StorageCharacter.Default()
+        );
 
         if (StringUtil.isEmpty(config.getNamespace())) {
             config.setNamespace("sw");

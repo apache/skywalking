@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageCharacter;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -129,6 +130,11 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             StorageBuilderFactory.class,
             new StorageBuilderFactory.Default());
+
+        this.registerServiceImplementation(
+            StorageCharacter.class,
+            new StorageCharacter.Default()
+        );
 
         this.registerServiceImplementation(
             IBatchDAO.class,

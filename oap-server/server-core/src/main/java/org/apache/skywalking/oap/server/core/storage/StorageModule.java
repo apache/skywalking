@@ -59,6 +59,7 @@ public class StorageModule extends ModuleDefine {
     public Class[] services() {
         return new Class[] {
             StorageBuilderFactory.class,
+            StorageCharacter.class,
             IBatchDAO.class,
             StorageDAO.class,
             IHistoryDeleteDAO.class,

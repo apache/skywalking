@@ -47,11 +47,11 @@ public class ServiceInstance extends Source {
     }
 
     @Getter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", idxOfCompositeID = 0)
     private String serviceId;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true, idxOfCompositeID = 1)
     private String name;
     @Getter
     @Setter

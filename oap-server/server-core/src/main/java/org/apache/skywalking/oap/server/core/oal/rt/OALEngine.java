@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.oal.rt;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
+import org.apache.skywalking.oap.server.core.storage.StorageCharacter;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 /**
@@ -36,4 +37,6 @@ public interface OALEngine {
     void start(ClassLoader currentClassLoader) throws ModuleStartException, OALCompileException;
 
     void notifyAllListeners() throws ModuleStartException;
+
+    void setStorageCharacter(StorageCharacter character);
 }
