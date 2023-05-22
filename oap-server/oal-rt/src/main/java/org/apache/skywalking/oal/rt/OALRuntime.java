@@ -254,28 +254,7 @@ public class OALRuntime implements OALEngine {
          *
          * private ${sourceField.typeName} ${sourceField.fieldName};
          */
-
-        // Adjust field settings according to storage character.
         final List<SourceColumn> fieldsFromSource = metricsStmt.getFieldsFromSource();
-        boolean isVirtualIDDisabled = false;
-        if (character.supportCompositeID()) {
-            // Remove virtual ID if composite ID support is declared by the storage.
-            for (int i = fieldsFromSource.size() - 1; i >= 0; i--) {
-                final SourceColumn field = fieldsFromSource.get(i);
-                if (field.isID() && field.getIdxOfCompositeID() < 0) {
-                    fieldsFromSource.remove(field);
-                    isVirtualIDDisabled = true;
-                }
-            }
-        }
-        if (!isVirtualIDDisabled) {
-            for (final SourceColumn field : fieldsFromSource) {
-                if (field.isID() && field.getIdxOfCompositeID() > -1) {
-                    // Remove composite ID relative definition, as virtual ID is required by the current storage.
-                    field.setID(false);
-                }
-            }
-        }
 
         for (SourceColumn field : fieldsFromSource) {
             try {
@@ -300,11 +279,17 @@ public class OALRuntime implements OALEngine {
                     columnAnnotation.addMemberValue("length", new IntegerMemberValue(constPool, field.getLength()));
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
-                if (field.isID()) {
-                    // Add SeriesID = 0 annotation to ID field if no index declared, such as virtual column as ID.
-                    int seriesIDIdx = field.getIdxOfCompositeID() < 0 ? 0 : field.getIdxOfCompositeID();
+
+                if (character.supportCompositeID() && field.isCompositeID()) {
+                    // If the storage supports composite ID, add the annotation for all composite ID columns.
+                    int seriesIDIdx = field.getIdxOfCompositeID();
                     Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, seriesIDIdx));
+                    annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
+                } else if (field.isID()) {
+                    // Add SeriesID = 0 annotation to ID field for ID column defined through VirtualColumnDefinition
+                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
+                    banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }
 

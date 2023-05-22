@@ -29,7 +29,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_CATALOG_NAME;
 
 @ScopeDeclaration(id = SERVICE_INSTANCE, name = "ServiceInstance", catalog = SERVICE_INSTANCE_CATALOG_NAME)
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class, idxOfCompositeID = 1)
 public class ServiceInstance extends Source {
     private volatile String entityId;
 
@@ -51,7 +51,7 @@ public class ServiceInstance extends Source {
     private String serviceId;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true, idxOfCompositeID = 1)
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @Setter

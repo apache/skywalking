@@ -32,7 +32,7 @@ public class SourceColumnsFactory {
             sourceColumns.add(
                 new SourceColumn(defaultColumn.getFieldName(), defaultColumn.getColumnName(),
                                  defaultColumn.getType(), defaultColumn.isID(), defaultColumn.getLength(),
-                                 defaultColumn.getIdxOfCompositeID(), defaultColumn.isGroupByCondInTopN()
+                                 defaultColumn.isCompositeID(), defaultColumn.getIdxOfCompositeID(), defaultColumn.isGroupByCondInTopN()
                 ));
         }
         return sourceColumns;

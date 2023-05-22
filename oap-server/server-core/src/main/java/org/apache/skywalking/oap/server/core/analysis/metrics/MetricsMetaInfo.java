@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.analysis.metrics;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.storage.StorageID;
 
 public class MetricsMetaInfo {
     @Setter
@@ -43,10 +42,10 @@ public class MetricsMetaInfo {
         this.id = Const.EMPTY_STRING;
     }
 
-    public MetricsMetaInfo(String metricsName, int scope, StorageID id) {
+    public MetricsMetaInfo(String metricsName, int scope, String id) {
         this.metricsName = metricsName;
         this.scope = scope;
-        this.id = id.build();
+        this.id = id;
     }
 
     public MetricsMetaInfo(String metricsName, int scope, String id, MetricsEntityMetaInfo entity) {

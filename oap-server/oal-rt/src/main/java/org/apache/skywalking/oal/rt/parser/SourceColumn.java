@@ -34,11 +34,12 @@ public class SourceColumn {
     private int length;
     private String fieldSetter;
     private String fieldGetter;
+    private final boolean isCompositeID;
     private final int idxOfCompositeID;
     private final boolean groupByCondInTopN;
 
     public SourceColumn(String fieldName, String columnName, Class<?> type, boolean isID, int length,
-                        final int idxOfCompositeID,
+                        final boolean isCompositeID, final int idxOfCompositeID,
                         boolean groupByCondInTopN) {
         this.fieldName = fieldName;
         this.columnName = columnName;
@@ -49,6 +50,7 @@ public class SourceColumn {
 
         this.fieldGetter = ClassMethodUtil.toGetMethod(fieldName);
         this.fieldSetter = ClassMethodUtil.toSetMethod(fieldName);
+        this.isCompositeID = isCompositeID;
         this.idxOfCompositeID = idxOfCompositeID;
         this.groupByCondInTopN = groupByCondInTopN;
     }

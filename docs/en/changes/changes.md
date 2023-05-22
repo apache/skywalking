@@ -71,9 +71,9 @@
 * Add OpenTelemetry log protocol support.
 * [Breaking Change] Configuration key `enabledOtelRules` is renamed to `enabledOtelMetricsRules` and
   the corresponding environment variable is renamed to `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
-* Support composite ID declared from existing columns, rather than a new virtual column, in the BanyanDB.
-* In the BanyanDB implementation, metrics built from ServiceInstance and Endpoint sources are not using `entity_id` as ID,
-  instead, they use composite ID built by `service_id` and `name` to reduce redundant indices in the database.
+* Support composite ID declared from existing columns and virtual column for optimizing BanyanDB.
+* In the BanyanDB implementation, metrics built from ServiceInstance and Endpoint sources are using `entity_id` as index=1 
+  of the composite ID.
 
 #### Documentation
 

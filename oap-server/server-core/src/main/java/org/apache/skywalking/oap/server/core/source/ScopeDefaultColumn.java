@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import lombok.Getter;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -38,6 +37,7 @@ public class ScopeDefaultColumn {
     private final Class<?> type;
     private final boolean isID;
     private final int length;
+    private final boolean isCompositeID;
     private final int idxOfCompositeID;
     private final boolean groupByCondInTopN;
 
@@ -96,6 +96,19 @@ public class ScopeDefaultColumn {
          * @return TRUE if this is an ID column.
          */
         boolean isID() default false;
+
+        /**
+         * The virtual column is used to declare the entity ID in all previous versions. The new composite ID is added
+         * to optimize the extra cost of index for storage like BanyanDB.
+         *
+         * See {@link DefinedByField#idxOfCompositeID()}
+         *
+         * Notice, a virtual column could be both ID and a part of composite ID.
+         * See {@link ServiceInstance}. Its ID is entity_id, meanwhile its composite IDs are (service_id, entity_id).
+         *
+         * @since 9.5.0
+         */
+        int idxOfCompositeID() default -1;
 
         /**
          * Define column length, only effective when the type is String.

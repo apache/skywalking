@@ -31,7 +31,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EN
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.ENDPOINT_CATALOG_NAME;
 
 @ScopeDeclaration(id = ENDPOINT, name = "Endpoint", catalog = ENDPOINT_CATALOG_NAME)
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class, idxOfCompositeID = 1)
 @Slf4j
 public class Endpoint extends Source {
     private String entityId;
@@ -51,7 +51,7 @@ public class Endpoint extends Source {
 
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true, idxOfCompositeID = 1)
+    @ScopeDefaultColumn.DefinedByField(columnName = "name", requireDynamicActive = true)
     private String name;
     @Getter
     @ScopeDefaultColumn.DefinedByField(columnName = "service_id", groupByCondInTopN = true, idxOfCompositeID = 0)
