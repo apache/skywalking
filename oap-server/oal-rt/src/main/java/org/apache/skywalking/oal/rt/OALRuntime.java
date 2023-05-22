@@ -268,7 +268,7 @@ public class OALRuntime implements OALEngine {
                 }
             }
         }
-        if(!isVirtualIDDisabled) {
+        if (!isVirtualIDDisabled) {
             for (final SourceColumn field : fieldsFromSource) {
                 if (field.isID() && field.getIdxOfCompositeID() > -1) {
                     // Remove composite ID relative definition, as virtual ID is required by the current storage.
