@@ -18,10 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.analysis;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 
 /**
  * Layer represents an abstract framework in computer science, such as Operating System(OS_LINUX layer), Kubernetes(k8s
@@ -166,17 +167,23 @@ public enum Layer {
      */
     AWS_GATEWAY(26, true),
 
-    /*
+    /**
      * Redis is an open source (BSD licensed), in-memory data structure store,
      * used as a database, cache, and message broker.
      */
     REDIS(27, true),
 
-    /*
+    /**
      * Elasticsearch is a distributed, open source search and analytics engine for all types of data,
      * including textual, numerical, geospatial, structured, and unstructured.
      */
-    ELASTICSEARCH(28, true);
+    ELASTICSEARCH(28, true),
+
+    /**
+     * RabbitMQ is one of the most popular open source message brokers. RabbitMQ is lightweight and easy to deploy
+     * on premises and in the cloud. It supports multiple messaging protocols.
+     */
+    RABBITMQ(29, true);
 
     private final int value;
     /**
@@ -214,7 +221,7 @@ public enum Layer {
     public static Layer nameOf(String name) {
         Layer layer = DICTIONARY_NAME.get(name);
         if (layer == null) {
-            throw new UnexpectedException("Unknown Layer name");
+            return UNDEFINED;
         }
         return layer;
     }

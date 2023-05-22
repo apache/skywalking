@@ -13,40 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+# This file is used to show how to write configuration files and can be used to test.
 
-services:
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: vm
-    ports:
-      - 12800
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-  vm-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.nodeExporter
-    networks:
-      - e2e
-    ports:
-      - 9100
-
-  otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
-    networks:
-      - e2e
-    command: [ "--config=/etc/otel-collector-config.yaml" ]
-    volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    expose:
-      - 55678
-    depends_on:
-      oap:
-        condition: service_healthy
-
-networks:
-  e2e:
+verify:
+  retry:
+    count: 60
+    interval: 3s
+  cases:
+    - includes:
+        - ./rabbitmq-cases.yaml

@@ -690,10 +690,12 @@ jobs:
             config: test/e2e-v2/cases/promql/e2e.yaml
           - name: AWS API Gateway
             config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
-          - name: Redis Prometheus
+          - name: Redis Prometheus and Log Collecting
             config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
           - name: Elasticsearch
             config: test/e2e-v2/cases/elasticsearch/e2e.yaml
+          - name: RabbitMQ
+            config: test/e2e-v2/cases/rabbitmq/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

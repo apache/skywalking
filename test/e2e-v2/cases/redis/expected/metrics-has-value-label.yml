@@ -13,40 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    environment:
-      SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: vm
-    ports:
-      - 12800
-
-  vm-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.nodeExporter
-    networks:
-      - e2e
-    ports:
-      - 9100
-
-  otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
-    networks:
-      - e2e
-    command: [ "--config=/etc/otel-collector-config.yaml" ]
-    volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    expose:
-      - 55678
-    depends_on:
-      oap:
-        condition: service_healthy
-
-networks:
-  e2e:
+{{- contains . }}
+- key: {{ notEmpty .key }}
+  value:
+  {{- contains .value }}
+  - key: {{ notEmpty .key }}
+    value:
+      value: 0
+      isemptyvalue: true
+  - key: {{ notEmpty .key }}
+    value:
+      value: {{ ge .value.value 1 }}
+      isemptyvalue: false
+  {{- end }}
+{{- end }}

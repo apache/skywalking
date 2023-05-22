@@ -67,6 +67,7 @@ public class UITemplateInitializer {
         Layer.AWS_GATEWAY.name(),
         Layer.REDIS.name(),
         Layer.ELASTICSEARCH.name(),
+        Layer.RABBITMQ.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

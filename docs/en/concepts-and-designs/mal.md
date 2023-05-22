@@ -29,7 +29,7 @@ instance_trace_count{region="asia-north",az="az-1"} 33
 
 ### Tag filter
 
-MAL supports four type operations to filter samples in a sample family:
+MAL supports four type operations to filter samples in a sample family by tag:
 
  - tagEqual: Filter tags exactly equal to the string provided.
  - tagNotEqual: Filter tags not equal to the string provided.
@@ -206,7 +206,7 @@ Examples:
 `le` parameter represents the tag name of the bucket.
 
 #### histogram_percentile
-`histogram_percentile([<p scalar>])`. Represents the meter-system to calculate the p-percentile (0 ≤ p ≤ 100) from the buckets.
+`histogram_percentile([<p scalar>])`: Represents the meter-system to calculate the p-percentile (0 ≤ p ≤ 100) from the buckets.
 
 #### time
 `time()`: Returns the number of seconds since January 1, 1970 UTC.
