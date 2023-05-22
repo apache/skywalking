@@ -116,7 +116,7 @@ jobs:
           fetch-depth: 0
       - name: Filter OAP
         id: filter-oap
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@c22c36bf000848fcd7e70bf3856005c782963715
         with:
           files_ignore: |
             **/*.{md,txt}
