@@ -116,7 +116,8 @@ jobs:
           fetch-depth: 0
       - name: Filter OAP
         id: filter-oap
-        uses: tj-actions/changed-files@b2d17f51244a144849c6b37a3a6791b98a51d86f
+        # The GHA version is pinned by infra
+        uses: tj-actions/changed-files@v35.9.2
         with:
           files_ignore: |
             **/*.{md,txt}
@@ -137,13 +138,13 @@ jobs:
             component-libraries.yml
       - name: Filter POM
         id: filter-pom
-        uses: tj-actions/changed-files@b2d17f51244a144849c6b37a3a6791b98a51d86f
+        uses: tj-actions/changed-files@v35.9.2
         with:
           files: |
             **/pom.xml
       - name: Filter UI
         id: filter-ui
-        uses: tj-actions/changed-files@b2d17f51244a144849c6b37a3a6791b98a51d86f
+        uses: tj-actions/changed-files@v35.9.2
         with:
           files: |
             skywalking-ui
