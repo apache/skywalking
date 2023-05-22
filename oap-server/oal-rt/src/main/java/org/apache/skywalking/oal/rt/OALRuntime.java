@@ -254,14 +254,31 @@ public class OALRuntime implements OALEngine {
          *
          * private ${sourceField.typeName} ${sourceField.fieldName};
          */
-        List<SourceColumn> excludedFields = new ArrayList<>(1);
-        for (SourceColumn field : metricsStmt.getFieldsFromSource()) {
-            try {
-                if (field.isID() && field.getIdxOfCompositeID() < 0 && character.supportCompositeID()) {
-                    // Skip virtual column when storage supports composite ID.
-                    excludedFields.add(field);
-                    continue;
+
+        // Adjust field settings according to storage character.
+        final List<SourceColumn> fieldsFromSource = metricsStmt.getFieldsFromSource();
+        boolean isVirtualIDDisabled = false;
+        if (character.supportCompositeID()) {
+            // Remove virtual ID if composite ID support is declared by the storage.
+            for (int i = fieldsFromSource.size() - 1; i >= 0; i--) {
+                final SourceColumn field = fieldsFromSource.get(i);
+                if (field.isID() && field.getIdxOfCompositeID() < 0) {
+                    fieldsFromSource.remove(field);
+                    isVirtualIDDisabled = true;
                 }
+            }
+        }
+        if(!isVirtualIDDisabled) {
+            for (final SourceColumn field : fieldsFromSource) {
+                if (field.isID() && field.getIdxOfCompositeID() > -1) {
+                    // Remove composite ID relative definition, as virtual ID is required by the current storage.
+                    field.setID(false);
+                }
+            }
+        }
+
+        for (SourceColumn field : fieldsFromSource) {
+            try {
 
                 CtField newField = CtField.make(
                     "private " + field.getType()
@@ -284,7 +301,7 @@ public class OALRuntime implements OALEngine {
                 }
                 annotationsAttribute.addAnnotation(columnAnnotation);
                 if (field.isID()) {
-                    // Add SeriesID = 0 annotation to ID field if no index declared, such as virtual columen as ID.
+                    // Add SeriesID = 0 annotation to ID field if no index declared, such as virtual column as ID.
                     int seriesIDIdx = field.getIdxOfCompositeID() < 0 ? 0 : field.getIdxOfCompositeID();
                     Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, seriesIDIdx));
@@ -303,7 +320,6 @@ public class OALRuntime implements OALEngine {
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
-        metricsStmt.getFieldsFromSource().removeAll(excludedFields);
 
         /**
          * Generate methods
