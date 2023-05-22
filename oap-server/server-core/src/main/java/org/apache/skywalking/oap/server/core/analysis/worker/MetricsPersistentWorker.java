@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.data.ReadWriteSafeCache;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.exporter.ExportEvent;
 import org.apache.skywalking.oap.server.core.status.BootingStatus;
@@ -388,8 +389,14 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         // for the specific minute of booted successfully, the metrics are expected to load from database when
         // it doesn't exist in the cache.
         if (timeOfLatestStabilitySts > 0 &&
-            metrics.getTimeBucket() > timeOfLatestStabilitySts
-            && cached == null) {
+            metrics.getTimeBucket() > timeOfLatestStabilitySts) {
+            if (metrics instanceof InstanceTraffic) {
+                final InstanceTraffic instanceTraffic = (InstanceTraffic) metrics;
+                // keepAlive msg have to load from database, fectch the properties
+                if (null == instanceTraffic.getProperties()) {
+                    return null;
+                }
+            }
             // Return metrics as input to avoid reading from database.
             return metrics;
         }
