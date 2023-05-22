@@ -45,6 +45,7 @@
 * Fix potential NPE in Zipkin receiver when the `Span` is missing some fields.
 * Filter out unknown_cluster metric data.
 * Support RabbitMQ Monitoring.
+* Support Redis slow logs collection.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

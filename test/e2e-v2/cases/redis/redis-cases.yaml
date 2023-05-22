@@ -63,3 +63,8 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_redis_instance_expired_keys_total --service-name=redis::root[root] --instance-name=redis_exporter_1:9121 |yq e 'to_entries' -
     expected: expected/metrics-has-value.yml
 
+    # slow sql
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement --service-name=redis::root[root] |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    expected:  expected/db-has-value.yml
+
+
