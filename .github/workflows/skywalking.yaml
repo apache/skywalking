@@ -116,7 +116,7 @@ jobs:
           fetch-depth: 0
       - name: Filter OAP
         id: filter-oap
-        uses: tj-actions/changed-files@c22c36bf000848fcd7e70bf3856005c782963715
+        uses: tj-actions/changed-files@b2d17f51244a144849c6b37a3a6791b98a51d86f
         with:
           files_ignore: |
             **/*.{md,txt}
@@ -137,13 +137,13 @@ jobs:
             component-libraries.yml
       - name: Filter POM
         id: filter-pom
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@b2d17f51244a144849c6b37a3a6791b98a51d86f
         with:
           files: |
             **/pom.xml
       - name: Filter UI
         id: filter-ui
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@b2d17f51244a144849c6b37a3a6791b98a51d86f
         with:
           files: |
             skywalking-ui
