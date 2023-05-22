@@ -25,7 +25,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SE
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SERVICE_INSTANCE_JVM_THREAD;
 
 @ScopeDeclaration(id = SERVICE_INSTANCE_JVM_THREAD, name = "ServiceInstanceJVMThread", catalog = SERVICE_INSTANCE_CATALOG_NAME)
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
+@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class, idxOfCompositeID = 1)
 public class ServiceInstanceJVMThread extends Source {
     @Override
     public int scope() {
@@ -50,7 +50,7 @@ public class ServiceInstanceJVMThread extends Source {
     private String serviceName;
     @Getter
     @Setter
-    @ScopeDefaultColumn.DefinedByField(columnName = "service_id")
+    @ScopeDefaultColumn.DefinedByField(columnName = "service_id", idxOfCompositeID = 0)
     private String serviceId;
     @Getter
     @Setter

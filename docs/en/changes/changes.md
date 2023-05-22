@@ -46,6 +46,9 @@
 * Filter out unknown_cluster metric data.
 * Support RabbitMQ Monitoring.
 * Support Redis slow logs collection.
+* Support composite ID declared from existing columns and virtual column for optimizing BanyanDB.
+* In the BanyanDB implementation, metrics built from Instance(such as ServiceInstance and TCPServiceInstance)
+  and Endpoint sources are using `entity_id` as index=1 of the composite ID.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
@@ -72,9 +75,6 @@
 * Add OpenTelemetry log protocol support.
 * [Breaking Change] Configuration key `enabledOtelRules` is renamed to `enabledOtelMetricsRules` and
   the corresponding environment variable is renamed to `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
-* Support composite ID declared from existing columns and virtual column for optimizing BanyanDB.
-* In the BanyanDB implementation, metrics built from ServiceInstance and Endpoint sources are using `entity_id` as index=1 
-  of the composite ID.
 
 #### Documentation
 
