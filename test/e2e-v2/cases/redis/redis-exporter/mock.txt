@@ -3,6 +3,7 @@ set c d
 get a
 set e f
 debug sleep 10
+debug sleep 3
 get a
 get b
 get c

@@ -311,6 +311,37 @@
                   }
                 }
               ]
+            },
+            {
+              "name":"Slow Commands",
+              "children":[
+                {
+                  "x":0,
+                  "y":0,
+                  "w":24,
+                  "h":31,
+                  "i":"0",
+                  "type":"Widget",
+                  "metricTypes":[
+                    "readRecords"
+                  ],
+                  "metrics":[
+                    "top_n_database_statement"
+                  ],
+                  "graph":{
+                    "type":"TopList",
+                    "color":"purple"
+                  },
+                  "widget":{
+                    "title":"Slow Commands (ms)"
+                  },
+                  "metricConfig":[
+                    {
+                      "calculation":"msTos"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
