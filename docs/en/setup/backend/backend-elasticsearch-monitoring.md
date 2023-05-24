@@ -15,7 +15,7 @@ Collector to transfer the metrics to
 ## Setup
 
 1. Setup [elasticsearch-exporter](https://github.com/prometheus-community/elasticsearch_exporter).
-2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example for OpenTelemetry Collector configuration, refer
+2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/elasticsearch/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
@@ -111,5 +111,5 @@ Elasticsearch monitoring provides multidimensional metrics monitoring of Elastic
 
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
-in `/config/otel-rules/elasticsearch/elasticsearch-cluster.yaml，/config/otel-rules/elasticsearch/elasticsearch-node.yaml, /config/otel-rules/elasticsearch/elasticsearch-index.yaml`.
+in `/config/otel-rules/elasticsearch/elasticsearch-cluster.yaml, /config/otel-rules/elasticsearch/elasticsearch-node.yaml, /config/otel-rules/elasticsearch/elasticsearch-index.yaml`.
 The Elasticsearch dashboard panel configurations are found in `/config/ui-initialized-templates/elasticsearch`.
