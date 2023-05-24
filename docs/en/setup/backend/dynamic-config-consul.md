@@ -20,7 +20,7 @@ Single configs in Consul are key/value pairs:
 
 | Key | Value |
 |-----|-----|
-| configKey | configVaule |
+| configKey | configValue |
 
 e.g. The config is:
 ```
