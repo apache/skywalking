@@ -18,7 +18,7 @@ Collector to transfer the metrics to
 ## Setup
 
 1. Setup [rabbitmq_prometheus](https://www.rabbitmq.com/prometheus.html#installation).
-2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example
+2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example
    for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/rabbitmq/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
@@ -87,5 +87,5 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
-in `/config/otel-rules/rabbitmq/rabbitmq-cluster.yaml, /config/otel-rules/rabbitmq/rabbitmq-node.yaml`.
+in `/config/otel-rules/rabbitmq/rabbitmq-cluster.yaml，/config/otel-rules/rabbitmq/rabbitmq-node.yaml`.
 The RabbitMQ dashboard panel configurations are found in `/config/ui-initialized-templates/rabbitmq`.
