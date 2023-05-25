@@ -72,6 +72,9 @@
 * Add OpenTelemetry log protocol support.
 * [Breaking Change] Configuration key `enabledOtelRules` is renamed to `enabledOtelMetricsRules` and
   the corresponding environment variable is renamed to `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
+* Add grizzly icon.
+* Fix: the Instance List data display error.
+* Fix: set topN type to Number.
 
 #### Documentation
 
