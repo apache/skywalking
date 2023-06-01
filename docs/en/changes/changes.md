@@ -46,6 +46,7 @@
 * Filter out unknown_cluster metric data.
 * Support RabbitMQ Monitoring.
 * Support Redis slow logs collection.
+* Fix data loss when query continuous profiling task record.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
