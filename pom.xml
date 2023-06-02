@@ -149,6 +149,7 @@
         <!-- Built in properties -->
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <powermock.version>2.0.9</powermock.version>
@@ -520,6 +521,17 @@
                         ${project.build.directory}/generated-sources/protobuf/grpc-java;
                         ${project.build.directory}/generated-sources/antlr4;;
                     </sourcepath>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <compilerVersion>11</compilerVersion>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
         </plugins>
