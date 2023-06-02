@@ -134,7 +134,7 @@ public class ContinuousProfilingQueryService implements Service {
     }
 
     public List<ContinuousProfilingMonitoringInstance> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) throws IOException {
-        // query all processes under same service
+        // Query all processes of the given service
         final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, 0, 0);
         if (CollectionUtils.isEmpty(processes)) {
             return Collections.emptyList();
