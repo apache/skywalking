@@ -33,6 +33,7 @@ import org.apache.skywalking.apm.network.ebpf.profiling.v3.ContinuousProfilingSe
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
 import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingMonitorType;
@@ -178,6 +179,7 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
         task.setFixedTriggerDuration(request.getDuration());
         task.setCreateTime(currentTime);
         task.setLastUpdateTime(currentTime);
+        task.setTimeBucket(TimeBucket.getRecordTimeBucket(currentTime));
 
         final EBPFProfilingTaskContinuousProfiling continuousProfiling = new EBPFProfilingTaskContinuousProfiling();
         continuousProfiling.setProcessId(processId);

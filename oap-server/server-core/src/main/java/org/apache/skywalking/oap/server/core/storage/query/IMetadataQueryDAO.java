@@ -53,6 +53,11 @@ public interface IMetadataQueryDAO extends DAO {
     ServiceInstance getInstance(final String instanceId) throws IOException;
 
     /**
+     * @param instanceIds instance id list
+     */
+    List<ServiceInstance> getInstances(final List<String> instanceIds) throws IOException;
+
+    /**
      * @param keyword   to filter the endpoints
      * @param serviceId the owner of the endpoints
      * @param limit     max match size.

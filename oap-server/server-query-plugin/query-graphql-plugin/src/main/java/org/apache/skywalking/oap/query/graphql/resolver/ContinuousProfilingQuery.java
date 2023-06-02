@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.profiling.continuous.ContinuousProfilingQueryService;
+import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingTargetType;
+import org.apache.skywalking.oap.server.core.query.type.ContinuousProfilingMonitoringInstance;
 import org.apache.skywalking.oap.server.core.query.type.ContinuousProfilingPolicyTarget;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -46,6 +48,10 @@ public class ContinuousProfilingQuery implements GraphQLQueryResolver {
 
     public List<ContinuousProfilingPolicyTarget> queryContinuousProfilingServiceTargets(String serviceId) throws IOException {
         return getQueryService().queryContinuousProfilingServiceTargets(serviceId);
+    }
+
+    public List<ContinuousProfilingMonitoringInstance> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) throws IOException {
+        return getQueryService().queryContinuousProfilingMonitoringInstances(serviceId, target);
     }
 
 }

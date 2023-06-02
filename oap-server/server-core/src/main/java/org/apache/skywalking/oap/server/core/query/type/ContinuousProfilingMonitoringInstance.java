@@ -18,21 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingTargetType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ContinuousProfilingPolicyTarget {
-    private ContinuousProfilingTargetType type;
-    private List<ContinuousProfilingPolicyItem> checkItems;
+public class ContinuousProfilingMonitoringInstance {
+
+    private String id;
+    private String name;
+    private List<Attribute> attributes;
     private int triggeredCount;
     private Long lastTriggerTimestamp;
+
+    private List<ContinuousProfilingMonitoringProcess> processes;
+
+    public ContinuousProfilingMonitoringInstance() {
+        this.processes = new ArrayList<>();
+    }
 }
