@@ -142,7 +142,7 @@ public class ContinuousProfilingQueryService implements Service {
         // query all triggered tasks
         final List<EBPFProfilingTaskRecord> records = queryRecentTriggeredTasks(serviceId, List.of(target));
 
-        // query instances metadata
+        // Query the metadata of instances
         final Map<String, List<Process>> instancesProcesses = processes.stream().collect(Collectors.groupingBy(Process::getInstanceId));
         final List<ServiceInstance> instanceIdWithMetadata = getMetadataQueryDAO().getInstances(Arrays.asList(instancesProcesses.keySet().toArray(new String[0])));
 
