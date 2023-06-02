@@ -49,6 +49,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -220,6 +221,32 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         return null;
     }
 
+    @SneakyThrows
+    @Override
+    public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
+        final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
+
+        for (String table : tables) {
+            StringBuilder sql = new StringBuilder();
+            List<Object> condition = new ArrayList<>(5);
+            sql.append("select * from ").append(table).append(" where ")
+                .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
+            condition.add(InstanceTraffic.INDEX_NAME);
+            for (String instanceId : instanceIds) {
+                sql.append(" and ").append(JDBCTableInstaller.ID_COLUMN).append(" = ?");
+                condition.add(instanceId);
+            }
+            sql.append(" limit ").append(instanceIds.size());
+
+            final var result = jdbcClient.executeQuery(sql.toString(), resultSet -> buildInstances(resultSet), condition.toArray(new Object[0]));
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     @SneakyThrows
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) {
@@ -264,11 +291,16 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     @SneakyThrows
     public List<Process> listProcesses(String serviceId, ProfilingSupportStatus supportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) {
-        final var tables = tableHelper.getTablesForRead(
-            ProcessTraffic.INDEX_NAME,
-            lastPingStartTimeBucket,
-            lastPingEndTimeBucket
-        );
+        List<String> tables;
+        if (lastPingStartTimeBucket > 0 && lastPingEndTimeBucket > 0) {
+            tables = tableHelper.getTablesForRead(
+                ProcessTraffic.INDEX_NAME,
+                lastPingStartTimeBucket,
+                lastPingEndTimeBucket
+            );
+        } else {
+            tables = tableHelper.getTablesWithinTTL(ProcessTraffic.INDEX_NAME);
+        }
         final var results = new ArrayList<Process>();
 
         for (String table : tables) {

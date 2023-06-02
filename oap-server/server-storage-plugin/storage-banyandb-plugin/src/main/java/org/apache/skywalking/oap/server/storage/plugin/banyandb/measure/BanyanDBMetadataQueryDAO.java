@@ -181,6 +181,21 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
+    public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
+        MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
+            INSTANCE_TRAFFIC_COMPACT_TAGS,
+            Collections.emptySet(),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.and(in(InstanceTraffic.ID, instanceIds));
+                }
+            });
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
+        return resp.getDataPoints().stream().map(e -> buildInstance(e, schema)).collect(Collectors.toList());
+    }
+
+    @Override
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit) throws IOException {
         MeasureQueryResponse resp = query(EndpointTraffic.INDEX_NAME,
                 ENDPOINT_TRAFFIC_TAGS,
@@ -215,8 +230,15 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                     @Override
                     protected void apply(MeasureQuery query) {
                         query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
-                        query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
-                        query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value()));
+                        if (lastPingStartTimeBucket > 0) {
+                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
+                        }
+                        if (lastPingEndTimeBucket > 0) {
+                            query.and(lte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingEndTimeBucket));
+                        }
+                        if (supportStatus != null) {
+                            query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value()));
+                        }
                         query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
                     }
                 });

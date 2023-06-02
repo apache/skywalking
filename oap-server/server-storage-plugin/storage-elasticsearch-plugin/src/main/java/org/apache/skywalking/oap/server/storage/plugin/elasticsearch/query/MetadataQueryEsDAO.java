@@ -197,6 +197,22 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
+    public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
+        final BoolQueryBuilder query =
+            Query.bool()
+                .must(Query.terms("_id", instanceIds));
+        if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, InstanceTraffic.INDEX_NAME));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(instanceIds.size());
+
+        final SearchResponse response = getClient().search(index, search.build());
+        return buildInstances(response);
+    }
+
+    @Override
     public List<Endpoint> findEndpoint(String keyword, String serviceId, int limit)
         throws IOException {
         initColumnName();

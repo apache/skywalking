@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Attribute;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzation;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingAnalyzeAggregateType;
@@ -177,11 +178,16 @@ public class EBPFProfilingQueryService implements Service {
         return prepare;
     }
 
-    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets, EBPFProfilingTriggerType triggerType) throws IOException {
+    public List<EBPFProfilingTask> queryEBPFProfilingTasks(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targets, EBPFProfilingTriggerType triggerType, Duration duration) throws IOException {
         if (CollectionUtils.isEmpty(targets)) {
             targets = Arrays.asList(EBPFProfilingTargetType.values());
         }
-        final List<EBPFProfilingTaskRecord> tasks = getTaskDAO().queryTasksByTargets(serviceId, serviceInstanceId, targets, triggerType, 0, 0);
+        long startTime = 0, endTime = 0;
+        if (duration != null) {
+            startTime = duration.getStartTimestamp();
+            endTime = duration.getEndTimestamp();
+        }
+        final List<EBPFProfilingTaskRecord> tasks = getTaskDAO().queryTasksByTargets(serviceId, serviceInstanceId, targets, triggerType, startTime, endTime);
         // combine same id tasks
         final Map<String, EBPFProfilingTaskRecord> records = tasks.stream().collect(Collectors.toMap(EBPFProfilingTaskRecord::getLogicalId, Function.identity(), EBPFProfilingTaskRecord::combine));
         return records.values().stream().map(this::parseTask).collect(Collectors.toList());
