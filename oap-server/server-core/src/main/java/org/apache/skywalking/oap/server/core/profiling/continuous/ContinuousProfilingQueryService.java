@@ -146,7 +146,7 @@ public class ContinuousProfilingQueryService implements Service {
         final Map<String, List<Process>> instancesProcesses = processes.stream().collect(Collectors.groupingBy(Process::getInstanceId));
         final List<ServiceInstance> instanceIdWithMetadata = getMetadataQueryDAO().getInstances(Arrays.asList(instancesProcesses.keySet().toArray(new String[0])));
 
-        // build instance, process summary
+        // Build instance & process summary
         final Map<String, EBPFProfilingTaskSummary> instanceSummary = buildSummaryByKey(records, EBPFProfilingTaskRecord::getInstanceId);
         final Map<String, EBPFProfilingTaskSummary> processSummary = buildSummaryByKey(records, r -> {
             final EBPFProfilingTaskContinuousProfiling continuousProfiling = GSON.fromJson(r.getContinuousProfilingJson(), EBPFProfilingTaskContinuousProfiling.class);
