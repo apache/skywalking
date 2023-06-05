@@ -48,6 +48,7 @@
 * Support Redis slow logs collection.
 * Fix data loss when query continuous profiling task record.
 * Adapt the continuous profiling task query GraphQL.
+* Support Metrics Query Expression(MQE) and allows users to do simple query-stage calculation through the expression.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
@@ -77,6 +78,7 @@
 * Add grizzly icon.
 * Fix: the Instance List data display error.
 * Fix: set topN type to Number.
+* Support Metrics Query Expression(MQE) and allows users to do simple query-stage calculation through the expression.
 
 #### Documentation
 

@@ -24,8 +24,6 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
 public class ParseErrorListener extends BaseErrorListener {
-    public static final ParseErrorListener INSTANCE = new ParseErrorListener();
-
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer,
                             Object offendingSymbol,

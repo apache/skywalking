@@ -16,31 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.query.type;
+package org.apache.skywalking.oap.query.graphql.mqe.rt.exception;
 
-import lombok.Getter;
-import lombok.Setter;
+import graphql.org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 
-/**
- * SelectedRecord is an abstract data element, including id, name, value and a reference id.
- */
-@Setter
-@Getter
-public class SelectedRecord {
-    /**
-     * Literal string name for visualization
-     */
-    private String name;
-    /**
-     * ID represents the owner of this entity.
-     */
-    private String id;
-    /**
-     * Usually an integer value as this is metrics.
-     */
-    private String value;
-    /**
-     * Have value, Only if the record has related trace id. UI should show this as an attached value.
-     */
-    private String refId;
+public class ParseErrorListener extends BaseErrorListener {
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer,
+                            Object offendingSymbol,
+                            int line,
+                            int charPositionInLine,
+                            String msg,
+                            RecognitionException e)
+        throws ParseCancellationException {
+
+        throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+    }
 }

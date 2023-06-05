@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.LogTestQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.MetricsExpressionQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
 import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
@@ -103,6 +104,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
                       */
                      .file("query-protocol/metrics-v2.graphqls")
                      .resolvers(new MetricsQuery(getManager()))
+                     .file("query-protocol/metrics-expression.graphqls")
+                     .resolvers(new MetricsExpressionQuery(getManager()))
                      ////////
                      //Deprecated Queries
                      ////////

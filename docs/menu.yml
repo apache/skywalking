@@ -292,7 +292,13 @@ catalog:
       - name: "Query APIs"
         catalog:
           - name: "GraphQL APIs"
-            path: "/en/api/query-protocol"
+            catalog:
+              - name: "GraphQL APIs"
+                path: "/en/api/query-protocol"
+              - name: "MQE Syntax"
+                path: "/en/api/metrics-query-expression"
+              - name: "Deprecated APIs"
+                path: "/en/api/query-protocol-deprecated"
           - name: "PromQL APIs"
             path: "/en/api/promql-service"
   - name: "Security Notice"
