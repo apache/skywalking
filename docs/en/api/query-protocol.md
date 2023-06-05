@@ -4,6 +4,8 @@ native visualization tool or 3rd party system, including Web UI, CLI or private 
 
 Query protocol official repository, https://github.com/apache/skywalking-query-protocol.
 
+All deprecated APIs are moved [here](./query-protocol-deprecated.md).
+
 ### Metadata  
 Metadata contains concise information on all services and their instances, endpoints, etc. under monitoring.
 You may query the metadata in different ways.
@@ -68,11 +70,13 @@ extend type Query {
 ```
 
 ### Metrics
-Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md). 
-You may obtain the metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script. 
+Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md).
 
-#### V2 APIs
-Provide Metrics V2 query APIs since 8.0.0, including metadata, single/multiple values, heatmap, and sampled records metrics.
+#### V3 APIs
+Provide Metrics V3 query APIs since 9.5.0, including metadata and MQE.
+SkyWalking Metrics Query Expression(MQE) is an extension query mechanism. MQE allows users to do simple query-stage calculation like well known PromQL
+through GraphQL. The expression's syntax can refer to [here](./metrics-query-expression.md).
+
 ```graphql
 extend type Query {
     # Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
@@ -80,75 +84,38 @@ extend type Query {
     # Get the list of all available metrics in the current OAP server.
     # Param, regex, could be used to filter the metrics by name.
     listMetrics(regex: String): [MetricDefinition!]!
-
-    # Read metrics single value in the duration of required metrics
-    readMetricsValue(condition: MetricsCondition!, duration: Duration!): Long!
-    # Read time-series values in the duration of required metrics
-    readMetricsValues(condition: MetricsCondition!, duration: Duration!): MetricsValues!
-    # Read entity list of required metrics and parent entity type.
-    sortMetrics(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
-    # Read value in the given time duration, usually as a linear.
-    # labels: the labels you need to query.
-    readLabeledMetricsValues(condition: MetricsCondition!, labels: [String!]!, duration: Duration!): [MetricsValues!]!
-    # Heatmap is bucket based value statistic result.
-    readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
-    # Deprecated since 9.3.0, replaced by readRecords defined in record.graphqls
-    # Read the sampled records
-    # TopNCondition#scope is not required.
-    readSampledRecords(condition: TopNCondition!, duration: Duration!): [SelectedRecord!]!
+    # The return type of the given expression, the MQEValues will be empty.
+    returnTypeOfMQE(expression: String!): ExpressionResult!
+    execExpression(expression: String!, entity: Entity!, duration: Duration!): ExpressionResult!
 }
 ```
 
-#### V1 APIs
-3 types of metrics can be queried. V1 APIs were introduced since 6.x. Now they are a shell to V2 APIs.
-1. Single value. Most default metrics are in single value. `getValues` and `getLinearIntValues` are suitable for this purpose.
-1. Multiple value.  A metric defined in OAL includes multiple value calculations. Use `getMultipleLinearIntValues` to obtain all values. `percentile` is a typical multiple value function in OAL.
-1. Heatmap value. Read [Heatmap in WIKI](https://en.wikipedia.org/wiki/Heat_map) for details. `thermodynamic` is the only OAL function. Use `getThermodynamic` to get the values.
 ```graphql
-extend type Query {
-    getValues(metric: BatchMetricConditions!, duration: Duration!): IntValues
-    getLinearIntValues(metric: MetricCondition!, duration: Duration!): IntValues
-    # Query the type of metrics including multiple values, and format them as multiple lines.
-    # The seq of these multiple lines base on the calculation func in OAL
-    # Such as, should us this to query the result of func percentile(50,75,90,95,99) in OAL,
-    # then five lines will be responded, p50 is the first element of return value.
-    getMultipleLinearIntValues(metric: MetricCondition!, numOfLinear: Int!, duration: Duration!): [IntValues!]!
-    getThermodynamic(metric: MetricCondition!, duration: Duration!): Thermodynamic
+type ExpressionResult {
+    type: ExpressionResultType!
+    # When the type == TIME_SERIES_VALUES, the results would be a collection of MQEValues.
+    # In other legal type cases, only one MQEValues is expected in the array.
+    results: [MQEValues!]!
+    # When type == ExpressionResultType.UNKNOWN,
+    # the error message includes the expression resolving errors.
+    error: String
 }
 ```
 
-Metrics are defined in the `config/oal/*.oal` files.
-
-### Aggregation
-Aggregation query means that the metrics data need a secondary aggregation at query stage, which causes the query 
-interfaces to have some different arguments. A typical example of aggregation query is the `TopN` list of services. 
-Metrics stream aggregation simply calculates the metrics values of each service, but the expected list requires ordering metrics data
-by their values.
-
-Aggregation query is for single value metrics only.
-
 ```graphql
-# The aggregation query is different with the metric query.
-# All aggregation queries require backend or/and storage do aggregation in query time.
-extend type Query {
-    # TopN is an aggregation query.
-    getServiceTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getAllServiceInstanceTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getServiceInstanceTopN(serviceId: ID!, name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getAllEndpointTopN(name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-    getEndpointTopN(serviceId: ID!, name: String!, topN: Int!, duration: Duration!, order: Order!): [TopNEntity!]!
-}
-```
-
-### Record
-Record is a general and abstract type for collected raw data.
-In the observability, traces and logs have specific and well-defined meanings, meanwhile, the general records represent other
-collected records. Such as sampled slow SQL statement, HTTP request raw data(request/response header/body)
-
-```graphql
-extend type Query {
-    # Query collected records with given metric name and parent entity conditions, and return in the requested order.
-    readRecords(condition: RecordCondition!, duration: Duration!): [Record!]!
+enum ExpressionResultType {
+    # Can't resolve the type of the given expression.
+    UNKNOWN
+    # A single value
+    SINGLE_VALUE
+    # A collection of time-series values.
+    # The value could have labels or not.
+    TIME_SERIES_VALUES
+    # A collection of aggregated values through metric sort function
+    SORTED_LIST
+    # A collection of sampled records.
+    # When the original metric type is sampled records
+    RECORD_LIST
 }
 ```
 

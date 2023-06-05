@@ -137,9 +137,9 @@ public class PromQLApiHandler {
         if (match.isPresent()) {
             PromQLLexer lexer = new PromQLLexer(
                 CharStreams.fromString(match.get()));
-            lexer.addErrorListener(ParseErrorListener.INSTANCE);
+            lexer.addErrorListener(new ParseErrorListener());
             PromQLParser parser = new PromQLParser(new CommonTokenStream(lexer));
-            parser.addErrorListener(ParseErrorListener.INSTANCE);
+            parser.addErrorListener(new ParseErrorListener());
             ParseTree tree;
             try {
                 tree = parser.expression();
@@ -217,9 +217,9 @@ public class PromQLApiHandler {
         SeriesQueryRsp response = new SeriesQueryRsp();
         PromQLLexer lexer = new PromQLLexer(
             CharStreams.fromString(match));
-        lexer.addErrorListener(ParseErrorListener.INSTANCE);
+        lexer.addErrorListener(new ParseErrorListener());
         PromQLParser parser = new PromQLParser(new CommonTokenStream(lexer));
-        parser.addErrorListener(ParseErrorListener.INSTANCE);
+        parser.addErrorListener(new ParseErrorListener());
         ParseTree tree;
         try {
             tree = parser.expression();
@@ -295,9 +295,9 @@ public class PromQLApiHandler {
 
         PromQLLexer lexer = new PromQLLexer(
             CharStreams.fromString(query));
-        lexer.addErrorListener(ParseErrorListener.INSTANCE);
+        lexer.addErrorListener(new ParseErrorListener());
         PromQLParser parser = new PromQLParser(new CommonTokenStream(lexer));
-        parser.addErrorListener(ParseErrorListener.INSTANCE);
+        parser.addErrorListener(new ParseErrorListener());
         ParseTree tree;
         try {
             tree = parser.expression();
@@ -356,9 +356,9 @@ public class PromQLApiHandler {
         ExprQueryRsp response = new ExprQueryRsp();
         PromQLLexer lexer = new PromQLLexer(
             CharStreams.fromString(query));
-        lexer.addErrorListener(ParseErrorListener.INSTANCE);
+        lexer.addErrorListener(new ParseErrorListener());
         PromQLParser parser = new PromQLParser(new CommonTokenStream(lexer));
-        parser.addErrorListener(ParseErrorListener.INSTANCE);
+        parser.addErrorListener(new ParseErrorListener());
         ParseTree tree;
         try {
             tree = parser.expression();

@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.LogTestQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.MetricsExpressionQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.Mutation;
 import org.apache.skywalking.oap.query.graphql.resolver.OndemandLogQuery;
@@ -98,11 +99,13 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/topology.graphqls")
                      .resolvers(new TopologyQuery(getManager()))
                      /*
-                      * Metrics v2 query protocol is an alternative metrics query(s) of original v1,
-                      * defined in the metric.graphql, top-n-records.graphqls, and aggregation.graphqls.
+                      * Since 9.5.0.
+                      * Metrics v3 query protocol is an enhanced metrics query(s) from original v1 and v2
+                      * powered by newly added Metrics Query Expression Language to fetch and 
+                      * manipulate metrics data in the query stage.
                       */
-                     .file("query-protocol/metrics-v2.graphqls")
-                     .resolvers(new MetricsQuery(getManager()))
+                     .file("query-protocol/metrics-v3.graphqls")
+                     .resolvers(new MetricsExpressionQuery(getManager()))
                      ////////
                      //Deprecated Queries
                      ////////
@@ -112,6 +115,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .resolvers(new AggregationQuery(getManager()))
                      .file("query-protocol/top-n-records.graphqls")
                      .resolvers(new TopNRecordsQuery(getManager()))
+                     //Deprecated since 9.5.0
+                     .file("query-protocol/metrics-v2.graphqls")
+                     .resolvers(new MetricsQuery(getManager()))
                      ////////
                      .file("query-protocol/trace.graphqls")
                      .resolvers(new TraceQuery(getManager()))
