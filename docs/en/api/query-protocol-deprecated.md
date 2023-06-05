@@ -1,5 +1,5 @@
 # Deprecated Query Protocol
-The following query protocol is deprecated since 9.5.0.
+The following query services are deprecated since 9.5.0. All these queries are still available for the short term to keep compatibility. 
 
 Query protocol official repository, https://github.com/apache/skywalking-query-protocol.
 

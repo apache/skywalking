@@ -100,8 +100,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .resolvers(new TopologyQuery(getManager()))
                      /*
                       * Since 9.5.0.
-                      * Metrics v3 query protocol is an alternative metrics query(s) of original v1 and v2.
-                      * It is provided Metrics Query Expression Language to query metrics data and allows users to do simple query-stage calculation.
+                      * Metrics v3 query protocol is an enhanced metrics query(s) from original v1 and v2
+                      * powered by newly added Metrics Query Expression Language to fetch and 
+                      * manipulate metrics data in the query stage.
                       */
                      .file("query-protocol/metrics-v3.graphqls")
                      .resolvers(new MetricsExpressionQuery(getManager()))
