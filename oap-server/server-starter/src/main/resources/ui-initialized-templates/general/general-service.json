@@ -574,7 +574,7 @@
                   "i": "20",
                   "type": "Widget",
                   "widget": {
-                    "title": "Success Rate in Current Service (%)"
+                    "title": "Endpoint Success Rate in Current Service (%)"
                   },
                   "graph": {
                     "type": "TopList",
