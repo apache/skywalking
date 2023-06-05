@@ -99,12 +99,11 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/topology.graphqls")
                      .resolvers(new TopologyQuery(getManager()))
                      /*
-                      * Metrics v2 query protocol is an alternative metrics query(s) of original v1,
-                      * defined in the metric.graphql, top-n-records.graphqls, and aggregation.graphqls.
+                      * Since 9.5.0.
+                      * Metrics v3 query protocol is an alternative metrics query(s) of original v1 and v2.
+                      * It is provided Metrics Query Expression Language to query metrics data and allows users to do simple query-stage calculation.
                       */
-                     .file("query-protocol/metrics-v2.graphqls")
-                     .resolvers(new MetricsQuery(getManager()))
-                     .file("query-protocol/metrics-expression.graphqls")
+                     .file("query-protocol/metrics-v3.graphqls")
                      .resolvers(new MetricsExpressionQuery(getManager()))
                      ////////
                      //Deprecated Queries
@@ -115,6 +114,9 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .resolvers(new AggregationQuery(getManager()))
                      .file("query-protocol/top-n-records.graphqls")
                      .resolvers(new TopNRecordsQuery(getManager()))
+                     //Deprecated since 9.5.0
+                     .file("query-protocol/metrics-v2.graphqls")
+                     .resolvers(new MetricsQuery(getManager()))
                      ////////
                      .file("query-protocol/trace.graphqls")
                      .resolvers(new TraceQuery(getManager()))

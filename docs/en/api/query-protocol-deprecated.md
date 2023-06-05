@@ -13,6 +13,9 @@ Provide Metrics V2 query APIs since 8.0.0, including metadata, single/multiple v
 extend type Query {
     # Read metrics single value in the duration of required metrics
     readMetricsValue(condition: MetricsCondition!, duration: Duration!): Long!
+    # Read metrics single value in the duration of required metrics
+    # NullableValue#isEmptyValue == true indicates no telemetry data rather than aggregated value is actually zero.
+    readNullableMetricsValue(condition: MetricsCondition!, duration: Duration!): NullableValue!
     # Read time-series values in the duration of required metrics
     readMetricsValues(condition: MetricsCondition!, duration: Duration!): MetricsValues!
     # Read entity list of required metrics and parent entity type.
@@ -20,6 +23,8 @@ extend type Query {
     # Read value in the given time duration, usually as a linear.
     # labels: the labels you need to query.
     readLabeledMetricsValues(condition: MetricsCondition!, labels: [String!]!, duration: Duration!): [MetricsValues!]!
+    # Heatmap is bucket based value statistic result.
+    readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
     # Deprecated since 9.3.0, replaced by readRecords defined in record.graphqls
     # Read the sampled records
     # TopNCondition#scope is not required.

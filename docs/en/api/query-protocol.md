@@ -4,6 +4,8 @@ native visualization tool or 3rd party system, including Web UI, CLI or private 
 
 Query protocol official repository, https://github.com/apache/skywalking-query-protocol.
 
+All deprecated APIs are moved [here](./query-protocol-deprecated.md).
+
 ### Metadata  
 Metadata contains concise information on all services and their instances, endpoints, etc. under monitoring.
 You may query the metadata in different ways.
@@ -68,11 +70,13 @@ extend type Query {
 ```
 
 ### Metrics
-Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md). 
-You may obtain the metrics data and do query-stage calculations based on the MQE APIs. 
+Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md).
 
-#### V2 APIs
-Provide Metrics V2 query APIs since 8.0.0, including metadata, single/multiple values, heatmap, and sampled records metrics.
+#### V3 APIs
+Provide Metrics V3 query APIs since 9.5.0, including metadata and MQE.
+SkyWalking Metrics Query Expression(MQE) is an extension query mechanism. MQE allows users to do simple query-stage calculation like well known PromQL
+through GraphQL. The expression's syntax can refer to [here](./metrics-query-expression.md).
+
 ```graphql
 extend type Query {
     # Metrics definition metadata query. Response the metrics type which determines the suitable query methods.
@@ -80,17 +84,6 @@ extend type Query {
     # Get the list of all available metrics in the current OAP server.
     # Param, regex, could be used to filter the metrics by name.
     listMetrics(regex: String): [MetricDefinition!]!
-    # Heatmap is bucket based value statistic result.
-    readHeatMap(condition: MetricsCondition!, duration: Duration!): HeatMap
-}
-```
-
-#### MQE APIs
-SkyWalking Metrics Query Expression(MQE) is an extension query mechanism. MQE allows users to do simple query-stage calculation like well known PromQL
-through GraphQL. The expression's syntax can refer to [here](./metrics-query-expression.md).
-
-```graphql
-extend type Query {
     # The return type of the given expression, the MQEValues will be empty.
     returnTypeOfMQE(expression: String!): ExpressionResult!
     execExpression(expression: String!, entity: Entity!, duration: Duration!): ExpressionResult!
