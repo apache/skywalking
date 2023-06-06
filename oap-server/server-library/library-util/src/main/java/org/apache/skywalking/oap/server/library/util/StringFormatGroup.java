@@ -38,6 +38,10 @@ public class StringFormatGroup {
         rules = new ArrayList<>();
     }
 
+    public StringFormatGroup(int size) {
+        rules = new ArrayList<>(size);
+    }
+
     /**
      * Add a new match rule. The rule will follow the order of being added.
      *

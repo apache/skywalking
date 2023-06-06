@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import org.apache.skywalking.oap.server.ai.pipeline.AIPipelineModule;
+import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
@@ -127,6 +129,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private OALEngineLoaderService oalEngineLoaderService;
     private LoggingConfigWatcher loggingConfigWatcher;
     private EndpointNameGroupingRule4OpenapiWatcher endpointNameGroupingRule4OpenapiWatcher;
+    private EndpointNameGrouping endpointNameGrouping;
 
     public CoreModuleProvider() {
         super();
@@ -165,7 +168,7 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
         }
-        EndpointNameGrouping endpointNameGrouping = new EndpointNameGrouping();
+        endpointNameGrouping = new EndpointNameGrouping();
         final NamingControl namingControl = new NamingControl(
             moduleConfig.getServiceNameMaxLength(),
             moduleConfig.getInstanceNameMaxLength(),
@@ -348,6 +351,13 @@ public class CoreModuleProvider extends ModuleProvider {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
 
+        endpointNameGrouping.setHttpUriRecognitionSvr(
+            getManager()
+                .find(AIPipelineModule.NAME)
+                .provider()
+                .getService(HttpUriRecognition.class)
+        );
+
         // Disable OAL script has higher priority
         oalEngineLoaderService.load(DisableOALDefine.INSTANCE);
 
@@ -419,7 +429,8 @@ public class CoreModuleProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             TelemetryModule.NAME,
-            ConfigurationModule.NAME
+            ConfigurationModule.NAME,
+            AIPipelineModule.NAME
         };
     }
 }

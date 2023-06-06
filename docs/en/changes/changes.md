@@ -51,6 +51,8 @@
 * Support Metrics Query Expression(MQE) and allows users to do simple query-stage calculation through the expression.
 * Deprecated metrics query v2 protocol.
 * Deprecated record query protocol.
+* Add `ai-pipeline` module.
+* Support HTTP URI formatting through `ai-pipeline` to do pattern reorganization.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

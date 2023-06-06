@@ -97,6 +97,11 @@
             <groupId>io.zipkin.zipkin2</groupId>
             <artifactId>zipkin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>ai-pipeline</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -53,4 +53,8 @@ public class EndpointGroupingRule {
             return new StringFormatGroup.FormatResult(false, endpointName, endpointName);
         }
     }
+
+    void setRules(String serviceName, StringFormatGroup formatGroup) {
+        rules.put(serviceName, formatGroup);
+    }
 }

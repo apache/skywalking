@@ -71,7 +71,7 @@ public class EndpointNameGroupingRuleWatcherTest {
                     return new String[0];
                 }
             }, endpointNameGrouping);
-        Assertions.assertEquals("/prod/{id}", endpointNameGrouping.format("serviceA", "/prod/123"));
+        Assertions.assertEquals("/prod/{id}", endpointNameGrouping.format("serviceA", "/prod/123")._1());
 
         watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
             "# Licensed to the Apache Software Foundation (ASF) under one or more\n" +
@@ -106,9 +106,9 @@ public class EndpointNameGroupingRuleWatcherTest {
             , ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        Assertions.assertEquals("/prod/order-id", endpointNameGrouping.format("serviceA", "/prod/123"));
+        Assertions.assertEquals("/prod/order-id", endpointNameGrouping.format("serviceA", "/prod/123")._1());
 
         watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent("", ConfigChangeWatcher.EventType.DELETE));
-        Assertions.assertEquals("/prod/123", endpointNameGrouping.format("serviceA", "/prod/123"));
+        Assertions.assertEquals("/prod/123", endpointNameGrouping.format("serviceA", "/prod/123")._1());
     }
 }

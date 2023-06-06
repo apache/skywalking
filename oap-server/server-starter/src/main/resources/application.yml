@@ -550,3 +550,7 @@ aws-firehose:
     enableTLS: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ENABLE_TLS:false}
     tlsKeyPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_KEY_PATH:}
     tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}
+
+  ai-pipeline:
+    selector: ${SW_AI_PIPELINE:default}
+    default:
