@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.ai.pipeline;
 
+import org.apache.skywalking.oap.server.ai.pipeline.services.HttpUriRecognitionService;
+import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -25,6 +27,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 public class AIPipelineProvider extends ModuleProvider {
+    private AIPipelineConfig aiPipelineConfig;
+
     @Override
     public String name() {
         return "default";
@@ -37,12 +41,23 @@ public class AIPipelineProvider extends ModuleProvider {
 
     @Override
     public ConfigCreator<? extends ModuleConfig> newConfigCreator() {
-        return null;
+        return new ConfigCreator<AIPipelineConfig>() {
+            @Override
+            public Class<AIPipelineConfig> type() {
+                return AIPipelineConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final AIPipelineConfig initialized) {
+                aiPipelineConfig = initialized;
+            }
+        };
     }
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-
+        final HttpUriRecognitionService httpUriRecognitionService = new HttpUriRecognitionService();
+        this.registerServiceImplementation(HttpUriRecognition.class, httpUriRecognitionService);
     }
 
     @Override

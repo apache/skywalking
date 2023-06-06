@@ -131,6 +131,8 @@ public class EndpointNameGrouping {
                                                        uri, httpUris.get(uri).get()
                                                    ))
                                                .collect(Collectors.toList());
+                                 // Reset the cache once the URIs are sent to the recognition server.
+                                 httpUris.clear();
                                  httpUriRecognitionSvr
                                      .recognize(serviceName, uris,
                                                 (service, patterns) -> {
