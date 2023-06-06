@@ -52,7 +52,7 @@
 * Deprecated metrics query v2 protocol.
 * Deprecated record query protocol.
 * Add `ai-pipeline` module.
-* Support HTTP URI formatting through `ai-pipeline` to do pattern reorganization.
+* Support HTTP URI formatting through `ai-pipeline` to do pattern recognition.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
