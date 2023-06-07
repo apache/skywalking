@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
@@ -66,6 +64,8 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     private final RecordsQuery recordsQuery;
     private final Entity entity;
     private final Duration duration;
+
+    private final static String LABEL = "label";
 
     public MQEVisitor(final MetricsQuery metricsQuery,
                       final RecordsQuery recordsQuery,
@@ -200,6 +200,36 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     }
 
     @Override
+    public ExpressionResult visitRelablesOP(MQEParser.RelablesOPContext ctx) {
+        ExpressionResult result = visit(ctx.expression());
+        if (!result.isLabeledResult()) {
+            // Resever the original result type
+            result.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
+            return result;
+        }
+
+        List<String> relabelList = Collections.emptyList();
+        String newLabelValue = ctx.label().labelValue().getText();
+        String labelValueTrim = newLabelValue.substring(1, newLabelValue.length() - 1);
+        if (StringUtil.isNotBlank(labelValueTrim)) {
+            relabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
+        }
+        List<MQEValues> mqeValuesList = result.getResults();
+
+        if (mqeValuesList.size() != relabelList.size()) {
+            // Resever the original result type
+            result.setError("The number of relabels is not equal to the number of labels.");
+            return result;
+        }
+        // For now, we only have a single label named `label`
+        for (int i = 0; i < mqeValuesList.size(); i++) {
+            mqeValuesList.get(i).getMetric().getLabels().get(0).setValue(relabelList.get(i));
+        }
+
+        return result;
+    }
+
+    @Override
     public ExpressionResult visitMetric(MQEParser.MetricContext ctx) {
         ExpressionResult result = new ExpressionResult();
         String metricName = ctx.metricName().getText();
@@ -224,27 +254,14 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
                 }
             } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
                 List<String> queryLabelList = Collections.emptyList();
-                List<String> relabelList = Collections.emptyList();
-                if (ctx.labelList() != null) {
-                    for (MQEParser.LabelContext labelCtx : ctx.labelList().label()) {
-                        int labelName = labelCtx.labelName().getStart().getType();
-                        String labelValue = labelCtx.labelValue().getText();
-                        String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
-                        switch (labelName) {
-                            case MQEParser.LABLES:
-                                if (StringUtil.isNotBlank(labelValueTrim)) {
-                                    queryLabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
-                                }
-                                break;
-                            case MQEParser.RELABELS:
-                                if (StringUtil.isNotBlank(labelValueTrim)) {
-                                    relabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
-                                }
-                                break;
-                        }
+                if (ctx.label() != null) {
+                    String labelValue = ctx.label().labelValue().getText();
+                    String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
+                    if (StringUtil.isNotBlank(labelValueTrim)) {
+                        queryLabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
                     }
                 }
-                queryLabeledMetrics(metricName, queryLabelList, relabelList, result);
+                queryLabeledMetrics(metricName, queryLabelList, result);
             } else if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
                     MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
@@ -297,7 +314,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             mqeValueList.add(mqeValue);
         });
         Metadata metadata = new Metadata();
-        metadata.setName(metricName);
         MQEValues mqeValues = new MQEValues();
         mqeValues.setValues(mqeValueList);
         mqeValues.setMetric(metadata);
@@ -328,7 +344,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             mqeValueList.add(mqeValue);
         });
         Metadata metadata = new Metadata();
-        metadata.setName(metricName);
         MQEValues mqeValues = new MQEValues();
         mqeValues.setValues(mqeValueList);
         mqeValues.setMetric(metadata);
@@ -361,7 +376,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             mqeValueList.add(mqeValue);
         }
         Metadata metadata = new Metadata();
-        metadata.setName(metricName);
         MQEValues mqeValues = new MQEValues();
         mqeValues.setValues(mqeValueList);
         mqeValues.setMetric(metadata);
@@ -371,7 +385,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
 
     private void queryLabeledMetrics(String metricName,
                                      List<String> queryLabelList,
-                                     List<String> relabelList,
                                      ExpressionResult result) throws IOException {
         List<MetricsValues> metricsValuesList;
         List<PointOfTime> times;
@@ -385,14 +398,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
         } else {
             metricsValuesList = Collections.emptyList();
             times = Collections.emptyList();
-        }
-        Map<String, String> relabelMap = new HashMap<>();
-        for (int i = 0; i < queryLabelList.size(); i++) {
-            if (relabelList.size() > i) {
-                relabelMap.put(queryLabelList.get(i), relabelList.get(i));
-                continue;
-            }
-            relabelMap.put(queryLabelList.get(i), queryLabelList.get(i));
         }
         metricsValuesList.forEach(metricsValues -> {
             List<MQEValue> mqeValueList = new ArrayList<>(times.size());
@@ -410,11 +415,7 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             }
 
             Metadata metadata = new Metadata();
-            metadata.setName(metricName);
-            KeyValue labelValue = new KeyValue("label", relabelMap.getOrDefault(
-                metricsValues.getLabel(),
-                metricsValues.getLabel()
-            ));
+            KeyValue labelValue = new KeyValue(LABEL, metricsValues.getLabel());
             metadata.getLabels().add(labelValue);
             MQEValues mqeValues = new MQEValues();
             mqeValues.setValues(mqeValueList);
@@ -422,5 +423,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             result.getResults().add(mqeValues);
         });
         result.setType(ExpressionResultType.TIME_SERIES_VALUES);
+        result.setLabeledResult(true);
     }
 }

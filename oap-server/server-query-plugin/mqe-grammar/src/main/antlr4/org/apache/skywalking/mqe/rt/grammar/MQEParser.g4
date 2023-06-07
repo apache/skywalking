@@ -31,6 +31,7 @@ expression
     | function0 L_PAREN expression R_PAREN #function0OP
     | function1 L_PAREN expression COMMA parameter R_PAREN #function1OP
     | topN L_PAREN metric COMMA parameter COMMA order R_PAREN  #topNOP
+    | relabels L_PAREN expression COMMA label R_PAREN #relablesOP
     ;
 
 expressionNode:  metric| scalar;
@@ -40,12 +41,12 @@ mulDivMod:       MUL | DIV | MOD;
 compare:        (DEQ | NEQ | LTE | LT | GTE | GT) BOOL?;
 
 metricName:      NAME_STRING;
-metric:   metricName | metricName L_BRACE labelList? R_BRACE;
+metric:   metricName | metricName L_BRACE label? R_BRACE;
 
-labelName:       LABLES | RELABELS;
+// For now, we only have a single label named `label`
+labelName:       LABLE;
 labelValue:      VALUE_STRING;
 label:           labelName EQ labelValue;
-labelList:       label (COMMA label)*;
 
 
 scalar:   INTEGER | DECIMAL;
@@ -61,6 +62,8 @@ function1:
     ROUND;
 
 topN: TOP_N;
+
+relabels: RELABELS;
 
 parameter:      INTEGER;
 
