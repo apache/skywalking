@@ -20,9 +20,7 @@ lexer grammar MQELexer;
 
 // Keywords
 BOOL options { caseInsensitive=true; }: 'bool';
-LABLES:       'labels';
-RELABELS:     'relabels';
-
+LABLE:       'label';
 
 // Constructors symbols
 DOT:         '.';
@@ -63,6 +61,9 @@ ROUND:       'round';
 
 // TopN
 TOP_N:        'top_n';
+
+// Relabels
+RELABELS:     'relabels';
 
 // Order
 ASC  options { caseInsensitive=true; }: 'asc';

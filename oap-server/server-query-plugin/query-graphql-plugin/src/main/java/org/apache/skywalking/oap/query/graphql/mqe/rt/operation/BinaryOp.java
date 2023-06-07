@@ -18,17 +18,21 @@
 
 package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
 import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResultType;
 import org.apache.skywalking.oap.query.graphql.type.mql.MQEValue;
 import org.apache.skywalking.oap.query.graphql.type.mql.MQEValues;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 public class BinaryOp {
-   public static ExpressionResult doBinaryOp(ExpressionResult left,
-                                        ExpressionResult right,
-                                        int opType) throws IllegalExpressionException {
+    public static ExpressionResult doBinaryOp(ExpressionResult left,
+                                              ExpressionResult right,
+                                              int opType) throws IllegalExpressionException {
         if (left.getType() == ExpressionResultType.SINGLE_VALUE && right.getType() == ExpressionResultType.SINGLE_VALUE) {
             double scalarLeft = left.getResults().get(0).getValues().get(0).getDoubleValue();
             double scalarRight = right.getResults().get(0).getValues().get(0).getDoubleValue();
@@ -53,14 +57,14 @@ public class BinaryOp {
                 right.getType() == ExpressionResultType.RECORD_LIST)) {
             return many2OneBinaryOp(right, left, opType);
         } else if (left.getType() == ExpressionResultType.TIME_SERIES_VALUES && right.getType() == ExpressionResultType.TIME_SERIES_VALUES) {
-            return seriesBinaryOp(right, left, opType);
+            return seriesBinaryOp(left, right, opType);
         }
 
         throw new IllegalExpressionException("Unsupported binary operation.");
     }
 
     //scalar with scalar
-   private static double scalarBinaryOp(double leftValue, double rightValue, int opType) {
+    private static double scalarBinaryOp(double leftValue, double rightValue, int opType) {
         double calculatedResult = 0;
         switch (opType) {
             case MQEParser.ADD:
@@ -84,35 +88,28 @@ public class BinaryOp {
 
     //series with series
     private static ExpressionResult seriesBinaryOp(ExpressionResult seriesLeft,
-                                           ExpressionResult seriesRight,
-                                           int opType) throws IllegalExpressionException {
-        if (seriesLeft.getResults().size() == 1 && seriesRight.getResults().size() == 1) {
-            MQEValues mqeValuesL = seriesLeft.getResults().get(0);
-            MQEValues mqeValuesR = seriesRight.getResults().get(0);
-            for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
-                //clean metric info
-                mqeValuesL.setMetric(null);
-                MQEValue valueL = mqeValuesL.getValues().get(i);
-                MQEValue valueR = mqeValuesR.getValues().get(i);
-                if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
-                    valueL.setEmptyValue(true);
-                    valueL.setDoubleValue(0);
-                    continue;
-                }
-                //time should be mapped
-                double newValue = scalarBinaryOp(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
-                mqeValuesL.getValues().get(i).setDoubleValue(newValue);
-            }
-
+                                                   ExpressionResult seriesRight,
+                                                   int opType) throws IllegalExpressionException {
+        ExpressionResult result = new ExpressionResult();
+        if (!seriesLeft.isLabeledResult() && !seriesRight.isLabeledResult()) { // no labeled with no labeled
+            result = seriesNoLabeled(seriesLeft, seriesRight, opType);
+        } else if (seriesLeft.isLabeledResult() && !seriesRight.isLabeledResult()) { // labeled with no labeled
+            result = seriesLabeledWithNoLabeled(seriesLeft, seriesRight, opType);
+        } else if (!seriesLeft.isLabeledResult() && seriesRight.isLabeledResult()) { // no labeled with labeled
+            result = seriesLabeledWithNoLabeled(seriesRight, seriesLeft, opType);
+        } else if (seriesLeft.isLabeledResult() && seriesRight.isLabeledResult()) { // labeled with labeled
+            result = seriesLabeledWithLabeled(seriesLeft, seriesRight, opType);
         } else {
-            throw new IllegalExpressionException("Binary operation don't support labeled metrics.");
+            throw new IllegalExpressionException("Binary operation don't support these expression.");
         }
 
-        return seriesLeft;
+        return result;
     }
 
     //series or list with scalar
-    private static ExpressionResult many2OneBinaryOp(ExpressionResult manyResult, ExpressionResult singleResult, int opType) {
+    private static ExpressionResult many2OneBinaryOp(ExpressionResult manyResult,
+                                                     ExpressionResult singleResult,
+                                                     int opType) {
         manyResult.getResults().forEach(mqeValues -> {
             mqeValues.getValues().forEach(mqeValue -> {
                 if (!mqeValue.isEmptyValue()) {
@@ -127,5 +124,85 @@ public class BinaryOp {
             });
         });
         return manyResult;
+    }
+
+    private static ExpressionResult seriesNoLabeled(ExpressionResult seriesLeft,
+                                        ExpressionResult seriesRight,
+                                        int opType) {
+        MQEValues mqeValuesL = seriesLeft.getResults().get(0);
+        MQEValues mqeValuesR = seriesRight.getResults().get(0);
+        mqeValuesL.setMetric(null);
+        for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
+            //clean metric info
+            MQEValue valueL = mqeValuesL.getValues().get(i);
+            MQEValue valueR = mqeValuesR.getValues().get(i);
+            if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                valueL.setEmptyValue(true);
+                valueL.setDoubleValue(0);
+                continue;
+            }
+            //time should be mapped
+            double newValue = scalarBinaryOp(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
+            mqeValuesL.getValues().get(i).setDoubleValue(newValue);
+        }
+
+        return seriesLeft;
+    }
+
+    private static ExpressionResult seriesLabeledWithNoLabeled(ExpressionResult seriesLeft,
+                                                   ExpressionResult seriesRight,
+                                                   int opType) {
+        MQEValues mqeValuesR = seriesRight.getResults().get(0);
+        seriesLeft.getResults().forEach(mqeValuesL -> {
+            for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
+                //reserve left metric info
+                MQEValue valueL = mqeValuesL.getValues().get(i);
+                MQEValue valueR = mqeValuesR.getValues().get(i);
+                if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                    valueL.setEmptyValue(true);
+                    valueL.setDoubleValue(0);
+                    continue;
+                }
+                double newValue = scalarBinaryOp(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
+                mqeValuesL.getValues().get(i).setDoubleValue(newValue);
+            }
+        });
+
+        return seriesLeft;
+    }
+
+    private static ExpressionResult seriesLabeledWithLabeled(ExpressionResult seriesLeft,
+                                                 ExpressionResult seriesRight,
+                                                 int opType) throws IllegalExpressionException {
+        Map<KeyValue, List<MQEValue>> labelMapR = new HashMap<>();
+        if (seriesLeft.getResults().size() != seriesRight.getResults().size()) {
+            throw new IllegalExpressionException(
+                "Binary operation between labeled metrics should have the same label.");
+        }
+        seriesRight.getResults().forEach(mqeValuesR -> {
+            // For now, we only have a single label named `label`
+            labelMapR.put(mqeValuesR.getMetric().getLabels().get(0), mqeValuesR.getValues());
+        });
+        for (MQEValues mqeValuesL : seriesLeft.getResults()) {
+            for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
+                //reserve left metric info
+                MQEValue valueL = mqeValuesL.getValues().get(i);
+                List<MQEValue> mqeValuesR = labelMapR.get(mqeValuesL.getMetric().getLabels().get(0));
+                if (mqeValuesR == null) {
+                    throw new IllegalExpressionException(
+                        "Binary operation between labeled metrics should have the same label.");
+                }
+                MQEValue valueR = mqeValuesR.get(i);
+                if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                    valueL.setEmptyValue(true);
+                    valueL.setDoubleValue(0);
+                    continue;
+                }
+                double newValue = scalarBinaryOp(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
+                mqeValuesL.getValues().get(i).setDoubleValue(newValue);
+            }
+        }
+
+        return seriesLeft;
     }
 }
