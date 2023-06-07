@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.config.group;
 
 import io.vavr.Tuple2;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -27,8 +28,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 
@@ -38,7 +41,6 @@ public class EndpointNameGrouping {
     private volatile EndpointGroupingRule endpointGroupingRule;
     @Setter
     private volatile EndpointGroupingRule4Openapi endpointGroupingRule4Openapi;
-    private HttpUriRecognition httpUriRecognitionSvr;
     /**
      * Cache the HTTP URIs which are not formatted by the rules per service.
      * Level one map key is service name, the value is a map of HTTP URI and its count.
@@ -47,6 +49,7 @@ public class EndpointNameGrouping {
      * The repeatable URI is a pattern already.
      */
     private ConcurrentHashMap<String, ConcurrentHashMap<String, AtomicInteger>> cachedHttpUris = new ConcurrentHashMap<>();
+    private final AtomicInteger aiPipelineExecutionCounter = new AtomicInteger(0);
 
     /**
      * Format the endpoint name according to the API patterns.
@@ -116,36 +119,64 @@ public class EndpointNameGrouping {
         return new Tuple2<>(formatResult.getName(), formatResult.isMatch());
     }
 
-    public void setHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr) {
-        this.httpUriRecognitionSvr = httpUriRecognitionSvr;
+    public void startHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr,
+                                           final MetadataQueryService metadataQueryService) {
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(
                          () -> {
-                             cachedHttpUris.forEach((serviceName, httpUris) -> {
-                                 List<HttpUriRecognition.HTTPUri> uris
-                                     = httpUris.keySet()
-                                               .stream()
-                                               .map(
-                                                   uri -> new HttpUriRecognition.HTTPUri(
-                                                       uri, httpUris.get(uri).get()
-                                                   ))
-                                               .collect(Collectors.toList());
-                                 // Reset the cache once the URIs are sent to the recognition server.
-                                 httpUris.clear();
-                                 httpUriRecognitionSvr
-                                     .recognize(serviceName, uris,
-                                                (service, patterns) -> {
-                                                    StringFormatGroup group = new StringFormatGroup(patterns.size());
-                                                    patterns.forEach(
-                                                        p -> group.addRule(p.getFormattedUri(), p.getPattern()));
-                                                    endpointGroupingRule.setRules(serviceName, group);
-                                                }
+                             if (aiPipelineExecutionCounter.incrementAndGet() % 30 == 0) {
+                                 // Send the cached URIs to the recognition server per 30 mins to build new patterns.
+                                 cachedHttpUris.forEach((serviceName, httpUris) -> {
+                                     List<HttpUriRecognition.HTTPUri> uris
+                                         = httpUris.keySet()
+                                                   .stream()
+                                                   .map(
+                                                       uri -> new HttpUriRecognition.HTTPUri(
+                                                           uri, httpUris.get(uri).get()
+                                                       ))
+                                                   .collect(Collectors.toList());
+                                     // Reset the cache once the URIs are sent to the recognition server.
+                                     httpUris.clear();
+                                     httpUriRecognitionSvr
+                                         .recognize(serviceName, uris,
+                                                    (service, patterns) -> {
+                                                        if (patterns.size() > 0) {
+                                                            StringFormatGroup group = new StringFormatGroup(
+                                                                patterns.size());
+                                                            patterns.forEach(
+                                                                p -> group.addRule(
+                                                                    p.getFormattedUri(), p.getPattern()));
+                                                            endpointGroupingRule.setRules(serviceName, group);
+                                                        }
+                                                    }
+                                         );
+                                 });
+                             } else {
+                                 // Sync with the recognition server per 1 min to get the latest patterns.
+                                 try {
+                                     metadataQueryService.listServices(null, null).forEach(
+                                         service -> {
+                                             final List<HttpUriPattern> patterns
+                                                 = httpUriRecognitionSvr.fetchAllPatterns(service.getName());
+                                             if (patterns.size() > 0) {
+                                                 StringFormatGroup group = new StringFormatGroup(
+                                                     patterns.size());
+                                                 patterns.forEach(
+                                                     p -> group.addRule(
+                                                         p.getFormattedUri(), p.getPattern()));
+                                                 endpointGroupingRule.setRules(service.getName(), group);
+                                             }
+                                         }
                                      );
-                             });
+                                 } catch (IOException e) {
+                                     log.error("Fail to load all services.", e);
+                                 }
+
+                             }
                          },
-                         t -> log.error("Try to recognize URI patterns.", t)
-                     ), 30, 30, TimeUnit.MINUTES
+                         t -> log.error("Fail to recognize URI patterns.", t)
+                     ), 1, 1, TimeUnit.MINUTES
                  );
 
     }

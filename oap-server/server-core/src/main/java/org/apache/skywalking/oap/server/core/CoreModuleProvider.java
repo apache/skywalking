@@ -351,11 +351,12 @@ public class CoreModuleProvider extends ModuleProvider {
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
 
-        endpointNameGrouping.setHttpUriRecognitionSvr(
+        endpointNameGrouping.startHttpUriRecognitionSvr(
             getManager()
                 .find(AIPipelineModule.NAME)
                 .provider()
-                .getService(HttpUriRecognition.class)
+                .getService(HttpUriRecognition.class),
+            getService(MetadataQueryService.class)
         );
 
         // Disable OAL script has higher priority

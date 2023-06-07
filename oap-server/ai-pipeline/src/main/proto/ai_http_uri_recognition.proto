@@ -16,15 +16,35 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.pipeline;
+syntax = "proto3";
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.ai.pipeline.grpc";
 
-@Getter
-@Setter
-public class AIPipelineConfig extends ModuleConfig {
-    private String uriRecognitionServerAddr;
-    private int uriRecognitionServerPort = 17128;
+service HttpUriRecognitionService {
+    rpc fetchAllPatterns(HttpUriRecognitionSyncRequest) returns (HttpUriRecognitionResponse) {}
+    rpc recognize(stream HttpUriRecognitionRequest) returns (HttpUriRecognitionResponse) {}
+}
+
+message HttpUriRecognitionSyncRequest {
+    string service = 1;
+}
+
+message HttpUriRecognitionRequest {
+    string service = 1;
+    repeated HTTPRawUri unrecognizedURIs = 2;
+}
+
+message HTTPRawUri {
+    string name = 1;
+    string matchedCounter = 2;
+}
+
+message HttpUriRecognitionResponse {
+    repeated Pattern patterns = 1;
+}
+
+message Pattern {
+    string formattedUri = 1;
+    string pattern = 2;
 }

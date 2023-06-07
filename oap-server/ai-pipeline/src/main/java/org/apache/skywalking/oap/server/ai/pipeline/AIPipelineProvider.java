@@ -56,7 +56,10 @@ public class AIPipelineProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        final HttpUriRecognitionService httpUriRecognitionService = new HttpUriRecognitionService();
+        final HttpUriRecognitionService httpUriRecognitionService = new HttpUriRecognitionService(
+            aiPipelineConfig.getUriRecognitionServerAddr(),
+            aiPipelineConfig.getUriRecognitionServerPort()
+        );
         this.registerServiceImplementation(HttpUriRecognition.class, httpUriRecognitionService);
     }
 

@@ -28,13 +28,20 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface HttpUriRecognition extends Service {
     /**
+     * Fetch all patterns of identified HTTP URIs
+     * @param service the name of the service
+     * @return the list of patterns of HTTP URIs
+     */
+    List<HttpUriPattern> fetchAllPatterns(String service);
+
+    /**
      * Recognize the patterns of HTTP URIs
      *
-     * @param serviceId        the ID of the service
+     * @param service        the name of the service
      * @param unrecognizedURIs the list of unrecognized URIs
      * @param callback        the callback to return the patterns of HTTP URIs.
      */
-    void recognize(String serviceId, List<HTTPUri> unrecognizedURIs, Callback callback);
+    void recognize(String service, List<HTTPUri> unrecognizedURIs, Callback callback);
 
     @RequiredArgsConstructor
     @Getter
