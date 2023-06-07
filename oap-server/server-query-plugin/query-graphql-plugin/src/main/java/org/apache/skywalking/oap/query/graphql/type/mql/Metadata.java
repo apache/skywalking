@@ -21,15 +21,10 @@ package org.apache.skywalking.oap.query.graphql.type.mql;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
+@Data
 public class Metadata {
-    @Getter
-    @Setter
-    private String name;
-    @Getter
-    @Setter
     private List<KeyValue> labels  = new ArrayList<>();
 }
