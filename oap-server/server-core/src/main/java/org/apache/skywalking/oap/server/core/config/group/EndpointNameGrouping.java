@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 
@@ -50,6 +51,10 @@ public class EndpointNameGrouping {
      */
     private ConcurrentHashMap<String, ConcurrentHashMap<String, AtomicInteger>> cachedHttpUris = new ConcurrentHashMap<>();
     private final AtomicInteger aiPipelineExecutionCounter = new AtomicInteger(0);
+    /**
+     * The max number of HTTP URIs per service for further URI pattern recognition.
+     */
+    private int maxHttpUrisNumberPerService = 3000;
 
     /**
      * Format the endpoint name according to the API patterns.
@@ -78,7 +83,7 @@ public class EndpointNameGrouping {
                     svrHttpUris = cachedHttpUris.get(serviceName);
                 }
                 // Only cache first 2000 URIs per 30 mins.
-                if (svrHttpUris.size() < 2000) {
+                if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
                     final AtomicInteger cachedCount = svrHttpUris.putIfAbsent(endpointName, new AtomicInteger(1));
                     if (null != cachedCount) {
                         cachedCount.incrementAndGet();
@@ -120,12 +125,17 @@ public class EndpointNameGrouping {
     }
 
     public void startHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr,
-                                           final MetadataQueryService metadataQueryService) {
+                                           final MetadataQueryService metadataQueryService,
+                                           int maxEndpointCandidatePerSvr) {
+        this.maxHttpUrisNumberPerService = maxEndpointCandidatePerSvr;
+        if (!httpUriRecognitionSvr.isInitialized()) {
+            return;
+        }
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(
                          () -> {
-                             if (aiPipelineExecutionCounter.incrementAndGet() % 30 == 0) {
+                             if (aiPipelineExecutionCounter.incrementAndGet() % 25 == 0) {
                                  // Send the cached URIs to the recognition server per 30 mins to build new patterns.
                                  cachedHttpUris.forEach((serviceName, httpUris) -> {
                                      List<HttpUriRecognition.HTTPUri> uris
@@ -138,19 +148,7 @@ public class EndpointNameGrouping {
                                                    .collect(Collectors.toList());
                                      // Reset the cache once the URIs are sent to the recognition server.
                                      httpUris.clear();
-                                     httpUriRecognitionSvr
-                                         .recognize(serviceName, uris,
-                                                    (service, patterns) -> {
-                                                        if (patterns.size() > 0) {
-                                                            StringFormatGroup group = new StringFormatGroup(
-                                                                patterns.size());
-                                                            patterns.forEach(
-                                                                p -> group.addRule(
-                                                                    p.getFormattedUri(), p.getPattern()));
-                                                            endpointGroupingRule.setRules(serviceName, group);
-                                                        }
-                                                    }
-                                         );
+                                     httpUriRecognitionSvr.feedRawData(serviceName, uris);
                                  });
                              } else {
                                  // Sync with the recognition server per 1 min to get the latest patterns.
@@ -159,7 +157,7 @@ public class EndpointNameGrouping {
                                          service -> {
                                              final List<HttpUriPattern> patterns
                                                  = httpUriRecognitionSvr.fetchAllPatterns(service.getName());
-                                             if (patterns.size() > 0) {
+                                             if (CollectionUtils.isNotEmpty(patterns)) {
                                                  StringFormatGroup group = new StringFormatGroup(
                                                      patterns.size());
                                                  patterns.forEach(

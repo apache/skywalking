@@ -27,6 +27,12 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * HttpUriRecognition is a service to recognize the patterns of HTTP URIs
  */
 public interface HttpUriRecognition extends Service {
+
+    /**
+     * @return true if the service is initialized and active.
+     */
+    boolean isInitialized();
+
     /**
      * Fetch all patterns of identified HTTP URIs
      * @param service the name of the service
@@ -35,22 +41,17 @@ public interface HttpUriRecognition extends Service {
     List<HttpUriPattern> fetchAllPatterns(String service);
 
     /**
-     * Recognize the patterns of HTTP URIs
+     * Feed all data for the pattern recognition of HTTP URIs
      *
      * @param service        the name of the service
      * @param unrecognizedURIs the list of unrecognized URIs
-     * @param callback        the callback to return the patterns of HTTP URIs.
      */
-    void recognize(String service, List<HTTPUri> unrecognizedURIs, Callback callback);
+    void feedRawData(String service, List<HTTPUri> unrecognizedURIs);
 
     @RequiredArgsConstructor
     @Getter
     class HTTPUri {
-        final String name;
-        final int matchedCounter;
-    }
-
-    interface Callback {
-        void onCompleted(String service, List<HttpUriPattern> patterns);
+        private final String name;
+        private final long matchedCounter;
     }
 }

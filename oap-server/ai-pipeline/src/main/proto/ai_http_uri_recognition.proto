@@ -23,7 +23,7 @@ option java_package = "org.apache.skywalking.oap.server.ai.pipeline.grpc";
 
 service HttpUriRecognitionService {
     rpc fetchAllPatterns(HttpUriRecognitionSyncRequest) returns (HttpUriRecognitionResponse) {}
-    rpc recognize(stream HttpUriRecognitionRequest) returns (HttpUriRecognitionResponse) {}
+    rpc feedRawData(HttpUriRecognitionRequest) returns (NoResponse) {}
 }
 
 message HttpUriRecognitionSyncRequest {
@@ -37,7 +37,10 @@ message HttpUriRecognitionRequest {
 
 message HTTPRawUri {
     string name = 1;
-    string matchedCounter = 2;
+    int64 matchedCounter = 2;
+}
+
+message NoResponse {
 }
 
 message HttpUriRecognitionResponse {

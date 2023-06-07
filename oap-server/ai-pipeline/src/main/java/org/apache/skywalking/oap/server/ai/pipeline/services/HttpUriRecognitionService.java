@@ -20,26 +20,73 @@ package org.apache.skywalking.oap.server.ai.pipeline.services;
 
 import io.grpc.ManagedChannel;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.ai.pipeline.grpc.HTTPRawUri;
+import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionRequest;
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionServiceGrpc;
+import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionSyncRequest;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+@Slf4j
 public class HttpUriRecognitionService implements HttpUriRecognition {
+    private HttpUriRecognitionServiceGrpc.HttpUriRecognitionServiceBlockingStub stub;
+
     public HttpUriRecognitionService(String addr, int port) {
+        if (StringUtil.isEmpty(addr) || port <= 0) {
+            return;
+        }
         GRPCClient client = new GRPCClient(addr, port);
         client.connect();
         ManagedChannel channel = client.getChannel();
-        HttpUriRecognitionServiceGrpc.HttpUriRecognitionServiceBlockingStub stub = HttpUriRecognitionServiceGrpc.newBlockingStub(channel);
+        stub = HttpUriRecognitionServiceGrpc.newBlockingStub(channel);
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return stub != null;
     }
 
     @Override
     public List<HttpUriPattern> fetchAllPatterns(final String service) {
-        return null;
+        try {
+            if (stub == null) {
+                return null;
+            }
+            return stub.withDeadlineAfter(30, TimeUnit.SECONDS)
+                       .fetchAllPatterns(
+                           HttpUriRecognitionSyncRequest.newBuilder().setService(service).build()
+                       ).getPatternsList()
+                       .stream()
+                       .map(pattern -> new HttpUriPattern(pattern.getFormattedUri(), pattern.getPattern()))
+                       .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("fetch all patterns failed from remote server.", e);
+            return null;
+        }
     }
 
     @Override
-    public void recognize(final String service, final List<HTTPUri> unrecognizedURIs, final Callback callback) {
-
+    public void feedRawData(final String service, final List<HTTPUri> unrecognizedURIs) {
+        try {
+            if (stub == null) {
+                return;
+            }
+            final HttpUriRecognitionRequest.Builder builder = HttpUriRecognitionRequest.newBuilder();
+            builder.setService(service);
+            unrecognizedURIs.forEach(httpUri -> {
+                builder.getUnrecognizedURIsBuilderList().add(
+                    HTTPRawUri.newBuilder().setName(httpUri.getName()).setMatchedCounter(httpUri.getMatchedCounter())
+                );
+            });
+            stub.withDeadlineAfter(30, TimeUnit.SECONDS)
+                .feedRawData(builder.build());
+        } catch (Exception e) {
+            log.error("feed matched and unmatched URIs to the remote server.", e);
+        }
     }
 }

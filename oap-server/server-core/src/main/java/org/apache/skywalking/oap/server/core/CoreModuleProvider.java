@@ -356,7 +356,8 @@ public class CoreModuleProvider extends ModuleProvider {
                 .find(AIPipelineModule.NAME)
                 .provider()
                 .getService(HttpUriRecognition.class),
-            getService(MetadataQueryService.class)
+            getService(MetadataQueryService.class),
+            moduleConfig.getMaxHttpUrisNumberPerService()
         );
 
         // Disable OAL script has higher priority

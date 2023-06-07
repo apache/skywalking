@@ -19,19 +19,19 @@
 package org.apache.skywalking.oap.server.ai.pipeline.services.api;
 
 import lombok.Getter;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
-@Setter
 public class HttpUriPattern {
     /**
      * Formatted URI.
      *
      * /product/{var} is the formatted URI of /product/1, /product/2
      */
-    private String formattedUri;
+    private final String formattedUri;
     /**
      * The pattern to match the given URI. The pattern is a regular expression.
      */
-    private String pattern;
+    private final String pattern;
 }
