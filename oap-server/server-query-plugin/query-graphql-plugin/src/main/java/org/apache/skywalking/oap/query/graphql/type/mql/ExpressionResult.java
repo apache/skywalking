@@ -28,4 +28,5 @@ public class ExpressionResult {
     private ExpressionResultType type = ExpressionResultType.UNKNOWN;
     private List<MQEValues> results = new ArrayList<>();
     private String error;
+    private boolean isLabeledResult = false;
 }
