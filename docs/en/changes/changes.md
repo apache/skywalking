@@ -51,6 +51,7 @@
 * Support Metrics Query Expression(MQE) and allows users to do simple query-stage calculation through the expression.
 * Deprecated metrics query v2 protocol.
 * Deprecated record query protocol.
+* Add component ID for go-redis.
 * Add OpenSearch 2.8.0 to test case.
 
 #### UI
