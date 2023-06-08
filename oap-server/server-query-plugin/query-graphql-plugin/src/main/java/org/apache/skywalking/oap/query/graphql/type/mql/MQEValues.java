@@ -21,14 +21,11 @@ package org.apache.skywalking.oap.query.graphql.type.mql;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
+@Data
 public class MQEValues {
-    @Getter
-    @Setter
     private Metadata metric;
-    @Getter
-    @Setter
+
     private List<MQEValue> values = new ArrayList<>();
 }

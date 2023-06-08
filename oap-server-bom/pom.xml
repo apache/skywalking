@@ -49,7 +49,7 @@
         <commons-text.version>1.4</commons-text.version>
         <kubernetes.version>18.0.0</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
-        <zipkin.version>2.24.0</zipkin.version>
+        <zipkin.version>2.24.1</zipkin.version>
         <jackson.version>2.14.1</jackson.version>
         <jackson-databind.version>2.14.1</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
