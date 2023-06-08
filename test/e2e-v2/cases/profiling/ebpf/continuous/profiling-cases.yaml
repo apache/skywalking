@@ -53,3 +53,7 @@ cases:
       end=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
       swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
     expected: expected/profiling-analysis.yml
+
+  # check monitoring status
+  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling continuous monitoring --service-name sqrt --target On_CPU
+    expected: expected/query-monitoring.yml

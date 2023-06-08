@@ -183,7 +183,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
-            INSTANCE_TRAFFIC_COMPACT_TAGS,
+            INSTANCE_TRAFFIC_TAGS,
             Collections.emptySet(),
             new QueryBuilder<MeasureQuery>() {
                 @Override

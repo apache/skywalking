@@ -175,7 +175,7 @@ public class EBPFProfilingMutationService implements Service {
             task.combine(tasks.get(i));
         }
         // target type not "NETWORK"
-        if (!Objects.equals(task.getTargetType(), EBPFProfilingTargetType.NETWORK)) {
+        if (!Objects.equals(task.getTargetType(), EBPFProfilingTargetType.NETWORK.value())) {
             return buildKeepProfilingError("current task is not a \"NETWORK\" task");
         }
         // task already finished
