@@ -20,12 +20,10 @@
   triggeredcount: {{ ge .triggeredcount 1 }}
   lasttriggertimestamp: {{ ge .lasttriggertimestamp 1 }}
   processes:
-    {{- contains .processes}}
-    - id: {{ notEmpty .id }}
+    - id: {{ notEmpty (index .processes 0).id }}
       name: sqrt
       detecttype: VM
       labels: []
-      triggeredcount: {{ ge .triggeredcount 1 }}
-      lasttriggertimestamp: {{ ge .lasttriggertimestamp 1 }}
-    {{- end }}
+      triggeredcount: {{ ge (index .processes 0).triggeredcount 1 }}
+      lasttriggertimestamp: {{ (index .processes 0).lasttriggertimestamp }}
 {{- end }}
