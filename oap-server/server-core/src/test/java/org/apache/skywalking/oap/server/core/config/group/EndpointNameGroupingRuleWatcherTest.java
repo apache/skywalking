@@ -71,42 +71,19 @@ public class EndpointNameGroupingRuleWatcherTest {
                     return new String[0];
                 }
             }, endpointNameGrouping);
-        Assertions.assertEquals("/prod/{id}", endpointNameGrouping.format("serviceA", "/prod/123")._1());
+        Assertions.assertEquals("/prod/{var}", endpointNameGrouping.format("serviceA", "/prod/123")._1());
 
         watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(
-            "# Licensed to the Apache Software Foundation (ASF) under one or more\n" +
-                "# contributor license agreements.  See the NOTICE file distributed with\n" +
-                "# this work for additional information regarding copyright ownership.\n" +
-                "# The ASF licenses this file to You under the Apache License, Version 2.0\n" +
-                "# (the \"License\"); you may not use this file except in compliance with\n" +
-                "# the License.  You may obtain a copy of the License at\n" +
-                "#\n" +
-                "#     http://www.apache.org/licenses/LICENSE-2.0\n" +
-                "#\n" +
-                "# Unless required by applicable law or agreed to in writing, software\n" +
-                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                "# See the License for the specific language governing permissions and\n" +
-                "# limitations under the License.\n" +
-                "\n" +
-                "# Endpoint name grouping rules.\n" +
-                "# In most cased, endpoint name should be detected by agents or service mesh automatically, and aggregate the metrics based\n" +
-                "# on the name.\n" +
-                "# But, in some cases, application put the parameter in the endpoint name, such as putting order id in the URI, like\n" +
-                "# /prod/ORDER123, /prod/ORDER123.\n" +
-                "# This grouping file provides the regex based definition capability to merge those endpoints into a group by better and\n" +
-                "# more meaningful aggregation metrics.\n" +
-                "\n" +
                 "grouping:\n" +
                 "  # Endpoint of the service would follow the following rules\n" +
                 "  - service-name: serviceA\n" +
                 "    rules:\n" +
-                "      - endpoint-name: /prod/order-id\n" +
-                "        regex: \\/prod\\/.+"
+                "      - /prod/{var}\n" +
+                "      - /prod/{var}/info\n"
             , ConfigChangeWatcher.EventType.MODIFY
         ));
 
-        Assertions.assertEquals("/prod/order-id", endpointNameGrouping.format("serviceA", "/prod/123")._1());
+        Assertions.assertEquals("/prod/{var}/info", endpointNameGrouping.format("serviceA", "/prod/123/info")._1());
 
         watcher.notify(new ConfigChangeWatcher.ConfigChangeEvent("", ConfigChangeWatcher.EventType.DELETE));
         Assertions.assertEquals("/prod/123", endpointNameGrouping.format("serviceA", "/prod/123")._1());

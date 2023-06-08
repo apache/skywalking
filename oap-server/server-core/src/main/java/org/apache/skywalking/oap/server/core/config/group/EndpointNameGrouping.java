@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 @Slf4j
 public class EndpointNameGrouping {
     @Setter
-    private volatile EndpointGroupingRule endpointGroupingRule;
+    private volatile QuickUriGroupingRule endpointGroupingRule;
     @Setter
     private volatile EndpointGroupingRule4Openapi endpointGroupingRule4Openapi;
     @Setter
@@ -113,7 +113,7 @@ public class EndpointNameGrouping {
                 log.trace("Endpoint {} of Service {} keeps unchanged.", endpointName, serviceName);
             }
         }
-        return new Tuple2<>(formatResult.getName(), formatResult.isMatch());
+        return new Tuple2<>(formatResult.getReplacedName(), formatResult.isMatch());
     }
 
     private Tuple2<String, Boolean> formatByOpenapi(String serviceName, String endpointName) {

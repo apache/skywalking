@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.apache.skywalking.oap.server.core.config.group.uri.quickmatch.QuickUriGroupingRule;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -47,8 +48,8 @@ public class EndpointGroupingRuleReader {
     /**
      * @return the loaded rules.
      */
-    EndpointGroupingRule read() {
-        EndpointGroupingRule endpointGroupingRule = new EndpointGroupingRule();
+    QuickUriGroupingRule read() {
+        QuickUriGroupingRule quickUriGroupingRule = new QuickUriGroupingRule();
 
         if (Objects.nonNull(yamlData)) {
             List rulesData = (List) yamlData.get("grouping");
@@ -62,19 +63,17 @@ public class EndpointGroupingRuleReader {
                     final List endpointRules = (List) rule.get("rules");
                     if (endpointRules != null) {
                         endpointRules.forEach(endpointRuleObj -> {
-                            final Map endpointRule = (Map) endpointRuleObj;
-                            final String endpointLogicGroupName = (String) endpointRule.get("endpoint-name");
-                            final String groupRegex = (String) endpointRule.get("regex");
-                            if (StringUtil.isEmpty(endpointLogicGroupName) || StringUtil.isEmpty(groupRegex)) {
+                            final String pattern = (String) endpointRuleObj;
+                            if (StringUtil.isEmpty(pattern)) {
                                 return;
                             }
-                            endpointGroupingRule.addRule(serviceName, endpointLogicGroupName, groupRegex);
+                            quickUriGroupingRule.addRule(serviceName, pattern);
                         });
                     }
                 });
             }
         }
 
-        return endpointGroupingRule;
+        return quickUriGroupingRule;
     }
 }
