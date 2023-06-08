@@ -17,6 +17,6 @@ FROM python:3.7
 
 COPY docker/test.py .
 
-RUN pip3 install selenium==3.141.0
+RUN pip3 install selenium==4.9.1
 
 CMD ["python3", "/test.py"]
