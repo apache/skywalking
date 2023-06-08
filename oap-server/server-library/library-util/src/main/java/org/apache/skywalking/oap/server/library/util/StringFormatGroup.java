@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -79,6 +80,8 @@ public class StringFormatGroup {
 
     @Getter
     @RequiredArgsConstructor
+    @EqualsAndHashCode
+    @ToString
     public static class FormatResult {
         private final boolean match;
         private final String name;

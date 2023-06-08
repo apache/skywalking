@@ -54,6 +54,7 @@
 * Add OpenSearch 2.8.0 to test case.
 * Add `ai-pipeline` module.
 * Support HTTP URI formatting through `ai-pipeline` to do pattern recognition.
+* Add new HTTP URI grouping engine with benchmark. 
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

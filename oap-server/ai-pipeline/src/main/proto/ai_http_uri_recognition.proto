@@ -18,36 +18,46 @@
 
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
+
 option java_multiple_files = true;
 option java_package = "org.apache.skywalking.oap.server.ai.pipeline.grpc";
 
 service HttpUriRecognitionService {
+    // Sync for the pattern recognition dictionary.
     rpc fetchAllPatterns(HttpUriRecognitionSyncRequest) returns (HttpUriRecognitionResponse) {}
-    rpc feedRawData(HttpUriRecognitionRequest) returns (NoResponse) {}
+    // Feed new raw data and matched patterns to the AI-server.
+    rpc feedRawData(HttpUriRecognitionRequest) returns (google.protobuf.Empty) {}
 }
 
 message HttpUriRecognitionSyncRequest {
     string service = 1;
+    // The version of pattern dictionary at the OAP side.
+    string version = 2;
 }
 
 message HttpUriRecognitionRequest {
     string service = 1;
-    repeated HTTPRawUri unrecognizedURIs = 2;
+    repeated HttpRawUri unrecognizedURIs = 2;
 }
 
-message HTTPRawUri {
+message HttpRawUri {
     string name = 1;
     int64 matchedCounter = 2;
 }
 
-message NoResponse {
-}
-
 message HttpUriRecognitionResponse {
     repeated Pattern patterns = 1;
+    // The version of pattern dictionary at the AI-server side.
+    // If it is as same as HttpUriRecognitionSyncRequest#version,
+    // patterns could be empty as nothing should be updated.
+    string version = 2;
 }
 
 message Pattern {
-    string formattedUri = 1;
+    // Quick match URI pattern. {var} represents a variable part in the URI.
+    // /product/{var} is the pattern for /product/1, /product/2
+    // GET:/product/{var}/detail is the pattern for GET:/product/1/detail, GET:/product/2/detail
     string pattern = 2;
 }

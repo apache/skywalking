@@ -23,8 +23,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.ai.pipeline.grpc.HTTPRawUri;
+import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpRawUri;
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionRequest;
+import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionResponse;
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionServiceGrpc;
 import org.apache.skywalking.oap.server.ai.pipeline.grpc.HttpUriRecognitionSyncRequest;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
@@ -35,6 +36,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 @Slf4j
 public class HttpUriRecognitionService implements HttpUriRecognition {
     private HttpUriRecognitionServiceGrpc.HttpUriRecognitionServiceBlockingStub stub;
+    private String version = "NULL";
 
     public HttpUriRecognitionService(String addr, int port) {
         if (StringUtil.isEmpty(addr) || port <= 0) {
@@ -57,13 +59,24 @@ public class HttpUriRecognitionService implements HttpUriRecognition {
             if (stub == null) {
                 return null;
             }
-            return stub.withDeadlineAfter(30, TimeUnit.SECONDS)
-                       .fetchAllPatterns(
-                           HttpUriRecognitionSyncRequest.newBuilder().setService(service).build()
-                       ).getPatternsList()
-                       .stream()
-                       .map(pattern -> new HttpUriPattern(pattern.getFormattedUri(), pattern.getPattern()))
-                       .collect(Collectors.toList());
+            final HttpUriRecognitionResponse httpUriRecognitionResponse
+                = stub.withDeadlineAfter(30, TimeUnit.SECONDS)
+                      .fetchAllPatterns(
+                          HttpUriRecognitionSyncRequest.newBuilder()
+                                                       .setService(service)
+                                                       .setVersion(version)
+                                                       .build()
+                      );
+            final String newVersion = httpUriRecognitionResponse.getVersion();
+            if (version.equals(newVersion)) {
+                // Same version, nothing changed.
+                return null;
+            }
+            return httpUriRecognitionResponse.getPatternsList()
+                                             .stream()
+                                             .map(pattern -> new HttpUriPattern(pattern.getPattern()))
+                                             .collect(Collectors.toList());
+
         } catch (Exception e) {
             log.error("fetch all patterns failed from remote server.", e);
             return null;
@@ -80,7 +93,7 @@ public class HttpUriRecognitionService implements HttpUriRecognition {
             builder.setService(service);
             unrecognizedURIs.forEach(httpUri -> {
                 builder.getUnrecognizedURIsBuilderList().add(
-                    HTTPRawUri.newBuilder().setName(httpUri.getName()).setMatchedCounter(httpUri.getMatchedCounter())
+                    HttpRawUri.newBuilder().setName(httpUri.getName()).setMatchedCounter(httpUri.getMatchedCounter())
                 );
             });
             stub.withDeadlineAfter(30, TimeUnit.SECONDS)

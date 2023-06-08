@@ -16,39 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.config.group;
+package org.apache.skywalking.oap.server.core.config.group.uri.quickmatch;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 
-/**
- * Endpoint group rule hosts all group rules of all services.
- */
-public class EndpointGroupingRule {
-    private Map<String, StringFormatGroup> rules = new HashMap<>();
+public class QuickUriGroupingRule {
+    private Map<String, PatternTree> rules = new HashMap<>();
 
-    /**
-     * Add a new rule to the context.
-     *
-     * @param serviceName       of the new rule
-     * @param endpointGroupName represents the logic endpoint name.
-     * @param ruleRegex         match the endpoints which should be in the group name.
-     */
-    public void addRule(String serviceName, String endpointGroupName, String ruleRegex) {
-        final StringFormatGroup formatGroup = rules.computeIfAbsent(serviceName, name -> new StringFormatGroup());
-        formatGroup.addRule(endpointGroupName, ruleRegex);
+    public void addRule(String serviceName, String pattern) {
+        final PatternTree patternTree = rules.computeIfAbsent(serviceName, name -> new PatternTree());
+        patternTree.addPattern(pattern);
     }
 
-    /**
-     * @param service      of the given endpoint belonged.
-     * @param endpointName to do group checking.
-     * @return group result and new endpoint name if rule matched.
-     */
     public StringFormatGroup.FormatResult format(String service, String endpointName) {
-        final StringFormatGroup stringFormatGroup = rules.get(service);
-        if (stringFormatGroup != null) {
-            return stringFormatGroup.format(endpointName);
+        final PatternTree patternTree = rules.get(service);
+        if (patternTree != null) {
+            return patternTree.match(endpointName);
         } else {
             return new StringFormatGroup.FormatResult(false, endpointName, endpointName);
         }

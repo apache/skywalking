@@ -16,18 +16,32 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.pipeline.services.api;
+package org.apache.skywalking.oap.server.core.config.group.uri.quickmatch;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
-@RequiredArgsConstructor
-@Getter
-public class HttpUriPattern {
-    /**
-     * Quick match URI pattern. {var} represents a variable part in the URI.
-     *
-     * /product/{var} is the pattern for /product/1, /product/2
-     */
-    private final String pattern;
+public interface PatternToken {
+    boolean isMatch(String name);
+
+    boolean isLeaf();
+
+    String expression();
+
+    void setExpression(String expression);
+
+    List<PatternToken> children();
+
+    default PatternToken find(final PatternToken token) {
+        for (final PatternToken child : children()) {
+            if (child.equals(token)) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    default PatternToken add(final PatternToken token) {
+        children().add(token);
+        return token;
+    }
 }

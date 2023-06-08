@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
+import org.apache.skywalking.oap.server.core.config.group.uri.quickmatch.QuickUriGroupingRule;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
@@ -42,6 +43,8 @@ public class EndpointNameGrouping {
     private volatile EndpointGroupingRule endpointGroupingRule;
     @Setter
     private volatile EndpointGroupingRule4Openapi endpointGroupingRule4Openapi;
+    @Setter
+    private volatile QuickUriGroupingRule quickUriGroupingRule;
     /**
      * Cache the HTTP URIs which are not formatted by the rules per service.
      * Level one map key is service name, the value is a map of HTTP URI and its count.
@@ -74,9 +77,13 @@ public class EndpointNameGrouping {
             formattedName = formatByCustom(serviceName, endpointName);
         }
 
+        if (!formattedName._2() && quickUriGroupingRule != null) {
+            formattedName = formatByQuickUriPattern(serviceName, endpointName);
+        }
+
         if (!formattedName._2()) {
             // Only URI starts with '/' will be cached and formatted later.
-            if (endpointName.startsWith("/")) {
+            if (endpointName.indexOf("/") > -1) {
                 ConcurrentHashMap<String, AtomicInteger> svrHttpUris = cachedHttpUris.get(serviceName);
                 if (svrHttpUris == null) {
                     cachedHttpUris.putIfAbsent(serviceName, new ConcurrentHashMap<>());
@@ -124,6 +131,21 @@ public class EndpointNameGrouping {
         return new Tuple2<>(formatResult.getName(), formatResult.isMatch());
     }
 
+    private Tuple2<String, Boolean> formatByQuickUriPattern(String serviceName, String endpointName) {
+        final StringFormatGroup.FormatResult formatResult = quickUriGroupingRule.format(serviceName, endpointName);
+        if (log.isDebugEnabled() || log.isTraceEnabled()) {
+            if (formatResult.isMatch()) {
+                log.debug(
+                    "Endpoint {} of Service {} has been renamed in group {} by AI/ML-powered URI pattern recognition",
+                    endpointName, serviceName, formatResult.getName()
+                );
+            } else {
+                log.trace("Endpoint {} of Service {} keeps unchanged.", endpointName, serviceName);
+            }
+        }
+        return new Tuple2<>(formatResult.getName(), formatResult.isMatch());
+    }
+
     public void startHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr,
                                            final MetadataQueryService metadataQueryService,
                                            int maxEndpointCandidatePerSvr) {
@@ -131,6 +153,7 @@ public class EndpointNameGrouping {
         if (!httpUriRecognitionSvr.isInitialized()) {
             return;
         }
+        this.quickUriGroupingRule = new QuickUriGroupingRule();
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(
@@ -161,9 +184,9 @@ public class EndpointNameGrouping {
                                                  StringFormatGroup group = new StringFormatGroup(
                                                      patterns.size());
                                                  patterns.forEach(
-                                                     p -> group.addRule(
-                                                         p.getFormattedUri(), p.getPattern()));
-                                                 endpointGroupingRule.setRules(service.getName(), group);
+                                                     p -> quickUriGroupingRule.addRule(
+                                                         service.getName(), p.getPattern()));
+
                                              }
                                          }
                                      );
