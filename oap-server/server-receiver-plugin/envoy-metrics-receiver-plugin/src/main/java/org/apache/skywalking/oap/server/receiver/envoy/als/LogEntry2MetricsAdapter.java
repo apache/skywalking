@@ -81,10 +81,16 @@ public class LogEntry2MetricsAdapter {
         final long outboundStartTime = startTime + formatAsLong(properties.getTimeToFirstUpstreamTxByte());
         final long outboundEndTime = startTime + formatAsLong(properties.getTimeToLastUpstreamRxByte());
 
-        return adaptCommonPart()
+        final HTTPServiceMeshMetric.Builder builder = adaptCommonPart();
+        // For client side call, status needs to be overridden because 4xx http status codes
+        // are considered as errors to.
+        final boolean status = builder.getResponseCode() < 400;
+
+        return builder
             .setStartTime(outboundStartTime)
             .setEndTime(outboundEndTime)
             .setLatency((int) Math.max(1L, outboundEndTime - outboundStartTime))
+            .setStatus(status)
             .setDetectPoint(DetectPoint.client);
     }
 
