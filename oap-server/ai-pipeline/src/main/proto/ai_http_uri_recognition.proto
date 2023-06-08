@@ -39,7 +39,7 @@ message HttpUriRecognitionSyncRequest {
 
 message HttpUriRecognitionRequest {
     string service = 1;
-    repeated HttpRawUri unrecognizedURIs = 2;
+    repeated HttpRawUri unrecognizedUris = 2;
 }
 
 message HttpRawUri {

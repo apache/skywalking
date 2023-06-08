@@ -92,7 +92,7 @@ public class HttpUriRecognitionService implements HttpUriRecognition {
             final HttpUriRecognitionRequest.Builder builder = HttpUriRecognitionRequest.newBuilder();
             builder.setService(service);
             unrecognizedURIs.forEach(httpUri -> {
-                builder.getUnrecognizedURIsBuilderList().add(
+                builder.getUnrecognizedUrisBuilderList().add(
                     HttpRawUri.newBuilder().setName(httpUri.getName()).setMatchedCounter(httpUri.getMatchedCounter())
                 );
             });
