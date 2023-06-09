@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -200,12 +202,13 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(InstanceTraffic.INDEX_NAME);
-        final BoolQueryBuilder query =
-            Query.bool()
-                .must(Query.terms("_id", instanceIds));
+        final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, InstanceTraffic.INDEX_NAME));
+            instanceIds = instanceIds.stream()
+                .map(s -> IndexController.INSTANCE.generateDocId(InstanceTraffic.INDEX_NAME, s)).collect(Collectors.toList());
         }
+        query.must(Query.terms("_id", instanceIds));
         final SearchBuilder search = Search.builder().query(query).size(instanceIds.size());
 
         final SearchResponse response = getClient().search(index, search.build());
