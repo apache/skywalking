@@ -22,6 +22,8 @@ import com.google.gson.Gson;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicyConfiguration;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingTargetType;
@@ -135,7 +137,8 @@ public class ContinuousProfilingQueryService implements Service {
 
     public List<ContinuousProfilingMonitoringInstance> queryContinuousProfilingMonitoringInstances(String serviceId, ContinuousProfilingTargetType target) throws IOException {
         // Query all processes of the given service
-        final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null, 0, 0);
+        final List<Process> processes = getMetadataQueryDAO().listProcesses(serviceId, null,
+            TimeBucket.getTimeBucket(calcLastTriggeredStartTime().getTimeInMillis(), DownSampling.Minute), 0);
         if (CollectionUtils.isEmpty(processes)) {
             return Collections.emptyList();
         }
@@ -190,11 +193,15 @@ public class ContinuousProfilingQueryService implements Service {
     }
 
     private List<EBPFProfilingTaskRecord> queryRecentTriggeredTasks(String serviceId, Collection<ContinuousProfilingTargetType> targets) throws IOException {
-        final Calendar timeInstance = Calendar.getInstance();
-        timeInstance.add(Calendar.HOUR, -RECENT_TRIGGERED_HOURS);
         return getEbpfProfilingTaskDAO().queryTasksByTargets(serviceId, null,
             targets.stream().map(EBPFProfilingTargetType::valueOf).collect(Collectors.toList()),
-            EBPFProfilingTriggerType.CONTINUOUS_PROFILING, timeInstance.getTimeInMillis(), 0);
+            EBPFProfilingTriggerType.CONTINUOUS_PROFILING, calcLastTriggeredStartTime().getTimeInMillis(), 0);
+    }
+
+    private Calendar calcLastTriggeredStartTime() {
+        final Calendar timeInstance = Calendar.getInstance();
+        timeInstance.add(Calendar.HOUR, -RECENT_TRIGGERED_HOURS);
+        return timeInstance;
     }
 
     /**
