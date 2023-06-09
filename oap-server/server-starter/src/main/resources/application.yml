@@ -554,7 +554,7 @@ aws-firehose:
     tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}
 
 ai-pipeline:
-  selector: ${SW_AI_PIPELINE:-}
+  selector: ${SW_AI_PIPELINE:default}
   default:
-    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:0.0.0.0}
+    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
     uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
