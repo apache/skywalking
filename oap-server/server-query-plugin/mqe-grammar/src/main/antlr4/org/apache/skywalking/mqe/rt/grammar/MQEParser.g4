@@ -52,7 +52,7 @@ label:           labelName EQ labelValue;
 scalar:   INTEGER | DECIMAL;
 
 aggregation:
-    AVG | COUNT | SUM | MAX | MIN ;
+    AVG | COUNT | LATEST | SUM | MAX | MIN | ;
 
 // 0 parameter function
 function0:

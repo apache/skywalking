@@ -72,7 +72,8 @@ The result type of the expression please refer to the following table.
 
 ### Binary Operation Rules
 The following table listed if the difference result types of the input expressions could do this operation and the result type after the operation.
-The expression could on the left or right side of the operator.
+The expression could on the left or right side of the operator. 
+**Note**: If the expressions on both sides of the operator are the `TIME_SERIES_VALUES with labels`, they should have the same labels for calculation.
 
 | Expression              | Expression                | Yes/No | ExpressionResultType     |
 |-------------------------|---------------------------|--------|--------------------------|
@@ -91,13 +92,14 @@ Expression:
 <Aggregation-Operator>(Expression)
 ```
 
-| Operator | Definition                     | ExpressionResultType |
-|----------|--------------------------------|----------------------|
-| avg      | average the result             | SINGLE_VALUE         |
-| count    | count number of the result     | SINGLE_VALUE         |
-| sum      | sum the result                 | SINGLE_VALUE         |
-| max      | select maximum from the result | SINGLE_VALUE         |
-| min      | select minimum from the result | SINGLE_VALUE         |
+| Operator | Definition                                        | ExpressionResultType |
+|----------|---------------------------------------------------|----------------------|
+| avg      | average the result                                | SINGLE_VALUE         |
+| count    | count number of the result                        | SINGLE_VALUE         |
+| latest   | select the latest non-null value from the result  | SINGLE_VALUE         |
+| sum      | sum the result                                    | SINGLE_VALUE         |
+| max      | select maximum from the result                    | SINGLE_VALUE         |
+| min      | select minimum from the result                    | SINGLE_VALUE         |
 
 For example:
 If we want to query the average value of the `service_cpm` metric, we can use the following expression:
