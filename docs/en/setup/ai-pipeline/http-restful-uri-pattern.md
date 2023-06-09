@@ -1,0 +1,39 @@
+# HTTP Restful URI recognition
+
+As introduced in the [Group Parameterized Endpoints](../backend/endpoint-grouping-rules.md) doc, HTTP Restful URIs are identified
+as endpoints. With some additional rules, we can identify the parameters in the URI and group the endpoints in case of annoying
+and huge size of endpoint candidates with low value of the metrics.
+
+In the ML/AI specific fields, decision trees or neural networks can be trained on labeled URI data to automatically 
+recognize and classify different URI patterns, as well as many other ways.
+
+In this pipeline, OAP has the capabilities to cache the URI candidates with occurrence count,
+and push the data to 3rd party for further analysis. Then OAP would pull the analyzed results for
+processing the further telemetry traffic.
+
+## Set up OAP to connect remote URI recognition server
+`uriRecognitionServerAddr` and `uriRecognitionServerPort` are the configurations to set up the remote URI recognition server.
+
+The URI recognition server is a gRPC server, which is defined in [URIRecognition.proto](../../../../oap-server/ai-pipeline/src/main/proto/ai_http_uri_recognition.proto).
+
+```protobuf
+service HttpUriRecognitionService {
+    // Sync for the pattern recognition dictionary.
+    rpc fetchAllPatterns(HttpUriRecognitionSyncRequest) returns (HttpUriRecognitionResponse) {}
+    // Feed new raw data and matched patterns to the AI-server.
+    rpc feedRawData(HttpUriRecognitionRequest) returns (google.protobuf.Empty) {}
+}
+```
+
+- fetchAllPatterns service
+
+fetchAllPatterns is up and running in 1 minute period from every OAP to fetch all recognized patterns from the remote server.
+
+- feedRawData service
+
+feedRawData is running in 25-30 minutes period to push the raw data to the remote server for training.
+
+## Configurations
+
+- `core/maxHttpUrisNumberPerService` The max number of HTTP URIs per service for further URI pattern recognition.
+- No configuration to set periods of feedRawData and fetchAllPatterns services.
