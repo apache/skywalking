@@ -11,12 +11,12 @@ they are good at many things but have to run in a clear context.
 
 ## How to enable
 
-ai-pipeline module is required to activate manually through `application.yml` or system environment variable `SW_AI_PIPELINE`. 
+ai-pipeline module is activated by default but only running until you set up  `uriRecognitionServerAddr` correctly.
 
 ```yaml
 ai-pipeline:
   selector: ${SW_AI_PIPELINE:-}
   default:
-    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:0.0.0.0}
+    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
     uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
 ```

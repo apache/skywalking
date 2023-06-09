@@ -82,7 +82,8 @@ public class EndpointNameGrouping {
         }
 
         if (!formattedName._2()) {
-            // Only URI starts with '/' will be cached and formatted later.
+            // Only URI includes '/' will be cached and formatted later.
+            // Otherwise it could be anything, and has no need to be formatted.
             if (endpointName.indexOf("/") > -1) {
                 ConcurrentHashMap<String, AtomicInteger> svrHttpUris = cachedHttpUris.get(serviceName);
                 if (svrHttpUris == null) {
@@ -158,7 +159,7 @@ public class EndpointNameGrouping {
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(
                          () -> {
-                             if (aiPipelineExecutionCounter.incrementAndGet() % 25 == 0) {
+                             if (aiPipelineExecutionCounter.incrementAndGet() % 30 == 0) {
                                  // Send the cached URIs to the recognition server per 30 mins to build new patterns.
                                  cachedHttpUris.forEach((serviceName, httpUris) -> {
                                      List<HttpUriRecognition.HTTPUri> uris
