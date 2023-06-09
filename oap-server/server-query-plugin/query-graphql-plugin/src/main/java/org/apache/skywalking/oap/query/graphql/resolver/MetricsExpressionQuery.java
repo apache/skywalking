@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.query.graphql.resolver;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import graphql.org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.text.DecimalFormat;
-import java.util.Collections;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -44,27 +43,6 @@ public class MetricsExpressionQuery implements GraphQLQueryResolver {
         this.metricsQuery = new MetricsQuery(moduleManager);
         this.recordsQuery = new RecordsQuery(moduleManager);
         this.valueFormat.setGroupingUsed(false);
-    }
-
-    public ExpressionResult returnTypeOfMQE(String expression) {
-        MQELexer lexer = new MQELexer(
-            CharStreams.fromString(expression));
-        lexer.addErrorListener(new ParseErrorListener());
-        MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
-        parser.addErrorListener(new ParseErrorListener());
-        ParseTree tree;
-        try {
-            tree = parser.expression();
-        } catch (ParseCancellationException e) {
-            ExpressionResult errorResult = new ExpressionResult();
-            errorResult.setType(ExpressionResultType.UNKNOWN);
-            errorResult.setError(e.getMessage());
-            return errorResult;
-        }
-        MQEVisitor visitor = new MQEVisitor();
-        ExpressionResult parseResult = visitor.visit(tree);
-        parseResult.setResults(Collections.emptyList());
-        return parseResult;
     }
 
     public ExpressionResult execExpression(String expression, Entity entity, Duration duration) {

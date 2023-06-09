@@ -84,8 +84,6 @@ extend type Query {
     # Get the list of all available metrics in the current OAP server.
     # Param, regex, could be used to filter the metrics by name.
     listMetrics(regex: String): [MetricDefinition!]!
-    # The return type of the given expression, the MQEValues will be empty.
-    returnTypeOfMQE(expression: String!): ExpressionResult!
     execExpression(expression: String!, entity: Entity!, duration: Duration!): ExpressionResult!
 }
 ```

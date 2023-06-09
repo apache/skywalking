@@ -77,16 +77,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
         this.duration = duration;
     }
 
-    /**
-     * This constructor is only used for parsing expresstions, won't query any metrics from backend.
-     */
-    public MQEVisitor() {
-        this.metricsQuery = null;
-        this.recordsQuery = null;
-        this.entity = null;
-        this.duration = null;
-    }
-
     @Override
     public ExpressionResult visitAddSubOp(MQEParser.AddSubOpContext ctx) {
         ExpressionResult left = visit(ctx.expression(0));
@@ -292,19 +282,14 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
                                   int topN,
                                   Order order,
                                   ExpressionResult result) throws IOException {
-        List<SelectedRecord> selectedRecords;
-        // API `returnTypeOfMQE` not require entity and duration.
-        if (entity != null && duration != null && metricsQuery != null) {
-            TopNCondition topNCondition = new TopNCondition();
-            topNCondition.setName(metricName);
-            topNCondition.setTopN(topN);
-            topNCondition.setParentService(entity.getServiceName());
-            topNCondition.setOrder(order);
-            topNCondition.setNormal(entity.getNormal());
-            selectedRecords = metricsQuery.sortMetrics(topNCondition, duration);
-        } else {
-            selectedRecords = Collections.emptyList();
-        }
+        TopNCondition topNCondition = new TopNCondition();
+        topNCondition.setName(metricName);
+        topNCondition.setTopN(topN);
+        topNCondition.setParentService(entity.getServiceName());
+        topNCondition.setOrder(order);
+        topNCondition.setNormal(entity.getNormal());
+        List<SelectedRecord> selectedRecords = metricsQuery.sortMetrics(topNCondition, duration);
+
         List<MQEValue> mqeValueList = new ArrayList<>(selectedRecords.size());
         selectedRecords.forEach(selectedRecord -> {
             MQEValue mqeValue = new MQEValue();
@@ -352,18 +337,11 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     }
 
     private void queryMetrics(String metricName, ExpressionResult result) throws IOException {
-        MetricsValues metricsValues;
-        List<PointOfTime> times;
-        if (entity != null && duration != null && metricsQuery != null) {
-            MetricsCondition metricsCondition = new MetricsCondition();
-            metricsCondition.setName(metricName);
-            metricsCondition.setEntity(entity);
-            metricsValues = metricsQuery.readMetricsValues(metricsCondition, duration);
-            times = duration.assembleDurationPoints();
-        } else {
-            metricsValues = new MetricsValues();
-            times = Collections.emptyList();
-        }
+        MetricsCondition metricsCondition = new MetricsCondition();
+        metricsCondition.setName(metricName);
+        metricsCondition.setEntity(entity);
+        MetricsValues metricsValues = metricsQuery.readMetricsValues(metricsCondition, duration);
+        List<PointOfTime> times = duration.assembleDurationPoints();
         List<MQEValue> mqeValueList = new ArrayList<>(times.size());
         for (int i = 0; i < times.size(); i++) {
             long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(duration.getStep(), times.get(i).getPoint())
@@ -386,19 +364,12 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     private void queryLabeledMetrics(String metricName,
                                      List<String> queryLabelList,
                                      ExpressionResult result) throws IOException {
-        List<MetricsValues> metricsValuesList;
-        List<PointOfTime> times;
-        if (entity != null && duration != null && metricsQuery != null) {
-            MetricsCondition metricsCondition = new MetricsCondition();
-            metricsCondition.setName(metricName);
-            metricsCondition.setEntity(entity);
-            metricsValuesList = metricsQuery.readLabeledMetricsValues(
-                metricsCondition, queryLabelList, duration);
-            times = duration.assembleDurationPoints();
-        } else {
-            metricsValuesList = Collections.emptyList();
-            times = Collections.emptyList();
-        }
+        MetricsCondition metricsCondition = new MetricsCondition();
+        metricsCondition.setName(metricName);
+        metricsCondition.setEntity(entity);
+        List<MetricsValues> metricsValuesList = metricsQuery.readLabeledMetricsValues(
+            metricsCondition, queryLabelList, duration);
+        List<PointOfTime> times = duration.assembleDurationPoints();
         metricsValuesList.forEach(metricsValues -> {
             List<MQEValue> mqeValueList = new ArrayList<>(times.size());
             for (int i = 0; i < times.size(); i++) {

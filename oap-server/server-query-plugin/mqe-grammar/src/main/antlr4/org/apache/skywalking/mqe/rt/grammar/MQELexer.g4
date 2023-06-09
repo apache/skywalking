@@ -49,6 +49,7 @@ GT:          '>';
 // Aggregation operators
 AVG:         'avg';
 COUNT:       'count';
+LATEST:      'latest';
 MAX:         'max';
 MIN:         'min';
 SUM:         'sum';
