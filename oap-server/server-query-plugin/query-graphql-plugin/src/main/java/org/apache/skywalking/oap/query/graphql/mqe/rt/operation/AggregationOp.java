@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
 
+import com.google.common.collect.Streams;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,6 +48,13 @@ public class AggregationOp {
             case MQEParser.COUNT:
                 return aggregateResult(result, mqeValues -> OptionalDouble.of(
                     mqeValues.getValues().stream().filter(mqeValue -> !mqeValue.isEmptyValue()).count()));
+            case MQEParser.LATEST:
+                if (result.getType() != ExpressionResultType.TIME_SERIES_VALUES) {
+                    throw new IllegalExpressionException("LATEST can only be used in time series result.");
+                }
+                return selectResult(result, mqeValues -> Streams.findLast(mqeValues.getValues()
+                                                                                   .stream()
+                                                                                   .filter(mqeValue -> !mqeValue.isEmptyValue())));
             case MQEParser.MAX:
                 return selectResult(result, mqeValues -> mqeValues.getValues()
                                                                   .stream()
