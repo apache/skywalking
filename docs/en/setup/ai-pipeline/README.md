@@ -9,14 +9,16 @@ to 3rd party.
 From the industry practice, Pattern Recognition, Machine Learning(ML) and Artificial Intelligence(AI) are always overestimated,
 they are good at many things but have to run in a clear context.
 
-## How to enable
-
-ai-pipeline module is activated by default but only running until you set up  `uriRecognitionServerAddr` correctly.
+The ai-pipeline module is activated by default.
 
 ```yaml
 ai-pipeline:
-  selector: ${SW_AI_PIPELINE:-}
+  selector: ${SW_AI_PIPELINE:default}
   default:
     uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
     uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
 ```
+
+## Supported Scenarios
+
+* [**HTTP Restful URI recognition**](http-restful-uri-pattern.md).
