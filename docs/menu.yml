@@ -160,7 +160,7 @@ catalog:
           - name: "AI Pipeline"
             catalog:
               - name: "Introduction"
-                path: "/en/setup/ai-pipeline/readme"
+                path: "/en/setup/ai-pipeline/introduction"
               - name: "HTTP Restful URI recognition"
                 path: "/en/setup/ai-pipeline/http-restful-uri-pattern"
       - name: "UI Setup"

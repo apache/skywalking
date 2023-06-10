@@ -21,4 +21,4 @@ ai-pipeline:
 
 ## Supported Scenarios
 
-* [**HTTP Restful URI recognition**](http-restful-uri-pattern.md).
+* [**HTTP Restful URI recognition**](./http-restful-uri-pattern.md).
