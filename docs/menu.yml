@@ -157,6 +157,12 @@ catalog:
             path: "/en/setup/backend/exporter"
           - name: "Dynamic Configuration"
             path: "/en/setup/backend/dynamic-config"
+          - name: "AI Pipeline"
+            catalog:
+              - name: "Introduction"
+                path: "/en/setup/ai-pipeline/readme"
+              - name: "HTTP Restful URI recognition"
+                path: "/en/setup/ai-pipeline/http-restful-uri-pattern"
       - name: "UI Setup"
         catalog:
           - name: "Native UI"

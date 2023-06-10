@@ -194,6 +194,11 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int httpMaxRequestHeaderSize = 8192;
 
+    /**
+     * The max number of HTTP URIs per service for further URI pattern recognition.
+     */
+    private int maxHttpUrisNumberPerService = 3000;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

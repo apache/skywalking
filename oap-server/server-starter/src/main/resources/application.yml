@@ -129,6 +129,8 @@ core:
     prepareThreads: ${SW_CORE_PREPARE_THREADS:2}
     # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
     enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI:true}
+    # The max number of HTTP URIs per service for further URI pattern recognition.
+    maxHttpUrisNumberPerService: ${SW_CORE_MAX_HTTP_URIS_NUMBER_PER_SVR:3000}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -550,3 +552,9 @@ aws-firehose:
     enableTLS: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ENABLE_TLS:false}
     tlsKeyPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_KEY_PATH:}
     tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}
+
+ai-pipeline:
+  selector: ${SW_AI_PIPELINE:default}
+  default:
+    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
+    uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}

@@ -1,3 +1,4 @@
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -12,18 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+#
 
-# Endpoint name grouping rules.
-# In most cased, endpoint name should be detected by agents or service mesh automatically, and aggregate the metrics based
-# on the name.
-# But, in some cases, application puts the parameter in the endpoint name, such as putting order id in the URI, like
-# /prod/ORDER123, /prod/ORDER456.
-# This grouping file provides the regex based definition capability to merge those endpoints into a group by better and
-# more meaningful aggregation metrics.
-# {var} represents any variable string in the URI.
-
-grouping:
-  # Endpoint of the service would follow the following rules
-  - service-name: serviceA
-    rules:
-      - /prod/{var}
+org.apache.skywalking.oap.server.ai.pipeline.AIPipelineModule

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.config.group;
 
+import org.apache.skywalking.oap.server.core.config.group.uri.quickmatch.QuickUriGroupingRule;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -29,11 +30,11 @@ public class EndpointGroupingRuleReaderTest {
                                                                                .getClassLoader()
                                                                                .getResourceAsStream(
                                                                                    "endpoint-name-grouping.yml"));
-        final EndpointGroupingRule rule = reader.read();
+        final QuickUriGroupingRule rule = reader.read();
 
         StringFormatGroup.FormatResult formatResult = rule.format("serviceA", "/prod/123");
         Assertions.assertTrue(formatResult.isMatch());
-        Assertions.assertEquals("/prod/{id}", formatResult.getName());
+        Assertions.assertEquals("/prod/{var}", formatResult.getReplacedName());
 
         formatResult = rule.format("serviceA", "/prod/");
         Assertions.assertFalse(formatResult.isMatch());

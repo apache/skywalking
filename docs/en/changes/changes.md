@@ -53,6 +53,10 @@
 * Deprecated record query protocol.
 * Add component ID for go-redis.
 * Add OpenSearch 2.8.0 to test case.
+* Add `ai-pipeline` module.
+* Support HTTP URI formatting through `ai-pipeline` to do pattern recognition.
+* Add new HTTP URI grouping engine with benchmark. 
+* [Breaking Change] Use the new HTTP URI grouping engine to replace the old regex based mechanism.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
