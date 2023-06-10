@@ -37,3 +37,10 @@ feedRawData is running in 25-30 minutes period to push the raw data to the remot
 
 - `core/maxHttpUrisNumberPerService` The max number of HTTP URIs per service for further URI pattern recognition.
 - No configuration to set periods of feedRawData and fetchAllPatterns services.
+
+## Optional Server Implementation
+
+### R3
+
+[RESTful Pattern Recognition(R3)](https://github.com/SkyAPM/r3) is an Apache 2.0 licensed implementation for the URI
+recognition, and natively supports `URIRecognition.proto` defined in OAP.
