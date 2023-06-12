@@ -107,6 +107,9 @@ dependency:
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jsr310
       version: 2.14.2
       license: Apache-2.0
+    - name: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
+      version: 2.15.2
+      license: Apache-2.0
     - name: com.graphql-java:graphql-java-extended-scalars
       version: 18.1
       license: MIT
