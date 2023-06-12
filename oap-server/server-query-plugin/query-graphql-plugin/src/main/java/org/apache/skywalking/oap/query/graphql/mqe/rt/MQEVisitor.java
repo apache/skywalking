@@ -256,7 +256,7 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
                     MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
                     queryRecords(metricName, Integer.parseInt(parent.parameter().getText()),
-                                 Order.valueOf(parent.order().getText()), result
+                                 Order.valueOf(parent.order().getText().toUpperCase()), result
                     );
                 } else {
                     throw new IllegalExpressionException(
@@ -307,18 +307,13 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     }
 
     private void queryRecords(String metricName, int topN, Order order, ExpressionResult result) throws IOException {
-        List<Record> records;
-        // API `returnTypeOfMQE` not require entity and duration.
-        if (entity != null && duration != null && recordsQuery != null) {
-            RecordCondition recordCondition = new RecordCondition();
-            recordCondition.setName(metricName);
-            recordCondition.setTopN(topN);
-            recordCondition.setParentEntity(entity);
-            recordCondition.setOrder(order);
-            records = recordsQuery.readRecords(recordCondition, duration);
-        } else {
-            records = Collections.emptyList();
-        }
+        RecordCondition recordCondition = new RecordCondition();
+        recordCondition.setName(metricName);
+        recordCondition.setTopN(topN);
+        recordCondition.setParentEntity(entity);
+        recordCondition.setOrder(order);
+        List<Record> records = recordsQuery.readRecords(recordCondition, duration);
+
         List<MQEValue> mqeValueList = new ArrayList<>(records.size());
         records.forEach(record -> {
             MQEValue mqeValue = new MQEValue();

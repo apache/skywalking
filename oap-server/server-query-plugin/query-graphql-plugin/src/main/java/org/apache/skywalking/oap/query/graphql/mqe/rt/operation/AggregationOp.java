@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
 
 import com.google.common.collect.Streams;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -85,17 +84,17 @@ public class AggregationOp {
                                                     Function<MQEValues, OptionalDouble> aggregator) {
         for (MQEValues resultValues : result.getResults()) {
             OptionalDouble resultValue = aggregator.apply(resultValues);
+            List<MQEValue> mqeValueList = new ArrayList<>(1);
+            //no id
+            MQEValue mqeValue = new MQEValue();
             if (resultValue.isPresent()) {
-                List<MQEValue> mqeValueList = new ArrayList<>(1);
-                //no id
-                MQEValue mqeValue = new MQEValue();
                 mqeValue.setEmptyValue(false);
                 mqeValue.setDoubleValue(resultValue.getAsDouble());
-                mqeValueList.add(mqeValue);
-                resultValues.setValues(mqeValueList);
             } else {
-                resultValues.setValues(Collections.emptyList());
+                mqeValue.setEmptyValue(true);
             }
+            mqeValueList.add(mqeValue);
+            resultValues.setValues(mqeValueList);
         }
         result.setType(ExpressionResultType.SINGLE_VALUE);
         return result;
@@ -105,13 +104,15 @@ public class AggregationOp {
                                                  Function<MQEValues, Optional<MQEValue>> aggregator) {
         for (MQEValues resultValues : result.getResults()) {
             Optional<MQEValue> resultValue = aggregator.apply(resultValues);
+            List<MQEValue> mqeValueList = new ArrayList<>(1);
             if (resultValue.isPresent()) {
-                List<MQEValue> mqeValueList = new ArrayList<>(1);
                 mqeValueList.add(resultValue.get());
-                resultValues.setValues(mqeValueList);
             } else {
-                resultValues.setValues(Collections.emptyList());
+                MQEValue mqeValue = new MQEValue();
+                mqeValue.setEmptyValue(true);
+                mqeValueList.add(mqeValue);
             }
+            resultValues.setValues(mqeValueList);
         }
         result.setType(ExpressionResultType.SINGLE_VALUE);
         return result;

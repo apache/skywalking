@@ -27,17 +27,6 @@
           "h": 52,
           "i": "1",
           "type": "Tab",
-          "widget": {
-            "title": "Title"
-          },
-          "graph": {},
-          "metrics": [
-            ""
-          ],
-          "metricTypes": [
-            ""
-          ],
-          "activedTabIndex": 1,
           "children": [
             {
               "name": "Service",
@@ -49,9 +38,6 @@
                   "h": 48,
                   "i": "0",
                   "type": "Widget",
-                  "widget": {
-                    "title": ""
-                  },
                   "graph": {
                     "type": "ServiceList",
                     "dashboardName": "General-Service",
@@ -60,39 +46,51 @@
                     "showYAxis": false,
                     "showGroup": true
                   },
-                  "metrics": [
-                    "service_cpm",
-                    "service_sla",
-                    "service_resp_time",
-                    "service_apdex"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "Load",
                       "unit": "calls / min",
-                      "calculation": "average"
+                      "detailLabel": "load"
                     },
                     {
-                      "calculation": "percentageAvg",
+                      "label": "Success Rate",
                       "unit": "%",
-                      "label": "Success Rate"
+                      "detailLabel": "success_rate"
                     },
                     {
-                      "calculation": "average",
                       "label": "Latency",
-                      "unit": "ms"
+                      "unit": "ms",
+                      "detailLabel": "latency"
                     },
                     {
-                      "calculation": "apdexAvg",
-                      "label": "Apdex"
+                      "label": "Apdex",
+                      "detailLabel": "apdex"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(service_cpm)",
+                    "avg(service_sla)/100",
+                    "avg(service_resp_time)",
+                    "avg(service_apdex)/10000"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE",
+                    "SINGLE_VALUE",
+                    "SINGLE_VALUE",
+                    "SINGLE_VALUE"
+                  ],
+                  "subExpressions": [
+                    "service_cpm",
+                    "service_sla/100",
+                    "service_resp_time",
+                    "service_apdex/10000"
+                  ],
+                  "subTypesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -107,19 +105,9 @@
                   "h": 48,
                   "i": "0",
                   "type": "Topology",
-                  "widget": {
-                    "title": "Title"
-                  },
                   "graph": {
                     "showDepth": true
                   },
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false,
                   "linkDashboard": "General-Service-Relation",
                   "nodeDashboard": [
                     {
@@ -211,19 +199,7 @@
                   "w": 24,
                   "h": 49,
                   "i": "0",
-                  "type": "Trace",
-                  "widget": {
-                    "title": "Title"
-                  },
-                  "graph": {},
-                  "standard": {},
-                  "metrics": [
-                    ""
-                  ],
-                  "metricTypes": [
-                    ""
-                  ],
-                  "moved": false
+                  "type": "Trace"
                 }
               ]
             },
@@ -240,8 +216,7 @@
                 }
               ]
             }
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 0,
@@ -250,12 +225,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "blue",
             "backgroundColor": "white",
@@ -263,8 +232,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "General-Root",

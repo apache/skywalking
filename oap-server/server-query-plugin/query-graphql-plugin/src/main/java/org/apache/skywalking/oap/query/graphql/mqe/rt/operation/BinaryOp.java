@@ -34,18 +34,7 @@ public class BinaryOp {
                                               ExpressionResult right,
                                               int opType) throws IllegalExpressionException {
         if (left.getType() == ExpressionResultType.SINGLE_VALUE && right.getType() == ExpressionResultType.SINGLE_VALUE) {
-            double scalarLeft = left.getResults().get(0).getValues().get(0).getDoubleValue();
-            double scalarRight = right.getResults().get(0).getValues().get(0).getDoubleValue();
-            double value = scalarBinaryOp(scalarLeft, scalarRight, opType);
-            ExpressionResult result = new ExpressionResult();
-            MQEValue mqeValue = new MQEValue();
-            mqeValue.setDoubleValue(value);
-            mqeValue.setEmptyValue(false);
-            MQEValues mqeValues = new MQEValues();
-            mqeValues.getValues().add(mqeValue);
-            result.getResults().add(mqeValues);
-            result.setType(ExpressionResultType.SINGLE_VALUE);
-            return result;
+            return single2SingleBinaryOp(left, right, opType);
         } else if ((left.getType() == ExpressionResultType.TIME_SERIES_VALUES ||
             left.getType() == ExpressionResultType.SORTED_LIST ||
             left.getType() == ExpressionResultType.RECORD_LIST)
@@ -106,6 +95,29 @@ public class BinaryOp {
         return result;
     }
 
+    private static ExpressionResult single2SingleBinaryOp(ExpressionResult singleLeft,
+                                                          ExpressionResult singleRight,
+                                                          int opType) {
+        ExpressionResult result = new ExpressionResult();
+        MQEValue mqeValue = new MQEValue();
+        MQEValues mqeValues = new MQEValues();
+        mqeValues.getValues().add(mqeValue);
+        result.getResults().add(mqeValues);
+        result.setType(ExpressionResultType.SINGLE_VALUE);
+
+        MQEValue left = singleLeft.getResults().get(0).getValues().get(0);
+        MQEValue right = singleRight.getResults().get(0).getValues().get(0);
+        //return null if one of them is empty
+        if (left.isEmptyValue() || right.isEmptyValue()) {
+            mqeValue.setEmptyValue(true);
+        } else {
+            double value = scalarBinaryOp(left.getDoubleValue(), right.getDoubleValue(), opType);
+            mqeValue.setDoubleValue(value);
+            mqeValue.setEmptyValue(false);
+        }
+        return result;
+    }
+
     //series or list with scalar
     private static ExpressionResult many2OneBinaryOp(ExpressionResult manyResult,
                                                      ExpressionResult singleResult,
@@ -127,8 +139,8 @@ public class BinaryOp {
     }
 
     private static ExpressionResult seriesNoLabeled(ExpressionResult seriesLeft,
-                                        ExpressionResult seriesRight,
-                                        int opType) {
+                                                    ExpressionResult seriesRight,
+                                                    int opType) {
         MQEValues mqeValuesL = seriesLeft.getResults().get(0);
         MQEValues mqeValuesR = seriesRight.getResults().get(0);
         mqeValuesL.setMetric(null);
@@ -150,8 +162,8 @@ public class BinaryOp {
     }
 
     private static ExpressionResult seriesLabeledWithNoLabeled(ExpressionResult seriesLeft,
-                                                   ExpressionResult seriesRight,
-                                                   int opType) {
+                                                               ExpressionResult seriesRight,
+                                                               int opType) {
         MQEValues mqeValuesR = seriesRight.getResults().get(0);
         seriesLeft.getResults().forEach(mqeValuesL -> {
             for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
@@ -172,8 +184,8 @@ public class BinaryOp {
     }
 
     private static ExpressionResult seriesLabeledWithLabeled(ExpressionResult seriesLeft,
-                                                 ExpressionResult seriesRight,
-                                                 int opType) throws IllegalExpressionException {
+                                                             ExpressionResult seriesRight,
+                                                             int opType) throws IllegalExpressionException {
         Map<KeyValue, List<MQEValue>> labelMapR = new HashMap<>();
         if (seriesLeft.getResults().size() != seriesRight.getResults().size()) {
             throw new IllegalExpressionException(

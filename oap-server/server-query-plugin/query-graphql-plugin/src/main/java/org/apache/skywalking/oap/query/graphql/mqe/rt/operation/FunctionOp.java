@@ -65,8 +65,4 @@ public class FunctionOp {
         });
         return expResult;
     }
-
-    public static void main(String[] args) {
-        System.out.printf(String.valueOf(Math.floor(1.1112)));
-    }
 }

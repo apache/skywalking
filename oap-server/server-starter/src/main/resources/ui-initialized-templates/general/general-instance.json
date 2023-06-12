@@ -50,12 +50,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-16"
@@ -73,7 +67,19 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_instance_resp_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
@@ -94,15 +100,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -122,7 +122,14 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_instance_sla/100"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -143,12 +150,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_instance_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -162,6 +163,18 @@
                     {
                       "widgetId": "0-0-10"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "service_instance_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -183,12 +196,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_datasource"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -202,6 +209,13 @@
                     {
                       "widgetId": "0-0-16"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_datasource"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -223,12 +237,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_thread_pool"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -242,6 +250,18 @@
                     {
                       "widgetId": "0-0-10"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "thread_pool"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_thread_pool"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -293,35 +313,32 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_memory_noheap_max",
-                    "instance_jvm_memory_noheap",
-                    "instance_jvm_memory_heap",
-                    "instance_jvm_memory_heap_max"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB",
                       "label": "noheap_max"
                     },
                     {
-                      "calculation": "byteToMB",
                       "label": "noheap"
                     },
                     {
-                      "calculation": "byteToMB",
                       "label": "heap"
                     },
                     {
-                      "calculation": "byteToMB",
                       "label": "heap_max"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_memory_noheap_max/1048576",
+                    "instance_jvm_memory_noheap/1048576",
+                    "instance_jvm_memory_heap/1048576",
+                    "instance_jvm_memory_heap_max/1048576"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -342,16 +359,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_thread_live_count",
-                    "instance_jvm_thread_daemon_count",
-                    "instance_jvm_thread_peak_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "live"
@@ -362,6 +369,17 @@
                     {
                       "label": "peak"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_thread_live_count",
+                    "instance_jvm_thread_daemon_count",
+                    "instance_jvm_thread_peak_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -378,18 +396,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "instance_jvm_thread_timed_waiting_state_thread_count",
-                    "instance_jvm_thread_blocked_state_thread_count",
-                    "instance_jvm_thread_waiting_state_thread_count",
-                    "instance_jvm_thread_runnable_state_thread_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "timed_waiting"
@@ -403,6 +409,19 @@
                     {
                       "label": "runnable"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_thread_timed_waiting_state_thread_count",
+                    "instance_jvm_thread_blocked_state_thread_count",
+                    "instance_jvm_thread_waiting_state_thread_count",
+                    "instance_jvm_thread_runnable_state_thread_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -423,11 +442,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "jvm_cpu"
+                    }
+                  ],
+                  "expressions": [
                     "instance_jvm_cpu"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -446,16 +471,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_class_loaded_class_count",
-                    "instance_jvm_class_total_loaded_class_count",
-                    "instance_jvm_class_total_unloaded_class_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "loaded"
@@ -466,6 +481,17 @@
                     {
                       "label": "total_unloaded"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_class_loaded_class_count",
+                    "instance_jvm_class_total_loaded_class_count",
+                    "instance_jvm_class_total_unloaded_class_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -486,16 +512,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_jvm_young_gc_time",
-                    "instance_jvm_old_gc_time",
-                    "instance_jvm_normal_gc_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "young_gc"
@@ -506,6 +522,17 @@
                     {
                       "label": "normal_gc"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_young_gc_time",
+                    "instance_jvm_old_gc_time",
+                    "instance_jvm_normal_gc_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -522,16 +549,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "instance_jvm_young_gc_count",
-                    "instance_jvm_old_gc_count",
-                    "instance_jvm_normal_gc_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "young_gc"
@@ -542,6 +559,17 @@
                     {
                       "label": "normal_gc"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_young_gc_count",
+                    "instance_jvm_old_gc_count",
+                    "instance_jvm_normal_gc_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -567,16 +595,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_clr_available_worker_threads",
-                    "instance_clr_available_completion_port_threads",
-                    "instance_clr_max_completion_port_threads"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "available_worker"
@@ -587,6 +605,17 @@
                     {
                       "label": "max_completion_port"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_clr_available_worker_threads",
+                    "instance_clr_available_completion_port_threads",
+                    "instance_clr_max_completion_port_threads"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -607,16 +636,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "instance_clr_heap_memory"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_clr_heap_memory/1048576"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -633,16 +658,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "instance_clr_gen0_collect_count",
-                    "instance_clr_gen1_collect_count",
-                    "instance_clr_gen2_collect_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "gen0"
@@ -653,6 +668,17 @@
                     {
                       "label": "gen2"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_clr_gen0_collect_count",
+                    "instance_clr_gen1_collect_count",
+                    "instance_clr_gen2_collect_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -673,11 +699,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "clr_cpu"
+                    }
+                  ],
+                  "expressions": [
                     "instance_clr_cpu"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
