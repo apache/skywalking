@@ -89,6 +89,7 @@
 * Support Metrics Query Expression(MQE) and allows users to do simple query-stage calculation through the expression.
 * Bump up zipkin ui dependency to 2.24.1.
 * Bump up vite to 4.0.5.
+* Apply MQE on `General` and `Virtual-Database` layer UI-templates.
 
 #### Documentation
 

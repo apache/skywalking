@@ -39,19 +39,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_client_percentile"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "key": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4",
-              "label": "P50, P75, P90, P95, P99"
-            }
-          ],
           "associate": [
             {
               "widgetId": "8"
@@ -75,14 +62,17 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          },
           "relatedTrace": {
             "enableRelate": true,
             "latency": true
-          }
+          },
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(service_instance_relation_client_percentile,label='P50,P75,P90,P95,P99')"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 0,
@@ -103,15 +93,9 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_client_call_sla"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "label": "success_rate"
             }
           ],
           "associate": [
@@ -137,14 +121,17 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          },
           "relatedTrace": {
             "enableRelate": true,
             "status": "ERROR"
-          }
+          },
+          "metricMode": "Expression",
+          "expressions": [
+            "service_instance_relation_client_call_sla/100"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 0,
@@ -165,12 +152,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_client_cpm"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -194,10 +175,18 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          }
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "label": "load"
+            }
+          ],
+          "expressions": [
+            "service_instance_relation_client_cpm"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 0,
@@ -218,12 +207,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_client_resp_time"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -247,14 +230,22 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 22,
-            "sourceId": "8"
-          },
           "relatedTrace": {
             "enableRelate": true,
             "latency": true
-          }
+          },
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "label": "latency"
+            }
+          ],
+          "expressions": [
+            "service_instance_relation_client_resp_time"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 12,
@@ -275,19 +266,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_server_percentile"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "key": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4",
-              "label": "P50, P75, P90, P95, P99"
-            }
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -311,14 +289,17 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          },
           "relatedTrace": {
             "enableRelate": true,
             "latency": true
-          }
+          },
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(service_instance_relation_server_percentile,label='P50,P75,P90,P95,P99')"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 12,
@@ -339,15 +320,9 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_server_call_sla"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "label": "success_rate"
             }
           ],
           "associate": [
@@ -373,14 +348,17 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          },
           "relatedTrace": {
             "enableRelate": true,
             "status": "ERROR"
-          }
+          },
+          "metricMode": "Expression",
+          "expressions": [
+            "service_instance_relation_server_call_sla/100"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 12,
@@ -401,12 +379,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_server_cpm"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -430,10 +402,18 @@
               "widgetId": "8"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          }
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "label": "load"
+            }
+          ],
+          "expressions": [
+            "service_instance_relation_server_cpm"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 12,
@@ -454,12 +434,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "service_instance_relation_server_resp_time"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -483,14 +457,22 @@
               "widgetId": "7"
             }
           ],
-          "filters": {
-            "dataIndex": 19,
-            "sourceId": "4"
-          },
           "relatedTrace": {
             "enableRelate": true,
             "latency": true
-          }
+          },
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "label": "latency"
+            }
+          ],
+          "expressions": [
+            "service_instance_relation_server_resp_time"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         }
       ],
       "layer": "GENERAL",

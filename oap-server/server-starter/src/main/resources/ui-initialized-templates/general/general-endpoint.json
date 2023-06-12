@@ -50,18 +50,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "endpoint_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0, 1, 2, 3, 4"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-5"
@@ -82,7 +70,14 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(endpoint_percentile{label='0,1,2,3,4'},label='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 8,
@@ -103,12 +98,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "endpoint_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -129,7 +118,19 @@
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "endpoint_resp_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 8,
@@ -151,12 +152,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "endpoint_mq_consume_latency"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -173,6 +168,18 @@
                     {
                       "widgetId": "0-0-8"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "endpoint_mq_consume_latency"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -194,12 +201,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "endpoint_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -223,8 +224,15 @@
                   },
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "endpoint_sla/100"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -247,12 +255,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "endpoint_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -269,6 +271,18 @@
                     {
                       "widgetId": "0-0-5"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "endpoint_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

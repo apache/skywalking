@@ -34,14 +34,11 @@
             "type": "TopList",
             "color": "purple"
           },
-          "metrics": [
-            "top_n_database_statement"
+          "metricMode": "Expression",
+          "expressions": [
+            "top_n(top_n_database_statement,10,des)"
           ],
-          "metricTypes": [
-            "readRecords"
-          ],
-          "value": "2",
-          "label": "2"
+          "typesOfMQE": []
         },
         {
           "x": 6,
@@ -62,19 +59,11 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_sla"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "label": "success_rate"
             }
           ],
-          "value": "3",
-          "label": "Successful_Rate",
           "associate": [
             {
               "widgetId": "5"
@@ -86,10 +75,13 @@
               "widgetId": "6"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          "metricMode": "Expression",
+          "expressions": [
+            "database_access_sla/100"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 12,
@@ -110,14 +102,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_cpm"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "value": "4",
-          "label": "Database_Traffic",
           "associate": [
             {
               "widgetId": "3"
@@ -128,6 +112,18 @@
             {
               "widgetId": "6"
             }
+          ],
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "label": "traffic"
+            }
+          ],
+          "expressions": [
+            "database_access_cpm"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -149,20 +145,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_percentile"
-          ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
-            }
-          ],
-          "value": "5",
-          "label": "5",
           "associate": [
             {
               "widgetId": "3"
@@ -174,10 +156,13 @@
               "widgetId": "6"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(database_access_percentile{label='0,1,2,3,4'},label='P50,P75,P90,P95,P99')"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x": 0,
@@ -198,14 +183,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "database_access_resp_time"
-          ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "value": "6",
-          "label": "Database_Avg_Response",
           "associate": [
             {
               "widgetId": "3"
@@ -217,10 +194,18 @@
               "widgetId": "5"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "label": "latency"
+            }
+          ],
+          "expressions": [
+            "database_access_resp_time"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         }
       ],
       "layer": "VIRTUAL_DATABASE",

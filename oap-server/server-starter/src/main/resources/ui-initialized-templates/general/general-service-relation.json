@@ -50,12 +50,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-4"
@@ -79,10 +73,18 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  }
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_server_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
@@ -103,15 +105,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_call_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -137,14 +133,17 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_relation_server_call_sla/100"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
@@ -165,19 +164,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -201,14 +187,14 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(service_relation_server_percentile,label='P50,P75,P90,P95,P99')"
+                  ]
                 },
                 {
                   "x": 12,
@@ -229,12 +215,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -258,14 +238,22 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_server_resp_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -286,12 +274,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -315,14 +297,22 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 19,
-                    "sourceId": "0-0-3"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "latency"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_client_resp_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -343,19 +333,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -379,14 +356,17 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "latency": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(service_relation_client_percentile,label='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -407,15 +387,9 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_call_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "percentage"
+                      "label": "success_rate"
                     }
                   ],
                   "associate": [
@@ -441,14 +415,17 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  },
                   "relatedTrace": {
                     "enableRelate": true,
                     "status": "ERROR"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_relation_client_call_sla/100"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -469,12 +446,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -498,10 +469,18 @@
                       "widgetId": "0-0-4"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 8,
-                    "sourceId": "0-0-4"
-                  }
+                  "expressions": [
+                    "service_relation_client_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ]
                 }
               ]
             },

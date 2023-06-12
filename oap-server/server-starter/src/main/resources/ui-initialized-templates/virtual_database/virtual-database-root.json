@@ -38,33 +38,38 @@
             "showYAxis": false,
             "showGroup": false
           },
-          "metrics": [
-            "database_access_resp_time",
-            "database_access_sla",
-            "database_access_cpm"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
           "metricConfig": [
             {
-              "unit": "ms",
               "label": "Latency",
-              "calculation": "average"
+              "detailLabel": "latency",
+              "unit": "ms"
             },
             {
               "label": "Successful Rate",
-              "unit": "%",
-              "calculation": "percentageAvg"
+              "detailLabel": "successful_rate",
+              "unit": "%"
             },
             {
               "label": "Traffic",
-              "unit": "calls / min",
-              "calculation": "average"
+              "detailLabel": "traffic",
+              "unit": "calls / min"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "avg(database_access_resp_time)",
+            "avg(database_access_sla)/100",
+            "avg(database_access_cpm)"
+          ],
+          "subExpressions": [
+            "database_access_resp_time",
+            "database_access_sla/100",
+            "database_access_cpm"
+          ],
+          "subTypesOfMQE": [
+            "",
+            "",
+            ""
           ]
         },
         {
@@ -74,12 +79,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "blue",
             "backgroundColor": "white",
@@ -87,8 +86,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-database/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "Virtual-Database-Root",
