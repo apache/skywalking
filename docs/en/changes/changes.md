@@ -59,6 +59,8 @@
 * [Breaking Change] Use the new HTTP URI grouping engine to replace the old regex based mechanism.
 * Support `sumLabeled` in `MAL`.
 * Migrate from kubernetes-client/java to fabric8 client.
+* support `sumLabeled` in `MAL`.
+* Envoy ALS generated relation metrics considers http status codes >= 400 has an error at the client side.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.
