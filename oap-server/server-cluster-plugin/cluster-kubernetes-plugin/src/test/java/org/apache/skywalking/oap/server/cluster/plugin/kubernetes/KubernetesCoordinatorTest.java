@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodStatus;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodStatus;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
@@ -81,8 +80,8 @@ public class KubernetesCoordinatorTest {
     private Address addressB;
     private KubernetesCoordinator coordinatorA;
     private KubernetesCoordinator coordinatorB;
-    private V1Pod podA;
-    private V1Pod podB;
+    private Pod podA;
+    private Pod podB;
 
     @BeforeEach
     public void prepare() {
@@ -301,8 +300,7 @@ public class KubernetesCoordinatorTest {
         assertTrue(address.isSelf());
     }
 
-    private ClusterModuleKubernetesProvider createProvider(String uidEnvName)
-        throws ModuleStartException {
+    private ClusterModuleKubernetesProvider createProvider(String uidEnvName) {
         ClusterModuleKubernetesProvider provider = new ClusterModuleKubernetesProvider();
 
         ClusterModuleKubernetesConfig config = new ClusterModuleKubernetesConfig();
@@ -322,22 +320,22 @@ public class KubernetesCoordinatorTest {
         return (KubernetesCoordinator) provider.getService(ClusterCoordinator.class);
     }
 
-    private V1Pod mockPod(String uid, String ip) {
-        V1Pod v1Pod = new V1Pod();
-        v1Pod.setMetadata(new V1ObjectMeta());
-        v1Pod.setStatus(new V1PodStatus());
+    private Pod mockPod(String uid, String ip) {
+        Pod v1Pod = new Pod();
+        v1Pod.setMetadata(new ObjectMeta());
+        v1Pod.setStatus(new PodStatus());
         v1Pod.getStatus().setPhase("Running");
         v1Pod.getMetadata().setUid(uid);
         v1Pod.getStatus().setPodIP(ip);
         return v1Pod;
     }
 
-    private List<V1Pod> mockPodList() {
-        List<V1Pod> pods = new ArrayList<>();
+    private List<Pod> mockPodList() {
+        List<Pod> pods = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            V1Pod v1Pod = new V1Pod();
-            v1Pod.setMetadata(new V1ObjectMeta());
-            v1Pod.setStatus(new V1PodStatus());
+            Pod v1Pod = new Pod();
+            v1Pod.setMetadata(new ObjectMeta());
+            v1Pod.setStatus(new PodStatus());
             v1Pod.getMetadata().setUid(SELF_UID + i);
             v1Pod.getStatus().setPodIP(LOCAL_HOST);
             pods.add(v1Pod);

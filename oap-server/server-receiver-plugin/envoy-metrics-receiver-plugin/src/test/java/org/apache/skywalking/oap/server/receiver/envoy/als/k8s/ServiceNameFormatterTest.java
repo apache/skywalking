@@ -19,9 +19,9 @@
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
 import com.google.common.collect.ImmutableMap;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1Service;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -73,11 +73,11 @@ public class ServiceNameFormatterTest {
         assertEquals(new ServiceNameFormatter(kase.format).format(kase.context), kase.result);
     }
 
-    static V1Service service(final String name) {
-        return new V1Service() {
+    static Service service(final String name) {
+        return new Service() {
             @Override
-            public V1ObjectMeta getMetadata() {
-                return new V1ObjectMeta() {
+            public ObjectMeta getMetadata() {
+                return new ObjectMeta() {
                     @Override
                     public String getName() {
                         return name;
@@ -87,11 +87,11 @@ public class ServiceNameFormatterTest {
         };
     }
 
-    static V1Pod pod(ImmutableMap<String, String> lb) {
-        return new V1Pod() {
+    static Pod pod(ImmutableMap<String, String> lb) {
+        return new Pod() {
             @Override
-            public V1ObjectMeta getMetadata() {
-                return new V1ObjectMeta() {
+            public ObjectMeta getMetadata() {
+                return new ObjectMeta() {
                     @Override
                     public Map<String, String> getLabels() {
                         return lb;

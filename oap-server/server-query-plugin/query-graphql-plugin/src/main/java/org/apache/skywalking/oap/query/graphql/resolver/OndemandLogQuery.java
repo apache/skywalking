@@ -18,20 +18,18 @@
 
 package org.apache.skywalking.oap.query.graphql.resolver;
 
-import static java.util.Comparator.comparing;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
+import graphql.kickstart.tools.GraphQLQueryResolver;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodSpec;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.query.graphql.type.InternalLog;
 import org.apache.skywalking.oap.query.graphql.type.LogAdapter;
 import org.apache.skywalking.oap.query.graphql.type.OndemandContainergQueryCondition;
@@ -44,26 +42,20 @@ import org.apache.skywalking.oap.server.core.query.type.Log;
 import org.apache.skywalking.oap.server.core.query.type.Logs;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import graphql.kickstart.tools.GraphQLQueryResolver;
-import io.kubernetes.client.openapi.ApiException;
-import io.kubernetes.client.openapi.Configuration;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Container;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodSpec;
-import io.kubernetes.client.util.Config;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @RequiredArgsConstructor
 public class OndemandLogQuery implements GraphQLQueryResolver {
-    private final Gson gson = new Gson();
-    private final Type responseType = new TypeToken<Map<String, Object>>() {
-    }.getType();
-    private CoreV1Api kApi;
-
     private final MetadataQueryV2 metadataQuery;
 
     public PodContainers listContainers(final OndemandContainergQueryCondition condition)
@@ -107,37 +99,34 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
 
     public PodContainers listContainers(
         final String namespace,
-        final String podName) throws IOException {
-        try {
+        final String podName) {
+        try (final var client = new KubernetesClientBuilder().build()) {
             if (Strings.isNullOrEmpty(namespace) || Strings.isNullOrEmpty(podName)) {
                 return new PodContainers()
                     .setErrorReason("namespace and podName can't be null or empty");
             }
-            final V1Pod pod = kApi().readNamespacedPod(podName, namespace, null);
-            final V1PodSpec spec = pod.getSpec();
+            final var pod = client.pods().inNamespace(namespace).withName(podName).get();
+            if (isNull(pod)) {
+                return new PodContainers().setErrorReason("No pod can be found");
+            }
+            final var spec = pod.getSpec();
             if (isNull(spec)) {
                 return new PodContainers().setErrorReason("No pod spec can be found");
             }
 
-            final List<String> containers = spec.getContainers().stream()
-                .map(V1Container::getName)
+            final var containers = spec.getContainers().stream()
+                .map(Container::getName)
                 .collect(Collectors.toList());
             if (nonNull(spec.getInitContainers())) {
-                final List<String> init = spec.getInitContainers().stream()
-                    .map(V1Container::getName)
+                final var init = spec.getInitContainers().stream()
+                    .map(Container::getName)
                     .collect(Collectors.toList());
                 containers.addAll(init);
             }
 
             return new PodContainers().setContainers(containers);
-        } catch (ApiException e) {
-            log.error("Failed to list containers from Kubernetes, {}", e.getResponseBody(), e);
-
-            if (!Strings.isNullOrEmpty(e.getResponseBody())) {
-                Map<String, Object> responseBody = gson.fromJson(e.getResponseBody(), responseType);
-                String message = responseBody.getOrDefault("message", e.getCode()).toString();
-                return new PodContainers().setErrorReason(message);
-            }
+        } catch (KubernetesClientException e) {
+            log.error("Failed to list containers from Kubernetes, {}", e.getMessage(), e);
             return new PodContainers().setErrorReason(e.getMessage() + ": " + e.getCode());
         }
     }
@@ -145,34 +134,35 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
     public Logs ondemandPodLogs(
         final String namespace,
         final String podName,
-        final OndemandLogQueryCondition condition) throws IOException {
+        final OndemandLogQueryCondition condition) {
         if (Strings.isNullOrEmpty(namespace) || Strings.isNullOrEmpty(podName)) {
             return new Logs().setErrorReason("namespace and podName can't be null or empty");
         }
-        try {
-            final V1Pod pod = kApi().readNamespacedPod(podName, namespace, null);
-            final V1ObjectMeta podMetadata = pod.getMetadata();
+        try (final var client = new KubernetesClientBuilder().build()) {
+            final Pod pod = client.pods().inNamespace(namespace).withName(podName).get();
+            final ObjectMeta podMetadata = pod.getMetadata();
             if (isNull(podMetadata)) {
                 return new Logs().setErrorReason("No pod metadata can be found");
             }
-            final V1PodSpec spec = pod.getSpec();
+            final PodSpec spec = pod.getSpec();
             if (isNull(spec)) {
                 return new Logs().setErrorReason("No pod spec can be found");
             }
 
-            final Duration duration = new Duration();
+            final var duration = new Duration();
             duration.setStart(condition.getDuration().getStart());
             duration.setEnd(condition.getDuration().getEnd());
             duration.setStep(condition.getDuration().getStep());
-            final long since = duration.getStartTimestamp() / 1000;
-            final String container = condition.getContainer();
+            var since = (System.currentTimeMillis() - duration.getStartTimestamp()) / 1000;
+            since = since > 0 ? since : 30 * 60;
+            final var container = condition.getContainer();
 
-            final String podLog = kApi().readNamespacedPodLog(
-                podMetadata.getName(),
-                podMetadata.getNamespace(),
-                container,
-                false, null, null, null, null, (int) since, null, true);
-            final List<InternalLog> logs = Splitter.on("\n").omitEmptyStrings()
+            final var podLog = client.pods().inNamespace(podMetadata.getNamespace()).withName(podMetadata.getName())
+                .inContainer(container)
+                .usingTimestamps()
+                .sinceSeconds((int) since)
+                .getLog();
+            final var logs = Splitter.on("\n").omitEmptyStrings()
                 .splitToList(Strings.nullToEmpty(podLog))
                 .stream()
                 .filter(StringUtil::isNotBlank)
@@ -193,14 +183,8 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
             result.getLogs().addAll(limited);
             return result;
 
-        } catch (ApiException e) {
-            log.error("Failed to fetch logs from Kubernetes, {}", e.getResponseBody(), e);
-
-            if (!Strings.isNullOrEmpty(e.getResponseBody())) {
-                Map<String, Object> responseBody = gson.fromJson(e.getResponseBody(), responseType);
-                String message = responseBody.getOrDefault("message", e.getCode()).toString();
-                return new Logs().setErrorReason(message);
-            }
+        } catch (KubernetesClientException e) {
+            log.error("Failed to fetch logs from Kubernetes, {}", e.getMessage(), e);
             return new Logs().setErrorReason(e.getMessage() + ": " + e.getCode());
         }
     }
@@ -231,19 +215,5 @@ public class OndemandLogQuery implements GraphQLQueryResolver {
             .filter(it -> it.getTimestamp() <= to)
             .sorted(comparing(Log::getTimestamp))
             .collect(Collectors.toList());
-    }
-
-    private CoreV1Api kApi() throws IOException {
-        if (kApi == null) {
-            Configuration.setDefaultApiClient(
-                Config
-                    .defaultClient()
-                    .setReadTimeout(30000)
-                    .setWriteTimeout(30000)
-                    .setConnectTimeout(303000));
-
-            kApi = new CoreV1Api();
-        }
-        return kApi;
     }
 }
