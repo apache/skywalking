@@ -57,7 +57,8 @@
 * Support HTTP URI formatting through `ai-pipeline` to do pattern recognition.
 * Add new HTTP URI grouping engine with benchmark. 
 * [Breaking Change] Use the new HTTP URI grouping engine to replace the old regex based mechanism.
-* support `sumLabeled` in `MAL`.
+* Support `sumLabeled` in `MAL`.
+* Migrate from kubernetes-client/java to fabric8 client.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

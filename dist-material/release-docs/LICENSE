@@ -220,6 +220,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.14.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.14.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.14.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.14.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.14.2 Apache-2.0
@@ -241,14 +242,13 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-graphql-protocol/1.23.1 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.23.1 Apache-2.0
     https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.5.3 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.okhttp3/logging-interceptor/4.10.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/4.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.okio/okio/2.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-jackson/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.zaxxer/HikariCP/3.1.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.9.4 Apache-2.0
-    https://mvnrepository.com/artifact/commons-codec/commons-codec/1.15 Apache-2.0
+    https://mvnrepository.com/artifact/commons-codec/commons-codec/1.11 Apache-2.0
     https://mvnrepository.com/artifact/commons-io/commons-io/2.7 Apache-2.0
     https://mvnrepository.com/artifact/commons-logging/commons-logging/1.2 Apache-2.0
     https://mvnrepository.com/artifact/commons-validator/commons-validator/1.7 Apache-2.0
@@ -257,6 +257,32 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.etcd/jetcd-common/0.5.3 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-core/0.5.3 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-resolver/0.5.3 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-client/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-api/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-httpclient-jdk/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-admissionregistration/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-apiextensions/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-apps/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-autoscaling/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-batch/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-certificates/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-common/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-coordination/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-core/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-discovery/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-events/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-extensions/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-flowcontrol/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-gatewayapi/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-metrics/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-networking/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-node/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-policy/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-rbac/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-resource/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-scheduling/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-storageclass/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/zjsonpatch/0.3.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-api/1.49.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-context/1.49.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-core/1.49.0 Apache-2.0
@@ -265,10 +291,6 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.grpc/grpc-protobuf/1.49.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-protobuf-lite/1.49.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.49.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.gsonfire/gson-fire/1.8.5 Apache-2.0
-    https://mvnrepository.com/artifact/io.kubernetes/client-java/18.0.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.kubernetes/client-java-api/18.0.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.kubernetes/client-java-proto/18.0.0 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.10.5 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.10.5 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.10.5 Apache-2.0
@@ -299,8 +321,6 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.prometheus/simpleclient/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot/0.6.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.prometheus/simpleclient_httpserver/0.15.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.swagger/swagger-annotations/1.6.9 Apache-2.0
     https://mvnrepository.com/artifact/io.vavr/vavr/0.10.3 Apache-2.0
     https://mvnrepository.com/artifact/io.vavr/vavr-match/0.10.3 Apache-2.0
     https://mvnrepository.com/artifact/io.zipkin.zipkin2/zipkin/2.24.1 Apache-2.0
@@ -308,9 +328,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
     https://mvnrepository.com/artifact/net.jodah/failsafe/2.3.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.commons/commons-collections4/4.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.commons/commons-compress/1.22 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.12.0 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.11 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-text/1.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-client/4.3.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-framework/4.3.0 Apache-2.0
@@ -327,7 +345,6 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.apache.yetus/audience-annotations/0.5.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper/3.5.7 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper-jute/3.5.7 Apache-2.0
-    https://mvnrepository.com/artifact/org.bitbucket.b_c/jose4j/0.9.3 Apache-2.0
     https://mvnrepository.com/artifact/org.codehaus.groovy/groovy/3.0.8 Apache-2.0
     https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.31 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect/1.7.10 Apache-2.0
@@ -345,6 +362,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 Apache-2.0
+    https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine/2.6 Apache-2.0
     https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.8.1 Apache-2.0
     https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.0 Apache-2.0
     https://npmjs.com/package/typescript/v/4.7.4 4.7.4 Apache-2.0
@@ -508,9 +526,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/moment/v/2.29.4 2.29.4 MIT
     https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
     https://npmjs.com/package/nanoid/v/3.3.6 3.3.6 MIT
-    https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on/1.72 MIT
-    https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on/1.72 MIT
-    https://mvnrepository.com/artifact/org.bouncycastle/bcutil-jdk18on/1.72 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.12.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
