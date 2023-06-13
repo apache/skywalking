@@ -175,7 +175,7 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             return expResult;
         }
         try {
-            return doFunction1Op(expResult, opType, ctx.parameter());
+            return doFunction1Op(expResult, opType, Integer.parseInt(ctx.parameter().INTEGER().getText()));
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);

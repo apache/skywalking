@@ -42,12 +42,12 @@ public class FunctionOp {
 
     public static ExpressionResult doFunction1Op(ExpressionResult expResult,
                                                  int opType,
-                                                 MQEParser.ParameterContext params) throws IllegalExpressionException {
+                                                 int scale) throws IllegalExpressionException {
         switch (opType) {
             case MQEParser.ROUND:
                 return FunctionOp.transResult(expResult, aDouble -> {
                     BigDecimal bd = BigDecimal.valueOf(aDouble);
-                    return bd.setScale(Integer.parseInt(params.INTEGER().getText()), RoundingMode.HALF_UP).doubleValue();
+                    return bd.setScale(scale, RoundingMode.HALF_UP).doubleValue();
                 });
         }
 
