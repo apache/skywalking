@@ -83,7 +83,7 @@ public class LogEntry2MetricsAdapter {
 
         final HTTPServiceMeshMetric.Builder builder = adaptCommonPart();
         // For client side call, status needs to be overridden because 4xx http status codes
-        // are considered as errors to.
+        // are considered as errors too.
         final boolean status = builder.getResponseCode() < 400;
 
         return builder
