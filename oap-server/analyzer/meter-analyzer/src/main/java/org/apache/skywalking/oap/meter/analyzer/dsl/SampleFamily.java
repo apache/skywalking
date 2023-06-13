@@ -636,6 +636,7 @@ public class SampleFamily {
                                  .build();
         }
 
+        @Builder.Default
         private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
 
         private TimeUnit defaultHistogramBucketUnit;

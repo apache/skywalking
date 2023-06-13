@@ -18,37 +18,38 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
-import io.kubernetes.client.informer.EventType;
-import io.kubernetes.client.informer.ResourceEventHandler;
-import io.kubernetes.client.openapi.models.V1ObjectMeta;
-import io.kubernetes.client.openapi.models.V1Pod;
-import io.kubernetes.client.openapi.models.V1PodStatus;
+import io.fabric8.kubernetes.api.model.ObjectMeta;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodStatus;
+import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
+import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
+import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
+import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
+import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
+import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.remote.client.Address;
+import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
-import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
-import org.apache.skywalking.oap.server.core.cluster.OAPNodeChecker;
-import org.apache.skywalking.oap.server.core.cluster.ServiceQueryException;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
-import org.apache.skywalking.oap.server.core.cluster.ServiceRegisterException;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
-import org.apache.skywalking.oap.server.core.remote.client.Address;
-import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
-import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
-import static io.kubernetes.client.informer.EventType.ADDED;
-import static io.kubernetes.client.informer.EventType.DELETED;
-import static io.kubernetes.client.informer.EventType.MODIFIED;
+import static org.apache.skywalking.oap.server.cluster.plugin.kubernetes.EventType.ADDED;
+import static org.apache.skywalking.oap.server.cluster.plugin.kubernetes.EventType.DELETED;
+import static org.apache.skywalking.oap.server.cluster.plugin.kubernetes.EventType.MODIFIED;
+
 
 /**
  * Read collector pod info from api-server of kubernetes, then using all containerIp list to construct the list of
@@ -56,7 +57,6 @@ import static io.kubernetes.client.informer.EventType.MODIFIED;
  */
 @Slf4j
 public class KubernetesCoordinator extends ClusterCoordinator {
-
     private final ModuleDefineHolder manager;
     private final String uid;
     private volatile int port = -1;
@@ -77,7 +77,7 @@ public class KubernetesCoordinator extends ClusterCoordinator {
     @Override
     public List<RemoteInstance> queryRemoteNodes() {
         try {
-            List<V1Pod> pods = NamespacedPodListInformer.INFORMER.listPods().orElseGet(this::selfPod);
+            List<Pod> pods = NamespacedPodListInformer.INFORMER.listPods().orElseGet(this::selfPod);
             if (log.isDebugEnabled()) {
                 List<String> uidList = pods
                     .stream()
@@ -127,10 +127,10 @@ public class KubernetesCoordinator extends ClusterCoordinator {
         }
     }
 
-    private List<V1Pod> selfPod() {
-        V1Pod v1Pod = new V1Pod();
-        v1Pod.setMetadata(new V1ObjectMeta());
-        v1Pod.setStatus(new V1PodStatus());
+    private List<Pod> selfPod() {
+        Pod v1Pod = new Pod();
+        v1Pod.setMetadata(new ObjectMeta());
+        v1Pod.setStatus(new PodStatus());
         v1Pod.getMetadata().setUid(uid);
         v1Pod.getStatus().setPodIP("127.0.0.1");
         return Collections.singletonList(v1Pod);
@@ -142,20 +142,20 @@ public class KubernetesCoordinator extends ClusterCoordinator {
         NamespacedPodListInformer.INFORMER.init(config, new K8sResourceEventHandler());
     }
 
-    class K8sResourceEventHandler implements ResourceEventHandler<V1Pod> {
+    class K8sResourceEventHandler implements ResourceEventHandler<Pod> {
 
         @Override
-        public void onAdd(final V1Pod obj) {
+        public void onAdd(final Pod obj) {
             updateRemoteInstances(obj, ADDED);
         }
 
         @Override
-        public void onUpdate(final V1Pod oldObj, final V1Pod newObj) {
+        public void onUpdate(final Pod oldObj, final Pod newObj) {
             updateRemoteInstances(newObj, MODIFIED);
         }
 
         @Override
-        public void onDelete(final V1Pod obj, final boolean deletedFinalStateUnknown) {
+        public void onDelete(final Pod obj, final boolean deletedFinalStateUnknown) {
             updateRemoteInstances(obj, DELETED);
         }
     }
@@ -165,7 +165,7 @@ public class KubernetesCoordinator extends ClusterCoordinator {
      * To avoid notify the watchers too frequency, here use a `remoteInstanceMap` to cache them.
      * Only notify watchers once when the instances changed.
      */
-    private void updateRemoteInstances(V1Pod pod, EventType event) {
+    private void updateRemoteInstances(Pod pod, EventType event) {
         try {
             initHealthChecker();
             if (StringUtil.isNotBlank(pod.getStatus().getPodIP())) {

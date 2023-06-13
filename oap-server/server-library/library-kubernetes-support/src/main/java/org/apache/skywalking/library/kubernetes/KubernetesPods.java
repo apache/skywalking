@@ -19,65 +19,66 @@
 
 package org.apache.skywalking.library.kubernetes;
 
-import java.time.Duration;
-import java.util.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.kubernetes.client.openapi.apis.CoreV1Api;
-import io.kubernetes.client.openapi.models.V1Pod;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import lombok.SneakyThrows;
+
+import java.time.Duration;
+import java.util.Optional;
 
 public enum KubernetesPods {
     INSTANCE;
 
-    private static final String FIELD_SELECTOR_PATTERN_POD_IP = "status.podIP=%s";
-
-    private final LoadingCache<String, Optional<V1Pod>> podByIP;
-    private final LoadingCache<ObjectID, Optional<V1Pod>> podByObjectID;
+    private final LoadingCache<String, Optional<Pod>> podByIP;
+    private final LoadingCache<ObjectID, Optional<Pod>> podByObjectID;
 
     @SneakyThrows
-    private KubernetesPods() {
-        KubernetesClient.setDefault();
-
-        final CoreV1Api coreV1Api = new CoreV1Api();
+    KubernetesPods() {
         final CacheBuilder<Object, Object> cacheBuilder =
-            CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(5));
+                CacheBuilder.newBuilder()
+                        .expireAfterAccess(Duration.ofMinutes(5));
 
-        podByIP = cacheBuilder.build(new CacheLoader<String, Optional<V1Pod>>() {
+        podByIP = cacheBuilder.build(new CacheLoader<>() {
             @Override
-            public Optional<V1Pod> load(String ip) throws Exception {
-                return coreV1Api
-                    .listPodForAllNamespaces(
-                        null, null, String.format(FIELD_SELECTOR_PATTERN_POD_IP, ip),
-                        null, null, null, null, null, null, null)
-                    .getItems()
-                    .stream()
-                    .findFirst();
+            public Optional<Pod> load(String ip) {
+                try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
+                    return kubernetesClient
+                            .pods()
+                            .inAnyNamespace()
+                            .withField("status.podIP", ip)
+                            .list()
+                            .getItems()
+                            .stream()
+                            .findFirst();
+                }
             }
         });
 
-        podByObjectID = cacheBuilder.build(new CacheLoader<ObjectID, Optional<V1Pod>>() {
+        podByObjectID = cacheBuilder.build(new CacheLoader<>() {
             @Override
-            public Optional<V1Pod> load(ObjectID objectID) throws Exception {
-                return Optional.ofNullable(
-                    coreV1Api
-                        .readNamespacedPod(
-                            objectID.name(),
-                            objectID.namespace(),
-                            null));
+            public Optional<Pod> load(ObjectID objectID) {
+                try (final var kubernetesClient = new KubernetesClientBuilder().build()) {
+                    return Optional.ofNullable(
+                            kubernetesClient
+                                    .pods()
+                                    .inNamespace(objectID.namespace())
+                                    .withName(objectID.name())
+                                    .get());
+                }
             }
         });
     }
 
     @SneakyThrows
-    public Optional<V1Pod> findByIP(final String ip) {
+    public Optional<Pod> findByIP(final String ip) {
         return podByIP.get(ip);
     }
 
     @SneakyThrows
-    public Optional<V1Pod> findByObjectID(final ObjectID id) {
+    public Optional<Pod> findByObjectID(final ObjectID id) {
         return podByObjectID.get(id);
     }
 }
