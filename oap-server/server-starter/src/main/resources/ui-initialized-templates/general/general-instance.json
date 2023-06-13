@@ -724,12 +724,6 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_http_server_requests_count"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -740,7 +734,19 @@
                   },
                   "widget": {
                     "title": "HTTP Request (Count)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "count"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_http_server_requests_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 6,
@@ -749,12 +755,6 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_http_server_requests_duration"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -766,7 +766,19 @@
                   "widget": {
                     "title": "HTTP Request Duration (ms)"
                   },
-                  "associate": []
+                  "associate": [],
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "duration"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_http_server_requests_duration"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 6,
@@ -800,12 +812,6 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_system_cpu_usage"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -816,7 +822,19 @@
                   },
                   "widget": {
                     "title": "OS CPU Usage (%)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "usage"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_system_cpu_usage"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
@@ -825,16 +843,6 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jdbc_connections_max",
-                    "meter_jdbc_connections_active",
-                    "meter_jdbc_connections_idle"
-                  ],
                   "metricConfig": [
                     {
                       "label": "max"
@@ -856,7 +864,18 @@
                   },
                   "widget": {
                     "title": "JDBC Connections (Count)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_jdbc_connections_max",
+                    "meter_jdbc_connections_active",
+                    "meter_jdbc_connections_idle"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 18,
@@ -865,17 +884,6 @@
                   "h": 12,
                   "i": "5",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_tomcat_sessions_active_max",
-                    "meter_tomcat_sessions_active_current",
-                    "meter_tomcat_sessions_rejected"
-                  ],
                   "metricConfig": [
                     {
                       "label": "active_max"
@@ -897,7 +905,18 @@
                   },
                   "widget": {
                     "title": "Tomcat Session (Count)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_tomcat_sessions_active_max",
+                    "meter_tomcat_sessions_active_current",
+                    "meter_tomcat_sessions_rejected"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
@@ -906,12 +925,6 @@
                   "h": 12,
                   "i": "6",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_system_load_average_1m"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -923,7 +936,19 @@
                   "widget": {
                     "title": "OS System Load"
                   },
-                  "associate": []
+                  "associate": [],
+                  "metricConfig": [
+                    {
+                      "label": "load"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_system_load_average_1m"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 18,
@@ -932,14 +957,6 @@
                   "h": 12,
                   "i": "7",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_process_files_max",
-                    "meter_process_files_open"
-                  ],
                   "metricConfig": [
                     {
                       "label": "max"
@@ -959,7 +976,16 @@
                   "widget": {
                     "title": "OS Process File (Count)"
                   },
-                  "associate": []
+                  "associate": [],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_process_files_max",
+                    "meter_process_files_open"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -968,12 +994,6 @@
                   "h": 12,
                   "i": "8",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_gc_pause_duration"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -984,7 +1004,19 @@
                   },
                   "widget": {
                     "title": "JVM GC Pause Duration (ms)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "duration"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_jvm_gc_pause_duration"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 6,
@@ -993,16 +1025,6 @@
                   "h": 12,
                   "i": "9",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_memory_max",
-                    "meter_jvm_memory_used",
-                    "meter_jvm_memory_committed"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -1014,24 +1036,21 @@
                   "associate": [],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB",
-                      "label": "max",
-                      "unit": "MB"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "used",
-                      "unit": "MB"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "committed",
-                      "unit": "MB"
+                      "label": "max"
                     }
                   ],
                   "widget": {
                     "title": "JVM Memory (MB)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_jvm_memory_max/1048576",
+                    "meter_jvm_memory_used/1048576"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
@@ -1040,16 +1059,6 @@
                   "h": 12,
                   "i": "10",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_threads_peak",
-                    "meter_jvm_threads_live",
-                    "meter_jvm_threads_daemon"
-                  ],
                   "metricConfig": [
                     {
                       "label": "peak"
@@ -1071,7 +1080,18 @@
                   },
                   "widget": {
                     "title": "JVM Thread (Count)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_jvm_threads_peak",
+                    "meter_jvm_threads_live",
+                    "meter_jvm_threads_daemon"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 18,
@@ -1080,14 +1100,6 @@
                   "h": 12,
                   "i": "11",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_jvm_classes_loaded",
-                    "meter_jvm_classes_unloaded"
-                  ],
                   "metricConfig": [
                     {
                       "label": "loaded"
@@ -1106,7 +1118,16 @@
                   },
                   "widget": {
                     "title": "JVM classes (Count)"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_jvm_classes_loaded",
+                    "meter_jvm_classes_unloaded"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 }
               ]
             },
@@ -1131,16 +1152,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_golang_heap_alloc"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_heap_alloc/1048576"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1161,16 +1178,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_golang_stack_used"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_stack_used/1048576"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1187,16 +1200,17 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "meter_instance_golang_gc_pause_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "nanosecondToMillisecond"
+                      "label": "pause_time"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_gc_pause_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1238,11 +1252,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "live_goroutines_num"
+                    }
+                  ],
+                  "expressions": [
                     "meter_instance_golang_live_goroutines_num"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1263,11 +1283,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "os_threads_num"
+                    }
+                  ],
+                  "expressions": [
                     "meter_instance_golang_os_threads_num"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1288,11 +1314,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "host_cpu_used_rate"
+                    }
+                  ],
+                  "expressions": [
                     "meter_instance_host_cpu_used_rate"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1313,11 +1345,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "host_mem_used_rate"
+                    }
+                  ],
+                  "expressions": [
                     "meter_instance_host_mem_used_rate"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -1341,14 +1379,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_pvm_total_cpu_utilization",
-                    "meter_instance_pvm_process_cpu_utilization"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total_cpu_utilization"
@@ -1356,6 +1386,15 @@
                     {
                       "label": "process_cpu_utilization"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_pvm_total_cpu_utilization",
+                    "meter_instance_pvm_process_cpu_utilization"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1376,11 +1415,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "thread_active_count"
+                    }
+                  ],
+                  "expressions": [
                     "meter_instance_pvm_thread_active_count"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1397,26 +1442,27 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
+                  "metricConfig": [
+                    {
+                      "label": "g0"
+                    },
+                    {
+                      "label": "g1"
+                    },
+                    {
+                      "label": "g2"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
                     "meter_instance_pvm_gc_g0",
                     "meter_instance_pvm_gc_g1",
                     "meter_instance_pvm_gc_g2"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "gc_g0"
-                    },
-                    {
-                      "label": "gc_g1"
-                    },
-                    {
-                      "label": "gc_g2"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1435,14 +1481,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "meter_instance_pvm_total_mem_utilization",
-                    "meter_instance_pvm_process_mem_utilization"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total_mem_utilization"
@@ -1450,6 +1488,15 @@
                     {
                       "label": "process_mem_utilization"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_pvm_total_mem_utilization",
+                    "meter_instance_pvm_process_mem_utilization"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1470,11 +1517,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "meter_instance_pvm_gc_time"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
