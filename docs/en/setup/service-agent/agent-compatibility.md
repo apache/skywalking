@@ -12,6 +12,7 @@ SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the identical versi
 | 8.9.0+             | \> = 8.0.0    | All       | All       | All | All  | All           | All  | No                | \> = 0.4.0 | All |
 | 9.0.0              | \> = 8.0.0    | All       | All       | All | All  | All           | All  | No                | \> = 0.4.0 | All |
 | 9.1.0+             | \> = 8.0.0    | All       | All       | All | All  | All           | All  | \> = 0.1.0        | \> = 1.0.0 | All |
+| 9.5.0+             | \> = 8.0.0    | All       | All       | All | All  | All           | All  | \> = 0.5.0        | \> = 1.2.0 | All |
 
 ## Ecosystem Agents
 
