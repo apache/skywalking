@@ -819,6 +819,20 @@
                   }
                 }
               ]
+            },
+            {
+              "name": "Continuous Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 45,
+                  "i": "0",
+                  "type": "ContinuousProfiling",
+                  "processDashboardName": "Mesh-Process"
+                }
+              ]
             }
           ]
         },
