@@ -78,8 +78,27 @@ public class PatternTree {
         current.setExpression(pattern);
     }
 
+    List<String> splitByCharacter(String input, char delimiter) {
+        List<String> parts = new ArrayList<>();
+        int start = 0;
+
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == delimiter) {
+                parts.add(input.substring(start, i));
+                start = i + 1;
+            }
+        }
+
+        // Add the last part if necessary
+        if (start < input.length()) {
+            parts.add(input.substring(start));
+        }
+
+        return parts;
+    }
+
     public StringFormatGroup.FormatResult match(String uri) {
-        final String[] slices = uri.split("/");
+        final List<String> slices = splitByCharacter(uri, '/');
         List<PatternToken> current = roots;
         PatternToken matchedToken = null;
         for (final String slice : slices) {

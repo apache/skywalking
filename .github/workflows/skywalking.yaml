@@ -700,6 +700,9 @@ jobs:
             config: test/e2e-v2/cases/elasticsearch/e2e.yaml
           - name: RabbitMQ
             config: test/e2e-v2/cases/rabbitmq/e2e.yaml
+          - name: MQE Service
+            config: test/e2e-v2/cases/mqe/e2e.yaml
+
     steps:
       - uses: actions/checkout@v3
         with:
