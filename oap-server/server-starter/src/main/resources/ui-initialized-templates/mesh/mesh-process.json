@@ -1,0 +1,204 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+[
+  {
+    "id": "d0473074-9793-42e2-a415-9e2574b39eaa",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 44,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Task",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "TaskTimeline",
+                  "linkDashboard": "Mesh-Process-Relation-Metrics"
+                }
+              ]
+            },
+            {
+              "name": "Metrics",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 14,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "continuous_profiling_process_cpu/10000"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "widget": {
+                    "title": "Process CPU Usage (%)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 14,
+                  "i": "1",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "continuous_profiling_process_thread_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process Thread Count"
+                  }
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 14,
+                  "i": "2",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "continuous_profiling_system_load"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "System Load"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 14,
+                  "w": 12,
+                  "h": 17,
+                  "i": "3",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "continuous_profiling_http_error_rate/100"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process HTTP Error Rate (%)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 14,
+                  "w": 12,
+                  "h": 17,
+                  "i": "4",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "continuous_profiling_http_avg_response_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Process Avg Response Time (ms)"
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ms"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "MESH",
+      "entity": "Process",
+      "name": "Mesh-Process",
+      "id": "d0473074-9793-42e2-a415-9e2574b39eaa"
+    }
+  }
+]
