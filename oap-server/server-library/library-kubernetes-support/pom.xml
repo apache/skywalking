@@ -34,6 +34,10 @@
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
+            <artifactId>istio-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
             <artifactId>kubernetes-httpclient-jdk</artifactId>
         </dependency>
     </dependencies>

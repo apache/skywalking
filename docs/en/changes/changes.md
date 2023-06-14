@@ -61,6 +61,7 @@
 * Migrate from kubernetes-client/java to fabric8 client.
 * Envoy ALS generated relation metrics considers http status codes >= 400 has an error at the client side.
 * Add cause message field when query continuous profiling task.
+* Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
 
 #### UI
 * Revert: cpm5d function. This feature is cancelled from backend.

@@ -34,6 +34,9 @@ import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.istio.IstioServiceEntryRegistry;
+
+import java.util.Objects;
 
 import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isBlank;
@@ -44,7 +47,8 @@ import static org.apache.skywalking.oap.server.receiver.envoy.als.k8s.Addresses.
  */
 @Slf4j
 public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
-    protected K8SServiceRegistry serviceRegistry;
+    protected K8SServiceRegistry k8sServiceRegistry;
+    protected IstioServiceEntryRegistry istioServiceRegistry;
 
     protected EnvoyMetricReceiverConfig config;
 
@@ -57,7 +61,8 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     @SneakyThrows
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         this.config = config;
-        serviceRegistry = new K8SServiceRegistry(config);
+        k8sServiceRegistry = new K8SServiceRegistry(config);
+        istioServiceRegistry = new IstioServiceEntryRegistry(config);
     }
 
     @Override
@@ -180,7 +185,12 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
      * @return found service info, or {@link ServiceMetaInfoFactory#unknown()} to represent not found.
      */
     protected ServiceMetaInfo find(String ip) {
-        return serviceRegistry.findService(ip);
+        final var istioService = istioServiceRegistry.findService(ip);
+        if (!Objects.equals(config.serviceMetaInfoFactory().unknown(), istioService)) {
+            return istioService;
+        }
+
+        return k8sServiceRegistry.findService(ip);
     }
 
 }

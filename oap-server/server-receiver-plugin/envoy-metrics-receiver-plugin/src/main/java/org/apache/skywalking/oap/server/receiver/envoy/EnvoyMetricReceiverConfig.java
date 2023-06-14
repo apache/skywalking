@@ -39,6 +39,8 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String alsTCPAnalysis;
     @Getter
     private String k8sServiceNameRule;
+    @Getter
+    private String istioServiceNameRule;
 
     private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
     @Getter

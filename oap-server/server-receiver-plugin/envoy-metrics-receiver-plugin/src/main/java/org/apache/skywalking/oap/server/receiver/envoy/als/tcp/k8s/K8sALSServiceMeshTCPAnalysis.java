@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.tcp.k8s;
 
+import com.google.common.base.Strings;
 import io.envoyproxy.envoy.config.core.v3.Address;
 import io.envoyproxy.envoy.config.core.v3.SocketAddress;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
@@ -33,8 +34,11 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig
 import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+import org.apache.skywalking.oap.server.receiver.envoy.als.istio.IstioServiceEntryRegistry;
 import org.apache.skywalking.oap.server.receiver.envoy.als.k8s.K8SServiceRegistry;
 import org.apache.skywalking.oap.server.receiver.envoy.als.tcp.AbstractTCPAccessLogAnalyzer;
+
+import java.util.Objects;
 
 import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
 
@@ -43,7 +47,8 @@ import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
  */
 @Slf4j
 public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
-    protected K8SServiceRegistry serviceRegistry;
+    protected K8SServiceRegistry k8sServiceRegistry;
+    protected IstioServiceEntryRegistry istioServiceRegistry;
 
     private EnvoyMetricReceiverConfig config;
 
@@ -56,7 +61,8 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     @SneakyThrows
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         this.config = config;
-        serviceRegistry = new K8SServiceRegistry(config);
+        k8sServiceRegistry = new K8SServiceRegistry(config);
+        istioServiceRegistry = new IstioServiceEntryRegistry(config);
     }
 
     @Override
@@ -80,12 +86,12 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     }
 
     protected Result analyzeSideCar(final Result previousResult, final TCPAccessLogEntry entry) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
+        if (!entry.hasCommonProperties()) {
             return previousResult;
         }
+        final AccessLogCommon properties = entry.getCommonProperties();
         final String cluster = properties.getUpstreamCluster();
-        if (cluster == null) {
+        if (Strings.isNullOrEmpty(cluster)) {
             return previousResult;
         }
 
@@ -130,15 +136,15 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
     }
 
     protected Result analyzeProxy(final Result previousResult, final TCPAccessLogEntry entry) {
-        final AccessLogCommon properties = entry.getCommonProperties();
-        if (properties == null) {
+        if (!entry.hasCommonProperties()) {
             return previousResult;
         }
+        final AccessLogCommon properties = entry.getCommonProperties();
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
             properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
         final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
-        if (downstreamLocalAddress == null || downstreamRemoteAddress == null || upstreamRemoteAddress == null) {
+        if (!properties.hasDownstreamLocalAddress() || !properties.hasDownstreamRemoteAddress() || !properties.hasUpstreamRemoteAddress()) {
             return previousResult;
         }
 
@@ -173,7 +179,11 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
      * @return found service info, or {@link ServiceMetaInfoFactory#unknown()} to represent not found.
      */
     protected ServiceMetaInfo find(String ip) {
-        return serviceRegistry.findService(ip);
-    }
+        final var istioService = istioServiceRegistry.findService(ip);
+        if (!Objects.equals(config.serviceMetaInfoFactory().unknown(), istioService)) {
+            return istioService;
+        }
 
+        return k8sServiceRegistry.findService(ip);
+    }
 }
