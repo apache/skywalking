@@ -251,12 +251,16 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/commons-codec/commons-codec/1.11 Apache-2.0
     https://mvnrepository.com/artifact/commons-io/commons-io/2.7 Apache-2.0
     https://mvnrepository.com/artifact/commons-logging/commons-logging/1.2 Apache-2.0
+    https://mvnrepository.com/artifact/commons-net/commons-net/3.9.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-validator/commons-validator/1.7 Apache-2.0
     https://npmjs.com/package/d3-flame-graph/v/4.1.3 4.1.3 Apache-2.0
     https://npmjs.com/package/echarts/v/5.4.1 5.4.1 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-common/0.5.3 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-core/0.5.3 Apache-2.0
     https://mvnrepository.com/artifact/io.etcd/jetcd-resolver/0.5.3 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/istio-client/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/istio-model-v1alpha3/6.7.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.fabric8/istio-model-v1beta1/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-client/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-api/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-httpclient-jdk/6.7.1 Apache-2.0
