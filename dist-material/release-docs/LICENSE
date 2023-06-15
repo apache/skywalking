@@ -232,7 +232,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.google.errorprone/error_prone_annotations/2.11.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.flatbuffers/flatbuffers-java/1.12.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.guava/failureaccess/1.0.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.guava/guava/31.1-jre Apache-2.0
+    https://mvnrepository.com/artifact/com.google.guava/guava/32.0.0-jre Apache-2.0
     https://mvnrepository.com/artifact/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava Apache-2.0
     https://mvnrepository.com/artifact/com.google.inject/guice/4.1.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.j2objc/j2objc-annotations/1.3 Apache-2.0
@@ -526,7 +526,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/moment/v/2.29.4 2.29.4 MIT
     https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
     https://npmjs.com/package/nanoid/v/3.3.6 3.3.6 MIT
-    https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.12.0 MIT
+    https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
