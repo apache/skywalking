@@ -383,7 +383,7 @@ AzureHttpTrigger:
   languages: Java,C#,Node.js,Python
 Neo4j:
   id: 112
-  languages: Java
+  languages: Java,Python
 Sentinel:
   id: 113
   languages: Java
