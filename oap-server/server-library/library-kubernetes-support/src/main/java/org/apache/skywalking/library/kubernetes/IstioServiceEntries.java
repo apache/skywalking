@@ -47,6 +47,7 @@ public enum IstioServiceEntries {
                 return istioClient
                     .v1beta1()
                     .serviceEntries()
+                    .inAnyNamespace()
                     .list()
                     .getItems();
             } catch (Exception e) {
