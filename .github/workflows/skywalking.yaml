@@ -792,6 +792,12 @@ jobs:
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: logs
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
 
   e2e-test-java-versions:
     if: |
