@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.kubernetes;
 
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodCondition;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -327,6 +328,7 @@ public class KubernetesCoordinatorTest {
         v1Pod.getStatus().setPhase("Running");
         v1Pod.getMetadata().setUid(uid);
         v1Pod.getStatus().setPodIP(ip);
+        v1Pod.getStatus().setConditions(List.of(new PodCondition("", "", "", "", "True", "Ready")));
         return v1Pod;
     }
 
@@ -338,6 +340,7 @@ public class KubernetesCoordinatorTest {
             v1Pod.setStatus(new PodStatus());
             v1Pod.getMetadata().setUid(SELF_UID + i);
             v1Pod.getStatus().setPodIP(LOCAL_HOST);
+            v1Pod.getStatus().setConditions(List.of(new PodCondition("", "", "", "", "True", "Ready")));
             pods.add(v1Pod);
         }
         return pods;
