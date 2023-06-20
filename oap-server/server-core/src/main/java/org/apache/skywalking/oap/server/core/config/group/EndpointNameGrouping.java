@@ -99,7 +99,7 @@ public class EndpointNameGrouping {
                     // Algorithm side should not return a pattern that has no {var} in it else this
                     // code may accidentally retreive the size 1 queue created by unformatted endpoint
                     // The queue size is 10, which means only cache the first 10 formatted names.
-                    ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
+                    final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
                             formattedName._1(), _ -> new ArrayBlockingQueue<>(10));
                     if (formattedURIs.size() < 10) {
                         // Try to push the raw URI as a candidate of formatted name.
