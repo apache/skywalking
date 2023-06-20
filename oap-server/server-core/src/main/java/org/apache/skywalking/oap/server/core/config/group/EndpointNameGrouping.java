@@ -20,12 +20,13 @@ package org.apache.skywalking.oap.server.core.config.group;
 
 import io.vavr.Tuple2;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
@@ -56,9 +57,11 @@ public class EndpointNameGrouping {
     private volatile QuickUriGroupingRule quickUriGroupingRule;
     /**
      * Cache the HTTP URIs which are not formatted by the rules per service.
-     * Level one map key is service name, the value is a map of HTTP URIs with an always TRUE value.
+     * Level one map key is service name, the value is a map of HTTP URIs with candidates of formatted names.
+     * If the URI is formatted by the rules, the value would be the first 10 formatted names.
+     * If the URI is unformatted, the value would be an empty queue.
      */
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, Boolean>> cachedHttpUris = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, ArrayBlockingQueue<String>>> cachedHttpUris = new ConcurrentHashMap<>();
     private final AtomicInteger aiPipelineExecutionCounter = new AtomicInteger(0);
     /**
      * The max number of HTTP URIs per service for further URI pattern recognition.
@@ -87,14 +90,26 @@ public class EndpointNameGrouping {
         if (!formattedName._2() && quickUriGroupingRule != null) {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
 
-            ConcurrentHashMap<String, Boolean> svrHttpUris = cachedHttpUris.get(serviceName);
+            ConcurrentHashMap<String, ArrayBlockingQueue<String>> svrHttpUris = cachedHttpUris.get(serviceName);
             if (svrHttpUris == null) {
                 cachedHttpUris.putIfAbsent(serviceName, new ConcurrentHashMap<>());
                 svrHttpUris = cachedHttpUris.get(serviceName);
             }
             // Only cache first N(determined by maxHttpUrisNumberPerService) URIs per 30 mins.
             if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
-                svrHttpUris.putIfAbsent(formattedName._1(), Boolean.TRUE);
+                if (formattedName._2()) {
+                    // The queue size is 10, which means only cache the first 10 formatted names.
+                    final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.putIfAbsent(
+                        formattedName._1(), new ArrayBlockingQueue<>(10));
+                    if (formattedURIs.size() < 10) {
+                        // Try to push the raw URI as a candidate of formatted name.
+                        formattedURIs.offer(serviceName);
+                    }
+                } else {
+                    svrHttpUris.putIfAbsent(
+                        formattedName._1(), new ArrayBlockingQueue<>(0));
+                }
+
             }
         }
 
@@ -160,15 +175,24 @@ public class EndpointNameGrouping {
                              if (aiPipelineExecutionCounter.incrementAndGet() % 30 == 0) {
                                  // Send the cached URIs to the recognition server per 30 mins to build new patterns.
                                  cachedHttpUris.forEach((serviceName, httpUris) -> {
-                                     List<HttpUriRecognition.HTTPUri> uris
-                                         = httpUris.keySet()
-                                                   .stream()
-                                                   .map(
-                                                       HttpUriRecognition.HTTPUri::new)
-                                                   .collect(Collectors.toList());
+                                     final List<HttpUriRecognition.HTTPUri> candidates4UriPatterns = new ArrayList<>(
+                                         3000);
+                                     httpUris.forEach((uri, candidates) -> {
+                                         if (candidates.size() == 0) {
+                                             //unrecognized uri
+                                             candidates4UriPatterns.add(new HttpUriRecognition.HTTPUri(uri));
+                                         } else {
+                                             String candidateUri = null;
+                                             while ((candidateUri = candidates.poll()) != null) {
+                                                 candidates4UriPatterns.add(
+                                                     new HttpUriRecognition.HTTPUri(candidateUri));
+                                             }
+                                         }
+                                     });
+
                                      // Reset the cache once the URIs are sent to the recognition server.
                                      httpUris.clear();
-                                     httpUriRecognitionSvr.feedRawData(serviceName, uris);
+                                     httpUriRecognitionSvr.feedRawData(serviceName, candidates4UriPatterns);
                                  });
                              } else {
                                  // Sync with the recognition server per 1 min to get the latest patterns.

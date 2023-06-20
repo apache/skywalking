@@ -10,6 +10,7 @@
 * Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
 * Improve Kubernetes coordinator to only select ready OAP Pods to build cluster.
 * [Breaking change] Remove `matchedCounter` from `HttpUriRecognitionService#feedRawData`.
+* Remove patterns from `HttpUriRecognitionService#feedRawData` and add max 10 candidates of raw URIs for each pattern.
 
 #### UI
 
