@@ -103,7 +103,7 @@ public class EndpointNameGrouping {
                         formattedName._1(), new ArrayBlockingQueue<>(10));
                     if (formattedURIs.size() < 10) {
                         // Try to push the raw URI as a candidate of formatted name.
-                        formattedURIs.offer(serviceName);
+                        formattedURIs.offer(endpointName);
                     }
                 } else {
                     svrHttpUris.putIfAbsent(
