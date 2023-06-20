@@ -9,6 +9,7 @@
 * Add Neo4j component ID(112) language: Python.
 * Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
 * Improve Kubernetes coordinator to only select ready OAP Pods to build cluster.
+* Wrap `deleteProperty` API to the BanyanDBStorageClient.
 
 #### UI
 
