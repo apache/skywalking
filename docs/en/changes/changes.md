@@ -10,6 +10,8 @@
 * Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
 * Improve Kubernetes coordinator to only select ready OAP Pods to build cluster.
 * Wrap `deleteProperty` API to the BanyanDBStorageClient.
+* [Breaking change] Remove `matchedCounter` from `HttpUriRecognitionService#feedRawData`.
+* Remove patterns from `HttpUriRecognitionService#feedRawData` and add max 10 candidates of raw URIs for each pattern.
 
 #### UI
 

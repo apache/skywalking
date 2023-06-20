@@ -44,7 +44,7 @@ public interface HttpUriRecognition extends Service {
      * Feed all data for the pattern recognition of HTTP URIs
      *
      * @param service        the name of the service
-     * @param unrecognizedURIs the list of unrecognized URIs
+     * @param unrecognizedURIs the list of unrecognized URIs and candidates of recognized URIs.
      */
     void feedRawData(String service, List<HTTPUri> unrecognizedURIs);
 
@@ -52,6 +52,5 @@ public interface HttpUriRecognition extends Service {
     @Getter
     class HTTPUri {
         private final String name;
-        private final long matchedCounter;
     }
 }
