@@ -34,6 +34,7 @@ import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
 import org.apache.skywalking.banyandb.v1.client.metadata.Property;
+import org.apache.skywalking.banyandb.v1.client.metadata.PropertyStore;
 import org.apache.skywalking.banyandb.v1.client.metadata.Stream;
 import org.apache.skywalking.banyandb.v1.client.metadata.TopNAggregation;
 import org.apache.skywalking.oap.server.library.client.Client;
@@ -96,6 +97,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
             healthChecker.unHealth(ex);
             throw new IOException("fail to query property", ex);
+        }
+    }
+
+    public PropertyStore.DeleteResult deleteProperty(String group, String name, String id, String... tags) throws IOException {
+        try {
+            PropertyStore.DeleteResult result = this.client.deleteProperty(group, name, id, tags);
+            this.healthChecker.health();
+            return result;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to delete property", ex);
         }
     }
 
