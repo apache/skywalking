@@ -68,6 +68,9 @@ setup:
         - namespace: istio-system
           resource: deployments/skywalking-oap
           for: condition=available
+        - namespace: istio-system
+          resource: deployments/skywalking-ui
+          for: condition=available
     - name: Deploy demo services
       command: |
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
