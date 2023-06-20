@@ -52,6 +52,5 @@ public interface HttpUriRecognition extends Service {
     @Getter
     class HTTPUri {
         private final String name;
-        private final long matchedCounter;
     }
 }

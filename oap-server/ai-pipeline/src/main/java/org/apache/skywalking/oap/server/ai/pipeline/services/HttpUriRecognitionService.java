@@ -93,7 +93,7 @@ public class HttpUriRecognitionService implements HttpUriRecognition {
             builder.setService(service);
             unrecognizedURIs.forEach(httpUri -> {
                 builder.getUnrecognizedUrisBuilderList().add(
-                    HttpRawUri.newBuilder().setName(httpUri.getName()).setMatchedCounter(httpUri.getMatchedCounter())
+                    HttpRawUri.newBuilder().setName(httpUri.getName())
                 );
             });
             stub.withDeadlineAfter(30, TimeUnit.SECONDS)

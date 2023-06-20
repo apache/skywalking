@@ -56,12 +56,9 @@ public class EndpointNameGrouping {
     private volatile QuickUriGroupingRule quickUriGroupingRule;
     /**
      * Cache the HTTP URIs which are not formatted by the rules per service.
-     * Level one map key is service name, the value is a map of HTTP URI and its count.
-     * Multiple matches will be counted, because it is the pattern that the endpoint is already formatted,
-     * or doesn't need to be formatted.
-     * The repeatable URI is a pattern already.
+     * Level one map key is service name, the value is a map of HTTP URIs with an always TRUE value.
      */
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, AtomicInteger>> cachedHttpUris = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, Boolean>> cachedHttpUris = new ConcurrentHashMap<>();
     private final AtomicInteger aiPipelineExecutionCounter = new AtomicInteger(0);
     /**
      * The max number of HTTP URIs per service for further URI pattern recognition.
@@ -90,17 +87,14 @@ public class EndpointNameGrouping {
         if (!formattedName._2() && quickUriGroupingRule != null) {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
 
-            ConcurrentHashMap<String, AtomicInteger> svrHttpUris = cachedHttpUris.get(serviceName);
+            ConcurrentHashMap<String, Boolean> svrHttpUris = cachedHttpUris.get(serviceName);
             if (svrHttpUris == null) {
                 cachedHttpUris.putIfAbsent(serviceName, new ConcurrentHashMap<>());
                 svrHttpUris = cachedHttpUris.get(serviceName);
             }
             // Only cache first N(determined by maxHttpUrisNumberPerService) URIs per 30 mins.
             if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
-                final AtomicInteger cachedCount = svrHttpUris.putIfAbsent(formattedName._1(), new AtomicInteger(1));
-                if (null != cachedCount) {
-                    cachedCount.incrementAndGet();
-                }
+                svrHttpUris.putIfAbsent(formattedName._1(), Boolean.TRUE);
             }
         }
 
@@ -170,9 +164,7 @@ public class EndpointNameGrouping {
                                          = httpUris.keySet()
                                                    .stream()
                                                    .map(
-                                                       uri -> new HttpUriRecognition.HTTPUri(
-                                                           uri, httpUris.get(uri).get()
-                                                       ))
+                                                       HttpUriRecognition.HTTPUri::new)
                                                    .collect(Collectors.toList());
                                      // Reset the cache once the URIs are sent to the recognition server.
                                      httpUris.clear();
