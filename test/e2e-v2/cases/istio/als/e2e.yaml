@@ -68,7 +68,7 @@ setup:
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap
-          for: condition=available
+          for: condition=Ready
     - name: Deploy demo services
       command: |
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
