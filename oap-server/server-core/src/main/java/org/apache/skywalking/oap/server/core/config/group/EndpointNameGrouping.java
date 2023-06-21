@@ -91,7 +91,7 @@ public class EndpointNameGrouping {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
 
             ConcurrentHashMap<String, ArrayBlockingQueue<String>> svrHttpUris =
-                    cachedHttpUris.computeIfAbsent(serviceName, _ -> new ConcurrentHashMap<>());
+                    cachedHttpUris.computeIfAbsent(serviceName, k -> new ConcurrentHashMap<>());
 
             // Only cache first N (determined by maxHttpUrisNumberPerService) URIs per 30 mins.
             if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
@@ -100,13 +100,13 @@ public class EndpointNameGrouping {
                     // code may accidentally retreive the size 1 queue created by unformatted endpoint
                     // The queue size is 10, which means only cache the first 10 formatted names.
                     final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
-                            formattedName._1(), _ -> new ArrayBlockingQueue<>(10));
+                            formattedName._1(), k -> new ArrayBlockingQueue<>(10));
                     if (formattedURIs.size() < 10) {
                         // Try to push the raw URI as a candidate of formatted name.
                         formattedURIs.offer(endpointName);
                     }
                 } else {
-                    svrHttpUris.computeIfAbsent(endpointName, _ -> new ArrayBlockingQueue<>(1));
+                    svrHttpUris.computeIfAbsent(endpointName, k -> new ArrayBlockingQueue<>(1));
                 }
             }
         }
