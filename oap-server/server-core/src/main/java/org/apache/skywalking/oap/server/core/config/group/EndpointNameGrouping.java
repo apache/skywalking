@@ -90,26 +90,24 @@ public class EndpointNameGrouping {
         if (!formattedName._2() && quickUriGroupingRule != null) {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
 
-            ConcurrentHashMap<String, ArrayBlockingQueue<String>> svrHttpUris = cachedHttpUris.get(serviceName);
-            if (svrHttpUris == null) {
-                cachedHttpUris.putIfAbsent(serviceName, new ConcurrentHashMap<>());
-                svrHttpUris = cachedHttpUris.get(serviceName);
-            }
-            // Only cache first N(determined by maxHttpUrisNumberPerService) URIs per 30 mins.
+            ConcurrentHashMap<String, ArrayBlockingQueue<String>> svrHttpUris =
+                    cachedHttpUris.computeIfAbsent(serviceName, k -> new ConcurrentHashMap<>());
+
+            // Only cache first N (determined by maxHttpUrisNumberPerService) URIs per 30 mins.
             if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
                 if (formattedName._2()) {
+                    // Algorithm side should not return a pattern that has no {var} in it else this
+                    // code may accidentally retreive the size 1 queue created by unformatted endpoint
                     // The queue size is 10, which means only cache the first 10 formatted names.
-                    final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.putIfAbsent(
-                        formattedName._1(), new ArrayBlockingQueue<>(10));
+                    final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
+                            formattedName._1(), k -> new ArrayBlockingQueue<>(10));
                     if (formattedURIs.size() < 10) {
                         // Try to push the raw URI as a candidate of formatted name.
                         formattedURIs.offer(endpointName);
                     }
                 } else {
-                    svrHttpUris.putIfAbsent(
-                        formattedName._1(), new ArrayBlockingQueue<>(0));
+                    svrHttpUris.computeIfAbsent(endpointName, k -> new ArrayBlockingQueue<>(1));
                 }
-
             }
         }
 
