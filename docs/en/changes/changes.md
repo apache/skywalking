@@ -12,6 +12,7 @@
 * Wrap `deleteProperty` API to the BanyanDBStorageClient.
 * [Breaking change] Remove `matchedCounter` from `HttpUriRecognitionService#feedRawData`.
 * Remove patterns from `HttpUriRecognitionService#feedRawData` and add max 10 candidates of raw URIs for each pattern.
+* Add component ID for WebSphere.
 
 #### UI
 
