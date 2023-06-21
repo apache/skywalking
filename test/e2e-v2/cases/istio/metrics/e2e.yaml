@@ -25,8 +25,8 @@ setup:
       - skywalking/oap:latest
     expose-ports:
       - namespace: istio-system
-        resource: service/skywalking-oap
-        port: 12800
+        resource: service/skywalking-ui
+        port: 80
   steps:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
@@ -70,7 +70,6 @@ setup:
           --set oap.replicas=1 \
           --set ui.image.repository=skywalking/ui \
           --set ui.image.tag=latest \
-          --set ui.replicas=0 \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=elasticsearch \
@@ -78,7 +77,7 @@ setup:
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap
-          for: condition=Ready
+          for: condition=available
     - name: Deploy demo services
       command: |
         kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
@@ -103,110 +102,110 @@ verify:
     interval: 3s
   cases:
     # service list
-    - query: swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql service ls
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
       expected: expected/service.yml
     # service instance list
-    - query: swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage
       expected: expected/service-instance.yml
-    - query: swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway
       expected: expected/service-instance.yml
 
     # service instance metrics: e2e::productpage
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_heap_memory_used --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_heap_memory_used --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_heap_memory_max_used --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_heap_memory_max_used --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_allocated --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_allocated --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_allocated_max --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_allocated_max --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_physical_size --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_physical_size --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_physical_size_max --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_physical_size_max --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_worker_threads --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_worker_threads --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_worker_threads_max --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_worker_threads_max --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     # service instance metrics: e2e::istio-ingressgateway
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_heap_memory_used --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_heap_memory_used --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_heap_memory_max_used --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_heap_memory_max_used --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_allocated --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_allocated --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_allocated_max --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_allocated_max --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_physical_size --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_physical_size --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_memory_physical_size_max --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_memory_physical_size_max --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_worker_threads --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_worker_threads --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics linear --name=envoy_worker_threads_max --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics linear --name=envoy_worker_threads_max --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         ) |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
 
     # service instance labeled metrics: e2e::productpage, label: e2e::details
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics multiple-linear --labels=e2e::details  --name=envoy_cluster_membership_healthy --service-name=e2e::productpage --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear --labels=e2e::details  --name=envoy_cluster_membership_healthy --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         )|yq e 'to_entries' -|yq e '.[].value|to_entries' -
       expected: expected/metrics-has-value.yml
     # service instance labeled metrics: e2e::productpage, label: e2e::details
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql metrics multiple-linear --labels=e2e::details  --name=envoy_cluster_membership_healthy --service-name=e2e::istio-ingressgateway --instance-name=$( \
-          swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics multiple-linear --labels=e2e::details  --name=envoy_cluster_membership_healthy --service-name=e2e::istio-ingressgateway --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         )|yq e 'to_entries' -|yq e '.[].value|to_entries' -
       expected: expected/metrics-has-value.yml
 
     # dependency service
-    - query: swctl --display yaml --base-url=http://${service_skywalking_oap_host}:${service_skywalking_oap_12800}/graphql dependency service --service-name=e2e::productpage
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::productpage
       expected: expected/dependency-services-productpage.yml
