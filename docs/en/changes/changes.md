@@ -17,7 +17,7 @@
 * Fix `NPE` in metrics query when the metric is not exist.
 
 #### UI
-
+* Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
 
 #### Documentation
 
