@@ -358,36 +358,24 @@ jobs:
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage PostgreSQL
             config: test/e2e-v2/cases/storage/postgres/e2e.yaml
-          - name: Storage ES 6.3.2
+          - name: Storage ES 7.16.3
             config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=6.3.2
-          - name: Storage ES 7.0.0
+            env: ES_VERSION=7.16.3
+          - name: Storage ES 7.17.10
             config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.0.0
-          - name: Storage ES 7.8.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.8.0
-          - name: Storage ES 7.10.1
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.10.1
-          - name: Storage ES 7.14.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.14.0
-          - name: Storage ES 7.15.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=7.15.0
-          - name: Storage ES 8.0.0
-            config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=8.0.0
+            env: ES_VERSION=7.17.10
           - name: Storage ES 8.1.0
             config: test/e2e-v2/cases/storage/es/e2e.yaml
             env: ES_VERSION=8.1.0
+          - name: Storage ES 8.8.1
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=8.8.1
           - name: Storage OpenSearch 1.1.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
-          - name: Storage OpenSearch 1.3.6
+          - name: Storage OpenSearch 1.3.10
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
+            env: OPENSEARCH_VERSION=1.3.10
           - name: Storage OpenSearch 2.4.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
@@ -408,15 +396,12 @@ jobs:
           - name: Alarm PostgreSQL
             config: test/e2e-v2/cases/alarm/postgres/e2e.yaml
 
-          - name: TTL ES 6.3.2
+          - name: TTL ES 7.16.3
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
-            env: ES_VERSION=6.3.2
-          - name: TTL ES 7.15.0
+            env: ES_VERSION=7.16.3
+          - name: TTL ES 8.8.1
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
-            env: ES_VERSION=7.15.0
-          - name: TTL ES 8.0.0
-            config: test/e2e-v2/cases/ttl/es/e2e.yaml
-            env: ES_VERSION=8.0.0
+            env: ES_VERSION=8.8.1
 
           - name: Event BanyanDB
             config: test/e2e-v2/cases/event/banyandb/e2e.yaml
@@ -433,49 +418,25 @@ jobs:
             config: test/e2e-v2/cases/log/mysql/e2e.yaml
           - name: Log PostgreSQL
             config: test/e2e-v2/cases/log/postgres/e2e.yaml
-          - name: Log ES 6.3.2
+          - name: Log ES 7.16.3
             config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=6.3.2
-          - name: Log ES 7.0.0
+            env: ES_VERSION=7.16.3
+          - name: Log ES 7.17.10
             config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.0.0
-          - name: Log ES 7.8.0
-            config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.8.0
-          - name: Log ES 7.10.1
-            config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.10.1
-          - name: Log ES 7.14.0
-            config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.14.0
-          - name: Log ES 7.15.0
-            config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=7.15.0
-          - name: Log ES 8.0.0
-            config: test/e2e-v2/cases/log/es/e2e.yaml
-            env: ES_VERSION=8.0.0
-          - name: Log ES 8.0.0 Shardng
+            env: ES_VERSION=7.17.10
+          - name: Log ES 8.8.1 Shardng
             config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
-            env: ES_VERSION=8.0.0
+            env: ES_VERSION=8.8.1
 
-          - name: Log FluentBit ES 6.3.2
+          - name: Log FluentBit ES 7.16.3
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=6.3.2
-          - name: Log FluentBit ES 7.0.0
+            env: ES_VERSION=7.16.3
+          - name: Log FluentBit ES 7.17.10
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.0.0
-          - name: Log FluentBit ES 7.8.0
+            env: ES_VERSION=7.17.10
+          - name: Log FluentBit ES 8.8.1
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.8.0
-          - name: Log FluentBit ES 7.10.1
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.10.1
-          - name: Log FluentBit ES 7.14.0
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.14.0
-          - name: Log FluentBit ES 7.15.0
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=7.15.0
+            env: ES_VERSION=8.8.1
 
           - name: Trace Profiling BanyanDB
             config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
@@ -576,56 +537,26 @@ jobs:
           - name: Kafka Log
             config: test/e2e-v2/cases/kafka/log/e2e.yaml
 
-          - name: Istio Metrics Service 1.8.2
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.8.2
-              KUBERNETES_VERSION=19
-          - name: Istio Metrics Service 1.9.1
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.9.1
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.10.3
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.10.3
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.11.4
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.11.4
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.12.0
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.12.0
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.13.1
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.13.1
-              KUBERNETES_VERSION=20
-          - name: Istio Metrics Service 1.14.4
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.14.4
-              KUBERNETES_VERSION=20
           - name: Istio Metrics Service 1.15.0
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
             env: |
               ISTIO_VERSION=1.15.0
-              KUBERNETES_VERSION=20
+              KUBERNETES_VERSION=25
           - name: Istio Metrics Service 1.16.0
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
             env: |
               ISTIO_VERSION=1.16.0
-              KUBERNETES_VERSION=20
+              KUBERNETES_VERSION=25
           - name: Istio Metrics Service 1.17.0
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
             env: |
               ISTIO_VERSION=1.17.0
-              KUBERNETES_VERSION=20
+              KUBERNETES_VERSION=25
+          - name: Istio Metrics Service 1.18.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.18.0
+              KUBERNETES_VERSION=25
 
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
@@ -654,9 +585,9 @@ jobs:
           - name: MariaDB Prometheus and slowsql
             config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
 
-          - name: Rover with Istio Process 1.13.1
+          - name: Rover with Istio Process 1.15.0
             config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
-            env: ISTIO_VERSION=1.13.1
+            env: ISTIO_VERSION=1.15.0
             runs-on: ubuntu-20.04
 
           - name: Zipkin ES
@@ -727,7 +658,7 @@ jobs:
         run: |
           echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@2b3aa53dbba73909730b211d5b8065abc74b56ad
+        uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - uses: actions/upload-artifact@v2
@@ -750,28 +681,14 @@ jobs:
       matrix:
         analyzer: [k8s-mesh, mx-mesh]
         versions:
-          #- istio: 1.7.1
-          #  kubernetes: 18
-          - istio: 1.8.2
-            kubernetes: 19
-          - istio: 1.9.1
-            kubernetes: 19
-          - istio: 1.10.3
-            kubernetes: 19
-          - istio: 1.11.4
-            kubernetes: 19
-          - istio: 1.12.0
-            kubernetes: 19
-          - istio: 1.13.1
-            kubernetes: 20
-          - istio: 1.14.4
-            kubernetes: 20
           - istio: 1.15.0
-            kubernetes: 20
+            kubernetes: 25
           - istio: 1.16.0
-            kubernetes: 20
+            kubernetes: 25
           - istio: 1.17.0
-            kubernetes: 20
+            kubernetes: 25
+          - istio: 1.18.0
+            kubernetes: 25
 
     steps:
       - uses: actions/checkout@v3
@@ -785,7 +702,7 @@ jobs:
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@2b3aa53dbba73909730b211d5b8065abc74b56ad
+        uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -836,7 +753,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@2b3aa53dbba73909730b211d5b8065abc74b56ad
+        uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
