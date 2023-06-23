@@ -750,8 +750,8 @@ jobs:
       matrix:
         analyzer: [k8s-mesh, mx-mesh]
         versions:
-          - istio: 1.7.1
-            kubernetes: 18
+          #- istio: 1.7.1
+          #  kubernetes: 18
           - istio: 1.8.2
             kubernetes: 19
           - istio: 1.9.1

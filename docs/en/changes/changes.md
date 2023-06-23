@@ -14,9 +14,10 @@
 * Remove patterns from `HttpUriRecognitionService#feedRawData` and add max 10 candidates of raw URIs for each pattern.
 * Add component ID for WebSphere.
 * Fix AI Pipeline uri caching NullPointer and IllegalArgument Exceptions.
+* Fix `NPE` in metrics query when the metric is not exist.
 
 #### UI
-
+* Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
 
 #### Documentation
 
