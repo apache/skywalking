@@ -16,6 +16,7 @@
 * Fix AI Pipeline uri caching NullPointer and IllegalArgument Exceptions.
 * Fix `NPE` in metrics query when the metric is not exist.
 * Remove E2E tests for Istio < 1.15, ElasticSearch < 7.16.3, they might still work but are not supported as planed.
+* Scroll all results in ElasticSearch storage and refactor scrolling logics, including Service, Instance, Endpoint, Process, etc.
 
 #### UI
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
