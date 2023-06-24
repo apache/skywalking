@@ -10,7 +10,7 @@ storage:
 Natively supported storage:
 - H2
 - OpenSearch
-- ElasticSearch 6, 7, 8
+- ElasticSearch 7, 8, ElasticSearch 6 might also work but is end of life and not supported.
 - MySQL
 - PostgreSQL
 - BanyanDB

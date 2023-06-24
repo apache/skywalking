@@ -137,19 +137,22 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * Read time-series values in the duration of required metrics
      */
     public MetricsValues readMetricsValues(MetricsCondition condition, Duration duration) throws IOException {
-        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+        boolean hasScope = condition.senseScope();
+        if (!hasScope || !condition.getEntity().isValid()) {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+            String entityId = "UNKNOWN_METRIC_NAME";
+            if (hasScope) {
+                entityId = "ILLEGAL_ENTITY";
+            }
             MetricsValues values = new MetricsValues();
-            pointOfTimes.forEach(pointOfTime -> {
-                String id = pointOfTime.id(
-                    condition.getEntity().isValid() ? condition.getEntity().buildId() : "ILLEGAL_ENTITY"
-                );
+            for (PointOfTime pointOfTime : pointOfTimes) {
+                String id = pointOfTime.id(entityId);
                 final KVInt kvInt = new KVInt();
                 kvInt.setId(id);
                 kvInt.setValue(0);
                 kvInt.setEmptyValue(true);
                 values.getValues().addKVInt(kvInt);
-            });
+            }
             return values;
         }
         return getMetricsQueryService().readMetricsValues(condition, duration);
@@ -173,25 +176,27 @@ public class MetricsQuery implements GraphQLQueryResolver {
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
                                                         List<String> labels,
                                                         Duration duration) throws IOException {
-        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+        boolean hasScope = condition.senseScope();
+        if (!hasScope || !condition.getEntity().isValid()) {
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-
+            String entityId = "UNKNOWN_METRIC_NAME";
+            if (hasScope) {
+                entityId = "ILLEGAL_ENTITY";
+            }
             List<MetricsValues> labeledValues = new ArrayList<>(labels.size());
-            labels.forEach(label -> {
+            for (String label : labels) {
                 MetricsValues values = new MetricsValues();
-                pointOfTimes.forEach(pointOfTime -> {
-                    String id = pointOfTime.id(
-                        condition.getEntity().isValid() ? condition.getEntity().buildId() : "ILLEGAL_ENTITY"
-                    );
+                for (PointOfTime pointOfTime : pointOfTimes) {
+                    String id = pointOfTime.id(entityId);
                     final KVInt kvInt = new KVInt();
                     kvInt.setId(id);
                     kvInt.setValue(0);
                     kvInt.setEmptyValue(true);
                     values.getValues().addKVInt(kvInt);
-                });
+                }
                 values.setLabel(label);
                 labeledValues.add(values);
-            });
+            }
             return labeledValues;
         }
         return getMetricsQueryService().readLabeledMetricsValues(condition, labels, duration);
@@ -210,18 +215,21 @@ public class MetricsQuery implements GraphQLQueryResolver {
      * </pre>
      */
     public HeatMap readHeatMap(MetricsCondition condition, Duration duration) throws IOException {
-        if (!condition.senseScope() || !condition.getEntity().isValid()) {
+        boolean hasScope = condition.senseScope();
+        if (!hasScope || !condition.getEntity().isValid()) {
             DataTable emptyData = new DataTable();
             emptyData.put("0", 0L);
             final String rawdata = emptyData.toStorageData();
             final HeatMap heatMap = new HeatMap();
             final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-            pointOfTimes.forEach(pointOfTime -> {
-                String id = pointOfTime.id(
-                    condition.getEntity().isValid() ? condition.getEntity().buildId() : "ILLEGAL_ENTITY"
-                );
+            String entityId = "UNKNOWN_METRIC_NAME";
+            if (hasScope) {
+                entityId = "ILLEGAL_ENTITY";
+            }
+            for (PointOfTime pointOfTime : pointOfTimes) {
+                String id = pointOfTime.id(entityId);
                 heatMap.buildColumn(id, rawdata, 0);
-            });
+            }
             return heatMap;
         }
         return getMetricsQueryService().readHeatMap(condition, duration);
