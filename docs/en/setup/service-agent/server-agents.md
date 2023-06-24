@@ -28,6 +28,4 @@ third parties. See their project repositories for guides and releases.
 - [SkyAPM .NET Core agent](https://github.com/SkyAPM/SkyAPM-dotnet). See .NET Core agent project documentation for more
   details.
 
-- [SkyAPM Go SDK](https://github.com/SkyAPM/go2sky). See go2sky project documentation for more details.
-
 - [SkyAPM C++ SDK](https://github.com/SkyAPM/cpp2sky). See cpp2sky project documentation for more details.
