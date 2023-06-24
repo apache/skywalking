@@ -4,7 +4,7 @@ SkyWalking 8.0+ uses v3 protocols. Agents don't have to keep the identical versi
 
 ## SkyWalking Native Agents
 
-| OAP Server Version | Java          | Python    | NodeJS    | LUA | Kong | Browser Agent | Rust | Rover(ebpf agent) | Satellite  | PHP | GO         |
+| OAP Server Version | Java          | Python    | NodeJS    | LUA | Kong | Browser Agent | Rust | Rover(ebpf agent) | Satellite  | PHP | Go         |
 |--------------------|---------------|-----------|-----------|-----|------|---------------|------|-------------------|------------|-----|------------|
 | 8.0.1 - 8.1.0      | 8.0.0 - 8.3.0 | < = 0.6.0 | < = 0.3.0 | All | All  | No            | All  | No                | No         | No  | No         |
 | 8.2.0 - 8.3.0      | 8.0.0 - 8.3.0 | < = 0.6.0 | < = 0.3.0 | All | All  | All           | All  | No                | No         | No  | No         |
