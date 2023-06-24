@@ -22,28 +22,30 @@ import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuil
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
-import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventTraceType;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchScroller;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModuleElasticsearchConfig;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.function.Function;
 
 public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQueryDAO {
     private final int scrollingBatchSize;
+
+    protected Function<SearchHit, SpanAttachedEventRecord> searchHitSpanAttachedEventRecordFunction = hit -> {
+        final var sourceAsMap = hit.getSource();
+        final var builder = new SpanAttachedEventRecord.Builder();
+        return builder.storage2Entity(new ElasticSearchConverter.ToEntity(SpanAttachedEventRecord.INDEX_NAME, sourceAsMap));
+    };
 
     public SpanAttachedEventEsDAO(ElasticSearchClient client, StorageModuleElasticsearchConfig config) {
         super(client);
@@ -64,39 +66,13 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
         search.sort(SpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
         search.sort(SpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);
 
-        final SearchParams params = new SearchParams().scroll(SCROLL_CONTEXT_RETENTION);
-        final List<SpanAttachedEventRecord> records = new ArrayList<>();
-
-        SearchResponse results = getClient().search(index, search.build(), params);
-        final Set<String> scrollIds = new HashSet<>();
-        try {
-            while (true) {
-                final String scrollId = results.getScrollId();
-                scrollIds.add(scrollId);
-                if (results.getHits().getTotal() == 0) {
-                    break;
-                }
-                final List<SpanAttachedEventRecord> batch = buildDataList(results);
-                records.addAll(batch);
-                // The last iterate, there is no more data
-                if (batch.size() < scrollingBatchSize) {
-                    break;
-                }
-                results = getClient().scroll(SCROLL_CONTEXT_RETENTION, scrollId);
-            }
-        } finally {
-            scrollIds.forEach(getClient()::deleteScrollContextQuietly);
-        }
-        return records;
-    }
-
-    private List<SpanAttachedEventRecord> buildDataList(SearchResponse response) {
-        final ArrayList<SpanAttachedEventRecord> records = new ArrayList<>();
-        for (SearchHit hit : response.getHits()) {
-            final Map<String, Object> sourceAsMap = hit.getSource();
-            final SpanAttachedEventRecord.Builder builder = new SpanAttachedEventRecord.Builder();
-            records.add(builder.storage2Entity(new ElasticSearchConverter.ToEntity(SpanAttachedEventRecord.INDEX_NAME, sourceAsMap)));
-        }
-        return records;
+        final var scroller = ElasticSearchScroller
+            .<SpanAttachedEventRecord>builder()
+            .client(getClient())
+            .search(search.build())
+            .index(index)
+            .resultConverter(searchHitSpanAttachedEventRecordFunction)
+            .build();
+        return scroller.scroll();
     }
 }
