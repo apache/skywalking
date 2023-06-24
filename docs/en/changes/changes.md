@@ -19,6 +19,8 @@
 
 
 #### Documentation
+* Add Go agent into the server agent documentation.
+* Add data unit description in the configuration of continuous profiling policy.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)

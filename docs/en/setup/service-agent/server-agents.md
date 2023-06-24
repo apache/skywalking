@@ -20,6 +20,8 @@ format and maximize the analysis capabilities of the SkyWalking OAP server.
 
 - [PHP agent](https://skywalking.apache.org/docs/skywalking-php/next/readme/). Learn how to install the PHP agent in your service without affecting your code.
 
+- [Go agent](https://skywalking.apache.org/docs/skywalking-go/next/readme/). Learn how to integrate the Go agent with a golang service.
+
 The following agents and SDKs are compatible with SkyWalking's data formats and network protocols but are maintained by
 third parties. See their project repositories for guides and releases.
 
