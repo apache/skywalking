@@ -76,4 +76,12 @@ public class StringUtilTest {
         assertEquals(StringUtil.trim("abcdef", 'a'), "bcdef");
         assertEquals(StringUtil.trim("abcdef", 'f'), "abcde");
     }
+
+    @Test
+    public void testTrimJson() {
+        String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\",\"k3\":true,\"k4\":[{\"a\":\"b\",\"c\":\"d\"},{\"e\":\"f\",\"g\":\"h\"}]}";
+        assertEquals(StringUtil.trimJson(jsonString, 10), "{\"k1\":\"v1\",\"k2\":\"v2\"}");
+        assertEquals(StringUtil.trimJson(jsonString, 30), "{\"k1\":\"v1\",\"k2\":\"v2\",\"k3\":true}");
+    }
+
 }

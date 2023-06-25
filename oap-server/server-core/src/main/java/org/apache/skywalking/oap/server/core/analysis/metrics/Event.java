@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EVENT;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlank;
@@ -153,8 +154,15 @@ public class Event extends Metrics {
      * @since 9.0.0 Limit the length of {@link #parameters}
      */
     public void setParameters(String parameters) {
-        this.parameters = parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH ?
-            parameters : parameters.substring(0, PARAMETER_MAX_LENGTH);
+        if (parameters == null || parameters.length() <= PARAMETER_MAX_LENGTH) {
+            this.parameters = parameters;
+        } else {
+            try {
+                this.parameters = StringUtil.trimJson(parameters, PARAMETER_MAX_LENGTH);
+            } catch (Exception e) {
+                this.parameters = parameters.substring(0, PARAMETER_MAX_LENGTH);
+            }
+        }
     }
 
     @Override

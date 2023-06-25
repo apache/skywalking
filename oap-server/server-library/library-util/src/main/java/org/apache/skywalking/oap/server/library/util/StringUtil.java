@@ -18,6 +18,12 @@
 
 package org.apache.skywalking.oap.server.library.util;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.util.Map;
+
 public final class StringUtil {
     public static boolean isEmpty(String str) {
         return str == null || str.length() == 0;
@@ -98,5 +104,53 @@ public final class StringUtil {
         }
 
         return new String(chars, i, j - i + 1);
+    }
+
+    /**
+     * trim json string
+     *
+     * @param jsonString original json string
+     * @param maxLength limit length
+     * @return trimmed json string
+     */
+    public static String trimJson(String jsonString, int maxLength) {
+        JsonElement jsonElement = JsonParser.parseString(jsonString);
+        return trimJsonElement(jsonElement, maxLength).toString();
+    }
+
+    private static JsonElement trimJsonElement(JsonElement jsonElement, int maxLength) {
+        if (jsonElement.isJsonObject()) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            JsonObject trimmedJsonObject = new JsonObject();
+            int currentLength = 0;
+            for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+                String key = entry.getKey();
+                JsonElement value = entry.getValue();
+                JsonElement trimmedValue = trimJsonElement(value, maxLength - currentLength);
+                int valueLength = trimmedValue.toString().length();
+                if (currentLength + valueLength > maxLength) {
+                    break;
+                }
+                trimmedJsonObject.add(key, trimmedValue);
+                currentLength += valueLength;
+            }
+            return trimmedJsonObject;
+        } else if (jsonElement.isJsonArray()) {
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
+            JsonArray trimmedJsonArray = new JsonArray();
+            int currentLength = 0;
+            for (JsonElement element : jsonArray) {
+                JsonElement trimmedElement = trimJsonElement(element, maxLength - currentLength);
+                int elementLength = trimmedElement.toString().length();
+                if (currentLength + elementLength > maxLength) {
+                    break;
+                }
+                trimmedJsonArray.add(trimmedElement);
+                currentLength += elementLength;
+            }
+            return trimmedJsonArray;
+        } else {
+            return jsonElement;
+        }
     }
 }
