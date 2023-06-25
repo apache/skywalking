@@ -127,7 +127,7 @@ public final class StringUtil {
                 String key = entry.getKey();
                 JsonElement value = entry.getValue();
                 JsonElement trimmedValue = trimJsonElement(value, maxLength - currentLength);
-                int valueLength = trimmedValue.toString().length();
+                int valueLength = trimmedValue.toString().length() + key.length() + 4;
                 if (currentLength + valueLength > maxLength) {
                     break;
                 }
@@ -138,7 +138,7 @@ public final class StringUtil {
         } else if (jsonElement.isJsonArray()) {
             JsonArray jsonArray = jsonElement.getAsJsonArray();
             JsonArray trimmedJsonArray = new JsonArray();
-            int currentLength = 0;
+            int currentLength = 2;
             for (JsonElement element : jsonArray) {
                 JsonElement trimmedElement = trimJsonElement(element, maxLength - currentLength);
                 int elementLength = trimmedElement.toString().length();

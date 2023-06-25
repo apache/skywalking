@@ -80,8 +80,15 @@ public class StringUtilTest {
     @Test
     public void testTrimJson() {
         String jsonString = "{\"k1\":\"v1\",\"k2\":\"v2\",\"k3\":true,\"k4\":[{\"a\":\"b\",\"c\":\"d\"},{\"e\":\"f\",\"g\":\"h\"}]}";
-        assertEquals(StringUtil.trimJson(jsonString, 10), "{\"k1\":\"v1\",\"k2\":\"v2\"}");
-        assertEquals(StringUtil.trimJson(jsonString, 30), "{\"k1\":\"v1\",\"k2\":\"v2\",\"k3\":true}");
+        assertEquals(StringUtil.trimJson(jsonString, 10), "{}");
+        assertTrue(StringUtil.trimJson(jsonString, 10).length() <= 10);
+        assertEquals(StringUtil.trimJson(jsonString, 11), "{\"k1\":\"v1\",\"k2\":\"v2\"}");
+        assertTrue(StringUtil.trimJson(jsonString, 11).length() <= 11);
+        jsonString = "[{\"a\":\"b\",\"c\":\"d\"},{\"e\":\"f\",\"g\":\"h\"}]";
+        assertEquals(StringUtil.trimJson(jsonString, 37), "[{\"a\":\"b\",\"c\":\"d\"},{\"e\":\"f\",\"g\":\"h\"}]");
+        assertEquals(StringUtil.trimJson(jsonString, 37).length(), 37);
+        assertEquals(StringUtil.trimJson(jsonString, 36), "[{\"a\":\"b\",\"c\":\"d\"}]");
+        assertTrue(StringUtil.trimJson(jsonString, 36).length() <= 36);
     }
 
 }
