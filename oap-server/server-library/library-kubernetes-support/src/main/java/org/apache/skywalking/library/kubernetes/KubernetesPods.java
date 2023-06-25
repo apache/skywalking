@@ -72,16 +72,6 @@ public enum KubernetesPods {
         });
     }
 
-    public static boolean isReady(Pod pod) {
-        return "Running".equalsIgnoreCase(pod.getStatus().getPhase()) &&
-            pod.getStatus()
-               .getConditions()
-               .stream()
-               .anyMatch(condition ->
-                   "Ready".equalsIgnoreCase(condition.getType()) &&
-                       "True".equalsIgnoreCase(condition.getStatus()));
-    }
-
     @SneakyThrows
     public Optional<Pod> findByIP(final String ip) {
         return podByIP.get(ip);

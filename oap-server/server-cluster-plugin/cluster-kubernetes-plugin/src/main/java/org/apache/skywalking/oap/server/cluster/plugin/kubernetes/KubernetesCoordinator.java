@@ -23,7 +23,6 @@ import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodStatus;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.kubernetes.KubernetesPods;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterHealthStatus;
@@ -179,9 +178,9 @@ public class KubernetesCoordinator extends ClusterCoordinator {
                 switch (event) {
                     case ADDED:
                     case MODIFIED:
-                        if (KubernetesPods.isReady(pod)) {
+                        if ("Running".equalsIgnoreCase(pod.getStatus().getPhase())) {
                             remoteInstanceMap.put(remoteInstance.getAddress().toString(), remoteInstance);
-                        } else {
+                        } else if ("Terminating".equalsIgnoreCase(pod.getStatus().getPhase())) {
                             remoteInstanceMap.remove(remoteInstance.getAddress().toString());
                         }
                         break;
