@@ -8,7 +8,6 @@
 
 * Add Neo4j component ID(112) language: Python.
 * Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
-* Improve Kubernetes coordinator to only select ready OAP Pods to build cluster.
 * Wrap `deleteProperty` API to the BanyanDBStorageClient.
 * [Breaking change] Remove `matchedCounter` from `HttpUriRecognitionService#feedRawData`.
 * Remove patterns from `HttpUriRecognitionService#feedRawData` and add max 10 candidates of raw URIs for each pattern.
@@ -17,6 +16,7 @@
 * Fix `NPE` in metrics query when the metric is not exist.
 * Remove E2E tests for Istio < 1.15, ElasticSearch < 7.16.3, they might still work but are not supported as planed.
 * Scroll all results in ElasticSearch storage and refactor scrolling logics, including Service, Instance, Endpoint, Process, etc.
+* Improve Kubernetes coordinator to remove `Terminating` OAP Pods in cluster.
 
 #### UI
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.

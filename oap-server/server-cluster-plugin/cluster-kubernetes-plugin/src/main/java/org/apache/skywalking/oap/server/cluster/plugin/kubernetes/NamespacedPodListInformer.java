@@ -23,7 +23,6 @@ import io.fabric8.kubernetes.client.KubernetesClientBuilder;
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
 import io.fabric8.kubernetes.client.informers.cache.Lister;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.kubernetes.KubernetesPods;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +67,7 @@ public enum NamespacedPodListInformer {
         return Optional.ofNullable(podLister.list().size() != 0
             ? podLister.list()
                        .stream()
-                       .filter(KubernetesPods::isReady)
+                       .filter(pod -> "Running".equalsIgnoreCase(pod.getStatus().getPhase()))
                        .collect(Collectors.toList())
             : null);
     }
