@@ -62,7 +62,7 @@ public class ElasticSearchScroller<T> {
                 for (final var searchHit : response.getHits()) {
                     results.add(resultConverter.apply(searchHit));
                 }
-                if (search.getSize() != null && response.getHits().getTotal() < search.getSize()) {
+                if (search.getSize() != null && response.getHits().getHits().size() < search.getSize()) {
                     break;
                 }
                 if (queryMaxSize > 0 && results.size() >= queryMaxSize) {
