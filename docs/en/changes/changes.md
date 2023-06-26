@@ -22,6 +22,7 @@
   to control the period of training and sync HTTP URI recognition patterns. And shorten the default period to 10s for
   sync and 60s for training.
 * Fix ElasticSearch scroller bug.
+* Add component ID for Aerospike(ID=149).
 
 #### UI
 
