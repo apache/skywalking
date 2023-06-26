@@ -357,6 +357,8 @@ public class CoreModuleProvider extends ModuleProvider {
                 .provider()
                 .getService(HttpUriRecognition.class),
             getService(MetadataQueryService.class),
+            moduleConfig.getSyncPeriodHttpUriRecognitionPattern(),
+            moduleConfig.getTrainingPeriodHttpUriRecognitionPattern(),
             moduleConfig.getMaxHttpUrisNumberPerService()
         );
 
