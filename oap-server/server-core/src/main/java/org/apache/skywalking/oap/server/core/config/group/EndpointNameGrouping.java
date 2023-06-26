@@ -194,7 +194,8 @@ public class EndpointNameGrouping {
                                      httpUris.clear();
                                      httpUriRecognitionSvr.feedRawData(serviceName, candidates4UriPatterns);
                                  });
-                             } else if (aiPipelineExecutionCounter.incrementAndGet() % syncPeriodHttpUriRecognitionPattern == 0) {
+                             }
+                             if (aiPipelineExecutionCounter.incrementAndGet() % syncPeriodHttpUriRecognitionPattern == 0) {
                                  // Sync with the recognition server per 1 min to get the latest patterns.
                                  try {
                                      metadataQueryService.listServices(null, null).forEach(
