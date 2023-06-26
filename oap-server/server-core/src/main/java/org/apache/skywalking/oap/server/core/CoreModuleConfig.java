@@ -195,7 +195,20 @@ public class CoreModuleConfig extends ModuleConfig {
     private int httpMaxRequestHeaderSize = 8192;
 
     /**
+     * The period of HTTP URI pattern recognition. Unit is second.
+     * @since 9.5.0
+     */
+    private int syncPeriodHttpUriRecognitionPattern = 10;
+
+    /**
+     * The training period of HTTP URI pattern recognition. Unit is second.
+     * @since 9.5.0
+     */
+    private int trainingPeriodHttpUriRecognitionPattern = 60;
+
+    /**
      * The max number of HTTP URIs per service for further URI pattern recognition.
+     * @since 9.5.0
      */
     private int maxHttpUrisNumberPerService = 3000;
 

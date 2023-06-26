@@ -91,7 +91,7 @@ public class EndpointNameGrouping {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
 
             ConcurrentHashMap<String, ArrayBlockingQueue<String>> svrHttpUris =
-                    cachedHttpUris.computeIfAbsent(serviceName, k -> new ConcurrentHashMap<>());
+                cachedHttpUris.computeIfAbsent(serviceName, k -> new ConcurrentHashMap<>());
 
             // Only cache first N (determined by maxHttpUrisNumberPerService) URIs per 30 mins.
             if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
@@ -100,7 +100,7 @@ public class EndpointNameGrouping {
                     // code may accidentally retreive the size 1 queue created by unformatted endpoint
                     // The queue size is 10, which means only cache the first 10 formatted names.
                     final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
-                            formattedName._1(), k -> new ArrayBlockingQueue<>(10));
+                        formattedName._1(), k -> new ArrayBlockingQueue<>(10));
                     if (formattedURIs.size() < 10) {
                         // Try to push the raw URI as a candidate of formatted name.
                         formattedURIs.offer(endpointName);
@@ -160,6 +160,8 @@ public class EndpointNameGrouping {
 
     public void startHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr,
                                            final MetadataQueryService metadataQueryService,
+                                           int syncPeriodHttpUriRecognitionPattern,
+                                           int trainingPeriodHttpUriRecognitionPattern,
                                            int maxEndpointCandidatePerSvr) {
         this.maxHttpUrisNumberPerService = maxEndpointCandidatePerSvr;
         if (!httpUriRecognitionSvr.isInitialized()) {
@@ -170,8 +172,8 @@ public class EndpointNameGrouping {
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(
                          () -> {
-                             if (aiPipelineExecutionCounter.incrementAndGet() % 30 == 0) {
-                                 // Send the cached URIs to the recognition server per 30 mins to build new patterns.
+                             if (aiPipelineExecutionCounter.incrementAndGet() % trainingPeriodHttpUriRecognitionPattern == 0) {
+                                 // Send the cached URIs to the recognition server to build new patterns.
                                  cachedHttpUris.forEach((serviceName, httpUris) -> {
                                      final List<HttpUriRecognition.HTTPUri> candidates4UriPatterns = new ArrayList<>(
                                          3000);
@@ -192,7 +194,8 @@ public class EndpointNameGrouping {
                                      httpUris.clear();
                                      httpUriRecognitionSvr.feedRawData(serviceName, candidates4UriPatterns);
                                  });
-                             } else {
+                             }
+                             if (aiPipelineExecutionCounter.incrementAndGet() % syncPeriodHttpUriRecognitionPattern == 0) {
                                  // Sync with the recognition server per 1 min to get the latest patterns.
                                  try {
                                      metadataQueryService.listServices(null, null).forEach(
@@ -216,7 +219,7 @@ public class EndpointNameGrouping {
                              }
                          },
                          t -> log.error("Fail to recognize URI patterns.", t)
-                     ), 1, 1, TimeUnit.MINUTES
+                     ), 60, 1, TimeUnit.SECONDS
                  );
 
     }
