@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.server.receiver.configuration.discovery.ConfigurationDiscoveryProvider
+org.apache.skywalking.oap.server.receiver.log.provider.LogModuleProvider
