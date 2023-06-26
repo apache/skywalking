@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
-import org.apache.skywalking.oap.server.receiver.configuration.discovery.grpc.ConfigurationDiscoveryServiceHandler;
+import org.apache.skywalking.oap.server.receiver.configuration.discovery.handler.grpc.ConfigurationDiscoveryServiceHandler;
 
 public class ConfigurationDiscoveryProvider extends ModuleProvider {
 

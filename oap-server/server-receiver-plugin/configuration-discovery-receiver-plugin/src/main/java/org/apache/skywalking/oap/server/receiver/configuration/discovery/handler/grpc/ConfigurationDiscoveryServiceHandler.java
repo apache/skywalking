@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.configuration.discovery.grpc;
+package org.apache.skywalking.oap.server.receiver.configuration.discovery.handler.grpc;
 
 import com.google.common.collect.Lists;
 import io.grpc.stub.StreamObserver;
