@@ -496,6 +496,9 @@ Grizzly:
 WebSphere:
   id: 148
   languages: Java
+Aerospike:
+  id: 149
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
