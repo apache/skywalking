@@ -15,15 +15,20 @@
 * Fix AI Pipeline uri caching NullPointer and IllegalArgument Exceptions.
 * Fix `NPE` in metrics query when the metric is not exist.
 * Remove E2E tests for Istio < 1.15, ElasticSearch < 7.16.3, they might still work but are not supported as planed.
-* Scroll all results in ElasticSearch storage and refactor scrolling logics, including Service, Instance, Endpoint, Process, etc.
+* Scroll all results in ElasticSearch storage and refactor scrolling logics, including Service, Instance, Endpoint,
+  Process, etc.
 * Improve Kubernetes coordinator to remove `Terminating` OAP Pods in cluster.
+* Support `SW_CORE_SYNC_PERIOD_HTTP_URI_RECOGNITION_PATTERN` and `SW_CORE_TRAINING_PERIOD_HTTP_URI_RECOGNITION_PATTERN`
+  to control the period of training and sync HTTP URI recognition patterns. And shorten the default period to 10s for
+  sync and 60s for training.
 
 #### UI
+
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
 
 #### Documentation
+
 * Add Go agent into the server agent documentation.
 * Add data unit description in the configuration of continuous profiling policy.
-
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)
