@@ -145,8 +145,6 @@ public class EndpointNameGrouping {
 
     private Tuple2<String, Boolean> formatByQuickUriPattern(String serviceName, String endpointName) {
         final StringFormatGroup.FormatResult formatResult = quickUriGroupingRule.format(serviceName, endpointName);
-
-        log.info("formatByQuickUriPattern: {} {}, formatResult {}", serviceName, endpointName, formatResult);
         if (log.isDebugEnabled() || log.isTraceEnabled()) {
             if (formatResult.isMatch()) {
                 log.debug(
