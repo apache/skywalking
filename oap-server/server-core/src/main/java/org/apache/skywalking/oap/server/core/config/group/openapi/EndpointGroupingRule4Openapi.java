@@ -44,7 +44,7 @@ public class EndpointGroupingRule4Openapi {
     public StringFormatGroup.FormatResult format(String service, String endpointName) {
         Map<String, String> endpointNameLookup = directLookup.get(service);
         if (endpointNameLookup != null && endpointNameLookup.get(endpointName) != null) {
-            return new StringFormatGroup.FormatResult(true, endpointNameLookup.get(endpointName), endpointName);
+            return new StringFormatGroup.FormatResult(true, endpointName, endpointNameLookup.get(endpointName));
         }
 
         Map<String, StringFormatGroup> rules = groupedRules.get(service);

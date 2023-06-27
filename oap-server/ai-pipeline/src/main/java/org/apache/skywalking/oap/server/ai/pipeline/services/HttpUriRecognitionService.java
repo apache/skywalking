@@ -68,14 +68,19 @@ public class HttpUriRecognitionService implements HttpUriRecognition {
                                                        .build()
                       );
             final String newVersion = httpUriRecognitionResponse.getVersion();
-            if (version.equals(newVersion)) {
-                // Same version, nothing changed.
-                return null;
+            if (log.isDebugEnabled()) {
+                log.debug("Remote response version: {}, local version {}", newVersion, version);
             }
+            if (version.equals(newVersion)) {
+                return null;
+            } else {
+                version = newVersion;
+            }
+
             return httpUriRecognitionResponse.getPatternsList()
-                                             .stream()
-                                             .map(pattern -> new HttpUriPattern(pattern.getPattern()))
-                                             .collect(Collectors.toList());
+                    .stream()
+                    .map(pattern -> new HttpUriPattern(pattern.getPattern()))
+                    .collect(Collectors.toList());
 
         } catch (Exception e) {
             log.error("fetch all patterns failed from remote server.", e);
@@ -91,15 +96,20 @@ public class HttpUriRecognitionService implements HttpUriRecognition {
             }
             final HttpUriRecognitionRequest.Builder builder = HttpUriRecognitionRequest.newBuilder();
             builder.setService(service);
-            unrecognizedURIs.forEach(httpUri -> {
-                builder.getUnrecognizedUrisBuilderList().add(
-                    HttpRawUri.newBuilder().setName(httpUri.getName())
-                );
-            });
+            if (log.isDebugEnabled()) {
+                log.debug("Feeding to remote, service: {}, uri size: {}", service, unrecognizedURIs.size());
+            }
+            List<HttpRawUri> rawUriList = unrecognizedURIs.stream()
+                    .map(httpUri -> HttpRawUri.newBuilder()
+                            .setName(httpUri.getName())
+                            .build())
+                    .collect(Collectors.toList());
+
+            builder.addAllUnrecognizedUris(rawUriList);
             stub.withDeadlineAfter(30, TimeUnit.SECONDS)
-                .feedRawData(builder.build());
+                    .feedRawData(builder.build());
         } catch (Exception e) {
-            log.error("feed matched and unmatched URIs to the remote server.", e);
+            log.error("Failed to feed matched and unmatched URIs to the remote server.", e);
         }
     }
 }

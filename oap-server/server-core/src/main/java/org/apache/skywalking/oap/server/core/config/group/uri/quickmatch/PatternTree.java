@@ -40,28 +40,28 @@ public class PatternTree {
      * @param pattern of URIs
      */
     public void addPattern(String pattern) {
-        final String[] tokens = pattern.split("/");
+        final List<String> tokens = splitByCharacter(pattern);
 
         PatternToken current = null;
         for (final PatternToken patternToken : roots) {
-            if (patternToken.isMatch(tokens[0])) {
+            if (patternToken.isMatch(tokens.get(0))) {
                 current = patternToken;
                 break;
             }
         }
 
         if (current == null) {
-            current = new StringToken(tokens[0]);
+            current = new StringToken(tokens.get(0));
             roots.add(current);
         }
 
-        if (tokens.length == 1) {
+        if (tokens.size() == 1) {
             current.setExpression(pattern);
             return;
         }
 
-        for (int i = 1; i < tokens.length; i++) {
-            final String token = tokens[i];
+        for (int i = 1; i < tokens.size(); i++) {
+            final String token = tokens.get(i);
             PatternToken newToken;
             if (VarToken.VAR_TOKEN.equals(token)) {
                 newToken = new VarToken();
@@ -78,19 +78,24 @@ public class PatternTree {
         current.setExpression(pattern);
     }
 
-    List<String> splitByCharacter(String input, char delimiter) {
+    List<String> splitByCharacter(String input) {
         List<String> parts = new ArrayList<>();
+        int length = input.length();
         int start = 0;
 
-        for (int i = 0; i < input.length(); i++) {
-            if (input.charAt(i) == delimiter) {
+        for (int i = 0; i < length; i++) {
+            if (input.charAt(i) == '/') {
+                if (i == 0) {
+                    start = i + 1;
+                    continue;
+                }
                 parts.add(input.substring(start, i));
                 start = i + 1;
             }
         }
 
         // Add the last part if necessary
-        if (start < input.length()) {
+        if (start < length) {
             parts.add(input.substring(start));
         }
 
@@ -98,7 +103,13 @@ public class PatternTree {
     }
 
     public StringFormatGroup.FormatResult match(String uri) {
-        final List<String> slices = splitByCharacter(uri, '/');
+        final List<String> slices = splitByCharacter(uri);
+        if (slices.size() == 1) {
+            // Special case handling, since if a URI is just length one
+            // itself will never be a variable, so simply return true and itself
+            // trailing slashes, if ever encountered will be kept as is
+            return new StringFormatGroup.FormatResult(true, uri, uri);
+        }
         List<PatternToken> current = roots;
         PatternToken matchedToken = null;
         for (final String slice : slices) {
@@ -111,14 +122,52 @@ public class PatternTree {
                 }
             }
             if (!matched) {
-                return new StringFormatGroup.FormatResult(false, uri, null);
+                return new StringFormatGroup.FormatResult(false, uri, uri);
             }
             current = matchedToken.children();
         }
         if (matchedToken.isLeaf()) {
             return new StringFormatGroup.FormatResult(true, uri, matchedToken.expression());
         } else {
-            return new StringFormatGroup.FormatResult(false, uri, null);
+            return new StringFormatGroup.FormatResult(false, uri, uri);
         }
     }
+
+    @SuppressWarnings("unused")
+    // Utility method to visualize the full tree for debugging purposes
+    public String printTree() {
+        StringBuilder sb = new StringBuilder();
+        for (PatternToken root : roots) {
+            sb.append(printNode(root, 0));
+        }
+        return sb.toString();
+    }
+
+    private String printNode(PatternToken node, int depth) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("  ".repeat(Math.max(0, depth)));
+
+        sb.append(node.toString()).append("\n");
+
+        // Append expression if not null
+        if (node.expression() != null) {
+            sb.append("  ").append(node.expression()).append("\n");
+        }
+
+        if (node instanceof StringToken) {
+            StringToken stringToken = (StringToken) node;
+            for (PatternToken child : stringToken.children()) {
+                sb.append(printNode(child, depth + 1));
+            }
+        } else if (node instanceof VarToken) {
+            VarToken varToken = (VarToken) node;
+            for (PatternToken child : varToken.children()) {
+                sb.append(printNode(child, depth + 1));
+            }
+        }
+
+        return sb.toString();
+    }
+
 }
