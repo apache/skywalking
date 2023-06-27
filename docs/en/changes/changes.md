@@ -25,6 +25,7 @@
 * Fix ElasticSearch scroller bug.
 * Add component ID for Aerospike(ID=149).
 * Packages with name `recevier` are renamed to `receiver`.
+* `BanyanDBMetricsDAO` handles `storeIDTag` in `multiGet` for `BanyanDBModelExtension`.
 
 #### UI
 
