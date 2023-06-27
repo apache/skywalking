@@ -16,4 +16,4 @@
 #
 #
 
-org.apache.skywalking.oap.server.recevier.configuration.discovery.ConfigurationDiscoveryModule
+org.apache.skywalking.oap.server.receiver.configuration.discovery.ConfigurationDiscoveryModule

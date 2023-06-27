@@ -3,6 +3,7 @@
 #### Project
 
 * Bump up Guava to 32.0.1 to avoid the lib listed as vulnerable due to CVE-2020-8908. This API is never used.
+* Maven artifact `skywalking-log-recevier-plugin` is renamed to `skywalking-log-receiver-plugin`.
 
 #### OAP Server
 
@@ -23,6 +24,7 @@
   sync and 60s for training.
 * Fix ElasticSearch scroller bug.
 * Add component ID for Aerospike(ID=149).
+* Packages with name `recevier` are renamed to `receiver`.
 
 #### UI
 

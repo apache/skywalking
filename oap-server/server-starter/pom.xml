@@ -143,7 +143,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-log-recevier-plugin</artifactId>
+            <artifactId>skywalking-log-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
