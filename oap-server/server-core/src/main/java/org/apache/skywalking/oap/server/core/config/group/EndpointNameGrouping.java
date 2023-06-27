@@ -97,7 +97,7 @@ public class EndpointNameGrouping {
             if (svrHttpUris.size() < maxHttpUrisNumberPerService) {
                 if (formattedName._2()) {
                     // Algorithm side should not return a pattern that has no {var} in it else this
-                    // code may accidentally retreive the size 1 queue created by unformatted endpoint
+                    // code may accidentally retrieve the size 1 queue created by unformatted endpoint
                     // The queue size is 10, which means only cache the first 10 formatted names.
                     final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
                         formattedName._1(), k -> new ArrayBlockingQueue<>(10));
@@ -140,11 +140,13 @@ public class EndpointNameGrouping {
                 log.trace("Endpoint {} of Service {} keeps unchanged.", endpointName, serviceName);
             }
         }
-        return new Tuple2<>(formatResult.getName(), formatResult.isMatch());
+        return new Tuple2<>(formatResult.getReplacedName(), formatResult.isMatch());
     }
 
     private Tuple2<String, Boolean> formatByQuickUriPattern(String serviceName, String endpointName) {
         final StringFormatGroup.FormatResult formatResult = quickUriGroupingRule.format(serviceName, endpointName);
+
+        log.info("formatByQuickUriPattern: {} {}, formatResult {}", serviceName, endpointName, formatResult);
         if (log.isDebugEnabled() || log.isTraceEnabled()) {
             if (formatResult.isMatch()) {
                 log.debug(
@@ -155,7 +157,7 @@ public class EndpointNameGrouping {
                 log.trace("Endpoint {} of Service {} keeps unchanged.", endpointName, serviceName);
             }
         }
-        return new Tuple2<>(formatResult.getName(), formatResult.isMatch());
+        return new Tuple2<>(formatResult.getReplacedName(), formatResult.isMatch());
     }
 
     public void startHttpUriRecognitionSvr(final HttpUriRecognition httpUriRecognitionSvr,
@@ -172,7 +174,8 @@ public class EndpointNameGrouping {
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(
                          () -> {
-                             if (aiPipelineExecutionCounter.incrementAndGet() % trainingPeriodHttpUriRecognitionPattern == 0) {
+                             int currentExecutionCounter = aiPipelineExecutionCounter.incrementAndGet();
+                             if (currentExecutionCounter % trainingPeriodHttpUriRecognitionPattern == 0) {
                                  // Send the cached URIs to the recognition server to build new patterns.
                                  cachedHttpUris.forEach((serviceName, httpUris) -> {
                                      final List<HttpUriRecognition.HTTPUri> candidates4UriPatterns = new ArrayList<>(
@@ -182,7 +185,7 @@ public class EndpointNameGrouping {
                                              //unrecognized uri
                                              candidates4UriPatterns.add(new HttpUriRecognition.HTTPUri(uri));
                                          } else {
-                                             String candidateUri = null;
+                                             String candidateUri;
                                              while ((candidateUri = candidates.poll()) != null) {
                                                  candidates4UriPatterns.add(
                                                      new HttpUriRecognition.HTTPUri(candidateUri));
@@ -195,7 +198,7 @@ public class EndpointNameGrouping {
                                      httpUriRecognitionSvr.feedRawData(serviceName, candidates4UriPatterns);
                                  });
                              }
-                             if (aiPipelineExecutionCounter.incrementAndGet() % syncPeriodHttpUriRecognitionPattern == 0) {
+                             if (currentExecutionCounter % syncPeriodHttpUriRecognitionPattern == 0) {
                                  // Sync with the recognition server per 1 min to get the latest patterns.
                                  try {
                                      metadataQueryService.listServices(null, null).forEach(

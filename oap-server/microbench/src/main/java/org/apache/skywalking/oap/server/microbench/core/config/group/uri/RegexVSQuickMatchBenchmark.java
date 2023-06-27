@@ -126,69 +126,70 @@ public class RegexVSQuickMatchBenchmark extends AbstractMicrobenchmark {
 
 /**
  * # JMH version: 1.25
- * # VM version: JDK 11.0.18, OpenJDK 64-Bit Server VM, 11.0.18+10
- * # VM invoker: /Users/wusheng/Library/Java/JavaVirtualMachines/temurin-11.0.18/Contents/Home/bin/java
- * # VM options: -ea --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED -Didea.test.cyclic.buffer.size=1048576 -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=53714:/Applications/IntelliJ IDEA.app/Contents/bin -Dfile.encoding=UTF-8 -Xmx512m -Xms512m -XX:MaxDirectMemorySize=512m -XX:BiasedLockingStartupDelay=0 -Djmh.executor=CUSTOM -Djmh.executor.class=org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor
+ * # VM version: JDK 16.0.1, OpenJDK 64-Bit Server VM, 16.0.1+9-24
+ * # VM invoker: C:\Users\Sky\.jdks\openjdk-16.0.1\bin\java.exe
+ * # VM options: -ea --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED -Didea.test.cyclic.buffer.size=1048576 -javaagent:Y:\jetbrains\apps\IDEA-U\ch-0\231.8109.175\lib\idea_rt.jar=54938:Y:\jetbrains\apps\IDEA-U\ch-0\231.8109.175\bin -Dfile.encoding=UTF-8 -Xmx512m -Xms512m -XX:MaxDirectMemorySize=512m -XX:BiasedLockingStartupDelay=0 -Djmh.executor=CUSTOM -Djmh.executor.class=org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark$JmhThreadExecutor
  * # Warmup: 1 iterations, 10 s each
  * # Measurement: 1 iterations, 10 s each
  * # Timeout: 10 min per iteration
  * # Threads: 4 threads, will synchronize iterations
  * # Benchmark mode: Throughput, ops/time
- * # Benchmark: org.apache.skywalking.oap.server.microbench.core.config.group.uri.RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping
+ * # Benchmark: org.apache.skywalking.oap.server.microbench.core.config.group.uri.RegexVSQuickMatchBenchmark.notMatchRegex
+ * Benchmark                                                                                 Mode  Cnt         Score   Error   Units
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping                                    thrpt       48317763.786           ops/s
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.alloc.rate                     thrpt           8773.225          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.alloc.rate.norm                thrpt            200.014            B/op
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Eden_Space            thrpt           8807.405          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Eden_Space.norm       thrpt            200.794            B/op
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Survivor_Space        thrpt              0.050          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Survivor_Space.norm   thrpt              0.001            B/op
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.count                          thrpt            303.000          counts
+ * RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.time                           thrpt            325.000              ms
+ * RegexVSQuickMatchBenchmark.matchFirstRegex                                               thrpt       41040542.288           ops/s
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.alloc.rate                                thrpt           8348.690          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.alloc.rate.norm                           thrpt            224.016            B/op
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Eden_Space                       thrpt           8378.454          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Eden_Space.norm                  thrpt            224.815            B/op
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Survivor_Space                   thrpt              0.057          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Survivor_Space.norm              thrpt              0.002            B/op
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.count                                     thrpt            288.000          counts
+ * RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.time                                      thrpt            282.000              ms
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping                                   thrpt       35658131.267           ops/s
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.alloc.rate                    thrpt           8020.546          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.alloc.rate.norm               thrpt            248.018            B/op
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Eden_Space           thrpt           8043.279          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Eden_Space.norm      thrpt            248.721            B/op
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Survivor_Space       thrpt              0.045          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Survivor_Space.norm  thrpt              0.001            B/op
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.count                         thrpt            277.000          counts
+ * RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.time                          thrpt            302.000              ms
+ * RegexVSQuickMatchBenchmark.matchFourthRegex                                              thrpt       11066068.208           ops/s
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.alloc.rate                               thrpt           8273.312          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.alloc.rate.norm                          thrpt            824.060            B/op
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Eden_Space                      thrpt           8279.984          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Eden_Space.norm                 thrpt            824.724            B/op
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Survivor_Space                  thrpt              0.052          MB/sec
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Survivor_Space.norm             thrpt              0.005            B/op
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.count                                    thrpt            285.000          counts
+ * RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.time                                     thrpt            324.000              ms
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping                                      thrpt       45843193.472           ops/s
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.alloc.rate                       thrpt           8653.215          MB/sec
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.alloc.rate.norm                  thrpt            208.015            B/op
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Eden_Space              thrpt           8652.365          MB/sec
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Eden_Space.norm         thrpt            207.995            B/op
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Survivor_Space          thrpt              0.048          MB/sec
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Survivor_Space.norm     thrpt              0.001            B/op
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.count                            thrpt            298.000          counts
+ * RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.time                             thrpt            358.000              ms
+ * RegexVSQuickMatchBenchmark.notMatchRegex                                                 thrpt        3434953.426           ops/s
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.alloc.rate                                  thrpt           8898.075          MB/sec
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.alloc.rate.norm                             thrpt           2856.206            B/op
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Eden_Space                         thrpt           8886.568          MB/sec
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Eden_Space.norm                    thrpt           2852.512            B/op
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Survivor_Space                     thrpt              0.052          MB/sec
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Survivor_Space.norm                thrpt              0.017            B/op
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.count                                       thrpt            306.000          counts
+ * RegexVSQuickMatchBenchmark.notMatchRegex:·gc.time                                        thrpt            377.000              ms
  *
- Benchmark                                                                             Mode  Cnt         Score   Error   Units
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping                                thrpt       28464926.797           ops/s
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.alloc.rate                 thrpt           6194.492          MB/sec
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.alloc.rate.norm            thrpt            240.000            B/op
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Eden_Space        thrpt           6222.267          MB/sec
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Eden_Space.norm   thrpt            241.076            B/op
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Old_Gen           thrpt              0.023          MB/sec
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.churn.G1_Old_Gen.norm      thrpt              0.001            B/op
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.count                      thrpt            214.000          counts
- RegexVSQuickMatchBenchmark.matchFirstQuickUriGrouping:·gc.time                       thrpt            194.000              ms
- RegexVSQuickMatchBenchmark.matchFirstRegex                                           thrpt       51679120.204           ops/s
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.alloc.rate                            thrpt           7130.116          MB/sec
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.alloc.rate.norm                       thrpt            152.000            B/op
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Eden_Space                   thrpt           7162.842          MB/sec
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Eden_Space.norm              thrpt            152.698            B/op
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Old_Gen                      thrpt              0.020          MB/sec
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.churn.G1_Old_Gen.norm                 thrpt             ≈ 10⁻³            B/op
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.count                                 thrpt            246.000          counts
- RegexVSQuickMatchBenchmark.matchFirstRegex:·gc.time                                  thrpt            224.000              ms
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping                               thrpt       23359343.934           ops/s
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.alloc.rate                thrpt           6106.164          MB/sec
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.alloc.rate.norm           thrpt            288.000            B/op
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Eden_Space       thrpt           6143.526          MB/sec
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Eden_Space.norm  thrpt            289.762            B/op
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Old_Gen          thrpt              0.023          MB/sec
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.churn.G1_Old_Gen.norm     thrpt              0.001            B/op
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.count                     thrpt            211.000          counts
- RegexVSQuickMatchBenchmark.matchFourthQuickUriGrouping:·gc.time                      thrpt            143.000              ms
- RegexVSQuickMatchBenchmark.matchFourthRegex                                          thrpt       24074353.094           ops/s
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.alloc.rate                           thrpt          17999.991          MB/sec
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.alloc.rate.norm                      thrpt            824.000            B/op
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Eden_Space                  thrpt          18070.905          MB/sec
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Eden_Space.norm             thrpt            827.246            B/op
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Old_Gen                     thrpt              0.095          MB/sec
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.churn.G1_Old_Gen.norm                thrpt              0.004            B/op
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.count                                thrpt            621.000          counts
- RegexVSQuickMatchBenchmark.matchFourthRegex:·gc.time                                 thrpt            934.000              ms
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping                                  thrpt       27031477.704           ops/s
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.alloc.rate                   thrpt           6081.482          MB/sec
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.alloc.rate.norm              thrpt            248.000            B/op
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Eden_Space          thrpt           6109.321          MB/sec
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Eden_Space.norm     thrpt            249.135            B/op
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Old_Gen             thrpt              0.022          MB/sec
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.churn.G1_Old_Gen.norm        thrpt              0.001            B/op
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.count                        thrpt            210.000          counts
- RegexVSQuickMatchBenchmark.notMatchQuickUriGrouping:·gc.time                         thrpt            171.000              ms
- RegexVSQuickMatchBenchmark.notMatchRegex                                             thrpt        9368757.119           ops/s
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.alloc.rate                              thrpt          23999.619          MB/sec
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.alloc.rate.norm                         thrpt           2824.000            B/op
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Eden_Space                     thrpt          24087.019          MB/sec
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Eden_Space.norm                thrpt           2834.284            B/op
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Old_Gen                        thrpt              0.114          MB/sec
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.churn.G1_Old_Gen.norm                   thrpt              0.013            B/op
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.count                                   thrpt            828.000          counts
- RegexVSQuickMatchBenchmark.notMatchRegex:·gc.time                                    thrpt            896.000              ms
+ * Process finished with exit code 0
  */

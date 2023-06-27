@@ -68,7 +68,7 @@ public class StringFormatGroup {
     public FormatResult format(String string) {
         for (PatternRule rule : rules) {
             if (rule.getPattern().matcher(string).matches()) {
-                return new FormatResult(true, rule.getName(), string);
+                return new FormatResult(true, string, rule.getName());
             }
         }
         return new FormatResult(false, string, string);

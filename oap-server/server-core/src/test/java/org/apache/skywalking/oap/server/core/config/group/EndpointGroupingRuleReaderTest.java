@@ -36,8 +36,14 @@ public class EndpointGroupingRuleReaderTest {
         Assertions.assertTrue(formatResult.isMatch());
         Assertions.assertEquals("/prod/{var}", formatResult.getReplacedName());
 
+        // This will always match, since after slicing length is 1, which goes into special handling
         formatResult = rule.format("serviceA", "/prod/");
+        Assertions.assertTrue(formatResult.isMatch());
+        Assertions.assertEquals("/prod/", formatResult.getReplacedName());
+
+        formatResult = rule.format("serviceA", "/prod/123/456");
         Assertions.assertFalse(formatResult.isMatch());
+        Assertions.assertEquals("/prod/123/456", formatResult.getReplacedName());
 
         formatResult = rule.format("serviceB", "/prod/123");
         Assertions.assertFalse(formatResult.isMatch());

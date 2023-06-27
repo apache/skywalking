@@ -22,10 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
-import lombok.ToString;
 
 @EqualsAndHashCode(of = "")
-@ToString
 public class VarToken implements PatternToken {
     public static final String VAR_TOKEN = "{var}";
     private List<PatternToken> children = new ArrayList<>();
@@ -53,5 +51,10 @@ public class VarToken implements PatternToken {
     @Override
     public List<PatternToken> children() {
         return children;
+    }
+
+    @Override
+    public String toString() {
+        return "VarToken: \"" + VAR_TOKEN + "\"";
     }
 }
