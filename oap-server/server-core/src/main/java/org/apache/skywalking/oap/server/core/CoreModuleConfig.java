@@ -215,7 +215,7 @@ public class CoreModuleConfig extends ModuleConfig {
     /**
      * The UI menu should activate fetch interval, default 20s
      */
-    private int uiMenuFetchInterval = 20;
+    private int uiMenuRefreshInterval = 20;
 
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();

@@ -433,7 +433,7 @@ public class CoreModuleProvider extends ModuleProvider {
         }
 
         try {
-            new UIMenuInitializer(getManager()).start(moduleConfig.getUiMenuFetchInterval());
+            new UIMenuInitializer(getManager()).start(moduleConfig.getUiMenuRefreshInterval());
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
