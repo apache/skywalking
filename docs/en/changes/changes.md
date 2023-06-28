@@ -32,6 +32,7 @@
 #### UI
 
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
+* Fix display name of `endpoint_cpm` for endpoint list in `General-Service` dashboard.
 
 #### Documentation
 
