@@ -22,10 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Setter;
-import lombok.ToString;
 
 @EqualsAndHashCode(of = "value")
-@ToString
 public class StringToken implements PatternToken {
     private final String value;
     private final List<PatternToken> children;
@@ -55,5 +53,10 @@ public class StringToken implements PatternToken {
     @Override
     public List<PatternToken> children() {
         return children;
+    }
+
+    @Override
+    public String toString() {
+        return "StringToken: \"" + value + "\"";
     }
 }
