@@ -212,6 +212,11 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int maxHttpUrisNumberPerService = 3000;
 
+    /**
+     * The UI menu should activate fetch interval, default 20s
+     */
+    private int uiMenuFetchInterval = 20;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

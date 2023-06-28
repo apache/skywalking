@@ -1,0 +1,147 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# menus: the menus of the left navigation bar
+#   - name: the name of the menu item
+#     icon: icon name
+#     path: link path
+#     dashboard: related dashboard name, the menu item should be activated when the dashboard value is empty or dashboard related scope has services
+#     menus: sub menus of the current item
+
+menus:
+  - name: General Service
+    icon: chart
+    menus:
+      - name: Services
+        path: /general
+        dashboard: General-Root
+      - name: Visual Database
+        path: /database
+        dashboard: Virtual-Database-Root
+      - name: Visual Cache
+        path: /cache
+        dashboard: Virtual-Cache-Root
+      - name: Visual MQ
+        path: /mq
+        dashboard: Virtual-MQ-Root
+  - name: Service Mesh
+    icon: epic
+    menus:
+      - name: Services
+        path: /mesh/services
+        dashboard: Mesh-Root
+      - name: Control Plane
+        path: /mesh/controlPanel
+        dashboard: Mesh-Control-Plane-Root
+      - name: Data Plane
+        path: /mesh/dataPanel
+        dashboard: Mesh-Data-Plane-Root
+  - name: Functions
+    icon: functions
+    menus:
+      - name: OpenFunction
+        path: /openFunction
+        dashboard: FaaS-Root
+  - name: Kubernetes
+    icon: donut_small
+    menus:
+      - name: Cluster
+        path: /kubernetes/cluster
+        dashboard: K8S-Root
+      - name: Service
+        path: /kubernetes/service
+        dashboard: K8S-Service-Root
+  - name: Infrastructure
+    icon: scatter_plot
+    menus:
+      - name: Linux
+        path: /linux
+        dashboard: Linux-Root
+      - name: Windows
+        path: /windows
+        dashboard: Windows-Root
+  - name: AWS Cloud
+    icon: cloud_queue
+    menus:
+      - name: EKS
+        path: /aws-eks
+        dashboard: AWS_EKS-Root
+      - name: S3
+        path: /aws-s3
+        dashboard: AWS_S3-Root
+      - name: DynamoDB
+        path: /aws-dynamodb
+        dashboard: AWS-DynamoDB-Root
+      - name: API Gateway
+        path: /aws-api-gateway
+        dashboard: AWS_GATEWAY-Root
+  - name: Browser
+    icon: language
+    dashboard: Browser-Root
+  - name: Gateway
+    icon: gateway
+    menus:
+      - name: APISIX
+        path: /apisix
+        dashboard: apisix-root
+      - name: AWS API Gateway
+        path: /aws-gateway
+        dashboard: AWS_GATEWAY-Root
+  - name: Database
+    icon: storage
+    menus:
+      - name: MySQL/MariaDB
+        path: /mySQL
+        dashboard: mysql-root
+      - name: PostgreSQL
+        path: /postgreSQL
+        dashboard: postgresql-root
+      - name: DynamoDB
+        path: /aws-dynamodb
+        dashboard: AWS-DynamoDB-Root
+      - name: Redis
+        path: /redis
+        dashboard: redis-root
+      - name: Elasticsearch
+        path: /elasticsearch
+        dashboard: Elasticsearch-Root
+  - name: MQ
+    icon: mq
+    menus:
+      - name: RabbitMQ
+        path: /rabbitMQ
+        dashboard: RabbitMQ-Root
+  - name: Self Observability
+    icon: logo
+    menus:
+      - name: SkyWalking Server
+        path: /self/skyWalkingServer
+        dashboard: Self-Observability-OAP-Service
+      - name: Satellite
+        path: /self/satellite
+        dashboard: Self-Observability-Satellite-Root
+  - name: Dashboards
+    icon: dashboard_customize
+    menus:
+      - name: Dashboard List
+        path: /dashboard/list
+      - name: New Dashboard
+        path: /dashboard/new
+  - name: Alerting
+    icon: spam
+    path: /alerting
+  - name: Settings
+    icon: settings
+    path: /settings

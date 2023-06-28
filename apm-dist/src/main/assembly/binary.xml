@@ -67,6 +67,7 @@
                 <include>openapi-definitions/*/*.yaml</include>
                 <include>otel-rules/**</include>
                 <include>ui-initialized-templates/*/*.json</include>
+                <include>ui-initialized-templates/menu.yaml</include>
                 <include>lal/*</include>
                 <include>log-mal-rules/**</include>
                 <include>telegraf-rules/*</include>

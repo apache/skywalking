@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
@@ -79,6 +80,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCStora
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCUIMenuManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCUITemplateManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCZipkinQueryDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -187,6 +189,9 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             UITemplateManagementDAO.class,
             new JDBCUITemplateManagementDAO(jdbcClient, tableHelper));
+        this.registerServiceImplementation(
+            UIMenuManagementDAO.class,
+            new JDBCUIMenuManagementDAO(jdbcClient, tableHelper));
 
         this.registerServiceImplementation(
             IEventQueryDAO.class,

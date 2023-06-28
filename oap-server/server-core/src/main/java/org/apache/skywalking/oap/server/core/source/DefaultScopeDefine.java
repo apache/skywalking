@@ -125,6 +125,8 @@ public class DefaultScopeDefine {
 
     public static final int CONTINUOUS_PROFILING_POLICY = 68;
 
+    public static final int UI_MENU = 69;
+
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
