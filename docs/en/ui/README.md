@@ -8,13 +8,40 @@ The left side menu lists all available supported stacks with default dashboards.
 
 Follow the `Official Dashboards` menu to explore all default dashboards on their ways to monitor different tech stacks.
 
-## Dynamic Menu
+## Sidebar Menu and Marketplace
 
-The system contains all menu items by default. Dynamic menu is used to simplify the display of these items. 
-If the specified entity information does not exist in the current monitoring, the corresponding menu item would not be displayed.
+All available feature menu items are only listed in the marketplace(since 9.6.0). They are only visible on the Sidebar Menu when there are relative services
+being observed by various supported observation agents, such as installed language agents, service mesh platform, OTEL integration.
 
-**Notice: If the service has just been started, it may not be able to display the items promptly. 
-They would appear after a short delay. For more details, please refer to the "uiMenuRefreshInterval" configuration item in the [backend settings](../setup/backend/configuration-vocabulary.md).**
+The menu items defined in `ui-initialized-templates/menu.yaml` are the universal marketplace for all default-supported integration.
+The menu definition supports one and two levels items. The leave menu item should have the `path` and `dashboardID` for navigation, the icon of the level one item is defined from UI side.
+
+```yaml
+menus:
+  - name: General Service
+    icon: general_service
+    menus:
+      - name: Services
+        path: /general
+        dashboardID: General-Root
+      - name: Visual Database
+        path: /database
+        dashboardID: Virtual-Database-Root
+      - name: Visual Cache
+        path: /cache
+        dashboardID: Virtual-Cache-Root
+      - name: Visual MQ
+        path: /mq
+        dashboardID: Virtual-MQ-Root
+....
+  - name: Browser
+    icon: browser
+    dashboardID: Browser-Root
+```
+
+
+The menu items would automatically pop up on the left after short period of time that at least one service was observed.
+For more details, please refer to the "uiMenuRefreshInterval" configuration item in the [backend settings](../setup/backend/configuration-vocabulary.md)
 
 ## Custom Dashboard
 
