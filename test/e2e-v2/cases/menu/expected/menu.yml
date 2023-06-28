@@ -15,7 +15,7 @@
 
 {{- contains . }}
 - name: General Service
-  icon: chart
+  icon: general_service
   path: ""
   activate: true
   subitems:
