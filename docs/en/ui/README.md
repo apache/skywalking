@@ -8,6 +8,14 @@ The left side menu lists all available supported stacks with default dashboards.
 
 Follow the `Official Dashboards` menu to explore all default dashboards on their ways to monitor different tech stacks.
 
+## Dynamic Menu
+
+The system contains all menu items by default. Dynamic menu is used to simplify the display of these items. 
+If the specified entity information does not exist in the current monitoring, the corresponding menu item would not be displayed.
+
+**Notice: If the service has just been started, it may not be able to display the items promptly. 
+They would appear after a short delay. For more details, please refer to the "uiMenuRefreshInterval" configuration item in the [backend settings](../setup/backend/configuration-vocabulary.md).**
+
 ## Custom Dashboard
 
 Besides official dashboards, **Dashboards** provide customization capabilities to end-users to add new tabs/pages/widgets, and

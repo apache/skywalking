@@ -146,9 +146,9 @@ public class UIMenuManagementService implements Service, Runnable {
                 List<MenuItem> subItems = this.convertToMenuItems(setting.getMenus());
                 shouldActivate = subItems.stream().map(MenuItem::isActivate).anyMatch(Boolean::booleanValue);
                 item.setSubItems(subItems);
-            } else if (StringUtil.isNotEmpty(setting.getDashboard())) {
+            } else if (StringUtil.isNotEmpty(setting.getDashboardID())) {
                 // check should active by dashboard
-                shouldActivate = queryDashboardShouldActivate(setting.getDashboard());
+                shouldActivate = queryDashboardShouldActivate(setting.getDashboardID());
             }
 
             item.setName(setting.getName());

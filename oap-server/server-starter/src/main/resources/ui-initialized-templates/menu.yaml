@@ -17,130 +17,130 @@
 #   - name: the name of the menu item
 #     icon: icon name
 #     path: link path
-#     dashboard: related dashboard name, the menu item should be activated when the dashboard value is empty or dashboard related scope has services
+#     dashboardID: related dashboard ID, the menu item should be activated when the dashboard ID value is empty or dashboard ID related scope has services
 #     menus: sub menus of the current item
 
 menus:
   - name: General Service
-    icon: chart
+    icon: general_service
     menus:
       - name: Services
         path: /general
-        dashboard: General-Root
+        dashboardID: General-Root
       - name: Visual Database
         path: /database
-        dashboard: Virtual-Database-Root
+        dashboardID: Virtual-Database-Root
       - name: Visual Cache
         path: /cache
-        dashboard: Virtual-Cache-Root
+        dashboardID: Virtual-Cache-Root
       - name: Visual MQ
         path: /mq
-        dashboard: Virtual-MQ-Root
+        dashboardID: Virtual-MQ-Root
   - name: Service Mesh
-    icon: epic
+    icon: service_mesh
     menus:
       - name: Services
         path: /mesh/services
-        dashboard: Mesh-Root
+        dashboardID: Mesh-Root
       - name: Control Plane
         path: /mesh/controlPanel
-        dashboard: Mesh-Control-Plane-Root
+        dashboardID: Mesh-Control-Plane-Root
       - name: Data Plane
         path: /mesh/dataPanel
-        dashboard: Mesh-Data-Plane-Root
+        dashboardID: Mesh-Data-Plane-Root
   - name: Functions
     icon: functions
     menus:
       - name: OpenFunction
         path: /openFunction
-        dashboard: FaaS-Root
+        dashboardID: FaaS-Root
   - name: Kubernetes
-    icon: donut_small
+    icon: kubernetes
     menus:
       - name: Cluster
         path: /kubernetes/cluster
-        dashboard: K8S-Root
+        dashboardID: K8S-Root
       - name: Service
         path: /kubernetes/service
-        dashboard: K8S-Service-Root
+        dashboardID: K8S-Service-Root
   - name: Infrastructure
-    icon: scatter_plot
+    icon: infrastructure
     menus:
       - name: Linux
         path: /linux
-        dashboard: Linux-Root
+        dashboardID: Linux-Root
       - name: Windows
         path: /windows
-        dashboard: Windows-Root
+        dashboardID: Windows-Root
   - name: AWS Cloud
-    icon: cloud_queue
+    icon: aws_cloud
     menus:
       - name: EKS
         path: /aws-eks
-        dashboard: AWS_EKS-Root
+        dashboardID: AWS_EKS-Root
       - name: S3
         path: /aws-s3
-        dashboard: AWS_S3-Root
+        dashboardID: AWS_S3-Root
       - name: DynamoDB
         path: /aws-dynamodb
-        dashboard: AWS-DynamoDB-Root
+        dashboardID: AWS-DynamoDB-Root
       - name: API Gateway
         path: /aws-api-gateway
-        dashboard: AWS_GATEWAY-Root
+        dashboardID: AWS_GATEWAY-Root
   - name: Browser
-    icon: language
-    dashboard: Browser-Root
+    icon: browser
+    dashboardID: Browser-Root
   - name: Gateway
     icon: gateway
     menus:
       - name: APISIX
         path: /apisix
-        dashboard: apisix-root
+        dashboardID: apisix-root
       - name: AWS API Gateway
         path: /aws-gateway
-        dashboard: AWS_GATEWAY-Root
+        dashboardID: AWS_GATEWAY-Root
   - name: Database
-    icon: storage
+    icon: database
     menus:
       - name: MySQL/MariaDB
         path: /mySQL
-        dashboard: mysql-root
+        dashboardID: mysql-root
       - name: PostgreSQL
         path: /postgreSQL
-        dashboard: postgresql-root
+        dashboardID: postgresql-root
       - name: DynamoDB
         path: /aws-dynamodb
-        dashboard: AWS-DynamoDB-Root
+        dashboardID: AWS-DynamoDB-Root
       - name: Redis
         path: /redis
-        dashboard: redis-root
+        dashboardID: redis-root
       - name: Elasticsearch
         path: /elasticsearch
-        dashboard: Elasticsearch-Root
+        dashboardID: Elasticsearch-Root
   - name: MQ
     icon: mq
     menus:
       - name: RabbitMQ
         path: /rabbitMQ
-        dashboard: RabbitMQ-Root
+        dashboardID: RabbitMQ-Root
   - name: Self Observability
-    icon: logo
+    icon: self_observability
     menus:
       - name: SkyWalking Server
         path: /self/skyWalkingServer
-        dashboard: Self-Observability-OAP-Service
+        dashboardID: Self-Observability-OAP-Service
       - name: Satellite
         path: /self/satellite
-        dashboard: Self-Observability-Satellite-Root
-  - name: Dashboards
-    icon: dashboard_customize
+        dashboardID: Self-Observability-Satellite-Root
+  - name: dashboards
+    icon: dashboards
     menus:
-      - name: Dashboard List
+      - name: dashboard List
         path: /dashboard/list
-      - name: New Dashboard
+      - name: New dashboard
         path: /dashboard/new
   - name: Alerting
-    icon: spam
+    icon: alerting
     path: /alerting
   - name: Settings
     icon: settings

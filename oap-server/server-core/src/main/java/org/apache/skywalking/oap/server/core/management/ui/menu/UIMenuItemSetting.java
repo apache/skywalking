@@ -39,7 +39,7 @@ public class UIMenuItemSetting {
     /**
      * The dashboard ID of the menu item, if empty means the item always activate.
      */
-    private String dashboard;
+    private String dashboardID;
     /**
      * Sub menus of current item.
      */
