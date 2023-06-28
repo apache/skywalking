@@ -42,11 +42,7 @@ public class JDBCUIMenuManagementDAO extends JDBCSQLExecutor implements UIMenuMa
 
     @SneakyThrows
     @Override
-    public UIMenu getMenu(int id) throws IOException {
-        if (id <= 0) {
-            return null;
-        }
-
+    public UIMenu getMenu(String id) throws IOException {
         final var tables = tableHelper.getTablesWithinTTL(UIMenu.INDEX_NAME);
 
         for (String table : tables) {

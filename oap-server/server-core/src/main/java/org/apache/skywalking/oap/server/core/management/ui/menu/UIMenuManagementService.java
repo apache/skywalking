@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class UIMenuManagementService implements Service, Runnable {
-    private static final int MENU_ID = 1;
+    private static final String MENU_ID = "1";
     private static final Gson GSON = new Gson();
     private static final int MENU_GET_MAX_SECOND = 3;
 
@@ -115,6 +115,7 @@ public class UIMenuManagementService implements Service, Runnable {
         try {
             UIMenu menu = getMenuDAO().getMenu(MENU_ID);
             if (menu == null) {
+                log.warn("cannot find the menu data from storage");
                 return;
             }
 

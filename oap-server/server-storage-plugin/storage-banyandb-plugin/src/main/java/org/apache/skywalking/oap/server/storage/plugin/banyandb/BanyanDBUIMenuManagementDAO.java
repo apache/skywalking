@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.metadata.Property;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenu;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
@@ -37,8 +36,8 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
     }
 
     @Override
-    public UIMenu getMenu(int id) throws IOException {
-        Property p = getClient().queryProperty(GROUP, UIMenu.INDEX_NAME, String.valueOf(id));
+    public UIMenu getMenu(String id) throws IOException {
+        Property p = getClient().queryProperty(GROUP, UIMenu.INDEX_NAME, id);
         if (p == null) {
             return null;
         }
@@ -48,14 +47,14 @@ public class BanyanDBUIMenuManagementDAO extends AbstractBanyanDBDAO implements 
     @Override
     public void saveMenu(UIMenu menu) throws IOException {
         this.getClient().define(Property.create(GROUP, UIMenu.INDEX_NAME, menu.id().build())
-            .addTag(TagAndValue.newStringTag(UITemplate.CONFIGURATION, menu.getConfigurationJson()))
-            .addTag(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, menu.getUpdateTime()))
+            .addTag(TagAndValue.newStringTag(UIMenu.CONFIGURATION, menu.getConfigurationJson()))
+            .addTag(TagAndValue.newLongTag(UIMenu.UPDATE_TIME, menu.getUpdateTime()))
             .build());
     }
 
     public UIMenu parse(Property property) {
         UIMenu menu = new UIMenu();
-        menu.setMenuId(Integer.parseInt(property.id()));
+        menu.setMenuId(property.id());
 
         for (TagAndValue<?> tagAndValue : property.tags()) {
             if (tagAndValue.getTagName().equals(UIMenu.CONFIGURATION)) {

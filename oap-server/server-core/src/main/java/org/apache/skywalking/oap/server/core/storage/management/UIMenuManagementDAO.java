@@ -27,7 +27,7 @@ public interface UIMenuManagementDAO extends DAO {
     /**
      * Get the menu by id.
      */
-    UIMenu getMenu(int id) throws IOException;
+    UIMenu getMenu(String id) throws IOException;
 
     /**
      * Save the menu.

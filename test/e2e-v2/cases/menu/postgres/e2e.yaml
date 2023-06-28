@@ -47,4 +47,4 @@ verify:
     interval: 10s
   cases:
     - includes:
-      - ../storage-cases.yaml
+      - ../menu-cases.yaml

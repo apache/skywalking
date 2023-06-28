@@ -24,7 +24,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenu;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
@@ -39,15 +38,11 @@ public class UIMenuManagementEsDAO extends EsDAO implements UIMenuManagementDAO 
     }
 
     @Override
-    public UIMenu getMenu(int id) throws IOException {
-        if (id <= 0) {
-            return null;
-        }
+    public UIMenu getMenu(String id) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(UIMenu.INDEX_NAME);
         final SearchBuilder search =
-            Search.builder().query(Query.ids(String.valueOf(id)))
-                .size(1);
+            Search.builder().query(Query.ids(id)).size(1);
         final SearchResponse response = getClient().search(index, search.build());
 
         if (response.getHits().getHits().size() > 0) {
@@ -64,7 +59,7 @@ public class UIMenuManagementEsDAO extends EsDAO implements UIMenuManagementDAO 
             final UIMenu.Builder builder = new UIMenu.Builder();
             final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(UIMenu.INDEX_NAME);
             builder.entity2Storage(menu, toStorage);
-            getClient().forceInsert(UITemplate.INDEX_NAME, menu.id().build(), toStorage.obtain());
+            getClient().forceInsert(UIMenu.INDEX_NAME, menu.id().build(), toStorage.obtain());
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         }

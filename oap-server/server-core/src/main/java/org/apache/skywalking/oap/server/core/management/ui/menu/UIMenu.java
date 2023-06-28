@@ -45,7 +45,7 @@ public class UIMenu extends ManagementData {
     public static final String UPDATE_TIME = "update_time";
 
     @Column(name = MENU_ID)
-    private int menuId;
+    private String menuId;
     @Column(name = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configurationJson;
     @Column(name = UPDATE_TIME)
@@ -61,7 +61,7 @@ public class UIMenu extends ManagementData {
         @Override
         public UIMenu storage2Entity(Convert2Entity converter) {
             final UIMenu menu = new UIMenu();
-            menu.setMenuId(((Number) converter.get(MENU_ID)).intValue());
+            menu.setMenuId((String) converter.get(MENU_ID));
             menu.setConfigurationJson((String) converter.get(CONFIGURATION));
             menu.setUpdateTime(((Number) converter.get(UPDATE_TIME)).longValue());
             return menu;
