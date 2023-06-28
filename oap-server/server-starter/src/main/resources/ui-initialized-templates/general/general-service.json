@@ -697,9 +697,9 @@
                   },
                   "metricConfig": [
                     {
-                      "label": "Success Rate",
-                      "detailLabel": "success_rate",
-                      "unit": "%"
+                      "label": "Load",
+                      "detailLabel": "load",
+                      "unit": "calls / min"
                     },
                     {
                       "label": "Success Rate",
