@@ -156,12 +156,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
         final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
 
-        final var tables = tableHelper.getTablesForRead(
-            InstanceTraffic.INDEX_NAME,
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
-
+        final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
         for (String table : tables) {
             final var sqlAndParameters = buildSQLForListInstances(serviceId, minuteTimeBucket, table);
             results.addAll(
