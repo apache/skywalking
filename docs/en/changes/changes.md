@@ -38,6 +38,7 @@
 * Update BanyanDB Java Client to 0.4.0
 * Support aggregate `Labeled Value Metrics` in MQE.
 * [Breaking change] Change the default label name in MQE from `labe`l to `_`.
+* Bump up grpc version to 1.53.0.
 
 #### UI
 
