@@ -389,7 +389,7 @@ query:
     enableLogTestTool: ${SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL:false}
     # Maximum complexity allowed for the GraphQL query that can be used to
     # abort a query if the total number of data fields queried exceeds the defined threshold.
-    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:1000}
+    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:3000}
     # Allow user add, disable and update UI template
     enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
     # "On demand log" allows users to fetch Pod containers' log in real time,
