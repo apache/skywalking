@@ -14,7 +14,7 @@ All available feature menu items are only listed in the marketplace(since 9.6.0)
 being observed by various supported observation agents, such as installed language agents, service mesh platform, OTEL integration.
 
 The menu items defined in `ui-initialized-templates/menu.yaml` are the universal marketplace for all default-supported integration.
-The menu definition supports one and two levels items. The leave menu item should have the `layer` for navigation.
+The menu definition supports one and two levels items. The leaf menu item should have the `layer` for navigation.
 
 ```yaml
 menus:
