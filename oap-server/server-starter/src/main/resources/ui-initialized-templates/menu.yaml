@@ -14,134 +14,94 @@
 # limitations under the License.
 
 # menus: the menus of the left navigation bar
-#   - name: the name of the menu item
+#   - title: the title of the menu item
 #     icon: icon name
-#     path: link path
-#     dashboardID: related dashboard ID, the menu item should be activated when the dashboard ID value is empty or dashboard ID related scope has services
+#     layer: related layer name, the menu item should be activated when layer has services
 #     menus: sub menus of the current item
 
 menus:
-  - name: General Service
+  - title: GeneralService
     icon: general_service
     menus:
-      - name: Services
-        path: /general
-        dashboardID: General-Root
-      - name: Visual Database
-        path: /database
-        dashboardID: Virtual-Database-Root
-      - name: Visual Cache
-        path: /cache
-        dashboardID: Virtual-Cache-Root
-      - name: Visual MQ
-        path: /mq
-        dashboardID: Virtual-MQ-Root
-  - name: Service Mesh
+      - title: Services
+        layer: GENERAL
+      - title: VisualDatabase
+        layer: VIRTUAL_DATABASE
+      - title: VisualCache
+        layer: VIRTUAL_CACHE
+      - title: Visual MQ
+        layer: VIRTUAL_MQ
+  - title: ServiceMesh
     icon: service_mesh
     menus:
-      - name: Services
-        path: /mesh/services
-        dashboardID: Mesh-Root
-      - name: Control Plane
-        path: /mesh/controlPanel
-        dashboardID: Mesh-Control-Plane-Root
-      - name: Data Plane
-        path: /mesh/dataPanel
-        dashboardID: Mesh-Data-Plane-Root
-  - name: Functions
+      - title: Services
+        layer: MESH
+      - title: ControlPlane
+        layer: MESH_CP
+      - title: DataPlane
+        layer: MESH_DP
+  - title: Functions
     icon: functions
     menus:
-      - name: OpenFunction
-        path: /openFunction
-        dashboardID: FaaS-Root
-  - name: Kubernetes
+      - title: OpenFunction
+        layer: FAAS
+  - title: Kubernetes
     icon: kubernetes
     menus:
-      - name: Cluster
-        path: /kubernetes/cluster
-        dashboardID: K8S-Root
-      - name: Service
-        path: /kubernetes/service
-        dashboardID: K8S-Service-Root
-  - name: Infrastructure
+      - title: Cluster
+        layer: K8S
+      - title: Service
+        layer: K8S_SERVICE
+  - title: Infrastructure
     icon: infrastructure
     menus:
-      - name: Linux
-        path: /linux
-        dashboardID: Linux-Root
-      - name: Windows
-        path: /windows
-        dashboardID: Windows-Root
-  - name: AWS Cloud
+      - title: Linux
+        layer: OS_LINUX
+      - title: Windows
+        layer: OS_WINDOWS
+  - title: AWSCloud
     icon: aws_cloud
     menus:
-      - name: EKS
-        path: /aws-eks
-        dashboardID: AWS_EKS-Root
-      - name: S3
-        path: /aws-s3
-        dashboardID: AWS_S3-Root
-      - name: DynamoDB
-        path: /aws-dynamodb
-        dashboardID: AWS-DynamoDB-Root
-      - name: API Gateway
-        path: /aws-api-gateway
-        dashboardID: AWS_GATEWAY-Root
-  - name: Browser
+      - title: EKS
+        layer: AWS_EKS
+      - title: S3
+        layer: AWS_S3
+      - title: DynamoDB
+        layer: AWS_DYNAMODB
+      - title: APIGateway
+        layer: AWS_GATEWAY
+  - title: Browser
     icon: browser
-    dashboardID: Browser-Root
-  - name: Gateway
+    layer: BROWSER
+  - title: Gateway
     icon: gateway
     menus:
-      - name: APISIX
-        path: /apisix
-        dashboardID: apisix-root
-      - name: AWS API Gateway
-        path: /aws-gateway
-        dashboardID: AWS_GATEWAY-Root
-  - name: Database
+      - title: APISIX
+        layer: APISIX
+      - title: AWSAPIGateway
+        layer: AWS_GATEWAY
+  - title: Database
     icon: database
     menus:
-      - name: MySQL/MariaDB
-        path: /mySQL
-        dashboardID: mysql-root
-      - name: PostgreSQL
-        path: /postgreSQL
-        dashboardID: postgresql-root
-      - name: DynamoDB
-        path: /aws-dynamodb
-        dashboardID: AWS-DynamoDB-Root
-      - name: Redis
-        path: /redis
-        dashboardID: redis-root
-      - name: Elasticsearch
-        path: /elasticsearch
-        dashboardID: Elasticsearch-Root
-  - name: MQ
+      - title: MySQL/MariaDB
+        layer: MYSQL
+      - title: PostgreSQL
+        layer: POSTGRESQL
+      - title: DynamoDB
+        layer: AWS_DYNAMODB
+      - title: Redis
+        layer: REDIS
+      - title: Elasticsearch
+        layer: ELASTICSEARCH
+  - title: MQ
     icon: mq
     menus:
-      - name: RabbitMQ
-        path: /rabbitMQ
-        dashboardID: RabbitMQ-Root
-  - name: Self Observability
+      - title: RabbitMQ
+        layer: RABBITMQ
+  - title: SelfObservability
     icon: self_observability
     menus:
-      - name: SkyWalking Server
-        path: /self/skyWalkingServer
-        dashboardID: Self-Observability-OAP-Service
-      - name: Satellite
-        path: /self/satellite
-        dashboardID: Self-Observability-Satellite-Root
-  - name: dashboards
-    icon: dashboards
-    menus:
-      - name: dashboard List
-        path: /dashboard/list
-      - name: New dashboard
-        path: /dashboard/new
-  - name: Alerting
-    icon: alerting
-    path: /alerting
-  - name: Settings
-    icon: settings
-    path: /settings
+      - title: SkyWalkingServer
+        layer: SO11Y_OAP
+      - title: Satellite
+        layer: SO11Y_SATELLITE

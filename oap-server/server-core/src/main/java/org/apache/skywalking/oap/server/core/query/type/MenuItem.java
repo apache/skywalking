@@ -24,9 +24,9 @@ import java.util.List;
 
 @Data
 public class MenuItem {
-    private String name;
+    private String title;
     private String icon;
-    private String path;
+    private String layer;
     private boolean activate;
     private List<MenuItem> subItems;
 }

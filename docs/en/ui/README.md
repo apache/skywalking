@@ -14,29 +14,29 @@ All available feature menu items are only listed in the marketplace(since 9.6.0)
 being observed by various supported observation agents, such as installed language agents, service mesh platform, OTEL integration.
 
 The menu items defined in `ui-initialized-templates/menu.yaml` are the universal marketplace for all default-supported integration.
-The menu definition supports one and two levels items. The leave menu item should have the `path` and `dashboardID` for navigation, the icon of the level one item is defined from UI side.
+The menu definition supports one and two levels items. The leave menu item should have the `layer` for navigation.
 
 ```yaml
 menus:
-  - name: General Service
+  - name: GeneralService
     icon: general_service
     menus:
       - name: Services
-        path: /general
-        dashboardID: General-Root
-      - name: Visual Database
-        path: /database
-        dashboardID: Virtual-Database-Root
-      - name: Visual Cache
-        path: /cache
-        dashboardID: Virtual-Cache-Root
-      - name: Visual MQ
-        path: /mq
-        dashboardID: Virtual-MQ-Root
+        layer: GENERAL
+      - name: VisualDatabase
+        layer: VIRTUAL_DATABASE
+      - name: VisualCache
+        layer: VIRTUAL_CACHE
+      - name: VisualMQ
+        layer: VIRTUAL_MQ
 ....
-  - name: Browser
-    icon: browser
-    dashboardID: Browser-Root
+- name: SelfObservability
+  icon: self_observability
+  menus:
+    - name: SkyWalkingServer
+      layer: SO11Y_OAP
+    - name: Satellite
+      layer: SO11Y_SATELLITE
 ```
 
 

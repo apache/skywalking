@@ -14,20 +14,20 @@
 # limitations under the License.
 
 {{- contains . }}
-- name: General Service
+- title: GeneralService
   icon: general_service
-  path: ""
+  layer: ""
   activate: true
   subitems:
     {{- contains .subitems }}
-    - name: Services
+    - title: Services
       icon: null
-      path: /general
+      layer: GENERAL
       activate: true
       subitems: []
-    - name: Visual Database
+    - title: VisualDatabase
       icon: null
-      path: /database
+      layer: VIRTUAL_DATABASE
       activate: true
       subitems: []
     {{- end }}

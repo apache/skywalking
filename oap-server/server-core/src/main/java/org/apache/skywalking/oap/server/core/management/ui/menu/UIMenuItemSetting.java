@@ -25,21 +25,17 @@ import java.util.List;
 @Data
 public class UIMenuItemSetting {
     /**
-     * Name of the menu item.
+     * Title of the menu item.
      */
-    private String name;
-    /**
-     * URL path of the menu item.
-     */
-    private String path;
+    private String title;
     /**
      * Icon name of the menu item, it should only exist in the top level of menu.
      */
     private String icon;
     /**
-     * The dashboard ID of the menu item, if empty means the item always activate.
+     * The layer name of the menu item.
      */
-    private String dashboardID;
+    private String layer;
     /**
      * Sub menus of current item.
      */

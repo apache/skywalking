@@ -20,11 +20,7 @@ package org.apache.skywalking.oap.server.core.management.ui.menu;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
-import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.MenuItem;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
@@ -49,7 +45,6 @@ public class UIMenuManagementService implements Service, Runnable {
     private static final int MENU_GET_MAX_SECOND = 3;
 
     private UIMenuManagementDAO menuDAO;
-    private UITemplateManagementService templateService;
     private ModuleManager moduleManager;
     private CompletableFuture<List<MenuItem>> menuItemFuture;
     private boolean isMenuItemsBeenFetched = false;
@@ -65,13 +60,6 @@ public class UIMenuManagementService implements Service, Runnable {
             menuDAO = moduleManager.find(StorageModule.NAME).provider().getService(UIMenuManagementDAO.class);
         }
         return menuDAO;
-    }
-
-    private UITemplateManagementService getTemplateService() {
-        if (templateService == null) {
-            templateService = moduleManager.find(CoreModule.NAME).provider().getService(UITemplateManagementService.class);
-        }
-        return templateService;
     }
 
     private IMetadataQueryDAO getMetadataQueryDAO() {
@@ -144,16 +132,16 @@ public class UIMenuManagementService implements Service, Runnable {
             if (CollectionUtils.isNotEmpty(setting.getMenus())) {
                 // check should activate by sub items
                 List<MenuItem> subItems = this.convertToMenuItems(setting.getMenus());
-                shouldActivate = subItems.stream().map(MenuItem::isActivate).anyMatch(Boolean::booleanValue);
+                shouldActivate = subItems.stream().anyMatch(MenuItem::isActivate);
                 item.setSubItems(subItems);
-            } else if (StringUtil.isNotEmpty(setting.getDashboardID())) {
+            } else if (StringUtil.isNotEmpty(setting.getLayer())) {
                 // check should active by dashboard
-                shouldActivate = queryDashboardShouldActivate(setting.getDashboardID());
+                shouldActivate = CollectionUtils.isNotEmpty(getMetadataQueryDAO().listServices(setting.getLayer(), null));
             }
 
-            item.setName(setting.getName());
+            item.setTitle(setting.getTitle());
             item.setIcon(setting.getIcon());
-            item.setPath(StringUtil.isEmpty(setting.getPath()) ? "" : setting.getPath());
+            item.setLayer(StringUtil.isEmpty(setting.getLayer()) ? "" : setting.getLayer());
             item.setActivate(shouldActivate);
             if (CollectionUtils.isEmpty(item.getSubItems())) {
                 item.setSubItems(Collections.emptyList());
@@ -163,23 +151,4 @@ public class UIMenuManagementService implements Service, Runnable {
         return items;
     }
 
-    private boolean queryDashboardShouldActivate(String dashboardID) throws IOException {
-        final DashboardConfiguration template = getTemplateService().getTemplate(dashboardID);
-        if (template == null || StringUtil.isEmpty(template.getConfiguration())) {
-            return false;
-        }
-
-        // parsing basic info
-        final UITemplateBasicInfo basicInfo = GSON.fromJson(template.getConfiguration(), UITemplateBasicInfo.class);
-        if (basicInfo == null || StringUtil.isEmpty(basicInfo.getLayer())) {
-            return false;
-        }
-        final String layer = basicInfo.getLayer();
-        return CollectionUtils.isNotEmpty(getMetadataQueryDAO().listServices(layer, null));
-    }
-
-    @Data
-    private static class UITemplateBasicInfo {
-        private String layer;
-    }
 }
