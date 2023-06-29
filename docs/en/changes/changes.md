@@ -32,6 +32,7 @@
 * Add comment for `docker/.env` to explain the usage.
 * Fix wrong environment variable name `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES` to right `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
 * Fix instance query in JDBC implementation.
+* Set the `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to 3000(was 1000).
 
 #### UI
 
