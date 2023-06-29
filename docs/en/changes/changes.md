@@ -29,6 +29,7 @@
 * Fix endpoint grouping-related logic and enhance the performance of PatternTree retrieval. 
 * Fix metric session cache saving after batch insert when using `mysql-connector-java`
 * Support dynamic UI menu query.
+* Add comment for `docker/.env` to explain the usage.
 
 #### UI
 
