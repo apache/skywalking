@@ -30,6 +30,7 @@
 * Fix metric session cache saving after batch insert when using `mysql-connector-java`
 * Support dynamic UI menu query.
 * Add comment for `docker/.env` to explain the usage.
+* Fix wrong environment variable name `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES` to right `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
 
 #### UI
 
