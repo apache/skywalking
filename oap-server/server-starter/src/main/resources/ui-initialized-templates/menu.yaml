@@ -20,25 +20,25 @@
 #     menus: sub menus of the current item
 
 menus:
-  - title: GeneralService
+  - title: General Service
     icon: general_service
     menus:
       - title: Services
         layer: GENERAL
-      - title: VisualDatabase
+      - title: Visual Database
         layer: VIRTUAL_DATABASE
-      - title: VisualCache
+      - title: Visual Cache
         layer: VIRTUAL_CACHE
       - title: Visual MQ
         layer: VIRTUAL_MQ
-  - title: ServiceMesh
+  - title: Service Mesh
     icon: service_mesh
     menus:
       - title: Services
         layer: MESH
-      - title: ControlPlane
+      - title: Control Plane
         layer: MESH_CP
-      - title: DataPlane
+      - title: Data Plane
         layer: MESH_DP
   - title: Functions
     icon: functions
@@ -59,7 +59,7 @@ menus:
         layer: OS_LINUX
       - title: Windows
         layer: OS_WINDOWS
-  - title: AWSCloud
+  - title: AWS Cloud
     icon: aws_cloud
     menus:
       - title: EKS
@@ -68,7 +68,7 @@ menus:
         layer: AWS_S3
       - title: DynamoDB
         layer: AWS_DYNAMODB
-      - title: APIGateway
+      - title: API Gateway
         layer: AWS_GATEWAY
   - title: Browser
     icon: browser
@@ -78,7 +78,7 @@ menus:
     menus:
       - title: APISIX
         layer: APISIX
-      - title: AWSAPIGateway
+      - title: AWS API Gateway
         layer: AWS_GATEWAY
   - title: Database
     icon: database
@@ -98,10 +98,10 @@ menus:
     menus:
       - title: RabbitMQ
         layer: RABBITMQ
-  - title: SelfObservability
+  - title: Self Observability
     icon: self_observability
     menus:
-      - title: SkyWalkingServer
+      - title: SkyWalking Server
         layer: SO11Y_OAP
       - title: Satellite
         layer: SO11Y_SATELLITE

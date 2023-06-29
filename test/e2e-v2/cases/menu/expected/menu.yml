@@ -14,7 +14,7 @@
 # limitations under the License.
 
 {{- contains . }}
-- title: GeneralService
+- title: General Service
   icon: general_service
   layer: ""
   activate: true
@@ -25,7 +25,7 @@
       layer: GENERAL
       activate: true
       subitems: []
-    - title: VisualDatabase
+    - title: Visual Database
       icon: null
       layer: VIRTUAL_DATABASE
       activate: true
