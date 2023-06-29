@@ -16,16 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.query.type;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import lombok.Data;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+import java.util.List;
 
-        Assertions.assertEquals(41, coreModule.services().length);
-    }
+@Data
+public class MenuItem {
+    private String title;
+    private String icon;
+    private String layer;
+    private boolean activate;
+    private List<MenuItem> subItems;
 }

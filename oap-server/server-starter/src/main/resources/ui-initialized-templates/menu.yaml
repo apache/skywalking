@@ -1,0 +1,107 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# menus: the menus of the left navigation bar
+#   - title: the title of the menu item
+#     icon: icon name
+#     layer: related layer name, the menu item should be activated when layer has services
+#     menus: sub menus of the current item
+
+menus:
+  - title: General Service
+    icon: general_service
+    menus:
+      - title: Services
+        layer: GENERAL
+      - title: Visual Database
+        layer: VIRTUAL_DATABASE
+      - title: Visual Cache
+        layer: VIRTUAL_CACHE
+      - title: Visual MQ
+        layer: VIRTUAL_MQ
+  - title: Service Mesh
+    icon: service_mesh
+    menus:
+      - title: Services
+        layer: MESH
+      - title: Control Plane
+        layer: MESH_CP
+      - title: Data Plane
+        layer: MESH_DP
+  - title: Functions
+    icon: functions
+    menus:
+      - title: OpenFunction
+        layer: FAAS
+  - title: Kubernetes
+    icon: kubernetes
+    menus:
+      - title: Cluster
+        layer: K8S
+      - title: Service
+        layer: K8S_SERVICE
+  - title: Infrastructure
+    icon: infrastructure
+    menus:
+      - title: Linux
+        layer: OS_LINUX
+      - title: Windows
+        layer: OS_WINDOWS
+  - title: AWS Cloud
+    icon: aws_cloud
+    menus:
+      - title: EKS
+        layer: AWS_EKS
+      - title: S3
+        layer: AWS_S3
+      - title: DynamoDB
+        layer: AWS_DYNAMODB
+      - title: API Gateway
+        layer: AWS_GATEWAY
+  - title: Browser
+    icon: browser
+    layer: BROWSER
+  - title: Gateway
+    icon: gateway
+    menus:
+      - title: APISIX
+        layer: APISIX
+      - title: AWS API Gateway
+        layer: AWS_GATEWAY
+  - title: Database
+    icon: database
+    menus:
+      - title: MySQL/MariaDB
+        layer: MYSQL
+      - title: PostgreSQL
+        layer: POSTGRESQL
+      - title: DynamoDB
+        layer: AWS_DYNAMODB
+      - title: Redis
+        layer: REDIS
+      - title: Elasticsearch
+        layer: ELASTICSEARCH
+  - title: MQ
+    icon: mq
+    menus:
+      - title: RabbitMQ
+        layer: RABBITMQ
+  - title: Self Observability
+    icon: self_observability
+    menus:
+      - title: SkyWalking Server
+        layer: SO11Y_OAP
+      - title: Satellite
+        layer: SO11Y_SATELLITE

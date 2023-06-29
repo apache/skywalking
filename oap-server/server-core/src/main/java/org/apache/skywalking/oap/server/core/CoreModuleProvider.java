@@ -50,6 +50,8 @@ import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointNameGroupingRule4OpenapiWatcher;
 import org.apache.skywalking.oap.server.core.logging.LoggingConfigWatcher;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuInitializer;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.DisableOALDefine;
@@ -326,6 +328,8 @@ public class CoreModuleProvider extends ModuleProvider {
         // Management
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
+        this.registerServiceImplementation(
+            UIMenuManagementService.class, new UIMenuManagementService(getManager()));
 
         if (moduleConfig.getMetricsDataTTL() < 2) {
             throw new ModuleStartException(
@@ -424,6 +428,12 @@ public class CoreModuleProvider extends ModuleProvider {
 
         try {
             new UITemplateInitializer(getManager()).initAll();
+        } catch (IOException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+
+        try {
+            new UIMenuInitializer(getManager()).start(moduleConfig.getUiMenuRefreshInterval());
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

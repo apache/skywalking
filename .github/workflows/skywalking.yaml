@@ -634,6 +634,27 @@ jobs:
           - name: MQE Service
             config: test/e2e-v2/cases/mqe/e2e.yaml
 
+          - name: UI Menu BanyanDB
+            config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
+          - name: UI Menu H2
+            config: test/e2e-v2/cases/menu/h2/e2e.yaml
+          - name: UI Menu ES
+            config: test/e2e-v2/cases/menu/es/e2e.yaml
+          - name: UI Menu Sharding ES
+            config: test/e2e-v2/cases/menu/es/es-sharding/e2e.yaml
+          - name: UI Menu MySQL
+            config: test/e2e-v2/cases/menu/mysql/e2e.yaml
+          - name: UI Menu Postgres
+            config: test/e2e-v2/cases/menu/postgres/e2e.yaml
+          - name: UI Menu OpenSearch 1.1.0
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.1.0
+          - name: UI Menu OpenSearch 1.3.6
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=1.3.6
+          - name: UI Menu OpenSearch 2.4.0
+            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=2.4.0
     steps:
       - uses: actions/checkout@v3
         with:

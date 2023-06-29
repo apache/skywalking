@@ -16,16 +16,21 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.storage.management;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenu;
+import org.apache.skywalking.oap.server.core.storage.DAO;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
+import java.io.IOException;
 
-        Assertions.assertEquals(41, coreModule.services().length);
-    }
+public interface UIMenuManagementDAO extends DAO {
+    /**
+     * Get the menu by id.
+     */
+    UIMenu getMenu(String id) throws IOException;
+
+    /**
+     * Save the menu.
+     */
+    void saveMenu(UIMenu menu) throws IOException;
 }
