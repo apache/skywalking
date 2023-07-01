@@ -33,6 +33,8 @@
 * Fix wrong environment variable name `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES` to right `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
 * Fix instance query in JDBC implementation.
 * Set the `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to 3000(was 1000).
+* Accept `length=4000` parameter value of the event. It was 2000. 
+* Tolerate parameter value in illegal JSON format.
 
 #### UI
 
