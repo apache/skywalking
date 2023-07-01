@@ -58,8 +58,8 @@ public class Event {
     public void setParameters(final String json) {
         if (StringUtil.isNotEmpty(json)) {
             try {
-                final Map<String, String> map
-                    = GSON.fromJson(json, new TypeToken<Map<String, String>>() {}.getType());
+                final Map<String, String> map = GSON.fromJson(json, new TypeToken<Map<String, String>>() {
+                }.getType());
                 this.parameters = map.entrySet()
                                      .stream()
                                      .map(e -> new KeyValue(e.getKey(), e.getValue()))
