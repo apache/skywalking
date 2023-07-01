@@ -19,13 +19,15 @@
 package org.apache.skywalking.oap.server.core.query.type.event;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Data;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Data
 public class Event {
@@ -55,9 +57,18 @@ public class Event {
 
     public void setParameters(final String json) {
         if (StringUtil.isNotEmpty(json)) {
-            final Map<String, String> map = GSON.fromJson(json, new TypeToken<Map<String, String>>() {
-            }.getType());
-            this.parameters = map.entrySet().stream().map(e -> new KeyValue(e.getKey(), e.getValue())).collect(Collectors.toList());
+            try {
+                final Map<String, String> map = GSON.fromJson(json, new TypeToken<Map<String, String>>() {
+                }.getType());
+                this.parameters = map.entrySet()
+                                     .stream()
+                                     .map(e -> new KeyValue(e.getKey(), e.getValue()))
+                                     .collect(Collectors.toList());
+            } catch (JsonSyntaxException e) {
+                this.parameters = new ArrayList<>(2);
+                this.parameters.add(new KeyValue("json_parse", "false"));
+                this.parameters.add(new KeyValue("raw_parameters", json));
+            }
         }
     }
 }
