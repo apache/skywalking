@@ -45,5 +45,8 @@
 
 * Add Go agent into the server agent documentation.
 * Add data unit description in the configuration of continuous profiling policy.
+* Remove `storage extension` doc, as it is expired.
+* Remove `how to add menu` doc, as SkyWalking supports marketplace and new backend-based setup.
+* Separate contribution docs to a new menu structure.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)
