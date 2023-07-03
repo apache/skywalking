@@ -36,7 +36,8 @@ feedRawData is running in 25-30 minutes period to push the raw data to the remot
 ## Configurations
 
 - `core/maxHttpUrisNumberPerService` The max number of HTTP URIs per service for further URI pattern recognition.
-- No configuration to set periods of feedRawData and fetchAllPatterns services.
+- `core/syncPeriodHttpUriRecognitionPattern` The period of HTTP URI pattern recognition(feedRawData). Unit is second, 10s by default.
+- `core/trainingPeriodHttpUriRecognitionPattern` The training period of HTTP URI pattern recognition(fetchAllPatterns). Unit is second, 60s by default.
 
 ## Optional Server Implementation
 
