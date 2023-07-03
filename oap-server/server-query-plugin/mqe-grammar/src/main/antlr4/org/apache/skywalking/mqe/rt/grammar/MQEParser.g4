@@ -27,7 +27,7 @@ expression
     | expression mulDivMod expression  # mulDivModOp
     | expression addSub expression     # addSubOp
     | expression compare expression    # compareOp
-    | aggregation L_PAREN expression R_PAREN # aggregationOp
+    | aggregation L_PAREN expression (COMMA parameter)* R_PAREN # aggregationOp
     | function0 L_PAREN expression R_PAREN #function0OP
     | function1 L_PAREN expression COMMA parameter R_PAREN #function1OP
     | topN L_PAREN metric COMMA parameter COMMA order R_PAREN  #topNOP
@@ -52,7 +52,7 @@ label:           labelName EQ labelValue;
 scalar:   INTEGER | DECIMAL;
 
 aggregation:
-    AVG | COUNT | LATEST | SUM | MAX | MIN | ;
+    AVG | COUNT | LATEST | SUM | MAX | MIN | REDUCE;
 
 // 0 parameter function
 function0:
@@ -65,6 +65,6 @@ topN: TOP_N;
 
 relabels: RELABELS;
 
-parameter:      INTEGER;
+parameter:      INTEGER | STRING_PARAM;
 
 order: ASC | DES;

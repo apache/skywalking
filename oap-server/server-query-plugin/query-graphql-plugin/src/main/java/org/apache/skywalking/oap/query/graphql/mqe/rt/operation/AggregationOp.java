@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
 
 import com.google.common.collect.Streams;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -28,14 +29,17 @@ import java.util.function.Function;
 import java.util.stream.DoubleStream;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.reduce.ValueCombiner;
 import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
 import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResultType;
 import org.apache.skywalking.oap.query.graphql.type.mql.MQEValue;
 import org.apache.skywalking.oap.query.graphql.type.mql.MQEValues;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class AggregationOp {
     public static ExpressionResult doAggregationOp(ExpressionResult result,
-                                                   int opType) throws IllegalExpressionException {
+                                                   int opType,
+                                                   final List<MQEParser.ParameterContext> parameters) throws IllegalExpressionException {
         switch (opType) {
             case MQEParser.AVG:
                 return aggregateResult(result, mqeValues -> mqeValues.getValues()
@@ -53,7 +57,8 @@ public class AggregationOp {
                 }
                 return selectResult(result, mqeValues -> Streams.findLast(mqeValues.getValues()
                                                                                    .stream()
-                                                                                   .filter(mqeValue -> !mqeValue.isEmptyValue())));
+                                                                                   .filter(
+                                                                                       mqeValue -> !mqeValue.isEmptyValue())));
             case MQEParser.MAX:
                 return selectResult(result, mqeValues -> mqeValues.getValues()
                                                                   .stream()
@@ -75,6 +80,13 @@ public class AggregationOp {
                                                                                            mqeValue -> DoubleStream.of(
                                                                                                mqeValue.getDoubleValue()))
                                                                                        .sum()));
+            case MQEParser.REDUCE:
+                if (CollectionUtils.isEmpty(parameters)) {
+                    throw new IllegalExpressionException("reduce aggregation operation need a parameter");
+                }
+                String paramWithQuota = parameters.get(0).STRING_PARAM().getText();
+                String reduceParameter = paramWithQuota.substring(1, paramWithQuota.length() - 1);
+                return reduceResult(result, reduceParameter);
             default:
                 throw new IllegalExpressionException("Unsupported aggregation operation.");
         }
@@ -116,5 +128,24 @@ public class AggregationOp {
         }
         result.setType(ExpressionResultType.SINGLE_VALUE);
         return result;
+    }
+
+    private static ExpressionResult reduceResult(ExpressionResult expResult,
+                                                 String reduceParameter) throws IllegalExpressionException {
+        List<MQEValues> results = expResult.getResults();
+
+        List<MQEValue> combineTo = results.get(0).getValues();
+        for (int i = 0; i < combineTo.size(); i++) {
+            ValueCombiner valueCombiner = ValueCombiner.getValueCombiner(reduceParameter);
+            for (MQEValues result : results) {
+                valueCombiner.combine(result.getValues().get(i).getDoubleValue());
+            }
+            combineTo.get(i).setDoubleValue(valueCombiner.getResult());
+        }
+
+        MQEValues mqeValues = new MQEValues();
+        mqeValues.setValues(combineTo);
+        expResult.setResults(Collections.singletonList(mqeValues));
+        return expResult;
     }
 }

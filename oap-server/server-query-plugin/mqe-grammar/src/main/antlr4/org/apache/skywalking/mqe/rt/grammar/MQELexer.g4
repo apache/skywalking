@@ -59,6 +59,7 @@ ABS:         'abs';
 CEIL:        'ceil';
 FLOOR:       'floor';
 ROUND:       'round';
+REDUCE:      'reduce';
 
 // TopN
 TOP_N:        'top_n';
@@ -72,6 +73,7 @@ DES options { caseInsensitive=true; }: 'des';
 
 // Literals
 INTEGER: Digit+;
+STRING_PARAM: '\'' NameLetter+ '\'';
 DECIMAL: Digit+ DOT Digit+;
 NAME_STRING: NameLetter+;
 VALUE_STRING: '\'' .*? '\'' | '"' .*? '"';
