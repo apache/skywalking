@@ -16,34 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.reduce;
+package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabel;
 
-class AvgValueCombiner implements ValueCombiner {
+public interface AggregateLabelFunc {
+    void combine(Double value);
 
-    private Double sum;
-    private Integer count = 0;
-
-    @Override
-    public void combine(final Double value) {
-        if (value == null) {
-            return;
-        }
-
-        if (sum == null) {
-            sum = value;
-        } else {
-            sum = sum + value;
-        }
-
-        count++;
-    }
-
-    @Override
-    public Double getResult() {
-        if (sum == null) {
-            return null;
-        }
-
-        return sum / count;
-    }
+    Double getResult();
 }

@@ -16,23 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.reduce;
+package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabel;
 
-import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
+public class MinAggregateLabelFunc implements AggregateLabelFunc {
 
-public interface ValueCombiner {
-    void combine(Double value);
+    private Double min;
 
-    Double getResult();
-
-    static ValueCombiner getValueCombiner(String reduceParam) throws IllegalExpressionException {
-        switch (reduceParam) {
-            case "avg":
-                return new AvgValueCombiner();
-            case "sum":
-                return new SumValueCombiner();
-            default:
-                throw new IllegalExpressionException("Unsupported reduce function.");
+    @Override
+    public void combine(final Double value) {
+        if (value == null) {
+            return;
         }
+
+        if (min == null) {
+            min = value;
+        } else {
+            if (value < min) {
+                min = value;
+            }
+        }
+    }
+
+    @Override
+    public Double getResult() {
+        return min;
     }
 }

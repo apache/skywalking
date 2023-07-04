@@ -59,7 +59,6 @@ ABS:         'abs';
 CEIL:        'ceil';
 FLOOR:       'floor';
 ROUND:       'round';
-REDUCE:      'reduce';
 
 // TopN
 TOP_N:        'top_n';
@@ -71,9 +70,11 @@ RELABELS:     'relabels';
 ASC  options { caseInsensitive=true; }: 'asc';
 DES options { caseInsensitive=true; }: 'des';
 
+// AGGREGATE_LABEL
+AGGREGATE_LABEL:   'aggregate_label';
+
 // Literals
 INTEGER: Digit+;
-STRING_PARAM: '\'' NameLetter+ '\'';
 DECIMAL: Digit+ DOT Digit+;
 NAME_STRING: NameLetter+;
 VALUE_STRING: '\'' .*? '\'' | '"' .*? '"';

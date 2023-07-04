@@ -16,11 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.reduce;
+package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabel;
 
-class SumValueCombiner implements ValueCombiner {
+public class MaxAggregateLabelFunc implements AggregateLabelFunc {
 
-    private Double sum;
+    private Double max;
 
     @Override
     public void combine(final Double value) {
@@ -28,15 +28,17 @@ class SumValueCombiner implements ValueCombiner {
             return;
         }
 
-        if (sum == null) {
-            sum = value;
+        if (max == null) {
+            max = value;
         } else {
-            sum = sum + value;
+            if (value > max) {
+                max = value;
+            }
         }
     }
 
     @Override
     public Double getResult() {
-        return sum;
+        return max;
     }
 }
