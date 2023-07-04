@@ -23,13 +23,14 @@ import org.apache.skywalking.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.banyandb.v1.client.MeasureBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.banyandb.v1.client.StreamBulkWriteProcessor;
 import org.apache.skywalking.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.banyandb.v1.client.TopNQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.grpc.exception.AlreadyExistsException;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Group;
 import org.apache.skywalking.banyandb.v1.client.metadata.Measure;
@@ -195,6 +196,14 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
             healthChecker.unHealth(ex);
             throw new IOException("fail to define TopNAggregation", ex);
         }
+    }
+
+    public StreamWrite createStreamWrite(String group, String name, String elementId) {
+        return this.client.createStreamWrite(group, name, elementId);
+    }
+
+    public MeasureWrite createMeasureWrite(String group, String name, long timestamp) {
+        return this.client.createMeasureWrite(group, name, timestamp);
     }
 
     public void write(StreamWrite streamWrite) {
