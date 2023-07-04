@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
@@ -27,13 +26,18 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 import java.io.IOException;
 
-@RequiredArgsConstructor
-public class BanyanDBRecordDAO implements IRecordDAO {
+public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO {
     private final StorageBuilder<Record> storageBuilder;
+
+    public BanyanDBRecordDAO(BanyanDBStorageClient client, StorageBuilder<Record> storageBuilder) {
+        super(client);
+        this.storageBuilder = storageBuilder;
+    }
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
@@ -41,7 +45,7 @@ public class BanyanDBRecordDAO implements IRecordDAO {
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        StreamWrite streamWrite = new StreamWrite(
+        StreamWrite streamWrite = getClient().createStreamWrite(
             schema.getMetadata().getGroup(), // group name
             model.getName(), // index-name
             record.id().build() // identity

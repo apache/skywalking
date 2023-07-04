@@ -153,7 +153,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        MeasureWrite measureWrite = new MeasureWrite(schema.getMetadata().getGroup(), // group name
+        MeasureWrite measureWrite = getClient().createMeasureWrite(schema.getMetadata().getGroup(), // group name
                 schema.getMetadata().name(), // measure-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);
@@ -171,7 +171,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
-        MeasureWrite measureWrite = new MeasureWrite(schema.getMetadata().getGroup(), // group name
+        MeasureWrite measureWrite = getClient().createMeasureWrite(schema.getMetadata().getGroup(), // group name
                 schema.getMetadata().name(), // measure-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
         final BanyanDBConverter.MeasureToStorage toStorage = new BanyanDBConverter.MeasureToStorage(schema, measureWrite);

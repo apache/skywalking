@@ -48,7 +48,7 @@ public class BanyanDBStorageDAO extends AbstractDAO<BanyanDBStorageClient> imple
 
     @Override
     public IRecordDAO newRecordDao(StorageBuilder storageBuilder) {
-        return new BanyanDBRecordDAO((StorageBuilder<Record>) storageBuilder);
+        return new BanyanDBRecordDAO(getClient(), (StorageBuilder<Record>) storageBuilder);
     }
 
     @Override
