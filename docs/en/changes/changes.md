@@ -35,6 +35,7 @@
 * Set the `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to 3000(was 1000).
 * Accept `length=4000` parameter value of the event. It was 2000. 
 * Tolerate parameter value in illegal JSON format.
+* Update BanyanDB Java Client to 0.4.0
 * Support aggregate LabeledValue in MQE.
 
 #### UI
