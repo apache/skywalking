@@ -16,11 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabel;
+package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels;
 
-public class MinAggregateLabelFunc implements AggregateLabelFunc {
+public class SumAggregateLabelsFunc implements AggregateLabelsFunc {
 
-    private Double min;
+    private Double sum;
 
     @Override
     public void combine(final Double value) {
@@ -28,17 +28,15 @@ public class MinAggregateLabelFunc implements AggregateLabelFunc {
             return;
         }
 
-        if (min == null) {
-            min = value;
+        if (sum == null) {
+            sum = value;
         } else {
-            if (value < min) {
-                min = value;
-            }
+            sum = sum + value;
         }
     }
 
     @Override
     public Double getResult() {
-        return min;
+        return sum;
     }
 }

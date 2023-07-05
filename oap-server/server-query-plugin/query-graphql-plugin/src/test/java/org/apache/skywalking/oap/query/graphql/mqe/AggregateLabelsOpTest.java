@@ -19,35 +19,35 @@
 package org.apache.skywalking.oap.query.graphql.mqe;
 
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.AggregateLabelOp;
+import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.AggregateLabelsOp;
 import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
 import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResultType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AggregateLabelOpTest {
+public class AggregateLabelsOpTest {
 
     private final MockData mockData = new MockData();
 
     @Test
     public void seriesLabeledTest() throws Exception {
-        ExpressionResult avgReduce = AggregateLabelOp.doAggregateLabelOp(mockData.newSeriesLabeledResult(), MQEParser.AVG);
+        ExpressionResult avgReduce = AggregateLabelsOp.doAggregateLabelsOp(mockData.newSeriesLabeledResult(), MQEParser.AVG);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, avgReduce.getType());
         assertEquals((100f + 101f) / 2, avgReduce.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals((300f + 301f) / 2, avgReduce.getResults().get(0).getValues().get(1).getDoubleValue());
 
-        ExpressionResult sumReduce = AggregateLabelOp.doAggregateLabelOp(mockData.newSeriesLabeledResult(), MQEParser.SUM);
+        ExpressionResult sumReduce = AggregateLabelsOp.doAggregateLabelsOp(mockData.newSeriesLabeledResult(), MQEParser.SUM);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, sumReduce.getType());
         assertEquals(100f + 101f, sumReduce.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals(300f + 301f, sumReduce.getResults().get(0).getValues().get(1).getDoubleValue());
 
-        ExpressionResult minReduce = AggregateLabelOp.doAggregateLabelOp(mockData.newSeriesLabeledResult(), MQEParser.MIN);
+        ExpressionResult minReduce = AggregateLabelsOp.doAggregateLabelsOp(mockData.newSeriesLabeledResult(), MQEParser.MIN);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, minReduce.getType());
         assertEquals(100f, minReduce.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals(300f, minReduce.getResults().get(0).getValues().get(1).getDoubleValue());
 
-        ExpressionResult maxReduce = AggregateLabelOp.doAggregateLabelOp(mockData.newSeriesLabeledResult(), MQEParser.MAX);
+        ExpressionResult maxReduce = AggregateLabelsOp.doAggregateLabelsOp(mockData.newSeriesLabeledResult(), MQEParser.MAX);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, maxReduce.getType());
         assertEquals(101f, maxReduce.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals(301f, maxReduce.getResults().get(0).getValues().get(1).getDoubleValue());

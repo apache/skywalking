@@ -16,9 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabel;
+package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels;
 
-public class MaxAggregateLabelFunc implements AggregateLabelFunc {
+public class MaxAggregateLabelsFunc implements AggregateLabelsFunc {
 
     private Double max;
 
