@@ -32,6 +32,7 @@ expression
     | function1 L_PAREN expression COMMA parameter R_PAREN #function1OP
     | topN L_PAREN metric COMMA parameter COMMA order R_PAREN  #topNOP
     | relabels L_PAREN expression COMMA label R_PAREN #relablesOP
+    | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
     ;
 
 expressionNode:  metric| scalar;
@@ -68,3 +69,9 @@ relabels: RELABELS;
 parameter:      INTEGER;
 
 order: ASC | DES;
+
+aggregateLabels:
+    AGGREGATE_LABELS;
+
+aggregateLabelsFunc:
+    AVG | SUM | MAX | MIN;
