@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.AggregateLabelsOp;
 import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.AggregationOp;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
@@ -146,6 +147,29 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
         }
         try {
             return AggregationOp.doAggregationOp(expResult, opType);
+        } catch (IllegalExpressionException e) {
+            ExpressionResult result = new ExpressionResult();
+            result.setType(ExpressionResultType.UNKNOWN);
+            result.setError(e.getMessage());
+            return result;
+        }
+    }
+
+    @Override
+    public ExpressionResult visitAggregateLabelsOp(final MQEParser.AggregateLabelsOpContext ctx) {
+        int funcType = ctx.aggregateLabelsFunc().getStart().getType();
+        ExpressionResult expResult = visit(ctx.expression());
+        if (StringUtil.isNotEmpty(expResult.getError())) {
+            return expResult;
+        }
+
+        if (!expResult.isLabeledResult()) {
+            expResult.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
+            return expResult;
+        }
+
+        try {
+            return AggregateLabelsOp.doAggregateLabelsOp(expResult, funcType);
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);

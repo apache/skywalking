@@ -49,3 +49,13 @@ cases:
     expected: expected/relabels-binary-OP.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="relabels(service_percentile{_='0,1,2'}/service_percentile{_='0,1,2'},_='P50,P75,P90')" --service-name=e2e-service-provider
     expected: expected/relabels-binary-OP.yml
+
+  # aggregateLabels-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,avg)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,sum)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,max)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,min)" --service-name=e2e-service-provider
+    expected: expected/aggregateLabels-OP.yml

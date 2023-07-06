@@ -178,3 +178,28 @@ relabel(service_percentile{label='0,1,2,3,4'}, label='P50,P75,P90,P95,P99')
 
 ### Result Type
 Follow the input expression.
+
+## AggregateLabels Operation
+AggregateLabels Operation takes an expression and performs aggregate calculation on its `Labeled Value Metrics` results. It aggregates a group of `TIME_SERIES_VALUES` into a single `TIME_SERIES_VALUES`.
+
+Expression:
+```text
+aggregate_labels(Expression, parameter)
+```
+
+| parameter | Definition                                          | ExpressionResultType |
+|-----------|-----------------------------------------------------|----------------------|
+| avg       | calculate avg value of a `Labeled Value Metrics`    | TIME_SERIES_VALUES   |
+| sum       | calculate sum value of a `Labeled Value Metrics`    | TIME_SERIES_VALUES   |
+| max       | select maximum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
+| min       | select minimum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
+
+For example:
+If we want to query all redis command total rate, we can use the following expression(`total_commands_rate` is a metric which recorded every command rate in labeled value):
+
+```text
+aggregate_labels(total_commands_rate, SUM)
+```
+
+### Result Type
+The ExpressionResultType of the aggregateLabels operation is TIME_SERIES_VALUES.

@@ -70,6 +70,9 @@ RELABELS:     'relabels';
 ASC  options { caseInsensitive=true; }: 'asc';
 DES options { caseInsensitive=true; }: 'des';
 
+// AGGREGATE_LABELS
+AGGREGATE_LABELS:   'aggregate_labels';
+
 // Literals
 INTEGER: Digit+;
 DECIMAL: Digit+ DOT Digit+;
