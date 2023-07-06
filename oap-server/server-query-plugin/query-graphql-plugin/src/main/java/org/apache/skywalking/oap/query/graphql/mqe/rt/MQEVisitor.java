@@ -65,7 +65,11 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     private final Entity entity;
     private final Duration duration;
 
-    private final static String LABEL = "label";
+    /**
+     * For now, we only have a single label with multi label values and without label name in a labeled metric,
+     * use `_` as the general label name(key).
+     */
+    private final static String GENERAL_LABEL_NAME = "_";
 
     public MQEVisitor(final MetricsQuery metricsQuery,
                       final RecordsQuery recordsQuery,
@@ -193,7 +197,7 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     public ExpressionResult visitRelablesOP(MQEParser.RelablesOPContext ctx) {
         ExpressionResult result = visit(ctx.expression());
         if (!result.isLabeledResult()) {
-            // Resever the original result type
+            // Reserve the original result type
             result.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
             return result;
         }
@@ -381,7 +385,7 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
             }
 
             Metadata metadata = new Metadata();
-            KeyValue labelValue = new KeyValue(LABEL, metricsValues.getLabel());
+            KeyValue labelValue = new KeyValue(GENERAL_LABEL_NAME, metricsValues.getLabel());
             metadata.getLabels().add(labelValue);
             MQEValues mqeValues = new MQEValues();
             mqeValues.setValues(mqeValueList);

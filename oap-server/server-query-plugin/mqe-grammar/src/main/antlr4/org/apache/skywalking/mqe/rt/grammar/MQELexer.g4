@@ -20,7 +20,7 @@ lexer grammar MQELexer;
 
 // Keywords
 BOOL options { caseInsensitive=true; }: 'bool';
-LABLE:       'label';
+GENERAL_LABEL_NAME:       '_';
 
 // Constructors symbols
 DOT:         '.';

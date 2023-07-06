@@ -18,7 +18,7 @@ results:
 {{- contains .results }}
   - metric:
       labels:
-        - key: label
+        - key: _
           value: "P50"
     values:
       {{- contains .values }}
@@ -31,7 +31,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: label
+        - key: _
           value: "P75"
     values:
       {{- contains .values }}
@@ -44,7 +44,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: label
+        - key: _
           value: "P90"
     values:
       {{- contains .values }}
