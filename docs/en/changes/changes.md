@@ -37,6 +37,7 @@
 * Tolerate parameter value in illegal JSON format.
 * Update BanyanDB Java Client to 0.4.0
 * Support aggregate `Labeled Value Metrics` in MQE.
+* [Breaking change] Change the default label name in MQE from `labe`l to `_`.
 
 #### UI
 

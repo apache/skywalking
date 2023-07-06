@@ -158,7 +158,7 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "relabels(database_access_percentile{label='0,1,2,3,4'},label='P50,P75,P90,P95,P99')"
+            "relabels(database_access_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
           ],
           "typesOfMQE": [
             "TIME_SERIES_VALUES"

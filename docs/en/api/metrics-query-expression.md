@@ -27,19 +27,22 @@ service_sla
 The `ExpressionResultType` of the expression is `TIME_SERIES_VALUES`.
 
 ### Labeled Value Metrics
+For now, we only have a single anonymous label with multi label values in a labeled metric. 
+To be able to use it in expressions, define `_` as the anonymous label name (key).
+
 Expression:
 ```text
-<metric_name>{label='<label_1>,...'}
+<metric_name>{_='<label_value_1>,...'}
 ```
-`label` is the selected label of the metric. If `label` is not specified, all label values of the metric will be selected. 
+`{_='<label_value_1>,...'}` is the selected label value of the metric. If is not specified, all label values of the metric will be selected. 
 
 For example:
-If we want to query the `service_percentile` metric with the labels `0,1,2,3,4`, we can use the following expression:
+If we want to query the `service_percentile` metric with the label values `0,1,2,3,4`, we can use the following expression:
 ```text
-service_percentile{label='0,1,2,3,4'}
+service_percentile{_='0,1,2,3,4'}
 ```
 
-If we want to rename the labels to `P50,P75,P90,P95,P99`, see [Relabel Operation](#relabel-operation).
+If we want to rename the label values to `P50,P75,P90,P95,P99`, see [Relabel Operation](#relabel-operation).
 
 #### Result Type
 The `ExpressionResultType` of the expression is `TIME_SERIES_VALUES` and with labels.
@@ -160,20 +163,20 @@ top_n(service_instance_cpm, 10, des)
 According to the type of the metric, the `ExpressionResultType` of the expression will be `SORTED_LIST` or `RECORD_LIST`.
 
 ## Relabel Operation
-Relabel Operation takes an expression and replace the labels to new labels on its results.
+Relabel Operation takes an expression and replace the label values to new label values on its results.
 
 Expression:
 ```text
-relabel(Expression, label='<new_label_1>,...')
+relabel(Expression, _='<new_label_value_1>,...')
 ```
 
-`label` is the new labels of the metric after the label is relabeled, the order of the new labels should be the same as the order of the labels in the input expression result.
+`_` is the new label valuess of the metric after the label is relabeled, the order of the new label values should be the same as the order of the label values in the input expression result.
 
 For example:
-If we want to query the `service_percentile` metric with the labels `0,1,2,3,4`, and rename the labels to `P50,P75,P90,P95,P99`, we can use the following expression:
+If we want to query the `service_percentile` metric with the label values `0,1,2,3,4`, and rename the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
 
 ```text
-relabel(service_percentile{label='0,1,2,3,4'}, label='P50,P75,P90,P95,P99')
+relabel(service_percentile{_='0,1,2,3,4'}, _='P50,P75,P90,P95,P99')
 ```
 
 ### Result Type

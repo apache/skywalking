@@ -66,10 +66,6 @@ public class MQEVisitor extends MQEParserBaseVisitor<ExpressionResult> {
     private final Entity entity;
     private final Duration duration;
 
-    /**
-     * For now, we only have a single label with multi label values and without label name in a labeled metric,
-     * use `_` as the general label name(key).
-     */
     private final static String GENERAL_LABEL_NAME = "_";
 
     public MQEVisitor(final MetricsQuery metricsQuery,

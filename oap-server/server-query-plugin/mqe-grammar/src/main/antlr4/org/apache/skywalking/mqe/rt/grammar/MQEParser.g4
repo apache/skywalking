@@ -44,7 +44,8 @@ compare:        (DEQ | NEQ | LTE | LT | GTE | GT) BOOL?;
 metricName:      NAME_STRING;
 metric:   metricName | metricName L_BRACE label? R_BRACE;
 
-// For now, we only have a single label with multi label values and without label name in a labeled metric,  use `_` as the general label name (key).
+//For now, we only have a single anonymous label with multi label values in a labeled metric.
+//To be able to use it in expressions, define `_` as the anonymous label name (key).
 labelName:       GENERAL_LABEL_NAME;
 labelValue:      VALUE_STRING;
 label:           labelName EQ labelValue;
