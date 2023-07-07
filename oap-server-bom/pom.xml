@@ -36,7 +36,7 @@
         <graphql-java-extended-scalars.version>18.1</graphql-java-extended-scalars.version>
         <okhttp.version>3.14.9</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
-        <h2.version>2.1.212</h2.version>
+        <h2.version>2.2.220</h2.version>
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.5.7</zookeeper.version>
         <guava.version>32.0.1-jre</guava.version>
