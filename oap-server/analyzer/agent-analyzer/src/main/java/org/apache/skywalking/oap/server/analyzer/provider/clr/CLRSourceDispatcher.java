@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.clr.provider.handler;
+package org.apache.skywalking.oap.server.analyzer.provider.clr;
 
 import org.apache.skywalking.apm.network.common.v3.CPU;
 import org.apache.skywalking.apm.network.language.agent.v3.CLRMetric;
@@ -42,7 +42,7 @@ public class CLRSourceDispatcher {
         sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
     }
 
-    void sendMetric(String service, String serviceInstance, long minuteTimeBucket, CLRMetric metrics) {
+    public void sendMetric(String service, String serviceInstance, long minuteTimeBucket, CLRMetric metrics) {
         final String serviceId = IDManager.ServiceID.buildId(service, true);
         final String serviceInstanceId = IDManager.ServiceInstanceID.buildId(serviceId, serviceInstance);
 
