@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
@@ -45,15 +46,20 @@ public class UIMenuInitializer {
     }
 
     public void start(int fetchIntervalSecond) throws IOException {
-        Reader menuReader = ResourceUtils.read("ui-initialized-templates/menu.yaml");
-        Yaml yaml = new Yaml();
-        final MenuData menuData = yaml.loadAs(menuReader, MenuData.class);
-        if (menuData == null || CollectionUtils.isEmpty(menuData.getMenus())) {
-            throw new IllegalArgumentException("cannot reading any menu items.");
-        }
+        final var menuFile = "ui-initialized-templates/menu.yaml";
+        try {
+            Reader menuReader = ResourceUtils.read(menuFile);
+            Yaml yaml = new Yaml();
+            final MenuData menuData = yaml.loadAs(menuReader, MenuData.class);
+            if (menuData == null || CollectionUtils.isEmpty(menuData.getMenus())) {
+                throw new IllegalArgumentException("cannot reading any menu items.");
+            }
 
-        // save menu and start fetch menu
-        uiMenuManagementService.saveMenuAndStartFetch(menuData.getMenus(), fetchIntervalSecond);
+            // save menu and start fetch menu
+            uiMenuManagementService.saveMenuAndStartFetch(menuData.getMenus(), fetchIntervalSecond);
+        } catch (FileNotFoundException e) {
+            log.debug("No such file of path: {}, skipping loading UI menu.", menuFile);
+        }
     }
 
     @Setter
