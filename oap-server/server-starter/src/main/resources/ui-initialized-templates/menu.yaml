@@ -24,27 +24,27 @@
 menus:
   - title: General Service
     icon: general_service
-    description: General Service
+    description:  Observe services and relative direct dependencies through telemetry data collected from SkyWalking Agents.
     menus:
       - title: Services
         layer: GENERAL
-        description: Observe Service through telemetry data collected from SkyWalking Agent.
+        description: Observe services through telemetry data collected from SkyWalking Agent.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/
       - title: Visual Database
         layer: VIRTUAL_DATABASE
-        description: Observe the Virtual Database which is conjectured by language agent through various plugins.
+        description: Observe the virtual databases which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-database/
       - title: Visual Cache
         layer: VIRTUAL_CACHE
-        description: Observe the Virtual Cache which is conjectured by language agent through various plugins.
+        description: Observe the virtual cache servers which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-cache/
       - title: Visual MQ
         layer: VIRTUAL_MQ
-        description: Observe the Virtual MQ which is conjectured by language agent through various plugins.
+        description: Observe the virtual message queue servers which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-mq/
   - title: Service Mesh
     icon: service_mesh
-    description: Service Mesh
+    description: Service Mesh(Istio) addresses the challenges developers and operators face with a distributed or microservices architecture.
     menus:
       - title: Services
         layer: MESH
@@ -60,15 +60,15 @@ menus:
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/envoy/metrics_service_setting/
   - title: Functions
     icon: functions
-    description: Functions
+    description: FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. 
     menus:
       - title: OpenFunction
         layer: FAAS
-        description: FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.
+        description: OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.
         documentLink: https://openfunction.dev/
   - title: Kubernetes
     icon: kubernetes
-    description: Kubernetes
+    description: Kubernetes is an open-source container orchestration system for automating software deployment, scaling, and management.
     menus:
       - title: Cluster
         layer: K8S
@@ -80,19 +80,19 @@ menus:
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/
   - title: Infrastructure
     icon: infrastructure
-    description: Infrastructure
+    description: Operation Systems act as the infrastructure of the whole IT system. Its observabilities provide the fundamentals for all distributed and modern complex systems running. 
     menus:
       - title: Linux
         layer: OS_LINUX
-        description: Provide Linux OS monitoring.
+        description: Provide Linux Operation System(OS) monitoring.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-vm-monitoring/
       - title: Windows
         layer: OS_WINDOWS
-        description: Provide Windows OS monitoring.
+        description: Provide Windows Operation System(OS) monitoring.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-win-monitoring/
   - title: AWS Cloud
     icon: aws_cloud
-    description: AWS Cloud
+    description: Amazon Web Services(AWS) offers reliable, scalable, and inexpensive cloud computing services.
     menus:
       - title: EKS
         layer: AWS_EKS
@@ -117,7 +117,7 @@ menus:
     documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/browser-agent/
   - title: Gateway
     icon: gateway
-    description: Gateway
+    description: API gateway is an API management tool that sits between a client and a collection of backend services
     menus:
       - title: APISIX
         layer: APISIX
@@ -129,7 +129,7 @@ menus:
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-api-gateway-monitoring/
   - title: Database
     icon: database
-    description: Database
+    description: The database is the organized collection of structured information, or data, typically stored electronically in a computer system. 
     menus:
       - title: MySQL/MariaDB
         layer: MYSQL
@@ -151,9 +151,9 @@ menus:
         layer: ELASTICSEARCH
         description: Provide Elasticsearch Server monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-elasticsearch-monitoring/
-  - title: MQ
+  - title: Message Queue
     icon: mq
-    description: MQ
+    description: A message queue is a form of asynchronous service-to-service communication used in serverless and microservices architectures.
     menus:
       - title: RabbitMQ
         layer: RABBITMQ
@@ -161,7 +161,7 @@ menus:
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-rabbitmq-monitoring/
   - title: Self Observability
     icon: self_observability
-    description: Self Observability
+    description: Self Observability provides the observabilities for running components and servers from the SkyWalking ecosystem.
     menus:
       - title: SkyWalking Server
         layer: SO11Y_OAP
