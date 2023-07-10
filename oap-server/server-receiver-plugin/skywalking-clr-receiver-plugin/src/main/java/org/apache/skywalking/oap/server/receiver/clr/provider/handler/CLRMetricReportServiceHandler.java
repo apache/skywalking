@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.CLRMetricCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.CLRMetricReportServiceGrpc;
+import org.apache.skywalking.oap.server.analyzer.provider.clr.CLRSourceDispatcher;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
