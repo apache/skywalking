@@ -18,6 +18,8 @@
   icon: general_service
   layer: ""
   activate: true
+  description: General Service
+  documentlink: null
   subitems:
     {{- contains .subitems }}
     - title: Services
@@ -25,10 +27,14 @@
       layer: GENERAL
       activate: true
       subitems: []
+      description: Observe Service through telemetry data collected from SkyWalking Agent.
+      documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/
     - title: Visual Database
       icon: null
       layer: VIRTUAL_DATABASE
       activate: true
       subitems: []
+      description: Observe the Virtual Database which is conjectured by language agent through various plugins.
+      documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-database/
     {{- end }}
 {{- end }}

@@ -40,4 +40,12 @@ public class UIMenuItemSetting {
      * Sub menus of current item.
      */
     private List<UIMenuItemSetting> menus;
+    /**
+     * Description of the menu item.
+     */
+    private String description;
+    /**
+     * The document link for the latest version of this feature.
+     */
+    private String documentLink;
 }
