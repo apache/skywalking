@@ -29,4 +29,6 @@ public class MenuItem {
     private String layer;
     private boolean activate;
     private List<MenuItem> subItems;
+    private String description;
+    private String documentLink;
 }
