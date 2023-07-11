@@ -44,6 +44,14 @@
 
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
 * Fix display name of `endpoint_cpm` for endpoint list in `General-Service` dashboard.
+* Implement customize menus.
+* Fix minTraceDuration and maxTraceDuration types.
+* Fix init minTime to Infinity.
+* Bump dependencies to fix vulnerabilities.
+* Add scss variables.
+* Fix the title of instance list and notices in the continue profiling.
+* Add a link to explain the expression metric, add units in the continue profiling widget.
+* Calculate string width to set Tabs name width.
 
 #### Documentation
 
