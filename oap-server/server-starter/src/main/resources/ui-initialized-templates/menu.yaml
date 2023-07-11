@@ -24,7 +24,7 @@
 menus:
   - title: General Service
     icon: general_service
-    description:  Observe services and relative direct dependencies through telemetry data collected from SkyWalking Agents.
+    description: Observe services and relative direct dependencies through telemetry data collected from SkyWalking Agents.
     menus:
       - title: Services
         layer: GENERAL

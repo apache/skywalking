@@ -18,7 +18,8 @@
   icon: general_service
   layer: ""
   activate: true
-  description: General Service
+  description: Observe services and relative direct dependencies through telemetry
+    data collected from SkyWalking Agents.
   documentlink: null
   subitems:
     {{- contains .subitems }}
@@ -27,14 +28,16 @@
       layer: GENERAL
       activate: true
       subitems: []
-      description: Observe Service through telemetry data collected from SkyWalking Agent.
+      description: Observe services through telemetry data collected from SkyWalking
+        Agent.
       documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/
     - title: Visual Database
       icon: null
       layer: VIRTUAL_DATABASE
       activate: true
       subitems: []
-      description: Observe the Virtual Database which is conjectured by language agent through various plugins.
+      description: Observe the virtual databases which are conjectured by language agents
+        through various plugins.
       documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-database/
     {{- end }}
 {{- end }}
