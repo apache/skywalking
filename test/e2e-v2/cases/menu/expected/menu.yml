@@ -21,6 +21,7 @@
   description: Observe services and relative direct dependencies through telemetry
     data collected from SkyWalking Agents.
   documentlink: null
+  i18nkey: general_service
   subitems:
     {{- contains .subitems }}
     - title: Services
@@ -31,6 +32,7 @@
       description: Observe services through telemetry data collected from SkyWalking
         Agent.
       documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/
+      i18nkey: general_service_services
     - title: Visual Database
       icon: null
       layer: VIRTUAL_DATABASE
@@ -39,5 +41,6 @@
       description: Observe the virtual databases which are conjectured by language agents
         through various plugins.
       documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-database/
+      i18nkey: general_service_virtual_database
     {{- end }}
 {{- end }}
