@@ -15,7 +15,7 @@ kafka-fetcher:
     namespace: ${SW_NAMESPACE:""}
 ```
 
-`skywalking-segments`, `skywalking-metrics`, `skywalking-profilings`, `skywalking-managements`, `skywalking-meters`, `skywalking-logs`
+`skywalking-segments`, `skywalking-jvm-metrics`, `skywalking-clr-metrics`, `skywalking-profilings`, `skywalking-managements`, `skywalking-meters`, `skywalking-logs`
 and `skywalking-logs-json` topics are required by `kafka-fetcher`.
 If they do not exist, Kafka Fetcher will create them by default. Also, you can create them by yourself before the OAP server starts.
 

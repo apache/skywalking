@@ -63,7 +63,21 @@ public class KafkaFetcherConfig extends ModuleConfig {
 
     private String configPath = "meter-analyzer-config";
 
+    /**
+     * use {@link #topicNameOfJVMMetrics} instead
+     */
+    @Deprecated
     private String topicNameOfMetrics = "skywalking-metrics";
+
+    /**
+     * JVM
+     */
+    private String topicNameOfJVMMetrics = "skywalking-jvm-metrics";
+
+    /**
+     * CLR
+     */
+    private String topicNameOfCLRMetrics = "skywalking-clr-metrics";
 
     private String topicNameOfProfiling = "skywalking-profilings";
 

@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.log.analyzer.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.KafkaFetcherHandlerRegister;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherModule;
+import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.CLRMetricsHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JVMMetricsHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.JsonLogHandler;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler.LogHandler;
@@ -76,6 +77,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         handlerRegister.register(new JVMMetricsHandler(getManager(), config));
+        handlerRegister.register(new CLRMetricsHandler(getManager(), config));
         handlerRegister.register(new ServiceManagementHandler(getManager(), config));
         handlerRegister.register(new TraceSegmentHandler(getManager(), config));
         handlerRegister.register(new ProfileTaskHandler(getManager(), config));
