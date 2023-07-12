@@ -144,6 +144,7 @@ public class UIMenuManagementService implements Service, Runnable {
             item.setLayer(StringUtil.isEmpty(setting.getLayer()) ? "" : setting.getLayer());
             item.setDescription(setting.getDescription());
             item.setDocumentLink(setting.getDocumentLink());
+            item.setI18nKey(setting.getI18nKey());
             item.setActivate(shouldActivate);
             if (CollectionUtils.isEmpty(item.getSubItems())) {
                 item.setSubItems(Collections.emptyList());

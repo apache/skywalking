@@ -31,4 +31,5 @@ public class MenuItem {
     private List<MenuItem> subItems;
     private String description;
     private String documentLink;
+    private String i18nKey;
 }
