@@ -48,4 +48,8 @@ public class UIMenuItemSetting {
      * The document link for the latest version of this feature.
      */
     private String documentLink;
+    /**
+     * The i18n key for the title and description of this feature display in the UI.
+     */
+    private String i18nKey;
 }
