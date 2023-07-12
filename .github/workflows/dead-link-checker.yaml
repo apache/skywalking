@@ -18,6 +18,8 @@ name: Dead Link Checker
 
 on:
   pull_request:
+    paths:
+        - 'docs/**'
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
 
