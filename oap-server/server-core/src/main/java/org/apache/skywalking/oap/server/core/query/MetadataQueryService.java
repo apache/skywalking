@@ -63,7 +63,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         this.moduleManager = moduleManager;
 
         this.serviceCache = CacheBuilder.newBuilder()
-            .maximumSize(moduleConfig.getServiceCacheMaxSize())
+            .maximumSize(1)
             .refreshAfterWrite(moduleConfig.getServiceCacheRefreshInterval(), TimeUnit.SECONDS)
             .build(new CacheLoader<>() {
                 @Override

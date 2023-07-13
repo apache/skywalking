@@ -224,13 +224,6 @@ public class CoreModuleConfig extends ModuleConfig {
     @Getter
     private int serviceCacheRefreshInterval = 10;
 
-    /**
-     * The max size of service cache, default 100000
-     */
-    @Setter
-    @Getter
-    private int serviceCacheMaxSize = 100_000;
-
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
