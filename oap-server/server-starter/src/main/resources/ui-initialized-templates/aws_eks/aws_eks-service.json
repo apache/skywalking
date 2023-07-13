@@ -49,11 +49,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "eks_cluster_service_pod_cpu_utilization"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -94,11 +95,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "eks_cluster_service_pod_memory_utilization"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -139,16 +141,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "eks_cluster_service_pod_net_rx_bytes"
+                  "expressions": [
+                    "eks_cluster_service_pod_net_rx_bytes/1024"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToKB"
-                    }
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -189,11 +187,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "eks_cluster_service_pod_net_rx_error"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -234,16 +233,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "eks_cluster_service_pod_net_tx_bytes"
+                  "expressions": [
+                    "eks_cluster_service_pod_net_tx_bytes/1024"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToKB"
-                    }
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -284,11 +279,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "eks_cluster_service_pod_net_tx_error"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
