@@ -39,6 +39,7 @@
 * Support aggregate `Labeled Value Metrics` in MQE.
 * [Breaking change] Change the default label name in MQE from `labe`l to `_`.
 * Bump up grpc version to 1.53.0.
+* [Breaking change] Removed '&' symbols from shell scripts to avoid OAP server process running as a background process.
 
 #### UI
 
@@ -52,6 +53,7 @@
 * Fix the title of instance list and notices in the continue profiling.
 * Add a link to explain the expression metric, add units in the continue profiling widget.
 * Calculate string width to set Tabs name width.
+* [Breaking change] Removed '&' symbols from shell scripts to avoid web application server process running as a background process.
 
 #### Documentation
 
