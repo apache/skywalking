@@ -21,13 +21,13 @@ package org.apache.skywalking.oap.server.core.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.google.common.cache.CacheBuilder;
@@ -56,7 +56,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 public class MetadataQueryService implements org.apache.skywalking.oap.server.library.module.Service {
 
     private final ModuleManager moduleManager;
-    private final LoadingCache<Boolean, Map<String, Service>> serviceCache;
+    private final LoadingCache<Boolean, Map<String, List<Service>>> serviceCache;
     private IMetadataQueryDAO metadataQueryDAO;
 
     public MetadataQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
@@ -67,7 +67,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
             .refreshAfterWrite(moduleConfig.getServiceCacheRefreshInterval(), TimeUnit.SECONDS)
             .build(new CacheLoader<>() {
                 @Override
-                public Map<String, Service> load(Boolean key) throws Exception {
+                public Map<String, List<Service>> load(Boolean key) throws Exception {
                     return mapAllServices();
                 }
             });
@@ -86,7 +86,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     @SneakyThrows
     public List<Service> listServices(final String layer, final String group) throws IOException {
-        return this.combineServices(this.serviceCache.get(true).values().stream()
+        return this.combineServices(this.serviceCache.get(true).values().stream().flatMap(Collection::stream)
             .filter(svc -> {
                 if (StringUtils.isNotEmpty(layer) && !svc.getLayers().contains(layer)) {
                     return false;
@@ -97,7 +97,8 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     @SneakyThrows
     public Service getService(final String serviceId) throws IOException {
-        return this.serviceCache.get(true).get(serviceId);
+        final List<Service> services = this.combineServices(this.serviceCache.get(true).get(serviceId));
+        return CollectionUtils.isNotEmpty(services) ? services.get(0) : null;
     }
 
     public ServiceInstance getInstance(final String instanceId) throws IOException {
@@ -158,16 +159,22 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
                 processes.stream().filter(p -> p.getLabels().containsAll(labels)).count();
     }
 
-    private Map<String, Service> mapAllServices() throws Exception {
+    private Map<String, List<Service>> mapAllServices() throws Exception {
         final List<Service> services = getMetadataQueryDAO().listServices();
         return services.stream().peek(service -> {
             if (service.getGroup() == null) {
                 service.setGroup(Const.EMPTY_STRING);
             }
-        }).collect(Collectors.toMap(Service::getId, Function.identity(), (s1, s2) -> s1));
+        }).collect(Collectors.toMap(Service::getId, s -> new ArrayList<>(List.of(s)), (s1, s2) -> {
+            s1.addAll(s2);
+            return s1;
+        }));
     }
 
     private List<Service> combineServices(List<Service> services) {
+        if (CollectionUtils.isEmpty(services)) {
+            return Collections.emptyList();
+        }
         return new ArrayList<>(services.stream()
                                        .collect(Collectors.toMap(Service::getName, service -> service,
                                                                  (s1, s2) -> {
