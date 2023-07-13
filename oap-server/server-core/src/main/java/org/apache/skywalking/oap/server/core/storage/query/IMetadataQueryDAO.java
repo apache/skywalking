@@ -30,17 +30,11 @@ import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 
 public interface IMetadataQueryDAO extends DAO {
-    /**
-     * @param layer layer name for filtering
-     * @param group group name for filtering
-     * @return list of the all available services
-     */
-    List<Service> listServices(final String layer, final String group) throws IOException;
 
     /**
-     * Service could have more than one record by a different layer and have the same serviceId.
+     * List all existing services.
      */
-    List<Service> getServices(final String serviceId) throws IOException;
+    List<Service> listServices() throws IOException;
 
     /**
      * @param duration   The instance is required to be live in this duration.

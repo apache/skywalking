@@ -125,20 +125,13 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     }
 
     @Override
-    public List<Service> listServices(final String layer, final String group) {
+    public List<Service> listServices() {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
 
         final int batchSize = Math.min(queryMaxSize, scrollingBatchSize);
-        final BoolQueryBuilder query =
-            Query.bool();
+        final BoolQueryBuilder query = Query.bool();
         final SearchBuilder search = Search.builder().query(query).size(batchSize);
-        if (StringUtil.isNotEmpty(layer)) {
-            query.must(Query.term(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
-        }
-        if (StringUtil.isNotEmpty(group)) {
-            query.must(Query.term(ServiceTraffic.GROUP, group));
-        }
         if (IndexController.LogicIndicesRegister.isMergedTable(ServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
         }
@@ -152,22 +145,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             .resultConverter(searchHitServiceFunction)
             .build();
         return scroller.scroll();
-    }
-
-    @Override
-    public List<Service> getServices(final String serviceId) {
-        final String index =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ServiceTraffic.INDEX_NAME);
-        final BoolQueryBuilder query =
-            Query.bool()
-                 .must(Query.term(ServiceTraffic.SERVICE_ID, serviceId));
-        if (IndexController.LogicIndicesRegister.isMergedTable(ServiceTraffic.INDEX_NAME)) {
-            query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ServiceTraffic.INDEX_NAME));
-        }
-        final SearchBuilder search = Search.builder().query(query).size(layerSize);
-
-        final SearchResponse response = getClient().search(index, search.build());
-        return buildServices(response);
     }
 
     @Override

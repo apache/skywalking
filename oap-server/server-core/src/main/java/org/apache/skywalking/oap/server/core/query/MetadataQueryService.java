@@ -23,12 +23,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -48,10 +56,21 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 public class MetadataQueryService implements org.apache.skywalking.oap.server.library.module.Service {
 
     private final ModuleManager moduleManager;
+    private final LoadingCache<Boolean, Map<String, Service>> serviceCache;
     private IMetadataQueryDAO metadataQueryDAO;
 
-    public MetadataQueryService(ModuleManager moduleManager) {
+    public MetadataQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
+
+        this.serviceCache = CacheBuilder.newBuilder()
+            .maximumSize(moduleConfig.getServiceCacheMaxSize())
+            .refreshAfterWrite(moduleConfig.getServiceCacheRefreshInterval(), TimeUnit.SECONDS)
+            .build(new CacheLoader<>() {
+                @Override
+                public Map<String, Service> load(Boolean key) throws Exception {
+                    return mapAllServices();
+                }
+            });
     }
 
     private IMetadataQueryDAO getMetadataQueryDAO() {
@@ -65,13 +84,20 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return Arrays.stream(Layer.values()).filter(layer -> layer.value() > 0).map(Layer::name).collect(Collectors.toSet());
     }
 
+    @SneakyThrows
     public List<Service> listServices(final String layer, final String group) throws IOException {
-        return this.combineServices(getMetadataQueryDAO().listServices(layer, group));
+        return this.combineServices(this.serviceCache.get(true).values().stream()
+            .filter(svc -> {
+                if (StringUtils.isNotEmpty(layer) && !svc.getLayers().contains(layer)) {
+                    return false;
+                }
+                return StringUtils.isEmpty(group) || Objects.equals(svc.getGroup(), group);
+            }).collect(Collectors.toList()));
     }
 
+    @SneakyThrows
     public Service getService(final String serviceId) throws IOException {
-        final List<Service> services = this.combineServices(getMetadataQueryDAO().getServices(serviceId));
-        return services.size() > 0 ? services.get(0) : null;
+        return this.serviceCache.get(true).get(serviceId);
     }
 
     public ServiceInstance getInstance(final String instanceId) throws IOException {
@@ -130,6 +156,11 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return CollectionUtils.isEmpty(processes) ?
                 0L :
                 processes.stream().filter(p -> p.getLabels().containsAll(labels)).count();
+    }
+
+    private Map<String, Service> mapAllServices() throws Exception {
+        final List<Service> services = getMetadataQueryDAO().listServices();
+        return services.stream().collect(Collectors.toMap(Service::getId, Function.identity(), (s1, s2) -> s1));
     }
 
     private List<Service> combineServices(List<Service> services) {

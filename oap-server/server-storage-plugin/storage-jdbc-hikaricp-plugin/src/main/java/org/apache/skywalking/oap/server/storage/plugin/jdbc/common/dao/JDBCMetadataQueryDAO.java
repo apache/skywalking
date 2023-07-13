@@ -25,7 +25,6 @@ import com.google.gson.JsonObject;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -74,12 +73,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<Service> listServices(final String layer, final String group) {
+    public List<Service> listServices() {
         final var results = new ArrayList<Service>();
         final var tables = tableHelper.getTablesWithinTTL(ServiceTraffic.INDEX_NAME);
 
         for (final var table : tables) {
-            final var sqlAndParameters = buildSQLForListServices(layer, group, table);
+            final var sqlAndParameters = buildSQLForListServices(table);
             results.addAll(jdbcClient.executeQuery(
                 sqlAndParameters.sql(),
                 this::buildServices,
@@ -92,57 +91,13 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             .collect(toList());
     }
 
-    protected SQLAndParameters buildSQLForListServices(String layer, String group, String table) {
+    protected SQLAndParameters buildSQLForListServices(String table) {
         final var sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
         sql.append("select * from ").append(table)
            .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(ServiceTraffic.INDEX_NAME);
 
-        if (StringUtil.isNotEmpty(layer)) {
-            sql.append(" and ").append(ServiceTraffic.LAYER).append(" = ?");
-            parameters.add(Layer.valueOf(layer).value());
-        }
-        if (StringUtil.isNotEmpty(group)) {
-            sql.append(" and ").append(ServiceTraffic.GROUP).append(" = ?");
-            parameters.add(group);
-        }
-
-        sql.append(" limit ").append(metadataQueryMaxSize);
-
-        return new SQLAndParameters(sql.toString(), parameters);
-    }
-
-    @Override
-    @SneakyThrows
-    public List<Service> getServices(final String serviceId) {
-        final var tables = tableHelper.getTablesWithinTTL(ServiceTraffic.INDEX_NAME);
-        final var results = new ArrayList<Service>();
-
-        for (String table : tables) {
-            final SQLAndParameters sqlAndParameters = buildSQLForGetServices(serviceId, table);
-            results.addAll(
-                jdbcClient.executeQuery(
-                    sqlAndParameters.sql(),
-                    this::buildServices,
-                    sqlAndParameters.parameters()
-                )
-            );
-        }
-        return results
-            .stream()
-            .limit(metadataQueryMaxSize)
-            .collect(toList());
-    }
-
-    protected SQLAndParameters buildSQLForGetServices(String serviceId, String table) {
-        final var sql = new StringBuilder();
-        final var parameters = new ArrayList<>(5);
-        sql.append("select * from ").append(table)
-           .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
-           .append(" and ").append(ServiceTraffic.SERVICE_ID).append(" = ?");
-        parameters.add(ServiceTraffic.INDEX_NAME);
-        parameters.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);
 
         return new SQLAndParameters(sql.toString(), parameters);

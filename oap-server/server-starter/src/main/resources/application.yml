@@ -109,6 +109,10 @@ core:
     activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
     # The max length of service + instance names should be less than 200
     serviceNameMaxLength: ${SW_SERVICE_NAME_MAX_LENGTH:70}
+    # The period(in seconds) of refreshing the service cache. Default value is 10s.
+    serviceCacheRefreshInterval: ${SW_SERVICE_CACHE_REFRESH_INTERVAL:10}
+    # The maximum size of service cache. Default value is 10000.
+    serviceCacheMaxSize: ${SW_SERVICE_CACHE_MAX_SIZE:10000}
     instanceNameMaxLength: ${SW_INSTANCE_NAME_MAX_LENGTH:70}
     # The max length of service + endpoint names should be less than 240
     endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}

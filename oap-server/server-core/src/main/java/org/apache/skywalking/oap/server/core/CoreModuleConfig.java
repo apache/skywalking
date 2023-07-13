@@ -217,6 +217,20 @@ public class CoreModuleConfig extends ModuleConfig {
      */
     private int uiMenuRefreshInterval = 20;
 
+    /**
+     * The service cache refresh interval, default 10s
+     */
+    @Setter
+    @Getter
+    private int serviceCacheRefreshInterval = 10;
+
+    /**
+     * The max size of service cache, default 10000
+     */
+    @Setter
+    @Getter
+    private int serviceCacheMaxSize = 10_000;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }
