@@ -160,16 +160,15 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     private Map<String, Service> mapAllServices() throws Exception {
         final List<Service> services = getMetadataQueryDAO().listServices();
-        return services.stream().collect(Collectors.toMap(Service::getId, Function.identity(), (s1, s2) -> s1));
+        return services.stream().peek(service -> {
+            if (service.getGroup() == null) {
+                service.setGroup(Const.EMPTY_STRING);
+            }
+        }).collect(Collectors.toMap(Service::getId, Function.identity(), (s1, s2) -> s1));
     }
 
     private List<Service> combineServices(List<Service> services) {
         return new ArrayList<>(services.stream()
-                                       .peek(service -> {
-                                           if (service.getGroup() == null) {
-                                               service.setGroup(Const.EMPTY_STRING);
-                                           }
-                                       })
                                        .collect(Collectors.toMap(Service::getName, service -> service,
                                                                  (s1, s2) -> {
                                                                      s1.getLayers().addAll(s2.getLayers());
