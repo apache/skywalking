@@ -109,7 +109,7 @@ public class MetricsQueryUtilTest {
         MetricsCondition condition = new MetricsCondition();
         condition.setName(MODULE_NAME);
         List<MetricsValues> result = IMetricsQueryDAO.Util.sortValues(
-            IMetricsQueryDAO.Util.composeLabelValue(condition, queryConditionLabels, valueColumnData),
+            IMetricsQueryDAO.Util.composeLabelValue(condition, queryConditionLabels, datePoints, valueColumnData),
             datePoints, DEFAULT_VALUE
         );
         assertThat(new Gson().toJson(result)).isEqualTo(expectedResult);

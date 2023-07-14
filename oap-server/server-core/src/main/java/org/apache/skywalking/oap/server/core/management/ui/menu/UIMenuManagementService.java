@@ -21,10 +21,11 @@ package org.apache.skywalking.oap.server.core.management.ui.menu;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.type.MenuItem;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
@@ -48,7 +49,7 @@ public class UIMenuManagementService implements Service, Runnable {
     private ModuleManager moduleManager;
     private CompletableFuture<List<MenuItem>> menuItemFuture;
     private boolean isMenuItemsBeenFetched = false;
-    private IMetadataQueryDAO metadataQueryDAO;
+    private MetadataQueryService metadataQueryService;
 
     public UIMenuManagementService(ModuleManager moduleManager) {
         this.moduleManager = moduleManager;
@@ -62,11 +63,11 @@ public class UIMenuManagementService implements Service, Runnable {
         return menuDAO;
     }
 
-    private IMetadataQueryDAO getMetadataQueryDAO() {
-        if (metadataQueryDAO == null) {
-            metadataQueryDAO = moduleManager.find(StorageModule.NAME).provider().getService(IMetadataQueryDAO.class);
+    private MetadataQueryService getMetadataQueryService() {
+        if (metadataQueryService == null) {
+            metadataQueryService = moduleManager.find(CoreModule.NAME).provider().getService(MetadataQueryService.class);
         }
-        return metadataQueryDAO;
+        return metadataQueryService;
     }
 
     public void saveMenuAndStartFetch(List<UIMenuItemSetting> menuItems, int fetchInterval) throws IOException {
@@ -136,7 +137,7 @@ public class UIMenuManagementService implements Service, Runnable {
                 item.setSubItems(subItems);
             } else if (StringUtil.isNotEmpty(setting.getLayer())) {
                 // check should active by dashboard
-                shouldActivate = CollectionUtils.isNotEmpty(getMetadataQueryDAO().listServices(setting.getLayer(), null));
+                shouldActivate = CollectionUtils.isNotEmpty(getMetadataQueryService().listServices(setting.getLayer(), null));
             }
 
             item.setTitle(setting.getTitle());
