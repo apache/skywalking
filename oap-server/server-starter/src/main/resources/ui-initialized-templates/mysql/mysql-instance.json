@@ -27,26 +27,22 @@
           "h":9,
           "i":"0",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_uptime"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":40,
             "textAlign":"center",
             "showUnit":true
           },
-          "metricConfig":[
-            {
-              "calculation":"secondToDay"
-            }
-          ],
           "widget":{
             "title":"MySQL Uptime (day)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_mysql_instance_uptime/3600/24"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -55,12 +51,6 @@
           "h":10,
           "i":"1",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_qps"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -71,7 +61,19 @@
           },
           "widget":{
             "title":"Current QPS"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"QPS"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_instance_qps"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -80,26 +82,22 @@
           "h":9,
           "i":"2",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_innodb_buffer_pool_size"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":40,
             "textAlign":"center",
             "showUnit":true
           },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
           "widget":{
             "title":"Innodb Buffer Pool Size (MB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_mysql_instance_innodb_buffer_pool_size/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -108,12 +106,6 @@
           "h":9,
           "i":"3",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_max_connections"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":40,
@@ -122,7 +114,14 @@
           },
           "widget":{
             "title":"Max Connections"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_mysql_instance_max_connections"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":18,
@@ -131,12 +130,6 @@
           "h":9,
           "i":"4",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_mysql_instance_thread_cache_size"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":40,
@@ -145,7 +138,14 @@
           },
           "widget":{
             "title":"Thread Cache Size"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_mysql_instance_thread_cache_size"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -154,12 +154,6 @@
           "h":10,
           "i":"5",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_tps"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -170,7 +164,19 @@
           },
           "widget":{
             "title":"Current TPS"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"TPS"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_instance_tps"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -179,18 +185,6 @@
           "h":10,
           "i":"6",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_commands_insert_rate",
-            "meter_mysql_instance_commands_select_rate",
-            "meter_mysql_instance_commands_delete_rate",
-            "meter_mysql_instance_commands_update_rate"
-          ],
           "graph":{
             "type":"Area",
             "opacity":0.4,
@@ -199,7 +193,34 @@
           },
           "widget":{
             "title":"Commands Trend (rows per second)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Insert Rate"
+            },
+            {
+              "label":"Select Rate"
+            },
+            {
+              "label":"Delete Rate"
+            },
+            {
+              "label":"Update Rate"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_instance_commands_insert_rate",
+            "meter_mysql_instance_commands_select_rate",
+            "meter_mysql_instance_commands_delete_rate",
+            "meter_mysql_instance_commands_update_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -208,18 +229,6 @@
           "h":10,
           "i":"7",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_threads_cached",
-            "meter_mysql_instance_threads_running",
-            "meter_mysql_instance_threads_created",
-            "meter_mysql_instance_threads_connected"
-          ],
           "graph":{
             "type":"Area",
             "opacity":0.4,
@@ -228,7 +237,34 @@
           },
           "widget":{
             "title":"Threads"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Cached Threads"
+            },
+            {
+              "label":"Running Threads"
+            },
+            {
+              "label":"Created Threads"
+            },
+            {
+              "label":"Connected Threads"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_instance_threads_cached",
+            "meter_mysql_instance_threads_running",
+            "meter_mysql_instance_threads_created",
+            "meter_mysql_instance_threads_connected"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -237,14 +273,6 @@
           "h":10,
           "i":"8",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_connects_available",
-            "meter_mysql_instance_connects_aborted"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -255,7 +283,24 @@
           },
           "widget":{
             "title":"Connects"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Available Connects"
+            },
+            {
+              "label":"Aborted Connects"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_instance_connects_available",
+            "meter_mysql_instance_connects_aborted"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":18,
@@ -264,12 +309,6 @@
           "h":10,
           "i":"10",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_slow_queries_rate"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -280,7 +319,19 @@
           },
           "widget":{
             "title":"Slow Queries Trend (queries per second)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Slow Queries Rate"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_slow_queries_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -289,14 +340,6 @@
           "h":10,
           "i":"11",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_mysql_instance_connection_errors_internal",
-            "meter_mysql_instance_connection_errors_max_connections"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -307,13 +350,30 @@
           },
           "widget":{
             "title":"Connection Errors"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Internal Errors"
+            },
+            {
+              "label":"Max Connection Errors"
+            }
+          ],
+          "expressions":[
+            "meter_mysql_instance_connection_errors_internal",
+            "meter_mysql_instance_connection_errors_max_connections"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         }
       ],
       "layer":"MYSQL",
       "entity":"ServiceInstance",
       "name":"MySQL-Instance",
-      "id":"mysql-instance",
+      "id":"mysql-instance                                                                                                            ",
       "isRoot":false
     }
   }

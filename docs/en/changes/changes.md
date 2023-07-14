@@ -40,6 +40,7 @@
 * [Breaking change] Change the default label name in MQE from `labe`l to `_`.
 * Bump up grpc version to 1.53.0.
 * [Breaking change] Removed '&' symbols from shell scripts to avoid OAP server process running as a background process.
+* Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS` and `DYNAMODB` layer UI-templates.
 
 #### UI
 

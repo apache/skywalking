@@ -50,9 +50,9 @@
             "showXAxis":false,
             "showYAxis":false,
             "showGroup":true
-          }
+          },
+          "metricMode":"Expression"
         }
-
       ],
       "layer":"AWS_DYNAMODB",
       "entity":"All",
