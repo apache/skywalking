@@ -42,6 +42,7 @@
 * [Breaking change] Removed '&' symbols from shell scripts to avoid OAP server process running as a background process.
 * Revert part of #10616 to fix the unexpected changes: if there is no data we should return an array with `0`s,
   but in #10616, an empty array is returned.
+* Cache all service entity in memory for query.
 
 #### UI
 

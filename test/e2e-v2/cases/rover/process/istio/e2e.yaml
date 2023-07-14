@@ -58,7 +58,8 @@ setup:
           --set ui.image.tag=latest \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
-          --set oap.storageType=elasticsearch
+          --set oap.storageType=elasticsearch \
+          -f test/e2e-v2/cases/rover/process/istio/values.yaml
       wait:
         - namespace: istio-system
           resource: deployments/skywalking-oap
