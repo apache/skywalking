@@ -28,7 +28,6 @@ import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -90,43 +89,14 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     }
 
     @Override
-    public List<Service> listServices(String layer, String group) throws IOException {
+    public List<Service> listServices() throws IOException {
         MeasureQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                SERVICE_TRAFFIC_TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(group)) {
-                            query.and(eq(ServiceTraffic.GROUP, group));
-                        }
-                        if (StringUtil.isNotEmpty(layer)) {
-                            query.and(eq(ServiceTraffic.LAYER, Layer.valueOf(layer).value()));
-                        }
-                    }
-                });
-
-        final List<Service> services = new ArrayList<>();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceTraffic.INDEX_NAME, DownSampling.Minute);
-
-        for (final DataPoint dataPoint : resp.getDataPoints()) {
-            services.add(buildService(dataPoint, schema));
-        }
-
-        return services;
-    }
-
-    @Override
-    public List<Service> getServices(String serviceId) throws IOException {
-        MeasureQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-                SERVICE_TRAFFIC_TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(ServiceTraffic.SERVICE_ID, serviceId));
-                        }
-                    }
-                });
+            SERVICE_TRAFFIC_TAGS,
+            Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                }
+            });
 
         final List<Service> services = new ArrayList<>();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceTraffic.INDEX_NAME, DownSampling.Minute);

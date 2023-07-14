@@ -281,7 +281,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(TraceQueryService.class, new TraceQueryService(getManager()));
         this.registerServiceImplementation(BrowserLogQueryService.class, new BrowserLogQueryService(getManager()));
         this.registerServiceImplementation(LogQueryService.class, new LogQueryService(getManager()));
-        this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager()));
+        this.registerServiceImplementation(MetadataQueryService.class, new MetadataQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));

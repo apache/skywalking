@@ -13,12 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-oap:
-  config:
-    metadata-service-mapping.yaml: |
-      serviceName: e2e::${LABELS."service.istio.io/canonical-name"}
-      serviceInstanceName: ${NAME}
-
 elasticsearch:
   esConfig:
     elasticsearch.yml: |
