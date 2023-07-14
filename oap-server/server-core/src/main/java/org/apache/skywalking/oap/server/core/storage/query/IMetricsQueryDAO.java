@@ -90,6 +90,7 @@ public interface IMetricsQueryDAO extends DAO {
          */
         public static List<MetricsValues> composeLabelValue(final MetricsCondition condition,
             final List<String> labels,
+            final List<String> ids,
             final Map<String, DataTable> idMap) {
             List<String> allLabels;
             if (Objects.isNull(labels) || labels.size() < 1 || labels.stream().allMatch(Strings::isNullOrEmpty)) {
@@ -100,17 +101,20 @@ public interface IMetricsQueryDAO extends DAO {
                 allLabels = labels;
             }
             final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-            List<LabeledValue> labeledValues = new TreeSet<>(allLabels).stream()
-                .flatMap(label -> idMap.entrySet().stream().map(kv -> Objects.nonNull(kv.getValue().get(label)) ?
-                    new LabeledValue(
-                        label,
-                        kv.getKey(),
-                        kv.getValue().get(label), false) :
-                    new LabeledValue(
-                        label,
-                        kv.getKey(),
-                        defaultValue, true)
-                )).collect(toList());
+            final var labeledValues = new TreeSet<>(allLabels).stream()
+                                                              .flatMap(label -> ids.stream().map(id -> {
+                                                                  final var value = idMap.getOrDefault(id, new DataTable());
+                                                                  return Objects.nonNull(value.get(label)) ?
+                                                                      new LabeledValue(
+                                                                          label,
+                                                                          id,
+                                                                          value.get(label), false) :
+                                                                      new LabeledValue(
+                                                                          label,
+                                                                          id,
+                                                                          defaultValue, true);
+                                                              }))
+                                                              .collect(toList());
             MetricsValues current = new MetricsValues();
             List<MetricsValues> result = new ArrayList<>();
             for (LabeledValue each : labeledValues) {

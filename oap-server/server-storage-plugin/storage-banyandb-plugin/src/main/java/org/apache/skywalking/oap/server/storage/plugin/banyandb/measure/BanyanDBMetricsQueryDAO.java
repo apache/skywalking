@@ -172,7 +172,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         return Util.sortValues(
-                Util.composeLabelValue(condition, labels, dataTableMap),
+                Util.composeLabelValue(condition, labels, ids, dataTableMap),
                 ids,
                 ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
         );
