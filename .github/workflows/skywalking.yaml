@@ -722,8 +722,6 @@ jobs:
           path: docker-images
       - name: Load docker images
         run: find docker-images -name "*.tar" -exec docker load -i {} \;
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
       - name: ${{ matrix.test.name }}
         uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         env:
