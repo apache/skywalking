@@ -92,7 +92,7 @@ setup:
 verify:
   retry:
     count: 20
-    interval: 10s
+    interval: 15s
   cases:
     # service list
     - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
