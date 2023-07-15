@@ -459,7 +459,7 @@ MIT licenses
 The following components are provided under the MIT License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://npmjs.com/package/@babel/parser/v/7.20.5 7.20.5 MIT
+    https://npmjs.com/package/@babel/parser/v/7.22.5 7.22.5 MIT
     https://npmjs.com/package/@ctrl/tinycolor/v/3.5.0 3.5.0 MIT
     https://npmjs.com/package/@egjs/hammerjs/v/2.0.17 2.0.17 MIT
     https://npmjs.com/package/@element-plus/icons-vue/v/1.1.4 1.1.4 MIT
@@ -534,7 +534,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
-    https://npmjs.com/package/postcss/v/8.4.23 8.4.23 MIT
+    https://npmjs.com/package/postcss/v/8.4.24 8.4.24 MIT
     https://npmjs.com/package/propagating-hammerjs/v/2.0.1 2.0.1 MIT
     https://npmjs.com/package/safer-buffer/v/2.1.2 2.1.2 MIT
     https://npmjs.com/package/sourcemap-codec/v/1.4.8 1.4.8 MIT
