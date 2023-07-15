@@ -206,8 +206,8 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_redis_instance_net_input_bytes_total",
-            "meter_redis_instance_net_output_bytes_total"
+            "meter_redis_instance_net_input_bytes_total/1024",
+            "meter_redis_instance_net_output_bytes_total/1024"
           ],
           "typesOfMQE":[
             "TIME_SERIES_VALUES",
