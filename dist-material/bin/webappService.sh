@@ -20,7 +20,7 @@ PRGDIR=$(dirname "$PRG")
 [ -z "$WEBAPP_HOME" ] && WEBAPP_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
 WEBAPP_LOG_DIR="${WEBAPP_LOG_DIR:-${WEBAPP_HOME}/logs}"
-JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx512M} -Dwebapp.logDir=${WEBAPP_LOG_DIR}"
+JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx4096M} -Dwebapp.logDir=${WEBAPP_LOG_DIR}"
 JAR_PATH="${WEBAPP_HOME}/webapp"
 
 if [ ! -d "${WEBAPP_LOG_DIR}" ]; then

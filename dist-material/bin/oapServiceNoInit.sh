@@ -20,7 +20,7 @@ PRGDIR=$(dirname "$PRG")
 [ -z "$OAP_HOME" ] && OAP_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
 
 OAP_LOG_DIR=${OAP_LOG_DIR:-"${OAP_HOME}/logs"}
-JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx512M}"
+JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx4096M}"
 
 if [ ! -d "${OAP_HOME}/logs" ]; then
     mkdir -p "${OAP_LOG_DIR}"
