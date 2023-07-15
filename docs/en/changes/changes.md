@@ -43,6 +43,7 @@
 * Revert part of #10616 to fix the unexpected changes: if there is no data we should return an array with `0`s,
   but in #10616, an empty array is returned.
 * Cache all service entity in memory for query.
+* Bump up jackson version to 2.15.2.
 
 #### UI
 
