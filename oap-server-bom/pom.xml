@@ -50,8 +50,8 @@
         <kubernetes.version>6.7.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.24.1</zipkin.version>
-        <jackson.version>2.14.1</jackson.version>
-        <jackson-databind.version>2.14.1</jackson-databind.version>
+        <jackson.version>2.15.2</jackson.version>
+        <jackson-databind.version>2.15.2</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
         <nacos.version>1.4.2</nacos.version>

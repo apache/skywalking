@@ -43,8 +43,9 @@
 * Revert part of #10616 to fix the unexpected changes: if there is no data we should return an array with `0`s,
   but in #10616, an empty array is returned.
 * Cache all service entity in memory for query.
-* Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS` and `DYNAMODB` layer UI-templates.
-
+* Bump up jackson version to 2.15.2.
+* Increase the default memory size to avoid OOM.
+* Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
 
 #### UI
 
