@@ -38,32 +38,40 @@
             "showYAxis": false,
             "showGroup": false
           },
-          "metrics": [
+          "expressions": [
+            "avg(cache_access_resp_time)",
+            "avg(cache_access_sla)/100",
+            "avg(cache_access_cpm)"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE",
+            "SINGLE_VALUE",
+            "SINGLE_VALUE"
+          ],
+          "subExpressions": [
             "cache_access_resp_time",
-            "cache_access_sla",
+            "cache_access_sla/100",
             "cache_access_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "subTypesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ],
           "moved": false,
           "metricConfig": [
             {
               "unit": "ms",
-              "label": "Access Latency",
-              "calculation": "average"
+              "label": "Access Latency"
             },
             {
               "label": "Successful Access Rate",
-              "unit": "%",
-              "calculation": "percentageAvg"
+              "unit": "%"
             },
             {
               "label": "Access Traffic",
-              "unit": "calls / min",
-              "calculation": "average"
+              "unit": "calls / min"
             }
           ]
         },
