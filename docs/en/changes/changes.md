@@ -46,6 +46,7 @@
 * Bump up jackson version to 2.15.2.
 * Increase the default memory size to avoid OOM.
 * Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
+* Bump up graphql-java to 21.0.
 
 #### UI
 
