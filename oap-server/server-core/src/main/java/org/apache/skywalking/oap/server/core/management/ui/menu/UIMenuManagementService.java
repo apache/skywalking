@@ -82,6 +82,7 @@ public class UIMenuManagementService implements Service {
     public void saveMenu(List<UIMenuItemSetting> menuItems) throws IOException {
         // ignore if already existing
         if (getMenuDAO().getMenu(MENU_ID) != null) {
+            this.menuItemCache.put(true, fetchMenuItems());
             return;
         }
 
@@ -91,6 +92,7 @@ public class UIMenuManagementService implements Service {
         menu.setConfigurationJson(GSON.toJson(menuItems));
 
         getMenuDAO().saveMenu(menu);
+        this.menuItemCache.put(true, fetchMenuItems());
     }
 
     @SneakyThrows
