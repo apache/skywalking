@@ -18,10 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.management.ui.menu;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.type.MenuItem;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -35,25 +40,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class UIMenuManagementService implements Service, Runnable {
+public class UIMenuManagementService implements Service {
     private static final String MENU_ID = "1";
     private static final Gson GSON = new Gson();
-    private static final int MENU_GET_MAX_SECOND = 3;
 
+    private final LoadingCache<Boolean, List<MenuItem>> menuItemCache;
     private UIMenuManagementDAO menuDAO;
     private ModuleManager moduleManager;
-    private CompletableFuture<List<MenuItem>> menuItemFuture;
-    private boolean isMenuItemsBeenFetched = false;
     private MetadataQueryService metadataQueryService;
 
-    public UIMenuManagementService(ModuleManager moduleManager) {
+    public UIMenuManagementService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
-        this.menuItemFuture = new CompletableFuture<>();
+        this.menuItemCache = CacheBuilder.newBuilder()
+            .maximumSize(1)
+            .refreshAfterWrite(moduleConfig.getUiMenuRefreshInterval(), TimeUnit.SECONDS)
+            .build(new CacheLoader<>() {
+                @Override
+                public List<MenuItem> load(Boolean key) throws Exception {
+                    return fetchMenuItems();
+                }
+            });
     }
 
     private UIMenuManagementDAO getMenuDAO() {
@@ -70,10 +79,9 @@ public class UIMenuManagementService implements Service, Runnable {
         return metadataQueryService;
     }
 
-    public void saveMenuAndStartFetch(List<UIMenuItemSetting> menuItems, int fetchInterval) throws IOException {
+    public void saveMenu(List<UIMenuItemSetting> menuItems) throws IOException {
         // ignore if already existing
         if (getMenuDAO().getMenu(MENU_ID) != null) {
-            startingFetchMenu(fetchInterval);
             return;
         }
 
@@ -83,46 +91,22 @@ public class UIMenuManagementService implements Service, Runnable {
         menu.setConfigurationJson(GSON.toJson(menuItems));
 
         getMenuDAO().saveMenu(menu);
-        startingFetchMenu(fetchInterval);
     }
 
-    private void startingFetchMenu(int fetchIntervalSecond) {
-        Executors.newSingleThreadScheduledExecutor()
-            .scheduleWithFixedDelay(this, 0, fetchIntervalSecond, java.util.concurrent.TimeUnit.SECONDS);
-    }
-
+    @SneakyThrows
     public List<MenuItem> getMenuItems() {
-        try {
-            return menuItemFuture.get(MENU_GET_MAX_SECOND, TimeUnit.SECONDS);
-        } catch (Throwable t) {
-            throw new IllegalStateException("Failed to get menu items", t);
-        }
+        return menuItemCache.get(true);
     }
 
-    @Override
-    public void run() {
-        try {
-            UIMenu menu = getMenuDAO().getMenu(MENU_ID);
-            if (menu == null) {
-                log.warn("cannot find the menu data from storage");
-                return;
-            }
-
-            List<UIMenuItemSetting> menuItems = GSON.fromJson(menu.getConfigurationJson(), new TypeToken<List<UIMenuItemSetting>>() {
-            }.getType());
-            final List<MenuItem> items = this.convertToMenuItems(menuItems);
-            // if the menu haven't been fetched one time, then just complete it
-            if (!isMenuItemsBeenFetched) {
-                menuItemFuture.complete(items);
-                isMenuItemsBeenFetched = true;
-            } else {
-                // otherwise, the value should be updated to new one
-                menuItemFuture = CompletableFuture.completedFuture(items);
-            }
-        } catch (Throwable t) {
-            log.warn("Failed to fetch menu items", t);
-            menuItemFuture.completeExceptionally(t);
+    private List<MenuItem> fetchMenuItems() throws IOException {
+        UIMenu menu = getMenuDAO().getMenu(MENU_ID);
+        if (menu == null) {
+            throw new IllegalStateException("cannot found UI menu");
         }
+
+        List<UIMenuItemSetting> menuItems = GSON.fromJson(menu.getConfigurationJson(), new TypeToken<List<UIMenuItemSetting>>() {
+        }.getType());
+        return this.convertToMenuItems(menuItems);
     }
 
     private List<MenuItem> convertToMenuItems(List<UIMenuItemSetting> settings) throws IOException {
