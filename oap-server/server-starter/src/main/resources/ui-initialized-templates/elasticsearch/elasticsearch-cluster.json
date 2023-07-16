@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 [
   {
-    "id": "Elasticsearch-Cluster",
-    "configuration": {
+    "id":"Elasticsearch-Cluster",
+    "configuration":{
       "children":[
         {
           "x":0,
@@ -26,14 +27,6 @@
           "h":56,
           "i":"0",
           "type":"Tab",
-          "id":"0",
-          "metricTypes":[
-            ""
-          ],
-          "metrics":[
-            ""
-          ],
-          "activedTabIndex":0,
           "children":[
             {
               "name":"Overview",
@@ -45,14 +38,6 @@
                   "h":6,
                   "i":"0",
                   "type":"Widget",
-                  "id":"0-0-0",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_health_status"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Table",
                     "showTableValues":false,
@@ -61,7 +46,14 @@
                   },
                   "widget":{
                     "title":"Cluster Health"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_health_status"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x":15,
@@ -70,14 +62,6 @@
                   "h":6,
                   "i":"1",
                   "type":"Widget",
-                  "id":"0-0-1",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_nodes"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -86,7 +70,11 @@
                   },
                   "widget":{
                     "title":"Data Nodes"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_nodes"
+                  ]
                 },
                 {
                   "x":12,
@@ -95,14 +83,6 @@
                   "h":6,
                   "i":"2",
                   "type":"Widget",
-                  "id":"0-0-2",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_nodes"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -111,7 +91,11 @@
                   },
                   "widget":{
                     "title":"Nodes"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_nodes"
+                  ]
                 },
                 {
                   "x":18,
@@ -120,14 +104,6 @@
                   "h":6,
                   "i":"3",
                   "type":"Widget",
-                  "id":"0-0-3",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_pending_tasks_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -136,7 +112,11 @@
                   },
                   "widget":{
                     "title":"Pending Tasks"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_pending_tasks_total"
+                  ]
                 },
                 {
                   "x":0,
@@ -145,14 +125,6 @@
                   "h":5,
                   "i":"4",
                   "type":"Widget",
-                  "id":"0-0-4",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_primary_shards_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -161,7 +133,11 @@
                   },
                   "widget":{
                     "title":"Active Primary Shards"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_primary_shards_total"
+                  ]
                 },
                 {
                   "x":4,
@@ -170,14 +146,6 @@
                   "h":5,
                   "i":"5",
                   "type":"Widget",
-                  "id":"0-0-5",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_shards_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -186,7 +154,14 @@
                   },
                   "widget":{
                     "title":"Active Shards"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_shards_total"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x":8,
@@ -195,14 +170,6 @@
                   "h":5,
                   "i":"6",
                   "type":"Widget",
-                  "id":"0-0-6",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_initializing_shards_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -211,7 +178,11 @@
                   },
                   "widget":{
                     "title":"Initializing Shards"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_initializing_shards_total"
+                  ]
                 },
                 {
                   "x":16,
@@ -220,14 +191,6 @@
                   "h":5,
                   "i":"7",
                   "type":"Widget",
-                  "id":"0-0-7",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_delayed_unassigned_shards_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -236,7 +199,11 @@
                   },
                   "widget":{
                     "title":"Delayed Unassigned Shards"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_delayed_unassigned_shards_total"
+                  ]
                 },
                 {
                   "x":20,
@@ -245,14 +212,6 @@
                   "h":5,
                   "i":"8",
                   "type":"Widget",
-                  "id":"0-0-8",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_relocating_shards_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -261,7 +220,11 @@
                   },
                   "widget":{
                     "title":"Relocating Shards"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_relocating_shards_total"
+                  ]
                 },
                 {
                   "x":12,
@@ -270,14 +233,6 @@
                   "h":5,
                   "i":"9",
                   "type":"Widget",
-                  "id":"0-0-9",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_unassigned_shards_total"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -286,7 +241,11 @@
                   },
                   "widget":{
                     "title":"Unassigned Shards"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_unassigned_shards_total"
+                  ]
                 },
                 {
                   "x":3,
@@ -295,14 +254,6 @@
                   "h":6,
                   "i":"12",
                   "type":"Widget",
-                  "id":"0-0-12",
-                  "metricTypes":[
-                    "readMetricsValues"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_breakers_tripped"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -311,7 +262,14 @@
                   },
                   "widget":{
                     "title":"Tripped Of Breakers"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_breakers_tripped"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x":6,
@@ -320,14 +278,6 @@
                   "h":6,
                   "i":"13",
                   "type":"Widget",
-                  "id":"0-0-13",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_cpu_usage_avg"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -336,7 +286,14 @@
                   },
                   "widget":{
                     "title":"CPU Usage Avg. (%)"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_cpu_usage_avg"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x":9,
@@ -345,14 +302,6 @@
                   "h":6,
                   "i":"14",
                   "type":"Widget",
-                  "id":"0-0-14",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_jvm_memory_used_avg"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -361,7 +310,14 @@
                   },
                   "widget":{
                     "title":"JVM Memory Used Avg. (%)"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_jvm_memory_used_avg"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x":21,
@@ -370,14 +326,6 @@
                   "h":6,
                   "i":"15",
                   "type":"Widget",
-                  "id":"0-0-15",
-                  "metricTypes":[
-                    "readMetricsValue"
-                  ],
-                  "metrics":[
-                    "meter_elasticsearch_cluster_open_file_count"
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"Card",
                     "fontSize":14,
@@ -386,7 +334,11 @@
                   },
                   "widget":{
                     "title":"Open Files"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_elasticsearch_cluster_open_file_count"
+                  ]
                 },
                 {
                   "x":0,
@@ -395,14 +347,6 @@
                   "h":16,
                   "i":"16",
                   "type":"Widget",
-                  "id":"0-0-16",
-                  "metricTypes":[
-                    ""
-                  ],
-                  "metrics":[
-                    ""
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"InstanceList",
                     "dashboardName":"Elasticsearch-Node",
@@ -410,7 +354,8 @@
                   },
                   "widget":{
                     "title":"Nodes"
-                  }
+                  },
+                  "metricMode":"Expression"
                 },
                 {
                   "x":0,
@@ -419,14 +364,6 @@
                   "h":20,
                   "i":"17",
                   "type":"Widget",
-                  "id":"0-0-17",
-                  "metricTypes":[
-                    ""
-                  ],
-                  "metrics":[
-                    ""
-                  ],
-                  "moved":false,
                   "graph":{
                     "type":"EndpointList",
                     "dashboardName":"Elasticsearch-Index",
@@ -436,12 +373,12 @@
                   },
                   "widget":{
                     "title":"Indices"
-                  }
+                  },
+                  "metricMode":"Expression"
                 }
               ]
             }
-          ],
-          "moved":false
+          ]
         }
       ],
       "layer":"ELASTICSEARCH",

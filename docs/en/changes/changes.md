@@ -45,6 +45,7 @@
 * Cache all service entity in memory for query.
 * Bump up jackson version to 2.15.2.
 * Increase the default memory size to avoid OOM.
+* Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
 
 #### UI
 
@@ -59,6 +60,7 @@
 * Add a link to explain the expression metric, add units in the continue profiling widget.
 * Calculate string width to set Tabs name width.
 * [Breaking change] Removed '&' symbols from shell scripts to avoid web application server process running as a background process.
+* Reset chart label.
 
 #### Documentation
 

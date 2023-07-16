@@ -14,10 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 [
   {
-    "id": "Elasticsearch-Node",
-    "configuration": {
+    "id":"Elasticsearch-Node",
+    "configuration":{
       "children":[
         {
           "x":0,
@@ -26,14 +27,6 @@
           "h":13,
           "i":"0",
           "type":"Widget",
-          "id":"0",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_process_cpu_percent"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -47,7 +40,19 @@
           },
           "widget":{
             "title":"Process CPU Usage Percent (%)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Process CPU Percent"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_process_cpu_percent"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":16,
@@ -56,18 +61,6 @@
           "h":13,
           "i":"1",
           "type":"Widget",
-          "id":"1",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_os_load1",
-            "meter_elasticsearch_node_os_load5",
-            "meter_elasticsearch_node_os_load15"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -81,17 +74,25 @@
           },
           "metricConfig":[
             {
-              "calculation":"percentage",
-              "label":"load1"
+              "label":"OS Load1"
             },
             {
-              "calculation":"percentage",
-              "label":"load5"
+              "label":"OS Load5"
             },
             {
-              "calculation":"percentage",
-              "label":"load15"
+              "label":"OS Load15"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_os_load1",
+            "meter_elasticsearch_node_os_load5",
+            "meter_elasticsearch_node_os_load15"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -101,18 +102,6 @@
           "h":13,
           "i":"2",
           "type":"Widget",
-          "id":"2",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_jvm_memory_heap_used",
-            "meter_elasticsearch_node_jvm_memory_heap_max",
-            "meter_elasticsearch_node_jvm_memory_nonheap_used"
-          ],
-          "moved":false,
           "graph":{
             "type":"Area",
             "opacity":0.4,
@@ -121,21 +110,29 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB",
-              "label":"heap_used"
+              "label":"Heap Used"
             },
             {
-              "calculation":"byteToMB",
-              "label":"heap_max"
+              "label":"Heap Max"
             },
             {
-              "calculation":"byteToMB",
-              "label":"nonheap_used"
+              "label":"Nonheap Used"
             }
           ],
           "widget":{
             "title":"JVM Memory Usage (MB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_jvm_memory_heap_used/1024/1024",
+            "meter_elasticsearch_node_jvm_memory_heap_max/1024/1024",
+            "meter_elasticsearch_node_jvm_memory_nonheap_used/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -144,14 +141,6 @@
           "h":13,
           "i":"3",
           "type":"Widget",
-          "id":"3",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_jvm_memory_pool_peak_used"
-          ],
-          "moved":false,
           "graph":{
             "type":"Area",
             "opacity":0.4,
@@ -161,14 +150,16 @@
           "widget":{
             "title":"JVM Pool Peak Used (MB)"
           },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
           "relatedTrace":{
             "refIdType":"none"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_jvm_memory_pool_peak_used/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -177,21 +168,20 @@
           "h":13,
           "i":"4",
           "type":"Widget",
-          "id":"4",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_jvm_gc_count"
-          ],
-          "moved":false,
           "graph":{
             "type":"Bar",
             "showBackground":true
           },
           "widget":{
             "title":"GC Count"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_jvm_gc_count"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":18,
@@ -200,14 +190,6 @@
           "h":13,
           "i":"5",
           "type":"Widget",
-          "id":"5",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_jvm_gc_time"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -219,10 +201,9 @@
           "widget":{
             "title":"GC Time (ms/min)"
           },
-          "metricConfig":[
-            {
-              "calculation":""
-            }
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_jvm_gc_time"
           ]
         },
         {
@@ -232,36 +213,6 @@
           "h":13,
           "i":"6",
           "type":"Widget",
-          "id":"6",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_indexing_index_total_req_rate",
-            "meter_elasticsearch_node_indices_search_query_total_req_rate",
-            "meter_elasticsearch_node_indices_search_fetch_total_req_rate",
-            "meter_elasticsearch_node_indices_merges_total_req_rate",
-            "meter_elasticsearch_node_indices_refresh_total_req_rate",
-            "meter_elasticsearch_node_indices_flush_total_req_rate",
-            "meter_elasticsearch_node_indices_get_exists_total_req_rate",
-            "meter_elasticsearch_node_indices_get_missing_total_req_rate",
-            "meter_elasticsearch_node_indices_get_total_req_rate",
-            "meter_elasticsearch_node_indices_indexing_delete_total_req_rate",
-            "meter_elasticsearch_node_indices_search_scroll_total_req_rate",
-            "meter_elasticsearch_node_indices_search_suggest_total_req_rate"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -275,41 +226,70 @@
           },
           "metricConfig":[
             {
-              "label":"indexing_index"
+              "label":"Indexing Index"
             },
             {
-              "label":"search_query"
+              "label":"Search Query"
             },
             {
-              "label":"search_fetch"
+              "label":"Search Fetch"
             },
             {
-              "label":"merges"
+              "label":"Merges"
             },
             {
-              "label":"refresh"
+              "label":"Refresh"
             },
             {
-              "label":"flush"
+              "label":"Flush"
             },
             {
-              "label":"get_exists"
+              "label":"Get Exists"
             },
             {
-              "label":"get_missing"
+              "label":"Get"
             },
             {
-              "label":"get"
+              "label":"Get Missing"
             },
             {
-              "label":"indexing_delete"
+              "label":"Indexing Delete"
             },
             {
-              "label":"search_scroll"
+              "label":"Search Scroll"
             },
             {
-              "label":"suggest"
+              "label":"Search Suggest"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_indexing_index_total_req_rate",
+            "meter_elasticsearch_node_indices_search_query_total_req_rate",
+            "meter_elasticsearch_node_indices_search_fetch_total_req_rate",
+            "meter_elasticsearch_node_indices_merges_total_req_rate",
+            "meter_elasticsearch_node_indices_refresh_total_req_rate",
+            "meter_elasticsearch_node_indices_flush_total_req_rate",
+            "meter_elasticsearch_node_indices_get_exists_total_req_rate",
+            "meter_elasticsearch_node_indices_get_total_req_rate",
+            "meter_elasticsearch_node_indices_get_missing_total_req_rate",
+            "meter_elasticsearch_node_indices_indexing_delete_total_req_rate",
+            "meter_elasticsearch_node_indices_search_scroll_total_req_rate",
+            "meter_elasticsearch_node_indices_search_suggest_total_req_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -319,16 +299,6 @@
           "h":13,
           "i":"7",
           "type":"Widget",
-          "id":"7",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate",
-            "meter_elasticsearch_node_indices_search_query_total_req_rate"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -343,11 +313,20 @@
           },
           "metricConfig":[
             {
-              "label":"proc_rate"
+              "label":"Proc Rate"
             },
             {
-              "label":"req_rate"
+              "label":"Total Rate"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate",
+            "meter_elasticsearch_node_indices_search_query_total_req_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -357,14 +336,6 @@
           "h":13,
           "i":"9",
           "type":"Widget",
-          "id":"9",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_translog_operations"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -375,7 +346,19 @@
           },
           "widget":{
             "title":"Total Translog Operations"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Indices Translog Operations"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_indices_translog_operations"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -384,14 +367,6 @@
           "h":13,
           "i":"10",
           "type":"Widget",
-          "id":"10",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_translog_size"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -405,8 +380,15 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "label":"Node Indices Translog Size"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_translog_size/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -416,14 +398,6 @@
           "h":13,
           "i":"11",
           "type":"Widget",
-          "id":"11",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_breakers_tripped"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -434,7 +408,14 @@
           },
           "widget":{
             "title":"Tripped For Breakers"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_breakers_tripped"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":18,
@@ -443,14 +424,6 @@
           "h":13,
           "i":"12",
           "type":"Widget",
-          "id":"12",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_breakers_estimated_size"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -459,14 +432,16 @@
             "showXAxis":true,
             "showYAxis":true
           },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
           "widget":{
             "title":"Estimated Size Of Breaker (MB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_breakers_estimated_size/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":8,
@@ -475,14 +450,6 @@
           "h":13,
           "i":"13",
           "type":"Widget",
-          "id":"13",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_segment_memory"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -493,12 +460,19 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "label":"Segment Memory"
             }
           ],
           "widget":{
             "title":"Current Memory Size Of Segments (MB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_segment_memory"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -507,14 +481,6 @@
           "h":14,
           "i":"14",
           "type":"Widget",
-          "id":"14",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_disk_usage_percent"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -531,8 +497,15 @@
           },
           "metricConfig":[
             {
-              "calculation":""
+              "label":"Disk Usage Percent"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_disk_usage_percent"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -542,14 +515,6 @@
           "h":13,
           "i":"15",
           "type":"Widget",
-          "id":"15",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_docs"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -559,11 +524,20 @@
             "showYAxis":true
           },
           "metricConfig":[
-
+            {
+              "label":"Indices Docs"
+            }
           ],
           "widget":{
             "title":"Documents Count"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_docs"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -572,21 +546,25 @@
           "h":13,
           "i":"16",
           "type":"Widget",
-          "id":"16",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_segment_count"
-          ],
-          "moved":false,
           "graph":{
             "type":"Bar",
             "showBackground":true
           },
           "widget":{
             "title":"Count Of Index Segments"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Segment Count"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_segment_count"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -595,14 +573,6 @@
           "h":7,
           "i":"17",
           "type":"Widget",
-          "id":"17",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_rules"
-          ],
-          "moved":false,
           "graph":{
             "type":"Table",
             "showTableValues":false,
@@ -611,7 +581,14 @@
           },
           "widget":{
             "title":"Node Rules"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_rules"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -620,14 +597,6 @@
           "h":7,
           "i":"18",
           "type":"Widget",
-          "id":"18",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_docs"
-          ],
-          "moved":false,
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -636,7 +605,11 @@
           },
           "widget":{
             "title":"Documents"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_docs"
+          ]
         },
         {
           "x":8,
@@ -645,14 +618,6 @@
           "h":13,
           "i":"26",
           "type":"Widget",
-          "id":"26",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_os_cpu_percent"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -666,7 +631,19 @@
           },
           "widget":{
             "title":"OS CPU Usage Persent (%)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"OS CPU Percent"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_os_cpu_percent"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -675,14 +652,6 @@
           "h":14,
           "i":"27",
           "type":"Widget",
-          "id":"27",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_disk_usage"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -696,12 +665,19 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToGB"
+              "label":"Disk Usage"
             }
           ],
           "widget":{
             "title":"Disk Usage (GB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_disk_usage/1024/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":16,
@@ -710,16 +686,6 @@
           "h":13,
           "i":"28",
           "type":"Widget",
-          "id":"28",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_network_send_bytes",
-            "meter_elasticsearch_node_network_receive_bytes"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -736,11 +702,20 @@
           },
           "metricConfig":[
             {
-              "label":"sead"
+              "label":"Network Sent Bytes"
             },
             {
-              "label":"receive"
+              "label":"Network Receive Bytes"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_network_send_bytes",
+            "meter_elasticsearch_node_network_receive_bytes"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -750,14 +725,6 @@
           "h":14,
           "i":"29",
           "type":"Widget",
-          "id":"29",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_disk_io_read_bytes"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -771,8 +738,15 @@
           },
           "metricConfig":[
             {
-              "unit":"kb"
+              "label":"Disk IO Read"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_disk_io_read_bytes"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -782,14 +756,6 @@
           "h":7,
           "i":"30",
           "type":"Widget",
-          "id":"30",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_segment_count"
-          ],
-          "moved":false,
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -798,7 +764,11 @@
           },
           "widget":{
             "title":"Segments"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_segment_count"
+          ]
         },
         {
           "x":21,
@@ -807,14 +777,6 @@
           "h":7,
           "i":"31",
           "type":"Widget",
-          "id":"31",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_open_file_count"
-          ],
-          "moved":false,
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -823,7 +785,11 @@
           },
           "widget":{
             "title":"Open Files"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_open_file_count"
+          ]
         },
         {
           "x":18,
@@ -832,14 +798,6 @@
           "h":14,
           "i":"32",
           "type":"Widget",
-          "id":"32",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_disk_io_write_bytes"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -853,7 +811,19 @@
           },
           "widget":{
             "title":"Disk Write (KBs)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Disk IO Write"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_disk_io_write_bytes"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -862,28 +832,22 @@
           "h":7,
           "i":"33",
           "type":"Widget",
-          "id":"33",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_jvm_memory_used"
-          ],
-          "moved":false,
           "graph":{
             "type":"Card",
             "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
           "widget":{
             "title":"JVM Memory Used (MB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_jvm_memory_used/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":9,
@@ -892,14 +856,6 @@
           "h":7,
           "i":"34",
           "type":"Widget",
-          "id":"34",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_process_cpu_percent"
-          ],
-          "moved":false,
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -908,7 +864,11 @@
           },
           "widget":{
             "title":"CPU Usage (%)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_process_cpu_percent"
+          ]
         },
         {
           "x":18,
@@ -917,28 +877,22 @@
           "h":7,
           "i":"35",
           "type":"Widget",
-          "id":"35",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_all_disk_free_space"
-          ],
-          "moved":false,
           "graph":{
             "type":"Card",
             "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
-          "metricConfig":[
-            {
-              "calculation":"byteToGB"
-            }
-          ],
           "widget":{
             "title":"Disk Free Space (GB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_all_disk_free_space/1024/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":8,
@@ -947,16 +901,6 @@
           "h":13,
           "i":"36",
           "type":"Widget",
-          "id":"36",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_indexing_index_total_proc_rate",
-            "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -971,11 +915,20 @@
           },
           "metricConfig":[
             {
-              "label":"proc_rate"
+              "label":"Proc Rate"
             },
             {
-              "label":"req_rate"
+              "label":"Req Rate"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_indexing_index_total_proc_rate",
+            "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -985,14 +938,6 @@
           "h":14,
           "i":"37",
           "type":"Widget",
-          "id":"37",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -1006,7 +951,19 @@
           },
           "widget":{
             "title":"Documents Index Rate (calls/s)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Indexing Index"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":8,
@@ -1015,14 +972,6 @@
           "h":13,
           "i":"38",
           "type":"Widget",
-          "id":"38",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_merges_docs_total"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -1033,7 +982,19 @@
           },
           "widget":{
             "title":"Merged Documents Count"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Indices Merges Docs"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_indices_merges_docs_total"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":16,
@@ -1042,14 +1003,6 @@
           "h":13,
           "i":"39",
           "type":"Widget",
-          "id":"39",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_docs_deleted_total"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -1060,7 +1013,19 @@
           },
           "widget":{
             "title":"Deleted Documents"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Indices Docs Deleted"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_indices_docs_deleted_total"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":16,
@@ -1069,14 +1034,6 @@
           "h":14,
           "i":"40",
           "type":"Widget",
-          "id":"40",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_docs_deleted"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -1087,7 +1044,19 @@
           },
           "widget":{
             "title":"Documents Deleted Rate (docs/s)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Indices Docs Deleted"
+            }
+          ],
+          "expressions":[
+            "meter_elasticsearch_node_indices_docs_deleted"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":8,
@@ -1096,14 +1065,6 @@
           "h":14,
           "i":"41",
           "type":"Widget",
-          "id":"41",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_elasticsearch_node_indices_merges_total_size_bytes_total"
-          ],
-          "moved":false,
           "graph":{
             "type":"Line",
             "step":false,
@@ -1117,8 +1078,15 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToMB"
+              "label":"Indices Merged Size"
             }
+          ],
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_elasticsearch_node_indices_merges_total_size_bytes_total/1024/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
           ]
         }
       ],

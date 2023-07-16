@@ -34,7 +34,8 @@
                   "showXAxis":false,
                   "showYAxis":false,
                   "showGroup":true
-               }
+               },
+               "metricMode":"Expression"
             },
             {
                "x":0,
@@ -53,10 +54,10 @@
                }
             }
          ],
-         "id":"mysql-root",
          "layer":"MYSQL",
          "entity":"All",
          "name":"MySQL-Root",
+         "id":"mysql-root",
          "isRoot":true
       }
    }

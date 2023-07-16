@@ -50,7 +50,8 @@
                   "showXAxis":false,
                   "showYAxis":false,
                   "showGroup":true
-               }
+               },
+               "metricMode":"Expression"
             }
          ],
          "layer":"POSTGRESQL",

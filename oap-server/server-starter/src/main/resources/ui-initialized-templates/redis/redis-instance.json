@@ -27,12 +27,6 @@
           "h":6,
           "i":"0",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_redis_instance_uptime"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -42,10 +36,12 @@
           "widget":{
             "title":"Uptime (day)"
           },
-          "metricConfig":[
-            {
-              "calculation":"secondToDay"
-            }
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_uptime/3600/24"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -55,12 +51,6 @@
           "h":6,
           "i":"1",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_redis_instance_connected_clients"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -69,7 +59,14 @@
           },
           "widget":{
             "title":"Connected Clients"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_connected_clients"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -78,12 +75,6 @@
           "h":12,
           "i":"2",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_memory_usage"
-          ],
           "graph":{
             "type":"Area",
             "opacity":0.4,
@@ -92,7 +83,19 @@
           },
           "widget":{
             "title":"Memory Usage (%)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Memory Usage"
+            }
+          ],
+          "expressions":[
+            "meter_redis_instance_memory_usage"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -101,12 +104,6 @@
           "h":12,
           "i":"3",
           "type":"Widget",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_instance_total_commands_rate"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -117,7 +114,14 @@
           },
           "widget":{
             "title":"Total Commands Trend"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_total_commands_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":0,
@@ -126,12 +130,6 @@
           "h":12,
           "i":"4",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_instance_hit_rate"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -142,7 +140,19 @@
           },
           "widget":{
             "title":"Hits Rate (%)"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"Hit Rate"
+            }
+          ],
+          "expressions":[
+            "meter_redis_instance_hit_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":18,
@@ -151,26 +161,22 @@
           "h":6,
           "i":"5",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_redis_instance_memory_max_bytes"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":14,
             "textAlign":"center",
             "showUnit":true
           },
-          "metricConfig":[
-            {
-              "calculation":"byteToMB"
-            }
-          ],
           "widget":{
             "title":"Memory Max Bytes (MB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_memory_max_bytes/1000/1000"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -179,14 +185,6 @@
           "h":12,
           "i":"6",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_instance_net_input_bytes_total",
-            "meter_redis_instance_net_output_bytes_total"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -197,15 +195,24 @@
           },
           "metricConfig":[
             {
-              "calculation":"byteToKB"
+              "label":"Input Bytes"
             },
             {
-              "calculation":"byteToKB"
+              "label":"Output Bytes"
             }
           ],
           "widget":{
             "title":"Net Input / Output Bytes (KB)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_net_input_bytes_total/1024",
+            "meter_redis_instance_net_output_bytes_total/1024"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":18,
@@ -214,16 +221,6 @@
           "h":12,
           "i":"7",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_instance_db_keys",
-            "meter_redis_instance_evicted_keys_total",
-            "meter_redis_instance_expired_keys_total"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -234,7 +231,29 @@
           },
           "widget":{
             "title":"DB Keys"
-          }
+          },
+          "metricMode":"Expression",
+          "metricConfig":[
+            {
+              "label":"DB Keys"
+            },
+            {
+              "label":"Evicted Keys"
+            },
+            {
+              "label":"Expired Keys"
+            }
+          ],
+          "expressions":[
+            "meter_redis_instance_db_keys",
+            "meter_redis_instance_evicted_keys_total",
+            "meter_redis_instance_expired_keys_total"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -243,12 +262,6 @@
           "h":6,
           "i":"8",
           "type":"Widget",
-          "metricTypes":[
-            "readMetricsValue"
-          ],
-          "metrics":[
-            "meter_redis_instance_blocked_clients"
-          ],
           "graph":{
             "type":"Card",
             "fontSize":14,
@@ -257,7 +270,14 @@
           },
           "widget":{
             "title":"Blocked Clients"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_redis_blocked_clients"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":12,
@@ -266,12 +286,6 @@
           "h":12,
           "i":"9",
           "type":"Widget",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_instance_commands_duration_seconds_total_rate"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -282,7 +296,14 @@
           },
           "widget":{
             "title":"Total Time Spent by Command Trend (sec)"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_commands_duration_seconds_total_rate"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         },
         {
           "x":6,
@@ -291,12 +312,6 @@
           "h":12,
           "i":"10",
           "type":"Widget",
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "metrics":[
-            "meter_redis_instance_average_time_spent_by_command"
-          ],
           "graph":{
             "type":"Line",
             "step":false,
@@ -307,7 +322,14 @@
           },
           "widget":{
             "title":"Average Time Spent by Command / sec"
-          }
+          },
+          "metricMode":"Expression",
+          "expressions":[
+            "meter_redis_instance_average_time_spent_by_command"
+          ],
+          "typesOfMQE":[
+            "TIME_SERIES_VALUES"
+          ]
         }
       ],
       "layer":"REDIS",

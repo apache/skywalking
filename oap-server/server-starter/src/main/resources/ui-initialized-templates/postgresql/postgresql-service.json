@@ -35,15 +35,9 @@
                            "x":0,
                            "y":0,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"9",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_fetched_rows_rate"
-                           ],
                            "graph":{
                               "type":"Area",
                               "opacity":0.4,
@@ -52,21 +46,22 @@
                            },
                            "widget":{
                               "title":"Fetched Rows Trend (rows per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_fetched_rows_rate"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":6,
                            "y":0,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"10",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_inserted_rows_rate"
-                           ],
                            "graph":{
                               "type":"Area",
                               "opacity":0.4,
@@ -75,29 +70,22 @@
                            },
                            "widget":{
                               "title":"Inserted Rows Trend (rows per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_inserted_rows_rate"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":6,
-                           "y":20,
+                           "y":16,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"11",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValues",
-                              "readMetricsValues",
-                              "readMetricsValues",
-                              "readMetricsValues",
-                              "readMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_buffers_clean",
-                              "meter_pg_buffers_backend",
-                              "meter_pg_buffers_checkpoint",
-                              "meter_pg_buffers_backend_fsync",
-                              "meter_pg_buffers_alloc"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -108,21 +96,47 @@
                            },
                            "widget":{
                               "title":"Buffers Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "metricConfig":[
+                              {
+                                 "label":"Checkpoint Buffers"
+                              },
+                              {
+                                 "label":"Clean Buffers"
+                              },
+                              {
+                                 "label":"Fsync Buffers"
+                              },
+                              {
+                                 "label":"Alloc Buffers"
+                              },
+                              {
+                                 "label":"Backend Buffers"
+                              }
+                           ],
+                           "expressions":[
+                              "meter_pg_buffers_checkpoint",
+                              "meter_pg_buffers_clean",
+                              "meter_pg_buffers_backend_fsync",
+                              "meter_pg_buffers_alloc",
+                              "meter_pg_buffers_backend"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":12,
                            "y":0,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"12",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_updated_rows_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -133,21 +147,19 @@
                            },
                            "widget":{
                               "title":"Updated Rows Trend (rows per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_updated_rows_rate"
+                           ]
                         },
                         {
                            "x":18,
                            "y":0,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"13",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_deleted_rows_rate"
-                           ],
                            "graph":{
                               "type":"Area",
                               "opacity":0.4,
@@ -156,21 +168,19 @@
                            },
                            "widget":{
                               "title":"Deleted Rows Trend (rows per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_deleted_rows_rate"
+                           ]
                         },
                         {
                            "x":0,
-                           "y":10,
+                           "y":8,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"14",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_returned_rows_rate"
-                           ],
                            "graph":{
                               "type":"Area",
                               "opacity":0.4,
@@ -179,21 +189,19 @@
                            },
                            "widget":{
                               "title":"Returned Rows Trend (rows per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_returned_rows_rate"
+                           ]
                         },
                         {
                            "x":6,
-                           "y":30,
+                           "y":24,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"15",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_temporary_files_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -204,21 +212,19 @@
                            },
                            "widget":{
                               "title":"Temporary Files Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_temporary_files_rate"
+                           ]
                         },
                         {
                            "x":12,
-                           "y":10,
+                           "y":8,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"16",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_committed_transactions_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -229,21 +235,22 @@
                            },
                            "widget":{
                               "title":"Committed Transactions Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_committed_transactions_rate"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":6,
-                           "y":10,
+                           "y":8,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"17",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_rolled_back_transactions_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -254,21 +261,19 @@
                            },
                            "widget":{
                               "title":"Rolled Back Transactions Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_rolled_back_transactions_rate"
+                           ]
                         },
                         {
                            "x":0,
-                           "y":20,
+                           "y":16,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"18",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_cache_hit_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -279,27 +284,19 @@
                            },
                            "widget":{
                               "title":"Cache Hit Rate (%)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_cache_hit_rate"
+                           ]
                         },
                         {
                            "x":12,
-                           "y":30,
+                           "y":24,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"19",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValues",
-                              "readMetricsValues",
-                              "readMetricsValues",
-                              "readMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_checkpoint_sync_time_rate",
-                              "meter_pg_checkpoints_timed_rate",
-                              "meter_pg_checkpoint_req_rate",
-                              "meter_pg_checkpoint_write_time_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -310,21 +307,42 @@
                            },
                            "widget":{
                               "title":"Checkpoint Stat Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "metricConfig":[
+                              {
+                                 "label":"Sync Time Checkpoint"
+                              },
+                              {
+                                 "label":"Timed Checkpoint"
+                              },
+                              {
+                                 "label":"Req Checkpoint"
+                              },
+                              {
+                                 "label":"Write Time Checkpoint"
+                              }
+                           ],
+                           "expressions":[
+                              "meter_pg_checkpoint_sync_time_rate",
+                              "meter_pg_checkpoints_timed_rate",
+                              "meter_pg_checkpoint_req_rate",
+                              "meter_pg_checkpoint_write_time_rate"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES",
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":18,
-                           "y":10,
+                           "y":8,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"20",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_conflicts_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -335,21 +353,19 @@
                            },
                            "widget":{
                               "title":"Conflicts Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_conflicts_rate"
+                           ]
                         },
                         {
                            "x":0,
-                           "y":30,
+                           "y":24,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"21",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_deadlocks_rate"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -360,21 +376,22 @@
                            },
                            "widget":{
                               "title":"Deadlocks Trend (per second)"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_deadlocks_rate"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":12,
-                           "y":20,
+                           "y":16,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"22",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_active_sessions"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -385,21 +402,19 @@
                            },
                            "widget":{
                               "title":"Active Sessions"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_active_sessions"
+                           ]
                         },
                         {
                            "x":18,
-                           "y":30,
+                           "y":24,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"23",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_locks_count"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -410,21 +425,22 @@
                            },
                            "widget":{
                               "title":"Locks"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_locks_count"
+                           ],
+                           "typesOfMQE":[
+                              "TIME_SERIES_VALUES"
+                           ]
                         },
                         {
                            "x":18,
-                           "y":20,
+                           "y":16,
                            "w":6,
-                           "h":10,
+                           "h":8,
                            "i":"24",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readLabeledMetricsValues"
-                           ],
-                           "metrics":[
-                              "meter_pg_idle_sessions"
-                           ],
                            "graph":{
                               "type":"Line",
                               "step":false,
@@ -435,7 +451,11 @@
                            },
                            "widget":{
                               "title":"Idle Sessions"
-                           }
+                           },
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "meter_pg_idle_sessions"
+                           ]
                         }
                      ]
                   },
@@ -449,12 +469,6 @@
                            "h":29,
                            "i":"0",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readRecords"
-                           ],
-                           "metrics":[
-                              "top_n_database_statement"
-                           ],
                            "graph":{
                               "type":"TopList",
                               "color":"purple"
@@ -462,10 +476,12 @@
                            "widget":{
                               "title":"Slow Statements (ms)"
                            },
-                           "metricConfig":[
-                              {
-                                 "topN":"50"
-                              }
+                           "metricMode":"Expression",
+                           "expressions":[
+                              "top_n(top_n_database_statement,10,des)"
+                           ],
+                           "typesOfMQE":[
+                              "RECORD_LIST"
                            ]
                         }
                      ]
@@ -480,44 +496,14 @@
                            "h":32,
                            "i":"0",
                            "type":"Widget",
-                           "metricTypes":[
-                              "readMetricsValue",
-                              "readMetricsValue",
-                              "readMetricsValue",
-                              "readMetricsValue",
-                              "readMetricsValue"
-                           ],
-                           "metrics":[
-                              "meter_pg_instance_shared_buffers",
-                              "meter_pg_instance_effective_cache",
-                              "meter_pg_instance_seq_page_cost",
-                              "meter_pg_instance_random_page_cost",
-                              "meter_pg_instance_work_mem"
-                           ],
                            "graph":{
                               "type":"InstanceList",
                               "dashboardName":"PostgreSQL-Instance",
                               "fontSize":12
                            },
-                           "metricConfig":[
-                              {
-                                 "calculation":"byteToMB",
-                                 "label":"Shared Buffers (MB)"
-                              },
-                              {
-                                 "label":"Effective Cache (GB)",
-                                 "calculation":"byteToGB"
-                              },
-                              {
-                                 "label":"Seq Page Cost"
-                              },
-                              {
-                                 "label":"Random Page Cost"
-                              },
-                              {
-                                 "label":"Work Mem (MB)",
-                                 "calculation":"byteToMB"
-                              }
+                           "metricMode":"Expression",
+                           "expressions":[
+                              ""
                            ]
                         }
                      ]
