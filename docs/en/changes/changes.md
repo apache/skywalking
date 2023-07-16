@@ -45,6 +45,7 @@
 * Cache all service entity in memory for query.
 * Bump up jackson version to 2.15.2.
 * Increase the default memory size to avoid OOM.
+* Bump up graphql-java to 21.0.
 
 #### UI
 

@@ -113,6 +113,9 @@ dependency:
     - name: com.graphql-java:graphql-java-extended-scalars
       version: 18.1
       license: MIT
+    - name: com.graphql-java:graphql-java
+      version: 21.0
+      license: MIT
     - name: com.github.luben:zstd-jni
       version: 1.4.3-1
       license: BSD-2-Clause
