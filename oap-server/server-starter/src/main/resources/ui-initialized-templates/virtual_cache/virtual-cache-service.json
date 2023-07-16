@@ -39,14 +39,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "cache_access_resp_time"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
-          "value": "6",
-          "label": "Access_Avg_Response",
+          "metricConfig": [
+            {
+              "unit": "ms",
+              "label": "Response Time"
+            }
+          ],
           "filters": {
             "dataIndex": 17,
             "sourceId": "4"
@@ -83,19 +88,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "cache_access_sla"
+          "expressions": [
+            "cache_access_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
-          "value": "3",
-          "label": "Successful_Rate",
           "filters": {
             "dataIndex": 17,
             "sourceId": "4"
@@ -131,14 +136,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "cache_access_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
-          "value": "4",
-          "label": "Cache_Traffic",
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Access Traffic"
+            }
+          ],
           "associate": [
             {
               "widgetId": "1"
@@ -170,20 +180,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "cache_access_percentile"
+          "expressions": [
+            "relabels(cache_access_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": " Latency Percentile"
             }
           ],
-          "value": "5",
-          "label": "5",
           "associate": [
             {
               "widgetId": "1"
@@ -223,14 +232,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "cache_read_resp_time"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
-          "value": "6",
-          "label": "Cache_Read_Avg_Response",
+          "metricConfig": [
+            {
+              "unit": "ms",
+              "label": "Response Time"
+            }
+          ],
           "filters": {
             "dataIndex": 17,
             "sourceId": "4"
@@ -267,19 +281,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "cache_read_sla"
+          "expressions": [
+            "cache_read_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
-          "value": "3",
-          "label": "Successful_Rate",
           "associate": [
             {
               "widgetId": "5"
@@ -315,14 +329,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "cache_write_resp_time"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
-          "value": "6",
-          "label": "Read_Avg_Response",
+          "metricConfig": [
+            {
+              "unit": "ms",
+              "label": "Response Time"
+            }
+          ],
           "filters": {
             "dataIndex": 17,
             "sourceId": "4"
@@ -359,19 +378,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "cache_write_sla"
+          "expressions": [
+            "cache_write_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
-          "value": "3",
-          "label": "Successful_Rate",
           "filters": {
             "dataIndex": 17,
             "sourceId": "4"
@@ -407,14 +426,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "cache_read_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
-          "value": "4",
-          "label": "Cache_Traffic",
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Read Traffic"
+            }
+          ],
           "associate": [
             {
               "widgetId": "5"
@@ -446,20 +470,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "cache_read_percentile"
+          "expressions": [
+            "relabels(cache_read_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": "Latency Percentile"
             }
           ],
-          "value": "5",
-          "label": "5",
           "associate": [
             {
               "widgetId": "5"
@@ -496,14 +519,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "cache_write_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
-          "value": "4",
-          "label": "Database_Traffic",
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Write Traffic"
+            }
+          ],
           "associate": [
             {
               "widgetId": "9"
@@ -535,20 +563,19 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "cache_write_percentile"
+          "expressions": [
+            "relabels(cache_write_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": "Latency Percentile"
             }
           ],
-          "value": "5",
-          "label": "5",
           "associate": [
             {
               "widgetId": "9"
@@ -579,14 +606,13 @@
             "type": "TopList",
             "color": "purple"
           },
-          "metrics": [
-            "top_n_cache_read_command"
+          "expressions": [
+            "top_n(top_n_cache_read_command,10,des)"
           ],
-          "metricTypes": [
-            "readRecords"
+          "typesOfMQE": [
+            "RECORD_LIST"
           ],
-          "value": "2",
-          "label": "2"
+          "metricMode": "Expression"
         },
         {
           "x": 12,
@@ -602,12 +628,13 @@
             "type": "TopList",
             "color": "purple"
           },
-          "metrics": [
-            "top_n_cache_write_command"
+          "expressions": [
+            "top_n(top_n_cache_write_command,10,des)"
           ],
-          "metricTypes": [
-            "readRecords"
+          "typesOfMQE": [
+            "RECORD_LIST"
           ],
+          "metricMode": "Expression",
           "value": "2",
           "label": "2"
         }

@@ -47,6 +47,7 @@
 * Increase the default memory size to avoid OOM.
 * Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
 * Bump up graphql-java to 21.0.
+* Apply MQE on Virtual-Cache layer UI-templates
 
 #### UI
 
