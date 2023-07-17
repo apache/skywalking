@@ -7,7 +7,6 @@
 
 #### OAP Server
 
-* Add Echo component ID(5015) language: Golang.
 * Add Neo4j component ID(112) language: Python.
 * Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
 * Wrap `deleteProperty` API to the BanyanDBStorageClient.
@@ -49,6 +48,7 @@
 * Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
 * Bump up graphql-java to 21.0.
 * Apply MQE on Virtual-Cache layer UI-templates
+* Add Echo component ID(5015) language: Golang.
 
 #### UI
 
