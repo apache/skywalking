@@ -7,6 +7,7 @@
 
 #### OAP Server
 
+* Add Echo component ID(5015) language: Golang.
 * Add Neo4j component ID(112) language: Python.
 * Add Istio ServiceEntry registry to resolve unknown IPs in ALS.
 * Wrap `deleteProperty` API to the BanyanDBStorageClient.
@@ -26,14 +27,14 @@
 * Add component ID for Aerospike(ID=149).
 * Packages with name `recevier` are renamed to `receiver`.
 * `BanyanDBMetricsDAO` handles `storeIDTag` in `multiGet` for `BanyanDBModelExtension`.
-* Fix endpoint grouping-related logic and enhance the performance of PatternTree retrieval. 
+* Fix endpoint grouping-related logic and enhance the performance of PatternTree retrieval.
 * Fix metric session cache saving after batch insert when using `mysql-connector-java`.
 * Support dynamic UI menu query.
 * Add comment for `docker/.env` to explain the usage.
 * Fix wrong environment variable name `SW_OTEL_RECEIVER_ENABLED_OTEL_RULES` to right `SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES`.
 * Fix instance query in JDBC implementation.
 * Set the `SW_QUERY_MAX_QUERY_COMPLEXITY` default value to 3000(was 1000).
-* Accept `length=4000` parameter value of the event. It was 2000. 
+* Accept `length=4000` parameter value of the event. It was 2000.
 * Tolerate parameter value in illegal JSON format.
 * Update BanyanDB Java Client to 0.4.0
 * Support aggregate `Labeled Value Metrics` in MQE.
