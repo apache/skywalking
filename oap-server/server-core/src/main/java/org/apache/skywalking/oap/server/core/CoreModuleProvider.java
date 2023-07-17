@@ -329,7 +329,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
         this.registerServiceImplementation(
-            UIMenuManagementService.class, new UIMenuManagementService(getManager()));
+            UIMenuManagementService.class, new UIMenuManagementService(getManager(), moduleConfig));
 
         if (moduleConfig.getMetricsDataTTL() < 2) {
             throw new ModuleStartException(
@@ -433,7 +433,7 @@ public class CoreModuleProvider extends ModuleProvider {
         }
 
         try {
-            new UIMenuInitializer(getManager()).start(moduleConfig.getUiMenuRefreshInterval());
+            new UIMenuInitializer(getManager()).init();
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

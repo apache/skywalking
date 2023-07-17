@@ -45,7 +45,7 @@ public class UIMenuInitializer {
             .getService(UIMenuManagementService.class);
     }
 
-    public void start(int fetchIntervalSecond) throws IOException {
+    public void init() throws IOException {
         final var menuFile = "ui-initialized-templates/menu.yaml";
         try {
             Reader menuReader = ResourceUtils.read(menuFile);
@@ -56,7 +56,7 @@ public class UIMenuInitializer {
             }
 
             // save menu and start fetch menu
-            uiMenuManagementService.saveMenuAndStartFetch(menuData.getMenus(), fetchIntervalSecond);
+            uiMenuManagementService.saveMenu(menuData.getMenus());
         } catch (FileNotFoundException e) {
             log.debug("No such file of path: {}, skipping loading UI menu.", menuFile);
         }
