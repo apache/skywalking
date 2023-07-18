@@ -183,7 +183,12 @@ public enum Layer {
      * RabbitMQ is one of the most popular open source message brokers. RabbitMQ is lightweight and easy to deploy
      * on premises and in the cloud. It supports multiple messaging protocols.
      */
-    RABBITMQ(29, true);
+    RABBITMQ(29, true),
+
+    /**
+     * MongoDB is a document database. It stores data in a type of JSON format called BSON.
+     */
+    MONGODB(30, true);
 
     private final int value;
     /**

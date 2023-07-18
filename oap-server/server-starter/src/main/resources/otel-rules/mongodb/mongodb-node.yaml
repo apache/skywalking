@@ -1,0 +1,108 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'mongodb-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'mongodb::' + tags.cluster}).service(['cluster'] , Layer.MONGODB).instance(['cluster'], ['service_instance_id'], Layer.MONGODB)
+metricPrefix: meter_mongodb_node
+metricsRules:
+  - name: uptime
+    exp: mongodb_ss_uptime
+  - name: qps
+    exp: mongodb_ss_opcounters.sum(['cluster','service_instance_id']).rate('PT1M')
+  - name: latency
+    exp: mongodb_ss_opLatencies_latency.sum(['cluster','service_instance_id']).rate('PT1M') / mongodb_ss_opLatencies_ops.sum(['cluster','service_instance_id']).rate('PT1M')
+  - name: memory_usage
+    exp: (mongodb_sys_memory_MemTotal_kb - mongodb_sys_memory_MemAvailable_kb) / mongodb_sys_memory_MemTotal_kb * 100
+  - name: version
+    exp: mongodb_version_info.max(['cluster','service_instance_id','edition',"mongodb"])
+  - name: rs_state
+    exp: mongodb_members_self.max(['cluster','service_instance_id','member_state'])
+
+  - name: cpu_total_percentage
+    exp: ((mongodb_sys_cpu_user_ms + mongodb_sys_cpu_iowait_ms + mongodb_sys_cpu_system_ms + mongodb_sys_cpu_irq_ms + mongodb_sys_cpu_softirq_ms + mongodb_sys_cpu_nice_ms + mongodb_sys_cpu_steal_ms) / 10).rate('PT1M')
+  - name: network_bytes_in
+    exp: mongodb_ss_network_bytesIn.irate()
+  - name: network_bytes_out
+    exp: mongodb_ss_network_bytesOut.irate()
+  - name: memory_free_kb
+    exp: mongodb_sys_memory_MemFree_kb
+  - name: swap_memory_free_kb
+    exp: mongodb_sys_memory_SwapFree_kb
+  - name: fs_used_size
+    exp: mongodb_dbstats_fsUsedSize.max(['cluster','service_instance_id'])
+  - name: fs_total_size
+    exp: mongodb_dbstats_fsTotalSize.max(['cluster','service_instance_id'])
+
+  - name: connections
+    exp: mongodb_ss_connections.tagEqual('conn_type','current').max(['cluster','service_instance_id'])
+  - name: active_total_num
+    exp: mongodb_ss_globalLock_activeClients_total
+  - name: active_reader_num
+    exp: mongodb_ss_globalLock_activeClients_readers
+  - name: active_writer_num
+    exp: mongodb_ss_globalLock_activeClients_writers
+  - name: transactions_active
+    exp: mongodb_ss_transactions_currentActive
+  - name: transactions_inactive
+    exp: mongodb_ss_transactions_currentInactive
+
+  - name: document_qps
+    exp: mongodb_ss_metrics_document.sum(['cluster','service_instance_id','doc_op_type']).rate('PT1M')
+  - name: operation_qps
+    exp: mongodb_ss_opcounters.sum(['cluster','service_instance_id','legacy_op_type']).rate('PT1M')
+  - name: repl_operation_qps
+    exp: mongodb_ss_opcountersRepl.sum(['cluster','service_instance_id','legacy_op_type']).rate('PT1M')
+
+  - name: operation_latency
+    exp: mongodb_ss_opLatencies_latency.max(['cluster','service_instance_id',"op_type"]).rate('PT1M') / mongodb_ss_opLatencies_ops.max(['cluster','service_instance_id',"op_type"]).rate('PT1M')
+  - name: cursor
+    exp: mongodb_ss_metrics_cursor_open.max(['cluster','service_instance_id',"csr_type"])
+  - name: mem_virtual
+    exp: mongodb_ss_mem_virtual
+  - name: mem_resident
+    exp: mongodb_ss_mem_resident
+  - name: asserts
+    exp: mongodb_ss_asserts.max(['cluster','service_instance_id',"assert_type"]).increase('PT1M')
+
+  - name: repl_buffer_count
+    exp: mongodb_ss_metrics_repl_buffer_count
+  - name: repl_buffer_size
+    exp: mongodb_ss_metrics_repl_buffer_sizeBytes
+  - name: repl_buffer_size_max
+    exp: mongodb_ss_metrics_repl_buffer_maxSizeBytes
+  - name: queued_operation
+    exp: mongodb_ss_globalLock_currentQueue.max(['cluster','service_instance_id',"count_type"])
+
+  - name: write_wait_num
+    exp: mongodb_ss_metrics_getLastError_wtime_num.rate('PT1M')
+  - name: write_wait_timeout_num
+    exp: mongodb_ss_metrics_getLastError_wtimeouts.rate('PT1M')
+  - name: write_wait_time
+    exp: mongodb_ss_metrics_getLastError_wtime_totalMillis.rate('PT1M')

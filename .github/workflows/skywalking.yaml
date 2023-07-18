@@ -629,6 +629,8 @@ jobs:
             config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
           - name: Elasticsearch
             config: test/e2e-v2/cases/elasticsearch/e2e.yaml
+          - name: MongoDB
+            config: test/e2e-v2/cases/mongodb/e2e.yaml
           - name: RabbitMQ
             config: test/e2e-v2/cases/rabbitmq/e2e.yaml
           - name: MQE Service

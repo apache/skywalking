@@ -183,6 +183,11 @@ menus:
         description: Provide Elasticsearch Server monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-elasticsearch-monitoring/
         i18nKey: database_elasticsearch
+      - title: MongoDB
+        layer: MONGODB
+        description: Provide MongoDB monitoring through OpenTelemetry's Prometheus Receiver.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-mongodb-monitoring/
+        i18nKey: database_mongodb
   - title: Message Queue
     icon: mq
     description: A message queue is a form of asynchronous service-to-service communication used in serverless and microservices architectures.

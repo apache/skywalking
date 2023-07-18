@@ -68,6 +68,7 @@ public class UITemplateInitializer {
         Layer.REDIS.name(),
         Layer.ELASTICSEARCH.name(),
         Layer.RABBITMQ.name(),
+        Layer.MONGODB.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
