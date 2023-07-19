@@ -32,7 +32,6 @@ import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
 import org.apache.skywalking.oap.query.graphql.type.mql.MQEValue;
 import org.apache.skywalking.oap.query.graphql.type.mql.MQEValues;
 import org.apache.skywalking.oap.query.graphql.type.mql.Metadata;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class AggregateLabelsOp {
 
@@ -55,9 +54,6 @@ public class AggregateLabelsOp {
     private static ExpressionResult aggregateLabeledValueResult(ExpressionResult expResult,
                                                                 AggregateLabelsFuncFactory factory) {
         List<MQEValues> results = expResult.getResults();
-        if (CollectionUtils.isEmpty(results)) {
-            return expResult;
-        }
 
         List<MQEValue> combineTo = results.get(0).getValues();
         for (int i = 0; i < combineTo.size(); i++) {
