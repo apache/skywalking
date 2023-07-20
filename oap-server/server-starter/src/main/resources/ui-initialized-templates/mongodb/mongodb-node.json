@@ -33,7 +33,7 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Uptime (day)"
+            "title":"Uptime"
           },
           "metricMode":"Expression",
           "expressions":[
