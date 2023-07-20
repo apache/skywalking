@@ -24,7 +24,7 @@ services:
       - "12800:12800"
     networks:
       - e2e
-  mongodb-1:
+  mongodb-1: &mongodb
     image: mongo:6.0.8
     networks:
       - e2e
@@ -34,16 +34,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
-  mongodb-2:
-    image: mongo:6.0.8
-    networks:
-      - e2e
-    command: mongod --replSet rs1 --shardsvr --port 27017
-    healthcheck:
-      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/27017" ]
-      interval: 10s
-      timeout: 10s
-      retries: 120
+  mongodb-2: *mongodb
   mongodb-repl-setup:
     image: mongo:6.0.8
     networks:
