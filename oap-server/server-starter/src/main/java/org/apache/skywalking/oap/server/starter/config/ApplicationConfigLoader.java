@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
@@ -40,6 +43,15 @@ import org.yaml.snakeyaml.Yaml;
  */
 @Slf4j
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
+    static final Set<String> SENSITIVE_PROPERTY_NAMES =
+        ImmutableSet.<String>builder()
+                    .add("password")
+                    .add("authentication")
+                    .add("accessKey")
+                    .add("secretKey")
+                    .add("trustStorePass")
+                    .build();
+
     private static final String DISABLE_SELECTOR = "-";
     private static final String SELECTOR = "selector";
 
@@ -76,7 +88,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                 propertiesConfig.forEach((propertyName, propertyValue) -> {
                                     if (propertyValue instanceof Map) {
                                         Properties subProperties = new Properties();
-                                        ((Map) propertyValue).forEach((key, value) -> {
+                                        ((Map<String, ?>) propertyValue).forEach((key, value) -> {
                                             subProperties.put(key, value);
                                             replacePropertyAndLog(key, value, subProperties, providerName);
                                         });
@@ -102,26 +114,24 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
         }
     }
 
-    private void replacePropertyAndLog(final Object propertyName, final Object propertyValue, final Properties target,
+    private void replacePropertyAndLog(final String propertyName, final Object propertyValue, final Properties target,
                                        final Object providerName) {
         final String valueString = PropertyPlaceholderHelper.INSTANCE
-            .replacePlaceholders(propertyValue + "", target);
-        if (valueString != null) {
-            if (valueString.trim().length() == 0) {
-                target.replace(propertyName, valueString);
-                log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
-            } else {
-                // Use YAML to do data type conversion.
-                final Object replaceValue = convertValueString(valueString);
-                if (replaceValue != null) {
-                    target.replace(propertyName, replaceValue);
-                    log.info(
-                        "Provider={} config={} has been set as {}",
-                        providerName,
-                        propertyName,
-                        replaceValue.toString()
-                    );
-                }
+            .replacePlaceholders(String.valueOf(propertyValue), target);
+        if (valueString.trim().length() == 0) {
+            target.replace(propertyName, valueString);
+            log.info("Provider={} config={} has been set as an empty string", providerName, propertyName);
+        } else {
+            // Use YAML to do data type conversion.
+            final Object replaceValue = convertValueString(valueString);
+            if (replaceValue != null) {
+                target.replace(propertyName, replaceValue);
+                log.info(
+                    "Provider={} config={} has been set as {}",
+                    providerName,
+                    propertyName,
+                    SENSITIVE_PROPERTY_NAMES.contains(propertyName) ? "********" : replaceValue
+                );
             }
         }
     }

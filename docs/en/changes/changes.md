@@ -50,6 +50,7 @@
 * Apply MQE on Virtual-Cache layer UI-templates
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
+* Do not print sensitive properties' values in logs.
 
 #### UI
 
