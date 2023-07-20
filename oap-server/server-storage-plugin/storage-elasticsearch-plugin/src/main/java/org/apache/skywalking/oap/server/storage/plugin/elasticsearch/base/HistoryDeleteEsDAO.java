@@ -63,33 +63,14 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
             }
             return;
         }
-        Collection<String> indices = client.retrievalIndexByAliases(tableName);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Deadline = {}, indices = {}, ttl = {}", deadline, indices, ttl);
-        }
-
-        List<String> prepareDeleteIndexes = new ArrayList<>();
-        List<String> leftIndices = new ArrayList<>();
-        for (String index : indices) {
-            long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
-            if (deadline >= timeSeries) {
-                prepareDeleteIndexes.add(index);
-            } else {
-                leftIndices.add(index);
-            }
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Indices to be deleted: {}", prepareDeleteIndexes);
-        }
-        for (String prepareDeleteIndex : prepareDeleteIndexes) {
-            client.deleteByIndexName(prepareDeleteIndex);
-        }
         String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
-        String formattedLatestIndex = client.formatIndexName(latestIndex);
-        if (!leftIndices.contains(formattedLatestIndex)) {
+        if (!client.isExistsIndex(latestIndex)) {
             try {
                 client.createIndex(latestIndex);
+                if (log.isDebugEnabled()) {
+                    log.debug("Latest index = {} is not exist, create.", latestIndex);
+                }
             } catch (ResponseException e) {
                 if (e.getStatusCode() == 400 && client.isExistsIndex(latestIndex)) {
                     if (log.isDebugEnabled()) {
@@ -100,6 +81,26 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
                     throw e;
                 }
             }
+        }
+
+        Collection<String> indices = client.retrievalIndexByAliases(tableName);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Deadline = {}, indices = {}, ttl = {}", deadline, indices, ttl);
+        }
+
+        List<String> prepareDeleteIndexes = new ArrayList<>();
+        for (String index : indices) {
+            long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
+            if (deadline >= timeSeries) {
+                prepareDeleteIndexes.add(index);
+            }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Indices to be deleted: {}", prepareDeleteIndexes);
+        }
+        for (String prepareDeleteIndex : prepareDeleteIndexes) {
+            client.deleteByIndexName(prepareDeleteIndex);
         }
         this.indexLatestSuccess.put(tableName, deadline);
     }

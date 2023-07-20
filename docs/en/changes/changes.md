@@ -50,6 +50,7 @@
 * Apply MQE on Virtual-Cache layer UI-templates
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
+* Move created the latest index before retrieval indexes by aliases to avoid the 404 exception. This just prevents some interference from manual operations.
 * Add more Go VM metrics, as new skywalking-go agent provided since its 0.2 release.
 
 #### UI
