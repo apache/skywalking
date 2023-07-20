@@ -6,7 +6,7 @@ Collector to transfer the metrics to
 
 ## Data flow
 
-1. The mongodb-exporter collect metrics data from MongoDB.
+1. The `mongodb-exporter` collects metrics data from MongoDB. The exporter works side by side with the MongoDB node.
 2. OpenTelemetry Collector fetches metrics from mongodb-exporter via Prometheus Receiver and pushes metrics to
    SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
