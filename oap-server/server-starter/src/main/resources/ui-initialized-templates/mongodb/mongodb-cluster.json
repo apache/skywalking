@@ -79,6 +79,11 @@
                     "textAlign":"center",
                     "showUnit":true
                   },
+                  "metricConfig":[
+                    {
+                      "unit":"GB"
+                    }
+                  ],                  
                   "widget":{
                     "title":"Data Size"
                   }
