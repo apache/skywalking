@@ -241,6 +241,8 @@ catalog:
                 path: "/en/setup/backend/backend-redis-monitoring"
               - name: "Elasticsearch"
                 path: "/en/setup/backend/backend-elasticsearch-monitoring"
+              - name: "MongoDB"
+                path: "/en/setup/backend/backend-mongodb-monitoring"
           - name: "MQ Monitoring"
             catalog:
               - name: "RabbitMQ"

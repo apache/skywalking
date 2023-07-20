@@ -25,6 +25,23 @@ receivers:
              labels:
                cluster: replset
 
+##################################################################################################################
+# If you want to define instance name rather than using name in target, please reference to the following case.  #
+##################################################################################################################
+
+#        - job_name: 'mongodb-monitoring'
+#          metrics_path: "/metrics"
+#          scrape_interval: 10s
+#          static_configs:
+#            - targets: ['mongodb-exporter-1:9216']
+#              labels:
+#                cluster: replset
+#                service_instance_id: mongodb-1:27017
+#            - targets: ['mongodb-exporter-2:9216']
+#              labels:
+#                cluster: replset
+#                service_instance_id: mongodb-2:27017
+
 processors:
   batch:
 
