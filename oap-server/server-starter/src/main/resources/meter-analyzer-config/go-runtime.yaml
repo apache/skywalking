@@ -32,3 +32,49 @@ metricsRules:
     exp: instance_host_cpu_used_rate
   - name: instance_host_mem_used_rate
     exp: instance_host_mem_used_rate
+  - name: instance_golang_heap_alloc_rate
+    exp: instance_golang_heap_alloc_size.increase('PT1M')
+  - name: instance_golang_gc_count_labeled
+    exp: instance_golang_gc_count_labeled.sum(['service', 'instance', 'type']).increase('PT1M')
+  - name: instance_golang_heap_alloc_objects
+    exp: instance_golang_heap_alloc_objects
+  - name: instance_golang_heap_frees
+    exp: instance_golang_heap_frees.increase('PT1M')
+  - name: instance_golang_heap_frees_objects
+    exp: instance_golang_heap_frees_objects.increase('PT1M')
+  - name: instance_golang_memory_heap_labeled
+    exp: instance_golang_memory_heap_labeled.sum(['service', 'instance', 'type'])
+  - name: instance_golang_metadata_mcache_labeled
+    exp: instance_golang_metadata_mcache_labeled.sum(['service', 'instance', 'type'])
+  - name: instance_golang_metadata_mspan_labeled
+    exp: instance_golang_metadata_mspan_labeled.sum(['service', 'instance', 'type'])
+  - name: instance_golang_cgo_calls
+    exp: instance_golang_cgo_calls.increase('PT1M')
+  - name: instance_golang_gc_heap_goal
+    exp: instance_golang_gc_heap_goal
+  - name: instance_golang_gc_heap_objects
+    exp: instance_golang_gc_heap_objects
+  - name: instance_golang_gc_heap_tiny_allocs
+    exp: instance_golang_gc_heap_tiny_allocs
+  - name: instance_golang_gc_limiter_last_enabled
+    exp: instance_golang_gc_limiter_last_enabled
+  - name: instance_golang_gc_stack_starting_size
+    exp: instance_golang_gc_stack_starting_size
+  - name: instance_golang_memory_metadata_other
+    exp: instance_golang_memory_metadata_other
+  - name: instance_golang_memory_os_stacks
+    exp: instance_golang_memory_os_stacks
+  - name: instance_golang_memory_other
+    exp: instance_golang_memory_other
+  - name: instance_golang_memory_profiling_buckets
+    exp: instance_golang_memory_profiling_buckets
+  - name: instance_golang_memory_total
+    exp: instance_golang_memory_total
+  - name: instance_golang_gc_heap_allocs_by_size
+    exp: instance_golang_gc_heap_allocs_by_size.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: instance_golang_gc_heap_frees_by_size
+    exp: instance_golang_gc_heap_frees_by_size.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: instance_golang_gc_pauses
+    exp: instance_golang_gc_pauses.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)
+  - name: instance_golang_sched_latencies
+    exp: instance_golang_sched_latencies.histogram().histogram_percentile([50,70,90,99]).downsampling(SUM)

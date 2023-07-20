@@ -1135,114 +1135,45 @@
               "name": "Golang",
               "children": [
                 {
-                  "x": 0,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
-                  "i": "24",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Heap Alloc (MB)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metricMode": "Expression",
-                  "expressions": [
-                    "meter_instance_golang_heap_alloc/1048576"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ]
-                },
-                {
                   "x": 8,
-                  "y": 0,
+                  "y": 12,
                   "w": 8,
-                  "h": 13,
-                  "i": "16",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Stack Used (MB)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metricMode": "Expression",
-                  "expressions": [
-                    "meter_instance_golang_stack_used/1048576"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 0,
-                  "w": 8,
-                  "h": 13,
+                  "h": 12,
                   "i": "17",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang GC Pause Time Per Minute (ms)"
+                    "title": "GC Pause Time Per Minute (milliseconds)"
                   },
                   "graph": {
-                    "type": "Bar",
-                    "showBackground": true
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
                   "metricConfig": [
                     {
-                      "label": "pause_time"
+                      "calculation": "nanosecondToMillisecond"
                     }
                   ],
                   "metricMode": "Expression",
                   "expressions": [
-                    "meter_instance_golang_gc_pause_time"
+                    "meter_instance_golang_gc_pauses/1000000"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ]
                 },
                 {
-                  "x": 0,
-                  "y": 13,
-                  "w": 8,
-                  "h": 13,
-                  "i": "18",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Golang GC Count Per Minute"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "metrics": [
-                    "meter_instance_golang_gc_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ]
-                },
-                {
                   "x": 8,
-                  "y": 13,
+                  "y": 0,
                   "w": 8,
-                  "h": 13,
+                  "h": 12,
                   "i": "19",
                   "type": "Widget",
                   "widget": {
-                    "title": "Live Goroutines Num"
+                    "title": "Live Threads Num"
                   },
                   "graph": {
                     "type": "Line",
@@ -1255,7 +1186,10 @@
                   "metricMode": "Expression",
                   "metricConfig": [
                     {
-                      "label": "live_goroutines_num"
+                      "label": "OS Thread Count"
+                    },
+                    {
+                      "label": "GoRoutine Count"
                     }
                   ],
                   "expressions": [
@@ -1263,34 +1197,39 @@
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
+                  ],
+                  "metrics": [
+                    "meter_instance_golang_os_threads_num",
+                    "meter_instance_golang_live_goroutines_num"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValues",
+                    "readMetricsValues"
                   ]
                 },
                 {
-                  "x": 16,
-                  "y": 13,
+                  "x": 0,
+                  "y": 48,
                   "w": 8,
-                  "h": 13,
-                  "i": "20",
+                  "h": 12,
+                  "i": "22",
                   "type": "Widget",
                   "widget": {
-                    "title": "Golang OS Threads Num"
+                    "title": "Metadata Mspan (MB)"
                   },
                   "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Bar",
+                    "showBackground": true
                   },
                   "metricMode": "Expression",
                   "metricConfig": [
                     {
-                      "label": "os_threads_num"
+                      "label": "host_mem_used_rate",
+                      "calculation": "byteToMB"
                     }
                   ],
                   "expressions": [
-                    "meter_instance_golang_os_threads_num"
+                    "meter_instance_golang_metadata_mspan_labeled"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -1298,30 +1237,25 @@
                 },
                 {
                   "x": 0,
-                  "y": 26,
+                  "y": 12,
                   "w": 8,
-                  "h": 13,
-                  "i": "21",
+                  "h": 12,
+                  "i": "25",
                   "type": "Widget",
-                  "widget": {
-                    "title": "Host CPU Used Rate (%)"
-                  },
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": true,
+                    "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
                   },
+                  "widget": {
+                    "title": "GC Count Per Minute"
+                  },
                   "metricMode": "Expression",
-                  "metricConfig": [
-                    {
-                      "label": "host_cpu_used_rate"
-                    }
-                  ],
                   "expressions": [
-                    "meter_instance_host_cpu_used_rate"
+                    "meter_instance_golang_gc_count_labeled"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -1329,30 +1263,265 @@
                 },
                 {
                   "x": 8,
-                  "y": 26,
+                  "y": 24,
                   "w": 8,
-                  "h": 13,
-                  "i": "22",
+                  "h": 12,
+                  "i": "26",
                   "type": "Widget",
-                  "widget": {
-                    "title": "Host Memory Used Rate (%)"
-                  },
                   "graph": {
                     "type": "Line",
                     "step": false,
                     "smooth": false,
-                    "showSymbol": true,
+                    "showSymbol": false,
                     "showXAxis": true,
                     "showYAxis": true
                   },
+                  "widget": {
+                    "title": "Heap Alloc Size Per Minutes (MB)"
+                  },
                   "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_heap_alloc_rate/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "27",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GoRoutine Schedule Time (millisecond)"
+                  },
                   "metricConfig": [
                     {
-                      "label": "host_mem_used_rate"
+                      "unit": "Millisecond"
                     }
                   ],
+                  "metricMode": "Expression",
                   "expressions": [
-                    "meter_instance_host_mem_used_rate"
+                    "meter_instance_golang_sched_latencies/1000000"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "28",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GC Free Size Per Minute (MB)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_heap_frees/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "29",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Alloc Size Per Minute (KB)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_allocs_by_size/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "30",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Free Size Per Minute (KB)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_frees_by_size/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 24,
+                  "w": 8,
+                  "h": 12,
+                  "i": "31",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Heap Object Count"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_objects"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 48,
+                  "w": 8,
+                  "h": 12,
+                  "i": "32",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "widget": {
+                    "title": "Metadata Mcache (MB)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_metadata_mcache_labeled"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 12,
+                  "i": "33",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "MB"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Memory Heap Size (MB)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_memory_heap_labeled/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 36,
+                  "w": 8,
+                  "h": 12,
+                  "i": "34",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "CGO Calls Per Minute"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_cgo_calls"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 12,
+                  "w": 8,
+                  "h": 12,
+                  "i": "35",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "GC Goal Size (MB)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_instance_golang_gc_heap_goal/1024/1024"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"

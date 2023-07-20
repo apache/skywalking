@@ -52,6 +52,7 @@
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
 * Do not print configurations values in logs to avoid sensitive info leaked.
 * Move created the latest index before retrieval indexes by aliases to avoid the 404 exception. This just prevents some interference from manual operations.
+* Add more Go VM metrics, as new skywalking-go agent provided since its 0.2 release.
 * Add component ID for Lock (ID=5016).
 
 #### UI
