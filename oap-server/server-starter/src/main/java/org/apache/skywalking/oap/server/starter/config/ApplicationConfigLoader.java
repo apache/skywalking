@@ -49,6 +49,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                     .add("authentication")
                     .add("accessKey")
                     .add("secretKey")
+                    .add("firehoseAccessKey")
                     .add("trustStorePass")
                     .build();
 
