@@ -50,6 +50,7 @@
 * Apply MQE on Virtual-Cache layer UI-templates
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
+* Fix Elasticsearch storage TTL timer, move created the latest index before retrieval indexes by aliases to avoid the 404 exception. 
 
 #### UI
 

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.elasticsearch.exception.ResponseException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -63,6 +62,15 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
             }
             return;
         }
+
+        String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
+        if (!client.isExistsIndex(latestIndex)) {
+            client.createIndex(latestIndex);
+            if (log.isDebugEnabled()) {
+                log.debug("Latest index = {} is not exist, create.", latestIndex);
+            }
+        }
+
         Collection<String> indices = client.retrievalIndexByAliases(tableName);
 
         if (log.isDebugEnabled()) {
@@ -70,13 +78,10 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         }
 
         List<String> prepareDeleteIndexes = new ArrayList<>();
-        List<String> leftIndices = new ArrayList<>();
         for (String index : indices) {
             long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
             if (deadline >= timeSeries) {
                 prepareDeleteIndexes.add(index);
-            } else {
-                leftIndices.add(index);
             }
         }
         if (log.isDebugEnabled()) {
@@ -84,22 +89,6 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
         }
         for (String prepareDeleteIndex : prepareDeleteIndexes) {
             client.deleteByIndexName(prepareDeleteIndex);
-        }
-        String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
-        String formattedLatestIndex = client.formatIndexName(latestIndex);
-        if (!leftIndices.contains(formattedLatestIndex)) {
-            try {
-                client.createIndex(latestIndex);
-            } catch (ResponseException e) {
-                if (e.getStatusCode() == 400 && client.isExistsIndex(latestIndex)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                            "Failed to create index {}, index is already created.", latestIndex);
-                    }
-                } else {
-                    throw e;
-                }
-            }
         }
         this.indexLatestSuccess.put(tableName, deadline);
     }
