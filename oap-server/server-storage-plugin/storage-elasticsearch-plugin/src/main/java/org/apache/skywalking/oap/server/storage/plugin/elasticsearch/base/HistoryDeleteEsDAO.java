@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.elasticsearch.exception.ResponseException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -65,9 +66,20 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
 
         String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
         if (!client.isExistsIndex(latestIndex)) {
-            client.createIndex(latestIndex);
-            if (log.isDebugEnabled()) {
-                log.debug("Latest index = {} is not exist, create.", latestIndex);
+            try {
+                client.createIndex(latestIndex);
+                if (log.isDebugEnabled()) {
+                    log.debug("Latest index = {} is not exist, create.", latestIndex);
+                }
+            } catch (ResponseException e) {
+                if (e.getStatusCode() == 400 && client.isExistsIndex(latestIndex)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                            "Failed to create index {}, index is already created.", latestIndex);
+                    }
+                } else {
+                    throw e;
+                }
             }
         }
 
