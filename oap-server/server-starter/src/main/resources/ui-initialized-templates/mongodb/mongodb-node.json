@@ -32,6 +32,11 @@
             "textAlign":"center",
             "showUnit":true
           },
+          "metricConfig":[
+            {
+              "unit":"day"
+            }
+          ],          
           "widget":{
             "title":"Uptime"
           },
