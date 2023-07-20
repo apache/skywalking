@@ -622,6 +622,9 @@ GoRedis:
 Echo:
   id: 5015
   language: Golang
+Lock:
+  id: 5016
+  language: Golang,Node.js,Python,java
 
 # Lua components
 # [6000, 7000) for Lua agent
