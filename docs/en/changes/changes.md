@@ -51,6 +51,7 @@
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
 * Do not print sensitive properties' values in logs.
+* Move created the latest index before retrieval indexes by aliases to avoid the 404 exception. This just prevents some interference from manual operations.
 
 #### UI
 
