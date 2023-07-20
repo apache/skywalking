@@ -50,6 +50,7 @@
 * Apply MQE on Virtual-Cache layer UI-templates
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
+* Add component ID for Lock (ID=5016).
 
 #### UI
 
