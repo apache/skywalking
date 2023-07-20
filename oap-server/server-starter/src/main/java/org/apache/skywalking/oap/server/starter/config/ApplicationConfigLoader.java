@@ -18,22 +18,20 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
+import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
-import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
-import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.ResourceUtils;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Initialize collector settings with following sources. Use application.yml as primary setting, and fix missing setting
@@ -43,16 +41,6 @@ import org.yaml.snakeyaml.Yaml;
  */
 @Slf4j
 public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfiguration> {
-    static final Set<String> SENSITIVE_PROPERTY_NAMES =
-        ImmutableSet.<String>builder()
-                    .add("password")
-                    .add("authentication")
-                    .add("accessKey")
-                    .add("secretKey")
-                    .add("firehoseAccessKey")
-                    .add("trustStorePass")
-                    .build();
-
     private static final String DISABLE_SELECTOR = "-";
     private static final String SELECTOR = "selector";
 
@@ -127,12 +115,6 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
             final Object replaceValue = convertValueString(valueString);
             if (replaceValue != null) {
                 target.replace(propertyName, replaceValue);
-                log.info(
-                    "Provider={} config={} has been set as {}",
-                    providerName,
-                    propertyName,
-                    SENSITIVE_PROPERTY_NAMES.contains(propertyName) ? "********" : replaceValue
-                );
             }
         }
     }
