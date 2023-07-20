@@ -50,6 +50,7 @@
 * Apply MQE on Virtual-Cache layer UI-templates
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
+* Update Golang instance tab under the general service dashboard UI template for adapt Go Agent metrics reporter.
 
 #### UI
 
