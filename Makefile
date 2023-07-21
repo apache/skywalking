@@ -25,7 +25,7 @@ CLI_VERSION ?= 0.11.0 # CLI version inside OAP image should always use an Apache
 init:
 	cd $(SW_ROOT) && git submodule update --init --recursive
 
-.PHONY: build.all build.backend build.ui build.docker
+.PHONY: build.all build.backend build.ui
 
 build.all:
 	cd $(SW_ROOT) && ./mvnw --batch-mode clean package -Dmaven.test.skip=$(SKIP_TEST)
