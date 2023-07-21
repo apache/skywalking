@@ -1,0 +1,100 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+  mongodb-1: &mongodb
+    image: mongo:6.0.8
+    networks:
+      - e2e
+    command: mongod --replSet rs1 --shardsvr --port 27017
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/27017" ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+  mongodb-2: *mongodb
+  mongodb-repl-setup:
+    image: mongo:6.0.8
+    networks:
+      - e2e
+    depends_on:
+      mongodb-1:
+        condition: service_healthy
+      mongodb-2:
+        condition: service_healthy
+    volumes:
+      - ./setup.sh:/setup.sh
+    entrypoint: [ "bash", "/setup.sh" ]
+  mongodb-exporter-1:
+    image: percona/mongodb_exporter:0.39
+    expose:
+      - 9216
+    networks:
+      - e2e
+    depends_on:
+      mongodb-1:
+        condition: service_healthy
+    command:
+      - '--mongodb.uri=mongodb://mongodb-1:27017'
+      - '--discovering-mode'
+      - '--compatible-mode'
+      - '--collector.dbstats'
+      - '--collector.diagnosticdata'
+      - '--collector.replicasetstatus'
+  mongodb-exporter-2:
+    image: percona/mongodb_exporter:0.39
+    expose:
+      - 9216
+    networks:
+      - e2e
+    depends_on:
+      mongodb-2:
+        condition: service_healthy
+    command:
+      - '--mongodb.uri=mongodb://mongodb-2:27017'
+      - '--discovering-mode'
+      - '--compatible-mode'
+      - '--collector.dbstats'
+      - '--collector.diagnosticdata'
+      - '--collector.replicasetstatus'
+  otel-collector:
+    image: otel/opentelemetry-collector:0.72.0
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+      mongodb-exporter-1:
+        condition: service_started
+      mongodb-exporter-2:
+        condition: service_started
+
+networks:
+  e2e:
