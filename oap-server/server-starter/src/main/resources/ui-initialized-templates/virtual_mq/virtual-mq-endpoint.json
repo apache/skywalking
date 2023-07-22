@@ -38,11 +38,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "mq_endpoint_consume_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Consume Traffic"
+            }
           ],
           "associate": [
             {
@@ -84,15 +91,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "mq_endpoint_consume_sla"
+          "expressions": [
+            "mq_endpoint_consume_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
           "associate": [
@@ -134,16 +143,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "mq_endpoint_consume_percentile"
+          "expressions": [
+            "relabels(mq_endpoint_consume_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": "Latency Percentile"
             }
           ],
           "associate": [
@@ -186,16 +196,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "mq_endpoint_consume_latency"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": "AVG Latency"
             }
           ],
           "associate": [
@@ -238,11 +249,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "mq_endpoint_produce_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Produce Traffic"
+            }
           ],
           "associate": [
             {
@@ -284,15 +302,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "mq_endpoint_produce_sla"
+          "expressions": [
+            "mq_endpoint_produce_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
           "associate": [

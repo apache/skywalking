@@ -38,11 +38,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "mq_service_consume_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Consume Traffic"
+            }
           ],
           "associate": [
             {
@@ -84,15 +91,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "mq_service_consume_sla"
+          "expressions": [
+            "mq_service_consume_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
           "associate": [
@@ -134,16 +143,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "mq_service_consume_percentile"
+          "expressions": [
+            "relabels(mq_service_consume_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": "Latency Percentile"
             }
           ],
           "associate": [
@@ -167,7 +177,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 0,
@@ -186,16 +195,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "mq_service_consume_latency"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "label": "P50, P75, P90, P95, P99",
-              "labelsIndex": "0,1,2,3,4"
+              "unit": "ms",
+              "label": "AVG Latency"
             }
           ],
           "associate": [
@@ -219,7 +229,6 @@
             }
           ]
         },
-
         {
           "x": 0,
           "y": 13,
@@ -238,11 +247,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "mq_service_produce_cpm"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricConfig": [
+            {
+              "unit": "calls / min",
+              "label": "Produce Traffic"
+            }
           ],
           "associate": [
             {
@@ -284,15 +300,17 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "mq_service_produce_sla"
+          "expressions": [
+            "mq_service_produce_sla/100"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "percentage"
+              "unit": "%",
+              "label": "Successful Rate"
             }
           ],
           "associate": [
@@ -316,7 +334,6 @@
             }
           ]
         },
-
         {
           "x": 0,
           "y": 26,
@@ -332,46 +349,42 @@
             "showYAxis": false,
             "showGroup": true
           },
-          "metrics": [
-            "mq_endpoint_consume_latency",
-            "mq_endpoint_consume_sla",
-            "mq_endpoint_consume_cpm",
-            "mq_endpoint_produce_sla",
-            "mq_endpoint_produce_cpm"
+          "expressions": [
+            "avg(mq_endpoint_consume_latency)",
+            "avg(mq_endpoint_consume_sla)/100",
+            "avg(mq_endpoint_consume_cpm)",
+            "avg(mq_endpoint_produce_sla)/100",
+            "avg(mq_endpoint_produce_cpm)"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ],
           "moved": false,
           "metricConfig": [
             {
               "unit": "ms",
-              "label": "Transmission Latency",
-              "calculation": "average"
+              "label": "Transmission Latency"
             },
             {
               "label": "Consume Successful Rate",
-              "unit": "%",
-              "calculation": "percentageAvg"
+              "unit": "%"
             },
             {
               "label": "Consume Traffic",
-              "unit": "calls / min",
-              "calculation": "average"
+              "unit": "calls / min"
             },
             {
               "label": "Produce Successful Rate",
-              "unit": "%",
-              "calculation": "percentageAvg"
+              "unit": "%"
             },
             {
               "label": "Produce Traffic",
-              "unit": "calls / min",
-              "calculation": "average"
+              "unit": "calls / min"
             }
           ]
         }
