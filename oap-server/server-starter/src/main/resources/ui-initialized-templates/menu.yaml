@@ -42,7 +42,7 @@ menus:
         description: Observe the virtual cache servers which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-cache/
         i18nKey: general_service_virtual_cache
-      - title: Visual MQ
+      - title: Virtual MQ
         layer: VIRTUAL_MQ
         description: Observe the virtual message queue servers which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-mq/
