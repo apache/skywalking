@@ -35,7 +35,7 @@ See [Scope Definitions](scope-definitions.md), where you can find all existing S
 ## Filter
 Use filter to build conditions for the value of fields by using field name and expression. 
 
-The expressions support linking by `and`, `or` and `(...)`. 
+The filter expressions run as a chain, generally connected with `logic AND`. 
 The OPs support `==`, `!=`, `>`, `<`, `>=`, `<=`, `in [...]` ,`like %...`, `like ...%` , `like %...%` , `contain` and `not contain`, with type detection based on field type. In the event of incompatibility, compile or code generation errors may be triggered. 
 
 ## Aggregation Function
