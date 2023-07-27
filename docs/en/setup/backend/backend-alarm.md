@@ -299,12 +299,12 @@ wechatHooks:
   default:
     isGlobal: true
     textTemplate: |-
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "Apache SkyWalking Alarm: \n %s."
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "Apache SkyWalking Alarm: \n %s."
+        }
       }
-    }
     webhooks:
     - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 ```
