@@ -16,30 +16,33 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider.wechat;
+package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
-import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
- * Use SkyWalking alarm wechat webhook API.
+ * Use SkyWalking alarm webhook API calls a remote endpoints.
  */
 @Slf4j
 @RequiredArgsConstructor
-public class WechatHookCallback extends HttpAlarmCallback {
+public class WebhookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
+    private final Gson gson = new Gson();
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        Map<String, WechatSettings> settingsMap = alarmRulesWatcher.getWechatSettings();
+    public void doAlarm(List<AlarmMessage> alarmMessages) throws IOException, InterruptedException {
+        Map<String, WebhookSettings> settingsMap = alarmRulesWatcher.getWebHooks();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
@@ -49,17 +52,12 @@ public class WechatHookCallback extends HttpAlarmCallback {
             var hookName = entry.getKey();
             var messages = entry.getValue();
             var setting = settingsMap.get(hookName);
-            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+            if (setting == null || CollectionUtils.isEmpty(setting.getUrls()) || CollectionUtils.isEmpty(
                 messages)) {
                 continue;
             }
-            for (final var url : setting.getWebhooks()) {
-                for (final var alarmMessage : messages) {
-                    final var requestBody = String.format(
-                        setting.getTextTemplate(), alarmMessage.getAlarmMessage()
-                    );
-                    post(URI.create(url), requestBody, Map.of());
-                }
+            for (final var url : setting.getUrls()) {
+                post(URI.create(url), gson.toJson(alarmMessages), Map.of());
             }
         }
     }

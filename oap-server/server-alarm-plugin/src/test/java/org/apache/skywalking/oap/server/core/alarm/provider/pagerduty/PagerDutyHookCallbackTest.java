@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.pagerduty;
 
+import java.util.ArrayList;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -39,36 +41,33 @@ public class PagerDutyHookCallbackTest {
         );
 
         Rules rules = new Rules();
-        rules.setPagerDutySettings(
-                PagerDutySettings.builder()
-                        .integrationKeys(integrationKeys)
-                        .textTemplate("Apache SkyWalking Alarm: \n %s.")
-                        .build()
-        );
-
+        PagerDutySettings setting1 = new PagerDutySettings("setting1", AlarmHooksType.pagerduty, true);
+        setting1.setIntegrationKeys(integrationKeys);
+        setting1.setTextTemplate("Apache SkyWalking Alarm: \\n %s.");
+        PagerDutySettings setting2 = new PagerDutySettings("setting2", AlarmHooksType.pagerduty, false);
+        setting2.setIntegrationKeys(integrationKeys);
+        setting2.setTextTemplate("Apache SkyWalking Alarm: \\n %s.");
+        rules.getPagerDutySettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getPagerDutySettingsMap().put(setting2.getFormattedName(), setting2);
         PagerDutyHookCallback pagerDutyHookCallback = new PagerDutyHookCallback(
-                new AlarmRulesWatcher(rules, null)
+            new AlarmRulesWatcher(rules, null)
         );
-
-        pagerDutyHookCallback.doAlarm(getMockAlarmMessages());
-
-        // please check your pagerduty account to see if the alarm is sent
-    }
-
-    private List<AlarmMessage> getMockAlarmMessages() {
+        List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
         alarmMessage.setRuleName("service_resp_time_rule");
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
-
+        alarmMessage.getHooks().add(setting1.getFormattedName());
+        alarmMessages.add(alarmMessage);
         AlarmMessage anotherAlarmMessage = new AlarmMessage();
-        anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setRuleName("service_resp_time_rule_2");
+        anotherAlarmMessage.setScopeId(DefaultScopeDefine.ENDPOINT);
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
+        anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
+        alarmMessages.add(anotherAlarmMessage);
 
-        return Arrays.asList(
-                alarmMessage,
-                anotherAlarmMessage
-        );
+        pagerDutyHookCallback.doAlarm(alarmMessages);
+
+        // please check your pagerduty account to see if the alarm is sent
     }
 }

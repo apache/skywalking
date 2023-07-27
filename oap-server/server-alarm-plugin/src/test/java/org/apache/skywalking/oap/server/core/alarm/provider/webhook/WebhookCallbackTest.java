@@ -16,14 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider.welink;
+package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
-import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
@@ -35,62 +33,46 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class WeLinkHookCallbackTest {
+public class WebhookCallbackTest {
     private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
-    private static final AtomicInteger COUNT = new AtomicInteger();
 
     @RegisterExtension
     public static final ServerExtension SERVER = new ServerExtension() {
         @Override
         protected void configure(ServerBuilder sb) {
-            sb.serviceUnder("/welinkhook", (ctx, req) -> HttpResponse.from(
+            sb.service("/webhook/receiveAlarm", (ctx, req) -> HttpResponse.from(
                 req.aggregate().thenApply(r -> {
                     final String content = r.content().toStringUtf8();
-                    final JsonObject jsonObject = new Gson().fromJson(content, JsonObject.class);
-
-                    JsonElement clientId = jsonObject.get("client_id");
-                    if (clientId != null) {
-                        COUNT.incrementAndGet();
-                    }
-                    JsonElement appMsgId = jsonObject.get("app_msg_id");
-                    if (appMsgId != null) {
-                        COUNT.incrementAndGet();
-                    }
-                    if (COUNT.get() == 4) {
+                    final JsonArray elements = new Gson().fromJson(content, JsonArray.class);
+                    if (elements.size() == 2) {
                         IS_SUCCESS.set(true);
+                        return HttpResponse.of(HttpStatus.OK);
                     }
 
-                    return HttpResponse.of(HttpStatus.OK, MediaType.JSON, "{}");
-                })));
+                    return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
+                }))
+            );
         }
     };
 
     @Test
-    public void testWeLinkDoAlarm() throws Exception {
-        List<WeLinkSettings.WebHookUrl> webHooks = new ArrayList<>();
-        webHooks.add(new WeLinkSettings.WebHookUrl("clientId", "clientSecret",
-                                                   "http://127.0.0.1:" + SERVER.httpPort() + "/welinkhook/api/auth/v2/tickets",
-                                                   "http://127.0.0.1:" + SERVER.httpPort() + "/welinkhook/api/welinkim/v1/im-service/chat/group-chat",
-                                                   "robotName", "1,2,3"
-        ));
+    public void testWebhook() throws IOException, InterruptedException {
+        List<String> remoteEndpoints = new ArrayList<>();
+        remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
         Rules rules = new Rules();
-        String template = "Apache SkyWalking Alarm: \n %s.";
-        WeLinkSettings setting1 = new WeLinkSettings("setting1", AlarmHooksType.welink, true);
-        setting1.setWebhooks(webHooks);
-        setting1.setTextTemplate(template);
-        WeLinkSettings setting2 = new WeLinkSettings("setting2", AlarmHooksType.welink, false);
-        setting2.setWebhooks(webHooks);
-        setting2.setTextTemplate(template);
-        rules.getWeLinkSettingsMap().put(setting1.getFormattedName(), setting1);
-        rules.getWeLinkSettingsMap().put(setting2.getFormattedName(), setting2);
-
+        WebhookSettings setting1 = new WebhookSettings("setting1", AlarmHooksType.wechat, true);
+        setting1.setUrls(remoteEndpoints);
+        WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.wechat, false);
+        setting2.setUrls(remoteEndpoints);
+        rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
+        rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
-        WeLinkHookCallback welinkHookCallback = new WeLinkHookCallback(alarmRulesWatcher);
+        WebhookCallback webhookCallback = new WebhookCallback(alarmRulesWatcher);
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
@@ -104,7 +86,8 @@ public class WeLinkHookCallbackTest {
         anotherAlarmMessage.setAlarmMessage("anotherAlarmMessage with [DefaultScopeDefine.Endpoint]");
         anotherAlarmMessage.getHooks().add(setting2.getFormattedName());
         alarmMessages.add(anotherAlarmMessage);
-        welinkHookCallback.doAlarm(alarmMessages);
+        webhookCallback.doAlarm(alarmMessages);
+
         Assertions.assertTrue(IS_SUCCESS.get());
     }
 }

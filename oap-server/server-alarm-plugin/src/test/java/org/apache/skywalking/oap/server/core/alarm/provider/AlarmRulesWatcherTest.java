@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,13 +84,13 @@ public class AlarmRulesWatcherTest {
         alarmRulesWatcher.notify(new ConfigChangeWatcher.ConfigChangeEvent(new String(chars, 0, length), ConfigChangeWatcher.EventType.MODIFY));
 
         assertEquals(3, alarmRulesWatcher.getRules().size());
-        assertEquals(2, alarmRulesWatcher.getWebHooks().size());
+        assertEquals(2, alarmRulesWatcher.getWebHooks().get(AlarmHooksType.webhook.name() + ".default").getUrls().size());
         assertNotNull(alarmRulesWatcher.getGrpchookSetting());
-        assertEquals(9888, alarmRulesWatcher.getGrpchookSetting().getTargetPort());
+        assertEquals(9888, alarmRulesWatcher.getGrpchookSetting().get(AlarmHooksType.gRPC.name() + ".default").getTargetPort());
         assertEquals(2, alarmRulesWatcher.getRunningContext().size());
         assertNotNull(alarmRulesWatcher.getDingtalkSettings());
         assertNotNull(alarmRulesWatcher.getWechatSettings());
-        assertNotNull(alarmRulesWatcher.getSlackSettings());
+        assertEquals(2, alarmRulesWatcher.getSlackSettings().size());
         assertNotNull(alarmRulesWatcher.getWeLinkSettings());
     }
 
@@ -104,7 +105,7 @@ public class AlarmRulesWatcherTest {
 
         assertEquals(0, alarmRulesWatcher.getRules().size());
         assertEquals(0, alarmRulesWatcher.getWebHooks().size());
-        assertNull(alarmRulesWatcher.getGrpchookSetting());
+        assertTrue(CollectionUtils.isEmpty(alarmRulesWatcher.getGrpchookSetting()));
         assertEquals(0, alarmRulesWatcher.getRunningContext().size());
     }
 

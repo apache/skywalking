@@ -18,34 +18,19 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import com.google.gson.Gson;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
-import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
+import org.apache.skywalking.oap.server.core.Const;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Use SkyWalking alarm webhook API calls a remote endpoints.
- */
-@Slf4j
 @RequiredArgsConstructor
-public class WebhookCallback extends HttpAlarmCallback {
-    private final AlarmRulesWatcher alarmRulesWatcher;
-    private final Gson gson = new Gson();
+public abstract class AlarmHookSettings {
+    private final String name;
+    @Getter
+    private final AlarmHooksType type;
+    @Getter
+    private final boolean isDefault;
 
-    @Override
-    public void doAlarm(List<AlarmMessage> alarmMessage) throws IOException, InterruptedException {
-        if (alarmRulesWatcher.getWebHooks().isEmpty()) {
-            return;
-        }
-
-        for (String url : alarmRulesWatcher.getWebHooks()) {
-            post(URI.create(url), gson.toJson(alarmMessage), Map.of());
-        }
+    public String getFormattedName() {
+        return this.type.name() + Const.POINT + name;
     }
 }

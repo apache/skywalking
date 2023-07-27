@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import javax.crypto.Mac;
@@ -52,14 +53,24 @@ public class FeishuHookCallback extends HttpAlarmCallback {
      */
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        if (alarmRulesWatcher.getFeishuSettings() == null || alarmRulesWatcher.getFeishuSettings().getWebhooks().isEmpty()) {
+        Map<String, FeishuSettings> settingsMap = alarmRulesWatcher.getFeishuSettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
-        final var feishuSettings = alarmRulesWatcher.getFeishuSettings();
-        for (final var webHookUrl : feishuSettings.getWebhooks()) {
-            for (final var alarmMessage : alarmMessages) {
-                final var requestBody = getRequestBody(webHookUrl, alarmMessage);
-                post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var webHookUrl : setting.getWebhooks()) {
+                for (final var alarmMessage : messages) {
+                    final var requestBody = getRequestBody(webHookUrl, alarmMessage, setting.getTextTemplate());
+                    post(URI.create(webHookUrl.getUrl()), requestBody, Map.of());
+                }
             }
         }
     }
@@ -67,9 +78,8 @@ public class FeishuHookCallback extends HttpAlarmCallback {
     /**
      * deal requestBody,if it has sign set the sign
      */
-    private String getRequestBody(FeishuSettings.WebHookUrl webHookUrl, AlarmMessage alarmMessage) {
-        final var requestBody = String.format(
-                alarmRulesWatcher.getFeishuSettings().getTextTemplate(), alarmMessage.getAlarmMessage()
+    private String getRequestBody(FeishuSettings.WebHookUrl webHookUrl, AlarmMessage alarmMessage, String textTemplate) {
+        final var requestBody = String.format(textTemplate, alarmMessage.getAlarmMessage()
         );
         final var gson = new Gson();
         final var jsonObject = gson.fromJson(requestBody, JsonObject.class);

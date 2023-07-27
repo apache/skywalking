@@ -57,86 +57,135 @@ rules:
     # Control if this rule is just as a composite rule condition. do not notification alone
     only-as-condition: false
     message: Successful rate of endpoint {name} is higher than 60%
+    hooks:
+      - "slack.custom1"
+      - "pagerduty.custom1"
 
 composite-rules:
   comp1_rule:
     expression: endpoint_percent_more_rule && endpoint_percent_rule
     message: xxxxx
+  comp2_rule:
+    expression: endpoint_percent_more_rule && endpoint_percent_rule
+    message: xxxxx
+    hooks:
+      - "slack.default"
+      - "slack.custom1"
+      - "pagerduty.custom1"
 
-webhooks:
-  - http://127.0.0.1/notify/
-  - http://127.0.0.1/go-wechat/
+hooks:
+  webhook:
+    default:
+      is-default: true
+      urls:
+        - http://127.0.0.1/notify/
+        - http://127.0.0.1/go-wechat/
 
-gRPCHook:
-  target_host: 127.0.0.1
-  target_port: 9888
+  gRPC:
+    default:
+      is-default: true
+      target-host: 127.0.0.1
+      target-port: 9888
 
-slackHooks:
-  textTemplate: |-
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
-      }
-    }
-  webhooks:
-    - https://hooks.slack.com/services/x/y/zssss
+  slack:
+    default:
+      is-default: true
+      text-template: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+          }
+        }
+      webhooks:
+        - https://hooks.slack.com/services/x/y/zssss
+    custom1:
+      text-template: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+          }
+        }
+      webhooks:
+        - https://hooks.slack.com/services/x/y/zssss
 
-wechatHooks:
-  textTemplate: |-
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "Apache SkyWalking Alarm: \n %s."
-      }
-    }
-  webhooks:
-    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
+  wechat:
+    default:
+      is-default: true
+      text-template: |-
+        {
+          "msgtype": "text",
+          "text": {
+            "content": "Apache SkyWalking Alarm: \n %s."
+          }
+        }
+      webhooks:
+        - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 
-dingtalkHooks:
-  textTemplate: |-
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "Apache SkyWalking Alarm: \n %s."
-      }
-    }
-  webhooks:
-    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
-      secret: dummysecret
-    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
-      secret:
+  dingtalk:
+    default:
+      is-default: true
+      text-template: |-
+        {
+          "msgtype": "text",
+          "text": {
+            "content": "Apache SkyWalking Alarm: \n %s."
+          }
+        }
+      webhooks:
+        - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
+          secret: dummysecret
+        - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
+          secret:
 
-feishuHooks:
-  textTemplate: |-
-    {
-      "msg_type": "text",
-      "content": {
-        "text": "Apache SkyWalking Alarm: \n %s."
-      }
-    }
-  webhooks:
-    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
-      secret: dummysecret
-    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2
-      secret:
+  feishu:
+    default:
+      is-default: true
+      text-template: |-
+        {
+        "msg_type": "text",
+        # at someone with feishu_user_ids
+        # "ats": "feishu_user_id_1,feishu_user_id_2",
+        "content": {
+          "text": "Apache SkyWalking Alarm: \n %s."
+          }
+        }
+      webhooks:
+        - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
+          secret: dummysecret
+        - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2
+          secret:
 
-welinkHooks:
-  textTemplate: "Apache SkyWalking Alarm: \n %s."
-  webhooks:
-    # you may find your own client_id and client_secret in your app, below are dummy, need to change.
-    - client_id: "dummy_client_id"
-      client_secret: dummy_secret_key
-      access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
-      message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
-      # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
-      group_ids: "dummy_group_id"
-      # make a name you like for the robot, it will display in group
-      robot_name: robot
+  welink:
+    default:
+      is-default: true
+      text-template: "Apache SkyWalking Alarm: \n %s."
+      webhooks:
+        # you may find your own client_id and client_secret in your app, below are dummy, need to change.
+        - client-id: "dummy_client_id"
+          client-secret: dummy_secret_key
+          access-token-url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+          message-url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+          # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
+          group-ids: "dummy_group_id"
+          # make a name you like for the robot, it will display in group
+          robot-name: robot
 
-pagerDutyHooks:
-  textTemplate: "dummy_text_template"
-  integrationKeys:
-    - dummy_key
-    - dummy_key2
+  pagerduty:
+    default:
+      is-default: true
+      text-template: "dummy_text_template"
+      integration-keys:
+        - dummy_key
+        - dummy_key2
+    custom1:
+      text-template: "Apache SkyWalking Alarm: \n %s."
+      integration-keys:
+        #    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
+        #    # (you may need to create an Events API V2 integration for your PagerDuty service if you don't have one yet)
+        #    # below are dummy keys that should be replaced with your own integration keys.
+        - dummy_key
+        - dummy_key2

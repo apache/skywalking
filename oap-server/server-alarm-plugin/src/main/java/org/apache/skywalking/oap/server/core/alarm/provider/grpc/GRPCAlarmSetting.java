@@ -22,13 +22,21 @@ import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 
 @Setter
 @Getter
-@EqualsAndHashCode
-public class GRPCAlarmSetting {
+@EqualsAndHashCode(callSuper = true)
+public class GRPCAlarmSetting extends AlarmHookSettings {
     private String targetHost;
     private int targetPort;
+
+    public GRPCAlarmSetting(final String name,
+                            final AlarmHooksType type,
+                            final boolean isDefault) {
+        super(name, type, isDefault);
+    }
 
     public boolean isEmptySetting() {
         return Objects.isNull(targetHost);

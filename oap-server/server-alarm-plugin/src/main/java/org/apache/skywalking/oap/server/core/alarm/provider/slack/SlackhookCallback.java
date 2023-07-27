@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * Use SkyWalking alarm slack webhook API calls a remote endpoints.
@@ -43,22 +44,34 @@ public class SlackhookCallback extends HttpAlarmCallback {
 
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        if (alarmRulesWatcher.getSlackSettings() == null || alarmRulesWatcher.getSlackSettings().getWebhooks().isEmpty()) {
+        Map<String, SlackSettings> settingsMap = alarmRulesWatcher.getSlackSettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
 
-        for (final var url : alarmRulesWatcher.getSlackSettings().getWebhooks()) {
-            final var jsonObject = new JsonObject();
-            final var jsonElements = new JsonArray();
-            for (AlarmMessage item : alarmMessages) {
-                jsonElements.add(GSON.fromJson(
-                        String.format(
-                                alarmRulesWatcher.getSlackSettings().getTextTemplate(), item.getAlarmMessage()
-                        ), JsonObject.class));
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
             }
-            jsonObject.add("blocks", jsonElements);
-            final var body = GSON.toJson(jsonObject);
-            post(URI.create(url), body, Map.of());
+
+            for (final var url : setting.getWebhooks()) {
+                final var jsonObject = new JsonObject();
+                final var jsonElements = new JsonArray();
+                for (AlarmMessage item : messages) {
+                    jsonElements.add(GSON.fromJson(
+                        String.format(
+                            setting.getTextTemplate(), item.getAlarmMessage()
+                        ), JsonObject.class));
+                }
+                jsonObject.add("blocks", jsonElements);
+                final var body = GSON.toJson(jsonObject);
+                post(URI.create(url), body, Map.of());
+            }
         }
     }
 }

@@ -16,28 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 
-import java.util.Map;
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Setter
 @Getter
 @ToString
-public class CompositeAlarmRule {
-    private String alarmRuleName;
-    private String expression;
-    private String message;
-    private Map<String, String> tags;
-    private Set<String> hooks;
+public class WebhookSettings extends AlarmHookSettings {
+    private List<String> urls = new ArrayList<>();
+
+    public WebhookSettings(final String name,
+                           final AlarmHooksType type,
+                           final boolean isDefault) {
+        super(name, type, isDefault);
+    }
 }
