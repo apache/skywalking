@@ -172,7 +172,7 @@ Another named `custom1` will only apply on the `Alarm Rules` which **with config
 
 ```yaml
 hooks:
-  slackHooks:
+  slack:
     default:
       is-global: true # if true, this hook will apply on all rules, unless a rule has its own specific hook.
       text-template: |-
@@ -339,13 +339,13 @@ feishu:
   default:
     is-global: true
     text-template: |-
-    {
-      "msg_type": "text",
-      "content": {
-        "text": "Apache SkyWalking Alarm: \n %s."
-      },
-      "ats":"feishu_user_id_1,feishu_user_id_2"
-    }
+      {
+        "msg_type": "text",
+        "content": {
+          "text": "Apache SkyWalking Alarm: \n %s."
+        },
+        "ats":"feishu_user_id_1,feishu_user_id_2"
+      }
     webhooks:
     - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
       secret: dummysecret
