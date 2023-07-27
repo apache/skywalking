@@ -318,12 +318,12 @@ dingtalkHooks:
   default:
     isGlobal: true
     textTemplate: |-
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "Apache SkyWalking Alarm: \n %s."
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "Apache SkyWalking Alarm: \n %s."
+        }
       }
-    }
     webhooks:
     - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
       secret: dummysecret
