@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -40,16 +41,19 @@ public class GRPChookCallbackTest {
 
     @BeforeEach
     public void init() throws Exception {
-        GRPCAlarmSetting setting = new GRPCAlarmSetting();
-        setting.setTargetHost("127.0.0.1");
-        setting.setTargetPort(9888);
-
         Rules rules = new Rules();
-        rules.setGrpchookSetting(setting);
+        GRPCAlarmSetting setting1 = new GRPCAlarmSetting("setting1", AlarmHooksType.gRPCHooks, true);
+        setting1.setTargetHost("127.0.0.1");
+        setting1.setTargetPort(9888);
+        GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2", AlarmHooksType.gRPCHooks, false);
+        setting2.setTargetHost("127.0.0.1");
+        setting2.setTargetPort(9888);
+        rules.getGrpcAlarmSettingMap().put(setting1.getFormattedName(), setting1);
+        rules.getGrpcAlarmSettingMap().put(setting2.getFormattedName(), setting2);
 
         alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
-        mockAlarmMessage();
+        mockAlarmMessage(setting1.getFormattedName(), setting2.getFormattedName());
     }
 
     @Test
@@ -59,15 +63,17 @@ public class GRPChookCallbackTest {
 
     @Test
     public void testGauchoSettingClean() {
-        GRPCAlarmSetting grpcAlarmSetting = new GRPCAlarmSetting();
         Rules rules = new Rules();
-        rules.setGrpchookSetting(grpcAlarmSetting);
+        GRPCAlarmSetting setting1 = new GRPCAlarmSetting("setting1111111", AlarmHooksType.gRPCHooks, true);
+        GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2222222", AlarmHooksType.gRPCHooks, true);
+        rules.getGrpcAlarmSettingMap().put(setting1.getFormattedName(), setting1);
+        rules.getGrpcAlarmSettingMap().put(setting2.getFormattedName(), setting2);
         alarmRulesWatcher = new AlarmRulesWatcher(rules, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
         grpcCallback.doAlarm(alarmMessageList);
     }
 
-    private void mockAlarmMessage() {
+    private void mockAlarmMessage(String hook1, String hook2) {
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setId0("1");
         alarmMessage.setId1("2");
@@ -77,6 +83,17 @@ public class GRPChookCallbackTest {
         alarmMessage.setRuleName("mock_rule");
         alarmMessage.setStartTime(System.currentTimeMillis());
         alarmMessage.setTags(Arrays.asList(new Tag("key", "value")));
-        alarmMessageList = Lists.newArrayList(alarmMessage);
+        alarmMessage.getHooks().add(hook1);
+        AlarmMessage alarmMessage2 = new AlarmMessage();
+        alarmMessage2.setId0("21");
+        alarmMessage2.setId1("22");
+        alarmMessage2.setScope(Scope.Service.name());
+        alarmMessage2.setName("mock alarm message2");
+        alarmMessage2.setAlarmMessage("message2");
+        alarmMessage2.setRuleName("mock_rule2");
+        alarmMessage2.setStartTime(System.currentTimeMillis());
+        alarmMessage2.setTags(Arrays.asList(new Tag("key2", "value2")));
+        alarmMessage2.getHooks().add(hook1);
+        alarmMessageList = Lists.newArrayList(alarmMessage, alarmMessage2);
     }
 }

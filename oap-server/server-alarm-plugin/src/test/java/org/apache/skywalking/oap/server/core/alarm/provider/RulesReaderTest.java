@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSetting
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -54,22 +55,22 @@ public class RulesReaderTest {
         Assertions.assertEquals("service_c", ruleList.get(1).getExcludeNames().get(0));
         Assertions.assertEquals("Alarm caused by Rule service_percent_rule", ruleList.get(1).getMessage());
 
-        List<String> rulesWebhooks = rules.getWebhooks();
-        Assertions.assertEquals(2, rulesWebhooks.size());
-        Assertions.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.get(1));
+        WebhookSettings rulesWebhooks = rules.getWebhookSettingsMap().get(AlarmHooksType.webhooks.name() + ".default");
+        Assertions.assertEquals(2, rulesWebhooks.getUrls().size());
+        Assertions.assertEquals("http://127.0.0.1/go-wechat/", rulesWebhooks.getUrls().get(1));
 
-        GRPCAlarmSetting grpcAlarmSetting = rules.getGrpchookSetting();
+        GRPCAlarmSetting grpcAlarmSetting = rules.getGrpcAlarmSettingMap().get(AlarmHooksType.gRPCHooks.name() + ".default");
         assertNotNull(grpcAlarmSetting);
         assertThat(grpcAlarmSetting.getTargetHost()).isEqualTo("127.0.0.1");
         assertThat(grpcAlarmSetting.getTargetPort()).isEqualTo(9888);
 
-        SlackSettings slackSettings = rules.getSlacks();
+        SlackSettings slackSettings = rules.getSlackSettingsMap().get(AlarmHooksType.slackHooks.name() + ".default");
         assertNotNull(slackSettings);
         assertThat(slackSettings.getWebhooks().size()).isEqualTo(1);
         assertThat(slackSettings.getWebhooks().get(0)).isEqualTo("https://hooks.slack.com/services/x/y/zssss");
         assertThat(slackSettings.getTextTemplate()).isInstanceOfAny(String.class);
 
-        WechatSettings wechatSettings = rules.getWecchats();
+        WechatSettings wechatSettings = rules.getWechatSettingsMap().get(AlarmHooksType.wechatHooks.name() + ".default");
         assertNotNull(wechatSettings);
         assertThat(wechatSettings.getWebhooks().size()).isEqualTo(1);
         assertThat(wechatSettings.getWebhooks().get(0)).isEqualTo("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key");
@@ -79,7 +80,7 @@ public class RulesReaderTest {
         Assertions.assertEquals(1, compositeRules.size());
         Assertions.assertEquals("endpoint_percent_more_rule && endpoint_percent_rule", compositeRules.get(0).getExpression());
 
-        DingtalkSettings dingtalkSettings = rules.getDingtalks();
+        DingtalkSettings dingtalkSettings = rules.getDingtalkSettingsMap().get(AlarmHooksType.dingtalkHooks.name() + ".default");
         assertThat(dingtalkSettings.getTextTemplate()).isInstanceOfAny(String.class);
         List<DingtalkSettings.WebHookUrl> webHookUrls = dingtalkSettings.getWebhooks();
         assertThat(webHookUrls.size()).isEqualTo(2);
@@ -88,7 +89,7 @@ public class RulesReaderTest {
         assertThat(webHookUrls.get(1).getUrl()).isEqualTo("https://oapi.dingtalk.com/robot/send?access_token=dummy_token2");
         assertNull(webHookUrls.get(1).getSecret());
 
-        FeishuSettings feishuSettings = rules.getFeishus();
+        FeishuSettings feishuSettings = rules.getFeishuSettingsMap().get(AlarmHooksType.feishuHooks.name() + ".default");
         assertThat(feishuSettings.getTextTemplate()).isInstanceOfAny(String.class);
         List<FeishuSettings.WebHookUrl> feishuSettingsWebhooks = feishuSettings.getWebhooks();
         assertThat(feishuSettingsWebhooks.size()).isEqualTo(2);
@@ -97,7 +98,7 @@ public class RulesReaderTest {
         assertThat(feishuSettingsWebhooks.get(1).getUrl()).isEqualTo("https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2");
         assertNull(feishuSettingsWebhooks.get(1).getSecret());
 
-        PagerDutySettings pagerDutySettings = rules.getPagerDutySettings();
+        PagerDutySettings pagerDutySettings = rules.getPagerDutySettingsMap().get(AlarmHooksType.pagerDutyHooks.name() + ".default");
         assertEquals("dummy_text_template", pagerDutySettings.getTextTemplate());
         List<String> pagerDutyIntegrationKeys = pagerDutySettings.getIntegrationKeys();
         assertEquals(2, pagerDutyIntegrationKeys.size());

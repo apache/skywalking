@@ -18,26 +18,23 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import org.apache.skywalking.oap.server.core.Const;
 
-import java.util.Map;
+public abstract class AlarmHookSettings {
+    private final String name;
+    @Getter
+    private final AlarmHooksType type;
+    @Getter
+    private final boolean isGlobal;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter
-@Getter
-@ToString
-public class CompositeAlarmRule {
-    private String alarmRuleName;
-    private String expression;
-    private String message;
-    private Map<String, String> tags;
-    private Set<String> hooks;
+   public AlarmHookSettings(String name, AlarmHooksType type, boolean isGlobal) {
+        this.name = name;
+        this.type = type;
+        this.isGlobal = isGlobal;
+    }
+
+    public String getFormattedName() {
+        return this.type.name() + Const.POINT + name;
+    }
 }

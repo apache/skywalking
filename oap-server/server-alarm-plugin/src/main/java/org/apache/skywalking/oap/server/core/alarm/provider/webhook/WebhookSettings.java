@@ -16,38 +16,25 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider.dingtalk;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 
 @Setter
 @Getter
 @ToString
-public class DingtalkSettings extends AlarmHookSettings {
+public class WebhookSettings extends AlarmHookSettings {
+    private List<String> urls = new ArrayList<>();
 
-    private String textTemplate;
-    private List<WebHookUrl> webhooks = new ArrayList<>();
-
-    public DingtalkSettings(final String name,
-                            final AlarmHooksType type,
-                            final boolean isGlobal) {
+    public WebhookSettings(final String name,
+                           final AlarmHooksType type,
+                           final boolean isGlobal) {
         super(name, type, isGlobal);
-    }
-
-    @AllArgsConstructor
-    @Setter
-    @Getter
-    @ToString
-    public static class WebHookUrl {
-        private final String secret;
-        private final String url;
     }
 }

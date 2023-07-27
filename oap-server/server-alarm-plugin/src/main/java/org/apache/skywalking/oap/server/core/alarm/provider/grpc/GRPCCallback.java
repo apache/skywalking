@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
 import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
@@ -30,6 +32,7 @@ import org.apache.skywalking.oap.server.core.alarm.grpc.KeyStringValuePair;
 import org.apache.skywalking.oap.server.core.alarm.grpc.Response;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
 
 /**
@@ -40,33 +43,52 @@ public class GRPCCallback implements AlarmCallback {
 
     private AlarmRulesWatcher alarmRulesWatcher;
 
-    private GRPCAlarmSetting alarmSetting;
+    private Map<String, GRPCAlarmSetting> alarmSettingMap;
 
-    private AlarmServiceGrpc.AlarmServiceStub alarmServiceStub;
+    private Map<String, AlarmServiceGrpc.AlarmServiceStub> alarmServiceStubMap;
 
-    private GRPCClient grpcClient;
+    private Map<String, GRPCClient> grpcClientMap;
 
     public GRPCCallback(AlarmRulesWatcher alarmRulesWatcher) {
         this.alarmRulesWatcher = alarmRulesWatcher;
-        alarmSetting = alarmRulesWatcher.getGrpchookSetting();
-
-        if (alarmSetting != null && !alarmSetting.isEmptySetting()) {
-            grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
-            grpcClient.connect();
-            alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
+        this.alarmSettingMap = new HashMap<>();
+        this.alarmServiceStubMap = new HashMap<>();
+        this.grpcClientMap = new HashMap<>();
+        Map<String, GRPCAlarmSetting> alarmSettingMap = alarmRulesWatcher.getGrpchookSetting();
+        if (CollectionUtils.isNotEmpty(alarmSettingMap)) {
+            alarmSettingMap.forEach((name, alarmSetting) -> {
+                if (alarmSetting != null && !alarmSetting.isEmptySetting()) {
+                    GRPCClient grpcClient = new GRPCClient(alarmSetting.getTargetHost(), alarmSetting.getTargetPort());
+                    grpcClient.connect();
+                    grpcClientMap.put(name, grpcClient);
+                    alarmServiceStubMap.put(name, AlarmServiceGrpc.newStub(grpcClient.getChannel()));
+                }
+            });
         }
     }
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessage) {
-
+    public void doAlarm(List<AlarmMessage> alarmMessages) {
         // recreate gRPC client and stub if host and port configuration changed.
-        onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
+        Map<String, GRPCAlarmSetting> settinsMap = alarmRulesWatcher.getGrpchookSetting();
+        onGRPCAlarmSettingUpdated(settinsMap);
 
-        if (alarmSetting == null || alarmSetting.isEmptySetting() || alarmServiceStub == null) {
+        if (settinsMap == null || settinsMap.isEmpty()) {
             return;
         }
+        Map<String, List<AlarmMessage>> groupedMessages =  groupMessagesByHook(alarmMessages);
 
+        groupedMessages.forEach((hook, messages) -> {
+            if (alarmServiceStubMap.containsKey(hook)) {
+                sendAlarmMessages(alarmServiceStubMap.get(hook), messages, settinsMap.get(hook));
+            }
+        });
+
+    }
+
+    private void sendAlarmMessages(AlarmServiceGrpc.AlarmServiceStub alarmServiceStub,
+                                   List<AlarmMessage> alarmMessages,
+                                   GRPCAlarmSetting alarmSetting) {
         GRPCStreamStatus status = new GRPCStreamStatus();
 
         StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
@@ -93,7 +115,7 @@ public class GRPCCallback implements AlarmCallback {
                 }
             });
 
-        alarmMessage.forEach(message -> {
+        alarmMessages.forEach(message -> {
             org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage.Builder builder =
                 org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage.newBuilder();
 
@@ -125,41 +147,51 @@ public class GRPCCallback implements AlarmCallback {
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Send {} alarm message to {}:{}.", alarmMessage.size(),
+                log.debug("Send {} alarm message to {}:{}.", alarmMessages.size(),
                           alarmSetting.getTargetHost(), alarmSetting.getTargetPort()
                 );
             }
 
             if (sleepTime > 2000L) {
-                log.warn("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessage.size(),
+                log.warn("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessages.size(),
                          alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
                 );
                 cycle = 2000L;
             }
         }
-    }
+}
 
-    private void onGRPCAlarmSettingUpdated(GRPCAlarmSetting grpcAlarmSetting) {
-        if (grpcAlarmSetting == null) {
-            if (grpcClient != null) {
-                grpcClient.shutdown();
-                log.debug("gRPC alarm hook target is empty, shutdown the old gRPC client.");
+    private void onGRPCAlarmSettingUpdated(Map<String, GRPCAlarmSetting> newAlarmSettingMap) {
+        if (newAlarmSettingMap == null || newAlarmSettingMap.isEmpty()) {
+            if (grpcClientMap != null) {
+                grpcClientMap.forEach((name, grpcClient) -> {
+                    grpcClient.shutdown();
+                    log.debug("gRPC alarm hook target is empty, shutdown the old gRPC client.");
+                });
             }
-            alarmServiceStub = null;
-            alarmSetting = null;
+            alarmServiceStubMap = null;
+            alarmSettingMap = null;
 
             return;
         }
 
-        if (!grpcAlarmSetting.equals(alarmSetting)) {
-            alarmSetting = grpcAlarmSetting;
-            if (grpcClient != null) {
-                grpcClient.shutdown();
-                log.debug("gRPC alarm hook target is changed, shutdown the old gRPC client.");
+        newAlarmSettingMap.forEach((name, newAlarmSetting) -> {
+            if (!newAlarmSetting.equals(alarmSettingMap.get(name))) {
+                GRPCClient grpcClient = grpcClientMap.get(name);
+                if (grpcClient != null) {
+                    grpcClient.shutdown();
+                    grpcClientMap.remove(name);
+                    alarmServiceStubMap.remove(name);
+                    log.debug("gRPC alarm hook target is changed, shutdown the old gRPC client.");
+                }
+                if (newAlarmSetting.isEmptySetting()) {
+                    return;
+                }
+                grpcClient = new GRPCClient(newAlarmSetting.getTargetHost(), newAlarmSetting.getTargetPort());
+                grpcClient.connect();
+                grpcClientMap.put(name, grpcClient);
+                alarmServiceStubMap.put(name, AlarmServiceGrpc.newStub(grpcClient.getChannel()));
             }
-            grpcClient = new GRPCClient(grpcAlarmSetting.getTargetHost(), grpcAlarmSetting.getTargetPort());
-            grpcClient.connect();
-            alarmServiceStub = AlarmServiceGrpc.newStub(grpcClient.getChannel());
-        }
+        });
     }
 }

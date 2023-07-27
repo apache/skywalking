@@ -20,9 +20,10 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,6 +35,7 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 public class AlarmRule {
     private String alarmRuleName;
     private String metricsName;
@@ -53,28 +55,5 @@ public class AlarmRule {
     private String message;
     private boolean onlyAsCondition;
     private Map<String, String> tags;
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final AlarmRule alarmRule = (AlarmRule) o;
-
-        return period == alarmRule.period && count == alarmRule.count && silencePeriod == alarmRule.silencePeriod && Objects
-            .equals(alarmRuleName, alarmRule.alarmRuleName) && Objects.equals(metricsName, alarmRule.metricsName) && Objects
-            .equals(includeNames, alarmRule.includeNames) && Objects.equals(excludeNames, alarmRule.excludeNames) && Objects
-            .equals(threshold, alarmRule.threshold) && Objects.equals(op, alarmRule.op) && Objects.equals(message, alarmRule.message)
-            && Objects.equals(includeNamesRegex, alarmRule.includeNamesRegex) && Objects.equals(excludeNamesRegex, alarmRule.excludeNamesRegex);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(alarmRuleName, metricsName, includeNames, excludeNames, threshold, op, period, count, silencePeriod, message);
-    }
+    private Set<String> hooks;
 }

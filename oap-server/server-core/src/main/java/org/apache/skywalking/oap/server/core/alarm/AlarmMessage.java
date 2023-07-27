@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -41,4 +43,5 @@ public class AlarmMessage {
     private long startTime;
     private transient int period;
     private transient boolean onlyAsCondition;
+    private Set<String> hooks = new HashSet<>();
 }

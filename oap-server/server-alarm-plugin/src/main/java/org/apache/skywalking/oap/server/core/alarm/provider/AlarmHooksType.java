@@ -18,26 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-
-import java.util.Map;
-
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter
-@Getter
-@ToString
-public class CompositeAlarmRule {
-    private String alarmRuleName;
-    private String expression;
-    private String message;
-    private Map<String, String> tags;
-    private Set<String> hooks;
+public enum AlarmHooksType {
+    webhooks,
+    gRPCHooks,
+    wechatHooks,
+    slackHooks,
+    dingtalkHooks,
+    feishuHooks,
+    welinkHooks,
+    discordHooks,
+    pagerDutyHooks
 }

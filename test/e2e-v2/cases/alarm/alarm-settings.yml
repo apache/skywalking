@@ -45,5 +45,9 @@ composite-rules:
       level: CRITICAL
       receivers: zhangsan
 
-webhooks:
-  - http://provider:9090/alarm/receive
+hooks:
+  webhooks:
+    default:
+      isGlobal: true
+      urls:
+        - http://provider:9090/alarm/receive

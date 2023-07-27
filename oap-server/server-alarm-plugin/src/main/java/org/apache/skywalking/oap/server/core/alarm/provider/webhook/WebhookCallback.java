@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.alarm.provider;
+package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * Use SkyWalking alarm webhook API calls a remote endpoints.
@@ -39,13 +41,24 @@ public class WebhookCallback extends HttpAlarmCallback {
     private final Gson gson = new Gson();
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessage) throws IOException, InterruptedException {
-        if (alarmRulesWatcher.getWebHooks().isEmpty()) {
+    public void doAlarm(List<AlarmMessage> alarmMessages) throws IOException, InterruptedException {
+        Map<String, WebhookSettings> settingsMap = alarmRulesWatcher.getWebHooks();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
 
-        for (String url : alarmRulesWatcher.getWebHooks()) {
-            post(URI.create(url), gson.toJson(alarmMessage), Map.of());
+        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getUrls()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var url : setting.getUrls()) {
+                post(URI.create(url), gson.toJson(alarmMessages), Map.of());
+            }
         }
     }
 }

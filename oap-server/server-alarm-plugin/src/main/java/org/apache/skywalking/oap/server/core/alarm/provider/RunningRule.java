@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -76,6 +77,7 @@ public class RunningRule {
     private final AlarmMessageFormatter formatter;
     private final boolean onlyAsCondition;
     private final List<Tag> tags;
+    private final Set<String> hooks;
 
     public RunningRule(AlarmRule alarmRule) {
         metricsName = alarmRule.getMetricsName();
@@ -111,6 +113,7 @@ public class RunningRule {
                              .stream()
                              .map(e -> new Tag(e.getKey(), e.getValue()))
                              .collect(Collectors.toList());
+        this.hooks = alarmRule.getHooks();
     }
 
     /**
@@ -248,6 +251,7 @@ public class RunningRule {
                 alarmMessage.setStartTime(System.currentTimeMillis());
                 alarmMessage.setPeriod(this.period);
                 alarmMessage.setTags(this.tags);
+                alarmMessage.setHooks(this.hooks);
                 alarmMessageList.add(alarmMessage);
             }
         });

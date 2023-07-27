@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSetting
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
+import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -117,39 +118,39 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         return this.rules.getCompositeRules();
     }
 
-    public List<String> getWebHooks() {
-        return this.rules.getWebhooks();
+    public Map<String, WebhookSettings> getWebHooks() {
+        return this.rules.getWebhookSettingsMap();
     }
 
-    public GRPCAlarmSetting getGrpchookSetting() {
-        return this.rules.getGrpchookSetting();
+    public Map<String, GRPCAlarmSetting> getGrpchookSetting() {
+        return this.rules.getGrpcAlarmSettingMap();
     }
 
-    public SlackSettings getSlackSettings() {
-        return this.rules.getSlacks();
+    public Map<String, SlackSettings> getSlackSettings() {
+        return this.rules.getSlackSettingsMap();
     }
 
-    public WechatSettings getWechatSettings() {
-        return this.rules.getWecchats();
+    public Map<String, WechatSettings> getWechatSettings() {
+        return this.rules.getWechatSettingsMap();
     }
 
-    public DingtalkSettings getDingtalkSettings() {
-        return this.rules.getDingtalks();
+    public Map<String, DingtalkSettings> getDingtalkSettings() {
+        return this.rules.getDingtalkSettingsMap();
     }
 
-    public FeishuSettings getFeishuSettings() {
-        return this.rules.getFeishus();
+    public Map<String, FeishuSettings> getFeishuSettings() {
+        return this.rules.getFeishuSettingsMap();
     }
 
-    public WeLinkSettings getWeLinkSettings() {
-        return this.rules.getWelinks();
+    public Map<String, WeLinkSettings> getWeLinkSettings() {
+        return this.rules.getWeLinkSettingsMap();
     }
 
-    public PagerDutySettings getPagerDutySettings() {
-        return this.rules.getPagerDutySettings();
+    public Map<String, PagerDutySettings> getPagerDutySettings() {
+        return this.rules.getPagerDutySettingsMap();
     }
 
-    public DiscordSettings getDiscordSettings() {
-        return this.rules.getDiscordSettings();
+    public Map<String, DiscordSettings> getDiscordSettings() {
+        return this.rules.getDiscordSettingsMap();
     }
 }

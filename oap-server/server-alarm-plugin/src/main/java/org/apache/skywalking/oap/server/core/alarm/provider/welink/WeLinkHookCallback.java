@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * Use SkyWalking alarm WeLink webhook API.
@@ -50,19 +52,28 @@ public class WeLinkHookCallback extends HttpAlarmCallback {
      */
     @Override
     public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
-        if (alarmRulesWatcher.getWeLinkSettings() == null
-                || alarmRulesWatcher.getWeLinkSettings().getWebhooks().isEmpty()) {
+        Map<String, WeLinkSettings> settingsMap = alarmRulesWatcher.getWeLinkSettings();
+        if (settingsMap == null || settingsMap.isEmpty()) {
             return;
         }
-        final var welinkSettings = alarmRulesWatcher.getWeLinkSettings();
-        for (final var webHookUrl : welinkSettings.getWebhooks()) {
-            final var accessToken = getAccessToken(webHookUrl);
-            for (final var alarmMessage : alarmMessages) {
-                final var content = String.format(
-                    alarmRulesWatcher.getWeLinkSettings().getTextTemplate(),
-                    alarmMessage.getAlarmMessage()
-                );
-                sendAlarmMessage(webHookUrl, accessToken, content);
+        Map<String, List<AlarmMessage>> groupedMessages =  groupMessagesByHook(alarmMessages);
+        for (Map.Entry<String, List<AlarmMessage>> entry : groupedMessages.entrySet()) {
+            var hookName = entry.getKey();
+            var messages = entry.getValue();
+            var setting = settingsMap.get(hookName);
+            if (setting == null || CollectionUtils.isEmpty(setting.getWebhooks()) || CollectionUtils.isEmpty(
+                messages)) {
+                continue;
+            }
+            for (final var webHookUrl : setting.getWebhooks()) {
+                final var accessToken = getAccessToken(webHookUrl);
+                for (final var alarmMessage : messages) {
+                    final var content = String.format(
+                        setting.getTextTemplate(),
+                        alarmMessage.getAlarmMessage()
+                    );
+                    sendAlarmMessage(webHookUrl, accessToken, content);
+                }
             }
         }
     }

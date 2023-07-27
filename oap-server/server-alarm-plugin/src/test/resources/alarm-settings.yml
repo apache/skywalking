@@ -57,86 +57,128 @@ rules:
     # Control if this rule is just as a composite rule condition. do not notification alone
     only-as-condition: false
     message: Successful rate of endpoint {name} is higher than 60%
+    hooks:
+      - "slackHooks.custom1"
+      - "pagerDutyHooks.custom1"
 
 composite-rules:
   comp1_rule:
     expression: endpoint_percent_more_rule && endpoint_percent_rule
     message: xxxxx
 
-webhooks:
-  - http://127.0.0.1/notify/
-  - http://127.0.0.1/go-wechat/
-
-gRPCHook:
-  target_host: 127.0.0.1
-  target_port: 9888
-
-slackHooks:
-  textTemplate: |-
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
-      }
-    }
+hooks:
   webhooks:
-    - https://hooks.slack.com/services/x/y/zssss
+    default:
+      isGlobal: true
+      urls:
+        - http://127.0.0.1/notify/
+        - http://127.0.0.1/go-wechat/
 
-wechatHooks:
-  textTemplate: |-
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "Apache SkyWalking Alarm: \n %s."
-      }
-    }
-  webhooks:
-    - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
+  gRPCHooks:
+    default:
+      isGlobal: true
+      target_host: 127.0.0.1
+      target_port: 9888
 
-dingtalkHooks:
-  textTemplate: |-
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "Apache SkyWalking Alarm: \n %s."
-      }
-    }
-  webhooks:
-    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
-      secret: dummysecret
-    - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
-      secret:
+  slackHooks:
+    default:
+      isGlobal: true
+      textTemplate: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+          }
+        }
+      webhooks:
+        - https://hooks.slack.com/services/x/y/zssss
+    custom1:
+      textTemplate: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+          }
+        }
+      webhooks:
+        - https://hooks.slack.com/services/x/y/zssss
 
-feishuHooks:
-  textTemplate: |-
-    {
-      "msg_type": "text",
-      "content": {
-        "text": "Apache SkyWalking Alarm: \n %s."
-      }
-    }
-  webhooks:
-    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
-      secret: dummysecret
-    - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2
-      secret:
+  wechatHooks:
+    default:
+      isGlobal: true
+      textTemplate: |-
+        {
+          "msgtype": "text",
+          "text": {
+            "content": "Apache SkyWalking Alarm: \n %s."
+          }
+        }
+      webhooks:
+        - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 
-welinkHooks:
-  textTemplate: "Apache SkyWalking Alarm: \n %s."
-  webhooks:
-    # you may find your own client_id and client_secret in your app, below are dummy, need to change.
-    - client_id: "dummy_client_id"
-      client_secret: dummy_secret_key
-      access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
-      message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
-      # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
-      group_ids: "dummy_group_id"
-      # make a name you like for the robot, it will display in group
-      robot_name: robot
+  dingtalkHooks:
+    default:
+      isGlobal: true
+      textTemplate: |-
+        {
+          "msgtype": "text",
+          "text": {
+            "content": "Apache SkyWalking Alarm: \n %s."
+          }
+        }
+      webhooks:
+        - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
+          secret: dummysecret
+        - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
+          secret:
 
-pagerDutyHooks:
-  textTemplate: "dummy_text_template"
-  integrationKeys:
-    - dummy_key
-    - dummy_key2
+  feishuHooks:
+    default:
+      isGlobal: true
+      textTemplate: |-
+        {
+        "msg_type": "text",
+        # at someone with feishu_user_ids
+        # "ats": "feishu_user_id_1,feishu_user_id_2",
+        "content": {
+          "text": "Apache SkyWalking Alarm: \n %s."
+          }
+        }
+      webhooks:
+        - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
+          secret: dummysecret
+        - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2
+          secret:
+
+  welinkHooks:
+    default:
+      isGlobal: true
+      textTemplate: "Apache SkyWalking Alarm: \n %s."
+      webhooks:
+        # you may find your own client_id and client_secret in your app, below are dummy, need to change.
+        - client_id: "dummy_client_id"
+          client_secret: dummy_secret_key
+          access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+          message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+          # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
+          group_ids: "dummy_group_id"
+          # make a name you like for the robot, it will display in group
+          robot_name: robot
+
+  pagerDutyHooks:
+    default:
+      isGlobal: true
+      textTemplate: "dummy_text_template"
+      integrationKeys:
+        - dummy_key
+        - dummy_key2
+    custom1:
+      textTemplate: "Apache SkyWalking Alarm: \n %s."
+      integrationKeys:
+        #    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
+        #    # (you may need to create an Events API V2 integration for your PagerDuty service if you don't have one yet)
+        #    # below are dummy keys that should be replaced with your own integration keys.
+        - dummy_key
+        - dummy_key2

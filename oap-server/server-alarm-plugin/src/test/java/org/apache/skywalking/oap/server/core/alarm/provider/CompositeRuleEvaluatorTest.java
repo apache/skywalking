@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.HashSet;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
 import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
@@ -45,7 +46,7 @@ public class CompositeRuleEvaluatorTest {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && b_rule", "composite rule {name},{id} triggered!", new HashMap<String, String>() {{
             put("key", "value");
-        }});
+        }}, new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
@@ -64,7 +65,7 @@ public class CompositeRuleEvaluatorTest {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && b_rule", "composite rule {name} triggered!", new HashMap<String, String>() {{
             put("key", "value");
-        }});
+        }}, new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
@@ -81,7 +82,7 @@ public class CompositeRuleEvaluatorTest {
     @Test
     public void testEvaluateMessageWithNotExistsRule() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
-        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && not_exist_rule", "composite rule triggered!", new HashMap<>());
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule && not_exist_rule", "composite rule triggered!", new HashMap<>(), new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
@@ -91,7 +92,7 @@ public class CompositeRuleEvaluatorTest {
     @Test
     public void testEvaluateMessageWithException() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
-        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule + b_rule", "composite rule triggered!", new HashMap<>());
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule + b_rule", "composite rule triggered!", new HashMap<>(), new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);
@@ -135,7 +136,7 @@ public class CompositeRuleEvaluatorTest {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
         CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "a_rule || b_rule", "composite rule triggered!", new HashMap<String, String>() {{
             put("key", "value");
-        }});
+        }}, new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         alarmMessages.remove(0);
@@ -153,7 +154,7 @@ public class CompositeRuleEvaluatorTest {
     @Test
     public void testEvaluateMessageWithParenthesisAndOp() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
-        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "(a_rule || b_rule) && c_rule", "composite rule triggered!", new HashMap<>());
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "(a_rule || b_rule) && c_rule", "composite rule triggered!", new HashMap<>(), new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         alarmMessages.remove(alarmMessages.size() - 1);
@@ -164,7 +165,7 @@ public class CompositeRuleEvaluatorTest {
     @Test
     public void testEvaluateMessageWithParenthesisAndOrOp() {
         List<CompositeAlarmRule> compositeAlarmRules = new ArrayList<>();
-        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "(a_rule && b_rule) || c_rule", "composite rule triggered!", new HashMap<>());
+        CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule("dummy", "(a_rule && b_rule) || c_rule", "composite rule triggered!", new HashMap<>(), new HashSet<>());
         compositeAlarmRules.add(compositeAlarmRule);
         List<AlarmMessage> alarmMessages = getAlarmMessages();
         List<AlarmMessage> compositeMsgs = ruleEvaluate.evaluate(compositeAlarmRules, alarmMessages);

@@ -5,8 +5,7 @@ Alerting kernel is an in-memory, time-window based queue.
 The alerting core is driven by a collection of rules defined in `config/alarm-settings.yml.`
 There are three parts to alerting rule definitions.
 1. [alerting rules](#rules). They define how metrics alerting should be triggered and what conditions should be considered.
-1. [Webhooks](#webhook). The list of web service endpoints, which should be called after an alerting is triggered.
-1. [gRPCHook](#grpchook). The host and port of the remote gRPC method, which should be called after an alerting is triggered.
+1. [hooks](#hooks). The list of hooks, which should be called after an alerting is triggered.
 
 ## Entity name
 Defines the relation between scope and entity name.
@@ -47,6 +46,9 @@ For example, in **percentile**, `value1` is the threshold of P50, and `-, -, val
 - **Period**. The size of metrics cache in minutes for checking the alarm conditions. This is a time window that corresponds to the backend deployment env time.
 - **Count**. Within a period window, if the number of times which **value** goes over the threshold (based on OP) reaches `count`, then an alarm will be sent.
 - **Only as condition**. Indicates if the rule can send notifications or if it simply serves as a condition of the composite rule.
+- **Specific Hooks**. Binding the specific names of the hooks when the alarm is triggered.
+  The name format is `{hookType}.{hookName}` (slackHooks.custom1 e.g.) and must be defined in the `hooks` section of the `alarm-settings.yml` file.
+  If the hook name is not specified, the global hook will be used.
 - **Silence period**. After the alarm is triggered at Time-N (TN), there will be silence during the **TN -> TN + period**.
 By default, it works in the same manner as **period**. The same Alarm (having the same ID in the same metrics name) may only be triggered once within a period. 
 
@@ -69,6 +71,10 @@ A composite rule is made up of the following elements:
 - **Expression**. Specifies how to compose rules, and supports `&&`, `||`, and `()`.
 - **Message**. The notification message to be sent out when the rule is triggered.
 - **Tags**. Tags are key/value pairs that are attached to alarms. Tags are used to specify distinguishing attributes of alarms that are meaningful and relevant to users.
+- **Specific Hooks**. Binding the specific names of the hooks when the alarm is triggered.
+  The name format is `{hookType}.{hookName}` (slackHooks.custom1 e.g.) and must be defined in the `hooks` section of the `alarm-settings.yml` file.
+  If the hook name is not specified, the global hook will be used.
+
 ```yaml
 rules:
   # Rule unique name, must be ended with `_rule`.
@@ -123,6 +129,9 @@ rules:
     silence-period: 5
     message: The request number of entity {name} non-200 status is more than expected.
     only-as-condition: false
+    specific-hooks:
+      - "slackHooks.custom1"
+      - "pagerDutyHooks.custom1"
 composite-rules:
   comp_rule:
     # Must satisfied percent rule and resp time rule 
@@ -130,6 +139,10 @@ composite-rules:
     message: Service {name} successful rate is less than 80% and P50 of response time is over 1000ms
     tags:
       level: CRITICAL
+    specific-hooks:
+      - "slackHooks.default"
+      - "slackHooks.custom1"
+      - "pagerDutyHooks.custom1"
 ```
 
 
@@ -152,7 +165,42 @@ Currently, metrics from the **Service**, **Service Instance**, **Endpoint**, **S
 
 Submit an issue or a pull request if you want to support any other scopes in Alarm.
 
-## Webhook
+## Hooks
+Hooks are a way to send alarm messages to the outside world. SkyWalking supports multiple hooks of the same type, each hook can support different configurations. 
+For example, you can configure two Slack hooks, one named `default` and set `isGlobal: true` means this hook will apply on all `Alarm Rules` **without config** `specific-hooks`.
+Another named `custom1` will only apply on the `Alarm Rules` which **with config** `specific-hooks` and include the name `slackHooks.custom1`.
+
+```yaml
+hooks:
+  slackHooks:
+    default:
+      isGlobal: true # if true, this hook will apply on all rules, unless a rule has its own specific hook.
+      textTemplate: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+          }
+        }
+      webhooks:
+        - https://hooks.slack.com/services/x/y/zssss
+    custom1:
+      textTemplate: |-
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+          }
+        }
+      webhooks:
+        - https://hooks.slack.com/services/x/y/custom1
+```
+
+Currently, SkyWalking supports the following hook types:
+
+### Webhook
 The Webhook requires the peer to be a web container. The alarm message will be sent through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with the following key information:
 - **scopeId**, **scope**. All scopes are defined in `org.apache.skywalking.oap.server.core.source.DefaultScopeDefine`.
 - **name**. Target scope entity name. Please follow the [entity name definitions](#entity-name).
@@ -194,7 +242,7 @@ See the following example:
 }]
 ```
 
-## gRPCHook
+### gRPCHooks
 The alarm message will be sent through remote gRPC method by `Protobuf` content type. 
 The message contains key information which are defined in `oap-server/server-alarm-plugin/src/main/proto/alarm-hook.proto`.
 
@@ -223,13 +271,15 @@ message KeyStringValuePair {
 }
 ```
 
-## Slack Chat Hook
+### Slack Chat Hook
 Follow the [Getting Started with Incoming Webhooks guide](https://api.slack.com/messaging/webhooks) and create new Webhooks.
 
 The alarm message will be sent through HTTP post by `application/json` content type if you have configured Slack Incoming Webhooks as follows:
 ```yml
 slackHooks:
-  textTemplate: |-
+  default:
+    isGlobal: true
+    textTemplate: |-
     {
       "type": "section",
       "text": {
@@ -237,52 +287,58 @@ slackHooks:
         "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
       }
     }
-  webhooks:
+    webhooks:
     - https://hooks.slack.com/services/x/y/z
 ```
 
-## WeChat Hook
+### WeChat Hook
 Note that only the WeChat Company Edition (WeCom) supports WebHooks. To use the WeChat WebHook, follow the [Wechat Webhooks guide](https://work.weixin.qq.com/help?doc_id=13376).
 The alarm message will be sent through HTTP post by `application/json` content type after you have set up Wechat Webhooks as follows:
 ```yml
 wechatHooks:
-  textTemplate: |-
+  default:
+    isGlobal: true
+    textTemplate: |-
     {
       "msgtype": "text",
       "text": {
         "content": "Apache SkyWalking Alarm: \n %s."
       }
     }
-  webhooks:
+    webhooks:
     - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 ```
 
-## DingTalk Hook
+### DingTalk Hook
 Follow the [Dingtalk Webhooks guide](https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/uKPlK) and create new Webhooks.
 You can configure an optional secret for an individual webhook URL for security purposes.
 The alarm message will be sent through HTTP post by `application/json` content type if you have configured DingTalk Webhooks as follows:
 ```yml
 dingtalkHooks:
-  textTemplate: |-
+  default:
+    isGlobal: true
+    textTemplate: |-
     {
       "msgtype": "text",
       "text": {
         "content": "Apache SkyWalking Alarm: \n %s."
       }
     }
-  webhooks:
+    webhooks:
     - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token
       secret: dummysecret
 ```
 
-## Feishu Hook
+### Feishu Hook
 Follow the [Feishu Webhooks guide](https://www.feishu.cn/hc/zh-cn/articles/360024984973) and create new Webhooks.
 You can configure an optional secret for an individual webhook URL for security purposes.
 If you want to direct a text to a user, you can configure `ats`, which is Feishu's user_id and separated by "," .
 The alarm message will be sent through HTTP post by `application/json` content type if you have configured Feishu Webhooks as follows:
 ```yml
 feishuHooks:
-  textTemplate: |-
+  default:
+    isGlobal: true
+    textTemplate: |-
     {
       "msg_type": "text",
       "content": {
@@ -290,18 +346,20 @@ feishuHooks:
       },
       "ats":"feishu_user_id_1,feishu_user_id_2"
     }
-  webhooks:
+    webhooks:
     - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token
       secret: dummysecret
 ```
 
-## WeLink Hook
+### WeLink Hook
 Follow the [WeLink Webhooks guide](https://open.welink.huaweicloud.com/apiexplorer/#/apiexplorer?type=internal&method=POST&path=/welinkim/v1/im-service/chat/group-chat) and create new Webhooks.
 The alarm message will be sent through HTTP post by `application/json` content type if you have configured WeLink Webhooks as follows:
 ```yml
 welinkHooks:
-  textTemplate: "Apache SkyWalking Alarm: \n %s."
-  webhooks:
+  default:
+    isGlobal: true
+    textTemplate: "Apache SkyWalking Alarm: \n %s."
+    webhooks:
     # you may find your own client_id and client_secret in your app, below are dummy, need to change.
     - client_id: "dummy_client_id"
       client_secret: dummy_secret_key
@@ -314,7 +372,7 @@ welinkHooks:
 ```
 
 
-## PagerDuty Hook
+### PagerDuty Hook
 The PagerDuty hook is based on [Events API v2](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview).
 
 Follow the [Getting Started](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NTgw-events-api-v2-overview#getting-started) section to create an **Events API v2** integration on your PagerDuty service and copy the integration key.
@@ -322,21 +380,25 @@ Follow the [Getting Started](https://developer.pagerduty.com/docs/ZG9jOjExMDI5NT
 Then configure as follows:
 ```yml
 pagerDutyHooks:
-  textTemplate: "Apache SkyWalking Alarm: \n %s."
-  integrationKeys:
+  default:
+    isGlobal: true
+    textTemplate: "Apache SkyWalking Alarm: \n %s."
+    integrationKeys:
     - 5c6d805c9dcf4e03d09dfa81e8789ba1
 ```
 
 You can also configure multiple integration keys.
 
-## Discord Hook
+### Discord Hook
 Follow the [Discord Webhooks guide](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) and create a new webhook.
 
 Then configure as follows:
 ```yml
 discordHooks:
-  textTemplate: "Apache SkyWalking Alarm: \n %s."
-  webhooks:
+  default:
+    isGlobal: true
+    textTemplate: "Apache SkyWalking Alarm: \n %s."
+    webhooks:
     - url: https://discordapp.com/api/webhooks/1008166889777414645/8e0Am4Zb-YGbBqqbiiq0jSHPTEEaHa4j1vIC-zSSm231T8ewGxgY0_XUYpY-k1nN4HBl
       username: robot
 ```
@@ -369,3 +431,4 @@ the sliding window will be destroyed and re-created, causing the Alarm of this s
 | Only as condition    | only-as-condition          | boolean        |                    |
 | Silence period       | silence-period             | int            |                    |
 | Message              | message                    | string         |                    |
+| Specific Hooks       | specific-hooks             | string array   |                    |
