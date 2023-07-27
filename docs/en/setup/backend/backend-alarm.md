@@ -280,13 +280,13 @@ slackHooks:
   default:
     isGlobal: true
     textTemplate: |-
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": ":alarm_clock: *Apache Skywalking Alarm* \n **%s**."
+        }
       }
-    }
     webhooks:
     - https://hooks.slack.com/services/x/y/z
 ```
