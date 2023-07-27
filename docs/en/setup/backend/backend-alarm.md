@@ -173,7 +173,7 @@ Another named `custom1` will only apply on the `Alarm Rules` which **with config
 ```yaml
 hooks:
   slack:
-    # default here is just a name, set the field default: true if this notification hook is expected to be default globally.
+    # default here is just a name, set the field 'is-default: true' if this notification hook is expected to be default globally.
     default:
       # If true, this hook will apply on all rules, unless a rule has its own specific hook. Could have more than one default hooks in the same hook type.
       is-default: true 
