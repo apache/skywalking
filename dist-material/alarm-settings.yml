@@ -83,7 +83,7 @@ rules:
 #hooks:
 #  webhook:
 #    default:
-#      is-global: true
+#      is-default: true
 #      urls:
 #        - http://127.0.0.1/notify/
 #        - http://127.0.0.1/go-wechat/

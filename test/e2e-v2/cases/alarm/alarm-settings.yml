@@ -50,7 +50,7 @@ composite-rules:
 hooks:
   webhook:
     default:
-      is-global: true
+      is-default: true
       urls:
         - http://provider:9090/alarm/receive
     custom:

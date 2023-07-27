@@ -58,20 +58,21 @@ rules:
 hooks:
 #  webhook:
 #    default:
-#      is-global: true # if true, this hook will apply on all rules, unless a rule has its own specific hook.
+#      # If true, this hook will apply on all rules, unless a rule has its own specific hook. Could have more than one default hooks in the same hook type.
+#      is-default: true
 #      urls:
 #        - http://127.0.0.1/notify/
 #        - http://127.0.0.1/go-wechat/
 #
 #  gRPC:
 #    default:
-#      is-global: true
+#      is-default: true
 #      target-host: 127.0.0.1
 #      target-port: 9888
 #
 #  slack:
 #    default:
-#      is-global: true
+#      is-default: true
 #      text-template: |-
 #        {
 #          "type": "section",
@@ -96,7 +97,7 @@ hooks:
 #
 #  pagerduty:
 #    default:
-#      is-global: true
+#      is-default: true
 #      text-template: "Apache SkyWalking Alarm: \n %s."
 #      integration-keys:
 #    #    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
@@ -115,7 +116,7 @@ hooks:
 #
 #  wechat:
 #    default:
-#      is-global: true
+#      is-default: true
 #      text-template: |-
 #        {
 #          "msgtype": "text",
@@ -128,7 +129,7 @@ hooks:
 #
 #  dingtalk:
 #    default:
-#      is-global: true
+#      is-default: true
 #      text-template: |-
 #        {
 #          "msgtype": "text",
@@ -142,7 +143,7 @@ hooks:
 #
 #  feishu:
 #    default:
-#      is-global: true
+#      is-default: true
 #      text-template: |-
 #        {
 #        "msg_type": "text",
@@ -158,7 +159,7 @@ hooks:
 #
 #  welink:
 #    default:
-#      is-global: true
+#      is-default: true
 #      text-template: "Apache SkyWalking Alarm: \n %s."
 #      webhooks:
 #        # you may find your own client_id and client_secret in your app, below are dummy, need to change.

@@ -76,20 +76,20 @@ composite-rules:
 hooks:
   webhook:
     default:
-      is-global: true
+      is-default: true
       urls:
         - http://127.0.0.1/notify/
         - http://127.0.0.1/go-wechat/
 
   gRPC:
     default:
-      is-global: true
+      is-default: true
       target-host: 127.0.0.1
       target-port: 9888
 
   slack:
     default:
-      is-global: true
+      is-default: true
       text-template: |-
         {
           "type": "section",
@@ -114,7 +114,7 @@ hooks:
 
   wechat:
     default:
-      is-global: true
+      is-default: true
       text-template: |-
         {
           "msgtype": "text",
@@ -127,7 +127,7 @@ hooks:
 
   dingtalk:
     default:
-      is-global: true
+      is-default: true
       text-template: |-
         {
           "msgtype": "text",
@@ -143,7 +143,7 @@ hooks:
 
   feishu:
     default:
-      is-global: true
+      is-default: true
       text-template: |-
         {
         "msg_type": "text",
@@ -161,7 +161,7 @@ hooks:
 
   welink:
     default:
-      is-global: true
+      is-default: true
       text-template: "Apache SkyWalking Alarm: \n %s."
       webhooks:
         # you may find your own client_id and client_secret in your app, below are dummy, need to change.
@@ -176,7 +176,7 @@ hooks:
 
   pagerduty:
     default:
-      is-global: true
+      is-default: true
       text-template: "dummy_text_template"
       integration-keys:
         - dummy_key

@@ -28,7 +28,7 @@ public abstract class AlarmHookSettings {
     @Getter
     private final AlarmHooksType type;
     @Getter
-    private final boolean isGlobal;
+    private final boolean isDefault;
 
     public String getFormattedName() {
         return this.type.name() + Const.POINT + name;

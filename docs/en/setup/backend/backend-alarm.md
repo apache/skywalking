@@ -167,14 +167,15 @@ Submit an issue or a pull request if you want to support any other scopes in Ala
 
 ## Hooks
 Hooks are a way to send alarm messages to the outside world. SkyWalking supports multiple hooks of the same type, each hook can support different configurations. 
-For example, you can configure two Slack hooks, one named `default` and set `is-global: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.
+For example, you can configure two Slack hooks, one named `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.
 Another named `custom1` will only apply on the `Alarm Rules` which **with config** `hooks` and include the name `slack.custom1`.
 
 ```yaml
 hooks:
   slack:
     default:
-      is-global: true # if true, this hook will apply on all rules, unless a rule has its own specific hook.
+      # If true, this hook will apply on all rules, unless a rule has its own specific hook. Could have more than one default hooks in the same hook type.
+      is-default: true 
       text-template: |-
         {
           "type": "section",
@@ -278,7 +279,7 @@ The alarm message will be sent through HTTP post by `application/json` content t
 ```yml
 slack:
   default:
-    is-global: true
+    is-default: true
     text-template: |-
       {
         "type": "section",
@@ -297,7 +298,7 @@ The alarm message will be sent through HTTP post by `application/json` content t
 ```yml
 wechat:
   default:
-    is-global: true
+    is-default: true
     text-template: |-
       {
         "msgtype": "text",
@@ -316,7 +317,7 @@ The alarm message will be sent through HTTP post by `application/json` content t
 ```yml
 dingtalk:
   default:
-    is-global: true
+    is-default: true
     text-template: |-
       {
         "msgtype": "text",
@@ -337,7 +338,7 @@ The alarm message will be sent through HTTP post by `application/json` content t
 ```yml
 feishu:
   default:
-    is-global: true
+    is-default: true
     text-template: |-
       {
         "msg_type": "text",
@@ -357,7 +358,7 @@ The alarm message will be sent through HTTP post by `application/json` content t
 ```yml
 welink:
   default:
-    is-global: true
+    is-default: true
     text-template: "Apache SkyWalking Alarm: \n %s."
     webhooks:
     # you may find your own client_id and client_secret in your app, below are dummy, need to change.
@@ -381,7 +382,7 @@ Then configure as follows:
 ```yml
 pagerduty:
   default:
-    is-global: true
+    is-default: true
     text-template: "Apache SkyWalking Alarm: \n %s."
     integration-keys:
     - 5c6d805c9dcf4e03d09dfa81e8789ba1
@@ -396,7 +397,7 @@ Then configure as follows:
 ```yml
 discord:
   default:
-    is-global: true
+    is-default: true
     text-template: "Apache SkyWalking Alarm: \n %s."
     webhooks:
     - url: https://discordapp.com/api/webhooks/1008166889777414645/8e0Am4Zb-YGbBqqbiiq0jSHPTEEaHa4j1vIC-zSSm231T8ewGxgY0_XUYpY-k1nN4HBl

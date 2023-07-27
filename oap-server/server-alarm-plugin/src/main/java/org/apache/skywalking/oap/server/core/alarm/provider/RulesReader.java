@@ -49,7 +49,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  */
 public class RulesReader {
     private Map yamlData;
-    private final Set<String> globalHooks = new HashSet<>();
+    private final Set<String> defaultHooks = new HashSet<>();
     private final Set<String> allHooks = new HashSet<>();
 
     public RulesReader(InputStream inputStream) {
@@ -124,7 +124,7 @@ public class RulesReader {
                 alarmRule.setHooks(specificHooks);
                 // If no specific hooks, use global hooks.
                 if (alarmRule.getHooks().isEmpty()) {
-                    alarmRule.getHooks().addAll(globalHooks);
+                    alarmRule.getHooks().addAll(defaultHooks);
                 }
                 rules.getRules().add(alarmRule);
             }
@@ -159,15 +159,15 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             WebhookSettings settings = new WebhookSettings(
-                k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.webhook, (Boolean) config.getOrDefault("is-default", false));
 
             List<String> urls = (List<String>) config.get("urls");
             if (urls != null) {
                 settings.getUrls().addAll(urls);
             }
             rules.getWebhookSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -185,7 +185,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map config = (Map) v;
             GRPCAlarmSetting setting = new GRPCAlarmSetting(
-                k.toString(), AlarmHooksType.gRPC, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.gRPC, (Boolean) config.getOrDefault("is-default", false));
 
             Object targetHost = config.get("target-host");
             if (targetHost != null) {
@@ -199,8 +199,8 @@ public class RulesReader {
 
             rules.getGrpcAlarmSettingMap().put(setting.getFormattedName(), setting);
 
-            if (setting.isGlobal()) {
-                this.globalHooks.add(setting.getFormattedName());
+            if (setting.isDefault()) {
+                this.defaultHooks.add(setting.getFormattedName());
             }
             this.allHooks.add(setting.getFormattedName());
         });
@@ -218,7 +218,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             SlackSettings settings = new SlackSettings(
-                k.toString(), AlarmHooksType.slack, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.slack, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
@@ -228,8 +228,8 @@ public class RulesReader {
                 settings.getWebhooks().addAll(webhooks);
             }
             rules.getSlackSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -247,7 +247,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             WechatSettings settings = new WechatSettings(
-                k.toString(), AlarmHooksType.wechat, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.wechat, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
@@ -257,8 +257,8 @@ public class RulesReader {
                 settings.getWebhooks().addAll(webhooks);
             }
             rules.getWechatSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -293,7 +293,7 @@ public class RulesReader {
                 compositeAlarmRule.setHooks(specificHooks);
                 // If no specific hooks, use global hooks.
                 if (compositeAlarmRule.getHooks().isEmpty()) {
-                    compositeAlarmRule.getHooks().addAll(globalHooks);
+                    compositeAlarmRule.getHooks().addAll(defaultHooks);
                 }
                 rules.getCompositeRules().add(compositeAlarmRule);
             }
@@ -312,7 +312,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             DingtalkSettings settings = new DingtalkSettings(
-                k.toString(), AlarmHooksType.dingtalk, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.dingtalk, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
@@ -326,8 +326,8 @@ public class RulesReader {
                 });
             }
             rules.getDingtalkSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -345,7 +345,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             FeishuSettings settings = new FeishuSettings(
-                k.toString(), AlarmHooksType.feishu, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.feishu, (Boolean) config.getOrDefault("is-default", false));
 
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
@@ -359,8 +359,8 @@ public class RulesReader {
                 });
             }
             rules.getFeishuSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -387,13 +387,13 @@ public class RulesReader {
             ).collect(Collectors.toList());
 
             WeLinkSettings settings = new WeLinkSettings(
-                k.toString(), AlarmHooksType.welink, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.welink, (Boolean) config.getOrDefault("is-default", false));
             settings.setTextTemplate(textTemplate);
             settings.setWebhooks(webHookUrls);
 
             rules.getWeLinkSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -411,7 +411,7 @@ public class RulesReader {
         configs.forEach((k, v) -> {
             Map<String, Object> config = (Map<String, Object>) v;
             PagerDutySettings settings = new PagerDutySettings(
-                k.toString(), AlarmHooksType.pagerduty, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.pagerduty, (Boolean) config.getOrDefault("is-default", false));
             Object textTemplate = config.getOrDefault("text-template", "");
             settings.setTextTemplate((String) textTemplate);
 
@@ -421,8 +421,8 @@ public class RulesReader {
             }
 
             rules.getPagerDutySettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });
@@ -449,13 +449,13 @@ public class RulesReader {
             ).collect(Collectors.toList());
 
             DiscordSettings settings = new DiscordSettings(
-                k.toString(), AlarmHooksType.discord, (Boolean) config.getOrDefault("is-global", false));
+                k.toString(), AlarmHooksType.discord, (Boolean) config.getOrDefault("is-default", false));
             settings.setTextTemplate(textTemplate);
             settings.setWebhooks(webHookUrls);
 
             rules.getDiscordSettingsMap().put(settings.getFormattedName(), settings);
-            if (settings.isGlobal()) {
-                this.globalHooks.add(settings.getFormattedName());
+            if (settings.isDefault()) {
+                this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
         });

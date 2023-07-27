@@ -34,7 +34,7 @@ public class WebhookSettings extends AlarmHookSettings {
 
     public WebhookSettings(final String name,
                            final AlarmHooksType type,
-                           final boolean isGlobal) {
-        super(name, type, isGlobal);
+                           final boolean isDefault) {
+        super(name, type, isDefault);
     }
 }
