@@ -71,10 +71,10 @@ public class WechatHookCallbackTest {
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/wechathook/receiveAlarm");
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
-        WechatSettings setting1 = new WechatSettings("setting1", AlarmHooksType.wechatHooks, true);
+        WechatSettings setting1 = new WechatSettings("setting1", AlarmHooksType.wechat, true);
         setting1.setWebhooks(remoteEndpoints);
         setting1.setTextTemplate(template);
-        WechatSettings setting2 = new WechatSettings("setting2", AlarmHooksType.wechatHooks, false);
+        WechatSettings setting2 = new WechatSettings("setting2", AlarmHooksType.wechat, false);
         setting2.setWebhooks(remoteEndpoints);
         setting2.setTextTemplate(template);
         rules.getWechatSettingsMap().put(setting1.getFormattedName(), setting1);

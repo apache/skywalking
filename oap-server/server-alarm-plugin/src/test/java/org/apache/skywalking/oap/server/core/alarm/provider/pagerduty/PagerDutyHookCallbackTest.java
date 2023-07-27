@@ -41,10 +41,10 @@ public class PagerDutyHookCallbackTest {
         );
 
         Rules rules = new Rules();
-        PagerDutySettings setting1 = new PagerDutySettings("setting1", AlarmHooksType.pagerDutyHooks, true);
+        PagerDutySettings setting1 = new PagerDutySettings("setting1", AlarmHooksType.pagerduty, true);
         setting1.setIntegrationKeys(integrationKeys);
         setting1.setTextTemplate("Apache SkyWalking Alarm: \\n %s.");
-        PagerDutySettings setting2 = new PagerDutySettings("setting2", AlarmHooksType.pagerDutyHooks, false);
+        PagerDutySettings setting2 = new PagerDutySettings("setting2", AlarmHooksType.pagerduty, false);
         setting2.setIntegrationKeys(integrationKeys);
         setting2.setTextTemplate("Apache SkyWalking Alarm: \\n %s.");
         rules.getPagerDutySettingsMap().put(setting1.getFormattedName(), setting1);

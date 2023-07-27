@@ -81,10 +81,10 @@ public class DingtalkHookCallbackTest {
         webHooks.add(new DingtalkSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/dingtalkhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
-        DingtalkSettings setting1 = new DingtalkSettings("setting1", AlarmHooksType.dingtalkHooks, true);
+        DingtalkSettings setting1 = new DingtalkSettings("setting1", AlarmHooksType.dingtalk, true);
         setting1.setWebhooks(webHooks);
         setting1.setTextTemplate(template);
-        DingtalkSettings setting2 = new DingtalkSettings("setting2", AlarmHooksType.dingtalkHooks, false);
+        DingtalkSettings setting2 = new DingtalkSettings("setting2", AlarmHooksType.dingtalk, false);
         setting2.setWebhooks(webHooks);
         setting2.setTextTemplate(template);
         rules.getDingtalkSettingsMap().put(setting1.getFormattedName(), setting1);
@@ -116,10 +116,10 @@ public class DingtalkHookCallbackTest {
         webHooks.add(new DingtalkSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/dingtalkhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msgtype\":\"text\",\"text\":{\"content\":\"Skywaling alarm: %s\"}}";
-        DingtalkSettings setting1 = new DingtalkSettings("setting1", AlarmHooksType.dingtalkHooks, true);
+        DingtalkSettings setting1 = new DingtalkSettings("setting1", AlarmHooksType.dingtalk, true);
         setting1.setWebhooks(webHooks);
         setting1.setTextTemplate(template);
-        DingtalkSettings setting2 = new DingtalkSettings("setting2", AlarmHooksType.dingtalkHooks, false);
+        DingtalkSettings setting2 = new DingtalkSettings("setting2", AlarmHooksType.dingtalk, false);
         setting2.setWebhooks(webHooks);
         setting2.setTextTemplate(template);
         rules.getDingtalkSettingsMap().put(setting1.getFormattedName(), setting1);

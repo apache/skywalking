@@ -61,12 +61,12 @@ public class WeLinkSettings extends AlarmHookSettings {
         private final String groupIds;
 
         public static WebHookUrl generateFromMap(Map<String, String> params) {
-            String clientId = params.get("client_id");
-            String clientSecret = params.get("client_secret");
-            String accessTokenUrl = params.get("access_token_url");
-            String messageUrl = params.get("message_url");
-            String groupIds = params.get("group_ids");
-            String robotName = params.getOrDefault("robot_name", "robot");
+            String clientId = params.get("client-id");
+            String clientSecret = params.get("client-secret");
+            String accessTokenUrl = params.get("access-token-url");
+            String messageUrl = params.get("message-url");
+            String groupIds = params.get("group-ids");
+            String robotName = params.getOrDefault("robot-name", "robot");
             return new WebHookUrl(clientId, clientSecret, accessTokenUrl, messageUrl,
                                   robotName, groupIds
             );

@@ -27,6 +27,8 @@ rules:
     tags:
       level: WARNING
       receivers: lisi
+    hooks:
+      - webhook.custom
   # service sla > 1%
   service_sla_rule:
     metrics-name: service_sla
@@ -46,8 +48,11 @@ composite-rules:
       receivers: zhangsan
 
 hooks:
-  webhooks:
+  webhook:
     default:
-      isGlobal: true
+      is-global: true
+      urls:
+        - http://provider:9090/alarm/receive
+    custom:
       urls:
         - http://provider:9090/alarm/receive

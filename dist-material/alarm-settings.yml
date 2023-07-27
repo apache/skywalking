@@ -81,9 +81,9 @@ rules:
 #    message: Response time of endpoint {name} is more than 1000ms in 2 minutes of last 10 minutes
 
 #hooks:
-#  webhooks:
+#  webhook:
 #    default:
-#      isGlobal: true
+#      is-global: true
 #      urls:
 #        - http://127.0.0.1/notify/
 #        - http://127.0.0.1/go-wechat/

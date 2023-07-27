@@ -80,10 +80,10 @@ public class WeLinkHookCallbackTest {
         ));
         Rules rules = new Rules();
         String template = "Apache SkyWalking Alarm: \n %s.";
-        WeLinkSettings setting1 = new WeLinkSettings("setting1", AlarmHooksType.welinkHooks, true);
+        WeLinkSettings setting1 = new WeLinkSettings("setting1", AlarmHooksType.welink, true);
         setting1.setWebhooks(webHooks);
         setting1.setTextTemplate(template);
-        WeLinkSettings setting2 = new WeLinkSettings("setting2", AlarmHooksType.welinkHooks, false);
+        WeLinkSettings setting2 = new WeLinkSettings("setting2", AlarmHooksType.welink, false);
         setting2.setWebhooks(webHooks);
         setting2.setTextTemplate(template);
         rules.getWeLinkSettingsMap().put(setting1.getFormattedName(), setting1);

@@ -65,9 +65,9 @@ public class WebhookCallbackTest {
         List<String> remoteEndpoints = new ArrayList<>();
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
         Rules rules = new Rules();
-        WebhookSettings setting1 = new WebhookSettings("setting1", AlarmHooksType.wechatHooks, true);
+        WebhookSettings setting1 = new WebhookSettings("setting1", AlarmHooksType.wechat, true);
         setting1.setUrls(remoteEndpoints);
-        WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.wechatHooks, false);
+        WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.wechat, false);
         setting2.setUrls(remoteEndpoints);
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);

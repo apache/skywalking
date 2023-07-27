@@ -79,10 +79,10 @@ public class FeishuHookCallbackTest {
         webHooks.add(new FeishuSettings.WebHookUrl("", "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"}}";
-        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishuHooks, true);
+        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishu, true);
         setting1.setWebhooks(webHooks);
         setting1.setTextTemplate(template);
-        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishuHooks, false);
+        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishu, false);
         setting2.setWebhooks(webHooks);
         setting2.setTextTemplate(template);
         rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
@@ -114,10 +114,10 @@ public class FeishuHookCallbackTest {
         webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"}}";
-        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishuHooks, true);
+        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishu, true);
         setting1.setWebhooks(webHooks);
         setting1.setTextTemplate(template);
-        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishuHooks, false);
+        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishu, false);
         setting2.setWebhooks(webHooks);
         setting2.setTextTemplate(template);
         rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);
@@ -149,10 +149,10 @@ public class FeishuHookCallbackTest {
         webHooks.add(new FeishuSettings.WebHookUrl(secret, "http://127.0.0.1:" + SERVER.httpPort() + "/feishuhook/receiveAlarm?token=dummy_token"));
         Rules rules = new Rules();
         String template = "{\"msg_type\":\"text\",\"content\":{\"text\":\"Skywaling alarm: %s\"},\"ats\":\"123\"}";
-        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishuHooks, true);
+        FeishuSettings setting1 = new FeishuSettings("setting1", AlarmHooksType.feishu, true);
         setting1.setWebhooks(webHooks);
         setting1.setTextTemplate(template);
-        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishuHooks, false);
+        FeishuSettings setting2 = new FeishuSettings("setting2", AlarmHooksType.feishu, false);
         setting2.setWebhooks(webHooks);
         setting2.setTextTemplate(template);
         rules.getFeishuSettingsMap().put(setting1.getFormattedName(), setting1);

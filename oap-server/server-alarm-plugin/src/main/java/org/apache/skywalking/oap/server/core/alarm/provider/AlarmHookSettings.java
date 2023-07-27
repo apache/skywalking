@@ -19,20 +19,16 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.Const;
 
+@RequiredArgsConstructor
 public abstract class AlarmHookSettings {
     private final String name;
     @Getter
     private final AlarmHooksType type;
     @Getter
     private final boolean isGlobal;
-
-   public AlarmHookSettings(String name, AlarmHooksType type, boolean isGlobal) {
-        this.name = name;
-        this.type = type;
-        this.isGlobal = isGlobal;
-    }
 
     public String getFormattedName() {
         return this.type.name() + Const.POINT + name;

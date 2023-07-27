@@ -58,32 +58,39 @@ rules:
     only-as-condition: false
     message: Successful rate of endpoint {name} is higher than 60%
     hooks:
-      - "slackHooks.custom1"
-      - "pagerDutyHooks.custom1"
+      - "slack.custom1"
+      - "pagerduty.custom1"
 
 composite-rules:
   comp1_rule:
     expression: endpoint_percent_more_rule && endpoint_percent_rule
     message: xxxxx
+  comp2_rule:
+    expression: endpoint_percent_more_rule && endpoint_percent_rule
+    message: xxxxx
+    hooks:
+      - "slack.default"
+      - "slack.custom1"
+      - "pagerduty.custom1"
 
 hooks:
-  webhooks:
+  webhook:
     default:
-      isGlobal: true
+      is-global: true
       urls:
         - http://127.0.0.1/notify/
         - http://127.0.0.1/go-wechat/
 
-  gRPCHooks:
+  gRPC:
     default:
-      isGlobal: true
-      target_host: 127.0.0.1
-      target_port: 9888
+      is-global: true
+      target-host: 127.0.0.1
+      target-port: 9888
 
-  slackHooks:
+  slack:
     default:
-      isGlobal: true
-      textTemplate: |-
+      is-global: true
+      text-template: |-
         {
           "type": "section",
           "text": {
@@ -94,7 +101,7 @@ hooks:
       webhooks:
         - https://hooks.slack.com/services/x/y/zssss
     custom1:
-      textTemplate: |-
+      text-template: |-
         {
           "type": "section",
           "text": {
@@ -105,10 +112,10 @@ hooks:
       webhooks:
         - https://hooks.slack.com/services/x/y/zssss
 
-  wechatHooks:
+  wechat:
     default:
-      isGlobal: true
-      textTemplate: |-
+      is-global: true
+      text-template: |-
         {
           "msgtype": "text",
           "text": {
@@ -118,10 +125,10 @@ hooks:
       webhooks:
         - https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key
 
-  dingtalkHooks:
+  dingtalk:
     default:
-      isGlobal: true
-      textTemplate: |-
+      is-global: true
+      text-template: |-
         {
           "msgtype": "text",
           "text": {
@@ -134,10 +141,10 @@ hooks:
         - url: https://oapi.dingtalk.com/robot/send?access_token=dummy_token2
           secret:
 
-  feishuHooks:
+  feishu:
     default:
-      isGlobal: true
-      textTemplate: |-
+      is-global: true
+      text-template: |-
         {
         "msg_type": "text",
         # at someone with feishu_user_ids
@@ -152,31 +159,31 @@ hooks:
         - url: https://open.feishu.cn/open-apis/bot/v2/hook/dummy_token2
           secret:
 
-  welinkHooks:
+  welink:
     default:
-      isGlobal: true
-      textTemplate: "Apache SkyWalking Alarm: \n %s."
+      is-global: true
+      text-template: "Apache SkyWalking Alarm: \n %s."
       webhooks:
         # you may find your own client_id and client_secret in your app, below are dummy, need to change.
-        - client_id: "dummy_client_id"
-          client_secret: dummy_secret_key
-          access_token_url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
-          message_url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
+        - client-id: "dummy_client_id"
+          client-secret: dummy_secret_key
+          access-token-url: https://open.welink.huaweicloud.com/api/auth/v2/tickets
+          message-url: https://open.welink.huaweicloud.com/api/welinkim/v1/im-service/chat/group-chat
           # if you send to multi group at a time, separate group_ids with commas, e.g. "123xx","456xx"
-          group_ids: "dummy_group_id"
+          group-ids: "dummy_group_id"
           # make a name you like for the robot, it will display in group
-          robot_name: robot
+          robot-name: robot
 
-  pagerDutyHooks:
+  pagerduty:
     default:
-      isGlobal: true
-      textTemplate: "dummy_text_template"
-      integrationKeys:
+      is-global: true
+      text-template: "dummy_text_template"
+      integration-keys:
         - dummy_key
         - dummy_key2
     custom1:
-      textTemplate: "Apache SkyWalking Alarm: \n %s."
-      integrationKeys:
+      text-template: "Apache SkyWalking Alarm: \n %s."
+      integration-keys:
         #    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
         #    # (you may need to create an Events API V2 integration for your PagerDuty service if you don't have one yet)
         #    # below are dummy keys that should be replaced with your own integration keys.

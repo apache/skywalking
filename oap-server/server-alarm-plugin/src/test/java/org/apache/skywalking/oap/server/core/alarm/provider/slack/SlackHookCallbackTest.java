@@ -70,10 +70,10 @@ public class SlackHookCallbackTest {
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/services/x/y/zssss");
         Rules rules = new Rules();
         String template = "{\"type\":\"section\",\"text\":{\"type\":\"mrkdwn\",\"text\":\":alarm_clock: *Apache Skywalking Alarm* \\n **%s**.\"}}";
-        SlackSettings setting1 = new SlackSettings("setting1", AlarmHooksType.slackHooks, true);
+        SlackSettings setting1 = new SlackSettings("setting1", AlarmHooksType.slack, true);
         setting1.setWebhooks(remoteEndpoints);
         setting1.setTextTemplate(template);
-        SlackSettings setting2 = new SlackSettings("setting2", AlarmHooksType.slackHooks, false);
+        SlackSettings setting2 = new SlackSettings("setting2", AlarmHooksType.slack, false);
         setting2.setWebhooks(remoteEndpoints);
         setting2.setTextTemplate(template);
         rules.getSlackSettingsMap().put(setting1.getFormattedName(), setting1);

@@ -42,10 +42,10 @@ public class GRPChookCallbackTest {
     @BeforeEach
     public void init() throws Exception {
         Rules rules = new Rules();
-        GRPCAlarmSetting setting1 = new GRPCAlarmSetting("setting1", AlarmHooksType.gRPCHooks, true);
+        GRPCAlarmSetting setting1 = new GRPCAlarmSetting("setting1", AlarmHooksType.gRPC, true);
         setting1.setTargetHost("127.0.0.1");
         setting1.setTargetPort(9888);
-        GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2", AlarmHooksType.gRPCHooks, false);
+        GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2", AlarmHooksType.gRPC, false);
         setting2.setTargetHost("127.0.0.1");
         setting2.setTargetPort(9888);
         rules.getGrpcAlarmSettingMap().put(setting1.getFormattedName(), setting1);
@@ -64,8 +64,8 @@ public class GRPChookCallbackTest {
     @Test
     public void testGauchoSettingClean() {
         Rules rules = new Rules();
-        GRPCAlarmSetting setting1 = new GRPCAlarmSetting("setting1111111", AlarmHooksType.gRPCHooks, true);
-        GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2222222", AlarmHooksType.gRPCHooks, true);
+        GRPCAlarmSetting setting1 = new GRPCAlarmSetting("setting1111111", AlarmHooksType.gRPC, true);
+        GRPCAlarmSetting setting2 = new GRPCAlarmSetting("setting2222222", AlarmHooksType.gRPC, true);
         rules.getGrpcAlarmSettingMap().put(setting1.getFormattedName(), setting1);
         rules.getGrpcAlarmSettingMap().put(setting2.getFormattedName(), setting2);
         alarmRulesWatcher = new AlarmRulesWatcher(rules, null);

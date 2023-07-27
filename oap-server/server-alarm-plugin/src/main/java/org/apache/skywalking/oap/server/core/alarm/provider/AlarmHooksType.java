@@ -19,13 +19,13 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 public enum AlarmHooksType {
-    webhooks,
-    gRPCHooks,
-    wechatHooks,
-    slackHooks,
-    dingtalkHooks,
-    feishuHooks,
-    welinkHooks,
-    discordHooks,
-    pagerDutyHooks
+    webhook,
+    gRPC,
+    wechat,
+    slack,
+    dingtalk,
+    feishu,
+    welink,
+    discord,
+    pagerduty
 }
