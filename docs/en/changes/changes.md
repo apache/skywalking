@@ -82,5 +82,6 @@
 * Remove `how to add menu` doc, as SkyWalking supports marketplace and new backend-based setup.
 * Separate contribution docs to a new menu structure.
 * Add a doc to explain how to manage i18n.
+* Add a doc to explain OTLP Trace support.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)

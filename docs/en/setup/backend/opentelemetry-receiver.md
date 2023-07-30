@@ -1,4 +1,4 @@
-# OpenTelemetry receiver
+# OpenTelemetry Metrics Format
 
 The OpenTelemetry receiver supports ingesting agent metrics by meter-system. The OAP can load the configuration at bootstrap.
 If the new configuration is not well-formed, the OAP may fail to start up. The files are located at `$CLASSPATH/otel-rules`.
@@ -18,7 +18,7 @@ To activate the `otlp` handler and relevant rules of `istio`:
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
-    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp"}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-metrics"}
     enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"istio-controlplane"}
 ```
 

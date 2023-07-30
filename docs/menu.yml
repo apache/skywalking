@@ -109,6 +109,8 @@ catalog:
             path: "/en/setup/backend/uninstrumented-gateways"
           - name: "Zipkin Trace"
             path: "/en/setup/backend/zipkin-trace"
+          - name: "OpenTelemetry Trace"
+            path: "/en/setup/backend/otlp-trace"
       - name: "Metrics"
         catalog:
           - name: "OAL Scripts"
