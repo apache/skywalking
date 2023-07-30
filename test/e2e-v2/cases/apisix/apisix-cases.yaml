@@ -22,14 +22,14 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=APISIX::showcase-apisix-service
       expected:  expected/instance.yml
     # service metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_apisix_sv_http_connections --service-name=APISIX::showcase-apisix-service |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-label.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_apisix_sv_http_connections --service-name=APISIX::showcase-apisix-service
+      expected: expected/metrics-has-connection-value-label.yml
     # instance metrics
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_apisix_instance_http_status_matched --service-name=APISIX::showcase-apisix-service --instance-name=$(
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_apisix_instance_http_status_matched --service-name=APISIX::showcase-apisix-service --instance-name=$(
               swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=APISIX::showcase-apisix-service |yq e '.[0].name' -
-        ) | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-label.yml
+        )
+      expected: expected/metrics-has-status-value-label.yml
     # endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_apisix_endpoint_http_latency --endpoint-name='route/routes#1' --service-name=APISIX::showcase-apisix-service |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected: expected/metrics-has-value-label.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_apisix_endpoint_http_latency --endpoint-name='route/routes#1' --service-name=APISIX::showcase-apisix-service
+      expected: expected/metrics-has-latency-value-label.yml
