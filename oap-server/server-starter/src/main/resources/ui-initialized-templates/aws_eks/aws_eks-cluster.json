@@ -452,8 +452,8 @@
             "fontSize": 12
           },
           "expressions": [
-            "avg(eks_cluster_node_cpu_utilization/100)",
-            "avg(eks_cluster_node_memory_utilization/100)",
+            "avg(eks_cluster_node_cpu_utilization)",
+            "avg(eks_cluster_node_memory_utilization)",
             "avg(eks_cluster_node_network_tx_errors)",
             "avg(eks_cluster_node_network_rx_errors)"
           ],
@@ -503,8 +503,8 @@
             "showGroup": true
           },
           "expressions": [
-            "avg(eks_cluster_service_pod_cpu_utilization/100)",
-            "avg(eks_cluster_service_pod_memory_utilization/100)",
+            "avg(eks_cluster_service_pod_cpu_utilization)",
+            "avg(eks_cluster_service_pod_memory_utilization)",
             "avg(eks_cluster_service_pod_net_tx_error)",
             "avg(eks_cluster_service_pod_net_rx_error)"
           ],
