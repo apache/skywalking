@@ -19,10 +19,10 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/service.yml
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-          --name=aws_s3_4xx --service-name aws-s3::skywalking |yq e 'to_entries' -
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_s3_4xx --service-name aws-s3::skywalking
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear \
-          --name=aws_s3_5xx --service-name aws-s3::skywalking |yq e 'to_entries' -
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_s3_5xx --service-name aws-s3::skywalking
       expected: expected/metrics-has-value.yml
