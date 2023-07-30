@@ -38,11 +38,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_count"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -63,11 +64,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_4xx"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -88,11 +90,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_5xx"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -113,11 +116,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_latency"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -138,11 +142,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_integration_latency"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -163,16 +168,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "aws_gateway_endpoint_data_processed"
+          "expressions": [
+            "aws_gateway_endpoint_data_processed/1024"
           ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
-            }
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
 
@@ -194,11 +195,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_cache_hit_rate"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -219,11 +221,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_gateway_endpoint_cache_miss_rate"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         }
       ],

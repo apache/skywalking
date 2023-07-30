@@ -36,11 +36,12 @@
             "textAlign": "center",
             "showUnit": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_4xx"
           ],
-          "metricTypes": [
-            "readMetricsValue"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -59,11 +60,12 @@
             "textAlign": "center",
             "showUnit": true
           },
-          "metrics": [
-            "aws_s3_4xx"
+          "expressions": [
+            "aws_s3_5xx"
           ],
-          "metricTypes": [
-            "readMetricsValue"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -82,11 +84,12 @@
             "textAlign": "center",
             "showUnit": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_all_requests"
           ],
-          "metricTypes": [
-            "readMetricsValue"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -105,11 +108,12 @@
             "textAlign": "center",
             "showUnit": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_request_latency"
           ],
-          "metricTypes": [
-            "readMetricsValue"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -130,11 +134,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_4xx"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -155,11 +160,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "aws_s3_4xx"
+          "expressions": [
+            "aws_s3_5xx"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -180,11 +186,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_request_latency"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -205,11 +212,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_first_latency_bytes"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -230,11 +238,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_all_requests"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -255,11 +264,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_get_requests"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -280,11 +290,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_put_requests"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -305,11 +316,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_delete_requests"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -338,11 +350,12 @@
               "total": true
             }
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_downloaded_bytes"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -376,11 +389,12 @@
               "total": true
             }
           },
-          "metrics": [
+          "expressions": [
             "aws_s3_uploaded_bytes"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {

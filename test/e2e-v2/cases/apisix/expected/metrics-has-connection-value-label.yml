@@ -13,16 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
-
-  cases:
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
-      expected: expected/service.yml
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
-          --expression=aws_s3_4xx --service-name aws-s3::skywalking
-      expected: expected/metrics-has-value.yml
-    - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
-          --expression=aws_s3_5xx --service-name aws-s3::skywalking
-      expected: expected/metrics-has-value.yml
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+- metric:
+    labels:
+      - key: _
+        value: "accepted"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: _
+        value: "handled"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+{{- end}}
+error: null

@@ -38,11 +38,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "meter_apisix_sv_http_requests"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
 
@@ -64,11 +65,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "meter_apisix_sv_http_status_matched"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -112,11 +114,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "meter_apisix_sv_http_latency_matched"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -161,11 +164,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_bandwidth_matched"
+          "expressions": [
+            "meter_apisix_sv_bandwidth_matched/1024"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -189,11 +193,6 @@
             {
               "widgetId": "8"
             }
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
-            }
           ]
         },
         {
@@ -203,11 +202,12 @@
           "h": 13,
           "i": "5",
           "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
+          "expressions": [
             "meter_apisix_sv_http_connections"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -263,11 +263,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "meter_apisix_sv_http_status_unmatched"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -311,11 +312,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "meter_apisix_sv_http_latency_unmatched"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -360,11 +362,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_apisix_sv_bandwidth_unmatched"
+          "expressions": [
+            "meter_apisix_sv_bandwidth_unmatched/1024"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -387,11 +390,6 @@
             },
             {
               "widgetId": "8"
-            }
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToKB"
             }
           ]
         },

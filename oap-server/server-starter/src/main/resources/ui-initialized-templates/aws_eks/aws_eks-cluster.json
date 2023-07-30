@@ -38,11 +38,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_node_count"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -89,11 +90,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_failed_node_count"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -140,11 +142,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_namespace_count"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -191,11 +194,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_service_count"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -242,11 +246,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_net_rx_dropped"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -293,11 +298,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_net_rx_error"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -344,11 +350,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_net_tx_dropped"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -395,11 +402,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "eks_cluster_net_tx_error"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -443,38 +451,35 @@
             "dashboardName": "AWS_EKS-node",
             "fontSize": 12
           },
-          "metrics": [
-            "eks_cluster_node_cpu_utilization",
-            "eks_cluster_node_memory_utilization",
-            "eks_cluster_node_network_tx_errors",
-            "eks_cluster_node_network_rx_errors"
+          "expressions": [
+            "avg(eks_cluster_node_cpu_utilization)",
+            "avg(eks_cluster_node_memory_utilization)",
+            "avg(eks_cluster_node_network_tx_errors)",
+            "avg(eks_cluster_node_network_rx_errors)"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readLabeledMetricsValues",
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE",
+            "SINGLE_VALUE",
+            "SINGLE_VALUE",
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
               "label": "CPU Usage",
-              "unit": "%",
-              "calculation": "average"
+              "unit": "%"
             },
             {
               "label": "Memory Usage",
-              "unit": "%",
-              "calculation": "average"
+              "unit": "%"
             },
             {
               "label": "Network TX Errors",
-              "unit": "count/s",
-              "calculation": "average"
+              "unit": "count/s"
             },
             {
               "label": "Network RX Errors",
-              "unit": "count/s",
-              "calculation": "average"
+              "unit": "count/s"
             }
           ],
           "moved": false
@@ -497,38 +502,35 @@
             "showYAxis": false,
             "showGroup": true
           },
-          "metrics": [
-            "eks_cluster_service_pod_cpu_utilization",
-            "eks_cluster_service_pod_memory_utilization",
-            "eks_cluster_service_pod_net_tx_error",
-            "eks_cluster_service_pod_net_rx_error"
+          "expressions": [
+            "avg(eks_cluster_service_pod_cpu_utilization)",
+            "avg(eks_cluster_service_pod_memory_utilization)",
+            "avg(eks_cluster_service_pod_net_tx_error)",
+            "avg(eks_cluster_service_pod_net_rx_error)"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "SINGLE_VALUE",
+            "SINGLE_VALUE",
+            "SINGLE_VALUE",
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
               "label": "CPU Usage",
-              "unit": "%",
-              "calculation": "average"
+              "unit": "%"
             },
             {
               "label": "Memory Usage",
-              "unit": "%",
-              "calculation": "average"
+              "unit": "%"
             },
             {
               "label": "Network TX Errors",
-              "unit": "count/s",
-              "calculation": "average"
+              "unit": "count/s"
             },
             {
               "label": "Network RX Errors",
-              "unit": "count/s",
-              "calculation": "average"
+              "unit": "count/s"
             }
           ]
         }
