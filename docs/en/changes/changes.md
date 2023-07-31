@@ -57,7 +57,8 @@
 * Add component ID for Lock (ID=5016).
 * [Breaking change] Adjust the structure of hooks in the `alarm-settings.yml`. Support multiple configs for each hook types and specifying the hooks in the alarm rule.
 * Bump up Armeria to 1.24.3.
-* Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates
+* Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates.
+* Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
 
 #### UI
 
