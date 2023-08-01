@@ -64,7 +64,7 @@
 
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
 * Fix display name of `endpoint_cpm` for endpoint list in `General-Service` dashboard.
-* Implement customize menus.
+* Implement customize menus and marketplace page.
 * Fix minTraceDuration and maxTraceDuration types.
 * Fix init minTime to Infinity.
 * Bump dependencies to fix vulnerabilities.
@@ -74,6 +74,9 @@
 * Calculate string width to set Tabs name width.
 * [Breaking change] Removed '&' symbols from shell scripts to avoid web application server process running as a background process.
 * Reset chart label.
+* Fix service associates instances.
+* Remove node-sass.
+* Fix commit error on Windows.
 
 #### Documentation
 
