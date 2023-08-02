@@ -18,8 +18,6 @@
 
 package org.apache.skywalking.oap.query.logql.entity;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
