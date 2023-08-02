@@ -142,10 +142,14 @@ public class LogQLApiHandler {
 
         String serviceId = labelMap.containsKey(LabelName.SERVICE.getLabel()) ?
             IDManager.ServiceID.buildId(labelMap.get(LabelName.SERVICE.getLabel()), true) : null;
-        String serviceInstanceId = labelMap.containsKey(LabelName.SERVICE_INSTANCE.getLabel()) ?
-            IDManager.ServiceInstanceID.buildId(serviceId, labelMap.get(LabelName.SERVICE_INSTANCE.getLabel())) : null;
-        String endpointId = labelMap.containsKey(LabelName.ENDPOINT.getLabel()) ?
-            IDManager.EndpointID.buildId(serviceId, labelMap.get(LabelName.ENDPOINT.getLabel())) : null;
+        String serviceInstanceId = null, endpointId = null;
+        if (StringUtil.isNotEmpty(serviceId)) {
+            serviceInstanceId = labelMap.containsKey(LabelName.SERVICE_INSTANCE.getLabel()) ?
+                IDManager.ServiceInstanceID.buildId(
+                    serviceId, labelMap.get(LabelName.SERVICE_INSTANCE.getLabel())) : null;
+            endpointId = labelMap.containsKey(LabelName.ENDPOINT.getLabel()) ?
+                IDManager.EndpointID.buildId(serviceId, labelMap.get(LabelName.ENDPOINT.getLabel())) : null;
+        }
 
         String traceId = labelMap.get(LabelName.TRACE_ID.getLabel());
         TraceScopeCondition traceScopeCondition = new TraceScopeCondition();
