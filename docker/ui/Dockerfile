@@ -37,4 +37,4 @@ COPY log4j2.xml webapp/
 
 EXPOSE 8080
 
-ENTRYPOINT ["bash", "docker-entrypoint.sh"]
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

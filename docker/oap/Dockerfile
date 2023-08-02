@@ -53,4 +53,4 @@ RUN mkdir ext-config; \
 
 EXPOSE 12800 11800 1234
 
-ENTRYPOINT ["bash", "docker-entrypoint.sh"]
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]
