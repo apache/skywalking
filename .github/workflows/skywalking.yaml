@@ -214,7 +214,7 @@ jobs:
           java-version: ${{ matrix.java-version }}
       - name: Build and save docker images
         env:
-          SW_OAP_BASE_IMAGE: eclipse-temurin:${{ matrix.java-version }}-jre
+          SW_OAP_BASE_IMAGE: eclipse-temurin:${{ matrix.java-version }}-jre-alpine
         run: |
           make docker.all || make docker.all
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest

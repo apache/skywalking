@@ -38,7 +38,7 @@ services:
       SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/11800"]
+      test: ["CMD", "/skywalking/bin/swctl", "healthcheck"]
       interval: 5s
       timeout: 60s
       retries: 120
