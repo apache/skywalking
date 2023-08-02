@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM eclipse-temurin:11-jre
+FROM eclipse-temurin:11-jre-alpine
 
 ENV JAVA_OPTS=" -Xms256M " \
     SW_OAP_ADDRESS="http://127.0.0.1:12800" \

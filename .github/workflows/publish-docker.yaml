@@ -76,7 +76,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
       - name: Build and push docker images based on Java 17
         env:
-          SW_OAP_BASE_IMAGE: eclipse-temurin:17-jre
+          SW_OAP_BASE_IMAGE: eclipse-temurin:17-jre-alpine
           TAG: ${{ env.TAG }}-java17
         run: make build.all docker.push
       - name: Build and push docker images

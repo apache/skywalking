@@ -17,6 +17,9 @@
 name: CI
 
 on:
+  push:
+    branches:
+      - docker/alpine
   pull_request:
   schedule:
     - cron: "0 18 * * *" # TimeZone: UTC 0
