@@ -43,6 +43,20 @@ services:
     networks:
       - e2e
 
+  provider2:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
+    depends_on:
+      oap:
+        condition: service_healthy
+    networks:
+      - e2e
+    environment:
+      SW_AGENT_INSTANCE_NAME: provider2
+
   consumer:
     extends:
       file: ../../script/docker-compose/base-compose.yml
