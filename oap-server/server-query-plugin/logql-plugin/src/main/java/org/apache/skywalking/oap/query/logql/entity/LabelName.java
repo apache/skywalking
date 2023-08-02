@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-@JsonSerialize()
 public enum LabelName {
     SERVICE("service"),
     SERVICE_INSTANCE("service_instance"),
