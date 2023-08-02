@@ -1,0 +1,28 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cases:
+  # log tag query
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/labels -d 'start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))
+    expected: expected/logql-log-tags.yml
+  # log tag value query
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/label/level/values -d 'start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))
+    expected: expected/logql-log-tag-values.yml
+  # log range query FORWARD
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service="e2e-service-provider"}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=FORWARD'
+    expected: expected/logql-logs.yml
+  # log range query BACKWARD
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service="e2e-service-provider"}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=BACKWARD'
+    expected: expected/logql-logs.yml

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.query;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -190,5 +191,31 @@ public enum DurationUtils {
                 return;
         }
         throw new UnexpectedException("Unsupported step " + step.name());
+    }
+
+    public static Duration timestamp2Duration(long startTS, long endTS) {
+        Duration duration = new Duration();
+        if (endTS < startTS) {
+            throw new IllegalArgumentException("End time must not be before start");
+        }
+        DateTime startDT = new DateTime(startTS);
+        DateTime endDT = new DateTime(endTS);
+
+        long durationValue = endTS - startTS;
+
+        if (durationValue <= 3600000) {
+            duration.setStep(Step.MINUTE);
+            duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
+            duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
+        } else if (durationValue <= 86400000) {
+            duration.setStep(Step.HOUR);
+            duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HH));
+            duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HH));
+        } else {
+            duration.setStep(Step.DAY);
+            duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD));
+            duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD));
+        }
+        return duration;
     }
 }

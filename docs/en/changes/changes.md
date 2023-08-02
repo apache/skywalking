@@ -59,6 +59,7 @@
 * Bump up Armeria to 1.24.3.
 * Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates.
 * Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
+* Support LogQL http query api.
 
 #### UI
 
