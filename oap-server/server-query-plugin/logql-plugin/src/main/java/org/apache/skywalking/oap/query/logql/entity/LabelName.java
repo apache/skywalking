@@ -48,7 +48,6 @@ public enum LabelName {
         return DICTIONARY.containsKey(label);
     }
 
-    @JsonValue
     public String getLabel() {
         return this.label;
     }
