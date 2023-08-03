@@ -210,6 +210,11 @@
             <artifactId>promql-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>logql-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- queryBuild module -->
 
         <!-- alarm module -->

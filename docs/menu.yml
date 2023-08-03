@@ -299,6 +299,8 @@ catalog:
                 path: "/en/api/query-protocol-deprecated"
           - name: "PromQL APIs"
             path: "/en/api/promql-service"
+          - name: "LogQL APIs"
+            path: "/en/api/logql-service"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Academy"
