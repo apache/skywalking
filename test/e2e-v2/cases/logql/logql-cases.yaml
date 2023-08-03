@@ -42,5 +42,11 @@ cases:
   - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service="e2e-service-provider", level="INFO"}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=BACKWARD'
     expected: expected/logql-logs-provider.yml
   # log range query without service but service_instance condition
-  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service="e2e-service-provider", level="INFO"}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=BACKWARD'
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service_instance="provider1"}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=BACKWARD'
+    expected: expected/logql-logs.yml
+  # log range query with service_instance All(*) condition
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service="e2e-service-provider", service_instance="*"}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=BACKWARD'
+    expected: expected/logql-logs.yml
+  # log range query with service_instance All(blank) condition
+  - query: curl -X GET http://${oap_host}:${oap_3100}/loki/api/v1/query_range -d 'query={service="e2e-service-provider", service_instance=" "}&start='$(($(($(date +%s)-1800))*1000000000))'&end='$(($(date +%s)*1000000000))'&limit=100&direction=BACKWARD'
     expected: expected/logql-logs.yml

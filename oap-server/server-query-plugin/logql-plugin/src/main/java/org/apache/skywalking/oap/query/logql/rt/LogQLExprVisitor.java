@@ -19,12 +19,15 @@
 package org.apache.skywalking.oap.query.logql.rt;
 
 import java.util.Map;
+import java.util.Objects;
 import org.apache.skywalking.logql.rt.grammar.LogQLParser;
 import org.apache.skywalking.logql.rt.grammar.LogQLParserBaseVisitor;
 import org.apache.skywalking.oap.query.logql.rt.result.LogQLParseResult;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class LogQLExprVisitor extends LogQLParserBaseVisitor<LogQLParseResult> {
+
+    private static final String ALL_VALUE = "*";
 
     @Override
     public LogQLParseResult visitRoot(final LogQLParser.RootContext ctx) {
@@ -46,10 +49,12 @@ public class LogQLExprVisitor extends LogQLParserBaseVisitor<LogQLParseResult> {
                 String labelName = labelCtx.labelName().getText();
                 String labelValue = labelCtx.labelValue().getText();
                 String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
-                // filter blank value to support service_instance & endpoint All query
-                if (StringUtil.isNotBlank(labelValueTrim)) {
-                    labelMap.put(labelName, labelValueTrim);
+                // filter blank value or * to support service_instance & endpoint All query in Grafana
+                if (StringUtil.isBlank(labelValueTrim) || Objects.equals(ALL_VALUE, labelValueTrim)) {
+                    continue;
                 }
+
+                labelMap.put(labelName, labelValueTrim);
             }
         }
         return result;

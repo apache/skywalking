@@ -15,7 +15,7 @@ In the data source config panel, chose the `Prometheus` and set the url to the O
 
 ### Loki Data Source
 In the data source config panel, chose the `Loki` and set the url to the OAP server address, the default port is `3100`.
-<img src="./grafana-loki-datasource.jpg"/>
+<img src="https://skywalking.apache.org/doc-graph/logql/grafana-loki-datasource.jpg"/>
 
 ## Configure Metric Dashboards
 
@@ -65,13 +65,13 @@ Same as the Sort Metrics.
 The following steps are the example of config a log dashboard:
 1. Create a dashboard named `Log`.
 2. Configure variables for the dashboard:
-<img src="./grafana-loki-variables1.jpg"/>
-3. Please make sure `service_instance` and `endpoint` variable enabled `Include All` option and set `Custom all value` to blank (typed by space button on the keyboard):
-<img src="./grafana-loki-variables2.jpg"/>
+<img src="https://skywalking.apache.org/doc-graph/logql/grafana-loki-variables1.jpg"/>
+3. Please make sure `service_instance` and `endpoint` variable enabled `Include All` option and set `Custom all value` to * or blank (typed by space button on the keyboard):
+<img src="https://skywalking.apache.org/doc-graph/logql/grafana-loki-variables2.jpg"/>
 4. `Tags` variable is a little different from others, for more details, please refer [Ad hoc filters](https://grafana.com/docs/grafana/latest/dashboards/variables/add-template-variables/#add-ad-hoc-filters):
-<img src="./grafana-loki-variables3.jpg"/>
-6. After configure, you can select log query variables on the top of the dashboard:
-<img src="./grafana-loki-variables4.jpg"/>
+<img src="https://skywalking.apache.org/doc-graph/logql/grafana-loki-variables3.jpg"/>
+5. After configure, you can select log query variables on the top of the dashboard:
+<img src="https://skywalking.apache.org/doc-graph/logql/grafana-loki-variables4.jpg"/>
 
 ### Add Log Panel
 The following steps show how to add a log panel.
@@ -79,7 +79,7 @@ The following steps show how to add a log panel.
 2. Set the `Line limit` value (The max number of logs to return in a query) and `Order` value (Determines the sort order of logs).
 3. Add LogQL expressions, use the variables configured above for the labels and searching keyword.
 4. Test query and save the panel.
-<img src="./grafana-log-panel.jpg"/>
+<img src="https://skywalking.apache.org/doc-graph/logql/grafana-log-panel.jpg"/>
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.

@@ -35,11 +35,12 @@ public class LogQLExprVisitorTest {
 
     @Test
     public void testStreamSelector() {
-        String expression = "{service=\"test-service\", service_instance=\"test-instance\", trace_id=\" \"}";
+        String expression = "{service=\"test-service\", service_instance=\"test-instance\", endpoint=\"*\", trace_id=\" \"}";
         LogQLParseResult parseResult = parseLogQL(expression);
 
         Assertions.assertEquals("test-service", parseResult.getLabelMap().get(LabelName.SERVICE.getLabel()));
         Assertions.assertEquals("test-instance", parseResult.getLabelMap().get(LabelName.SERVICE_INSTANCE.getLabel()));
+        Assertions.assertNull(parseResult.getLabelMap().get(LabelName.ENDPOINT.getLabel()));
         Assertions.assertNull(parseResult.getLabelMap().get(LabelName.TRACE_ID.getLabel()));
         Assertions.assertEquals(parseResult.getKeywordsOfContent().size(), 0);
         Assertions.assertEquals(parseResult.getExcludingKeywordsOfContent().size(), 0);
