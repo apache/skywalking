@@ -35,6 +35,7 @@ ARG DIST
 COPY "$DIST" .
 
 RUN set -ex; \
+    apk update && apk add libc6-compat; \
     tar -xzf "$DIST" --strip 1; \
     rm -rf "$DIST"; \
     rm -rf "config/log4j2.xml"; \
