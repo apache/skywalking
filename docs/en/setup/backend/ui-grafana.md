@@ -11,7 +11,7 @@ Grafana UI is an extension on our support of PromQL APIs. We don't maintain or p
 ## Configure Data Source
 ### Prometheus Data Source
 In the data source config panel, chose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-datasource.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-datasource.jpg"/>
 
 ### Loki Data Source
 In the data source config panel, chose the `Loki` and set the url to the OAP server address, the default port is `3100`.
@@ -23,9 +23,9 @@ In the data source config panel, chose the `Loki` and set the url to the OAP ser
 The following steps are the example of config a `General Service` dashboard:
 1. Create a dashboard named `General Service`. A [layer](../../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) is recommended as a dashboard.
 2. Configure variables for the dashboard:
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-variables.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-variables.jpg"/>
 After configure, you can select the service/instance/endpoint on the top of the dashboard:
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-variables2.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-variables2.jpg"/>
 
 ### Add Panels
 The following contents show how to add several typical metrics panels.
@@ -42,20 +42,20 @@ General settings:
 2. Add PromQL expression, the metric scope is `Service`, so add labels `service` and `layer` for match.
 3. Set `Connect null values --> Always` and `Show points --> Always` because when the query interval > 1hour or 1day SkyWalking return 
    the hour/day step metrics values.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-panels.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-panels.jpg"/>
 #### Labeled Value Metrics
 1. For example `service_percentile` and `Time series chart`.
 2. Add PromQL expressions, the metric scope is `Service`, add labels `service` and `layer` for match.
    And it's a labeled value metric, add `labels='0,1,2,3,4'` filter the result label, and add`relabels='P50,P75,P90,P95,P99'` rename the result label.
 3. Set `Connect null values --> Always` and `Show points --> Always` because when the query interval > 1hour or 1day SkyWalking return
    the hour/day step metrics values.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-panels2.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-panels2.jpg"/>
 
 #### Sort Metrics
 1. For example `service_instance_cpm` and `Bar gauge chart`.
 2. Add PromQL expressions, add labels `parent_service` and `layer` for match, add `top_n='10'` and `order='DES'` filter the result.
 3. Set the `Calculation --> Latest*`.
-<img src="https://skywalking.apache.org/doc-graph/promql/grafana-panels3.jpg"/>
+<img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-panels3.jpg"/>
 
 #### Sampled Records
 Same as the Sort Metrics.
