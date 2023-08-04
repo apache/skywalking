@@ -61,6 +61,7 @@
 * Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
 * Support LogQL HTTP query APIs.
 * Add Mux Server component ID(5017) language: Golang.
+* Fix incorrect LogQL expression in screenshot ref by ui-grafana.md.
 
 #### UI
 
