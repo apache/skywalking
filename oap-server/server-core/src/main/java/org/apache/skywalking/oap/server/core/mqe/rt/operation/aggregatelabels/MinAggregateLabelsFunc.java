@@ -16,10 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.exception;
+package org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels;
 
-public class IllegalExpressionException extends Exception {
-    public IllegalExpressionException(String message) {
-        super(message);
+public class MinAggregateLabelsFunc implements AggregateLabelsFunc {
+
+    private Double min;
+
+    @Override
+    public void combine(final Double value) {
+        if (value == null) {
+            return;
+        }
+
+        if (min == null) {
+            min = value;
+        } else {
+            if (value < min) {
+                min = value;
+            }
+        }
+    }
+
+    @Override
+    public Double getResult() {
+        return min;
     }
 }

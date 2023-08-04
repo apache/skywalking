@@ -30,7 +30,6 @@
     <modules>
         <module>query-graphql-plugin</module>
         <module>zipkin-query-plugin</module>
-        <module>mqe-grammar</module>
         <module>promql-plugin</module>
         <module>logql-plugin</module>
     </modules>

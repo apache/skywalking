@@ -16,17 +16,17 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
+package org.apache.skywalking.oap.server.core.mqe.rt.operation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResultType;
-import org.apache.skywalking.oap.query.graphql.type.mql.MQEValue;
-import org.apache.skywalking.oap.query.graphql.type.mql.MQEValues;
+import org.apache.skywalking.oap.server.core.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValue;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 public class BinaryOp {

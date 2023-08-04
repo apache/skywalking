@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.apache.skywalking.oap.query.graphql.type.mql;
+package org.apache.skywalking.oap.server.core.mqe.rt.type;
 
 public enum ExpressionResultType {
 

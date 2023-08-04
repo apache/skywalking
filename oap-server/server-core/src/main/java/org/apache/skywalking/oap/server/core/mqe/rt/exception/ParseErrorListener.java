@@ -16,8 +16,23 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels;
+package org.apache.skywalking.oap.server.core.mqe.rt.exception;
 
-public interface AggregateLabelsFuncFactory {
-     AggregateLabelsFunc getAggregateLabelsFunc();
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+
+public class ParseErrorListener extends BaseErrorListener {
+    @Override
+    public void syntaxError(Recognizer<?, ?> recognizer,
+                            Object offendingSymbol,
+                            int line,
+                            int charPositionInLine,
+                            String msg,
+                            RecognitionException e)
+        throws ParseCancellationException {
+
+        throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+    }
 }

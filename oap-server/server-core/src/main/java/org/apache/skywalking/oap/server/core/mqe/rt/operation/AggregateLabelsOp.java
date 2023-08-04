@@ -16,22 +16,22 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
+package org.apache.skywalking.oap.server.core.mqe.rt.operation;
 
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels.AggregateLabelsFunc;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels.AggregateLabelsFuncFactory;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels.AvgAggregateLabelsFunc;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels.MaxAggregateLabelsFunc;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels.MinAggregateLabelsFunc;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels.SumAggregateLabelsFunc;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
-import org.apache.skywalking.oap.query.graphql.type.mql.MQEValue;
-import org.apache.skywalking.oap.query.graphql.type.mql.MQEValues;
-import org.apache.skywalking.oap.query.graphql.type.mql.Metadata;
+import org.apache.skywalking.oap.server.core.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValue;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels.AggregateLabelsFunc;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels.AggregateLabelsFuncFactory;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels.AvgAggregateLabelsFunc;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels.MaxAggregateLabelsFunc;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels.MinAggregateLabelsFunc;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels.SumAggregateLabelsFunc;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 public class AggregateLabelsOp {

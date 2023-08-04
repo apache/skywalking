@@ -16,12 +16,12 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe;
+package org.apache.skywalking.oap.server.core.mqe;
 
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.operation.AggregateLabelsOp;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.mqe.rt.operation.AggregateLabelsOp;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResultType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

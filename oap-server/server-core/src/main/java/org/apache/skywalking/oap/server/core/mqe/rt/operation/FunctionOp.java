@@ -16,14 +16,14 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation;
+package org.apache.skywalking.oap.server.core.mqe.rt.operation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.function.Function;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.oap.query.graphql.mqe.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
+import org.apache.skywalking.oap.server.core.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResult;
 
 public class FunctionOp {
     public static ExpressionResult doFunction0Op(ExpressionResult expResult,

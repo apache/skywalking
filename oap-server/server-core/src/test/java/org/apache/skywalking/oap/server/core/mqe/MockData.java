@@ -16,13 +16,13 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe;
+package org.apache.skywalking.oap.server.core.mqe;
 
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResult;
-import org.apache.skywalking.oap.query.graphql.type.mql.ExpressionResultType;
-import org.apache.skywalking.oap.query.graphql.type.mql.MQEValue;
-import org.apache.skywalking.oap.query.graphql.type.mql.MQEValues;
-import org.apache.skywalking.oap.query.graphql.type.mql.Metadata;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValue;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValues;
+import org.apache.skywalking.oap.server.core.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 public class MockData {

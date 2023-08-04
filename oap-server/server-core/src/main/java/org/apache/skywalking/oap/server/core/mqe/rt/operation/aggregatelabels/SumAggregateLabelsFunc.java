@@ -16,12 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels;
+package org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels;
 
-public class AvgAggregateLabelsFunc implements AggregateLabelsFunc {
+public class SumAggregateLabelsFunc implements AggregateLabelsFunc {
 
     private Double sum;
-    private Integer count = 0;
 
     @Override
     public void combine(final Double value) {
@@ -34,16 +33,10 @@ public class AvgAggregateLabelsFunc implements AggregateLabelsFunc {
         } else {
             sum = sum + value;
         }
-
-        count++;
     }
 
     @Override
     public Double getResult() {
-        if (sum == null) {
-            return null;
-        }
-
-        return sum / count;
+        return sum;
     }
 }

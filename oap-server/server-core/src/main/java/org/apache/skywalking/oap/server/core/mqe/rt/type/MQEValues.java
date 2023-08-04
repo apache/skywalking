@@ -17,14 +17,15 @@
  * under the License.
  */
 
-package org.apache.skywalking.oap.query.graphql.type.mql;
+package org.apache.skywalking.oap.server.core.mqe.rt.type;
 
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 
 @Data
-public class Metadata {
-    private List<KeyValue> labels  = new ArrayList<>();
+public class MQEValues {
+    private Metadata metric;
+
+    private List<MQEValue> values = new ArrayList<>();
 }

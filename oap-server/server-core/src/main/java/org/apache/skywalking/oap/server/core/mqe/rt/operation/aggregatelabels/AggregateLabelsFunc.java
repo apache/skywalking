@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.query.graphql.mqe.rt.operation.aggregatelabels;
+package org.apache.skywalking.oap.server.core.mqe.rt.operation.aggregatelabels;
 
 public interface AggregateLabelsFunc {
     void combine(Double value);
