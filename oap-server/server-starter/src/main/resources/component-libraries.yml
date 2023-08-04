@@ -625,6 +625,9 @@ Echo:
 Lock:
   id: 5016
   language: Golang,Node.js,Python,java
+GoMuxServer:
+  id: 5017
+  language: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent

@@ -60,6 +60,7 @@
 * Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates.
 * Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
 * Support LogQL HTTP query APIs.
+* Add Mux Server component ID(5017) language: Golang.
 
 #### UI
 
