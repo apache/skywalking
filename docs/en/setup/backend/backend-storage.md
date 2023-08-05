@@ -10,7 +10,7 @@ storage:
 Natively supported storage:
 - H2
 - OpenSearch
-- ElasticSearch 7, 8, ElasticSearch 6 might also work but is end of life and not supported.
+- ElasticSearch 7 and 8. 
 - MySQL
 - PostgreSQL
 - BanyanDB
@@ -41,15 +41,17 @@ In order to activate OpenSearch as storage, set the storage provider to **elasti
 
 We support and tested the following versions of OpenSearch:
 
-- 1.1.0, 1.3.6
-- 2.4.0
+- 1.1.0, 1.3.10
+- 2.4.0, 2.8.0
 
 ## ElasticSearch
 
 **NOTE:** Elastic announced through their blog that Elasticsearch will be moving over to a Server Side Public
-License (SSPL), which is incompatible with Apache License 2.0. This license change is effective from Elasticsearch
-version 7.11. So please choose the suitable ElasticSearch version according to your usage.
-If you have concerns about SSPL, choose the versions before 7.11 or switch to OpenSearch.
+License (SSPL) and/or Elastic License 2.0(ELv2), since Feb. 2021, which is **incompatible with Apache License 2.0**.
+Both of these licenses are not OSS licenses approved by the Open Source Initiative (OSI).
+This license change is effective from Elasticsearch version 7.11. 
+So please choose the suitable ElasticSearch version according to your usage.
+If you have concerns about SSPL/ELv2, choose the versions before 7.11 or switch to OpenSearch.
 
 By default, SkyWalking uses following indices for various telemetry data.
 
@@ -65,8 +67,10 @@ SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API an
 correct request formats according to the server-side version, hence you don't need to download different binaries
 and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
-For now, SkyWalking supports ElasticSearch 6.x, ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
+For now, SkyWalking supports ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
 configurations are as follows:
+
+_Notice, ElasticSearch 6 worked and is not promised due to end of life officially._
 
 ```yaml
 storage:

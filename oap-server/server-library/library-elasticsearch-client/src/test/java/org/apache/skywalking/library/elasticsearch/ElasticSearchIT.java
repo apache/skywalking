@@ -57,12 +57,6 @@ public class ElasticSearchIT {
         // noinspection resource
         return Arrays.asList(new Object[][] {
             {
-                "ElasticSearch 6.3.2",
-                new ElasticsearchContainer(
-                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
-                                   .withTag("6.3.2"))
-            },
-            {
                 "ElasticSearch 7.4.2",
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch-oss")
@@ -90,6 +84,13 @@ public class ElasticSearchIT {
                                 .withEnv("xpack.security.enabled", "false")
             },
             {
+                "ElasticSearch 8.9.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
+                                   .withTag("8.9.0"))
+                    .withEnv("xpack.security.enabled", "false")
+            },
+            {
                 "OpenSearch 1.0.0",
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
@@ -104,6 +105,16 @@ public class ElasticSearchIT {
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
                                    .withTag("2.4.0")
+                                   .asCompatibleSubstituteFor(
+                                       "docker.elastic.co/elasticsearch/elasticsearch-oss"))
+                    .withEnv("plugins.security.disabled", "true")
+                    .withStartupTimeout(java.time.Duration.ofMinutes(5))
+            },
+            {
+                "OpenSearch 2.8.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("opensearchproject/opensearch")
+                                   .withTag("2.8.0")
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
