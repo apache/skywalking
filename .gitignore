@@ -19,7 +19,7 @@ OALLexer.tokens
 .externalToolBuilders
 oap-server/oal-grammar/**/gen/
 MQELexer.tokens
-oap-server/server-query-plugin/mqe-grammar/gen/
+oap-server/mqe-grammar/**/gen/
 PromQLLexer.tokens
 oap-server/server-query-plugin/promql-plugin/gen/
 LogQLLexer.tokens
