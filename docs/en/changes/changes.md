@@ -61,6 +61,9 @@
 * Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
 * Support LogQL HTTP query APIs.
 * Add Mux Server component ID(5017) language: Golang.
+* Remove ElasticSearch 6.3.2 from our client lib tests.
+* Bump up ElasticSearch server 8.8.1 to 8.9.0 for latest e2e testing. 8.1.0, 7.16.3 and 7.17.10 are still tested.
+* Add OpenSearch 2.8.0 to our client lib tests.
 
 #### UI
 
