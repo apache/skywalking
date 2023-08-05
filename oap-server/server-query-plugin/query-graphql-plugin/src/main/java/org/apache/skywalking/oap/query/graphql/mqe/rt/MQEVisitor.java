@@ -25,16 +25,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
+import org.apache.skywalking.mqe.rt.grammar.MQEParser;
+import org.apache.skywalking.mqe.rt.type.MQEValue;
+import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.core.mqe.rt.MQEVisitorBase;
-import org.apache.skywalking.oap.server.core.mqe.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResult;
-import org.apache.skywalking.oap.server.core.mqe.rt.type.ExpressionResultType;
-import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValue;
-import org.apache.skywalking.oap.server.core.mqe.rt.type.MQEValues;
-import org.apache.skywalking.oap.server.core.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -51,7 +49,9 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import org.apache.skywalking.mqe.rt.grammar.MQEParser;
+import org.apache.skywalking.mqe.rt.MQEVisitorBase;
+import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 
 @Slf4j
 public class MQEVisitor extends MQEVisitorBase {

@@ -102,10 +102,6 @@
             <artifactId>ai-pipeline</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -157,21 +153,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>antlr</id>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <visitor>true</visitor>
-                </configuration>
             </plugin>
         </plugins>
     </build>
