@@ -367,9 +367,9 @@ jobs:
           - name: Storage ES 8.1.0
             config: test/e2e-v2/cases/storage/es/e2e.yaml
             env: ES_VERSION=8.1.0
-          - name: Storage ES 8.8.1
+          - name: Storage ES 8.9.0
             config: test/e2e-v2/cases/storage/es/e2e.yaml
-            env: ES_VERSION=8.8.1
+            env: ES_VERSION=8.9.0
           - name: Storage OpenSearch 1.1.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=1.1.0
@@ -623,6 +623,8 @@ jobs:
             config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
           - name: PromQL Service
             config: test/e2e-v2/cases/promql/e2e.yaml
+          - name: LogQL Service
+            config: test/e2e-v2/cases/logql/e2e.yaml
           - name: AWS API Gateway
             config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
           - name: Redis Prometheus and Log Collecting

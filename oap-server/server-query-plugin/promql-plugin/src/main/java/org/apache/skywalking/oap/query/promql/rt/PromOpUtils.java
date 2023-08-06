@@ -25,47 +25,19 @@ import java.util.stream.Collectors;
 import org.apache.skywalking.oap.query.promql.entity.MetricRangeData;
 import org.apache.skywalking.oap.query.promql.entity.TimeValuePair;
 import org.apache.skywalking.oap.query.promql.rt.exception.IllegalExpressionException;
-import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
 import org.apache.skywalking.oap.query.promql.rt.result.MetricsRangeResult;
+import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
 import org.apache.skywalking.oap.query.promql.rt.result.ScalarResult;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
-import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
-import org.joda.time.DateTime;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
 public class PromOpUtils {
-    //Adopt skywalking time step.
-    public static Duration timestamp2Duration(long startTS, long endTS) {
-        Duration duration = new Duration();
-        if (endTS < startTS) {
-            throw new IllegalArgumentException("End time must not be before start");
-        }
-        DateTime startDT = new DateTime(startTS);
-        DateTime endDT = new DateTime(endTS);
-
-        long durationValue = endTS - startTS;
-
-        if (durationValue <= 3600000) {
-            duration.setStep(Step.MINUTE);
-            duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
-            duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HHMM));
-        } else if (durationValue <= 86400000) {
-            duration.setStep(Step.HOUR);
-            duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD_HH));
-            duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD_HH));
-        } else {
-            duration.setStep(Step.DAY);
-            duration.setStart(startDT.toString(DurationUtils.YYYY_MM_DD));
-            duration.setEnd(endDT.toString(DurationUtils.YYYY_MM_DD));
-        }
-        return duration;
-    }
 
     static MetricsRangeResult matrixScalarBinaryOp(MetricsRangeResult matrix, ScalarResult scalar, int opType) {
         MetricsRangeResult result = new MetricsRangeResult();

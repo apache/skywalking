@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
 import org.apache.skywalking.oap.query.promql.rt.result.ScalarResult;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -65,7 +66,6 @@ import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixScalar
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.matrixScalarCompareOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.scalarBinaryOp;
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.scalarCompareOp;
-import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.timestamp2Duration;
 
 @Slf4j
 public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult> {
@@ -251,7 +251,7 @@ public class PromQLExprQueryVisitor extends PromQLParserBaseVisitor<ParseResult>
         String timeRange = ctx.DURATION().getText().toUpperCase();
         long endTS = System.currentTimeMillis();
         long startTS = endTS - formatDuration(timeRange).getMillis();
-        duration = timestamp2Duration(startTS, endTS);
+        duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ParseResult result = visit(ctx.metricInstant());
         result.setRangeExpression(true);
         return result;
