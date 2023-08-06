@@ -4,6 +4,7 @@
 
 * Bump up Guava to 32.0.1 to avoid the lib listed as vulnerable due to CVE-2020-8908. This API is never used.
 * Maven artifact `skywalking-log-recevier-plugin` is renamed to `skywalking-log-receiver-plugin`.
+* Change base image from `eclipse-temurin:11-jre` to `eclipse-temurin:11-jre-alpine` to reduce CVE exposure surface.
 
 #### OAP Server
 
