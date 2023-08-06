@@ -26,6 +26,8 @@ ARG DIST
 COPY "$DIST" .
 
 RUN tar -xzf "$DIST" --strip 1; \
+    apk update; \
+    apk add libc6-compat; \
     rm -rf "$DIST"; \
     rm -rf "config"; \
     rm -rf "bin"; \
