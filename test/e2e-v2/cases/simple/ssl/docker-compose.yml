@@ -29,11 +29,6 @@ services:
       SW_CORE_GRPC_SSL_TRUSTED_CA_PATH: /skywalking/certs/ca.crt
     ports:
       - 12800
-    healthcheck:
-      test: ["CMD", "/skywalking/bin/swctl", "health", "--grpcTLS"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
 
   provider:
     extends:
