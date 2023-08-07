@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG BASE_IMAGE='eclipse-temurin:11-jre'
+ARG BASE_IMAGE='eclipse-temurin:11-jre-alpine'
 
 ARG SKYWALKING_CLI_VERSION
 
@@ -35,6 +35,9 @@ ARG DIST
 COPY "$DIST" .
 
 RUN set -ex; \
+    apk update; \
+    apk add libc6-compat; \
+    apk add gcompat; \
     tar -xzf "$DIST" --strip 1; \
     rm -rf "$DIST"; \
     rm -rf "config/log4j2.xml"; \
@@ -53,4 +56,4 @@ RUN mkdir ext-config; \
 
 EXPOSE 12800 11800 1234
 
-ENTRYPOINT ["bash", "docker-entrypoint.sh"]
+ENTRYPOINT ["sh", "docker-entrypoint.sh"]

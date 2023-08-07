@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -23,7 +23,7 @@ MYSQL_DRIVER="mysql-connector-java-8.0.13.jar"
 
 # ensure the curl command been installed
 if ! command -v curl &> /dev/null; then
-    apt update -y && apt install -y curl
+    apk add curl
 fi
 
 if ! curl -Lo "${LIB_HOME}/${MYSQL_DRIVER}" ${MYSQL_URL}; then
