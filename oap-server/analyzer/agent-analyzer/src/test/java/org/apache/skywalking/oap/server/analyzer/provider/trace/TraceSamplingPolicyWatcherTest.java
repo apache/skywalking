@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.sampling.Samplin
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,7 +122,7 @@ public class TraceSamplingPolicyWatcherTest {
             "  duration: 800");
     }
 
-    public static class TraceLatencyThresholdMockConfigWatcherRegister extends ConfigWatcherRegister {
+    public static class TraceLatencyThresholdMockConfigWatcherRegister extends FetchingConfigWatcherRegister {
 
         public TraceLatencyThresholdMockConfigWatcherRegister(long syncPeriod) {
             super(syncPeriod);
@@ -205,7 +206,7 @@ public class TraceSamplingPolicyWatcherTest {
             "  rate: 500");
     }
 
-    public static class DefaultSampleRateMockConfigWatcherRegister extends ConfigWatcherRegister {
+    public static class DefaultSampleRateMockConfigWatcherRegister extends FetchingConfigWatcherRegister {
 
         public DefaultSampleRateMockConfigWatcherRegister(long syncPeriod) {
             super(syncPeriod);
@@ -335,7 +336,7 @@ public class TraceSamplingPolicyWatcherTest {
 
     }
 
-    public static class ServiceMockConfigWatcherRegister extends ConfigWatcherRegister {
+    public static class ServiceMockConfigWatcherRegister extends FetchingConfigWatcherRegister {
 
         public ServiceMockConfigWatcherRegister(long syncPeriod) {
             super(syncPeriod);
