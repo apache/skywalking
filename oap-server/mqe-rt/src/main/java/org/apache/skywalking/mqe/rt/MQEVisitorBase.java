@@ -34,6 +34,7 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
@@ -202,6 +203,24 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
         }
 
         return result;
+    }
+
+    @Override
+    public ExpressionResult visitViewAsSeqOp(MQEParser.ViewAsSeqOpContext ctx) {
+        ExpressionResult latestResult = null;
+        for (MQEParser.ExpressionContext expContext : ctx.expressionList().expression()) {
+            latestResult = visit(expContext);
+            if (latestResult == null || CollectionUtils.isEmpty(latestResult.getResults())) {
+                continue;
+            }
+            final boolean isNotEmptyValue = latestResult.getResults().stream()
+                .filter(s -> s != null && CollectionUtils.isNotEmpty(s.getValues()))
+                .flatMap(s -> s.getValues().stream()).anyMatch(s -> !s.isEmptyValue());
+            if (isNotEmptyValue) {
+                return latestResult;
+            }
+        }
+        return latestResult;
     }
 
     @Override

@@ -206,3 +206,22 @@ aggregate_labels(total_commands_rate, SUM)
 
 ### Result Type
 The ExpressionResultType of the aggregateLabels operation is TIME_SERIES_VALUES.
+
+## ViewAsSequence Operation
+ViewAsSequence operation searches for expressions in the given list from start to end and returns the expression that not empty.
+
+Expression:
+```text
+view_as_seq([<expression_1>, <expression_2>, ...])
+```
+
+For example:
+if the first expression value is empty but the second one not empty, it would return the result from the second expression. 
+The following example would return the content of the **service_sla** metric.
+
+```text
+view_as_seq(not_existing, service_cpm)
+```
+
+### Result Type
+Following the expression which has not empty value.

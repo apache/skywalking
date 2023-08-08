@@ -59,3 +59,7 @@ cases:
     expected: expected/aggregateLabels-OP.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(service_percentile,min)" --service-name=e2e-service-provider
     expected: expected/aggregateLabels-OP.yml
+
+  # viewAsSeq-OP
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="view_as_seq(not_existing,service_sla)" --service-name=e2e-service-provider
+    expected: expected/viewAsSeq-OP.yml

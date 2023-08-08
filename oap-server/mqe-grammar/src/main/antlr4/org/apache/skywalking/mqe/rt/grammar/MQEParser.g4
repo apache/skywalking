@@ -33,6 +33,11 @@ expression
     | topN L_PAREN metric COMMA parameter COMMA order R_PAREN  #topNOP
     | relabels L_PAREN expression COMMA label R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
+    | viewAsSeq L_PAREN expressionList R_PAREN #viewAsSeqOp
+    ;
+
+expressionList
+    : expression (COMMA expression)*
     ;
 
 expressionNode:  metric| scalar;
@@ -64,6 +69,9 @@ function1:
     ROUND;
 
 topN: TOP_N;
+
+viewAsSeq:
+    VIEW_AS_SEQ;
 
 relabels: RELABELS;
 
