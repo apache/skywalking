@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConfigWatcherRegisterTest {
-    private ConfigWatcherRegister register;
+public class FetchingConfigWatcherRegisterTest {
+    private FetchingConfigWatcherRegister register;
 
     @BeforeEach
     public void setup() {
@@ -118,17 +118,17 @@ public class ConfigWatcherRegisterTest {
         });
 
         register.configSync();
-        ConfigWatcherRegister.Register registerTable = Whitebox.getInternalState(this.register, "singleConfigChangeWatcherRegister");
-        ConfigWatcherRegister.Register groupRegisterTable = Whitebox.getInternalState(this.register, "groupConfigChangeWatcherRegister");
+        FetchingConfigWatcherRegister.Register registerTable = Whitebox.getInternalState(this.register, "singleConfigChangeWatcherRegister");
+        FetchingConfigWatcherRegister.Register groupRegisterTable = Whitebox.getInternalState(this.register, "groupConfigChangeWatcherRegister");
 
-        String expected = "Following dynamic config items are available." + ConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + ConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null" + ConfigWatcherRegister.LINE_SEPARATOR;
-        String groupConfigExpected = "Following dynamic config items are available." + ConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + ConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.groupItems1    module:MockModule    provider:provider    groupItems(current):null" + ConfigWatcherRegister.LINE_SEPARATOR;
+        String expected = "Following dynamic config items are available." + FetchingConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + FetchingConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.prop2    module:MockModule    provider:provider    value(current):null" + FetchingConfigWatcherRegister.LINE_SEPARATOR;
+        String groupConfigExpected = "Following dynamic config items are available." + FetchingConfigWatcherRegister.LINE_SEPARATOR + "---------------------------------------------" + FetchingConfigWatcherRegister.LINE_SEPARATOR + "key:MockModule.provider.groupItems1    module:MockModule    provider:provider    groupItems(current):null" + FetchingConfigWatcherRegister.LINE_SEPARATOR;
 
         assertEquals(expected, registerTable.toString());
         assertEquals(groupConfigExpected, groupRegisterTable.toString());
     }
 
-    public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
+    public static class MockConfigWatcherRegister extends FetchingConfigWatcherRegister {
 
         @Override
         public Optional<ConfigTable> readConfig(Set<String> keys) {

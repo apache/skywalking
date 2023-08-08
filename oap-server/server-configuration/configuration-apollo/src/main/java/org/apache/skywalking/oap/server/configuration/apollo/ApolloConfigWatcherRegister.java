@@ -21,22 +21,22 @@ package org.apache.skywalking.oap.server.configuration.apollo;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.google.common.base.Strings;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
+import org.apache.skywalking.oap.server.configuration.api.ListeningConfigWatcherRegister;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
+public class ApolloConfigWatcherRegister extends ListeningConfigWatcherRegister {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApolloConfigWatcherRegister.class);
 
     private final Config configReader;
 
     public ApolloConfigWatcherRegister(ApolloConfigurationCenterSettings settings) {
-        super(settings.getPeriod());
-
         final String namespace = settings.getNamespace();
 
         final boolean isDefaultNamespace = Strings.isNullOrEmpty(namespace);
@@ -55,34 +55,61 @@ public class ApolloConfigWatcherRegister extends ConfigWatcherRegister {
     }
 
     @Override
-    public Optional<ConfigTable> readConfig(Set<String> keys) {
-        final ConfigTable configTable = new ConfigTable();
+    protected void startListening(final WatcherHolder holder, ConfigChangeCallback configChangeCallback) {
+        String key = holder.getKey();
+        switch (holder.getWatcher().getWatchType()) {
+            case SINGLE:
+                // read initial value before listening
+                String value = this.configReader.getProperty(key, null);
+                if (value != null) {
+                    configChangeCallback.onSingleValueChanged(holder, new ConfigTable.ConfigItem(key, value));
+                }
 
-        for (final String name : keys) {
-            final String value = configReader.getProperty(name, null);
-            configTable.add(new ConfigTable.ConfigItem(name, value));
+                // add change listener
+                this.configReader.addChangeListener(changeEvent -> {
+                    changeEvent.changedKeys().stream()
+                               .filter(changedKey -> Objects.equals(changedKey, key))
+                               .findFirst()
+                               .ifPresent(changedKey -> {
+                                   String newValue = changeEvent.getChange(changedKey).getNewValue();
+                                   configChangeCallback.onSingleValueChanged(
+                                       holder, new ConfigTable.ConfigItem(changedKey, newValue)
+                                   );
+                               });
+                }, Collections.singleton(key));
+                break;
+            case GROUP:
+                String groupPrefix = key + ".";
+
+                // read initial group value before listening
+                Set<String> allKeys = this.configReader.getPropertyNames();
+                if (CollectionUtils.isNotEmpty(allKeys)) {
+                    GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+
+                    allKeys.stream().filter(it -> it.startsWith(groupPrefix)).forEach(groupItemKey -> {
+                        String itemName = groupItemKey.substring(groupPrefix.length());
+                        String itemValue = this.configReader.getProperty(groupItemKey, null);
+                        groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
+                    });
+
+                    configChangeCallback.onGroupValuesChanged(holder, groupConfigItems);
+                }
+
+                // add change listener
+                this.configReader.addChangeListener(changeEvent -> {
+                    GroupConfigTable.GroupConfigItems newGroupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+
+                    for (final String groupItemKey : changeEvent.changedKeys()) {
+                        String itemName = groupItemKey.substring(groupPrefix.length());
+                        String itemValue = changeEvent.getChange(groupItemKey).getNewValue();
+                        newGroupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
+                    }
+
+                    configChangeCallback.onGroupValuesChanged(holder, newGroupConfigItems);
+                }, Collections.emptySet(), Collections.singleton(key));
+                break;
+            default:
+                throw new IllegalArgumentException("unsupported watcher type.");
         }
-
-        return Optional.of(configTable);
-    }
-
-    @Override
-    public Optional<GroupConfigTable> readGroupConfig(final Set<String> keys) {
-        GroupConfigTable groupConfigTable = new GroupConfigTable();
-        Set<String> allKeys = this.configReader.getPropertyNames();
-
-        keys.forEach(key -> {
-            GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
-            groupConfigTable.addGroupConfigItems(groupConfigItems);
-            String groupKey = key + ".";
-            if (allKeys != null) {
-                allKeys.stream().filter(it -> it.startsWith(groupKey)).forEach(groupItemKey -> {
-                    String itemValue = this.configReader.getProperty(groupItemKey, null);
-                    String itemName = groupItemKey.substring(groupKey.length());
-                    groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
-                });
-            }
-        });
-        return Optional.of(groupConfigTable);
     }
 }

@@ -29,13 +29,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
-public class EtcdConfigWatcherRegister extends ConfigWatcherRegister {
+public class EtcdConfigWatcherRegister extends FetchingConfigWatcherRegister {
 
     private final KV client;
 
