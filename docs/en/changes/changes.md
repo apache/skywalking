@@ -64,7 +64,8 @@
 * Remove ElasticSearch 6.3.2 from our client lib tests.
 * Bump up ElasticSearch server 8.8.1 to 8.9.0 for latest e2e testing. 8.1.0, 7.16.3 and 7.17.10 are still tested.
 * Add OpenSearch 2.8.0 to our client lib tests.
-* Use listening mode for apollo configuration.
+* Apply MQE on RabbitMQ Dashboards.
+* Use listening mode for apollo implementation of dynamic configuration.
 
 #### UI
 
