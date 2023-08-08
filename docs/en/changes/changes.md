@@ -4,6 +4,7 @@
 
 * Bump up Guava to 32.0.1 to avoid the lib listed as vulnerable due to CVE-2020-8908. This API is never used.
 * Maven artifact `skywalking-log-recevier-plugin` is renamed to `skywalking-log-receiver-plugin`.
+* Bump up cli version 0.11 to 0.12.
 
 #### OAP Server
 
@@ -66,6 +67,7 @@
 * Add OpenSearch 2.8.0 to our client lib tests.
 * Apply MQE on RabbitMQ Dashboards.
 * Use listening mode for apollo implementation of dynamic configuration.
+
 
 #### UI
 
