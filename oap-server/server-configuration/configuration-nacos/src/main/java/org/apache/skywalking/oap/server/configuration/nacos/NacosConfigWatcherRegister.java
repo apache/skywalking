@@ -31,15 +31,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
-import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
-public class NacosConfigWatcherRegister extends ConfigWatcherRegister {
+public class NacosConfigWatcherRegister extends FetchingConfigWatcherRegister {
     private final NacosServerSettings settings;
     private final ConfigService configService;
     private final Map<String, Optional<String>> configItemKeyedByName;

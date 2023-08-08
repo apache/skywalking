@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ConfigWatcherRegister;
+import org.apache.skywalking.oap.server.configuration.api.FetchingConfigWatcherRegister;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.junit.jupiter.api.Test;
@@ -65,7 +66,7 @@ public class ApdexThresholdConfigTest {
         assertThat(config.lookup("bar")).isEqualTo(1000);
     }
 
-    public static class MockConfigWatcherRegister extends ConfigWatcherRegister {
+    public static class MockConfigWatcherRegister extends FetchingConfigWatcherRegister {
 
         public MockConfigWatcherRegister(long syncPeriod) {
             super(syncPeriod);
