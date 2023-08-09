@@ -63,6 +63,9 @@ ROUND:       'round';
 // TopN
 TOP_N:        'top_n';
 
+// ViewAsSeq
+VIEW_AS_SEQ: 'view_as_seq';
+
 // Relabels
 RELABELS:     'relabels';
 
