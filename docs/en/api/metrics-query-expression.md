@@ -48,7 +48,7 @@ If we want to rename the label values to `P50,P75,P90,P95,P99`, see [Relabel Ope
 The `ExpressionResultType` of the expression is `TIME_SERIES_VALUES` and with labels.
 
 ## Binary Operation 
-Binary Operation is an operation that takes two expressions and performs a calculation on their results.
+The binary Operation is an operation that takes two expressions and performs a calculation on their results.
 The following table lists the binary operations supported by MQE.
 
 Expression:
@@ -71,7 +71,7 @@ service_sla / 100
 ```
 
 ### Result Type
-The result type of the expression please refer to the following table.
+For the result type of the expression, please refer to the following table.
 
 ### Binary Operation Rules
 The following table lists if the different result types of the input expressions could do this operation and the result type after the operation.
@@ -114,12 +114,12 @@ avg(service_cpm)
 ### Result Type
 The different operators could impact the `ExpressionResultType`, please refer to the above table.
 
-## Function Operation
-Function Operation takes an expression and performs function calculation on its results.
+## Mathematical Operation
+Mathematical Operation takes an expression and performs mathematical calculations on its results.
 
 Expression:
 ```text
-<Function-Operator>(Expression, parameters)
+<Mathematical-Operator>(Expression, parameters)
 ```
 
 | Operator | Definition                                                                | parameters                                                         | ExpressionResultType          |
@@ -170,7 +170,7 @@ Expression:
 relabel(Expression, _='<new_label_value_1>,...')
 ```
 
-`_` is the new label values of the metric after the label is relabeled, the order of the new label values should be the same as the order of the label values in the input expression result.
+`_` is the new label of the metric after the label is relabeled, the order of the new label values should be the same as the order of the label values in the input expression result.
 
 For example:
 If we want to query the `service_percentile` metric with the label values `0,1,2,3,4`, and rename the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
@@ -207,7 +207,8 @@ aggregate_labels(total_commands_rate, SUM)
 ### Result Type
 The ExpressionResultType of the aggregateLabels operation is TIME_SERIES_VALUES.
 
-## ViewAsSequence Operation
+## Logical Operation
+### ViewAsSequence Operation
 ViewAsSequence operation represents the first not-null metric from the listing metrics in the given prioritized sequence(left to right). It could also be considered as a `short-circuit` of given metrics for the first value existing metric.
 
 Expression:
@@ -216,12 +217,12 @@ view_as_seq([<expression_1>, <expression_2>, ...])
 ```
 
 For example:
-if the first expression value is empty but the second one not empty, it would return the result from the second expression. 
+if the first expression value is empty but the second one is not empty, it would return the result from the second expression. 
 The following example would return the content of the **service_cpm** metric.
 
 ```text
 view_as_seq(not_existing, service_cpm)
 ```
 
-### Result Type
-Following the expression which has not empty value.
+#### Result Type
+The result type is determined by the type of selected not-null metric expression.
