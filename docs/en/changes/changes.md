@@ -67,6 +67,8 @@
 * Add OpenSearch 2.8.0 to our client lib tests.
 * Apply MQE on RabbitMQ Dashboards.
 * Use listening mode for apollo implementation of dynamic configuration.
+* Apply MQE on Virtual-MQ layer UI-templates
+* Apply MQE on Infra-Linux layer UI-templates
 
 
 #### UI

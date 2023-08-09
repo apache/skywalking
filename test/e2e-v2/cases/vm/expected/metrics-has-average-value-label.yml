@@ -17,7 +17,22 @@ type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels: []
+      labels:
+        - key: _
+          value: "idle"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "user"
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
