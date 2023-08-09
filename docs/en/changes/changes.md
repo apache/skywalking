@@ -70,6 +70,7 @@
 * Add `view_as_seq` function in MQE for listing metrics in the given prioritized sequence.
 * Apply MQE on Virtual-MQ layer UI-templates
 * Apply MQE on Infra-Linux layer UI-templates
+* Fix the wrong default value of `k8sServiceNameRule` if it's not explicitly set.
 
 #### UI
 
