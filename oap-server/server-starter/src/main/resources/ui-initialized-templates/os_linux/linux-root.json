@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-[
+ [
   {
     "id": "Linux-Root",
     "configuration": {
@@ -38,18 +38,24 @@
             "showYAxis": false,
             "showGroup": false
           },
-          "metrics": [
+          "expressions": [
+            "avg(meter_vm_cpu_total_percentage)"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "subExpressions": [
             "meter_vm_cpu_total_percentage"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "subTypesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "moved": false,
           "metricConfig": [
             {
               "label": "CPU Usage",
-              "unit": "%",
-              "calculation": "average"
+              "unit": "%"
             }
           ]
         },
