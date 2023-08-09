@@ -25,16 +25,16 @@ import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 
-public class FunctionOp {
+public class MathematicalFunctionOp {
     public static ExpressionResult doFunction0Op(ExpressionResult expResult,
                                                  int opType) throws IllegalExpressionException {
         switch (opType) {
             case MQEParser.ABS:
-                return FunctionOp.transResult(expResult, Math::abs);
+                return MathematicalFunctionOp.transResult(expResult, Math::abs);
             case MQEParser.CEIL:
-                return FunctionOp.transResult(expResult, Math::ceil);
+                return MathematicalFunctionOp.transResult(expResult, Math::ceil);
             case MQEParser.FLOOR:
-                return FunctionOp.transResult(expResult, Math::floor);
+                return MathematicalFunctionOp.transResult(expResult, Math::floor);
         }
 
         throw new IllegalExpressionException("Unsupported function.");
@@ -45,7 +45,7 @@ public class FunctionOp {
                                                  int scale) throws IllegalExpressionException {
         switch (opType) {
             case MQEParser.ROUND:
-                return FunctionOp.transResult(expResult, aDouble -> {
+                return MathematicalFunctionOp.transResult(expResult, aDouble -> {
                     BigDecimal bd = BigDecimal.valueOf(aDouble);
                     return bd.setScale(scale, RoundingMode.HALF_UP).doubleValue();
                 });

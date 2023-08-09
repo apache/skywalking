@@ -19,20 +19,20 @@
 package org.apache.skywalking.library.mqe.rt;
 
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
-import org.apache.skywalking.mqe.rt.operation.FunctionOp;
+import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FunctionOpTest {
+public class MathematicalFunctionOpTest {
     private final MockData mockData = new MockData();
 
     //ABS/CEIL/FLOOR/ROUND... are the same logic and tested in here, the others only test ABS is enough.
     @Test
     public void seriesNoLabeledTest() throws Exception {
-        ExpressionResult abs = FunctionOp.doFunction0Op(
+        ExpressionResult abs = MathematicalFunctionOp.doFunction0Op(
             mockData.newSeriesNoLabeledResult(-100.111, -300), MQEParser.ABS);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, abs.getType());
         assertEquals("100", abs.getResults().get(0).getValues().get(0).getId());
@@ -40,7 +40,7 @@ public class FunctionOpTest {
         assertEquals("300", abs.getResults().get(0).getValues().get(1).getId());
         assertEquals(300, abs.getResults().get(0).getValues().get(1).getDoubleValue());
 
-        ExpressionResult ceil = FunctionOp.doFunction0Op(
+        ExpressionResult ceil = MathematicalFunctionOp.doFunction0Op(
             mockData.newSeriesNoLabeledResult(100.111, 300.2), MQEParser.CEIL);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, ceil.getType());
         assertEquals("100", ceil.getResults().get(0).getValues().get(0).getId());
@@ -48,7 +48,7 @@ public class FunctionOpTest {
         assertEquals("300", ceil.getResults().get(0).getValues().get(1).getId());
         assertEquals(301, ceil.getResults().get(0).getValues().get(1).getDoubleValue());
 
-        ExpressionResult floor = FunctionOp.doFunction0Op(
+        ExpressionResult floor = MathematicalFunctionOp.doFunction0Op(
             mockData.newSeriesNoLabeledResult(100.111, 300.2), MQEParser.FLOOR);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, ceil.getType());
         assertEquals("100", floor.getResults().get(0).getValues().get(0).getId());
@@ -57,7 +57,7 @@ public class FunctionOpTest {
         assertEquals(300, floor.getResults().get(0).getValues().get(1).getDoubleValue());
 
         MQEParser.ParameterContext parameterContext = new MQEParser.ParameterContext(null, 0);
-        ExpressionResult round = FunctionOp.doFunction1Op(
+        ExpressionResult round = MathematicalFunctionOp.doFunction1Op(
             mockData.newSeriesNoLabeledResult(100.111, 300.222), MQEParser.ROUND, 2);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, ceil.getType());
         assertEquals("100", round.getResults().get(0).getValues().get(0).getId());
@@ -68,7 +68,7 @@ public class FunctionOpTest {
 
     @Test
     public void seriesLabeledTest() throws Exception {
-        ExpressionResult abs = FunctionOp.doFunction0Op(
+        ExpressionResult abs = MathematicalFunctionOp.doFunction0Op(
             mockData.newSeriesLabeledResult(-100.111, -300, -101.333, -301.666), MQEParser.ABS);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, abs.getType());
         //label=1
@@ -87,7 +87,7 @@ public class FunctionOpTest {
 
     @Test
     public void listTest() throws Exception {
-        ExpressionResult abs = FunctionOp.doFunction0Op(mockData.newListResult(-100.111, -300), MQEParser.ABS);
+        ExpressionResult abs = MathematicalFunctionOp.doFunction0Op(mockData.newListResult(-100.111, -300), MQEParser.ABS);
         assertEquals(ExpressionResultType.SORTED_LIST, abs.getType());
         assertEquals("service_A", abs.getResults().get(0).getValues().get(0).getId());
         assertEquals(100.111, abs.getResults().get(0).getValues().get(0).getDoubleValue());
