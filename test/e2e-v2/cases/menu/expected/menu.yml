@@ -33,7 +33,7 @@
         Agent.
       documentlink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/
       i18nkey: general_service_services
-    - title: Visual Database
+    - title: Virtual Database
       icon: null
       layer: VIRTUAL_DATABASE
       activate: true
