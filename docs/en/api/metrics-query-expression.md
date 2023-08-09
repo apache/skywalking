@@ -208,7 +208,7 @@ aggregate_labels(total_commands_rate, SUM)
 The ExpressionResultType of the aggregateLabels operation is TIME_SERIES_VALUES.
 
 ## ViewAsSequence Operation
-ViewAsSequence operation searches for expressions in the given list from start to end and returns the expression that not empty.
+ViewAsSequence operation represents the first not-null metric from the listing metrics in the given prioritized sequence(left to right). It could also be considered as a `short-circuit` of given metrics for the first value existing metric.
 
 Expression:
 ```text
@@ -217,7 +217,7 @@ view_as_seq([<expression_1>, <expression_2>, ...])
 
 For example:
 if the first expression value is empty but the second one not empty, it would return the result from the second expression. 
-The following example would return the content of the **service_sla** metric.
+The following example would return the content of the **service_cpm** metric.
 
 ```text
 view_as_seq(not_existing, service_cpm)

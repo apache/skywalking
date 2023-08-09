@@ -28,12 +28,12 @@ expression
     | expression addSub expression     # addSubOp
     | expression compare expression    # compareOp
     | aggregation L_PAREN expression R_PAREN # aggregationOp
-    | function0 L_PAREN expression R_PAREN #function0OP
-    | function1 L_PAREN expression COMMA parameter R_PAREN #function1OP
+    | mathematical_operator0 L_PAREN expression R_PAREN #mathematicalOperator0OP
+    | mathematical_operator1 L_PAREN expression COMMA parameter R_PAREN #mathematicalOperator1OP
+    | logical_operator L_PAREN expressionList R_PAREN #logicalOperatorOP
     | topN L_PAREN metric COMMA parameter COMMA order R_PAREN  #topNOP
     | relabels L_PAREN expression COMMA label R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
-    | viewAsSeq L_PAREN expressionList R_PAREN #viewAsSeqOp
     ;
 
 expressionList
@@ -62,15 +62,15 @@ aggregation:
     AVG | COUNT | LATEST | SUM | MAX | MIN | ;
 
 // 0 parameter function
-function0:
+mathematical_operator0:
     ABS | CEIL | FLOOR;
 // 1 parameter function
-function1:
+mathematical_operator1:
     ROUND;
 
 topN: TOP_N;
 
-viewAsSeq:
+logical_operator:
     VIEW_AS_SEQ;
 
 relabels: RELABELS;

@@ -27,14 +27,14 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParserBaseVisitor;
 import org.apache.skywalking.mqe.rt.operation.AggregateLabelsOp;
 import org.apache.skywalking.mqe.rt.operation.AggregationOp;
 import org.apache.skywalking.mqe.rt.operation.BinaryOp;
-import org.apache.skywalking.mqe.rt.operation.FunctionOp;
+import org.apache.skywalking.mqe.rt.operation.LogicalFunctionOp;
+import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.Const;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
@@ -137,14 +137,14 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
     }
 
     @Override
-    public ExpressionResult visitFunction0OP(MQEParser.Function0OPContext ctx) {
-        int opType = ctx.function0().getStart().getType();
+    public ExpressionResult visitMathematicalOperator0OP(MQEParser.MathematicalOperator0OPContext ctx) {
+        int opType = ctx.mathematical_operator0().getStart().getType();
         ExpressionResult expResult = visit(ctx.expression());
         if (StringUtil.isNotEmpty(expResult.getError())) {
             return expResult;
         }
         try {
-            return FunctionOp.doFunction0Op(expResult, opType);
+            return MathematicalFunctionOp.doFunction0Op(expResult, opType);
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);
@@ -154,14 +154,14 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
     }
 
     @Override
-    public ExpressionResult visitFunction1OP(MQEParser.Function1OPContext ctx) {
-        int opType = ctx.function1().getStart().getType();
+    public ExpressionResult visitMathematicalOperator1OP(MQEParser.MathematicalOperator1OPContext ctx) {
+        int opType = ctx.mathematical_operator1().getStart().getType();
         ExpressionResult expResult = visit(ctx.expression());
         if (StringUtil.isNotEmpty(expResult.getError())) {
             return expResult;
         }
         try {
-            return FunctionOp.doFunction1Op(expResult, opType, Integer.parseInt(ctx.parameter().INTEGER().getText()));
+            return MathematicalFunctionOp.doFunction1Op(expResult, opType, Integer.parseInt(ctx.parameter().INTEGER().getText()));
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);
@@ -206,21 +206,16 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
     }
 
     @Override
-    public ExpressionResult visitViewAsSeqOp(MQEParser.ViewAsSeqOpContext ctx) {
-        ExpressionResult latestResult = null;
-        for (MQEParser.ExpressionContext expContext : ctx.expressionList().expression()) {
-            latestResult = visit(expContext);
-            if (latestResult == null || CollectionUtils.isEmpty(latestResult.getResults())) {
-                continue;
-            }
-            final boolean isNotEmptyValue = latestResult.getResults().stream()
-                .filter(s -> s != null && CollectionUtils.isNotEmpty(s.getValues()))
-                .flatMap(s -> s.getValues().stream()).anyMatch(s -> !s.isEmptyValue());
-            if (isNotEmptyValue) {
-                return latestResult;
-            }
+    public ExpressionResult visitLogicalOperatorOP(MQEParser.LogicalOperatorOPContext ctx) {
+        int opType = ctx.logical_operator().getStart().getType();
+        try {
+            return LogicalFunctionOp.doOP(opType, ctx.expressionList(), this);
+        } catch (IllegalExpressionException e) {
+            ExpressionResult result = new ExpressionResult();
+            result.setType(ExpressionResultType.UNKNOWN);
+            result.setError(e.getMessage());
+            return result;
         }
-        return latestResult;
     }
 
     @Override
