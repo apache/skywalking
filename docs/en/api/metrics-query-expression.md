@@ -74,8 +74,8 @@ service_sla / 100
 The result type of the expression please refer to the following table.
 
 ### Binary Operation Rules
-The following table listed if the difference result types of the input expressions could do this operation and the result type after the operation.
-The expression could on the left or right side of the operator. 
+The following table lists if the different result types of the input expressions could do this operation and the result type after the operation.
+The expression could be on the left or right side of the operator. 
 **Note**: If the expressions on both sides of the operator are the `TIME_SERIES_VALUES with labels`, they should have the same labels for calculation.
 
 | Expression              | Expression                | Yes/No | ExpressionResultType     |
@@ -88,7 +88,7 @@ The expression could on the left or right side of the operator.
 | SORTED_LIST/RECORD_LIST | SORTED_LIST/RECORD_LIST   | no     |                          |
 
 ## Aggregation Operation
-Aggregation Operation takes an expression and performs aggregate calculation on its results.
+Aggregation Operation takes an expression and performs aggregate calculations on its results.
 
 Expression:
 ```text
@@ -112,7 +112,7 @@ avg(service_cpm)
 ```
 
 ### Result Type
-The different operator could impact the `ExpressionResultType`, please refer to the above table.
+The different operators could impact the `ExpressionResultType`, please refer to the above table.
 
 ## Function Operation
 Function Operation takes an expression and performs function calculation on its results.
@@ -138,7 +138,7 @@ round(service_cpm / 60 , 2)
 ```
 
 ### Result Type
-The different operator could impact the `ExpressionResultType`, please refer to the above table.
+The different operators could impact the `ExpressionResultType`, please refer to the above table.
 
 ## TopN Operation
 TopN Operation takes an expression and performs TopN calculation on its results.
@@ -163,14 +163,14 @@ top_n(service_instance_cpm, 10, des)
 According to the type of the metric, the `ExpressionResultType` of the expression will be `SORTED_LIST` or `RECORD_LIST`.
 
 ## Relabel Operation
-Relabel Operation takes an expression and replace the label values to new label values on its results.
+Relabel Operation takes an expression and replaces the label values with new label values on its results.
 
 Expression:
 ```text
 relabel(Expression, _='<new_label_value_1>,...')
 ```
 
-`_` is the new label valuess of the metric after the label is relabeled, the order of the new label values should be the same as the order of the label values in the input expression result.
+`_` is the new label values of the metric after the label is relabeled, the order of the new label values should be the same as the order of the label values in the input expression result.
 
 For example:
 If we want to query the `service_percentile` metric with the label values `0,1,2,3,4`, and rename the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
@@ -183,7 +183,7 @@ relabel(service_percentile{_='0,1,2,3,4'}, _='P50,P75,P90,P95,P99')
 Follow the input expression.
 
 ## AggregateLabels Operation
-AggregateLabels Operation takes an expression and performs aggregate calculation on its `Labeled Value Metrics` results. It aggregates a group of `TIME_SERIES_VALUES` into a single `TIME_SERIES_VALUES`.
+AggregateLabels Operation takes an expression and performs an aggregate calculation on its `Labeled Value Metrics` results. It aggregates a group of `TIME_SERIES_VALUES` into a single `TIME_SERIES_VALUES`.
 
 Expression:
 ```text
@@ -194,11 +194,11 @@ aggregate_labels(Expression, parameter)
 |-----------|-----------------------------------------------------|----------------------|
 | avg       | calculate avg value of a `Labeled Value Metrics`    | TIME_SERIES_VALUES   |
 | sum       | calculate sum value of a `Labeled Value Metrics`    | TIME_SERIES_VALUES   |
-| max       | select maximum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
-| min       | select minimum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
+| max       | select the maximum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
+| min       | select the minimum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
 
 For example:
-If we want to query all redis command total rate, we can use the following expression(`total_commands_rate` is a metric which recorded every command rate in labeled value):
+If we want to query all Redis command total rates, we can use the following expression(`total_commands_rate` is a metric which recorded every command rate in labeled value):
 
 ```text
 aggregate_labels(total_commands_rate, SUM)
