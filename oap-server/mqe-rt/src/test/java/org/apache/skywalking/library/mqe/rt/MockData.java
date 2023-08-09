@@ -113,6 +113,7 @@ public class MockData {
         MQEValue mqeValue = new MQEValue();
         mqeValue.setId(id);
         mqeValue.setDoubleValue(value);
+        mqeValue.setEmptyValue(value == 0);
         return mqeValue;
     }
 

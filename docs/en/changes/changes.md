@@ -67,9 +67,9 @@
 * Add OpenSearch 2.8.0 to our client lib tests.
 * Apply MQE on RabbitMQ Dashboards.
 * Use listening mode for apollo implementation of dynamic configuration.
+* Add `view_as_seq` function in MQE for listing metrics in the given prioritized sequence.
 * Apply MQE on Virtual-MQ layer UI-templates
 * Apply MQE on Infra-Linux layer UI-templates
-
 
 #### UI
 
