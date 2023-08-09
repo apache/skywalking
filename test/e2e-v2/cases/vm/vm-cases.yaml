@@ -20,12 +20,12 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected:  expected/service.yml
     # linear metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_memory_used --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_memory_used --service-name=vm-service
       expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_memory_total --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_memory_total --service-name=vm-service
       expected:  expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_vm_memory_available --service-name=vm-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_memory_available --service-name=vm-service
       expected:  expected/metrics-has-value.yml
     # multiple-linear metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_vm_cpu_average_used --labels=idle --service-name=vm-service |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
-      expected:  expected/metrics-has-value-label.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_cpu_average_used --service-name=vm-service
+      expected:  expected/metrics-has-average-value-label.yml

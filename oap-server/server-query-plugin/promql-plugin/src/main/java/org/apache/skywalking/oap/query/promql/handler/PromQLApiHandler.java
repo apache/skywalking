@@ -74,6 +74,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
+import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.MetricDefinition;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -88,7 +89,6 @@ import org.apache.skywalking.promql.rt.grammar.PromQLLexer;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 
 import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.formatDoubleValue;
-import static org.apache.skywalking.oap.query.promql.rt.PromOpUtils.timestamp2Duration;
 
 public class PromQLApiHandler {
     private final MetadataQueryV2 metadataQuery;
@@ -213,7 +213,7 @@ public class PromQLApiHandler {
         @Param("end") String end) throws IOException {
         long startTS = formatTimestamp2Millis(start);
         long endTS = formatTimestamp2Millis(end);
-        Duration duration = timestamp2Duration(startTS, endTS);
+        Duration duration = DurationUtils.timestamp2Duration(startTS, endTS);
         SeriesQueryRsp response = new SeriesQueryRsp();
         PromQLLexer lexer = new PromQLLexer(
             CharStreams.fromString(match));
@@ -290,7 +290,7 @@ public class PromQLApiHandler {
             endTS = formatTimestamp2Millis(time.get());
         }
         long startTS = endTS - 120000; //look back 2m by default
-        Duration duration = timestamp2Duration(startTS, endTS);
+        Duration duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ExprQueryRsp response = new ExprQueryRsp();
 
         PromQLLexer lexer = new PromQLLexer(
@@ -352,7 +352,7 @@ public class PromQLApiHandler {
         @Param("timeout") Optional<String> timeout) throws IOException {
         long startTS = formatTimestamp2Millis(start);
         long endTS = formatTimestamp2Millis(end);
-        Duration duration = timestamp2Duration(startTS, endTS);
+        Duration duration = DurationUtils.timestamp2Duration(startTS, endTS);
         ExprQueryRsp response = new ExprQueryRsp();
         PromQLLexer lexer = new PromQLLexer(
             CharStreams.fromString(query));

@@ -4,6 +4,7 @@
 
 * Bump up Guava to 32.0.1 to avoid the lib listed as vulnerable due to CVE-2020-8908. This API is never used.
 * Maven artifact `skywalking-log-recevier-plugin` is renamed to `skywalking-log-receiver-plugin`.
+* Bump up cli version 0.11 to 0.12.
 
 #### OAP Server
 
@@ -59,12 +60,22 @@
 * Bump up Armeria to 1.24.3.
 * Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates.
 * Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
+* Support LogQL HTTP query APIs.
+* Add Mux Server component ID(5017) language: Golang.
+* Remove ElasticSearch 6.3.2 from our client lib tests.
+* Bump up ElasticSearch server 8.8.1 to 8.9.0 for latest e2e testing. 8.1.0, 7.16.3 and 7.17.10 are still tested.
+* Add OpenSearch 2.8.0 to our client lib tests.
+* Apply MQE on RabbitMQ Dashboards.
+* Use listening mode for apollo implementation of dynamic configuration.
+* Add `view_as_seq` function in MQE for listing metrics in the given prioritized sequence.
+* Apply MQE on Virtual-MQ layer UI-templates
+* Apply MQE on Infra-Linux layer UI-templates
 
 #### UI
 
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
 * Fix display name of `endpoint_cpm` for endpoint list in `General-Service` dashboard.
-* Implement customize menus.
+* Implement customize menus and marketplace page.
 * Fix minTraceDuration and maxTraceDuration types.
 * Fix init minTime to Infinity.
 * Bump dependencies to fix vulnerabilities.
@@ -74,6 +85,9 @@
 * Calculate string width to set Tabs name width.
 * [Breaking change] Removed '&' symbols from shell scripts to avoid web application server process running as a background process.
 * Reset chart label.
+* Fix service associates instances.
+* Remove node-sass.
+* Fix commit error on Windows.
 
 #### Documentation
 

@@ -40,16 +40,6 @@ rules:
     count: 1
     tags:
       level: WARNING
-
-  service_cpm_rule:
-    metrics-name: service_cpm
-    # [Optional] Default, match all services in this metrics
-    threshold: 1
-    op: ">"
-    period: 10
-    count: 1
-    tags:
-      level: WARNING
     # Binding the specific names of the hooks when the alarm is triggered. The name format is {hookType}.{hookName}
 #    hooks:
 #      - "slack.custom1"

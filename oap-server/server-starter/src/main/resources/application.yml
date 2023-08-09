@@ -431,6 +431,18 @@ promql:
     restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
+    
+#This module is for LogQL API.
+logql:
+  selector: ${SW_LOGQL:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_LOGQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_LOGQL_REST_PORT:3100}
+    restContextPath: ${SW_LOGQL_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_LOGQL_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_LOGQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_LOGQL_REST_QUEUE_SIZE:0}
 
 alarm:
   selector: ${SW_ALARM:default}
@@ -459,7 +471,6 @@ configuration:
     apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
     apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
     appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
-    period: ${SW_CONFIG_APOLLO_PERIOD:60}
   zookeeper:
     period: ${SW_CONFIG_ZK_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
     namespace: ${SW_CONFIG_ZK_NAMESPACE:/default}

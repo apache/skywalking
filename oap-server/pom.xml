@@ -48,6 +48,8 @@
         <module>server-health-checker</module>
         <module>microbench</module>
         <module>ai-pipeline</module>
+        <module>mqe-grammar</module>
+        <module>mqe-rt</module>
     </modules>
 
     <properties>

@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>mqe-grammar</artifactId>
+            <artifactId>mqe-rt</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

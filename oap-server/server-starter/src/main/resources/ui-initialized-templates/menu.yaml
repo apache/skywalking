@@ -32,17 +32,17 @@ menus:
         description: Observe services through telemetry data collected from SkyWalking Agent.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/server-agents/
         i18nKey: general_service_services
-      - title: Visual Database
+      - title: Virtual Database
         layer: VIRTUAL_DATABASE
         description: Observe the virtual databases which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-database/
         i18nKey: general_service_virtual_database
-      - title: Visual Cache
+      - title: Virtual Cache
         layer: VIRTUAL_CACHE
         description: Observe the virtual cache servers which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-cache/
         i18nKey: general_service_virtual_cache
-      - title: Visual MQ
+      - title: Virtual MQ
         layer: VIRTUAL_MQ
         description: Observe the virtual message queue servers which are conjectured by language agents through various plugins.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/service-agent/virtual-mq/
