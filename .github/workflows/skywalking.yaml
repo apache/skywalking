@@ -175,9 +175,11 @@ jobs:
           cache: "maven"
       - name: Build distribution tar
         run: |
-          ./mvnw clean install javadoc:javadoc -B -q \
+          ./mvnw clean install javadoc:javadoc -B -q -Pall \
             -Dmaven.test.skip \
             -Dcheckstyle.skip
+      - name: Verify builds are reproducible
+        run: ./mvnw -Dmaven.test.skip clean verify artifact:compare -Pall
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
         with:
