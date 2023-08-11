@@ -102,5 +102,6 @@
 * Separate contribution docs to a new menu structure.
 * Add a doc to explain how to manage i18n.
 * Add a doc to explain OTLP Trace support.
+* Fix typo in `dynamic-config-configmap.md`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)
