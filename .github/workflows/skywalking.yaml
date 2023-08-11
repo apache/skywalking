@@ -317,8 +317,8 @@ jobs:
           distribution: temurin
       - name: ${{ matrix.test.name }}
         run: |
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -DfailIfNoTests=false || \
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -DfailIfNoTests=false
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false || \
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false
 
   e2e-test:
     if: |

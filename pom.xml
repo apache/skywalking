@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>29</version>
+        <version>30</version>
         <relativePath />
     </parent>
 
