@@ -58,6 +58,9 @@ cases:
     expected: expected/service-metric-sort-vector.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_cpm{layer="GENERAL",top_n="10", order="DES"}[30m]'
     expected: expected/service-metric-sort-matrix.yml
+  ## multiple metrics operation query
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"} + service_cpm{service="e2e-service-consumer", layer="GENERAL"}'
+    expected: expected/service-metric-vector.yml
   ## query_range
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-matrix.yml
