@@ -5,6 +5,8 @@
 * Bump up Guava to 32.0.1 to avoid the lib listed as vulnerable due to CVE-2020-8908. This API is never used.
 * Maven artifact `skywalking-log-recevier-plugin` is renamed to `skywalking-log-receiver-plugin`.
 * Bump up cli version 0.11 to 0.12.
+* Bump up the version of ASF parent pom to v30.
+* Make builds reproducible for automatic releases CI.
 
 #### OAP Server
 

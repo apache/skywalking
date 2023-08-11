@@ -46,11 +46,19 @@
         <module>server-tools</module>
         <module>server-fetcher-plugin</module>
         <module>server-health-checker</module>
-        <module>microbench</module>
         <module>ai-pipeline</module>
         <module>mqe-grammar</module>
         <module>mqe-rt</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>benchmark</id>
+            <modules>
+                <module>microbench</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
