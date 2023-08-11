@@ -67,7 +67,7 @@ public class PromOpUtils {
         for (int i = 0; i < matrixLeft.getMetricDataList().size(); i++) {
             MetricRangeData dataLeft = matrixLeft.getMetricDataList().get(i);
             MetricRangeData dataRight = matrixRight.getMetricDataList().get(i);
-            if (!dataLeft.getMetric().equals(dataRight.getMetric())) {
+            if (!dataLeft.getMetric().getLabels().equals(dataRight.getMetric().getLabels())) {
                 throw new IllegalExpressionException(
                     "The metric info result left in conformity with right.");
             }
@@ -171,7 +171,7 @@ public class PromOpUtils {
         for (int i = 0; i < matrixLeft.getMetricDataList().size(); i++) {
             MetricRangeData dataLeft = matrixLeft.getMetricDataList().get(i);
             MetricRangeData dataRight = matrixRight.getMetricDataList().get(i);
-            if (!dataLeft.getMetric().equals(dataRight.getMetric())) {
+            if (!dataLeft.getMetric().getLabels().equals(dataRight.getMetric().getLabels())) {
                 throw new IllegalExpressionException(
                     "The metric info result left in conformity with right.");
             }
