@@ -5,6 +5,8 @@ We have a module called `microbench` which performs a series of micro-benchmark 
 Make new JMH tests extend the `org.apache.skywalking.oap.server.microbench.base.AbstractMicrobenchmark`
 to customize runtime conditions (Measurement, Fork, Warmup, etc.).
 
+You can build the jar with command `./mvnw -Dmaven.test.skip -DskipTests -pl :microbench package -am -Pbenchmark`.
+
 JMH tests could run as a normal unit test. And they could run as an independent uber jar via `java -jar benchmark.jar` for all benchmarks,
 or via `java -jar /benchmarks.jar exampleClassName` for a specific test.
 
