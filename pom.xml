@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.apache</groupId>
         <artifactId>apache</artifactId>
-        <version>29</version>
+        <version>30</version>
         <relativePath />
     </parent>
 
@@ -44,7 +44,7 @@
         <url>https://github.com/apache/skywalking</url>
         <connection>scm:git:https://github.com/apache/skywalking.git</connection>
         <developerConnection>scm:git:https://github.com/apache/skywalking.git</developerConnection>
-        <tag>v9.4.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
