@@ -146,6 +146,42 @@ public class BinaryOpTest {
     }
 
     @Test
+    public void one2ManyTest() throws Exception {
+        // single - sort_list
+        ExpressionResult sub = BinaryOp.doBinaryOp(
+            mockData.newSingleResult(1000), mockData.newListResult(), MQEParser.SUB);
+        assertEquals(ExpressionResultType.SORTED_LIST, sub.getType());
+        assertEquals("service_A", sub.getResults().get(0).getValues().get(0).getId());
+        assertEquals(900, sub.getResults().get(0).getValues().get(0).getDoubleValue());
+        assertEquals("service_B", sub.getResults().get(0).getValues().get(1).getId());
+        assertEquals(700, sub.getResults().get(0).getValues().get(1).getDoubleValue());
+
+        //single - seriesNoLabeled
+        sub = BinaryOp.doBinaryOp(mockData.newSingleResult(1000), mockData.newSeriesNoLabeledResult(), MQEParser.SUB);
+        assertEquals(ExpressionResultType.TIME_SERIES_VALUES, sub.getType());
+        assertEquals("100", sub.getResults().get(0).getValues().get(0).getId());
+        assertEquals(900, sub.getResults().get(0).getValues().get(0).getDoubleValue());
+        assertEquals("300", sub.getResults().get(0).getValues().get(1).getId());
+        assertEquals(700, sub.getResults().get(0).getValues().get(1).getDoubleValue());
+
+        //single - seriesLabeled
+        sub = BinaryOp.doBinaryOp(mockData.newSingleResult(1000), mockData.newSeriesLabeledResult(), MQEParser.SUB);
+        assertEquals(ExpressionResultType.TIME_SERIES_VALUES, sub.getType());
+        //label=1
+        assertEquals("1", sub.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("100", sub.getResults().get(0).getValues().get(0).getId());
+        assertEquals(900, sub.getResults().get(0).getValues().get(0).getDoubleValue());
+        assertEquals("300", sub.getResults().get(0).getValues().get(1).getId());
+        assertEquals(700, sub.getResults().get(0).getValues().get(1).getDoubleValue());
+        //label=2
+        assertEquals("2", sub.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("100", sub.getResults().get(1).getValues().get(0).getId());
+        assertEquals(899, sub.getResults().get(1).getValues().get(0).getDoubleValue());
+        assertEquals("300", sub.getResults().get(1).getValues().get(1).getId());
+        assertEquals(699, sub.getResults().get(1).getValues().get(1).getDoubleValue());
+    }
+
+    @Test
     public void single2SingleTest() throws IllegalExpressionException {
         //noLabeled + noLabeled
         ExpressionResult add = BinaryOp.doBinaryOp(

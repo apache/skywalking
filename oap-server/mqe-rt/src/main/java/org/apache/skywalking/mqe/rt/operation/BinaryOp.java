@@ -44,7 +44,7 @@ public class BinaryOp {
             (right.getType() == ExpressionResultType.TIME_SERIES_VALUES ||
                 right.getType() == ExpressionResultType.SORTED_LIST ||
                 right.getType() == ExpressionResultType.RECORD_LIST)) {
-            return many2OneBinaryOp(right, left, opType);
+            return one2ManyBinaryOp(left, right, opType);
         } else if (left.getType() == ExpressionResultType.TIME_SERIES_VALUES && right.getType() == ExpressionResultType.TIME_SERIES_VALUES) {
             return seriesBinaryOp(left, right, opType);
         }
@@ -103,7 +103,7 @@ public class BinaryOp {
         } else if (singleLeft.isLabeledResult() && !singleRight.isLabeledResult()) { // labeled with no labeled
             return many2OneBinaryOp(singleLeft, singleRight, opType);
         } else if (!singleLeft.isLabeledResult() && singleRight.isLabeledResult()) { // no labeled with labeled
-            return many2OneBinaryOp(singleRight, singleLeft, opType);
+            return one2ManyBinaryOp(singleLeft, singleRight, opType);
         } else if (singleLeft.isLabeledResult() && singleRight.isLabeledResult()) { // labeled with labeled
             return single2SingleLabeled(singleLeft, singleRight, opType);
         } else {
@@ -181,6 +181,28 @@ public class BinaryOp {
                                                                .getValues()
                                                                .get(0)
                                                                .getDoubleValue(), opType);
+                    mqeValue.setDoubleValue(newValue);
+                }
+            });
+        });
+        return manyResult;
+    }
+
+    //scalar with series or list or labeled single value
+    private static ExpressionResult one2ManyBinaryOp(ExpressionResult singleResult,
+                                                     ExpressionResult manyResult,
+                                                     int opType) {
+        manyResult.getResults().forEach(mqeValues -> {
+            mqeValues.getValues().forEach(mqeValue -> {
+                if (!mqeValue.isEmptyValue()) {
+                    double newValue = scalarBinaryOp(
+                        singleResult.getResults()
+                                    .get(0)
+                                    .getValues()
+                                    .get(0)
+                                    .getDoubleValue(),
+                        mqeValue.getDoubleValue(), opType
+                    );
                     mqeValue.setDoubleValue(newValue);
                 }
             });
