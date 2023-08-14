@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.library.mqe.rt;
+package org.apache.skywalking.mqe.rt;
 
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
@@ -100,13 +100,28 @@ public class MockData {
         return listResult;
     }
 
-    public ExpressionResult newSingleResult() {
+    public ExpressionResult newSingleResult(double value) {
         ExpressionResult listResult = new ExpressionResult();
         listResult.setType(ExpressionResultType.SINGLE_VALUE);
         MQEValues mqeValues = new MQEValues();
-        mqeValues.getValues().add(newMQEValue(null, 1000));
+        mqeValues.getValues().add(newMQEValue(null, value));
         listResult.getResults().add(mqeValues);
         return listResult;
+    }
+
+    public ExpressionResult newSingleLabeledResult(double id1001, double id1002) {
+        ExpressionResult result = new ExpressionResult();
+        result.setLabeledResult(true);
+        result.setType(ExpressionResultType.SINGLE_VALUE);
+        MQEValues mqeValues1 = new MQEValues();
+        mqeValues1.setMetric(newMetadata("label", "1"));
+        mqeValues1.getValues().add(newMQEValue("100", id1001));
+        MQEValues mqeValues2 = new MQEValues();
+        mqeValues2.setMetric(newMetadata("label", "2"));
+        mqeValues2.getValues().add(newMQEValue("100", id1002));
+        result.getResults().add(mqeValues1);
+        result.getResults().add(mqeValues2);
+        return result;
     }
 
     public MQEValue newMQEValue(String id, double value) {

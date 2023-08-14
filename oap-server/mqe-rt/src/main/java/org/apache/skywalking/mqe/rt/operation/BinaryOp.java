@@ -97,6 +97,22 @@ public class BinaryOp {
 
     private static ExpressionResult single2SingleBinaryOp(ExpressionResult singleLeft,
                                                           ExpressionResult singleRight,
+                                                          int opType) throws IllegalExpressionException {
+        if (!singleLeft.isLabeledResult() && !singleRight.isLabeledResult()) { // no labeled with no labeled
+            return single2SingleNoLabeled(singleLeft, singleRight, opType);
+        } else if (singleLeft.isLabeledResult() && !singleRight.isLabeledResult()) { // labeled with no labeled
+            return many2OneBinaryOp(singleLeft, singleRight, opType);
+        } else if (!singleLeft.isLabeledResult() && singleRight.isLabeledResult()) { // no labeled with labeled
+            return many2OneBinaryOp(singleRight, singleLeft, opType);
+        } else if (singleLeft.isLabeledResult() && singleRight.isLabeledResult()) { // labeled with labeled
+            return single2SingleLabeled(singleLeft, singleRight, opType);
+        } else {
+            throw new IllegalExpressionException("Binary operation don't support these expression.");
+        }
+    }
+
+    private static ExpressionResult single2SingleNoLabeled(ExpressionResult singleLeft,
+                                                          ExpressionResult singleRight,
                                                           int opType) {
         ExpressionResult result = new ExpressionResult();
         MQEValue mqeValue = new MQEValue();
@@ -118,7 +134,41 @@ public class BinaryOp {
         return result;
     }
 
-    //series or list with scalar
+    private static ExpressionResult single2SingleLabeled(ExpressionResult singleLeft,
+                                                           ExpressionResult singleRight,
+                                                           int opType) throws IllegalExpressionException {
+        Map<KeyValue, List<MQEValue>> labelMapR = new HashMap<>();
+        if (singleLeft.getResults().size() != singleRight.getResults().size()) {
+            throw new IllegalExpressionException(
+                "Binary operation between labeled metrics should have the same label.");
+        }
+        singleRight.getResults().forEach(mqeValuesR -> {
+            // For now, we only have a single anonymous label named `_`
+            labelMapR.put(mqeValuesR.getMetric().getLabels().get(0), mqeValuesR.getValues());
+        });
+        for (MQEValues mqeValuesL : singleLeft.getResults()) {
+            //reserve left metric info
+            MQEValue valueL = mqeValuesL.getValues().get(0);
+            List<MQEValue> mqeValuesR = labelMapR.get(mqeValuesL.getMetric().getLabels().get(0));
+            if (mqeValuesR == null) {
+                throw new IllegalExpressionException(
+                    "Binary operation between labeled metrics should have the same label.");
+            }
+            MQEValue valueR = mqeValuesR.get(0);
+            if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                valueL.setEmptyValue(true);
+                valueL.setDoubleValue(0);
+            } else {
+                double value = scalarBinaryOp(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
+                valueL.setDoubleValue(value);
+                valueL.setEmptyValue(false);
+            }
+        }
+
+        return singleLeft;
+    }
+
+    //series or list or labeled single value with scalar
     private static ExpressionResult many2OneBinaryOp(ExpressionResult manyResult,
                                                      ExpressionResult singleResult,
                                                      int opType) {
@@ -192,7 +242,7 @@ public class BinaryOp {
                 "Binary operation between labeled metrics should have the same label.");
         }
         seriesRight.getResults().forEach(mqeValuesR -> {
-            // For now, we only have a single label named `label`
+            // For now, we only have a single anonymous label named `_`
             labelMapR.put(mqeValuesR.getMetric().getLabels().get(0), mqeValuesR.getValues());
         });
         for (MQEValues mqeValuesL : seriesLeft.getResults()) {
