@@ -195,13 +195,13 @@ verify:
 
     # service instance labeled metrics: e2e::productpage, label: e2e::details
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=envoy_cluster_membership_healthy{_=e2e::details} --service-name=e2e::productpage --instance-name=$( \
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=envoy_cluster_membership_healthy{_="e2e::details"} --service-name=e2e::productpage --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
         )
       expected: expected/metrics-has-value.yml
     # service instance labeled metrics: e2e::productpage, label: e2e::details
     - query: |
-        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=envoy_cluster_membership_healthy{_=e2e::details} --service-name=e2e::istio-ingressgateway --instance-name=$( \
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=envoy_cluster_membership_healthy{_="e2e::details"} --service-name=e2e::istio-ingressgateway --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::istio-ingressgateway | yq e '.[0].name' -
         )
       expected: expected/metrics-has-value.yml
