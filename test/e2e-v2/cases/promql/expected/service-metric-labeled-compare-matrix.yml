@@ -13,10 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
-
-cases:
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
-    expected: expected/service.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_swap_total --service-name=10.211.55.3
-    expected: expected/metrics-has-value.yml
+status: success
+data:
+  resultType: vector
+  result:
+    {{- contains .data.result }}
+    - metric:
+        __name__: service_percentile
+        label: p_value
+        layer: GENERAL
+        scope: Service
+        service: e2e-service-consumer
+      value:
+        - "{{ index .value 0 }}"
+        - '{{ index .value 1 }}'
+    {{- end}}

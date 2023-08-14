@@ -5,6 +5,8 @@
 * Bump up Guava to 32.0.1 to avoid the lib listed as vulnerable due to CVE-2020-8908. This API is never used.
 * Maven artifact `skywalking-log-recevier-plugin` is renamed to `skywalking-log-receiver-plugin`.
 * Bump up cli version 0.11 to 0.12.
+* Bump up the version of ASF parent pom to v30.
+* Make builds reproducible for automatic releases CI.
 
 #### OAP Server
 
@@ -70,6 +72,9 @@
 * Add `view_as_seq` function in MQE for listing metrics in the given prioritized sequence.
 * Apply MQE on Virtual-MQ layer UI-templates
 * Apply MQE on Infra-Linux layer UI-templates
+* Fix the wrong default value of `k8sServiceNameRule` if it's not explicitly set.
+* Apply MQE on Infra-Windows layer UI-templates
+* Improve PromQL to allow for multiple metric operations within a single query.
 
 #### UI
 
@@ -98,5 +103,6 @@
 * Separate contribution docs to a new menu structure.
 * Add a doc to explain how to manage i18n.
 * Add a doc to explain OTLP Trace support.
+* Fix typo in `dynamic-config-configmap.md`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)
