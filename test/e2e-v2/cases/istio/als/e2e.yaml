@@ -134,43 +134,43 @@ verify:
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_resp_time --service-name=e2e::productpage --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_cpm --service-name=e2e::productpage --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sla --service-name=e2e::productpage --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     # service instance metrics: e2e::reviews
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_resp_time --service-name=e2e::reviews --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_cpm --service-name=e2e::reviews --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sla --service-name=e2e::reviews --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sidecar_internal_req_latency_nanos --service-name=e2e::reviews --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sidecar_internal_resp_latency_nanos --service-name=e2e::reviews --instance-name=$( \
           swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
-        ) |yq e 'to_entries' -
+        )
       expected: expected/metrics-has-value.yml
 
     # service endpoint metrics: e2e::productpage GET:/productpage
@@ -220,7 +220,7 @@ verify:
             swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) \
           --dest-service-name=e2e::reviews --dest-instance-name=$( \
             swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) \
-        |yq e 'to_entries' -
+
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_relation_server_cpm \
@@ -228,5 +228,5 @@ verify:
             swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) \
           --dest-service-name=e2e::reviews --dest-instance-name=$( \
             swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) \
-        |yq e 'to_entries' -
+
       expected: expected/metrics-has-value.yml
