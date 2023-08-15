@@ -76,6 +76,7 @@
 * Apply MQE on Infra-Windows layer UI-templates
 * Improve PromQL to allow for multiple metric operations within a single query.
 * Fix MQE Binary Operation between labeled metrics and other type of value result.
+* Add component ID for Spring Runner (ID=150).
 
 #### UI
 
