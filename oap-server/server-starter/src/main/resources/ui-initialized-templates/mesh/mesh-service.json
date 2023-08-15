@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "Mesh-Service",
@@ -46,16 +29,12 @@
                     "fontSize": 14,
                     "textAlign": "center"
                   },
-                  "metrics": [
-                    "service_apdex"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(service_apdex)/10000"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "apdex"
-                    }
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -74,17 +53,12 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "metrics": [
-                    "service_sla"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(service_sla)/100"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "percentage",
-                      "unit": "%"
-                    }
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -103,16 +77,12 @@
                     "textAlign": "center",
                     "showUnit": true
                   },
-                  "metrics": [
-                    "service_cpm"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(service_cpm)"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ],
-                  "metricConfig": [
-                    {
-                      "unit": "calls or packets / min"
-                    }
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -134,12 +104,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-9"
@@ -156,6 +120,13 @@
                     {
                       "widgetId": "0-0-7"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_resp_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -177,17 +148,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_apdex"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "apdex"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -204,6 +164,13 @@
                     {
                       "widgetId": "0-0-7"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_apdex/10000"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -225,18 +192,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0, 1, 2, 3, 4"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -253,6 +208,13 @@
                     {
                       "widgetId": "0-0-7"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(service_percentile{_=\"0,1,2,3,4\"},_=\"P50,P75,P90,P95,P99\")"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -274,17 +236,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "percentage"
-                    }
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -301,6 +252,10 @@
                     {
                       "widgetId": "0-0-7"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_sla/100"
                   ]
                 },
                 {
@@ -322,12 +277,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -344,6 +293,10 @@
                     {
                       "widgetId": "0-0-9"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_cpm"
                   ]
                 },
                 {
@@ -355,7 +308,7 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Service Throughput (Bytes)",
-                    "tips": "This metrics is only avaible for TCP services",
+                    "tips": "This metrics is only available for TCP services",
                     "name": "Service_Throughput"
                   },
                   "graph": {
@@ -366,14 +319,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_throughput_received",
-                    "service_throughput_sent"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-3"
@@ -391,13 +336,14 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "metricConfig": [
-                    {
-                      "label": "received"
-                    },
-                    {
-                      "label": "sent"
-                    }
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_throughput_received",
+                    "service_throughput_sent"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -413,11 +359,12 @@
                   "graph": {
                     "type": "TopList"
                   },
-                  "metrics": [
-                    "service_instance_cpm"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "top_n(service_instance_cpm,10,des)"
                   ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "typesOfMQE": [
+                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -434,11 +381,12 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "service_instance_resp_time"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "top_n(service_instance_resp_time,10,des)"
                   ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "typesOfMQE": [
+                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -455,17 +403,12 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "service_instance_sla"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "top_n(service_instance_sla,10,asc)/100"
                   ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "ASC",
-                      "calculation": "percentage"
-                    }
+                  "typesOfMQE": [
+                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -482,17 +425,9 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "endpoint_sla"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
-                  ],
-                  "metricConfig": [
-                    {
-                      "sortOrder": "ASC",
-                      "calculation": "percentage"
-                    }
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "top_n(endpoint_sla,10,asc)/100"
                   ]
                 },
                 {
@@ -509,11 +444,9 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "endpoint_resp_time"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "top_n(endpoint_resp_time,10,des)"
                   ]
                 },
                 {
@@ -530,11 +463,9 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metrics": [
-                    "endpoint_cpm"
-                  ],
-                  "metricTypes": [
-                    "sortMetrics"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "top_n(endpoint_cpm,10,des)"
                   ]
                 },
                 {

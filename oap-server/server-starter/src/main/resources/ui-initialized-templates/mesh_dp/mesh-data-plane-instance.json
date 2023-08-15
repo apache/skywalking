@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "Mesh-Data-Plane-Instance",
@@ -49,11 +32,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_rq_active"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -74,21 +58,14 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_total_connections_used",
                     "envoy_parent_connections_used"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "total_used"
-                    },
-                    {
-                      "label": "parent_used"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -109,11 +86,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_membership_healthy"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -134,11 +112,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_cx_incr"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -159,11 +138,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_rq_pending_active"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -174,7 +154,7 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
-                    "title": "Heap Memory Used (MB)"
+                    "title": "Heap Memory Used (Bytes)"
                   },
                   "graph": {
                     "type": "Line",
@@ -184,7 +164,8 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_memory_allocated_max",
                     "envoy_heap_memory_used",
                     "envoy_memory_allocated",
@@ -192,39 +173,13 @@
                     "envoy_memory_physical_size_max",
                     "envoy_heap_memory_max_used"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "byteToMB",
-                      "label": "allocated_max"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "heap_used"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "allocated"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "physical_size"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "physical_size_max"
-                    },
-                    {
-                      "calculation": "byteToMB",
-                      "label": "heap_max_used"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -245,11 +200,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_bug_failures"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -270,21 +226,14 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "threads_max"
-                    },
-                    {
-                      "label": "threads"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -305,11 +254,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_cx_active"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -330,11 +280,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_rq_incr"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
