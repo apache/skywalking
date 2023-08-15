@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.library.mqe.rt;
+package org.apache.skywalking.mqe.rt;
 
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.operation.AggregateLabelsOp;

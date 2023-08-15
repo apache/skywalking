@@ -226,3 +226,165 @@ view_as_seq(not_existing, service_cpm)
 
 #### Result Type
 The result type is determined by the type of selected not-null metric expression.
+
+## Expression Query Example
+### Labeled Value Metrics
+```text
+service_percentile{_='0,1'}
+```
+The example result is:
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "0"}]
+          },
+          "values": [{"id": "1691658000000", "value": "1000", "traceID": null}, {"id": "1691661600000", "value": 2000, "traceID": null}]
+        },
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "1"}]
+          },
+          "values": [{"id": "1691658000000", "value": "2000", "traceID": null}, {"id": "1691661600000", "value": 3000, "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+If we want to transform the percentile value unit from `ms` to `s` the expression is:
+```text
+service_percentile{_='0,1'} / 1000
+```
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "0"}]
+          },
+          "values": [{"id": "1691658000000", "value": "1", "traceID": null}, {"id": "1691661600000", "value": 2, "traceID": null}]
+        },
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "1"}]
+          },
+          "values": [{"id": "1691658000000", "value": "2", "traceID": null}, {"id": "1691661600000", "value": 3, "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+Get the average value of each percentile, the expression is:
+```text
+avg(service_percentile{_='0,1'})
+```
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "SINGLE_VALUE",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "0"}]
+          },
+          "values": [{"id": null, "value": "1500", "traceID": null}]
+        },
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "1"}]
+          },
+          "values": [{"id": null, "value": "2500", "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+Calculate the difference between the percentile and the average value, the expression is:
+```text
+service_percentile{_='0,1'} - avg(service_percentile{_='0,1'})
+```
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "0"}]
+          },
+          "values": [{"id": "1691658000000", "value": "-500", "traceID": null}, {"id": "1691661600000", "value": 500, "traceID": null}]
+        },
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "1"}]
+          },
+          "values": [{"id": "1691658000000", "value": "-500", "traceID": null}, {"id": "1691661600000", "value": 500, "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+Calculate the difference between the `service_resp_time` and the `service_percentile`, if the `service_resp_time` result is:
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": []
+          },
+          "values": [{"id": "1691658000000", "value": "2500", "traceID": null}, {"id": "1691661600000", "value": 3500, "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+The expression is:
+```text
+service_resp_time - service_percentile{_='0,1'}
+```
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "0"}]
+          },
+          "values": [{"id": "1691658000000", "value": "1500", "traceID": null}, {"id": "1691661600000", "value": "1500", "traceID": null}]
+        },
+        {
+          "metric": {
+            "labels": [{"key": "_", "value": "1"}]
+          },
+          "values": [{"id": "1691658000000", "value": "500", "traceID": null}, {"id": "1691661600000", "value": "500", "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```    

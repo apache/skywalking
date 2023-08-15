@@ -75,6 +75,7 @@
 * Fix the wrong default value of `k8sServiceNameRule` if it's not explicitly set.
 * Apply MQE on Infra-Windows layer UI-templates
 * Improve PromQL to allow for multiple metric operations within a single query.
+* Fix MQE Binary Operation between labeled metrics and other type of value result.
 
 #### UI
 
