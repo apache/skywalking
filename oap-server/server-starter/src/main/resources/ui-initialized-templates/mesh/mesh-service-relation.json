@@ -1,20 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 [
   {
     "id": "Mesh-Service-Relation",
@@ -32,158 +15,7 @@
               "name": "Overview",
               "children": [
                 {
-                  "x": 6,
-                  "y": 12,
-                  "w": 6,
-                  "h": 12,
-                  "i": "0",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Load (Server) (calls or packets / min)",
-                    "name": "Load_Server"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "service_relation_server_cpm"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "value": "0-0-0",
-                  "label": "Load_Server",
-                  "associate": [
-                    {
-                      "widgetId": "0-0-11"
-                    },
-                    {
-                      "widgetId": "0-0-1"
-                    },
-                    {
-                      "widgetId": "0-0-2"
-                    },
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
-                    },
-                    {
-                      "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    },
-                    {
-                      "widgetId": "0-0-9"
-                    },
-                    {
-                      "widgetId": "0-0-10"
-                    },
-                    {
-                      "widgetId": "0-0-12"
-                    },
-                    {
-                      "widgetId": "0-0-13"
-                    }
-                  ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
-                },
-                {
-                  "x": 18,
-                  "y": 12,
-                  "w": 6,
-                  "h": 12,
-                  "i": "1",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Successful Rate (Server) (%)",
-                    "name": "Successful_Rate_Server"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "service_relation_server_call_sla"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "value": "0-0-1",
-                  "label": "Successful_Rate_Server",
-                  "associate": [
-                    {
-                      "widgetId": "0-0-0"
-                    },
-                    {
-                      "widgetId": "0-0-11"
-                    },
-                    {
-                      "widgetId": "0-0-2"
-                    },
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
-                    },
-                    {
-                      "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    },
-                    {
-                      "widgetId": "0-0-9"
-                    },
-                    {
-                      "widgetId": "0-0-10"
-                    },
-                    {
-                      "widgetId": "0-0-12"
-                    },
-                    {
-                      "widgetId": "0-0-13"
-                    }
-                  ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
-                },
-                {
-                  "x": 18,
+                  "x": 12,
                   "y": 0,
                   "w": 6,
                   "h": 12,
@@ -201,20 +33,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_server_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4"
-                    }
-                  ],
-                  "value": "0-0-2",
-                  "label": "Response_Percentile_Server",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -256,83 +74,13 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
-                },
-                {
-                  "x": 6,
-                  "y": 0,
-                  "w": 6,
-                  "h": 12,
-                  "i": "3",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Response Time (Server) (ms)",
-                    "name": "Response_Server"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "service_relation_server_resp_time"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(service_relation_server_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "value": "0-0-3",
-                  "label": "Response_Server",
-                  "associate": [
-                    {
-                      "widgetId": "0-0-0"
-                    },
-                    {
-                      "widgetId": "0-0-1"
-                    },
-                    {
-                      "widgetId": "0-0-2"
-                    },
-                    {
-                      "widgetId": "0-0-11"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
-                    },
-                    {
-                      "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    },
-                    {
-                      "widgetId": "0-0-9"
-                    },
-                    {
-                      "widgetId": "0-0-10"
-                    },
-                    {
-                      "widgetId": "0-0-12"
-                    },
-                    {
-                      "widgetId": "0-0-13"
-                    }
-                  ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -342,8 +90,8 @@
                   "i": "4",
                   "type": "Widget",
                   "widget": {
-                    "title": "Response Time (Client) (ms)",
-                    "name": "Response_Client"
+                    "title": "Response Time (ms)",
+                    "name": "Response"
                   },
                   "graph": {
                     "type": "Line",
@@ -353,14 +101,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "value": "0-0-4",
-                  "label": "Response_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -402,13 +142,26 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "Client"
+                    },
+                    {
+                      "label": "Server"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_client_resp_time",
+                    "service_relation_server_resp_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
-                  "x": 12,
+                  "x": 6,
                   "y": 0,
                   "w": 6,
                   "h": 12,
@@ -426,20 +179,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_percentile"
-                  ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4"
-                    }
-                  ],
-                  "value": "0-0-5",
-                  "label": "Response_Percentile_Client",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -481,99 +220,24 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
-                },
-                {
-                  "x": 12,
-                  "y": 12,
-                  "w": 6,
-                  "h": 12,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Successful Rate (Client) (%)",
-                    "name": "Successful_Rate_Client"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "metrics": [
-                    "service_relation_client_call_sla"
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(service_relation_client_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "calculation": "percentage"
-                    }
-                  ],
-                  "value": "0-0-6",
-                  "label": "Successful_Rate_Client",
-                  "associate": [
-                    {
-                      "widgetId": "0-0-0"
-                    },
-                    {
-                      "widgetId": "0-0-1"
-                    },
-                    {
-                      "widgetId": "0-0-2"
-                    },
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
-                    },
-                    {
-                      "widgetId": "0-0-11"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    },
-                    {
-                      "widgetId": "0-0-9"
-                    },
-                    {
-                      "widgetId": "0-0-10"
-                    },
-                    {
-                      "widgetId": "0-0-12"
-                    },
-                    {
-                      "widgetId": "0-0-13"
-                    }
-                  ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
                   "y": 12,
                   "w": 6,
                   "h": 12,
-                  "i": "7",
+                  "i": "6",
                   "type": "Widget",
                   "widget": {
-                    "title": "Load (Client) (calls or packets / min)",
-                    "name": "Load_Client"
+                    "title": "Successful Rate (%)",
+                    "name": "Successful_Rate"
                   },
                   "graph": {
                     "type": "Line",
@@ -583,14 +247,84 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "service_relation_client_cpm"
+                  "metricConfig": [
+                    {
+                      "label": "Client"
+                    },
+                    {
+                      "label": "Server"
+                    }
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "associate": [
+                    {
+                      "widgetId": "0-0-0"
+                    },
+                    {
+                      "widgetId": "0-0-1"
+                    },
+                    {
+                      "widgetId": "0-0-2"
+                    },
+                    {
+                      "widgetId": "0-0-3"
+                    },
+                    {
+                      "widgetId": "0-0-4"
+                    },
+                    {
+                      "widgetId": "0-0-5"
+                    },
+                    {
+                      "widgetId": "0-0-11"
+                    },
+                    {
+                      "widgetId": "0-0-7"
+                    },
+                    {
+                      "widgetId": "0-0-8"
+                    },
+                    {
+                      "widgetId": "0-0-9"
+                    },
+                    {
+                      "widgetId": "0-0-10"
+                    },
+                    {
+                      "widgetId": "0-0-12"
+                    },
+                    {
+                      "widgetId": "0-0-13"
+                    }
                   ],
-                  "value": "0-0-7",
-                  "label": "Load_Client",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_relation_client_call_sla/100",
+                    "service_relation_server_call_sla/100"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Load (calls / min)",
+                    "name": "Load"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -632,14 +366,27 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "Client"
+                    },
+                    {
+                      "label": "Server"
+                    }
+                  ],
+                  "expressions": [
+                    "service_relation_client_cpm",
+                    "service_relation_server_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 12,
-                  "y": 36,
+                  "y": 24,
                   "w": 12,
                   "h": 12,
                   "i": "8",
@@ -649,16 +396,6 @@
                     "tips": "This metrics is only avaible for TCP services",
                     "name": "Service_Throughput_Server"
                   },
-                  "value": "0-0-8",
-                  "label": "Service_Throughput_Server",
-                  "metrics": [
-                    "service_relation_server_received",
-                    "service_relation_server_sent"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -700,14 +437,27 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_relation_server_received",
+                    "service_relation_server_sent"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
-                  "y": 36,
+                  "y": 24,
                   "w": 12,
                   "h": 12,
                   "i": "9",
@@ -717,16 +467,6 @@
                     "tips": "This metrics is only avaible for TCP services",
                     "name": "Service_Throughput_Client"
                   },
-                  "value": "0-0-9",
-                  "label": "Service_Throughput_Client",
-                  "metrics": [
-                    "service_relation_client_received",
-                    "service_relation_client_sent"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -768,28 +508,35 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_relation_client_received",
+                    "service_relation_client_sent"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
-                  "x": 0,
-                  "y": 24,
+                  "x": 6,
+                  "y": 12,
                   "w": 6,
                   "h": 12,
                   "i": "10",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_client_sidecar_internal_req_latency_nanos"
-                  ],
                   "widget": {
-                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Client Request)",
+                    "title": "Proxy Sidecar Internal Request Latency (ns)",
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
-                    "name": "Sidecar_Latency_Client_Request"
+                    "name": "Sidecar_Latency_Request"
                   },
                   "graph": {
                     "type": "Line",
@@ -799,8 +546,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "value": "0-0-10",
-                  "label": "Sidecar_Latency_Client_Request",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -842,102 +587,35 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
-                },
-                {
-                  "x": 18,
-                  "y": 24,
-                  "w": 6,
-                  "h": 12,
-                  "i": "11",
-                  "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_server_sidecar_internal_resp_latency_nanos"
-                  ],
-                  "widget": {
-                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Server Response)",
-                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
-                    "name": "Sidecar_Latency_Server_Rsp"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "value": "0-0-11",
-                  "label": "0-0-11",
-                  "associate": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
                     {
-                      "widgetId": "0-0-0"
+                      "label": "Client"
                     },
                     {
-                      "widgetId": "0-0-1"
-                    },
-                    {
-                      "widgetId": "0-0-2"
-                    },
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
-                    },
-                    {
-                      "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    },
-                    {
-                      "widgetId": "0-0-9"
-                    },
-                    {
-                      "widgetId": "0-0-10"
-                    },
-                    {
-                      "widgetId": "0-0-12"
-                    },
-                    {
-                      "widgetId": "0-0-13"
+                      "label": "Server"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-13"
-                  }
+                  "expressions": [
+                    "service_client_sidecar_internal_req_latency_nanos",
+                    "service_server_sidecar_internal_req_latency_nanos"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
-                  "x": 6,
-                  "y": 24,
+                  "x": 12,
+                  "y": 12,
                   "w": 6,
                   "h": 12,
                   "i": "12",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_client_sidecar_internal_resp_latency_nanos"
-                  ],
                   "widget": {
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
-                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Client Response)",
-                    "name": "Sidecar_Latency_Client_Rsp"
+                    "title": "Proxy Sidecar Internal Response Latency (ns)",
+                    "name": "Sidecar_Latency_Response"
                   },
                   "graph": {
                     "type": "Line",
@@ -947,8 +625,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "value": "0-0-12",
-                  "label": "Sidecar_Latency_Client_Rsp",
                   "associate": [
                     {
                       "widgetId": "0-0-0"
@@ -990,84 +666,23 @@
                       "widgetId": "0-0-13"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
-                },
-                {
-                  "x": 12,
-                  "y": 24,
-                  "w": 6,
-                  "h": 12,
-                  "i": "13",
-                  "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_server_sidecar_internal_req_latency_nanos"
-                  ],
-                  "widget": {
-                    "title": "Proxy Sidecar Internal Latency in Nanoseconds (Server Request)",
-                    "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
-                    "name": "Sidecar_Latency_Server_Request"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "value": "0-0-13",
-                  "label": "Sidecar_Latency_Server_Request",
-                  "associate": [
+                  "metricMode": "Expression",
+                  "metricConfig": [
                     {
-                      "widgetId": "0-0-0"
+                      "label": "Client"
                     },
                     {
-                      "widgetId": "0-0-1"
-                    },
-                    {
-                      "widgetId": "0-0-2"
-                    },
-                    {
-                      "widgetId": "0-0-3"
-                    },
-                    {
-                      "widgetId": "0-0-4"
-                    },
-                    {
-                      "widgetId": "0-0-5"
-                    },
-                    {
-                      "widgetId": "0-0-6"
-                    },
-                    {
-                      "widgetId": "0-0-7"
-                    },
-                    {
-                      "widgetId": "0-0-8"
-                    },
-                    {
-                      "widgetId": "0-0-9"
-                    },
-                    {
-                      "widgetId": "0-0-10"
-                    },
-                    {
-                      "widgetId": "0-0-12"
-                    },
-                    {
-                      "widgetId": "0-0-11"
+                      "label": "Server"
                     }
                   ],
-                  "filters": {
-                    "dataIndex": 5,
-                    "sourceId": "0-0-11"
-                  }
+                  "expressions": [
+                    "service_client_sidecar_internal_resp_latency_nanos",
+                    "service_server_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
                 }
               ]
             },
@@ -1165,9 +780,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-20",
-                  "label": "0-2-20"
+                  ]
                 },
                 {
                   "x": 16,
@@ -1192,9 +805,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-21",
-                  "label": "0-2-21"
+                  ]
                 },
                 {
                   "x": 8,
@@ -1219,9 +830,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-22",
-                  "label": "0-2-22"
+                  ]
                 },
                 {
                   "x": 0,
@@ -1246,9 +855,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-23",
-                  "label": "0-2-23"
+                  ]
                 },
                 {
                   "x": 16,
@@ -1273,9 +880,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-24",
-                  "label": "0-2-24"
+                  ]
                 },
                 {
                   "x": 8,
@@ -1300,9 +905,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-25",
-                  "label": "0-2-25"
+                  ]
                 },
                 {
                   "x": 0,
@@ -1327,9 +930,7 @@
                   ],
                   "metricTypes": [
                     "readMetricsValues"
-                  ],
-                  "value": "0-2-26",
-                  "label": "0-2-26"
+                  ]
                 }
               ]
             }

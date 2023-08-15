@@ -116,7 +116,7 @@
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install --registry=https://registry.npmjs.org/</arguments>
+                            <arguments>ci --registry=https://registry.npmjs.org/</arguments>
                         </configuration>
                     </execution>
                     <execution>

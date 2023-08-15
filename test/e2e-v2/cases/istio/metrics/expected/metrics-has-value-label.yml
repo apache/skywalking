@@ -17,7 +17,9 @@ type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels: []
+      labels:
+        - key: _
+          value: e2e::details
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
