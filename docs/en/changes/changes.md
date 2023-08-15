@@ -76,7 +76,8 @@
 * Apply MQE on Infra-Windows layer UI-templates
 * Improve PromQL to allow for multiple metric operations within a single query.
 * Fix MQE Binary Operation between labeled metrics and other type of value result.
-* Add Nacos component ID(150) language: Java.
+* * Add component ID for Nacos (ID=150).
+
 #### UI
 
 * Fix metric name `browser_app_error_rate` in `Browser-Root` dashboard.
