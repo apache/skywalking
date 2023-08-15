@@ -30,3 +30,4 @@ results:
         traceid: null
       {{- end}}
   {{- end}}
+error: null
