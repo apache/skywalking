@@ -85,7 +85,7 @@ public class BinaryOp {
         } else if (seriesLeft.isLabeledResult() && !seriesRight.isLabeledResult()) { // labeled with no labeled
             result = seriesLabeledWithNoLabeled(seriesLeft, seriesRight, opType);
         } else if (!seriesLeft.isLabeledResult() && seriesRight.isLabeledResult()) { // no labeled with labeled
-            result = seriesLabeledWithNoLabeled(seriesRight, seriesLeft, opType);
+            result = seriesNoLabeledWithLabeled(seriesLeft, seriesRight, opType);
         } else if (seriesLeft.isLabeledResult() && seriesRight.isLabeledResult()) { // labeled with labeled
             result = seriesLabeledWithLabeled(seriesLeft, seriesRight, opType);
         } else {
@@ -253,6 +253,28 @@ public class BinaryOp {
         });
 
         return seriesLeft;
+    }
+
+    private static ExpressionResult seriesNoLabeledWithLabeled(ExpressionResult seriesLeft,
+                                                               ExpressionResult seriesRight,
+                                                               int opType) {
+        MQEValues mqeValuesL = seriesLeft.getResults().get(0);
+        seriesRight.getResults().forEach(mqeValuesR -> {
+            for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
+                //reserve left metric info
+                MQEValue valueL = mqeValuesL.getValues().get(i);
+                MQEValue valueR = mqeValuesR.getValues().get(i);
+                if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                    valueL.setEmptyValue(true);
+                    valueL.setDoubleValue(0);
+                    continue;
+                }
+                double newValue = scalarBinaryOp(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
+                mqeValuesR.getValues().get(i).setDoubleValue(newValue);
+            }
+        });
+
+        return seriesRight;
     }
 
     private static ExpressionResult seriesLabeledWithLabeled(ExpressionResult seriesLeft,
