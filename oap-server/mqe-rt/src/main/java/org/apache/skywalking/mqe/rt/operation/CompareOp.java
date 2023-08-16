@@ -22,37 +22,43 @@ import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 
-public class BinaryOp {
-    public static ExpressionResult doBinaryOp(ExpressionResult left,
+public class CompareOp {
+    public static ExpressionResult doCompareOP(ExpressionResult left,
                                               ExpressionResult right,
                                               int opType) throws IllegalExpressionException {
         try {
-            return LROp.doLROp(left, right, opType, BinaryOp::scalarBinaryOp);
+            return LROp.doLROp(left, right, opType, CompareOp::scalarCompareOp);
         } catch (IllegalExpressionException e) {
-            throw new IllegalExpressionException("Unsupported binary operation.");
+            throw new IllegalExpressionException("Unsupported compare operation.");
         }
     }
 
-    //scalar with scalar
-    private static double scalarBinaryOp(double leftValue, double rightValue, int opType) {
-        double calculatedResult = 0;
+    private static int scalarCompareOp(double leftValue, double rightValue, int opType) {
+        int comparedResult = 0;
         switch (opType) {
-            case MQEParser.ADD:
-                calculatedResult = leftValue + rightValue;
+            case MQEParser.DEQ:
+                comparedResult = boolToInt(leftValue == rightValue);
                 break;
-            case MQEParser.SUB:
-                calculatedResult = leftValue - rightValue;
+            case MQEParser.NEQ:
+                comparedResult = boolToInt(leftValue != rightValue);
                 break;
-            case MQEParser.MUL:
-                calculatedResult = leftValue * rightValue;
+            case MQEParser.GT:
+                comparedResult = boolToInt(leftValue > rightValue);
                 break;
-            case MQEParser.DIV:
-                calculatedResult = leftValue / rightValue;
+            case MQEParser.LT:
+                comparedResult = boolToInt(leftValue < rightValue);
                 break;
-            case MQEParser.MOD:
-                calculatedResult = leftValue % rightValue;
+            case MQEParser.GTE:
+                comparedResult = boolToInt(leftValue >= rightValue);
+                break;
+            case MQEParser.LTE:
+                comparedResult = boolToInt(leftValue <= rightValue);
                 break;
         }
-        return calculatedResult;
+        return comparedResult;
+    }
+
+    private static int boolToInt(boolean v) {
+        return v ? 1 : 0;
     }
 }
