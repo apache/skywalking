@@ -60,14 +60,14 @@ body:
 
   - type: checkboxes
     attributes:
-      label: Are you willing to submit a pull request to fix this on your own?
+      label: Are you willing to submit a pull request to implement this on your own?
       description: >
         This is absolutely not required, but we are happy to guide you in the contribution process
         especially if you already have a good understanding of how to implement the feature.
         SkyWalking is a totally community-driven project and we love to bring new contributors in.
         Find us in #skywalking on Slack!
       options:
-        - label: Yes I am willing to submit a PR!
+        - label: Yes I am willing to submit a pull request on my own!
 
   - type: checkboxes
     attributes:
