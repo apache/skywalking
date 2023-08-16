@@ -27,6 +27,7 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParserBaseVisitor;
 import org.apache.skywalking.mqe.rt.operation.AggregateLabelsOp;
 import org.apache.skywalking.mqe.rt.operation.AggregationOp;
 import org.apache.skywalking.mqe.rt.operation.BinaryOp;
+import org.apache.skywalking.mqe.rt.operation.CompareOp;
 import org.apache.skywalking.mqe.rt.operation.LogicalFunctionOp;
 import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
@@ -39,6 +40,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResult> {
+    @Override
+    public ExpressionResult visitParensOp(MQEParser.ParensOpContext ctx) {
+        return visit(ctx.expression());
+    }
 
     @Override
     public ExpressionResult visitAddSubOp(MQEParser.AddSubOpContext ctx) {
@@ -210,6 +215,31 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
         int opType = ctx.logical_operator().getStart().getType();
         try {
             return LogicalFunctionOp.doOP(opType, ctx.expressionList(), this);
+        } catch (IllegalExpressionException e) {
+            ExpressionResult result = new ExpressionResult();
+            result.setType(ExpressionResultType.UNKNOWN);
+            result.setError(e.getMessage());
+            return result;
+        }
+    }
+
+    @Override
+    public ExpressionResult visitCompareOp(MQEParser.CompareOpContext ctx) {
+        ExpressionResult left = visit(ctx.expression(0));
+        if (StringUtil.isNotBlank(left.getError())) {
+            return left;
+        }
+        ExpressionResult right = visit(ctx.expression(1));
+        if (StringUtil.isNotBlank(right.getError())) {
+            return right;
+        }
+        int opType = ctx.compare().getStart().getType();
+        try {
+            ExpressionResult result = CompareOp.doCompareOP(left, right, opType);
+            if (ctx.parent == null) {
+                result.setBoolResult(true);
+            }
+            return result;
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);
