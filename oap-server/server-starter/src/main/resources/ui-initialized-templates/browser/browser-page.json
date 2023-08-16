@@ -1,21 +1,5 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-[
+ [
   {
     "id": "Browser-Page",
     "configuration": {
@@ -50,17 +34,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_page_fmp_percentile"
+                  "expressions": [
+                    "relabels(browser_app_page_fmp_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
+                      "unit": "ms",
+                      "label": "Latency"
                     }
                   ],
                   "associate": [
@@ -106,17 +90,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_page_first_pack_percentile"
+                  "expressions": [
+                    "relabels(browser_app_page_first_pack_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
+                      "unit": "ms",
+                      "label": "Latency"
                     }
                   ],
                   "associate": [
@@ -162,17 +146,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_page_fpt_percentile"
+                  "expressions": [
+                    "relabels(browser_app_page_fpt_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
+                      "unit": "ms",
+                      "label": "Latency"
                     }
                   ],
                   "associate": [
@@ -218,17 +202,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_page_dom_ready_percentile"
+                  "expressions": [
+                    "relabels(browser_app_page_dom_ready_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
+                      "unit": "ms",
+                      "label": "Latency"
                     }
                   ],
                   "associate": [
@@ -274,17 +258,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_page_ttl_percentile"
+                  "expressions": [
+                    "relabels(browser_app_page_ttl_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
-                      "key": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99"
+                      "unit": "ms",
+                      "label": "Latency"
                     }
                   ],
                   "associate": [
@@ -330,17 +314,17 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_page_load_page_percentile"
+                  "expressions": [
+                    "relabels(browser_app_page_load_page_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
-                      "key": "0,1,2,3,4",
-                      "label": "P50, P75, P90, P95, P99",
-                      "labelsIndex": "0,1,2,3,4"
+                      "unit": "ms",
+                      "label": "Latency"
                     }
                   ],
                   "associate": [
@@ -386,7 +370,7 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "browser_app_page_res_avg",
                     "browser_app_page_load_page_avg",
                     "browser_app_page_trans_avg",
@@ -398,17 +382,18 @@
                     "browser_app_page_tcp_avg",
                     "browser_app_page_ttfb_avg"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -481,17 +466,18 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "browser_app_page_resource_error_sum",
                     "browser_app_page_js_error_sum",
                     "browser_app_page_unknown_error_sum",
                     "browser_app_page_ajax_error_sum"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {

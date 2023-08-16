@@ -499,6 +499,9 @@ WebSphere:
 Aerospike:
   id: 149
   languages: Java
+Nacos:
+  id: 150
+  languages: Java
 SpringRunner:
   id: 151
   languages: Java

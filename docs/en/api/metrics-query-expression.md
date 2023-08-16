@@ -48,7 +48,7 @@ If we want to rename the label values to `P50,P75,P90,P95,P99`, see [Relabel Ope
 The `ExpressionResultType` of the expression is `TIME_SERIES_VALUES` and with labels.
 
 ## Binary Operation 
-The binary Operation is an operation that takes two expressions and performs a calculation on their results.
+The Binary Operation is an operation that takes two expressions and performs a calculation on their results.
 The following table lists the binary operations supported by MQE.
 
 Expression:
@@ -86,6 +86,75 @@ The expression could be on the left or right side of the operator.
 | TIME_SERIES_VALUES      | TIME_SERIES_VALUES        | Yes    | TIME_SERIES_VALUES       |
 | TIME_SERIES_VALUES      | SORTED_LIST/RECORD_LIST   | no     |                          |
 | SORTED_LIST/RECORD_LIST | SORTED_LIST/RECORD_LIST   | no     |                          |
+
+## Compare Operation
+Compare Operation takes two expressions and compares their results.
+The following table lists the compare operations supported by MQE.
+
+Expression:
+```text
+Expression1 <Compare-Operator> Expression2
+```
+
+| Operator | Definition            |
+|----------|-----------------------|
+| \>       | greater than          |
+| \>=      | greater than or equal |
+| <        | less than             |
+| <=       | less than or equal    |
+| ==       | equal                 |
+| !=       | not equal             |
+
+The result of the compare operation is an **int value**:
+* 1: true
+* 0: false
+
+For example:
+Compare the `service_resp_time` metric value if greater than 3000, if the `service_resp_time` result is:
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": []
+          },
+          "values": [{"id": "1691658000000", "value": "2500", "traceID": null}, {"id": "1691661600000", "value": 3500, "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+we can use the following expression:
+```text
+service_resp_time > 3000
+```
+and get result:
+```json
+{
+  "data": {
+    "execExpression": {
+      "type": "TIME_SERIES_VALUES",
+      "error": null,
+      "results": [
+        {
+          "metric": {
+            "labels": []
+          },
+          "values": [{"id": "1691658000000", "value": "0", "traceID": null}, {"id": "1691661600000", "value": 1, "traceID": null}]
+        }
+      ]
+    }
+  }
+}
+```
+
+### Compare Operation Rules and Result Type
+Same as the [Binary Operation Rules](#binary-operation-rules).
 
 ## Aggregation Operation
 Aggregation Operation takes an expression and performs aggregate calculations on its results.

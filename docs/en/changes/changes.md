@@ -48,9 +48,7 @@
 * Cache all service entity in memory for query.
 * Bump up jackson version to 2.15.2.
 * Increase the default memory size to avoid OOM.
-* Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
 * Bump up graphql-java to 21.0.
-* Apply MQE on Virtual-Cache layer UI-templates
 * Add Echo component ID(5015) language: Golang.
 * Fix `index out of bounds exception` in `aggregate_labels` MQE function.
 * Support MongoDB Server/Cluster monitoring powered by OTEL.
@@ -60,22 +58,19 @@
 * Add component ID for Lock (ID=5016).
 * [Breaking change] Adjust the structure of hooks in the `alarm-settings.yml`. Support multiple configs for each hook types and specifying the hooks in the alarm rule.
 * Bump up Armeria to 1.24.3.
-* Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates.
 * Fix BooleanMatch and BooleanNotEqualMatch doing Boolean comparison.
 * Support LogQL HTTP query APIs.
 * Add Mux Server component ID(5017) language: Golang.
 * Remove ElasticSearch 6.3.2 from our client lib tests.
 * Bump up ElasticSearch server 8.8.1 to 8.9.0 for latest e2e testing. 8.1.0, 7.16.3 and 7.17.10 are still tested.
 * Add OpenSearch 2.8.0 to our client lib tests.
-* Apply MQE on RabbitMQ Dashboards.
 * Use listening mode for apollo implementation of dynamic configuration.
 * Add `view_as_seq` function in MQE for listing metrics in the given prioritized sequence.
-* Apply MQE on Virtual-MQ layer UI-templates
-* Apply MQE on Infra-Linux layer UI-templates
 * Fix the wrong default value of `k8sServiceNameRule` if it's not explicitly set.
-* Apply MQE on Infra-Windows layer UI-templates
 * Improve PromQL to allow for multiple metric operations within a single query.
 * Fix MQE Binary Operation between labeled metrics and other type of value result.
+* Add component ID for Nacos (ID=150).
+* Support `Compare Operation` in MQE.
 * Add component ID for Spring Runner (ID=151).
 
 #### UI
@@ -95,6 +90,14 @@
 * Fix service associates instances.
 * Remove node-sass.
 * Fix commit error on Windows.
+* Apply MQE on `MYSQL`, `POSTGRESQL`, `REDIS`, `ELASTICSEARCH` and `DYNAMODB` layer UI-templates.
+* Apply MQE on Virtual-Cache layer UI-templates
+* Apply MQE on APISIX, AWS_EKS, AWS_GATEWAY and AWS_S3 layer UI templates.
+* Apply MQE on RabbitMQ Dashboards.
+* Apply MQE on Virtual-MQ layer UI-templates
+* Apply MQE on Infra-Linux layer UI-templates
+* Apply MQE on Infra-Windows layer UI-templates
+* Apply MQE on Browser layer UI-templates.
 
 #### Documentation
 
