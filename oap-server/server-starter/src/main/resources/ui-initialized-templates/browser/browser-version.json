@@ -1,21 +1,5 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-[
+ [
   {
     "id": "Browser-Version",
     "configuration": {
@@ -39,24 +23,21 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "Error Count  of The Selected Version",
+                    "title": "Error Count of The Selected Version",
                     "name": "Error_Count"
                   },
                   "graph": {
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metrics": [
-                    "browser_app_single_version_error_sum"
+                  "expressions": [
+                    "browser_app_single_version_error_sum/100"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metricConfig": [
-                    {
-                      "calculation": "percentage"
-                    }
-                  ],
+                  "metricConfig": [],
                   "value": "12-0-0",
                   "label": "12-0-0",
                   "associate": [
@@ -80,7 +61,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "Error Rate  of The Selected Version",
+                    "title": "Error Rate of The Selected Version",
                     "name": "Error_Rate"
                   },
                   "graph": {
@@ -91,16 +72,14 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "browser_app_single_version_error_rate"
+                  "expressions": [
+                    "browser_app_single_version_error_rate/100"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
-                    {
-                      "calculation": "percentage"
-                    }
                   ],
                   "value": "12-0-1",
                   "label": "Error_Rate",
@@ -136,11 +115,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "browser_app_single_version_pv"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
                   "value": "12-0-2",
                   "label": "Load_Version",

@@ -77,6 +77,7 @@
 * Improve PromQL to allow for multiple metric operations within a single query.
 * Fix MQE Binary Operation between labeled metrics and other type of value result.
 * Add component ID for Nacos (ID=150).
+* Apply MQE on Browser layer UI-templates.
 
 #### UI
 
