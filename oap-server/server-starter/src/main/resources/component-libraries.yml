@@ -499,6 +499,10 @@ WebSphere:
 Aerospike:
   id: 149
   languages: Java
+Nacos:
+  id: 150
+  languages: Java
+
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
