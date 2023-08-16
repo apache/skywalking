@@ -96,6 +96,7 @@
 * Fix service associates instances.
 * Remove node-sass.
 * Fix commit error on Windows.
+* Add Nacos icon.
 
 #### Documentation
 
