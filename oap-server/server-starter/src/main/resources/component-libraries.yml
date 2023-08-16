@@ -499,7 +499,7 @@ WebSphere:
 Aerospike:
   id: 149
   languages: Java
-Nacos:
+Nacos-client:
   id: 150
   languages: Java
 
