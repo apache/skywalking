@@ -108,5 +108,7 @@
 * Add a doc to explain how to manage i18n.
 * Add a doc to explain OTLP Trace support.
 * Fix typo in `dynamic-config-configmap.md`.
+* Fix out-dated docs about Kafka fetcher.
+* Remove 3rd part fetchers from the docs, as they are not maintained anymore.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/181?closed=1)
