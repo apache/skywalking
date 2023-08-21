@@ -41,8 +41,8 @@ public enum KubernetesServices {
     @SneakyThrows
     KubernetesServices() {
         final CacheBuilder<Object, Object> cacheBuilder =
-                CacheBuilder.newBuilder()
-                        .expireAfterAccess(Duration.ofMinutes(3));
+            CacheBuilder.newBuilder()
+                        .expireAfterWrite(Duration.ofMinutes(3));
 
         services = cacheBuilder.build(CacheLoader.from(() -> {
             try (final var kubernetesClient = new KubernetesClientBuilder().build()) {

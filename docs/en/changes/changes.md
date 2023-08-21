@@ -71,6 +71,7 @@
 * Fix MQE Binary Operation between labeled metrics and other type of value result.
 * Add component ID for Nacos (ID=150).
 * Support `Compare Operation` in MQE.
+* Fix the Kubernetes resource cache not refreshed.
 
 #### UI
 

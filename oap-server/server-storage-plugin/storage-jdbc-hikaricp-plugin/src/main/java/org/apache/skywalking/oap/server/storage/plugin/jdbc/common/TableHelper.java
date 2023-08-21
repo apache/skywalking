@@ -60,7 +60,7 @@ public class TableHelper {
 
     private final LoadingCache<String, Boolean> tableExistence =
         CacheBuilder.newBuilder()
-                    .expireAfterAccess(Duration.ofMinutes(10))
+                    .expireAfterWrite(Duration.ofMinutes(10))
                     .build(new CacheLoader<>() {
                         @Override
                         public @NonNull Boolean load(@NonNull String tableName) throws Exception {
