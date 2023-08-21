@@ -29,7 +29,12 @@ fi
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 
-CLASSPATH="$OAP_HOME/config:$CLASSPATH"
+if [ -z "$CLASSPATH" ]; then
+  CLASSPATH="$OAP_HOME/config"
+else
+  CLASSPATH="$OAP_HOME/config:$CLASSPATH"
+fi
+
 for i in "$OAP_HOME"/oap-libs/*.jar
 do
     CLASSPATH="$i:$CLASSPATH"

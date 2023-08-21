@@ -72,6 +72,7 @@
 * Add component ID for Nacos (ID=150).
 * Support `Compare Operation` in MQE.
 * Fix the Kubernetes resource cache not refreshed.
+* Fix wrong classpath that might cause OOM in startup.
 
 #### UI
 
