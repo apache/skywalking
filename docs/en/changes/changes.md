@@ -100,6 +100,8 @@
 * Apply MQE on Infra-Linux layer UI-templates
 * Apply MQE on Infra-Windows layer UI-templates
 * Apply MQE on Browser layer UI-templates.
+* Implement MQE on topology widget.
+* Fix getEndpoints keyword blank.
 
 #### Documentation
 
