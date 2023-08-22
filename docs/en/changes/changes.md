@@ -73,6 +73,7 @@
 * Support `Compare Operation` in MQE.
 * Fix the Kubernetes resource cache not refreshed.
 * Fix wrong classpath that might cause OOM in startup.
+* Enhance the `serviceRelation` in MAL by adding settings for the `delimiter` and `component` fields. 
 
 #### UI
 

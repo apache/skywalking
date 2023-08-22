@@ -154,13 +154,14 @@ public class MeterEntity {
 
     public static MeterEntity newServiceRelation(String sourceServiceName,
                                                  String destServiceName,
-                                                 DetectPoint detectPoint, Layer layer) {
+                                                 DetectPoint detectPoint, Layer layer, int componentId) {
         final MeterEntity meterEntity = new MeterEntity();
         meterEntity.scopeType = ScopeType.SERVICE_RELATION;
         meterEntity.sourceServiceName = NAMING_CONTROL.formatServiceName(sourceServiceName);
         meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
         meterEntity.detectPoint = detectPoint;
         meterEntity.layer = layer;
+        meterEntity.componentId = componentId;
         return meterEntity;
     }
 
