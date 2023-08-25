@@ -60,8 +60,6 @@ public class MQEVisitor extends MQEVisitorBase {
     private final Entity entity;
     private final Duration duration;
 
-    private final static String GENERAL_LABEL_NAME = "_";
-
     public MQEVisitor(final MetricsQuery metricsQuery,
                       final RecordsQuery recordsQuery,
                       final Entity entity,

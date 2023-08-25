@@ -23,14 +23,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
-import org.apache.skywalking.oap.server.core.alarm.provider.expression.Expression;
-import org.apache.skywalking.oap.server.core.alarm.provider.expression.ExpressionContext;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.grpc.GRPCAlarmSetting;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
@@ -51,18 +50,17 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     @Getter
     private volatile Map<String, List<RunningRule>> runningContext;
     private volatile Map<AlarmRule, RunningRule> alarmRuleRunningRuleMap;
+    @Getter
+    private volatile Map<String, Set<String>> exprMetricsMap;
     private volatile Rules rules;
     private volatile String settingsString;
-    @Getter
-    private final CompositeRuleEvaluator compositeRuleEvaluator;
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
         this.runningContext = new HashMap<>();
         this.alarmRuleRunningRuleMap = new HashMap<>();
+        this.exprMetricsMap = new HashMap<>();
         this.settingsString = null;
-        Expression expression = new Expression(new ExpressionContext());
-        this.compositeRuleEvaluator = new CompositeRuleEvaluator(expression);
         notify(defaultRules);
     }
 
@@ -79,9 +77,13 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         }
     }
 
-    void notify(Rules newRules) {
+    /**
+     * Don't invoke before the module finishes start
+     */
+    public void notify(Rules newRules) {
         Map<AlarmRule, RunningRule> newAlarmRuleRunningRuleMap = new HashMap<>();
         Map<String, List<RunningRule>> newRunningContext = new HashMap<>();
+        Map<String, Set<String>> newExprMetricsMap = new HashMap<>();
 
         newRules.getRules().forEach(rule -> {
             /*
@@ -92,9 +94,10 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
             newAlarmRuleRunningRuleMap.put(rule, runningRule);
 
-            String metricsName = rule.getMetricsName();
+            String expression = rule.getExpression();
+            newExprMetricsMap.put(expression, rule.getIncludeMetrics());
 
-            List<RunningRule> runningRules = newRunningContext.computeIfAbsent(metricsName, key -> new ArrayList<>());
+            List<RunningRule> runningRules = newRunningContext.computeIfAbsent(expression, key -> new ArrayList<>());
 
             runningRules.add(runningRule);
         });
@@ -102,6 +105,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.rules = newRules;
         this.runningContext = newRunningContext;
         this.alarmRuleRunningRuleMap = newAlarmRuleRunningRuleMap;
+        this.exprMetricsMap = newExprMetricsMap;
         log.info("Update alarm rules to {}", rules);
     }
 
@@ -112,10 +116,6 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
 
     public List<AlarmRule> getRules() {
         return this.rules.getRules();
-    }
-
-    public List<CompositeAlarmRule> getCompositeRules() {
-        return this.rules.getCompositeRules();
     }
 
     public Map<String, WebhookSettings> getWebHooks() {

@@ -18,65 +18,48 @@
 rules:
   # Rule unique name, must be ended with `_rule`.
   service_resp_time_rule:
-    metrics-name: service_resp_time
-    op: ">"
-    threshold: 1000
+    # A MQE expression, the result type must be `SINGLE_VALUE` and the root operation of the expression must be a Compare Operation
+    # which provides `1`(true) or `0`(false) result. When the result is `1`(true), the alarm will be triggered.
+    expression: sum(service_resp_time > 1000) >= 3
     period: 10
-    count: 3
     silence-period: 5
     message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
+#  service_resp_time_rule:
+#    expression: avg(service_resp_time) > 1000
+#    period: 10
+#    silence-period: 5
+#    message: Avg response time of service {name} is more than 1000ms in last 10 minutes.
   service_sla_rule:
-    # Metrics value need to be long, double or int
-    metrics-name: service_sla
-    op: "<"
-    threshold: 8000
+    expression: sum(service_sla < 8000) >= 2
     # The length of time to evaluate the metrics
     period: 10
-    # How many times after the metrics match the condition, will trigger alarm
-    count: 2
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 3
     message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
   service_resp_time_percentile_rule:
-    # Metrics value need to be long, double or int
-    metrics-name: service_percentile
-    op: ">"
-    threshold: 1000,1000,1000,1000,1000
+    expression: sum(service_percentile{_='0,1,2,3,4'} > 1000) >= 3
     period: 10
-    count: 3
     silence-period: 5
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
   service_instance_resp_time_rule:
-    metrics-name: service_instance_resp_time
-    op: ">"
-    threshold: 1000
+    expression: sum(service_instance_resp_time > 1000) >= 2
     period: 10
-    count: 2
     silence-period: 5
     message: Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes
   database_access_resp_time_rule:
-    metrics-name: database_access_resp_time
-    threshold: 1000
-    op: ">"
+    expression: sum(database_access_resp_time > 1000) >= 2
     period: 10
-    count: 2
     message: Response time of database access {name} is more than 1000ms in 2 minutes of last 10 minutes
   endpoint_relation_resp_time_rule:
-    metrics-name: endpoint_relation_resp_time
-    threshold: 1000
-    op: ">"
+    expression: sum(endpoint_relation_resp_time > 1000) >= 2
     period: 10
-    count: 2
     message: Response time of endpoint relation {name} is more than 1000ms in 2 minutes of last 10 minutes
 #  Active endpoint related metrics alarm will cost more memory than service and service instance metrics alarm.
 #  Because the number of endpoint is much more than service and instance.
 #
 #  endpoint_resp_time_rule:
-#    metrics-name: endpoint_resp_time
-#    op: ">"
-#    threshold: 1000
+#    expression: sum(endpoint_resp_time > 1000) >= 2
 #    period: 10
-#    count: 2
 #    silence-period: 5
 #    message: Response time of endpoint {name} is more than 1000ms in 2 minutes of last 10 minutes
 

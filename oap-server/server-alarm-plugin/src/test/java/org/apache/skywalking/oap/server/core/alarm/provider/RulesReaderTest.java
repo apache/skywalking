@@ -26,17 +26,28 @@ import org.apache.skywalking.oap.server.core.alarm.provider.slack.SlackSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.wechat.WechatSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.welink.WeLinkSettings;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RulesReaderTest {
+    @BeforeEach
+    public void setUp() {
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Service.getScopeId());
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+    }
+
     @Test
     public void testReadRules() {
         RulesReader reader = new RulesReader(this.getClass()
@@ -45,8 +56,8 @@ public class RulesReaderTest {
         Rules rules = reader.readRules();
 
         List<AlarmRule> ruleList = rules.getRules();
-        Assertions.assertEquals(3, ruleList.size());
-        Assertions.assertEquals("85", ruleList.get(1).getThreshold());
+        Assertions.assertEquals(5, ruleList.size());
+        Assertions.assertEquals("sum(service_percent < 85) >= 4", ruleList.get(1).getExpression());
         Assertions.assertEquals("endpoint_percent_rule", ruleList.get(0).getAlarmRuleName());
         Assertions.assertEquals(0, ruleList.get(0).getIncludeNames().size());
         Assertions.assertEquals(0, ruleList.get(0).getExcludeNames().size());
@@ -81,14 +92,6 @@ public class RulesReaderTest {
         assertThat(wechatSettings.getWebhooks().size()).isEqualTo(1);
         assertThat(wechatSettings.getWebhooks().get(0)).isEqualTo("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=dummy_key");
         assertThat(slackSettings.getTextTemplate()).isInstanceOfAny(String.class);
-
-        List<CompositeAlarmRule> compositeRules = rules.getCompositeRules();
-        Assertions.assertEquals(2, compositeRules.size());
-        Assertions.assertEquals("endpoint_percent_more_rule && endpoint_percent_rule", compositeRules.get(0).getExpression());
-        //comp1_rule's hooks
-        Assertions.assertEquals(8, compositeRules.get(0).getHooks().size());
-        //comp2_rule's hooks
-        Assertions.assertEquals(3, compositeRules.get(1).getHooks().size());
 
         DingtalkSettings dingtalkSettings = rules.getDingtalkSettingsMap().get(AlarmHooksType.dingtalk.name() + ".default");
         assertThat(dingtalkSettings.getTextTemplate()).isInstanceOfAny(String.class);

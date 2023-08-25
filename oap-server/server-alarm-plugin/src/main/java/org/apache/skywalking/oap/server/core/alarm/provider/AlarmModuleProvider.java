@@ -54,19 +54,8 @@ public class AlarmModuleProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        Reader applicationReader;
-        try {
-            applicationReader = ResourceUtils.read("alarm-settings.yml");
-        } catch (FileNotFoundException e) {
-            throw new ModuleStartException("can't load alarm-settings.yml", e);
-        }
-        RulesReader reader = new RulesReader(applicationReader);
-        Rules rules = reader.readRules();
-
-        alarmRulesWatcher = new AlarmRulesWatcher(rules, this);
-
+        alarmRulesWatcher = new AlarmRulesWatcher(new Rules(), this);
         notifyHandler = new NotifyHandler(alarmRulesWatcher, getManager());
-        notifyHandler.init(new AlarmStandardPersistence(getManager()));
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
     }
 
@@ -81,6 +70,16 @@ public class AlarmModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+        Reader applicationReader;
+        try {
+            applicationReader = ResourceUtils.read("alarm-settings.yml");
+        } catch (FileNotFoundException e) {
+            throw new ModuleStartException("can't load alarm-settings.yml", e);
+        }
+        RulesReader reader = new RulesReader(applicationReader);
+        Rules rules = reader.readRules();
+        alarmRulesWatcher.notify(rules);
+        notifyHandler.init(new AlarmStandardPersistence(getManager()));
     }
 
     @Override

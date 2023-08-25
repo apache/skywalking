@@ -74,6 +74,8 @@
 * Fix the Kubernetes resource cache not refreshed.
 * Fix wrong classpath that might cause OOM in startup.
 * Enhance the `serviceRelation` in MAL by adding settings for the `delimiter` and `component` fields. 
+* [Breaking change] Support MQE in the Alerting. The Alarm Rules configuration(alarm-settings.yml), 
+  add `expression` field and remove `metrics-name/count/threshold/op/only-as-condition` fields and remove `composite-rules` configuration.
 
 #### UI
 

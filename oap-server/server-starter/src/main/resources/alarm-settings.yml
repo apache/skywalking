@@ -17,27 +17,21 @@
 rules:
   # Rule unique name, must be ended with `_rule`.
 #  endpoint_percent_rule:
-#    # Metrics value need to be long, double or int
-#    metrics-name: endpoint_percent
-#    threshold: 75
-#    op: <
+#    # A MQE expression, the result type must be `SINGLE_VALUE` and the root operation of the expression must be a Compare Operation
+     # which provides `1`(true) or `0`(false) result. When the result is `1`(true), the alarm will be triggered.
+#    expression: sum(endpoint_percent < 75) >= 3
 #    # The length of time to evaluate the metrics
 #    period: 10
-#    # How many times after the metrics match the condition, will trigger alarm
-#    count: 3
 #    # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
 #    silence-period: 10
 #    message: Successful rate of endpoint {name} is lower than 75%
   service_resp_time_rule:
-    metrics-name: service_resp_time
+    expression: sum(service_resp_time > 1000) >= 1
     # [Optional] Default, match all services in this metrics
     include-names:
       - dubbox-provider
       - dubbox-consumer
-    threshold: 1000
-    op: ">"
     period: 10
-    count: 1
     tags:
       level: WARNING
     # Binding the specific names of the hooks when the alarm is triggered. The name format is {hookType}.{hookName}
