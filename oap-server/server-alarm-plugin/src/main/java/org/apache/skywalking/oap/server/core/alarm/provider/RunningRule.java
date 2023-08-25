@@ -420,28 +420,6 @@ public class RunningRule {
                 } else {
                     log.warn("Unsupported metrics {}", m);
                 }
-//                switch (valueType) {
-//                    case LONG:
-//                        r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((LongValueHolder) m).getValue()}));
-//                        break;
-//                    case INT:
-//                        r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((IntValueHolder) m).getValue()}));
-//                        break;
-//                    case DOUBLE:
-//                        r.add(new TraceLogMetric(m.getTimeBucket(), new Number[] {((DoubleValueHolder) m).getValue()}));
-//                        break;
-//                    case MULTI_INTS:
-//                        int[] iArr = ((MultiIntValuesHolder) m).getValues();
-//                        r.add(new TraceLogMetric(m.getTimeBucket(), Arrays.stream(iArr).boxed().toArray(Number[]::new)));
-//                        break;
-//                    case LABELED_LONG:
-//                        DataTable dt = ((LabeledValueHolder) m).getValue();
-//                        TraceLogMetric l = new TraceLogMetric(
-//                            m.getTimeBucket(), dt.sortedValues(Comparator.naturalOrder())
-//                                                 .toArray(new Number[0]));
-//                        l.labels = dt.sortedKeys(Comparator.naturalOrder()).toArray(new String[0]);
-//                        r.add(l);
-//                }
             });
         }
         return result;
