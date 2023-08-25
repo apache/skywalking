@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
+import lombok.experimental.Accessors;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -68,8 +69,8 @@ public interface AccessLogAnalyzer<E> {
     }
 
     @Data
-    @Builder
-    static class Result {
+    @Builder(toBuilder = true)
+    class Result {
         /**
          * The service representing the Envoy node.
          */
@@ -78,10 +79,17 @@ public interface AccessLogAnalyzer<E> {
         /**
          * The analyzed metrics result.
          */
-        private ServiceMeshMetrics.Builder metrics;
+        @Builder.Default
+        private ServiceMeshMetrics.Builder metrics = ServiceMeshMetrics.newBuilder();
+
+        @Accessors(fluent = true)
+        private boolean hasDownstreamMetrics;
+        @Accessors(fluent = true)
+        private boolean hasUpstreamMetrics;
 
         public boolean hasResult() {
-            return metrics != null && (metrics.getHttpMetrics().getMetricsCount() > 0 || metrics.getTcpMetrics().getMetricsCount() > 0);
+            return metrics.getHttpMetrics().getMetricsCount() > 0
+                || metrics.getTcpMetrics().getMetricsCount() > 0;
         }
     }
 }

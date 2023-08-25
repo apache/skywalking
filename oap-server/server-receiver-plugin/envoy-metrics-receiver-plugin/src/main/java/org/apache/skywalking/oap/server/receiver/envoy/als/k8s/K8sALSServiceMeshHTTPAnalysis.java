@@ -72,13 +72,13 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         final HTTPAccessLogEntry entry,
         final Role role
     ) {
-        if (result.hasResult()) {
-            return result;
-        }
         switch (role) {
             case PROXY:
-                return analyzeProxy(entry);
+                return analyzeProxy(result, entry);
             case SIDECAR:
+                if (result.hasResult()) {
+                    return result;
+                }
                 return analyzeSideCar(entry);
         }
 
@@ -141,44 +141,57 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(sources)).service(localService).build();
     }
 
-    protected Result analyzeProxy(final HTTPAccessLogEntry entry) {
+    protected Result analyzeProxy(Result previousResult, final HTTPAccessLogEntry entry) {
         if (!entry.hasCommonProperties()) {
-            return Result.builder().build();
+            return previousResult;
         }
+        if (previousResult.hasUpstreamMetrics() && previousResult.hasDownstreamMetrics()) {
+            return previousResult;
+        }
+
         final AccessLogCommon properties = entry.getCommonProperties();
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
             properties.getDownstreamDirectRemoteAddress() : properties.getDownstreamRemoteAddress();
         final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
         if (!isValid(downstreamLocalAddress) || !isValid(downstreamRemoteAddress) || !isValid(upstreamRemoteAddress)) {
-            return Result.builder().build();
+            return previousResult;
         }
 
-        final HTTPServiceMeshMetrics.Builder result = HTTPServiceMeshMetrics.newBuilder();
         final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
-
         final SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
         final ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
 
-        final HTTPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var previousHttpMetrics = previousMetrics.getHttpMetricsBuilder();
 
-        log.debug("Transformed ingress inbound mesh metric {}", metric);
-        result.addMetrics(metric);
+        if (!previousResult.hasDownstreamMetrics()) {
+            final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
 
-        final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
+            final HTTPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
 
-        final HTTPServiceMeshMetric.Builder outboundMetric =
-            newAdapter(entry, ingress, targetService)
-                .adaptToUpstreamMetrics()
-                // Can't parse it from tls properties, leave it to Server side.
-                .setTlsMode(NON_TLS);
+            log.debug("Transformed ingress inbound mesh metric {}", metric);
+            previousHttpMetrics.addMetrics(metric);
+            newResult.hasDownstreamMetrics(true);
+        }
 
-        log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
-        result.addMetrics(outboundMetric);
+        if (!previousResult.hasUpstreamMetrics()) {
+            final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
+            final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(result)).service(ingress).build();
+            final HTTPServiceMeshMetric.Builder outboundMetric =
+                newAdapter(entry, ingress, targetService)
+                    .adaptToUpstreamMetrics()
+                    // Can't parse it from tls properties, leave it to Server side.
+                    .setTlsMode(NON_TLS);
+
+            log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
+            previousHttpMetrics.addMetrics(outboundMetric);
+            newResult.hasUpstreamMetrics(true);
+        }
+
+        return newResult.metrics(previousMetrics.setHttpMetrics(previousHttpMetrics)).service(ingress).build();
     }
 
     /**

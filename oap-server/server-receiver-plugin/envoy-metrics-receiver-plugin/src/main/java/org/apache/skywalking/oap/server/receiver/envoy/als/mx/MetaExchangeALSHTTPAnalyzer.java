@@ -72,7 +72,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
         final HTTPAccessLogEntry entry,
         final Role role
     ) {
-        if (previousResult.hasResult()) {
+        if (previousResult.hasUpstreamMetrics() && previousResult.hasDownstreamMetrics()) {
             return previousResult;
         }
         if (!entry.hasCommonProperties()) {
@@ -87,12 +87,14 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
         }
         final AccessLogCommon properties = entry.getCommonProperties();
         final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
+        final var result = previousResult.toBuilder();
         if (stateMap.isEmpty()) {
-            return Result.builder().service(currSvc).build();
+            return result.service(currSvc).build();
         }
 
-        final HTTPServiceMeshMetrics.Builder httpMetrics = HTTPServiceMeshMetrics.newBuilder();
-        final AtomicBoolean downstreamExists = new AtomicBoolean();
+        final var previousMetrics = previousResult.getMetrics();
+        final var httpMetrics = previousMetrics.getHttpMetricsBuilder();
+        final var downstreamExists = new AtomicBoolean();
         stateMap.forEach((key, value) -> {
             if (!key.equals(UPSTREAM_KEY) && !key.equals(DOWNSTREAM_KEY)) {
                 return;
@@ -112,6 +114,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
                         log.debug("Transformed a {} outbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));
                     }
                     httpMetrics.addMetrics(metrics);
+                    result.hasUpstreamMetrics(true);
                     break;
                 case DOWNSTREAM_KEY:
                     metrics = newAdapter(entry, svc, currSvc).adaptToDownstreamMetrics();
@@ -120,6 +123,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
                     }
                     httpMetrics.addMetrics(metrics);
                     downstreamExists.set(true);
+                    result.hasDownstreamMetrics(true);
                     break;
             }
         });
@@ -130,7 +134,7 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             }
             httpMetrics.addMetrics(metric);
         }
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(httpMetrics)).service(currSvc).build();
+        return result.metrics(previousMetrics.setHttpMetrics(httpMetrics)).service(currSvc).build();
     }
 
     protected ServiceMetaInfo adaptToServiceMetaInfo(final Any value) throws Exception {

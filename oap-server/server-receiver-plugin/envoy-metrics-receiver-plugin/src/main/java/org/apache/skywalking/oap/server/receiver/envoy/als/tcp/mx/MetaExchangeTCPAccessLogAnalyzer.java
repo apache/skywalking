@@ -71,7 +71,7 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
         final TCPAccessLogEntry entry,
         final Role role
     ) {
-        if (previousResult.hasResult()) {
+        if (previousResult.hasUpstreamMetrics() && previousResult.hasDownstreamMetrics()) {
             return previousResult;
         }
         if (!entry.hasCommonProperties()) {
@@ -86,12 +86,14 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
         }
         final AccessLogCommon properties = entry.getCommonProperties();
         final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
         if (stateMap.isEmpty()) {
-            return Result.builder().service(currSvc).build();
+            return newResult.service(currSvc).build();
         }
 
-        final TCPServiceMeshMetrics.Builder result = TCPServiceMeshMetrics.newBuilder();
-        final AtomicBoolean downstreamExists = new AtomicBoolean();
+        final var tcpMetrics = previousMetrics.getTcpMetricsBuilder();
+        final var downstreamExists = new AtomicBoolean();
         stateMap.forEach((key, value) -> {
             if (!key.equals(UPSTREAM_KEY) && !key.equals(DOWNSTREAM_KEY)) {
                 return;
@@ -110,15 +112,17 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
                     if (log.isDebugEnabled()) {
                         log.debug("Transformed a {} outbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));
                     }
-                    result.addMetrics(metrics);
+                    tcpMetrics.addMetrics(metrics);
+                    newResult.hasUpstreamMetrics(true);
                     break;
                 case DOWNSTREAM_KEY:
                     metrics = newAdapter(entry, svc, currSvc).adaptToDownstreamMetrics();
                     if (log.isDebugEnabled()) {
                         log.debug("Transformed a {} inbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));
                     }
-                    result.addMetrics(metrics);
+                    tcpMetrics.addMetrics(metrics);
                     downstreamExists.set(true);
+                    newResult.hasDownstreamMetrics(true);
                     break;
             }
         });
@@ -127,9 +131,9 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
             if (log.isDebugEnabled()) {
                 log.debug("Transformed a {} inbound mesh metric {}", role, TextFormat.shortDebugString(metric));
             }
-            result.addMetrics(metric);
+            tcpMetrics.addMetrics(metric);
         }
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(result)).service(currSvc).build();
+        return newResult.metrics(previousMetrics.setTcpMetrics(tcpMetrics)).service(currSvc).build();
     }
 
     protected ServiceMetaInfo adaptToServiceMetaInfo(final Any value) throws Exception {
