@@ -26,6 +26,7 @@ When the result is `1`(true), the alarm will be triggered.
 For example, `avg(service_resp_time / 1000) > 1` is a valid expression to indicate the request latency is slower than 1s. The typical illegal expressions are
     - `avg(service_resp_time > 1000) + 1` expression doesn't use `compare operation`
     - `service_resp_time > 1000` expression return a `TIME_SERIES_VALUES` type of values rather than a `SINGLE_VALUE` value.
+
 The metrics names in the expression could be found in the [list of all potential metrics name](#list-of-all-potential-metrics-name) doc.
 - **Include names**. Entity names that are included in this rule. Please follow the [entity name definitions](#entity-name).
 - **Exclude names**. Entity names that are excluded from this rule. Please follow the [entity name definitions](#entity-name).
