@@ -337,7 +337,7 @@ public class RunningRule {
             int isMatch = 0;
             AlarmMQEVisitor visitor = new AlarmMQEVisitor(this.values, this.endTime);
             ExpressionResult parseResult = visitor.visit(exprTree);
-            if(StringUtil.isNotBlank(parseResult.getError())) {
+            if (StringUtil.isNotBlank(parseResult.getError())) {
                 log.error("expression:" + expression + " error: " + parseResult.getError());
                 return false;
             }
