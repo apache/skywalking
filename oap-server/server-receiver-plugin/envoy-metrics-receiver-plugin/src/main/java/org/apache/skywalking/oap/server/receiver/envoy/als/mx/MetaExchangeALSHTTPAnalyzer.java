@@ -109,6 +109,9 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             final HTTPServiceMeshMetric.Builder metrics;
             switch (key) {
                 case UPSTREAM_KEY:
+                    if (previousResult.hasUpstreamMetrics()) {
+                        break;
+                    }
                     metrics = newAdapter(entry, currSvc, svc).adaptToUpstreamMetrics().setTlsMode(NON_TLS);
                     if (log.isDebugEnabled()) {
                         log.debug("Transformed a {} outbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));
@@ -117,6 +120,9 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
                     result.hasUpstreamMetrics(true);
                     break;
                 case DOWNSTREAM_KEY:
+                    if (previousResult.hasDownstreamMetrics()) {
+                        break;
+                    }
                     metrics = newAdapter(entry, svc, currSvc).adaptToDownstreamMetrics();
                     if (log.isDebugEnabled()) {
                         log.debug("Transformed a {} inbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));

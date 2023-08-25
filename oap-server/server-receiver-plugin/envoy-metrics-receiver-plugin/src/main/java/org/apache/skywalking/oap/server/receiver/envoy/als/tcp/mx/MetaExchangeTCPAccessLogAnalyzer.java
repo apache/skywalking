@@ -108,6 +108,9 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
             final TCPServiceMeshMetric.Builder metrics;
             switch (key) {
                 case UPSTREAM_KEY:
+                    if (previousResult.hasUpstreamMetrics()) {
+                        break;
+                    }
                     metrics = newAdapter(entry, currSvc, svc).adaptToUpstreamMetrics().setTlsMode(NON_TLS);
                     if (log.isDebugEnabled()) {
                         log.debug("Transformed a {} outbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));
@@ -116,6 +119,9 @@ public class MetaExchangeTCPAccessLogAnalyzer extends AbstractTCPAccessLogAnalyz
                     newResult.hasUpstreamMetrics(true);
                     break;
                 case DOWNSTREAM_KEY:
+                    if (previousResult.hasDownstreamMetrics()) {
+                        break;
+                    }
                     metrics = newAdapter(entry, svc, currSvc).adaptToDownstreamMetrics();
                     if (log.isDebugEnabled()) {
                         log.debug("Transformed a {} inbound mesh metrics {}", role, TextFormat.shortDebugString(metrics));
