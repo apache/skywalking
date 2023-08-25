@@ -47,7 +47,7 @@ public class AlarmCore {
     }
 
     /**
-     * Find the running rule by the metrics name.
+     * Find the running rules by the metrics name.
      *
      * @param metricsName to be found
      * @return the matched running rule list, or null if not found.
