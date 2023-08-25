@@ -72,6 +72,10 @@
 * Add component ID for Nacos (ID=150).
 * Support `Compare Operation` in MQE.
 * Fix the Kubernetes resource cache not refreshed.
+* Fix wrong classpath that might cause OOM in startup.
+* Enhance the `serviceRelation` in MAL by adding settings for the `delimiter` and `component` fields. 
+* [Breaking change] Support MQE in the Alerting. The Alarm Rules configuration(alarm-settings.yml), 
+  add `expression` field and remove `metrics-name/count/threshold/op/only-as-condition` fields and remove `composite-rules` configuration.
 * Check results in ALS as per downstream/upstream instead of per log.
 
 #### UI
@@ -99,6 +103,8 @@
 * Apply MQE on Infra-Linux layer UI-templates
 * Apply MQE on Infra-Windows layer UI-templates
 * Apply MQE on Browser layer UI-templates.
+* Implement MQE on topology widget.
+* Fix getEndpoints keyword blank.
 
 #### Documentation
 

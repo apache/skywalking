@@ -18,6 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-public enum MetricsValueType {
-    LONG, INT, DOUBLE, LABELED_LONG, MULTI_INTS
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public class AlarmEntity {
+    private final String scope;
+    private final int scopeId;
+    private final String name;
+    private final String id0;
+    private final String id1;
 }

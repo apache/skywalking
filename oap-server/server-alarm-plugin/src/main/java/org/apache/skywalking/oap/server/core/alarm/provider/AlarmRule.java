@@ -20,40 +20,92 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.AccessLevel;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
+import org.apache.skywalking.mqe.rt.grammar.MQELexer;
+import org.apache.skywalking.mqe.rt.grammar.MQEParser;
+import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVerifyVisitor;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter
-@Getter
+@Data
 @ToString
 @EqualsAndHashCode
 public class AlarmRule {
     private String alarmRuleName;
-    private String metricsName;
+    private String expression;
+    @Setter(AccessLevel.NONE)
+    private Set<String> includeMetrics;
     private ArrayList<String> includeNames;
     private String includeNamesRegex;
     private ArrayList<String> excludeNames;
     private String excludeNamesRegex;
-    private ArrayList<String> includeLabels;
-    private String includeLabelsRegex;
-    private ArrayList<String> excludeLabels;
-    private String excludeLabelsRegex;
-    private String threshold;
-    private String op;
     private int period;
-    private int count;
     private int silencePeriod;
     private String message;
-    private boolean onlyAsCondition;
     private Map<String, String> tags;
     private Set<String> hooks;
+
+    /**
+     * Init includeMetrics and verify the expression.
+     * ValueColumnMetadata need init metrics info, don't invoke before the module finishes start.
+     */
+    public void setExpression(final String expression) {
+        MQELexer lexer = new MQELexer(CharStreams.fromString(expression));
+        lexer.addErrorListener(new ParseErrorListener());
+        MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
+        ParseTree tree;
+        try {
+            tree = parser.expression();
+        } catch (ParseCancellationException e) {
+            throw new IllegalArgumentException("expression:" + expression + " error: " + e.getMessage());
+        }
+        AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
+        ExpressionResult parseResult = visitor.visit(tree);
+        if (StringUtil.isNotBlank(parseResult.getError())) {
+            throw new IllegalArgumentException("expression:" + expression + " error: " + parseResult.getError());
+        }
+        if (!parseResult.isBoolResult()) {
+            throw new IllegalArgumentException("expression:" + expression + " root operation is not a Compare Operation.");
+        }
+        if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
+            throw new IllegalArgumentException("expression:" + expression + " is not a SINGLE_VALUE result expression.");
+        }
+
+        verifyIncludeMetrics(visitor.getIncludeMetrics());
+        this.expression = expression;
+        this.includeMetrics = visitor.getIncludeMetrics();
+    }
+
+    private void verifyIncludeMetrics(Set<String> includeMetrics) {
+        includeMetrics.forEach(metricName -> {
+            Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
+                metricName);
+            if (valueColumn.isEmpty()) {
+                throw new IllegalArgumentException("Metric: [" + metricName + "] dose not exist.");
+            }
+            Column.ValueDataType dataType = valueColumn.get().getDataType();
+            switch (dataType) {
+                case COMMON_VALUE:
+                case LABELED_VALUE:
+                    return;
+                default:
+                    throw new IllegalArgumentException(
+                        "Metric dose not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
+            }
+        });
+    }
 }

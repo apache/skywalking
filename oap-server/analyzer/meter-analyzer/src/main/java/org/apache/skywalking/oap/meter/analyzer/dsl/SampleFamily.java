@@ -510,7 +510,22 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
-        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, Const.POINT));
+        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, Const.POINT, null));
+    }
+
+    public SampleFamily serviceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> destServiceKeys, String delimiter, Layer layer, String componentIdKey) {
+        Preconditions.checkArgument(sourceServiceKeys.size() > 0);
+        Preconditions.checkArgument(destServiceKeys.size() > 0);
+        ExpressionParsingContext.get().ifPresent(ctx -> {
+            ctx.scopeType = ScopeType.SERVICE_RELATION;
+            ctx.scopeLabels.addAll(sourceServiceKeys);
+            ctx.scopeLabels.addAll(destServiceKeys);
+            ctx.scopeLabels.add(componentIdKey);
+        });
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, delimiter, componentIdKey));
     }
 
     public SampleFamily forEach(List<String> array, Closure<Void> each) {
@@ -701,10 +716,13 @@ public class SampleFamily {
                     );
                 case SERVICE_RELATION:
                     ServiceRelationEntityDescription serviceRelationEntityDescription = (ServiceRelationEntityDescription) entityDescription;
+                    final String serviceRelationComponentValue = InternalOps.dim(samples,
+                        Collections.singletonList(serviceRelationEntityDescription.getComponentIdKey()), serviceRelationEntityDescription.getDelimiter());
+                    int serviceRelationComponentId = StringUtil.isNotEmpty(serviceRelationComponentValue) ? Integer.parseInt(serviceRelationComponentValue) : 0;
                     return MeterEntity.newServiceRelation(
                         InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
-                        serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer()
+                        serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer(), serviceRelationComponentId
                     );
                 case PROCESS_RELATION:
                     final ProcessRelationEntityDescription processRelationEntityDescription = (ProcessRelationEntityDescription) entityDescription;

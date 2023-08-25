@@ -40,6 +40,8 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResult> {
+    public final static String GENERAL_LABEL_NAME = "_";
+
     @Override
     public ExpressionResult visitParensOp(MQEParser.ParensOpContext ctx) {
         return visit(ctx.expression());
