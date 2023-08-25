@@ -44,7 +44,6 @@ public class Rules {
     private Map<String, GRPCAlarmSetting> grpcAlarmSettingMap;
     private Map<String, SlackSettings> slackSettingsMap;
     private Map<String, WechatSettings> wechatSettingsMap;
-    private List<CompositeAlarmRule> compositeRules;
     private Map<String, DingtalkSettings> dingtalkSettingsMap;
     private Map<String, FeishuSettings> feishuSettingsMap;
     private Map<String, WeLinkSettings> weLinkSettingsMap;
@@ -54,7 +53,6 @@ public class Rules {
     public Rules() {
         this.rules = new ArrayList<>();
         this.webhookSettingsMap = new HashMap<>();
-        this.compositeRules = new ArrayList<>();
         this.grpcAlarmSettingMap = new HashMap<>();
         this.slackSettingsMap = new HashMap<>();
         this.wechatSettingsMap = new HashMap<>();

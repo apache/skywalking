@@ -44,13 +44,14 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>mqe-rt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-testing</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mvel</groupId>
-            <artifactId>mvel2</artifactId>
         </dependency>
         <dependency>
             <groupId>com.linecorp.armeria</groupId>

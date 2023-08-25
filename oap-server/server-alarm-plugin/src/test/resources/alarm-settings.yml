@@ -16,57 +16,43 @@
 rules:
   # Rule unique name, must be ended with `_rule`.
   endpoint_percent_rule:
-    # Metrics value need to be long, double or int
-    metrics-name: endpoint_percent
-    threshold: 75
-    op: <
-    # The length of time to evaluate the metrics
+    expression: sum(endpoint_percent < 75) >= 3
     period: 10
-    # How many times after the metrics match the condition, will trigger alarm
-    count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
-    only-as-condition: false
     message: Successful rate of endpoint {name} is lower than 75%
 
   service_percent_rule:
-    metrics-name: service_percent
+    expression: sum(service_percent < 85) >= 4
     # [Optional] Default, match all services in this metrics
     include-names:
       - service_a
       - service_b
     exclude-names:
       - service_c
-    threshold: 85
-    op: <
     period: 10
-    count: 4
-    only-as-condition: false
 
   endpoint_percent_more_rule:
-    # Metrics value need to be long, double or int
-    metrics-name: endpoint_percent
-    threshold: 60
-    op: ">"
+    expression: sum(endpoint_percent > 60) >= 3
     # The length of time to evaluate the metrics
     period: 10
-    # How many times after the metrics match the condition, will trigger alarm
-    count: 3
     # How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
     silence-period: 10
-    # Control if this rule is just as a composite rule condition. do not notification alone
-    only-as-condition: false
     message: Successful rate of endpoint {name} is higher than 60%
     hooks:
       - "slack.custom1"
       - "pagerduty.custom1"
 
-composite-rules:
   comp1_rule:
-    expression: endpoint_percent_more_rule && endpoint_percent_rule
+    expression: sum((endpoint_percent > 60) * (endpoint_percent < 75)) >= 3
+    period: 10
+    silence-period: 10
     message: xxxxx
+
   comp2_rule:
-    expression: endpoint_percent_more_rule && endpoint_percent_rule
+    expression: sum((endpoint_percent > 60) * (endpoint_percent < 75)) >= 3
+    period: 10
+    silence-period: 10
     message: xxxxx
     hooks:
       - "slack.default"
