@@ -23,7 +23,8 @@ zipkinServices: ${SW_ZIPKIN_ADDRESS:http://localhost:9412}
 Start a container to connect OAP server whose address is `http://oap:12800`.
 
 ```shell
-docker run --name oap --restart always -d -e SW_OAP_ADDRESS=http://oap:12800 -e SW_ZIPKIN_ADDRESS=http://oap:9412 apache/skywalking-ui:8.8.0
+export version=9.0.0
+docker run --name oap --restart always -d -e SW_OAP_ADDRESS=http://oap:12800 -e SW_ZIPKIN_ADDRESS=http://oap:9412 apache/skywalking-ui:$version
 ```
 
 ### Configuration
