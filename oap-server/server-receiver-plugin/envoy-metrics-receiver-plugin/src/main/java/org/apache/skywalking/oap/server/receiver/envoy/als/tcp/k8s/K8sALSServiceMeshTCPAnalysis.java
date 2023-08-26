@@ -152,10 +152,12 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             return previousResult;
         }
 
-        final SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
-        final ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
-        final TCPServiceMeshMetrics.Builder metrics = TCPServiceMeshMetrics.newBuilder();
-        final var newResult = Result.builder();
+        final var downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
+        final var ingress = find(downstreamLocalAddressSocketAddress.getAddress());
+
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var metrics = previousMetrics.getTcpMetricsBuilder();
 
         if (!previousResult.hasDownstreamMetrics()) {
             final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
@@ -183,7 +185,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             newResult.hasUpstreamMetrics(true);
         }
 
-        return newResult.metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(metrics)).service(ingress).build();
+        return newResult.metrics(previousMetrics.setTcpMetrics(metrics)).service(ingress).build();
     }
 
     /**

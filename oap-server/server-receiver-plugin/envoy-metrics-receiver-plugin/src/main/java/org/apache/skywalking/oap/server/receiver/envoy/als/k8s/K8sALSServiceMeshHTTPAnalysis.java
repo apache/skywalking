@@ -26,7 +26,6 @@ import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
@@ -79,23 +78,21 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
                 if (result.hasResult()) {
                     return result;
                 }
-                return analyzeSideCar(entry);
+                return analyzeSideCar(result, entry);
         }
 
         return Result.builder().build();
     }
 
-    protected Result analyzeSideCar(final HTTPAccessLogEntry entry) {
+    protected Result analyzeSideCar(final Result previousResult, final HTTPAccessLogEntry entry) {
         if (!entry.hasCommonProperties()) {
-            return Result.builder().build();
+            return previousResult;
         }
         final AccessLogCommon properties = entry.getCommonProperties();
         final String cluster = properties.getUpstreamCluster();
         if (isBlank(cluster)) {
-            return Result.builder().build();
+            return previousResult;
         }
-
-        final HTTPServiceMeshMetrics.Builder sources = HTTPServiceMeshMetrics.newBuilder();
 
         final Address downstreamRemoteAddress =
             properties.hasDownstreamDirectRemoteAddress()
@@ -104,10 +101,13 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
         final ServiceMetaInfo downstreamService = find(downstreamRemoteAddress.getSocketAddress().getAddress());
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         if (!isValid(downstreamRemoteAddress) || !isValid(downstreamLocalAddress)) {
-            return Result.builder().build();
+            return previousResult;
         }
         final ServiceMetaInfo localService = find(downstreamLocalAddress.getSocketAddress().getAddress());
 
+        final var result = Result.builder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var sources = previousMetrics.getHttpMetricsBuilder();
         if (cluster.startsWith("inbound|")) {
             // Server side
             final HTTPServiceMeshMetric.Builder metrics;
@@ -120,15 +120,15 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
             } else {
                 // sidecar -> sidecar(server side)
                 metrics = newAdapter(entry, downstreamService, localService).adaptToDownstreamMetrics();
-
                 log.debug("Transformed sidecar->sidecar(server side) inbound mesh metrics {}", metrics);
             }
             sources.addMetrics(metrics);
+            result.hasDownstreamMetrics(true);
         } else if (cluster.startsWith("outbound|")) {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
             if (!isValid(upstreamRemoteAddress)) {
-                return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(sources)).service(localService).build();
+                return result.metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(sources)).service(localService).build();
             }
             final ServiceMetaInfo destService = find(upstreamRemoteAddress.getSocketAddress().getAddress());
 
@@ -136,9 +136,10 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
 
             log.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
             sources.addMetrics(metric);
+            result.hasUpstreamMetrics(true);
         }
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setHttpMetrics(sources)).service(localService).build();
+        return result.metrics(previousMetrics.setHttpMetrics(sources)).service(localService).build();
     }
 
     protected Result analyzeProxy(Result previousResult, final HTTPAccessLogEntry entry) {

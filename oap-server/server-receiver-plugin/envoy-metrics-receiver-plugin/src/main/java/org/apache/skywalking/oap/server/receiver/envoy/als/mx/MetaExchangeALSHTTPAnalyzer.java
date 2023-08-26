@@ -20,22 +20,19 @@ package org.apache.skywalking.oap.server.receiver.envoy.als.mx;
 
 import com.google.protobuf.Any;
 import com.google.protobuf.TextFormat;
-import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
-import java.util.Base64;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.HTTPServiceMeshMetrics;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.AbstractALSAnalyzer;
 import org.apache.skywalking.oap.server.receiver.envoy.als.Role;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
+
+import java.util.Base64;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.skywalking.oap.server.core.Const.TLS_MODE.NON_TLS;
 
@@ -85,8 +82,8 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             log.error("Failed to inflate the ServiceMetaInfo from identifier.node.metadata. ", e);
             return previousResult;
         }
-        final AccessLogCommon properties = entry.getCommonProperties();
-        final Map<String, Any> stateMap = properties.getFilterStateObjectsMap();
+        final var properties = entry.getCommonProperties();
+        final var stateMap = properties.getFilterStateObjectsMap();
         final var result = previousResult.toBuilder();
         if (stateMap.isEmpty()) {
             return result.service(currSvc).build();
@@ -134,11 +131,12 @@ public class MetaExchangeALSHTTPAnalyzer extends AbstractALSAnalyzer {
             }
         });
         if (role.equals(Role.PROXY) && !downstreamExists.get()) {
-            final HTTPServiceMeshMetric.Builder metric = newAdapter(entry, config.serviceMetaInfoFactory().unknown(), currSvc).adaptToDownstreamMetrics();
+            final var metric = newAdapter(entry, config.serviceMetaInfoFactory().unknown(), currSvc).adaptToDownstreamMetrics();
             if (log.isDebugEnabled()) {
                 log.debug("Transformed a {} inbound mesh metric {}", role, TextFormat.shortDebugString(metric));
             }
             httpMetrics.addMetrics(metric);
+            result.hasDownstreamMetrics(true);
         }
         return result.metrics(previousMetrics.setHttpMetrics(httpMetrics)).service(currSvc).build();
     }
