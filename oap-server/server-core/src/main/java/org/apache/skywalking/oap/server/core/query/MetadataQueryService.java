@@ -107,7 +107,7 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
 
     public List<ServiceInstance> listInstances(final Duration duration,
                                                      final String serviceId) throws IOException {
-        if (duration.getStartTimestamp() > duration.getEndTimestamp()) {
+        if (duration.getStartTimestamp() >= duration.getEndTimestamp()) {
             return Collections.emptyList();
         }
         return getMetadataQueryDAO().listInstances(duration, serviceId)
