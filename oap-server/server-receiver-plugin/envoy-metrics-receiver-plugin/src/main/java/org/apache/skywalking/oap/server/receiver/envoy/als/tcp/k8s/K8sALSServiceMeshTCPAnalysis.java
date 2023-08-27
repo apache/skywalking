@@ -76,7 +76,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             case PROXY:
                 return analyzeProxy(previousResult, entry);
             case SIDECAR:
-                if (previousResult.getMetrics() != null && previousResult.getMetrics().hasTcpMetrics()) {
+                if (previousResult.hasResult()) {
                     return previousResult;
                 }
                 return analyzeSideCar(previousResult, entry);
@@ -95,7 +95,9 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             return previousResult;
         }
 
-        final TCPServiceMeshMetrics.Builder sources = TCPServiceMeshMetrics.newBuilder();
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var sources = previousMetrics.getTcpMetricsBuilder();
 
         final Address downstreamRemoteAddress =
             properties.hasDownstreamDirectRemoteAddress()
@@ -121,6 +123,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
                 log.debug("Transformed sidecar->sidecar(server side) inbound mesh metrics {}", metrics);
             }
             sources.addMetrics(metrics);
+            newResult.hasDownstreamMetrics(true);
         } else if (cluster.startsWith("outbound|")) {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
@@ -130,9 +133,10 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
 
             log.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
             sources.addMetrics(metric);
+            newResult.hasUpstreamMetrics(true);
         }
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(sources)).service(localService).build();
+        return newResult.metrics(previousMetrics.setTcpMetrics(sources)).service(localService).build();
     }
 
     protected Result analyzeProxy(final Result previousResult, final TCPAccessLogEntry entry) {
