@@ -26,9 +26,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import io.envoyproxy.envoy.service.accesslog.v3.StreamAccessLogsMessage;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
-import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.ServiceMetaInfoFactory;
@@ -72,13 +70,13 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
         final TCPAccessLogEntry entry,
         final Role role
     ) {
-        if (previousResult.getMetrics() != null && previousResult.getMetrics().hasTcpMetrics()) {
-            return previousResult;
-        }
         switch (role) {
             case PROXY:
                 return analyzeProxy(previousResult, entry);
             case SIDECAR:
+                if (previousResult.hasResult()) {
+                    return previousResult;
+                }
                 return analyzeSideCar(previousResult, entry);
         }
 
@@ -95,7 +93,9 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             return previousResult;
         }
 
-        final TCPServiceMeshMetrics.Builder sources = TCPServiceMeshMetrics.newBuilder();
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var sources = previousMetrics.getTcpMetricsBuilder();
 
         final Address downstreamRemoteAddress =
             properties.hasDownstreamDirectRemoteAddress()
@@ -121,6 +121,7 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
                 log.debug("Transformed sidecar->sidecar(server side) inbound mesh metrics {}", metrics);
             }
             sources.addMetrics(metrics);
+            newResult.hasDownstreamMetrics(true);
         } else if (cluster.startsWith("outbound|")) {
             // sidecar(client side) -> sidecar
             final Address upstreamRemoteAddress = properties.getUpstreamRemoteAddress();
@@ -130,15 +131,20 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
 
             log.debug("Transformed sidecar->sidecar(server side) inbound mesh metric {}", metric);
             sources.addMetrics(metric);
+            newResult.hasUpstreamMetrics(true);
         }
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(sources)).service(localService).build();
+        return newResult.metrics(previousMetrics.setTcpMetrics(sources)).service(localService).build();
     }
 
     protected Result analyzeProxy(final Result previousResult, final TCPAccessLogEntry entry) {
         if (!entry.hasCommonProperties()) {
             return previousResult;
         }
+        if (previousResult.hasUpstreamMetrics() && previousResult.hasDownstreamMetrics()) {
+            return previousResult;
+        }
+
         final AccessLogCommon properties = entry.getCommonProperties();
         final Address downstreamLocalAddress = properties.getDownstreamLocalAddress();
         final Address downstreamRemoteAddress = properties.hasDownstreamDirectRemoteAddress() ?
@@ -148,31 +154,40 @@ public class K8sALSServiceMeshTCPAnalysis extends AbstractTCPAccessLogAnalyzer {
             return previousResult;
         }
 
-        final TCPServiceMeshMetrics.Builder metrics = TCPServiceMeshMetrics.newBuilder();
-        final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
+        final var downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
+        final var ingress = find(downstreamLocalAddressSocketAddress.getAddress());
 
-        final SocketAddress downstreamLocalAddressSocketAddress = downstreamLocalAddress.getSocketAddress();
-        final ServiceMetaInfo ingress = find(downstreamLocalAddressSocketAddress.getAddress());
+        final var newResult = previousResult.toBuilder();
+        final var previousMetrics = previousResult.getMetrics();
+        final var metrics = previousMetrics.getTcpMetricsBuilder();
 
-        final TCPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
+        if (!previousResult.hasDownstreamMetrics()) {
+            final SocketAddress downstreamRemoteAddressSocketAddress = downstreamRemoteAddress.getSocketAddress();
+            final ServiceMetaInfo outside = find(downstreamRemoteAddressSocketAddress.getAddress());
 
-        log.debug("Transformed ingress inbound mesh metric {}", metric);
-        metrics.addMetrics(metric);
+            final TCPServiceMeshMetric.Builder metric = newAdapter(entry, outside, ingress).adaptToDownstreamMetrics();
 
-        final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
-        final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
+            log.debug("Transformed ingress inbound mesh metric {}", metric);
+            metrics.addMetrics(metric);
+            newResult.hasDownstreamMetrics(true);
+        }
 
-        final TCPServiceMeshMetric.Builder outboundMetric =
-            newAdapter(entry, ingress, targetService)
-                .adaptToUpstreamMetrics()
-                // Can't parse it from tls properties, leave it to Server side.
-                .setTlsMode(NON_TLS);
+        if (!previousResult.hasUpstreamMetrics()) {
+            final SocketAddress upstreamRemoteAddressSocketAddress = upstreamRemoteAddress.getSocketAddress();
+            final ServiceMetaInfo targetService = find(upstreamRemoteAddressSocketAddress.getAddress());
 
-        log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
-        metrics.addMetrics(outboundMetric);
+            final TCPServiceMeshMetric.Builder outboundMetric =
+                newAdapter(entry, ingress, targetService)
+                    .adaptToUpstreamMetrics()
+                    // Can't parse it from tls properties, leave it to Server side.
+                    .setTlsMode(NON_TLS);
 
-        return Result.builder().metrics(ServiceMeshMetrics.newBuilder().setTcpMetrics(metrics)).service(ingress).build();
+            log.debug("Transformed ingress outbound mesh metric {}", outboundMetric);
+            metrics.addMetrics(outboundMetric);
+            newResult.hasUpstreamMetrics(true);
+        }
+
+        return newResult.metrics(previousMetrics.setTcpMetrics(metrics)).service(ingress).build();
     }
 
     /**
