@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
+import org.apache.skywalking.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -113,16 +114,15 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
+                new TimestampRange(0, duration.getEndTimestamp()),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
                         if (StringUtil.isNotEmpty(serviceId)) {
                             query.and(eq(InstanceTraffic.SERVICE_ID, serviceId));
                         }
-                        final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-                        final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
-                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, startMinuteTimeBucket));
-                        query.and(lte(InstanceTraffic.LAST_PING_TIME_BUCKET, endMinuteTimeBucket));
+                        final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
                     }
                 });
 

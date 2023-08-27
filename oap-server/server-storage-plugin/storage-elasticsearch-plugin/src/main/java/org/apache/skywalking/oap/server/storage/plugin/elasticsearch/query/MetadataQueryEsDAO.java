@@ -157,7 +157,8 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         final long endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
         final BoolQueryBuilder query =
             Query.bool()
-                 .must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(startMinuteTimeBucket).lte(endMinuteTimeBucket))
+                 .must(Query.range(InstanceTraffic.LAST_PING_TIME_BUCKET).gte(startMinuteTimeBucket))
+                 .must(Query.range(InstanceTraffic.TIME_BUCKET).lt(endMinuteTimeBucket))
                  .must(Query.term(InstanceTraffic.SERVICE_ID, serviceId));
         if (IndexController.LogicIndicesRegister.isMergedTable(InstanceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, InstanceTraffic.INDEX_NAME));

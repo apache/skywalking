@@ -137,7 +137,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         parameters.add(InstanceTraffic.INDEX_NAME);
         sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
         parameters.add(minuteTimeBucket);
-        sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" <= ?");
+        sql.append(" and ").append(InstanceTraffic.TIME_BUCKET).append(" < ?");
         parameters.add(endMinuteTimeBucket);
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         parameters.add(serviceId);
