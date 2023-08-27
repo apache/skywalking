@@ -109,11 +109,11 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
                                                String serviceId) {
         final var results = new ArrayList<ServiceInstance>();
 
-        final var minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-
+        final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+        final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
         final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
         for (String table : tables) {
-            final var sqlAndParameters = buildSQLForListInstances(serviceId, minuteTimeBucket, table);
+            final var sqlAndParameters = buildSQLForListInstances(serviceId, startMinuteTimeBucket, endMinuteTimeBucket, table);
             results.addAll(
                 jdbcClient.executeQuery(
                     sqlAndParameters.sql(),
@@ -129,7 +129,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             .collect(toList());
     }
 
-    protected SQLAndParameters buildSQLForListInstances(String serviceId, long minuteTimeBucket, String table) {
+    protected SQLAndParameters buildSQLForListInstances(String serviceId, long minuteTimeBucket, long endMinuteTimeBucket, String table) {
         final var  sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
         sql.append("select * from ").append(table).append(" where ")
@@ -137,6 +137,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         parameters.add(InstanceTraffic.INDEX_NAME);
         sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
         parameters.add(minuteTimeBucket);
+        sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" <= ?");
+        parameters.add(endMinuteTimeBucket);
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         parameters.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);

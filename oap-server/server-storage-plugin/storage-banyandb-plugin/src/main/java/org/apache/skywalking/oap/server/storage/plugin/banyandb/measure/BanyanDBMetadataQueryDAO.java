@@ -119,8 +119,10 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         if (StringUtil.isNotEmpty(serviceId)) {
                             query.and(eq(InstanceTraffic.SERVICE_ID, serviceId));
                         }
-                        final long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, minuteTimeBucket));
+                        final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+                        final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, startMinuteTimeBucket));
+                        query.and(lte(InstanceTraffic.LAST_PING_TIME_BUCKET, endMinuteTimeBucket));
                     }
                 });
 
