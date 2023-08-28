@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
@@ -94,7 +95,11 @@ public class RulesReader {
                 if (StringUtil.isEmpty((String) expression)) {
                     throw new IllegalArgumentException("expression can't be empty");
                 }
-                alarmRule.setExpression(expression.toString());
+                try {
+                    alarmRule.setExpression(expression.toString());
+                } catch (IllegalExpressionException e) {
+                    throw new IllegalArgumentException(e);
+                }
                 alarmRule.setIncludeNames((ArrayList) settings.getOrDefault("include-names", new ArrayList(0)));
                 alarmRule.setExcludeNames((ArrayList) settings.getOrDefault("exclude-names", new ArrayList(0)));
                 alarmRule.setIncludeNamesRegex((String) settings.getOrDefault("include-names-regex", ""));

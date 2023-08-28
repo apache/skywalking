@@ -31,6 +31,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.exception.ParseErrorListener;
 import org.apache.skywalking.mqe.rt.grammar.MQELexer;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
@@ -63,7 +64,7 @@ public class AlarmRule {
      * Init includeMetrics and verify the expression.
      * ValueColumnMetadata need init metrics info, don't invoke before the module finishes start.
      */
-    public void setExpression(final String expression) {
+    public void setExpression(final String expression) throws IllegalExpressionException {
         MQELexer lexer = new MQELexer(CharStreams.fromString(expression));
         lexer.addErrorListener(new ParseErrorListener());
         MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
@@ -71,18 +72,18 @@ public class AlarmRule {
         try {
             tree = parser.expression();
         } catch (ParseCancellationException e) {
-            throw new IllegalArgumentException("expression:" + expression + " error: " + e.getMessage());
+            throw new IllegalExpressionException("expression:" + expression + " error: " + e.getMessage());
         }
         AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
         ExpressionResult parseResult = visitor.visit(tree);
         if (StringUtil.isNotBlank(parseResult.getError())) {
-            throw new IllegalArgumentException("expression:" + expression + " error: " + parseResult.getError());
+            throw new IllegalExpressionException("expression:" + expression + " error: " + parseResult.getError());
         }
         if (!parseResult.isBoolResult()) {
-            throw new IllegalArgumentException("expression:" + expression + " root operation is not a Compare Operation.");
+            throw new IllegalExpressionException("expression:" + expression + " root operation is not a Compare Operation.");
         }
         if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
-            throw new IllegalArgumentException("expression:" + expression + " is not a SINGLE_VALUE result expression.");
+            throw new IllegalExpressionException("expression:" + expression + " is not a SINGLE_VALUE result expression.");
         }
 
         verifyIncludeMetrics(visitor.getIncludeMetrics());
@@ -90,12 +91,12 @@ public class AlarmRule {
         this.includeMetrics = visitor.getIncludeMetrics();
     }
 
-    private void verifyIncludeMetrics(Set<String> includeMetrics) {
-        includeMetrics.forEach(metricName -> {
+    private void verifyIncludeMetrics(Set<String> includeMetrics) throws IllegalExpressionException {
+        for (String metricName : includeMetrics) {
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
                 metricName);
             if (valueColumn.isEmpty()) {
-                throw new IllegalArgumentException("Metric: [" + metricName + "] dose not exist.");
+                throw new IllegalExpressionException("Metric: [" + metricName + "] dose not exist.");
             }
             Column.ValueDataType dataType = valueColumn.get().getDataType();
             switch (dataType) {
@@ -103,9 +104,9 @@ public class AlarmRule {
                 case LABELED_VALUE:
                     return;
                 default:
-                    throw new IllegalArgumentException(
+                    throw new IllegalExpressionException(
                         "Metric dose not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
             }
-        });
+        }
     }
 }

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
@@ -70,7 +71,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testInitAndStart() {
+    public void testInitAndStart() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
@@ -97,7 +98,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testAlarm() {
+    public void testAlarm() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
@@ -129,7 +130,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testMultipleValuesAlarm() {
+    public void testMultipleValuesAlarm() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_multiple_values_rule");
         alarmRule.setExpression("sum(endpoint_multiple_values > 50) >= 3");
@@ -163,7 +164,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testLabeledAlarm() {
+    public void testLabeledAlarm() throws IllegalExpressionException {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
             "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
         AlarmRule alarmRule = new AlarmRule();
@@ -177,16 +178,16 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testMultipleMetricsAlarm() {
+    public void testMultipleMetricsAlarm() throws IllegalExpressionException {
         multipleMetricsAlarm("sum((endpoint_percent < 75) * (endpoint_cpm < 100)) >= 3", 1);
     }
 
     @Test
-    public void testMultipleMetricsNoAlarm() {
+    public void testMultipleMetricsNoAlarm() throws IllegalExpressionException {
         multipleMetricsAlarm("sum((endpoint_percent < 75) * (endpoint_cpm < 99)) >= 3", 0);
     }
 
-    private void multipleMetricsAlarm(String expression, int alarmMsgSize) {
+    private void multipleMetricsAlarm(String expression, int alarmMsgSize) throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression(expression);
@@ -220,7 +221,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testNoAlarm() {
+    public void testNoAlarm() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent > 75) >= 3");
@@ -265,7 +266,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testSilence() {
+    public void testSilence() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
@@ -303,7 +304,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testExclude() {
+    public void testExclude() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
@@ -335,7 +336,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testIncludeNamesRegex() {
+    public void testIncludeNamesRegex() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 1000) >= 1");
@@ -368,7 +369,7 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testExcludeNamesRegex() {
+    public void testExcludeNamesRegex() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
         alarmRule.setExpression("sum(endpoint_percent < 1000) >= 1");
