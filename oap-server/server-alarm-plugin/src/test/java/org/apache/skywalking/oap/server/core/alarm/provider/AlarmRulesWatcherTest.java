@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
@@ -93,7 +94,7 @@ public class AlarmRulesWatcherTest {
     }
 
     @Test
-    public void shouldKeepExistedRunningRuleIfAlarmRuleExists() {
+    public void shouldKeepExistedRunningRuleIfAlarmRuleExists() throws IllegalExpressionException {
         AlarmRule rule = newAlarmRule("name1", "avg(service_percent) < 80");
         Rules rules = new Rules();
         rules.getRules().add(rule);
@@ -117,7 +118,7 @@ public class AlarmRulesWatcherTest {
     }
 
     @Test
-    public void shouldRemoveRunningRuleIfAlarmRuleIsRemoved() {
+    public void shouldRemoveRunningRuleIfAlarmRuleIsRemoved() throws IllegalExpressionException {
         AlarmRule rule = newAlarmRule("name1", "avg(service_percent) < 80");
         Rules rules = new Rules();
         rules.getRules().add(rule);
@@ -141,7 +142,7 @@ public class AlarmRulesWatcherTest {
     }
 
     @Test
-    public void shouldReplaceRunningRuleIfAlarmRulesAreReplaced() {
+    public void shouldReplaceRunningRuleIfAlarmRulesAreReplaced() throws IllegalExpressionException {
         AlarmRule rule = newAlarmRule("name1", "avg(service_percent) < 80");
         Rules rules = new Rules();
         rules.getRules().add(rule);
@@ -166,7 +167,7 @@ public class AlarmRulesWatcherTest {
         assertEquals(1, alarmRulesWatcher.getRunningContext().get("avg(service_percent) < 99").size());
     }
 
-    private AlarmRule newAlarmRule(String name, String expression) {
+    private AlarmRule newAlarmRule(String name, String expression) throws IllegalExpressionException {
        AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName(name);
         alarmRule.setIncludeNames(new ArrayList<String>() {
