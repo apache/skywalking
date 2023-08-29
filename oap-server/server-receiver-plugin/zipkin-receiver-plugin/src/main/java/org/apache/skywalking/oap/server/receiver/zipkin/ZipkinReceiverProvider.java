@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.zipkin;
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Arrays;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -99,11 +100,11 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
-        if (config.isEnableHttpCollector()) {
+        if (config.isEnableHttpCollector() && !RunningMode.isInitMode()) {
             httpServer.start();
         }
 
-        if (config.isEnableKafkaCollector()) {
+        if (config.isEnableKafkaCollector() && !RunningMode.isInitMode()) {
             kafkaHandler.start();
         }
     }

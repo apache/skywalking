@@ -412,12 +412,14 @@ public class CoreModuleProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
-            grpcServer.start();
-            httpServer.start();
+            if (!RunningMode.isInitMode()) {
+                grpcServer.start();
+                httpServer.start();
+                remoteClientManager.start();
+            }
         } catch (ServerException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
-        remoteClientManager.start();
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
         if (moduleConfig.isEnableDataKeeperExecutor()) {
