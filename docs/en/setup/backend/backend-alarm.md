@@ -12,7 +12,6 @@ Defines the relation between scope and entity name.
 - **Service**: Service name
 - **Instance**: {Instance name} of {Service name}
 - **Endpoint**: {Endpoint name} in {Service name}
-- **Database**: Database service name
 - **Service Relation**: {Source service name} to {Dest service name}
 - **Instance Relation**: {Source instance name} of {Source service name} to {Dest instance name} of {Dest service name}
 - **Endpoint Relation**: {Source endpoint name} in {Source Service name} to {Dest endpoint name} in {Dest service name}
@@ -24,7 +23,7 @@ An alerting rule is made up of the following elements:
 The result type must be `SINGLE_VALUE` and the root operation of the expression must be a [Compare Operation](../../api/metrics-query-expression.md#compare-operation) which provides `1`(true) or `0`(false) result.
 When the result is `1`(true), the alarm will be triggered.
 For example, `avg(service_resp_time / 1000) > 1` is a valid expression to indicate the request latency is slower than 1s. The typical illegal expressions are
-    - `avg(service_resp_time > 1000) + 1` expression doesn't use `compare operation`
+    - `avg(service_resp_time > 1000) + 1` expression root doesn't use `Compare Operation`
     - `service_resp_time > 1000` expression return a `TIME_SERIES_VALUES` type of values rather than a `SINGLE_VALUE` value.
 
 The metrics names in the expression could be found in the [list of all potential metrics name](#list-of-all-potential-metrics-name) doc.
@@ -53,7 +52,11 @@ For example, expression `avg(service_resp_time) > 1000`, if the value are `1001,
 the calculation is `((1001 + 10001 + ... + 1001) / 7) > 1000` and the result would be `1`(true). Then the alarm would be triggered.
 * In every minute, the window would shift automatically. At T8, Value8 would be cached, and T1/Value1 would be removed from the window.
 
-Notice: If the expression include labeled metrics and result has multiple labeled value(e.g. `sum(service_percentile{_='0,1'} > 1000) >= 3`), the alarm will be triggered if any of the labeled value result matches 3 times of the condition(P50 > 1000 or P75 > 1000).
+**NOTE**: 
+* If the expression include labeled metrics and result has multiple labeled value(e.g. `sum(service_percentile{_='0,1'} > 1000) >= 3`), the alarm will be triggered if any of the labeled value result matches 3 times of the condition(P50 > 1000 or P75 > 1000).
+* One alarm rule is targeting the same entity level, such as service-level expression (`avg(service_resp_time) > 1000`).
+  Set entity names(Include/Exclude names...) according to metrics entity levels,
+  do not include different entity levels metrics in the same expression, such as service metrics and endpoint metrics.
 
 ```yaml
 rules:

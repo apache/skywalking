@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -72,41 +73,47 @@ public class AlarmRule {
         try {
             tree = parser.expression();
         } catch (ParseCancellationException e) {
-            throw new IllegalExpressionException("expression:" + expression + " error: " + e.getMessage());
+            throw new IllegalExpressionException("Expression: " + expression + " error: " + e.getMessage());
         }
         AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
         ExpressionResult parseResult = visitor.visit(tree);
         if (StringUtil.isNotBlank(parseResult.getError())) {
-            throw new IllegalExpressionException("expression:" + expression + " error: " + parseResult.getError());
+            throw new IllegalExpressionException("Expression: " + expression + " error: " + parseResult.getError());
         }
         if (!parseResult.isBoolResult()) {
-            throw new IllegalExpressionException("expression:" + expression + " root operation is not a Compare Operation.");
+            throw new IllegalExpressionException("Expression: " + expression + " root operation is not a Compare Operation.");
         }
         if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
-            throw new IllegalExpressionException("expression:" + expression + " is not a SINGLE_VALUE result expression.");
+            throw new IllegalExpressionException("Expression: " + expression + " is not a SINGLE_VALUE result expression.");
         }
 
-        verifyIncludeMetrics(visitor.getIncludeMetrics());
+        verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);
         this.expression = expression;
         this.includeMetrics = visitor.getIncludeMetrics();
     }
 
-    private void verifyIncludeMetrics(Set<String> includeMetrics) throws IllegalExpressionException {
+    private void verifyIncludeMetrics(Set<String> includeMetrics, String expression) throws IllegalExpressionException {
+        Set<String> scopeSet = new HashSet<>();
         for (String metricName : includeMetrics) {
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
                 metricName);
             if (valueColumn.isEmpty()) {
                 throw new IllegalExpressionException("Metric: [" + metricName + "] dose not exist.");
             }
+            scopeSet.add(ValueColumnMetadata.INSTANCE.getScope(metricName).name());
             Column.ValueDataType dataType = valueColumn.get().getDataType();
             switch (dataType) {
                 case COMMON_VALUE:
                 case LABELED_VALUE:
-                    return;
+                    break;
                 default:
                     throw new IllegalExpressionException(
                         "Metric dose not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
             }
+        }
+        if (scopeSet.size() != 1) {
+            throw new IllegalExpressionException(
+                "The metrics in expression: " + expression + " must have the same scope level, but got: " + scopeSet);
         }
     }
 }
