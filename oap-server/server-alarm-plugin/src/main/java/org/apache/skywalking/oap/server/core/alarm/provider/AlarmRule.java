@@ -73,18 +73,18 @@ public class AlarmRule {
         try {
             tree = parser.expression();
         } catch (ParseCancellationException e) {
-            throw new IllegalExpressionException("Expression:" + expression + " error: " + e.getMessage());
+            throw new IllegalExpressionException("Expression: " + expression + " error: " + e.getMessage());
         }
         AlarmMQEVerifyVisitor visitor = new AlarmMQEVerifyVisitor();
         ExpressionResult parseResult = visitor.visit(tree);
         if (StringUtil.isNotBlank(parseResult.getError())) {
-            throw new IllegalExpressionException("Expression:" + expression + " error: " + parseResult.getError());
+            throw new IllegalExpressionException("Expression: " + expression + " error: " + parseResult.getError());
         }
         if (!parseResult.isBoolResult()) {
-            throw new IllegalExpressionException("Expression:" + expression + " root operation is not a Compare Operation.");
+            throw new IllegalExpressionException("Expression: " + expression + " root operation is not a Compare Operation.");
         }
         if (ExpressionResultType.SINGLE_VALUE != parseResult.getType()) {
-            throw new IllegalExpressionException("Expression:" + expression + " is not a SINGLE_VALUE result expression.");
+            throw new IllegalExpressionException("Expression: " + expression + " is not a SINGLE_VALUE result expression.");
         }
 
         verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);

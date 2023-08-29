@@ -29,12 +29,10 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 
 public class AlarmRuleTest {
     @BeforeEach
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        MockitoAnnotations.initMocks(this);
         ValueColumnMetadata.INSTANCE.putIfAbsent(
             "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0,
             Scope.Service.getScopeId()
@@ -78,7 +76,7 @@ public class AlarmRuleTest {
 
         //root operation is not a Compare Operation
         Assertions.assertEquals(
-            "Expression:sum(service_percent < 85) + 3 root operation is not a Compare Operation.",
+            "Expression: sum(service_percent < 85) + 3 root operation is not a Compare Operation.",
             Assertions.assertThrows(IllegalExpressionException.class, () -> {
                 rule.setExpression("sum(service_percent < 85) + 3");
             }).getMessage()
@@ -86,7 +84,7 @@ public class AlarmRuleTest {
 
         //not a SINGLE_VALUE result expression
         Assertions.assertEquals(
-            "Expression:service_percent < 85 is not a SINGLE_VALUE result expression.",
+            "Expression: service_percent < 85 is not a SINGLE_VALUE result expression.",
             Assertions.assertThrows(IllegalExpressionException.class, () -> {
                 rule.setExpression("service_percent < 85");
             }).getMessage()
