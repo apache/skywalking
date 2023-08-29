@@ -87,12 +87,12 @@ public class AlarmRule {
             throw new IllegalExpressionException("Expression:" + expression + " is not a SINGLE_VALUE result expression.");
         }
 
-        verifyIncludeMetrics(visitor.getIncludeMetrics());
+        verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);
         this.expression = expression;
         this.includeMetrics = visitor.getIncludeMetrics();
     }
 
-    private void verifyIncludeMetrics(Set<String> includeMetrics) throws IllegalExpressionException {
+    private void verifyIncludeMetrics(Set<String> includeMetrics, String expression) throws IllegalExpressionException {
         Set<String> scopeSet = new HashSet<>();
         for (String metricName : includeMetrics) {
             Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
@@ -113,7 +113,7 @@ public class AlarmRule {
         }
         if (scopeSet.size() != 1) {
             throw new IllegalExpressionException(
-                "The metrics in expression must have the same scope level, but got: " + scopeSet);
+                "The metrics in expression: " + expression + " must have the same scope level, but got: " + scopeSet);
         }
     }
 }

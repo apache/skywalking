@@ -103,7 +103,7 @@ public class AlarmRuleTest {
         //metrics in expression must have the same scope level
         Assertions.assertTrue(Assertions.assertThrows(IllegalExpressionException.class, () -> {
             rule.setExpression("sum(service_percent > endpoint_percent) >= 1");
-        }).getMessage().contains("The metrics in expression must have the same scope level, but got:"));
+        }).getMessage().contains("The metrics in expression: sum(service_percent > endpoint_percent) >= 1 must have the same scope level, but got:"));
 
     }
 }
