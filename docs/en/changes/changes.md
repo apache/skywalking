@@ -78,6 +78,7 @@
   add `expression` field and remove `metrics-name/count/threshold/op/only-as-condition` fields and remove `composite-rules` configuration.
 * Check results in ALS as per downstream/upstream instead of per log.
 * Fix GraphQL query `listInstances` not using endTime query
+* Do not start server and Kafka consumer in init mode.
 
 #### UI
 

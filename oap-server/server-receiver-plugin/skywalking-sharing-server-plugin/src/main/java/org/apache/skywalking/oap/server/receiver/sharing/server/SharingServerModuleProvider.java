@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.receiver.sharing.server;
 import java.util.Objects;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.remote.health.HealthCheckServiceHandler;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
@@ -98,7 +99,7 @@ public class SharingServerModuleProvider extends ModuleProvider {
             authenticationInterceptor = new AuthenticationInterceptor(config.getAuthentication());
         }
 
-        if (config.getGRPCPort() != 0) {
+        if (config.getGRPCPort() != 0 && !RunningMode.isInitMode()) {
             if (config.isGRPCSslEnabled()) {
                 grpcServer = new GRPCServer(
                     Strings.isBlank(config.getGRPCHost()) ? "0.0.0.0" : config.getGRPCHost(),
@@ -162,10 +163,10 @@ public class SharingServerModuleProvider extends ModuleProvider {
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
         try {
-            if (Objects.nonNull(grpcServer)) {
+            if (Objects.nonNull(grpcServer) && !RunningMode.isInitMode()) {
                 grpcServer.start();
             }
-            if (Objects.nonNull(httpServer)) {
+            if (Objects.nonNull(httpServer) && !RunningMode.isInitMode()) {
                 httpServer.start();
             }
         } catch (ServerException e) {
