@@ -107,6 +107,7 @@
 * Apply MQE on Browser layer UI-templates.
 * Implement MQE on topology widget.
 * Fix getEndpoints keyword blank.
+* Implement a breadcrumb component as navigation.
 
 #### Documentation
 
