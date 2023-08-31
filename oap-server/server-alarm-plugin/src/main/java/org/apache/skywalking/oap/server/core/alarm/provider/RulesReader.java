@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.webhook.WebhookSettings;
@@ -72,7 +73,6 @@ public class RulesReader {
             // Should read hooks config first.
             readHooksConfig(rules);
             readRulesConfig(rules);
-            readCompositeRuleConfig(rules);
         }
         return rules;
     }
@@ -91,29 +91,22 @@ public class RulesReader {
                 AlarmRule alarmRule = new AlarmRule();
                 alarmRule.setAlarmRuleName((String) k);
                 Map settings = (Map) v;
-                Object metricsName = settings.get("metrics-name");
-                if (metricsName == null) {
-                    throw new IllegalArgumentException("metrics-name can't be null");
+                Object expression = settings.get("expression");
+                if (StringUtil.isEmpty((String) expression)) {
+                    throw new IllegalArgumentException("expression can't be empty");
                 }
-
-                alarmRule.setMetricsName((String) metricsName);
+                try {
+                    alarmRule.setExpression(expression.toString());
+                } catch (IllegalExpressionException e) {
+                    throw new IllegalArgumentException(e);
+                }
                 alarmRule.setIncludeNames((ArrayList) settings.getOrDefault("include-names", new ArrayList(0)));
                 alarmRule.setExcludeNames((ArrayList) settings.getOrDefault("exclude-names", new ArrayList(0)));
                 alarmRule.setIncludeNamesRegex((String) settings.getOrDefault("include-names-regex", ""));
                 alarmRule.setExcludeNamesRegex((String) settings.getOrDefault("exclude-names-regex", ""));
-                alarmRule.setIncludeLabels(
-                        (ArrayList) settings.getOrDefault("include-labels", new ArrayList(0)));
-                alarmRule.setExcludeLabels(
-                        (ArrayList) settings.getOrDefault("exclude-labels", new ArrayList(0)));
-                alarmRule.setIncludeLabelsRegex((String) settings.getOrDefault("include-labels-regex", ""));
-                alarmRule.setExcludeLabelsRegex((String) settings.getOrDefault("exclude-labels-regex", ""));
-                alarmRule.setThreshold(settings.get("threshold").toString());
-                alarmRule.setOp((String) settings.get("op"));
                 alarmRule.setPeriod((Integer) settings.getOrDefault("period", 1));
-                alarmRule.setCount((Integer) settings.getOrDefault("count", 1));
                 // How many times of checks, the alarm keeps silence after alarm triggered, default as same as period.
                 alarmRule.setSilencePeriod((Integer) settings.getOrDefault("silence-period", alarmRule.getPeriod()));
-                alarmRule.setOnlyAsCondition((Boolean) settings.getOrDefault("only-as-condition", false));
                 alarmRule.setMessage(
                         (String) settings.getOrDefault("message", "Alarm caused by Rule " + alarmRule
                                 .getAlarmRuleName()));
@@ -261,42 +254,6 @@ public class RulesReader {
                 this.defaultHooks.add(settings.getFormattedName());
             }
             this.allHooks.add(settings.getFormattedName());
-        });
-    }
-
-    /**
-     * Read composite rule config into {@link CompositeAlarmRule}
-     */
-    @SuppressWarnings("unchecked")
-    private void readCompositeRuleConfig(Rules rules) {
-        Map compositeRulesData = (Map) yamlData.get("composite-rules");
-        if (compositeRulesData == null) {
-            return;
-        }
-        compositeRulesData.forEach((k, v) -> {
-            String ruleName = (String) k;
-            if (ruleName.endsWith("_rule")) {
-                Map settings = (Map) v;
-                CompositeAlarmRule compositeAlarmRule = new CompositeAlarmRule();
-                compositeAlarmRule.setAlarmRuleName(ruleName);
-                String expression = (String) settings.get("expression");
-                if (expression == null) {
-                    throw new IllegalArgumentException("expression can't be null");
-                }
-                compositeAlarmRule.setExpression(expression);
-                compositeAlarmRule.setMessage(
-                        (String) settings.getOrDefault("message", "Alarm caused by Rule " + ruleName));
-                compositeAlarmRule.setTags((Map) settings.getOrDefault("tags", new HashMap<String, String>(0)));
-
-                Set<String> specificHooks = new HashSet<>((ArrayList) settings.getOrDefault("hooks", new ArrayList<>()));
-                checkSpecificHooks(compositeAlarmRule.getAlarmRuleName(), specificHooks);
-                compositeAlarmRule.setHooks(specificHooks);
-                // If no specific hooks, use global hooks.
-                if (compositeAlarmRule.getHooks().isEmpty()) {
-                    compositeAlarmRule.getHooks().addAll(defaultHooks);
-                }
-                rules.getCompositeRules().add(compositeAlarmRule);
-            }
         });
     }
 

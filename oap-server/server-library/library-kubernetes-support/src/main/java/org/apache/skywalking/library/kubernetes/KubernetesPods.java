@@ -38,8 +38,8 @@ public enum KubernetesPods {
     @SneakyThrows
     KubernetesPods() {
         final CacheBuilder<Object, Object> cacheBuilder =
-                CacheBuilder.newBuilder()
-                        .expireAfterAccess(Duration.ofMinutes(5));
+            CacheBuilder.newBuilder()
+                        .expireAfterWrite(Duration.ofMinutes(5));
 
         podByIP = cacheBuilder.build(new CacheLoader<>() {
             @Override

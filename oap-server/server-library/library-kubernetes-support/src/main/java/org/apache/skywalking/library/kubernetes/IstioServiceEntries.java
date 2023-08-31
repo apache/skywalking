@@ -40,7 +40,7 @@ public enum IstioServiceEntries {
     IstioServiceEntries() {
         final CacheBuilder<Object, Object> cacheBuilder =
             CacheBuilder.newBuilder()
-                .expireAfterAccess(Duration.ofMinutes(3));
+                .expireAfterWrite(Duration.ofMinutes(3));
 
         serviceEntries = cacheBuilder.build(CacheLoader.from(() -> {
             try (final var istioClient = new DefaultIstioClient()) {

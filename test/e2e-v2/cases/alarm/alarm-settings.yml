@@ -16,14 +16,10 @@
 rules:
   # service response time > 10ms
   service_resp_time_rule:
-    metrics-name: service_resp_time
-    op: ">"
-    threshold: 10
+    expression: sum(service_resp_time > 10) >= 1
     period: 10
-    count: 1
     silence-period: 1
     message: Response time of service {name} is more than 10ms in 1 minutes of last 10 minutes.
-    only-as-condition: false
     tags:
       level: WARNING
       receivers: lisi
@@ -31,17 +27,13 @@ rules:
       - webhook.custom
   # service sla > 1%
   service_sla_rule:
-    metrics-name: service_sla
-    op: ">"
-    threshold: 100
+    expression: sum(service_sla > 100) >= 1
     period: 10
-    count: 1
     silence-period: 1
     message: Successful rate of service {name} is more than 1% in 1 minutes of last 10 minutes
-    only-as-condition: true
-composite-rules:
   comp_rule:
-    expression: service_resp_time_rule && service_sla_rule
+    expression: sum((service_resp_time > 10) * (service_sla > 100)) >= 1
+    period: 10
     message: Service {name} response time is more than 10ms and sla is more than 1%.
     tags:
       level: CRITICAL

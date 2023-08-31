@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
@@ -30,13 +31,18 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 
@@ -54,14 +60,22 @@ import java.util.Objects;
 public class RunningRuleTest {
     private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
 
+    @BeforeEach
+    public void setup() {
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "endpoint_multiple_values", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "endpoint_cpm", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+    }
+
     @Test
-    public void testInitAndStart() {
+    public void testInitAndStart() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp("<");
-        alarmRule.setThreshold("75");
-        alarmRule.setCount(3);
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(15);
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
@@ -71,9 +85,9 @@ public class RunningRuleTest {
         long timeInPeriod1 = 201808301434L;
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
 
-        Map<MetaInAlarm, RunningRule.Window> windows = Whitebox.getInternalState(runningRule, "windows");
+        Map<AlarmEntity, RunningRule.Window> windows = Whitebox.getInternalState(runningRule, "windows");
 
-        RunningRule.Window window = windows.get(getMetaInAlarm(123));
+        RunningRule.Window window = windows.get(getAlarmEntity(123));
         LocalDateTime endTime = Whitebox.getInternalState(window, "endTime");
         int period = Whitebox.getInternalState(window, "period");
         LinkedList<Metrics> metricsBuffer = Whitebox.getInternalState(window, "values");
@@ -84,13 +98,11 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testAlarm() {
+    public void testAlarm() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp("<");
-        alarmRule.setThreshold("75");
-        alarmRule.setCount(3);
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(15);
         alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
         alarmRule.setTags(new HashMap<String, String>() {{
@@ -118,13 +130,11 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testMultipleValuesAlarm() {
+    public void testMultipleValuesAlarm() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_multiple_values_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp(">");
-        alarmRule.setThreshold("50,60,70,-, 100");
-        alarmRule.setCount(3);
+        alarmRule.setExpression("sum(endpoint_multiple_values > 50) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_multiple_values");
         alarmRule.setPeriod(15);
         alarmRule.setMessage("response percentile of endpoint {name} is lower than expected values");
         alarmRule.setTags(new HashMap<String, String>() {{
@@ -137,15 +147,15 @@ public class RunningRuleTest {
         long timeInPeriod2 = 201808301436L;
         long timeInPeriod3 = 201808301438L;
 
-        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod1, 70, 60, 40, 40, 40));
-        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod2, 60, 60, 40, 40, 40));
+        runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod1, 70, 60, 40, 40, 40));
+        runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod2, 60, 60, 40, 40, 40));
 
         // check at 201808301440
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assertions.assertEquals(0, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
 
-        runningRule.in(getMetaInAlarm(123), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
+        runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
 
         // check at 201808301440
         alarmMessages = runningRule.check();
@@ -154,29 +164,68 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testLabeledAlarm() {
+    public void testLabeledAlarm() throws IllegalExpressionException {
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
         AlarmRule alarmRule = new AlarmRule();
-        alarmRule.setIncludeLabels(Lists.newArrayList("95", "99"));
-        assertLabeled(alarmRule);
-        alarmRule = new AlarmRule();
-        alarmRule.setIncludeLabelsRegex("9\\d{1}");
-        assertLabeled(alarmRule);
-        alarmRule = new AlarmRule();
-        alarmRule.setExcludeLabels(Lists.newArrayList("50", "75"));
-        assertLabeled(alarmRule);
-        alarmRule = new AlarmRule();
-        alarmRule.setExcludeLabelsRegex("^[5-7][0-9]$");
-        assertLabeled(alarmRule);
+        alarmRule.setExpression("sum(endpoint_labeled{_='95,99'} > 10) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_labeled");
+        assertLabeled(alarmRule, "50,17|99,11", "75,15|95,12|99,12", "90,1|99,20", 1);
+        alarmRule.setExpression("sum(endpoint_labeled > 10) >= 3");
+        assertLabeled(alarmRule, "50,17|99,11", "75,15|95,12|99,12", "90,1|99,20", 1);
+        alarmRule.setExpression("sum(endpoint_labeled{_='50'} > 10) >= 3");
+        assertLabeled(alarmRule, "50,17|99,11", "75,15|95,12|99,12", "90,1|99,20", 0);
     }
 
     @Test
-    public void testNoAlarm() {
+    public void testMultipleMetricsAlarm() throws IllegalExpressionException {
+        multipleMetricsAlarm("sum((endpoint_percent < 75) * (endpoint_cpm < 100)) >= 3", 1);
+    }
+
+    @Test
+    public void testMultipleMetricsNoAlarm() throws IllegalExpressionException {
+        multipleMetricsAlarm("sum((endpoint_percent < 75) * (endpoint_cpm < 99)) >= 3", 0);
+    }
+
+    private void multipleMetricsAlarm(String expression, int alarmMsgSize) throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp(">");
-        alarmRule.setThreshold("75");
-        alarmRule.setCount(3);
+        alarmRule.setExpression(expression);
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.getIncludeMetrics().add("endpoint_cpm");
+        alarmRule.setPeriod(15);
+        alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75% and cpm is lower than 100");
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+        RunningRule runningRule = new RunningRule(alarmRule);
+        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
+
+        long timeInPeriod1 = 201808301434L;
+        long timeInPeriod2 = 201808301436L;
+        long timeInPeriod3 = 201808301438L;
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
+        runningRule.in(getMetaInAlarm(123, "endpoint_cpm"), getMetrics(timeInPeriod1, 50));
+        runningRule.in(getMetaInAlarm(123, "endpoint_cpm"), getMetrics(timeInPeriod2, 99));
+
+        List<AlarmMessage> alarmMessages = runningRule.check();
+        Assertions.assertEquals(0, alarmMessages.size());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+        runningRule.in(getMetaInAlarm(123, "endpoint_cpm"), getMetrics(timeInPeriod3, 60));
+
+        alarmMessages = runningRule.check();
+        Assertions.assertEquals(alarmMsgSize, alarmMessages.size());
+    }
+
+    @Test
+    public void testNoAlarm() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule();
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setExpression("sum(endpoint_percent > 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(15);
         //alarmRule.setSilencePeriod(0);
         alarmRule.setTags(new HashMap<String, String>() {{
@@ -217,13 +266,11 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testSilence() {
+    public void testSilence() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp("<");
-        alarmRule.setThreshold("75");
-        alarmRule.setCount(3);
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(15);
         alarmRule.setSilencePeriod(2);
         alarmRule.setTags(new HashMap<String, String>() {{
@@ -257,13 +304,11 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testExclude() {
+    public void testExclude() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp("<");
-        alarmRule.setThreshold("75");
-        alarmRule.setCount(3);
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(15);
         alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
         alarmRule.setExcludeNames(Lists.newArrayList("Service_123"));
@@ -291,13 +336,11 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testIncludeNamesRegex() {
+    public void testIncludeNamesRegex() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp("<");
-        alarmRule.setThreshold("1000");
-        alarmRule.setCount(1);
+        alarmRule.setExpression("sum(endpoint_percent < 1000) >= 1");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(10);
         alarmRule.setMessage(
             "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
@@ -326,13 +369,11 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testExcludeNamesRegex() {
+    public void testExcludeNamesRegex() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp("<");
-        alarmRule.setThreshold("1000");
-        alarmRule.setCount(1);
+        alarmRule.setExpression("sum(endpoint_percent < 1000) >= 1");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
         alarmRule.setPeriod(10);
         alarmRule.setMessage(
             "Response time of service instance {name} is more than 1000ms in 2 minutes of last 10 minutes");
@@ -361,6 +402,10 @@ public class RunningRuleTest {
     }
 
     private MetaInAlarm getMetaInAlarm(int id) {
+        return getMetaInAlarm(id, "endpoint_percent");
+    }
+
+    private MetaInAlarm getMetaInAlarm(int id, String metricName) {
         return new MetaInAlarm() {
             @Override
             public String getScope() {
@@ -379,7 +424,7 @@ public class RunningRuleTest {
 
             @Override
             public String getMetricsName() {
-                return "endpoint_percent";
+                return metricName;
             }
 
             @Override
@@ -425,6 +470,13 @@ public class RunningRuleTest {
         mockLabeledValueMetrics.setValue(new DataTable(values));
         mockLabeledValueMetrics.setTimeBucket(timeBucket);
         return mockLabeledValueMetrics;
+    }
+
+    private AlarmEntity getAlarmEntity(int id) {
+        MetaInAlarm metaInAlarm = getMetaInAlarm(id);
+        return new AlarmEntity(metaInAlarm.getScope(), metaInAlarm.getScopeId(), metaInAlarm.getName(),
+                               metaInAlarm.getId0(), metaInAlarm.getId1()
+        );
     }
 
     private class MockMetrics extends Metrics implements IntValueHolder {
@@ -580,12 +632,8 @@ public class RunningRuleTest {
         }
     }
 
-    private void assertLabeled(AlarmRule alarmRule) {
-        alarmRule.setAlarmRuleName("endpoint_percent_alarm_rule");
-        alarmRule.setMetricsName("endpoint_percent");
-        alarmRule.setOp(">");
-        alarmRule.setThreshold("10");
-        alarmRule.setCount(3);
+    private void assertLabeled(AlarmRule alarmRule, String value1, String value2, String value3, int alarmMsgSize) {
+        alarmRule.setAlarmRuleName("endpoint_labeled_alarm_rule");
         alarmRule.setPeriod(15);
         alarmRule.setMessage("response percentile of endpoint {name} is lower than expected value");
         alarmRule.setTags(new HashMap<String, String>() {{
@@ -598,18 +646,18 @@ public class RunningRuleTest {
         long timeInPeriod2 = 201808301436L;
         long timeInPeriod3 = 201808301438L;
 
-        runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod1, "50,17|99,11"));
-        runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod2, "75,15|95,12"));
+        runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod1, value1));
+        runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod2, value2));
 
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assertions.assertEquals(0, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
 
-        runningRule.in(getMetaInAlarm(123), getLabeledValueMetrics(timeInPeriod3, "90,1|99,20"));
+        runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod3, value3));
 
         // check at 201808301440
         alarmMessages = runningRule.check();
-        Assertions.assertEquals(1, alarmMessages.size());
+        Assertions.assertEquals(alarmMsgSize, alarmMessages.size());
         runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
     }
 }

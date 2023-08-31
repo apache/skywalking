@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.apache.skywalking.apm.network.servicemesh.v3.ServiceMeshMetrics;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -34,7 +36,7 @@ public interface AccessLogAnalyzer<E> {
 
     /**
      * The method works as a chain of analyzers. Logs are processed sequentially by analyzers one by one, the results of the previous analyzer are passed into the current one.
-     *
+     * <p>
      * To do fast-success, the analyzer could simply check the results of the previous analyzer and return if not empty.
      *
      * @param result     of the previous analyzer.
@@ -68,8 +70,8 @@ public interface AccessLogAnalyzer<E> {
     }
 
     @Data
-    @Builder
-    static class Result {
+    @Builder(toBuilder = true)
+    class Result {
         /**
          * The service representing the Envoy node.
          */
@@ -78,10 +80,16 @@ public interface AccessLogAnalyzer<E> {
         /**
          * The analyzed metrics result.
          */
-        private ServiceMeshMetrics.Builder metrics;
+        @Builder.Default
+        private ServiceMeshMetrics.Builder metrics = ServiceMeshMetrics.newBuilder();
 
-        public boolean hasResult() {
-            return metrics != null && (metrics.getHttpMetrics().getMetricsCount() > 0 || metrics.getTcpMetrics().getMetricsCount() > 0);
-        }
+        @Accessors(fluent = true)
+        private boolean hasDownstreamMetrics;
+        @Accessors(fluent = true)
+        private boolean hasUpstreamMetrics;
+
+        @Getter(lazy = true)
+        @Accessors(fluent = true)
+        private final boolean hasResult = hasDownstreamMetrics || hasUpstreamMetrics;
     }
 }

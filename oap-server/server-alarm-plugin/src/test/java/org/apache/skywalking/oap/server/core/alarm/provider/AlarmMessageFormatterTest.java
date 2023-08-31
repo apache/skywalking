@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
-import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,38 +25,7 @@ public class AlarmMessageFormatterTest {
     @Test
     public void testStringFormatWithNoArg() {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc words {sdf");
-        String message = formatter.format(new MetaInAlarm() {
-
-            @Override
-            public String getScope() {
-                return "SERVICE";
-            }
-
-            @Override
-            public int getScopeId() {
-                return -1;
-            }
-
-            @Override
-            public String getName() {
-                return null;
-            }
-
-            @Override
-            public String getMetricsName() {
-                return null;
-            }
-
-            @Override
-            public String getId0() {
-                return "";
-            }
-
-            @Override
-            public String getId1() {
-                return "";
-            }
-        });
+        String message = formatter.format(new AlarmEntity("SERVICE", -1, null, "", ""));
 
         Assertions.assertEquals("abc words {sdf", message);
     }
@@ -65,38 +33,7 @@ public class AlarmMessageFormatterTest {
     @Test
     public void testStringFormatWithArg() {
         AlarmMessageFormatter formatter = new AlarmMessageFormatter("abc} words {name} - {id} .. {");
-        String message = formatter.format(new MetaInAlarm() {
-
-            @Override
-            public String getScope() {
-                return "SERVICE";
-            }
-
-            @Override
-            public int getScopeId() {
-                return -1;
-            }
-
-            @Override
-            public String getName() {
-                return "service";
-            }
-
-            @Override
-            public String getMetricsName() {
-                return null;
-            }
-
-            @Override
-            public String getId0() {
-                return "1290";
-            }
-
-            @Override
-            public String getId1() {
-                return "";
-            }
-        });
+        String message = formatter.format(new AlarmEntity("SERVICE", -1, "service", "1290", ""));
         Assertions.assertEquals("abc} words service - 1290 .. {", message);
     }
 }

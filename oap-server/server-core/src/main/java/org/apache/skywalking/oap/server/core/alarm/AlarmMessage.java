@@ -42,6 +42,5 @@ public class AlarmMessage {
     private List<Tag> tags;
     private long startTime;
     private transient int period;
-    private transient boolean onlyAsCondition;
     private Set<String> hooks = new HashSet<>();
 }
