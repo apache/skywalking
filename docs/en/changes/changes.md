@@ -79,6 +79,7 @@
 * Check results in ALS as per downstream/upstream instead of per log.
 * Fix GraphQL query `listInstances` not using endTime query
 * Do not start server and Kafka consumer in init mode.
+* Add Iris component ID(5018).
 
 #### UI
 
