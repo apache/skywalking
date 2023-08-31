@@ -34,4 +34,4 @@ verify:
     interval: 3s
   cases:
     - includes:
-        - ./kafka-cases.yaml
+        - ./rabbitmq-cases.yaml
