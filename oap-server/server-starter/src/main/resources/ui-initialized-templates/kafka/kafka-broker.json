@@ -1,0 +1,69 @@
+[
+  {
+    "id": "Kafka-Broker",
+    "configuration": {
+      "children":[
+        {
+          "x": 0,
+          "y": 0,
+          "w": 8,
+          "h": 6,
+          "i": "1",
+          "id": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "CPU Usage"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "metrics": [
+            "meter_kafka_broker_cpu_time_total"
+          ],
+          "metricTypes": [
+            "readMetricsValue"
+          ],
+          "metricConfig": [
+            {
+              "unit": "%"
+            }
+          ]
+        },
+        {
+          "x":0,
+          "y":39,
+          "w":8,
+          "h":14,
+          "i":"19",
+          "type":"Widget",
+          "id":"19",
+          "metricTypes":[
+            "readLabeledMetricsValues"
+          ],
+          "metrics":[
+            "meter_kafka_broker_messages_per_second"
+          ],
+          "moved":false,
+          "graph":{
+            "type":"Line",
+            "step":false,
+            "smooth":false,
+            "showSymbol":true,
+            "showXAxis":true,
+            "showYAxis":true
+          },
+          "widget":{
+            "title":"Messages Per Second"
+          }
+        }
+      ],
+      "layer":"KAFKA",
+      "entity":"ServiceInstance",
+      "name":"Kafka-Broker",
+      "id":"Kafka-Broker"
+    }
+  }
+]

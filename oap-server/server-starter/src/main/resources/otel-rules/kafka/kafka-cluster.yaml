@@ -1,0 +1,35 @@
+filter: "{ tags -> tags.job_name == 'kafka-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'kafka::' + tags.cluster}).service(['cluster'], Layer.KAFKA)
+metricPrefix: meter_kafka
+metricsRules:
+  - name: under_replicated_partitions
+    exp: kafka_server_replicamanager_underreplicatedpartitions.sum(['cluster'])
+  - name: offline_partitions_count
+    exp: kafka_controller_kafkacontroller_offlinepartitionscount.sum(['cluster'])
+
+  - name: partition_count
+    exp: kafka_server_replicamanager_partitioncount.sum(['cluster', 'broker'])
+
+  - name: leader_count
+    exp: kafka_server_replicamanager_leadercount.sum(['cluster', 'broker'])
+
+  - name: active_controller_count
+    exp: kafka_controller_kafkacontroller_activecontrollercount.sum(['cluster', 'broker'])
+
+  - name: leader_election_rate
+    exp: kafka_controller_controllerstats_leaderelectionrateandtimems_count.sum(['cluster']).rate('PT1M')
+
+  - name: unclean_leader_elections_per_second
+    exp: kafka_controller_controllerstats_uncleanleaderelections_total.sum(['cluster']).rate('PT1M')
+
+  - name: max_lag
+    exp: kafka_server_replicafetchermanager_maxlag.sum(['cluster', 'broker'])
+
+
+
+
+
+
+
+
+

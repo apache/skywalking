@@ -198,6 +198,11 @@ menus:
         description: Provide RabbitMQ monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-rabbitmq-monitoring/
         i18nKey: mq_rabbitmq
+      - title: Kafka
+        layer: KAFKA
+        description: Provide Kafka monitoring through OpenTelemetry's Prometheus Receiver.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-kafka-monitoring/
+        i18nKey: mq_kafka
   - title: Self Observability
     icon: self_observability
     description: Self Observability provides the observabilities for running components and servers from the SkyWalking ecosystem.

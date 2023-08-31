@@ -12,26 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# This file is used to show how to write configuration files and can be used to test.
-
-setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
-  init-system-environment: ../../script/env
-  steps:
-    - name: set PATH
-      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
-    - name: install yq
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-
-verify:
-  retry:
-    count: 60
-    interval: 3s
-  cases:
-    - includes:
-        - ./kafka-cases.yaml
+  {{- contains . }}
+- id: {{ notEmpty .id }}
+  name: broker1:7071
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+- id: {{ notEmpty .id }}
+  name: broker2:7072
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+#- id: {{ notEmpty .id }}
+#  name: rmq2:15692
+#  instanceuuid: {{ notEmpty .instanceuuid }}
+#  attributes: []
+#  language: UNKNOWN
+  {{- end }}

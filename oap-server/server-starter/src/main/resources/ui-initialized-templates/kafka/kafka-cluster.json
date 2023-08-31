@@ -1,0 +1,108 @@
+[
+  {
+    "id": "Kafka-Cluster",
+    "configuration": {
+      "children":[
+        {
+          "x":0,
+          "y":0,
+          "w":24,
+          "h":59,
+          "i":"16",
+          "type":"Tab",
+          "children":[
+            {
+              "name":"Overview",
+              "children":[
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 6,
+                  "i": "11",
+                  "id": 11,
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Under Replicated Partitions"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metrics": [
+                    "meter_kafka_under_replicated_partitions"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 39,
+                  "w": 8,
+                  "h": 14,
+                  "i": "12",
+                  "id": 12,
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Offline Partitions Count"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
+                  },
+                  "metrics": [
+                    "meter_kafka_offline_partitions_count"
+                  ],
+                  "metricTypes": [
+                    "readMetricsValue"
+                  ]
+                }
+              ]
+            },
+            {
+              "name":"Broker",
+              "children":[
+                {
+                  "x":0,
+                  "y":0,
+                  "w":24,
+                  "h":48,
+                  "i":"0",
+                  "type":"Widget",
+                  "graph":{
+                    "type":"InstanceList",
+                    "dashboardName":"Kafka-Broker",
+                    "fontSize":12
+                  },
+                  "metrics":[
+
+                  ],
+                  "metricTypes":[
+
+                  ],
+                  "metricConfig":[
+
+                  ],
+                  "id":"16-1-0"
+                }
+              ]
+            }
+          ],
+          "id":"16",
+          "activedTabIndex":0,
+          "moved":false
+        }
+      ],
+      "layer":"KAFKA",
+      "entity":"Service",
+      "name":"Kafka-Cluster",
+      "id":"Kafka-Cluster",
+      "isRoot":false
+    }
+  }
+]
