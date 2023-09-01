@@ -21,7 +21,7 @@
     <parent>
         <artifactId>analyzer</artifactId>
         <groupId>org.apache.skywalking</groupId>
-        <version>9.6.0</version>
+        <version>9.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
