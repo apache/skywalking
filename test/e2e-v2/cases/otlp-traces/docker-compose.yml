@@ -1,0 +1,84 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '3.9'
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+services:
+  frontend:
+    image: ghcr.io/open-telemetry/demo:1.4.0-frontend
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    restart: unless-stopped
+    ports:
+      - 8080
+    environment:
+      PORT: 8080
+      FRONTEND_ADDR: frontend:8080
+      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
+      ENV_PLATFORM: local
+      OTEL_SERVICE_NAME: frontend
+      WEB_OTEL_SERVICE_NAME: frontend-web
+      CURRENCY_SERVICE_ADDR: no.exist:80
+    depends_on:
+      - oap
+      - productcatalogservice
+    logging: *logging
+    networks:
+      - e2e
+
+  productcatalogservice:
+    image: ghcr.io/open-telemetry/demo:1.4.0-productcatalogservice
+    deploy:
+      resources:
+        limits:
+          memory: 20M
+    restart: unless-stopped
+    ports:
+      - "3550"
+    environment:
+      PRODUCT_CATALOG_SERVICE_PORT: 3550
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
+      OTEL_SERVICE_NAME: productcatalogservice
+      FEATURE_FLAG_GRPC_SERVICE_ADDR: no.exist:80
+    depends_on:
+      - oap
+    logging: *logging
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+      - 9412
+    environment:
+      SW_OTEL_RECEIVER_ENABLED_HANDLERS: otlp-metrics,otlp-logs,otlp-traces
+      SW_RECEIVER_ZIPKIN: default
+      SW_QUERY_ZIPKIN: default
+
+networks:
+  e2e:

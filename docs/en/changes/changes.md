@@ -80,6 +80,7 @@
 * Fix GraphQL query `listInstances` not using endTime query
 * Do not start server and Kafka consumer in init mode.
 * Add Iris component ID(5018).
+* Add OTLP Tracing support as a Zipkin trace input.
 
 #### UI
 
