@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryLogHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
+import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 import java.util.ArrayList;
@@ -79,6 +80,10 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         final var openTelemetryLogHandler = new OpenTelemetryLogHandler(getManager());
         if (enabledHandlers.contains(openTelemetryLogHandler.type())) {
             handlers.add(openTelemetryLogHandler);
+        }
+        final var openTelemetryTraceHandler = new OpenTelemetryTraceHandler(getManager());
+        if (enabledHandlers.contains(openTelemetryTraceHandler.type())) {
+            handlers.add(openTelemetryTraceHandler);
         }
         this.handlers = handlers;
     }

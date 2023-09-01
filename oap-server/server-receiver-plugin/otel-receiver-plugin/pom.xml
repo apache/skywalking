@@ -49,5 +49,10 @@
             <artifactId>log-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
