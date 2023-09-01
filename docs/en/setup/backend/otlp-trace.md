@@ -1,6 +1,6 @@
 # OpenTelemetry Trace Format
 
-SkyWalking can receive traces from OpenTelemetry Trace and convert it into Zipkin Trace storage. 
+SkyWalking can receive traces from Traces in OTLP format and convert them to Zipkin Trace format eventually. 
 For data analysis and queries related to Zipkin Trace, please [refer to the relevant documentation](./zipkin-trace.md#zipkin-query).
 
 OTLP Trace handler references the [Zipkin Exporter in the OpenTelemetry Collector](https://opentelemetry.io/docs/specs/otel/trace/sdk_exporters/zipkin/#summary) to convert the data format.
