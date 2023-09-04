@@ -17,8 +17,8 @@ receivers:
   prometheus:
     config:
       scrape_configs:
-        - job_name: "kafka-monitoring" # make sure to use this in the vm.yaml to filter only VM metrics
-          scrape_interval: 10s
+        - job_name: "kafka-monitoring"
+          scrape_interval: 30s
           static_configs:
             - targets: 
                 - broker1:7071
@@ -37,8 +37,8 @@ processors:
 
 exporters:
   otlp:
-    # endpoint: "10.0.0.120:11800" # The OAP Server address
-    endpoint: "192.168.0.120:11800"
+    # The OAP Server address
+    endpoint: "oap:11800"
     # The config format of OTEL version prior to 0.34.0, eg. 0.29.0, should be:
     # insecure: true
     tls:

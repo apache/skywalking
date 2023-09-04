@@ -43,8 +43,8 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_memory_usage_percentage --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_messages_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-    expected: expected/metrics-has-value.yml
+#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_messages_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
+#    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_bytes_in_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_bytes_out_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
@@ -92,6 +92,8 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_fetch_requests_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_produce_requests_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_messages_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value.yml
 
 

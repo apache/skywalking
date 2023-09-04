@@ -32,10 +32,12 @@ filter: "{ tags -> tags.job_name == 'kafka-monitoring' }" # The OpenTelemetry jo
 expSuffix: tag({tags -> tags.cluster = 'kafka::' + tags.cluster}).service(['cluster'], Layer.KAFKA)
 metricPrefix: meter_kafka
 metricsRules:
+#  add broker
   - name: under_replicated_partitions
-    exp: kafka_server_replicamanager_underreplicatedpartitions.sum(['cluster'])
+    exp: kafka_server_replicamanager_underreplicatedpartitions.sum(['cluster','broker'])
+    #  add broker
   - name: offline_partitions_count
-    exp: kafka_controller_kafkacontroller_offlinepartitionscount.sum(['cluster'])
+    exp: kafka_controller_kafkacontroller_offlinepartitionscount.sum(['cluster','broker'])
 
   - name: partition_count
     exp: kafka_server_replicamanager_partitioncount.sum(['cluster', 'broker'])
@@ -45,12 +47,12 @@ metricsRules:
 
   - name: active_controller_count
     exp: kafka_controller_kafkacontroller_activecontrollercount.sum(['cluster', 'broker'])
-
+  #  add broker
   - name: leader_election_rate
-    exp: kafka_controller_controllerstats_leaderelectionrateandtimems_count.sum(['cluster']).rate('PT1M')
-
+    exp: kafka_controller_controllerstats_leaderelectionrateandtimems_count.sum(['cluster', 'broker']).rate('PT1M')
+  #  add broker
   - name: unclean_leader_elections_per_second
-    exp: kafka_controller_controllerstats_uncleanleaderelections_total.sum(['cluster']).rate('PT1M')
+    exp: kafka_controller_controllerstats_uncleanleaderelections_total.sum(['cluster', 'broker']).rate('PT1M')
 
   - name: max_lag
     exp: kafka_server_replicafetchermanager_maxlag.sum(['cluster', 'broker'])

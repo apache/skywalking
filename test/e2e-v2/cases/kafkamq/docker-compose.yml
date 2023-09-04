@@ -16,13 +16,22 @@
 version: '3'
 
 services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+
   zookeeper:
     image: zookeeper:latest
-    container_name: zookeeper
+#    container_name: zookeeper
     expose:
       - 2181
     networks:
-      - kafkaJMX
+      - e2e
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     healthcheck:
@@ -33,7 +42,7 @@ services:
 
   broker1:
     image: bitnami/kafka:latest
-    container_name: broker1
+#    container_name: broker1
     expose:
       - 9092
       - 7071
@@ -41,7 +50,7 @@ services:
       - '9092:9092'
       - '7071:7071'
     networks:
-      - kafkaJMX
+      - e2e
     volumes:
       - ./kafka-2_0_0.yml:/etc/kafka-2_0_0.yml
       - ./jmx_prometheus_javaagent-0.18.0.jar:/etc/jmx_prometheus_javaagent-0.18.0.jar
@@ -49,8 +58,8 @@ services:
       - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      # change to kafka:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.0.120:9092
+      # change to kafka:9092  192.168.112.129
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker1:9092
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_OPTS=-javaagent:/etc/jmx_prometheus_javaagent-0.18.0.jar=7071:/etc/kafka-2_0_0.yml
     depends_on:
@@ -64,7 +73,7 @@ services:
     
   broker2:
     image: bitnami/kafka:latest
-    container_name: broker2
+#    container_name: broker2
     expose:
       - 9093
       - 7072
@@ -72,7 +81,7 @@ services:
       - '9093:9093'
       - '7072:7072'
     networks:
-      - kafkaJMX
+      - e2e
     volumes:
       - ./kafka-2_0_0.yml:/etc/kafka-2_0_0.yml
       - ./jmx_prometheus_javaagent-0.18.0.jar:/etc/jmx_prometheus_javaagent-0.18.0.jar
@@ -81,7 +90,7 @@ services:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9093
       # change to kafka:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.0.120:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker2:9093
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_OPTS=-javaagent:/etc/jmx_prometheus_javaagent-0.18.0.jar=7072:/etc/kafka-2_0_0.yml
     depends_on:
@@ -90,9 +99,9 @@ services:
 
   kafka-producer-perf-test:
     image: bitnami/kafka:latest
-    container_name: kafka-producer-perf-test
+#    container_name: kafka-producer-perf-test
     networks:
-      - kafkaJMX
+      - e2e
     depends_on:
       - broker1
       - broker2
@@ -104,9 +113,9 @@ services:
 
   kafka-consumer-perf-test:
     image: bitnami/kafka:latest
-    container_name: kafka-consumer-perf-test
+#    container_name: kafka-consumer-perf-test
     networks:
-      - kafkaJMX
+      - e2e
     depends_on:
       - kafka-producer-perf-test
     command:
@@ -115,16 +124,15 @@ services:
       - >
         kafka-consumer-perf-test.sh --bootstrap-server broker1:9092,broker2:9093 --topic perftest --messages 100000
 
-  otel:
+  otel-collector:
     image: otel/opentelemetry-collector:0.50.0
-    container_name: otel
-    command: --config=/etc/otel-collector-config.yaml
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-    ports:
-      - '8888:8888'
-    networks:
-      - kafkaJMX
+    expose:
+      - 55678
     depends_on:
       - broker1
       - broker2
@@ -132,6 +140,23 @@ services:
       #   condition: service_healthy
 
 
+#  otel-collector:
+#    image: otel/opentelemetry-collector:0.50.0
+#    container_name: otel-collector
+#    command: --config=/etc/otel-collector-config.yaml
+#    volumes:
+#      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+#    ports:
+#      - '8888:8888'
+#    networks:
+#      - e2e
+#    depends_on:
+#      - broker1
+#      - broker2
+#      # kafka:
+#      #   condition: service_healthy
+
+
 networks:
-  kafkaJMX:
+  e2e:
 
