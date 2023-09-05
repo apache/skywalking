@@ -346,6 +346,12 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         es.get().documents().update(wrapper.getRequest(), params);
     }
 
+    public void deleteById(String indexName, String id) {
+        indexName = indexNameConverter.apply(indexName);
+        Map<String, Object> params = ImmutableMap.of("refresh", "true");
+        es.get().documents().deleteById(indexName, TYPE, id, params);
+    }
+
     public IndexRequestWrapper prepareInsert(String indexName, String id,
                                              Map<String, Object> source) {
         return prepareInsert(indexName, id, Optional.empty(), source);

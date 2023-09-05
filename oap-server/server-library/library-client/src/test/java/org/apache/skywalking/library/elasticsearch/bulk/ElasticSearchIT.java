@@ -169,7 +169,8 @@ public class ElasticSearchIT {
                                                                       .next()
                                                                       .getSource()
                                                                       .get("message"));
-
+        client.deleteById(indexName, id);
+        Assertions.assertFalse(client.existDoc(indexName, id));
         client.shutdown();
         server.stop();
     }

@@ -191,4 +191,22 @@ final class V7DocumentFactory implements DocumentFactory {
                       .content(MediaType.JSON, content)
                       .build();
     }
+
+    @Override
+    public HttpRequest deleteById(final String index, final String type, final String id, Map<String, ?> params) {
+        checkArgument(!isNullOrEmpty(index), "index cannot be null or empty");
+        checkArgument(!isNullOrEmpty(type), "type cannot be null or empty");
+        checkArgument(!isNullOrEmpty(id), "id cannot be null or empty");
+
+        final HttpRequestBuilder builder = HttpRequest.builder();
+        if (params != null) {
+            params.forEach(builder::queryParam);
+        }
+
+        return builder
+            .delete("/{index}/_doc/{id}")
+            .pathParam("index", index)
+            .pathParam("id", id)
+            .build();
+    }
 }
