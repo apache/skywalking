@@ -393,7 +393,7 @@ query:
     # abort a query if the total number of data fields queried exceeds the defined threshold.
     maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:3000}
     # Allow user add, disable and update UI template
-    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:true}
+    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
     # "On demand log" allows users to fetch Pod containers' log in real time,
     # because this might expose secrets in the logs (if any), users need
     # to enable this manually, and add permissions to OAP cluster role.
