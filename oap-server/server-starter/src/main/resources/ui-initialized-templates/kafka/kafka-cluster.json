@@ -1,108 +1,232 @@
-[
-  {
-    "id": "Kafka-Cluster",
-    "configuration": {
-      "children":[
-        {
-          "x":0,
-          "y":0,
-          "w":24,
-          "h":59,
-          "i":"16",
-          "type":"Tab",
-          "children":[
-            {
-              "name":"Overview",
-              "children":[
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 8,
-                  "h": 6,
-                  "i": "11",
-                  "id": 11,
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Under Replicated Partitions"
-                  },
-                  "graph": {
-                    "type": "Card",
-                    "fontSize": 14,
-                    "textAlign": "center",
-                    "showUnit": true
-                  },
-                  "metrics": [
-                    "meter_kafka_under_replicated_partitions"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 39,
-                  "w": 8,
-                  "h": 14,
-                  "i": "12",
-                  "id": 12,
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Offline Partitions Count"
-                  },
-                  "graph": {
-                    "type": "Card",
-                    "fontSize": 14,
-                    "textAlign": "center",
-                    "showUnit": true
-                  },
-                  "metrics": [
-                    "meter_kafka_offline_partitions_count"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValue"
-                  ]
-                }
-              ]
-            },
-            {
-              "name":"Broker",
-              "children":[
-                {
-                  "x":0,
-                  "y":0,
-                  "w":24,
-                  "h":48,
-                  "i":"0",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"InstanceList",
-                    "dashboardName":"Kafka-Broker",
-                    "fontSize":12
-                  },
-                  "metrics":[
-
-                  ],
-                  "metricTypes":[
-
-                  ],
-                  "metricConfig":[
-
-                  ],
-                  "id":"16-1-0"
-                }
-              ]
-            }
-          ],
-          "id":"16",
-          "activedTabIndex":0,
-          "moved":false
-        }
-      ],
-      "layer":"KAFKA",
-      "entity":"Service",
-      "name":"Kafka-Cluster",
-      "id":"Kafka-Cluster",
-      "isRoot":false
-    }
-  }
-]
+[{
+	"id": "Kafka-Cluster",
+	"configuration": {
+		"children": [{
+			"x": 0,
+			"y": 0,
+			"w": 24,
+			"h": 59,
+			"i": "16",
+			"type": "Tab",
+			"children": [{
+				"name": "Overview",
+				"children": [{
+					"x": 16,
+					"y": 10,
+					"w": 8,
+					"h": 10,
+					"i": "13",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_partition_count"],
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Partition Count",
+						"tips": "Number of leader partitions on this broker."
+					},
+					"relatedTrace": {
+						"enableRelate": false
+					},
+					"expressions": [],
+					"typesOfMQE": []
+				}, {
+					"x": 16,
+					"y": 20,
+					"w": 8,
+					"h": 9,
+					"i": "14",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_leader_count"],
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Leader Count",
+						"tips": "Number of leader partitions on this broker. "
+					},
+					"expressions": [],
+					"typesOfMQE": []
+				}, {
+					"x": 8,
+					"y": 20,
+					"w": 8,
+					"h": 9,
+					"i": "15",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_active_controller_count"],
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Active Controller Count",
+						"tips": "The number of active controllers in the cluster. Typically should be 1. "
+					},
+					"expressions": [],
+					"typesOfMQE": []
+				}, {
+					"x": 8,
+					"y": 10,
+					"w": 8,
+					"h": 10,
+					"i": "18",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_max_lag"],
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Max Lag",
+						"tips": "The maximum lag between the leader and followers in terms of messages still needed to be sent. Higher lag indicates delays."
+					},
+					"expressions": [],
+					"typesOfMQE": []
+				}, {
+					"x": 0,
+					"y": 0,
+					"w": 12,
+					"h": 10,
+					"i": "19",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_under_replicated_partitions"],
+					"metricMode": "General",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"expressions": [],
+					"typesOfMQE": [],
+					"widget": {
+						"name": "under_replicated_partitions",
+						"title": "Under Replicated Partitions",
+						"tips": "Number of under-replicated partitions in the broker. A higher number is a sign of potential issues. "
+					}
+				}, {
+					"x": 12,
+					"y": 0,
+					"w": 12,
+					"h": 10,
+					"i": "20",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_offline_partitions_count"],
+					"metricMode": "General",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"name": "offline_partitions_count",
+						"title": "Offline Partitions Count",
+						"tips": "Number of partitions that are offline. Non-zero values indicate a problem."
+					},
+					"expressions": [],
+					"typesOfMQE": []
+				}, {
+					"x": 0,
+					"y": 10,
+					"w": 8,
+					"h": 10,
+					"i": "21",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_unclean_leader_elections_per_second"],
+					"metricMode": "General",
+					"expressions": [],
+					"typesOfMQE": [],
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"name": "unclean_leader_elections_per_second",
+						"title": "Unclean Leader Elections Per Second",
+						"tips": "The rate of unclean leader elections per second. Non-zero values indicate a serious problem. "
+					}
+				}, {
+					"x": 0,
+					"y": 20,
+					"w": 8,
+					"h": 9,
+					"i": "22",
+					"type": "Widget",
+					"metricTypes": ["readLabeledMetricsValues"],
+					"metrics": ["meter_kafka_leader_election_rate"],
+					"metricMode": "General",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"name": "leader_election_rate",
+						"title": "Leader Election Rate",
+						"tips": "The rate of unclean leader elections per second. Non-zero values indicate a serious problem."
+					},
+					"expressions": [],
+					"typesOfMQE": []
+				}]
+			}, {
+				"name": "Broker",
+				"children": [{
+					"x": 0,
+					"y": 0,
+					"w": 24,
+					"h": 48,
+					"i": "0",
+					"type": "Widget",
+					"graph": {
+						"type": "InstanceList",
+						"dashboardName": "Kafka-Broker",
+						"fontSize": 12
+					}
+				}]
+			}]
+		}],
+		"layer": "KAFKA",
+		"entity": "Service",
+		"name": "Kafka-Cluster",
+		"id": "Kafka-Cluster",
+		"isRoot": false
+	}
+}]

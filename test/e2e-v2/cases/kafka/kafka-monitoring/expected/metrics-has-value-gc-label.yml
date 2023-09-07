@@ -12,20 +12,35 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-  {{- contains . }}
-- id: {{ notEmpty .id }}
-  name: broker1:7071
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  attributes: []
-  language: UNKNOWN
-- id: {{ notEmpty .id }}
-  name: broker2:7072
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  attributes: []
-  language: UNKNOWN
-#- id: {{ notEmpty .id }}
-#  name: rmq2:15692
-#  instanceuuid: {{ notEmpty .instanceuuid }}
-#  attributes: []
-#  language: UNKNOWN
-  {{- end }}
+
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        - key: _
+          value: "G1 Young Generation"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "G1 Old Generation"
+    values:
+      { { - contains .values } }
+      - id: { { notEmpty .id } }
+        value: { { .value } }
+        traceid: null
+      - id: { { notEmpty .id } }
+        value: null
+        traceid: null
+      { { - end } }
+  {{- end}}
+error: null

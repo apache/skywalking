@@ -36,6 +36,9 @@ metricsRules:
   - name: cpu_time_total
     exp: (process_cpu_seconds_total * 100).sum(['cluster', 'broker']).rate('PT1M')
 
+  - name: memory_usage_percentage
+    exp: (jvm_memory_bytes_used * 100).tagMatch("area", "heap").sum(['cluster', 'broker', 'area']) / (jvm_memory_bytes_max).tagMatch("area", "heap").sum(['cluster', 'broker', 'area'])
+
   - name: messages_per_second
     exp: kafka_server_brokertopicmetrics_messagesin_total.sum(['cluster', 'broker']).rate('PT1M')
 
@@ -95,7 +98,6 @@ metricsRules:
   - name: network_processor_avg_idle_percent
     exp: (kafka_network_socketserver_networkprocessoravgidlepercent * 100).sum(['cluster','broker']).rate('PT1M')
 
-#  kafka_server_brokertopicmetrics_messagesin_total
   - name: topic_messages_in_total
     exp: kafka_server_brokertopicmetrics_messagesin_total.sum(['cluster','broker','topic'])
 
@@ -110,10 +112,6 @@ metricsRules:
 
   - name: topic_produce_requests_per_second
     exp: kafka_server_brokertopicmetrics_totalproducerequests_total.sum(['cluster','broker','topic']).rate('PT1M')
-
-  - name: memory_usage_percentage
-    exp: (jvm_memory_bytes_used * 100).tagMatch("area", "heap").sum(['cluster', 'broker', 'area']) / (jvm_memory_bytes_max * 100).tagMatch("area", "heap").sum(['cluster', 'broker', 'area'])
-
 
 
 

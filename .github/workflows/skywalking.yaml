@@ -637,6 +637,8 @@ jobs:
             config: test/e2e-v2/cases/mongodb/e2e.yaml
           - name: RabbitMQ
             config: test/e2e-v2/cases/rabbitmq/e2e.yaml
+          - name: Kafka
+            config: test/e2e-v2/cases/kafka/kafka-monitoring/e2e.yaml
           - name: MQE Service
             config: test/e2e-v2/cases/mqe/e2e.yaml
 
