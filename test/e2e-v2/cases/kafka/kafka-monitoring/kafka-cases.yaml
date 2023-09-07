@@ -71,8 +71,6 @@ cases:
     expected: expected/metrics-has-value-instance-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_garbage_collector_count --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value-gc-label.yml
-#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_requests_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-#    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_request_queue_time_ms --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value-scource-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_remote_time_ms --service-name=kafka::kafka-cluster --instance-name=broker1:7071
@@ -83,15 +81,5 @@ cases:
     expected: expected/metrics-has-value-scource-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_network_processor_avg_idle_percent --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value.yml
-#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_messages_in_total --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-#    expected: expected/metrics-has-value.ymll
-#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_topic_bytesout_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-#    expected: expected/metrics-has-value.yml
-#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_bytesin_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-#    expected: expected/metrics-has-value.yml
-#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_fetch_requests_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-#    expected: expected/metrics-has-value.yml
-#  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_node_topic_produce_requests_per_second --service-name=kafka::kafka-cluster --instance-name=broker1:7071
-#    expected: expected/metrics-has-value.yml
 
 

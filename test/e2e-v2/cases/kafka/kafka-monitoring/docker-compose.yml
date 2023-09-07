@@ -50,8 +50,6 @@ services:
       - '7071:7071'
     networks:
       - e2e
-    volumes:
-      - ./kafka-2_0_0.yml:/etc/kafka-2_0_0.yml
     environment:
       - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -79,8 +77,6 @@ services:
       - '7072:7072'
     networks:
       - e2e
-    volumes:
-      - ./kafka-2_0_0.yml:/etc/kafka-2_0_0.yml
     environment:
       - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -129,8 +125,6 @@ services:
     depends_on:
       - broker1
       - broker2
-      # kafka:
-      #   condition: service_healthy
 
 networks:
   e2e:
