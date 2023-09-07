@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.library.server.http.HTTPServer;
 import org.apache.skywalking.oap.server.library.server.http.HTTPServerConfig;
 import org.apache.skywalking.oap.server.receiver.zipkin.handler.ZipkinSpanHTTPHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.kafka.KafkaHandler;
+import org.apache.skywalking.oap.server.receiver.zipkin.trace.SpanForward;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class ZipkinReceiverProvider extends ModuleProvider {
@@ -37,6 +38,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     private ZipkinReceiverConfig config;
     private HTTPServer httpServer;
     private KafkaHandler kafkaHandler;
+    private SpanForward spanForward;
 
     @Override
     public String name() {
@@ -65,6 +67,8 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException {
+        this.spanForward = new SpanForward(config, getManager());
+        this.registerServiceImplementation(SpanForwardService.class, spanForward);
     }
 
     @Override
@@ -88,13 +92,13 @@ public class ZipkinReceiverProvider extends ModuleProvider {
             httpServer.initialize();
 
             httpServer.addHandler(
-                new ZipkinSpanHTTPHandler(config, getManager()),
+                new ZipkinSpanHTTPHandler(this.spanForward, getManager()),
                 Arrays.asList(HttpMethod.POST, HttpMethod.GET)
             );
         }
 
         if (config.isEnableKafkaCollector()) {
-            kafkaHandler = new KafkaHandler(config, getManager());
+            kafkaHandler = new KafkaHandler(config, this.spanForward, getManager());
         }
     }
 

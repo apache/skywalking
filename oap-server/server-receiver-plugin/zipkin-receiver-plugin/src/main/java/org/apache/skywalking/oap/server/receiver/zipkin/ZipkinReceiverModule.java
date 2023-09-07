@@ -36,6 +36,8 @@ public class ZipkinReceiverModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[0];
+        return new Class[] {
+            SpanForwardService.class
+        };
     }
 }

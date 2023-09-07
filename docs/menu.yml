@@ -355,6 +355,10 @@ catalog:
     catalog:
       - name: "Current Version"
         path: "/en/changes/changes"
+      - name: "9.6.0"
+        path: "/en/changes/changes-9.6.0"
+      - name: "9.5.0"
+        path: "/en/changes/changes-9.5.0"
       - name: "9.4.0"
         path: "/en/changes/changes-9.4.0"
       - name: "9.3.0"
