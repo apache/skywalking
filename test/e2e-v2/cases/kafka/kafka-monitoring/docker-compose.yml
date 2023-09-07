@@ -40,7 +40,8 @@ services:
       retries: 120
 
   broker1:
-    image: bitnami/kafka:latest
+    build:
+      context: .
     expose:
       - 9092
       - 7071
@@ -51,7 +52,6 @@ services:
       - e2e
     volumes:
       - ./kafka-2_0_0.yml:/etc/kafka-2_0_0.yml
-      - ./jmx_prometheus_javaagent-0.18.0.jar:/etc/jmx_prometheus_javaagent-0.18.0.jar
     environment:
       - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
@@ -69,7 +69,8 @@ services:
     #   retries: 120
     
   broker2:
-    image: bitnami/kafka:latest
+    build:
+      context: .
     expose:
       - 9093
       - 7072
@@ -80,7 +81,6 @@ services:
       - e2e
     volumes:
       - ./kafka-2_0_0.yml:/etc/kafka-2_0_0.yml
-      - ./jmx_prometheus_javaagent-0.18.0.jar:/etc/jmx_prometheus_javaagent-0.18.0.jar
     environment:
       - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
