@@ -78,7 +78,7 @@ public class AlarmModuleProvider extends ModuleProvider {
         }
         RulesReader reader = new RulesReader(applicationReader);
         Rules rules = reader.readRules();
-        alarmRulesWatcher.notifyBeyondDynamicConfig(rules);
+        alarmRulesWatcher.initConfig(rules);
         notifyHandler.init(new AlarmStandardPersistence(getManager()));
     }
 

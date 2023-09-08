@@ -90,7 +90,7 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         }
     }
 
-    public void notifyBeyondDynamicConfig(Rules newRules) {
+    public void initConfig(Rules newRules) {
         lock.lock();
         try {
             if (notifiedByDynamicConfig.get()) {
