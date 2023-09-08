@@ -53,8 +53,6 @@ setup:
           --set fullnameOverride=skywalking \
           --set elasticsearch.replicas=1 \
           --set elasticsearch.minimumMasterNodes=1 \
-          --set elasticsearch.persistence.enabled=true \
-          --set elasticsearch.volumeClaimTemplate.resources.requests.storage="2Gi" \
           --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=$ALS_ANALYZER \
           --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \

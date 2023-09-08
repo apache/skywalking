@@ -5,6 +5,7 @@
 
 #### OAP Server
 
+* ElasticSearchClient: Add `deleteById` API.
 
 
 #### UI
