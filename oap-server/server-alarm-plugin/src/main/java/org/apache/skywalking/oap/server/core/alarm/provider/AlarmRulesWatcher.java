@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
@@ -54,6 +57,8 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
     private volatile Map<String, Set<String>> exprMetricsMap;
     private volatile Rules rules;
     private volatile String settingsString;
+    private final ReentrantLock lock;
+    private final AtomicBoolean notifiedByDynamicConfig;
 
     public AlarmRulesWatcher(Rules defaultRules, ModuleProvider provider) {
         super(AlarmModule.NAME, provider, "alarm-settings");
@@ -61,19 +66,39 @@ public class AlarmRulesWatcher extends ConfigChangeWatcher {
         this.alarmRuleRunningRuleMap = new HashMap<>();
         this.exprMetricsMap = new HashMap<>();
         this.settingsString = null;
+        this.lock = new ReentrantLock();
+        this.notifiedByDynamicConfig = new AtomicBoolean(false);
         notify(defaultRules);
     }
 
     @Override
     public void notify(ConfigChangeEvent value) {
-        if (value.getEventType().equals(EventType.DELETE)) {
-            settingsString = null;
-            notify(new Rules());
-        } else {
-            settingsString = value.getNewValue();
-            RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()));
-            Rules rules = rulesReader.readRules();
-            notify(rules);
+        lock.lock();
+        try {
+            if (value.getEventType().equals(EventType.DELETE)) {
+                settingsString = null;
+                notify(new Rules());
+            } else {
+                settingsString = value.getNewValue();
+                RulesReader rulesReader = new RulesReader(new StringReader(value.getNewValue()));
+                Rules rules = rulesReader.readRules();
+                notify(rules);
+            }
+            notifiedByDynamicConfig.set(true);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void notifyBeyondDynamicConfig(Rules newRules) {
+        lock.lock();
+        try {
+            if (notifiedByDynamicConfig.get()) {
+                return;
+            }
+            notify(newRules);
+        } finally {
+            lock.unlock();
         }
     }
 
