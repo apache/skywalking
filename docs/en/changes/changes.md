@@ -6,7 +6,7 @@
 #### OAP Server
 
 * ElasticSearchClient: Add `deleteById` API.
-
+* Fix Custom alarm rules are overwritten by 'resource/alarm-settings.yml'
 
 #### UI
 
