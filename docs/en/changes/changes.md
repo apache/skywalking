@@ -15,5 +15,7 @@
 
 #### Documentation
 
+* Separate storage docs to different files, and add an estimated timeline for BanyanDB(end of 2023). 
+
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/193?closed=1)
