@@ -56,12 +56,3 @@ metricsRules:
 
   - name: max_lag
     exp: kafka_server_replicafetchermanager_maxlag.sum(['cluster', 'broker'])
-
-
-
-
-
-
-
-
-

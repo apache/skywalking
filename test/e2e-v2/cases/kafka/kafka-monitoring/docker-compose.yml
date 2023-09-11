@@ -60,11 +60,11 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
-    #   interval: 5s
-    #   timeout: 60s
-    #   retries: 120
+    healthcheck:
+       test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
+       interval: 5s
+       timeout: 60s
+       retries: 120
     
   broker2:
     build:
@@ -87,6 +87,11 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
   kafka-producer-perf-test:
     image: bitnami/kafka:latest
@@ -128,4 +133,3 @@ services:
 
 networks:
   e2e:
-

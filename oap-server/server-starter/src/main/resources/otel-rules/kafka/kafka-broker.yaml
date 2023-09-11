@@ -50,6 +50,7 @@ metricsRules:
 
   - name: replication_bytes_in_per_second
     exp: kafka_server_brokertopicmetrics_replicationbytesin_total.sum(['cluster', 'broker']).rate('PT1M')
+
   - name: replication_bytes_out_per_second
     exp: kafka_server_brokertopicmetrics_replicationbytesout_total.sum(['cluster', 'broker']).rate('PT1M')
 
@@ -67,6 +68,7 @@ metricsRules:
 
   - name: isr_shrinks_per_second
     exp: kafka_server_replicamanager_isrshrinks_total.sum(['cluster', 'broker']).rate('PT1M')
+    
   - name: isr_expands_per_second
     exp: kafka_server_replicamanager_isrexpands_total.sum(['cluster', 'broker']).rate('PT1M')
 
