@@ -21,5 +21,5 @@ MySQL and PostgreSQL are recommended for production environments for medium scal
 and log sampling rate. Some of their compatible databases may support larger scale better, such as TiDB and AWS Aurora.
 
 BanyanDB is going to be our next generation storage solution. It is still in alpha stage. It has shown high potential performance
-improvement. Less than 50% CPU usage and 50% memory usage compared to Elasticsearch in the same scale with 100% sampling.
+improvement. Less than 50% CPU usage and 50% memory usage with 40% disk volume compared to Elasticsearch in the same scale with 100% sampling.
 We are looking for early adoption, and it would be our first-class recommended storage option since 2024.
