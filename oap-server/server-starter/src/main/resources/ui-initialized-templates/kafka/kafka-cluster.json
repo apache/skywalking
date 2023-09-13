@@ -1,0 +1,224 @@
+[{
+	"id": "Kafka-Cluster",
+	"configuration": {
+		"children": [{
+			"x": 0,
+			"y": 0,
+			"w": 24,
+			"h": 59,
+			"i": "16",
+			"type": "Tab",
+			"children": [{
+				"name": "Overview",
+				"children": [{
+					"x": 16,
+					"y": 0,
+					"w": 8,
+					"h": 10,
+					"i": "13",
+					"type": "Widget",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Partition Count",
+						"tips": "Number of leader partitions on this broker.",
+						"name": "partition_count"
+					},
+					"relatedTrace": {
+						"enableRelate": false
+					},
+					"expressions": ["meter_kafka_partition_count"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"],
+					"metricMode": "Expression"
+				}, {
+					"x": 16,
+					"y": 10,
+					"w": 8,
+					"h": 10,
+					"i": "14",
+					"type": "Widget",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Leader Count",
+						"tips": "Number of leader partitions on this broker. ",
+						"name": "leader_count"
+					},
+					"expressions": ["meter_kafka_leader_count"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"],
+					"metricMode": "Expression"
+				}, {
+					"x": 8,
+					"y": 20,
+					"w": 8,
+					"h": 9,
+					"i": "15",
+					"type": "Widget",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Active Controller Count",
+						"tips": "The number of active controllers in the cluster. Typically should be 1. ",
+						"name": "active_controller_count"
+					},
+					"expressions": ["meter_kafka_active_controller_count"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"],
+					"metricMode": "Expression"
+				}, {
+					"x": 8,
+					"y": 10,
+					"w": 8,
+					"h": 10,
+					"i": "18",
+					"type": "Widget",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"title": "Max Lag",
+						"tips": "The maximum lag between the leader and followers in terms of messages still needed to be sent. Higher lag indicates delays.",
+						"name": "max_lag"
+					},
+					"expressions": ["meter_kafka_max_lag"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"],
+					"metricMode": "Expression"
+				}, {
+					"x": 0,
+					"y": 0,
+					"w": 8,
+					"h": 10,
+					"i": "19",
+					"type": "Widget",
+					"metricMode": "Expression",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"expressions": ["meter_kafka_under_replicated_partitions"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"],
+					"widget": {
+						"name": "under_replicated_partitions",
+						"title": "Under Replicated Partitions",
+						"tips": "Number of under-replicated partitions in the broker. A higher number is a sign of potential issues. "
+					}
+				}, {
+					"x": 8,
+					"y": 0,
+					"w": 8,
+					"h": 10,
+					"i": "20",
+					"type": "Widget",
+					"metricMode": "Expression",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"name": "offline_partitions_count",
+						"title": "Offline Partitions Count",
+						"tips": "Number of partitions that are offline. Non-zero values indicate a problem."
+					},
+					"expressions": ["meter_kafka_offline_partitions_count"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"]
+				}, {
+					"x": 0,
+					"y": 10,
+					"w": 8,
+					"h": 10,
+					"i": "21",
+					"type": "Widget",
+					"metricMode": "Expression",
+					"expressions": ["meter_kafka_unclean_leader_elections_per_second"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"],
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"name": "unclean_leader_elections_per_second",
+						"title": "Unclean Leader Elections Per Second",
+						"tips": "The rate of unclean leader elections per second. Non-zero values indicate a serious problem. "
+					}
+				}, {
+					"x": 0,
+					"y": 20,
+					"w": 8,
+					"h": 9,
+					"i": "22",
+					"type": "Widget",
+					"metricMode": "Expression",
+					"graph": {
+						"type": "Line",
+						"step": false,
+						"smooth": false,
+						"showSymbol": true,
+						"showXAxis": true,
+						"showYAxis": true
+					},
+					"widget": {
+						"name": "leader_election_rate",
+						"title": "Leader Election Rate",
+						"tips": "The rate of unclean leader elections per second. Non-zero values indicate a serious problem."
+					},
+					"expressions": ["meter_kafka_leader_election_rate"],
+					"typesOfMQE": ["TIME_SERIES_VALUES"]
+				}]
+			}, {
+				"name": "Broker",
+				"children": [{
+					"x": 0,
+					"y": 0,
+					"w": 24,
+					"h": 48,
+					"i": "0",
+					"type": "Widget",
+					"graph": {
+						"type": "InstanceList",
+						"dashboardName": "Kafka-Broker",
+						"fontSize": 12
+					}
+				}]
+			}]
+		}],
+		"layer": "KAFKA",
+		"entity": "Service",
+		"name": "Kafka-Cluster",
+		"id": "Kafka-Cluster",
+		"isRoot": false
+	}
+}]

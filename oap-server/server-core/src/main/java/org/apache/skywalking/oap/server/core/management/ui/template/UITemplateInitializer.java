@@ -69,6 +69,7 @@ public class UITemplateInitializer {
         Layer.ELASTICSEARCH.name(),
         Layer.RABBITMQ.name(),
         Layer.MONGODB.name(),
+        Layer.KAFKA.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

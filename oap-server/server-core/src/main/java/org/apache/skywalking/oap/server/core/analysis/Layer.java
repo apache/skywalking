@@ -188,7 +188,12 @@ public enum Layer {
     /**
      * MongoDB is a document database. It stores data in a type of JSON format called BSON.
      */
-    MONGODB(30, true);
+    MONGODB(30, true),
+
+    /**
+     * Kafka is a distributed streaming platform that is used publish and subscribe to streams of records.
+     */
+    KAFKA(31, true);
 
     private final int value;
     /**

@@ -261,6 +261,8 @@ catalog:
             catalog:
               - name: "RabbitMQ"
                 path: "/en/setup/backend/backend-rabbitmq-monitoring"
+              - name: "Kafka"
+                path: "/en/setup/backend/backend-kafka-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"
