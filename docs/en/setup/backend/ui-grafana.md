@@ -15,7 +15,7 @@ In the data source config panel, chose the `Prometheus` and set the url to the O
 
 ### SkyWalking Data Source
 Before you start, please install the [SkyWalking data source plugin](https://github.com/apache/skywalking-grafana-plugins).
-In the data source config panel, chose the `SkyWalking` and set the url to the OAP server address, the default port is `12800`.
+In the data source config panel, chose the `SkyWalking` and set the url to the OAP server `graphql` service address, the default port is `12800`.
 <img src="https://skywalking.apache.org/screenshots/9.7.0/promql/grafana-skywalking-datasource.jpg"/>
 
 ### Loki Data Source
