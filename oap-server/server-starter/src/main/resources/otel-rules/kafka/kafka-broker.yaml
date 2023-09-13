@@ -81,7 +81,6 @@ metricsRules:
   - name: garbage_collector_count
     exp: jvm_gc_collection_seconds_count.tagMatch("gc", "G1 Young Generation|G1 Old Generation").sum(['cluster', 'broker','gc']).rate('PT1M')
 
-
   - name: requests_per_second
     exp: kafka_network_requestmetrics_requests_total.tagMatch("request", "FetchConsumer|Produce|Fetch").sum(['cluster','broker','request']).rate('PT1M')
 

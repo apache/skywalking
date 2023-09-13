@@ -3,15 +3,15 @@
 	"configuration": {
 		"children": [{
 			"x": 0,
-			"y": 0,
-			"w": 8,
+			"y": 5,
+			"w": 6,
 			"h": 10,
 			"i": "1",
 			"type": "Widget",
 			"widget": {
 				"title": "CPU Usage (%)",
 				"tips": "CPU usage in percentage ",
-				"name": "CpuUsage"
+				"name": "cpu_time_total"
 			},
 			"graph": {
 				"type": "Line",
@@ -25,9 +25,9 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 8,
-			"y": 49,
-			"w": 8,
+			"x": 0,
+			"y": 47,
+			"w": 6,
 			"h": 10,
 			"i": "19",
 			"type": "Widget",
@@ -41,14 +41,15 @@
 			},
 			"widget": {
 				"title": "Incoming Messages (Msg/sec)",
-				"tips": "Rate of incoming messages"
+				"tips": "Rate of incoming messages",
+				"name": "messages_per_second"
 			},
 			"expressions": ["meter_kafka_broker_messages_per_second"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
 			"x": 0,
-			"y": 29,
+			"y": 27,
 			"w": 6,
 			"h": 10,
 			"i": "20",
@@ -70,8 +71,8 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 6,
-			"y": 29,
+			"x": 0,
+			"y": 37,
 			"w": 6,
 			"h": 10,
 			"i": "21",
@@ -86,16 +87,17 @@
 			},
 			"widget": {
 				"title": "Bytes Out (Bytes/sec)",
-				"tips": "Rate of outgoing bytes"
+				"tips": "Rate of outgoing bytes",
+				"name": "bytes_out_per_second"
 			},
 			"expressions": ["meter_kafka_broker_bytes_out_per_second"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 18,
-			"y": 10,
-			"w": 6,
-			"h": 8,
+			"x": 15,
+			"y": 0,
+			"w": 5,
+			"h": 5,
 			"i": "22",
 			"type": "Widget",
 			"graph": {
@@ -106,16 +108,17 @@
 			},
 			"widget": {
 				"title": "Under-Replicated Partitions",
-				"tips": "Number of under-replicated partitions"
+				"tips": "Number of under-replicated partitions",
+				"name": "under_replicated_partitions"
 			},
-			"expressions": ["meter_kafka_broker_under_replicated_partitions"],
-			"typesOfMQE": ["TIME_SERIES_VALUES"],
+			"expressions": ["latest(meter_kafka_broker_under_replicated_partitions)"],
+			"typesOfMQE": ["SINGLE_VALUE"],
 			"metricMode": "Expression"
 		}, {
-			"x": 12,
-			"y": 10,
-			"w": 6,
-			"h": 8,
+			"x": 10,
+			"y": 0,
+			"w": 5,
+			"h": 5,
 			"i": "23",
 			"type": "Widget",
 			"graph": {
@@ -126,15 +129,16 @@
 			},
 			"widget": {
 				"title": "Under Min ISR Partition Count",
-				"tips": "Number of partitions below the minimum ISR (In-Sync Replicas)"
+				"tips": "Number of partitions below the minimum ISR (In-Sync Replicas)",
+				"name": "under_min_isr_partition_count"
 			},
-			"expressions": ["meter_kafka_broker_under_min_isr_partition_count"],
-			"typesOfMQE": ["TIME_SERIES_VALUES"],
+			"expressions": ["latest(meter_kafka_broker_under_min_isr_partition_count)"],
+			"typesOfMQE": ["SINGLE_VALUE"],
 			"metricMode": "Expression"
 		}, {
-			"x": 16,
-			"y": 49,
-			"w": 8,
+			"x": 18,
+			"y": 5,
+			"w": 6,
 			"h": 10,
 			"i": "24",
 			"type": "Widget",
@@ -148,14 +152,15 @@
 			},
 			"widget": {
 				"title": "Partition Count",
-				"tips": "Total number of partitions"
+				"tips": "Total number of partitions",
+				"name": "partition_count"
 			},
 			"expressions": ["meter_kafka_broker_partition_count"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 18,
-			"y": 29,
+			"x": 6,
+			"y": 37,
 			"w": 6,
 			"h": 10,
 			"i": "25",
@@ -170,14 +175,15 @@
 			},
 			"widget": {
 				"title": "Replication Bytes Out (Bytes/sec)",
-				"tips": "Rate of outgoing bytes for replication"
+				"tips": "Rate of outgoing bytes for replication",
+				"name": "replication_bytes_out_per_second"
 			},
 			"expressions": ["meter_kafka_broker_replication_bytes_out_per_second"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 12,
-			"y": 29,
+			"x": 6,
+			"y": 27,
 			"w": 6,
 			"h": 10,
 			"i": "26",
@@ -192,16 +198,17 @@
 			},
 			"widget": {
 				"title": "Replication Bytes In (Bytes/sec)",
-				"tips": "Rate of incoming bytes for replication"
+				"tips": "Rate of incoming bytes for replication",
+				"name": "replication_bytes_in_per_second"
 			},
 			"expressions": ["meter_kafka_broker_replication_bytes_in_per_second"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 16,
-			"y": 59,
-			"w": 8,
-			"h": 9,
+			"x": 6,
+			"y": 47,
+			"w": 6,
+			"h": 10,
 			"i": "27",
 			"type": "Widget",
 			"graph": {
@@ -214,38 +221,38 @@
 			},
 			"widget": {
 				"title": "Leader Count",
-				"tips": "Number of partitions for which this broker is the leader"
+				"tips": "Number of partitions for which this broker is the leader",
+				"name": "leader_count"
 			},
 			"expressions": ["meter_kafka_broker_leader_count"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 8,
-			"y": 59,
-			"w": 8,
-			"h": 9,
+			"x": 20,
+			"y": 0,
+			"w": 4,
+			"h": 5,
 			"i": "28",
 			"type": "Widget",
 			"graph": {
-				"type": "Line",
-				"step": false,
-				"smooth": false,
-				"showSymbol": true,
-				"showXAxis": true,
-				"showYAxis": true
+				"type": "Card",
+				"fontSize": 14,
+				"textAlign": "center",
+				"showUnit": true
 			},
 			"widget": {
 				"title": "Max Lag",
-				"tips": "Maximum lag between the leader and follower for a partition"
+				"tips": "Maximum lag between the leader and follower for a partition",
+				"name": "max_lag"
 			},
-			"expressions": ["meter_kafka_broker_max_lag"],
-			"typesOfMQE": ["TIME_SERIES_VALUES"],
+			"expressions": ["sum(meter_kafka_broker_max_lag)"],
+			"typesOfMQE": ["SINGLE_VALUE"],
 			"metricMode": "Expression"
 		}, {
 			"x": 0,
-			"y": 10,
-			"w": 6,
-			"h": 8,
+			"y": 0,
+			"w": 5,
+			"h": 5,
 			"i": "29",
 			"type": "Widget",
 			"graph": {
@@ -256,16 +263,17 @@
 			},
 			"widget": {
 				"title": "ISR Shrinks",
-				"tips": "Rate of ISR (In-Sync Replicas) shrinking "
+				"tips": "Rate of ISR (In-Sync Replicas) shrinking ",
+				"name": "isr_shrinks_per_second"
 			},
-			"expressions": ["meter_kafka_broker_isr_shrinks_per_second"],
-			"typesOfMQE": ["TIME_SERIES_VALUES"],
+			"expressions": ["latest(meter_kafka_broker_isr_shrinks_per_second)"],
+			"typesOfMQE": ["SINGLE_VALUE"],
 			"metricMode": "Expression"
 		}, {
-			"x": 6,
-			"y": 10,
-			"w": 6,
-			"h": 8,
+			"x": 5,
+			"y": 0,
+			"w": 5,
+			"h": 5,
 			"i": "30",
 			"type": "Widget",
 			"graph": {
@@ -276,14 +284,15 @@
 			},
 			"widget": {
 				"title": "ISR Expands",
-				"tips": "Rate of ISR (In-Sync Replicas) expanding"
+				"tips": "Rate of ISR (In-Sync Replicas) expanding",
+				"name": "isr_expands_per_second"
 			},
-			"expressions": ["meter_kafka_broker_isr_expands_per_second"],
-			"typesOfMQE": ["TIME_SERIES_VALUES"],
+			"expressions": ["latest(meter_kafka_broker_isr_expands_per_second)"],
+			"typesOfMQE": ["SINGLE_VALUE"],
 			"metricMode": "Expression"
 		}, {
-			"x": 18,
-			"y": 39,
+			"x": 12,
+			"y": 47,
 			"w": 6,
 			"h": 10,
 			"i": "31",
@@ -298,15 +307,16 @@
 			},
 			"widget": {
 				"title": "Purgatory Size",
-				"tips": "Size of purgatory for Produce and Fetch operations"
+				"tips": "Size of purgatory for Produce and Fetch operations",
+				"name": "purgatory_size"
 			},
 			"expressions": ["meter_kafka_broker_purgatory_size"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 16,
-			"y": 0,
-			"w": 8,
+			"x": 12,
+			"y": 5,
+			"w": 6,
 			"h": 10,
 			"i": "33",
 			"type": "Widget",
@@ -320,16 +330,17 @@
 			},
 			"widget": {
 				"title": "garbage_collector_count",
-				"tips": "garbage collection cycles"
+				"tips": "garbage collection cycles",
+				"name": "garbage_collector_count"
 			},
 			"expressions": ["meter_kafka_broker_garbage_collector_count"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 0,
-			"y": 59,
-			"w": 8,
-			"h": 9,
+			"x": 12,
+			"y": 27,
+			"w": 6,
+			"h": 10,
 			"i": "34",
 			"type": "Widget",
 			"graph": {
@@ -342,14 +353,15 @@
 			},
 			"widget": {
 				"title": "Request Queue Time (ms)",
-				"tips": "Average time a request spends in the request queue"
+				"tips": "Average time a request spends in the request queue",
+				"name": "request_queue_time_ms"
 			},
 			"expressions": ["meter_kafka_broker_request_queue_time_ms"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 12,
-			"y": 39,
+			"x": 18,
+			"y": 47,
 			"w": 6,
 			"h": 10,
 			"i": "35",
@@ -364,15 +376,16 @@
 			},
 			"widget": {
 				"title": "Remote Time (ms)",
-				"tips": "Average time taken for a remote operation"
+				"tips": "Average time taken for a remote operation",
+				"name": "remote_time_ms"
 			},
 			"expressions": ["meter_kafka_broker_remote_time_ms"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 0,
-			"y": 49,
-			"w": 8,
+			"x": 12,
+			"y": 37,
+			"w": 6,
 			"h": 10,
 			"i": "36",
 			"type": "Widget",
@@ -386,14 +399,15 @@
 			},
 			"widget": {
 				"title": "Response Queue Time (ms)",
-				"tips": "Average time a response spends in the response queue"
+				"tips": "Average time a response spends in the response queue",
+				"name": "response_queue_time_ms"
 			},
-			"expressions": ["meter_kafka_broker_purgatory_size"],
+			"expressions": ["meter_kafka_broker_response_queue_time_ms"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 0,
-			"y": 39,
+			"x": 18,
+			"y": 37,
 			"w": 6,
 			"h": 10,
 			"i": "37",
@@ -408,14 +422,15 @@
 			},
 			"widget": {
 				"title": "Response Send Time (ms)",
-				"tips": "Average time taken to send a response"
+				"tips": "Average time taken to send a response",
+				"name": "response_send_time_ms"
 			},
 			"expressions": ["meter_kafka_broker_response_send_time_ms"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 6,
-			"y": 39,
+			"x": 18,
+			"y": 27,
 			"w": 6,
 			"h": 10,
 			"i": "38",
@@ -430,15 +445,16 @@
 			},
 			"widget": {
 				"title": "Requests Per Second (Req/sec)",
-				"tips": "Rate of requests to the broker"
+				"tips": "Rate of requests to the broker",
+				"name": "requests_per_second"
 			},
 			"expressions": ["meter_kafka_broker_requests_per_second"],
 			"typesOfMQE": ["TIME_SERIES_VALUES"],
 			"metricMode": "Expression"
 		}, {
-			"x": 8,
-			"y": 0,
-			"w": 8,
+			"x": 6,
+			"y": 5,
+			"w": 6,
 			"h": 10,
 			"i": "39",
 			"type": "Widget",
@@ -460,9 +476,9 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"]
 		}, {
 			"x": 19,
-			"y": 18,
+			"y": 15,
 			"w": 5,
-			"h": 11,
+			"h": 12,
 			"i": "40",
 			"type": "Widget",
 			"metricMode": "Expression",
@@ -483,9 +499,9 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"]
 		}, {
 			"x": 15,
-			"y": 18,
+			"y": 15,
 			"w": 4,
-			"h": 11,
+			"h": 12,
 			"i": "41",
 			"type": "Widget",
 			"metricMode": "Expression",
@@ -506,9 +522,9 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"]
 		}, {
 			"x": 5,
-			"y": 18,
+			"y": 15,
 			"w": 5,
-			"h": 11,
+			"h": 12,
 			"i": "42",
 			"type": "Widget",
 			"metricMode": "Expression",
@@ -529,9 +545,9 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"]
 		}, {
 			"x": 10,
-			"y": 18,
+			"y": 15,
 			"w": 5,
-			"h": 11,
+			"h": 12,
 			"i": "43",
 			"type": "Widget",
 			"metricMode": "Expression",
@@ -552,9 +568,9 @@
 			"typesOfMQE": ["TIME_SERIES_VALUES"]
 		}, {
 			"x": 0,
-			"y": 18,
+			"y": 15,
 			"w": 5,
-			"h": 11,
+			"h": 12,
 			"i": "44",
 			"type": "Widget",
 			"metricMode": "Expression",

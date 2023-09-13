@@ -12,7 +12,7 @@
 				"name": "Overview",
 				"children": [{
 					"x": 16,
-					"y": 10,
+					"y": 0,
 					"w": 8,
 					"h": 10,
 					"i": "13",
@@ -27,7 +27,8 @@
 					},
 					"widget": {
 						"title": "Partition Count",
-						"tips": "Number of leader partitions on this broker."
+						"tips": "Number of leader partitions on this broker.",
+						"name": "partition_count"
 					},
 					"relatedTrace": {
 						"enableRelate": false
@@ -37,9 +38,9 @@
 					"metricMode": "Expression"
 				}, {
 					"x": 16,
-					"y": 20,
+					"y": 10,
 					"w": 8,
-					"h": 9,
+					"h": 10,
 					"i": "14",
 					"type": "Widget",
 					"graph": {
@@ -52,7 +53,8 @@
 					},
 					"widget": {
 						"title": "Leader Count",
-						"tips": "Number of leader partitions on this broker. "
+						"tips": "Number of leader partitions on this broker. ",
+						"name": "leader_count"
 					},
 					"expressions": ["meter_kafka_leader_count"],
 					"typesOfMQE": ["TIME_SERIES_VALUES"],
@@ -74,7 +76,8 @@
 					},
 					"widget": {
 						"title": "Active Controller Count",
-						"tips": "The number of active controllers in the cluster. Typically should be 1. "
+						"tips": "The number of active controllers in the cluster. Typically should be 1. ",
+						"name": "active_controller_count"
 					},
 					"expressions": ["meter_kafka_active_controller_count"],
 					"typesOfMQE": ["TIME_SERIES_VALUES"],
@@ -96,7 +99,8 @@
 					},
 					"widget": {
 						"title": "Max Lag",
-						"tips": "The maximum lag between the leader and followers in terms of messages still needed to be sent. Higher lag indicates delays."
+						"tips": "The maximum lag between the leader and followers in terms of messages still needed to be sent. Higher lag indicates delays.",
+						"name": "max_lag"
 					},
 					"expressions": ["meter_kafka_max_lag"],
 					"typesOfMQE": ["TIME_SERIES_VALUES"],
@@ -104,7 +108,7 @@
 				}, {
 					"x": 0,
 					"y": 0,
-					"w": 12,
+					"w": 8,
 					"h": 10,
 					"i": "19",
 					"type": "Widget",
@@ -125,9 +129,9 @@
 						"tips": "Number of under-replicated partitions in the broker. A higher number is a sign of potential issues. "
 					}
 				}, {
-					"x": 12,
+					"x": 8,
 					"y": 0,
-					"w": 12,
+					"w": 8,
 					"h": 10,
 					"i": "20",
 					"type": "Widget",
