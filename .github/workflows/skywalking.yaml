@@ -676,7 +676,9 @@ jobs:
           name: docker-images-11
           path: docker-images
       - name: Load docker images
-        run: find docker-images -name "*.tar" -exec docker load -i {} \;
+        run: |
+          find docker-images -name "*.tar" -exec docker load -i {} \;
+          find docker-images -name "*.tar" -exec rm {} \;
       - name: Cache maven repository
         uses: actions/cache@v3
         with:
@@ -732,7 +734,9 @@ jobs:
           name: docker-images-11
           path: docker-images
       - name: Load docker images
-        run: find docker-images -name "*.tar" -exec docker load -i {} \;
+        run: |
+          find docker-images -name "*.tar" -exec docker load -i {} \;
+          find docker-images -name "*.tar" -exec rm {} \;
       - name: ${{ matrix.test.name }}
         uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         env:
@@ -770,7 +774,9 @@ jobs:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images
       - name: Load docker images
-        run: find docker-images -name "*.tar" -exec docker load -i {} \;
+        run: |
+          find docker-images -name "*.tar" -exec docker load -i {} \;
+          find docker-images -name "*.tar" -exec rm {} \;
       - uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.java-version }}
