@@ -661,6 +661,9 @@ jobs:
           - name: UI Menu OpenSearch 2.4.0
             config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
+
+          - name: OTLP Trace
+            config:  test/e2e-v2/cases/otlp-traces/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

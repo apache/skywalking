@@ -60,4 +60,9 @@ public interface DocumentFactory {
      */
     HttpRequest delete(String index, String type, Query query,
                        Map<String, ?> params);
+
+    /**
+     * Returns a request to delete documents matching the given {@code id} in {@code index}.
+     */
+    HttpRequest deleteById(String index, String type, String id, Map<String, ?> params);
 }

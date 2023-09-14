@@ -41,23 +41,24 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.receiver.zipkin.SpanForwardService;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
 import zipkin2.Annotation;
 import zipkin2.Span;
 import zipkin2.internal.HexCodec;
 
 @Slf4j
-public class SpanForward {
+public class SpanForward implements SpanForwardService {
     private final ZipkinReceiverConfig config;
-    private final NamingControl namingControl;
-    private final SourceReceiver receiver;
+    private final ModuleManager moduleManager;
     private final List<String> searchTagKeys;
     private final long samplerBoundary;
+    private NamingControl namingControl;
+    private SourceReceiver receiver;
 
     public SpanForward(final ZipkinReceiverConfig config, final ModuleManager manager) {
         this.config = config;
-        this.namingControl = manager.find(CoreModule.NAME).provider().getService(NamingControl.class);
-        this.receiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        this.moduleManager = manager;
         this.searchTagKeys = Arrays.asList(config.getSearchableTracesTags().split(Const.COMMA));
         float sampleRate = (float) config.getSampleRate() / 10000;
         samplerBoundary = (long) (Long.MAX_VALUE * sampleRate);
@@ -77,12 +78,12 @@ public class SpanForward {
             zipkinSpan.setTraceId(span.traceId());
             zipkinSpan.setSpanId(span.id());
             zipkinSpan.setParentId(span.parentId());
-            zipkinSpan.setName(namingControl.formatEndpointName(serviceName, span.name()));
+            zipkinSpan.setName(getNamingControl().formatEndpointName(serviceName, span.name()));
             zipkinSpan.setDuration(span.duration());
             if (span.kind() != null) {
                 zipkinSpan.setKind(span.kind().name());
             }
-            zipkinSpan.setLocalEndpointServiceName(namingControl.formatServiceName(serviceName));
+            zipkinSpan.setLocalEndpointServiceName(getNamingControl().formatServiceName(serviceName));
             if (span.localEndpoint() != null) {
                 zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
                 zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
@@ -92,7 +93,7 @@ public class SpanForward {
                 }
             }
             if (span.remoteEndpoint() != null) {
-                zipkinSpan.setRemoteEndpointServiceName(namingControl.formatServiceName(span.remoteServiceName()));
+                zipkinSpan.setRemoteEndpointServiceName(getNamingControl().formatServiceName(span.remoteServiceName()));
                 zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
                 zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
                 Integer remotePort = span.remoteEndpoint().port();
@@ -144,7 +145,7 @@ public class SpanForward {
                 }
                 zipkinSpan.setTags(tagsJson);
             }
-            receiver.receive(zipkinSpan);
+            getReceiver().receive(zipkinSpan);
 
             toService(zipkinSpan, minuteTimeBucket);
             toServiceSpan(zipkinSpan, minuteTimeBucket);
@@ -160,14 +161,14 @@ public class SpanForward {
         tagAutocomplete.setTagValue(value);
         tagAutocomplete.setTagType(TagType.ZIPKIN);
         tagAutocomplete.setTimeBucket(minuteTimeBucket);
-        receiver.receive(tagAutocomplete);
+        getReceiver().receive(tagAutocomplete);
     }
 
     private void toService(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
         ZipkinService service = new ZipkinService();
         service.setServiceName(zipkinSpan.getLocalEndpointServiceName());
         service.setTimeBucket(minuteTimeBucket);
-        receiver.receive(service);
+        getReceiver().receive(service);
     }
 
     private void toServiceSpan(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
@@ -175,7 +176,7 @@ public class SpanForward {
         serviceSpan.setServiceName(zipkinSpan.getLocalEndpointServiceName());
         serviceSpan.setSpanName(zipkinSpan.getName());
         serviceSpan.setTimeBucket(minuteTimeBucket);
-        receiver.receive(serviceSpan);
+        getReceiver().receive(serviceSpan);
     }
 
     private void toServiceRelation(ZipkinSpan zipkinSpan, final long minuteTimeBucket) {
@@ -183,7 +184,7 @@ public class SpanForward {
         relation.setServiceName(zipkinSpan.getLocalEndpointServiceName());
         relation.setRemoteServiceName(zipkinSpan.getRemoteEndpointServiceName());
         relation.setTimeBucket(minuteTimeBucket);
-        receiver.receive(relation);
+        getReceiver().receive(relation);
     }
 
     private List<Span> getSampledTraces(List<Span> input) {
@@ -204,5 +205,19 @@ public class SpanForward {
             }
         }
         return sampledTraces;
+    }
+
+    private NamingControl getNamingControl() {
+        if (namingControl == null) {
+            namingControl = moduleManager.find(CoreModule.NAME).provider().getService(NamingControl.class);
+        }
+        return namingControl;
+    }
+
+    private SourceReceiver getReceiver() {
+        if (receiver == null) {
+            receiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
+        }
+        return receiver;
     }
 }

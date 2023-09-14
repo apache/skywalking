@@ -58,9 +58,9 @@ public class KafkaHandler {
     private final CounterMetrics errorCounter;
     private final HistogramMetrics histogram;
 
-    public KafkaHandler(final ZipkinReceiverConfig config, ModuleManager manager) {
+    public KafkaHandler(final ZipkinReceiverConfig config, SpanForward forward, ModuleManager manager) {
         this.config = config;
-        this.spanForward = new SpanForward(config, manager);
+        this.spanForward = forward;
 
         properties = new Properties();
         properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, config.getKafkaGroupId());

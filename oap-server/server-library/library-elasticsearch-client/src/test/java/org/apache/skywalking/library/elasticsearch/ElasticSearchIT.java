@@ -389,4 +389,37 @@ public class ElasticSearchIT {
 
         server.close();
     }
+
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testDocDeleteById(final String ignored,
+                                  final ElasticsearchContainer server) {
+        server.start();
+
+        final ElasticSearch client =
+            ElasticSearch.builder()
+                         .endpoints(server.getHttpHostAddress())
+                         .build();
+        client.connect();
+
+        final String index = "test-index-delete";
+        assertTrue(client.index().create(index, null, null));
+
+        final ImmutableMap<String, Object> doc = ImmutableMap.of("key", "val");
+        final String idWithSpace = "an id"; // UI management templates' IDs contains spaces
+        final String type = "type";
+
+        client.documents().index(
+            IndexRequest.builder()
+                        .index(index)
+                        .type(type)
+                        .id(idWithSpace)
+                        .doc(doc)
+                        .build(), null);
+
+        assertTrue(client.documents().exists(index, type, idWithSpace));
+        client.documents().deleteById(index, type, idWithSpace, ImmutableMap.of("refresh", "true"));
+        assertFalse(client.documents().exists(index, type, idWithSpace));
+        server.close();
+    }
 }

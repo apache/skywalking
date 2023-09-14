@@ -157,4 +157,26 @@ public final class DocumentClient {
         });
         future.join();
     }
+
+    @SneakyThrows
+    public void deleteById(String index, String type, String id, Map<String, Object> params) {
+        final CompletableFuture<Void> future = version.thenCompose(
+            v -> client.execute(v.requestFactory().document().deleteById(index, type, id, params))
+                       .aggregate().thenAccept(response -> {
+                    final HttpStatus status = response.status();
+                    if (status != HttpStatus.OK) {
+                        throw new RuntimeException(response.contentUtf8());
+                    }
+                }));
+        future.whenComplete((result, exception) -> {
+            if (exception != null) {
+                log.error("Failed to delete doc by id {} in index {}, params: {}", id, index, params, exception);
+                return;
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Succeeded delete doc by id {} in index {}, params: {}", id, params, index);
+            }
+        });
+        future.join();
+    }
 }
