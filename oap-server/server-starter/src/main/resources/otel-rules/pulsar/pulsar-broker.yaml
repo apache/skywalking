@@ -1,0 +1,69 @@
+filter: "{ tags -> tags.job_name == 'pulsar-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'pulsar::' + tags.cluster}).instance(['cluster'], ['broker'], Layer.PULSAR)
+metricPrefix: meter_pulsar_broker
+
+# Metrics Rules
+metricsRules:
+  # Cache Metrics
+  - name: cache_evictions
+    exp: pulsar_ml_cache_evictions.sum(['cluster', 'broker'])
+  - name: cache_inserted_entries
+    exp: pulsar_ml_cache_inserted_entries_total.sum(['cluster', 'broker'])
+  - name: cache_evicted_entries
+    exp: pulsar_ml_cache_evicted_entries_total.sum(['cluster', 'broker'])
+  - name: cache_entries
+    exp: pulsar_ml_cache_entries.sum(['cluster', 'broker'])
+  - name: cache_hits_rate
+    exp: pulsar_ml_cache_hits_rate.sum(['cluster', 'broker'])
+  - name: cache_hits_throughput
+    exp: pulsar_ml_cache_hits_throughput.sum(['cluster', 'broker'])
+  - name: cache_misses_rate
+    exp: pulsar_ml_cache_misses_rate.sum(['cluster', 'broker'])
+  - name: cache_misses_throughput
+    exp: pulsar_ml_cache_misses_throughput.sum(['cluster', 'broker'])
+
+  # Connection Metrics
+  - name: active_connections
+    exp: pulsar_active_connections.sum(['cluster', 'broker'])
+  - name: total_connections
+    exp: pulsar_connection_created_total_count.sum(['cluster', 'broker'])
+
+  # Topic and Subscription Metrics
+  - name: total_topics
+    exp: pulsar_broker_topics_count.sum(['cluster', 'broker'])
+  - name: total_subscriptions
+    exp: pulsar_broker_subscriptions_count.sum(['cluster', 'broker'])
+
+  # Producer and Consumer Metrics
+  - name: total_producers
+    exp: pulsar_broker_producers_count.sum(['cluster', 'broker'])
+  - name: total_consumers
+    exp: pulsar_broker_consumers_count.sum(['cluster', 'broker'])
+
+  # Message Rate and Throughput Metrics
+  - name: message_rate_in
+    exp: pulsar_broker_rate_in.sum(['cluster', 'broker'])
+  - name: message_rate_out
+    exp: pulsar_broker_rate_out.sum(['cluster', 'broker'])
+  - name: throughput_in
+    exp: pulsar_broker_throughput_in.sum(['cluster', 'broker'])
+  - name: throughput_out
+    exp: pulsar_broker_throughput_out.sum(['cluster', 'broker'])
+
+  # JVM Metrics
+  - name: jvm_memory_used
+    exp: jvm_memory_used_bytes.sum(['cluster', 'broker'])
+  - name: jvm_memory_committed
+    exp: jvm_memory_committed_bytes.sum(['cluster', 'broker'])
+  - name: jvm_memory_max
+    exp: jvm_memory_max_bytes.sum(['cluster', 'broker'])
+  - name: jvm_gc_collection_seconds
+    exp: jvm_gc_collection_seconds.sum(['cluster', 'broker']).rate('PT1M')
+  - name: jvm_threads_current
+    exp: jvm_threads_current.sum(['cluster', 'broker'])
+  - name: jvm_threads_daemon
+    exp: jvm_threads_daemon.sum(['cluster', 'broker'])
+  - name: jvm_threads_peak
+    exp: jvm_threads_peak.sum(['cluster', 'broker'])
+  - name: jvm_threads_started_total
+    exp: jvm_threads_started_total.sum(['cluster', 'broker']).rate('PT1M')

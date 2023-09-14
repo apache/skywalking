@@ -70,6 +70,7 @@ public class UITemplateInitializer {
         Layer.RABBITMQ.name(),
         Layer.MONGODB.name(),
         Layer.KAFKA.name(),
+        Layer.PULSAR.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

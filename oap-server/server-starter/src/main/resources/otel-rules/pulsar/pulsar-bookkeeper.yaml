@@ -1,0 +1,79 @@
+filter: "{ tags -> tags.job_name == 'bookkeeper-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'bookkeeper::' + tags.cluster}).service(['cluster'], Layer.BOOKKEEPER)
+metricPrefix: meter_bookkeeper
+metricsRules:
+
+  - name: server_status
+    exp: bookie_SERVER_STATUS.sum(['cluster','bookie'])
+
+  - name: add_entry_count
+    exp: bookkeeper_server_ADD_ENTRY_count.sum(['cluster','bookie'])
+
+  - name: read_entry_count
+    exp: bookkeeper_server_READ_ENTRY_count.sum(['cluster','bookie'])
+
+  - name: write_bytes
+    exp: bookie_WRITE_BYTES.sum(['cluster','bookie'])
+
+  - name: read_bytes
+    exp: bookie_READ_BYTES.sum(['cluster','bookie'])
+
+  - name: add_entry_request_latency
+    exp: bookkeeper_server_ADD_ENTRY_REQUEST.sum(['cluster','bookie'])
+
+  - name: read_entry_request_latency
+    exp: bookkeeper_server_READ_ENTRY_REQUEST.sum(['cluster','bookie'])
+
+  - name: bookie_read_threadpool_queue
+    exp: bookkeeper_server_BookieReadThreadPool_queue_{thread_id}.sum(['cluster','bookie'])
+
+  - name: bookie_read_threadpool_task_queued_time
+    exp: bookkeeper_server_BookieReadThreadPool_task_queued.sum(['cluster','bookie'])
+
+  - name: bookie_read_threadpool_task_execution_time
+    exp: bookkeeper_server_BookieReadThreadPool_task_execution.sum(['cluster','bookie'])
+
+  - name: journal_sync_count
+    exp: bookie_journal_JOURNAL_SYNC_count.sum(['cluster','bookie'])
+
+  - name: journal_queue_size
+    exp: bookie_journal_JOURNAL_QUEUE_SIZE.sum(['cluster','bookie'])
+
+  - name: journal_force_write_queue_size
+    exp: bookie_journal_JOURNAL_FORCE_WRITE_QUEUE_SIZE.sum(['cluster','bookie'])
+
+  - name: journal_cb_queue_size
+    exp: bookie_journal_JOURNAL_CB_QUEUE_SIZE.sum(['cluster','bookie'])
+
+  - name: journal_add_entry_latency
+    exp: bookie_journal_JOURNAL_ADD_ENTRY.sum(['cluster','bookie'])
+
+  - name: journal_sync_latency
+    exp: bookie_journal_JOURNAL_SYNC.sum(['cluster','bookie'])
+
+  - name: journal_creation_latency
+    exp: bookie_journal_JOURNAL_CREATION_LATENCY.sum(['cluster','bookie'])
+
+  - name: ledgers_count
+    exp: bookie_ledgers_count.sum(['cluster','bookie'])
+
+  - name: entries_count
+    exp: bookie_entries_count.sum(['cluster','bookie'])
+
+  - name: write_cache_size
+    exp: bookie_write_cache_size.sum(['cluster','bookie'])
+
+  - name: read_cache_size
+    exp: bookie_read_cache_size.sum(['cluster','bookie'])
+
+  - name: deleted_ledger_count
+    exp: bookie_DELETED_LEDGER_COUNT.sum(['cluster','bookie'])
+
+  - name: ledger_writable_dirs
+    exp: bookie_ledger_writable_dirs.sum(['cluster','bookie'])
+
+  - name: bookie_flush_latency
+    exp: bookie_flush.sum(['cluster','bookie'])
+
+  - name: throttled_write_requests
+    exp: bookie_throttled_write_requests.sum(['cluster','bookie'])

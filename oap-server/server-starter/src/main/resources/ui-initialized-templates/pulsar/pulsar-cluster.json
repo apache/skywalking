@@ -1,0 +1,381 @@
+[{
+  "id": "Pulsar-Cluster",
+  "configuration": {
+    "children": [{
+      "x": 0,
+      "y": 0,
+      "w": 24,
+      "h": 59,
+      "i": "16",
+      "type": "Tab",
+      "children": [{
+        "name": "Overview",
+        "children": [{
+          "x": 0,
+          "y": 0,
+          "w": 8,
+          "h": 10,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Active Connections",
+            "tips": "Number of active connections.",
+            "name": "active_connections"
+          },
+          "expressions": ["pulsar_active_connections.sum(['cluster', 'broker'])"],
+          "typesOfMQE": ["TIME_SERIES_VALUES"],
+          "metricMode": "Expression"
+        },
+          {
+            "x": 8,
+            "y": 0,
+            "w": 8,
+            "h": 10,
+            "i": "1",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Total Connections",
+              "tips": "Total number of connections.",
+              "name": "total_connections"
+            },
+            "expressions": ["pulsar_connection_created_total_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 16,
+            "y": 0,
+            "w": 8,
+            "h": 10,
+            "i": "2",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Connection Create Success Count",
+              "tips": "Number of successful connection creations.",
+              "name": "connection_create_success_count"
+            },
+            "expressions": ["pulsar_connection_create_success_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 0,
+            "y": 10,
+            "w": 8,
+            "h": 10,
+            "i": "3",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Connection Create Fail Count",
+              "tips": "Number of connection creation failures.",
+              "name": "connection_create_fail_count"
+            },
+            "expressions": ["pulsar_connection_create_fail_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 8,
+            "y": 10,
+            "w": 8,
+            "h": 10,
+            "i": "4",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Connection Closed Total Count",
+              "tips": "Total number of closed connections.",
+              "name": "connection_closed_total_count"
+            },
+            "expressions": ["pulsar_connection_closed_total_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 16,
+            "y": 10,
+            "w": 8,
+            "h": 10,
+            "i": "5",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Throttled Connections",
+              "tips": "Number of throttled connections.",
+              "name": "throttled_connections"
+            },
+            "expressions": ["pulsar_broker_throttled_connections.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 0,
+            "y": 20,
+            "w": 8,
+            "h": 10,
+            "i": "6",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Throttled Connections Global Limit",
+              "tips": "Global limit of throttled connections.",
+              "name": "throttled_connections_global_limit"
+            },
+            "expressions": ["pulsar_broker_throttled_connections_global_limit.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 8,
+            "y": 20,
+            "w": 8,
+            "h": 10,
+            "i": "7",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Total Topics",
+              "tips": "Total number of topics.",
+              "name": "total_topics"
+            },
+            "expressions": ["pulsar_broker_topics_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 16,
+            "y": 20,
+            "w": 8,
+            "h": 10,
+            "i": "8",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Total Subscriptions",
+              "tips": "Total number of subscriptions.",
+              "name": "total_subscriptions"
+            },
+            "expressions": ["pulsar_broker_subscriptions_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 0,
+            "y": 30,
+            "w": 8,
+            "h": 10,
+            "i": "9",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Total Producers",
+              "tips": "Total number of producers.",
+              "name": "total_producers"
+            },
+            "expressions": ["pulsar_broker_producers_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 8,
+            "y": 30,
+            "w": 8,
+            "h": 10,
+            "i": "10",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Total Consumers",
+              "tips": "Total number of consumers.",
+              "name": "total_consumers"
+            },
+            "expressions": ["pulsar_broker_consumers_count.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 16,
+            "y": 30,
+            "w": 8,
+            "h": 10,
+            "i": "11",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Message Rate In",
+              "tips": "Incoming message rate.",
+              "name": "message_rate_in"
+            },
+            "expressions": ["pulsar_broker_rate_in.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 0,
+            "y": 40,
+            "w": 8,
+            "h": 10,
+            "i": "12",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Message Rate Out",
+              "tips": "Outgoing message rate.",
+              "name": "message_rate_out"
+            },
+            "expressions": ["pulsar_broker_rate_out.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 8,
+            "y": 40,
+            "w": 8,
+            "h": 10,
+            "i": "13",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Throughput In",
+              "tips": "Incoming throughput.",
+              "name": "throughput_in"
+            },
+            "expressions": ["pulsar_broker_throughput_in.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          },
+          {
+            "x": 16,
+            "y": 40,
+            "w": 8,
+            "h": 10,
+            "i": "14",
+            "type": "Widget",
+            "graph": {
+              "type": "Line",
+              "step": false,
+              "smooth": false,
+              "showSymbol": true,
+              "showXAxis": true,
+              "showYAxis": true
+            },
+            "widget": {
+              "title": "Throughput Out",
+              "tips": "Outgoing throughput.",
+              "name": "throughput_out"
+            },
+            "expressions": ["pulsar_broker_throughput_out.sum(['cluster', 'broker'])"],
+            "typesOfMQE": ["TIME_SERIES_VALUES"],
+            "metricMode": "Expression"
+          }]
+      }]
+    }],
+    "layer": "PULSAR",
+    "entity": "Service",
+    "name": "Pulsar-Cluster",
+    "id": "Pulsar-Cluster",
+    "isRoot": false
+  }
+}]

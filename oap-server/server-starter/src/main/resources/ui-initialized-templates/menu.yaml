@@ -203,6 +203,11 @@ menus:
         description: Provide Kafka monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-kafka-monitoring/
         i18nKey: mq_kafka
+      - title: Pulsar
+        layer: PULSAR
+        description: Provide pulsar monitoring through OpenTelemetry's Prometheus Receiver.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-pulsar-monitoring/
+        i18nKey: mq_pulsar
   - title: Self Observability
     icon: self_observability
     description: Self Observability provides the observabilities for running components and servers from the SkyWalking ecosystem.
