@@ -147,7 +147,7 @@ public enum IndexController {
         public static final String RECORD_TABLE_NAME = "record_table";
 
         /**
-         * The management data table name in aggregation physical storage.
+         * The management data table name in merged physical storage.
          */
         public static final String MANAGEMENT_TABLE_NAME = "management_table";
 
