@@ -41,7 +41,7 @@ import java.util.Map;
 
 /**
  * ManagementProcessor represents the UI/CLI interactive process. They are management data, which size is not huge and
- * time serious.
+ * time series.
  *
  * @since 8.0.0
  */

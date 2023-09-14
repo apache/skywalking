@@ -24,6 +24,9 @@ import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenu;
+import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
+import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
@@ -217,9 +220,9 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             IProfileThreadSnapshotQueryDAO.class, new ProfileThreadSnapshotQueryEsDAO(elasticSearchClient, config
                 .getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(
-            UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient));
+            UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient, new UITemplate.Builder()));
         this.registerServiceImplementation(
-            UIMenuManagementDAO.class, new UIMenuManagementEsDAO(elasticSearchClient));
+            UIMenuManagementDAO.class, new UIMenuManagementEsDAO(elasticSearchClient, new UIMenu.Builder()));
 
         this.registerServiceImplementation(IEventQueryDAO.class, new ESEventQueryDAO(elasticSearchClient));
 
@@ -237,7 +240,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         );
         this.registerServiceImplementation(
             IContinuousProfilingPolicyDAO.class,
-            new ContinuousProfilingPolicyEsDAO(elasticSearchClient)
+            new ContinuousProfilingPolicyEsDAO(elasticSearchClient, new ContinuousProfilingPolicy.Builder())
         );
         this.registerServiceImplementation(
             IServiceLabelDAO.class,

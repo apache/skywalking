@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
@@ -25,32 +26,26 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.storage.profiling.continuous.IContinuousProfilingPolicyDAO;
+import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ManagementCRUDEsDAO;
 
-public class ContinuousProfilingPolicyEsDAO extends EsDAO implements IContinuousProfilingPolicyDAO {
-    public ContinuousProfilingPolicyEsDAO(ElasticSearchClient client) {
-        super(client);
+public class ContinuousProfilingPolicyEsDAO extends ManagementCRUDEsDAO implements IContinuousProfilingPolicyDAO {
+    public ContinuousProfilingPolicyEsDAO(ElasticSearchClient client, StorageBuilder storageBuilder) {
+        super(client, storageBuilder);
     }
 
     @Override
     public void savePolicy(ContinuousProfilingPolicy policy) throws IOException {
-        final ContinuousProfilingPolicy.Builder builder = new ContinuousProfilingPolicy.Builder();
-        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(ContinuousProfilingPolicy.INDEX_NAME);
-        builder.entity2Storage(policy, toStorage);
-
-        final boolean exist = getClient().existDoc(ContinuousProfilingPolicy.INDEX_NAME, policy.id().build());
-        if (exist) {
-            getClient().forceUpdate(ContinuousProfilingPolicy.INDEX_NAME, policy.id().build(), toStorage.obtain());
-        } else {
-            getClient().forceInsert(ContinuousProfilingPolicy.INDEX_NAME, policy.id().build(), toStorage.obtain());
+        if (!super.create(ContinuousProfilingPolicy.INDEX_NAME, policy)) {
+            super.update(ContinuousProfilingPolicy.INDEX_NAME, policy);
         }
     }
 
@@ -58,8 +53,9 @@ public class ContinuousProfilingPolicyEsDAO extends EsDAO implements IContinuous
     public List<ContinuousProfilingPolicy> queryPolicies(List<String> serviceIdList) throws IOException {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ContinuousProfilingPolicy.INDEX_NAME);
-        final SearchBuilder search = Search.builder()
-            .query(Query.terms(ContinuousProfilingPolicy.SERVICE_ID, serviceIdList))
+        final BoolQueryBuilder query = Query.bool().must(Query.term(IndexController.LogicIndicesRegister.MANAGEMENT_TABLE_NAME, ContinuousProfilingPolicy.INDEX_NAME));
+        query.must(Query.terms(ContinuousProfilingPolicy.SERVICE_ID, serviceIdList));
+        final SearchBuilder search = Search.builder().query(query)
             .size(serviceIdList.size());
 
         return buildPolicies(getClient().search(index, search.build()));

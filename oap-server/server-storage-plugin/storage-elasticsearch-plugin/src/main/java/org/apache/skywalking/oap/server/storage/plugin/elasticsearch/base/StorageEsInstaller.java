@@ -266,7 +266,9 @@ public class StorageEsInstaller extends ModelInstaller {
     //When adding a new model(with an analyzer) into an existed index by update will be failed, if the index is without analyzer settings.
     //To avoid this, add the analyzer settings to the template before index creation.
     private Map getAnalyzerSetting(Model model) throws StorageException {
-        if (config.isLogicSharding() || !model.isTimeSeries()) {
+        if (!model.isTimeSeries()) {
+            return getAnalyzerSetting4MergedIndex(model);
+        } else if (config.isLogicSharding()) {
             return getAnalyzerSettingByColumn(model);
         } else if (model.isRecord() && model.isSuperDataset()) {
             //SuperDataset doesn't merge index, the analyzer follow the column config.
@@ -337,6 +339,12 @@ public class StorageEsInstaller extends ModelInstaller {
             if (columnDefine.isIndexOnly()) {
                 source.getExcludes().add(columnName);
             }
+        }
+
+        if (!model.isTimeSeries()) {
+            Map<String, Object> column = new HashMap<>();
+            column.put("type", "keyword");
+            properties.put(IndexController.LogicIndicesRegister.MANAGEMENT_TABLE_NAME, column);
         }
 
         if ((model.isMetric() && !config.isLogicSharding())
