@@ -24,7 +24,11 @@ services:
       - 12800
 
   php:
-    image: skyapm/skywalking-php:v4.2.0-8.0-fpm-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.php
+      args:
+        - SW_AGENT_PHP_COMMIT=${SW_AGENT_PHP_COMMIT}
     networks:
       - e2e
     ports:
@@ -36,7 +40,8 @@ services:
         condition: service_healthy
     volumes:
       - ./index.php:/var/www/html/index.php
-      - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking.ini
+      - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking_agent.ini
+      - ./entrypoint.sh:/entrypoint.sh
 
   provider:
     extends:

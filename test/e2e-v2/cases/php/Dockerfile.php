@@ -22,7 +22,7 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     PATH=/usr/local/cargo/bin:$PATH \
     RUST_VERSION=1.64.0
 
-
+WORKDIR /tmp
 RUN apt update \
         && apt install -y wget protobuf-compiler libclang-dev git \
         && wget https://static.rust-lang.org/rustup/archive/1.25.1/x86_64-unknown-linux-gnu/rustup-init \
@@ -41,5 +41,10 @@ RUN phpize \
         && make install
 
 FROM php:8.1-fpm-bullseye
-COPY --from=builder /usr/local/etc/php/conf.d/docker-php-ext-skywalking_agent.ini /usr/local/etc/php/conf.d/
+RUN apt update \
+        && apt install -y nginx \
+        && cd / \
+        && rm -rf /var/cache/apk/*
 COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20210902/skywalking_agent.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
+
+ENTRYPOINT ["/entrypoint.sh"]
