@@ -1,0 +1,135 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '3'
+
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+
+  zookeeper:
+    image: zookeeper:latest
+    expose:
+      - 2181
+    networks:
+      - e2e
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 2181"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  broker1:
+    build:
+      context: .
+    expose:
+      - 9092
+      - 7071
+    ports:
+      - '9092:9092'
+      - '7071:7071'
+    networks:
+      - e2e
+    environment:
+      - KAFKA_ENABLE_KRAFT=no
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker1:9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_OPTS=-javaagent:/etc/jmx_prometheus_javaagent-0.18.0.jar=7071:/etc/kafka-2_0_0.yml
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+       test: ["CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181"]
+       interval: 5s
+       timeout: 60s
+       retries: 120
+    
+  broker2:
+    build:
+      context: .
+    expose:
+      - 9093
+      - 7072
+    ports:
+      - '9093:9093'
+      - '7072:7072'
+    networks:
+      - e2e
+    environment:
+      - KAFKA_ENABLE_KRAFT=no
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker2:9093
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_OPTS=-javaagent:/etc/jmx_prometheus_javaagent-0.18.0.jar=7072:/etc/kafka-2_0_0.yml
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "kafka-topics.sh", "--list", "--zookeeper", "zookeeper:2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  kafka-producer-perf-test:
+    image: bitnami/kafka:latest
+    networks:
+      - e2e
+    depends_on:
+      - broker1
+      - broker2
+    command:
+      - bash
+      - -c
+      - >
+        kafka-producer-perf-test.sh --topic perftest --num-records 100000 --record-size 100 --throughput 500 --producer-props bootstrap.servers=broker1:9092,broker2:9093
+
+  kafka-consumer-perf-test:
+    image: bitnami/kafka:latest
+    networks:
+      - e2e
+    depends_on:
+      - kafka-producer-perf-test
+    command:
+      - bash
+      - -c
+      - >
+        kafka-consumer-perf-test.sh --bootstrap-server broker1:9092,broker2:9093 --topic perftest --messages 100000
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.50.0
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      - broker1
+      - broker2
+
+networks:
+  e2e:
