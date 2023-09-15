@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.management.ui.template;
 
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,8 @@ public class UITemplateTest {
         UITemplate uiTemplate = new UITemplate();
         uiTemplate.setTemplateId("id");
         uiTemplate.setConfiguration("configuration");
-
+        uiTemplate.setUpdateTime(1694760289493L);
+        uiTemplate.setDisabled(BooleanUtils.FALSE);
         final UITemplate.Builder builder = new UITemplate.Builder();
 
         final HashMapConverter.ToStorage toStorage = new HashMapConverter.ToStorage();

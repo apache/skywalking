@@ -55,9 +55,9 @@ public class UITemplate extends ManagementData {
     @Column(name = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configuration;
     @Column(name = UPDATE_TIME)
-    private long updateTime;
+    private Long updateTime;
     @Column(name = DISABLED)
-    private int disabled;
+    private Integer disabled;
 
     @Override
     public StorageID id() {
@@ -70,6 +70,7 @@ public class UITemplate extends ManagementData {
             UITemplate uiTemplate = new UITemplate();
             uiTemplate.setTemplateId((String) converter.get(TEMPLATE_ID));
             uiTemplate.setConfiguration((String) converter.get(CONFIGURATION));
+            uiTemplate.setUpdateTime(((Number) converter.get(UPDATE_TIME)).longValue());
             uiTemplate.setDisabled(((Number) converter.get(DISABLED)).intValue());
             return uiTemplate;
         }

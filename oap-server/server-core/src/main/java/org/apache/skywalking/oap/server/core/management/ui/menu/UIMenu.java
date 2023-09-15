@@ -49,7 +49,7 @@ public class UIMenu extends ManagementData {
     @Column(name = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configurationJson;
     @Column(name = UPDATE_TIME)
-    private long updateTime;
+    private Long updateTime;
 
     @Override
     public StorageID id() {
