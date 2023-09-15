@@ -70,6 +70,7 @@ public class UITemplate extends ManagementData {
             UITemplate uiTemplate = new UITemplate();
             uiTemplate.setTemplateId((String) converter.get(TEMPLATE_ID));
             uiTemplate.setConfiguration((String) converter.get(CONFIGURATION));
+            uiTemplate.setUpdateTime(((Number) converter.get(UPDATE_TIME)).longValue());
             uiTemplate.setDisabled(((Number) converter.get(DISABLED)).intValue());
             return uiTemplate;
         }
