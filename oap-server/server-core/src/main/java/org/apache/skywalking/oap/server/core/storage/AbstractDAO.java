@@ -27,7 +27,7 @@ public abstract class AbstractDAO<C extends Client> implements DAO {
         this.client = client;
     }
 
-    public final C getClient() {
+    public C getClient() {
         return client;
     }
 }
