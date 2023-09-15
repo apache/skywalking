@@ -48,4 +48,7 @@ RUN apt update \
 COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20210902/skywalking_agent.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
 COPY entrypoint.sh /entrypoint.sh
 
+EXPOSE 9000
+EXPOSE 8080
+
 ENTRYPOINT ["/entrypoint.sh"]
