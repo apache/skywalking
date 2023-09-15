@@ -46,5 +46,6 @@ RUN apt update \
         && cd / \
         && rm -rf /var/cache/apk/*
 COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20210902/skywalking_agent.so /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
+COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
