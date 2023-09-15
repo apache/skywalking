@@ -25,7 +25,7 @@ If you have concerns about SSPL/ELv2, choose the versions before 7.11 or switch 
 
 By default, SkyWalking uses following indices for various telemetry data.
 
-* sw_ui_template (UI dashboard settings)
+* sw_management (All SkyWalking management data, e.g. UI dashboard settings, UI Menu, Continuous profiling policy)
 * sw_metrics-all-`${day-format}` (All metrics/meters generated through MAL and OAL engines, and metadata of service/instance/endpoint)
 * sw_log-`${day-format}` (Collected logs, exclude browser logs)
 * sw_segment-`${day-format}` (Native trace segments)

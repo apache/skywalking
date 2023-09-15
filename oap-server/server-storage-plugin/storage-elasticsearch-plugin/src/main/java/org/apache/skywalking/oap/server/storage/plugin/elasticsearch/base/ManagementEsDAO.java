@@ -46,7 +46,7 @@ public class ManagementEsDAO extends EsDAO implements IManagementDAO {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(managementData, toStorage);
         Map<String, Object> source =
-            IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
+            IndexController.INSTANCE.appendTableColumn4ManagementData(model.getName(), toStorage.obtain());
         getClient().forceInsert(tableName, docId, source);
     }
 }
