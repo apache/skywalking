@@ -52,7 +52,7 @@ public abstract class ManagementCRUDEsDAO extends EsDAO {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(modelName);
         storageBuilder.entity2Storage(managementData, toStorage);
         final String docId = IndexController.INSTANCE.generateDocId(modelName, managementData.id().build());
-        final boolean exist = getClient().existDoc(modelName, docId);
+        final boolean exist = getClient().existDoc(index, docId);
         if (exist) {
             return false;
         }
@@ -100,7 +100,7 @@ public abstract class ManagementCRUDEsDAO extends EsDAO {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(modelName);
         storageBuilder.entity2Storage(managementData, toStorage);
         final String docId = IndexController.INSTANCE.generateDocId(modelName, managementData.id().build());
-        final boolean exist = getClient().existDoc(modelName, docId);
+        final boolean exist = getClient().existDoc(index, docId);
         if (!exist) {
             return false;
         }
@@ -120,7 +120,7 @@ public abstract class ManagementCRUDEsDAO extends EsDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(modelName);
         final String docId = IndexController.INSTANCE.generateDocId(modelName, id);
-        final boolean exist = getClient().existDoc(modelName, docId);
+        final boolean exist = getClient().existDoc(index, docId);
         if (!exist) {
             return false;
         }

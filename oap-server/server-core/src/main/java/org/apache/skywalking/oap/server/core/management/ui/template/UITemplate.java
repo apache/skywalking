@@ -55,9 +55,9 @@ public class UITemplate extends ManagementData {
     @Column(name = CONFIGURATION, storageOnly = true, length = 1_000_000)
     private String configuration;
     @Column(name = UPDATE_TIME)
-    private long updateTime;
+    private Long updateTime;
     @Column(name = DISABLED)
-    private int disabled;
+    private Integer disabled;
 
     @Override
     public StorageID id() {
