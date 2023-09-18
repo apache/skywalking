@@ -16,7 +16,7 @@
 # under the License. shadow
 
 {{- contains .}}
-- id: {{ notEmpty .value }}
+- id: {{ notEmpty .id }}
   name: php-instance
   attributes:
   {{- contains .attributes }}
@@ -30,5 +30,5 @@
     value: {{ notEmpty .value }}
   {{- end}}
   language: PHP
-  instanceuuid: {{ notEmpty .value }}
+  instanceuuid: {{ notEmpty .instanceuuid }}
 {{- end}}
