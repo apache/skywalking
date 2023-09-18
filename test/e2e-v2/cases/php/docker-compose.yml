@@ -41,6 +41,7 @@ services:
     volumes:
       - ./index.php:/var/www/html/index.php
       - ./php.ini:/usr/local/etc/php/conf.d/ext-skywalking_agent.ini
+      - .nginx.conf:/etc/nginx/nginx.conf
 
   provider:
     extends:
