@@ -10,6 +10,7 @@
 * Support Kafka Monitoring.
 * [Breaking Change] Elasticsearch storage merge all management data indices into one index `management`, 
   including `ui_template，ui_menu，continuous_profiling_policy`.
+* Add a release mechanism for alarm windows when it is expired in case of OOM.
 
 #### UI
 
