@@ -14,7 +14,11 @@
 
 #### UI
 
-
+* Add new menu for kafka monitoring.
+* Fix independent widget duration.
+* Fix the display height of the link tree structure.
+* Replace the name by shortName on service widget.
+* Refactor: update pagination style. No visualization style change.
 
 #### Documentation
 
