@@ -19,47 +19,10 @@ results:
   {{- contains .results }}
   - metric:
       labels:
+        {{- contains .metric.labels }}
         - key: _
-          value: "false-http-172.18.0.6:80:50"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  - metric:
-      labels:
-        - key: _
-          value: "false-http-172.18.0.6:80:70"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  - metric:
-      labels:
-        - key: _
-          value: "false-http-172.18.0.6:80:90"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  - metric:
-      labels:
-        - key: _
-          value: "false-http-172.18.0.6:80:99"
+          value: {{ .value }}
+        {{- end}}
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
