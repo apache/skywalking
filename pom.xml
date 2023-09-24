@@ -33,6 +33,7 @@
 
     <modules>
         <module>apm-protocol</module>
+        <module>distribution</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -142,15 +143,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>native</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>distribution</module>
-            </modules>
         </profile>
     </profiles>
 

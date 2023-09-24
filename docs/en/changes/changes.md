@@ -2,6 +2,7 @@
 
 #### Project
 
+* Add distribution/graal module to make preliminary preparations for supporting native-image.
 
 #### OAP Server
 

@@ -28,11 +28,20 @@
     </parent>
 
     <packaging>pom</packaging>
-    <modules>
-        <module>graal</module>
-    </modules>
 
     <artifactId>distribution</artifactId>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>graal</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <dependencyManagement>
         <dependencies>
