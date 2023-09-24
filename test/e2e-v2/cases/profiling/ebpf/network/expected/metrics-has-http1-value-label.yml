@@ -13,11 +13,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels: []
+      labels:
+        - key: _
+          value: "50"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "70"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "90"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "99"
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}

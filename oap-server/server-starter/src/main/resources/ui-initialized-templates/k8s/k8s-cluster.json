@@ -1,19 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 [
   {
@@ -47,17 +31,18 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_cpu_cores",
                     "k8s_cluster_cpu_cores_requests",
                     "k8s_cluster_cpu_cores_limits",
                     "k8s_cluster_cpu_cores_allocatable"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -90,33 +75,30 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "k8s_cluster_memory_requests",
-                    "k8s_cluster_memory_allocatable",
-                    "k8s_cluster_memory_limits",
-                    "k8s_cluster_memory_total"
+                  "expressions": [
+                    "k8s_cluster_memory_requests/1024/1024/1024",
+                    "k8s_cluster_memory_allocatable/1024/1024/1024",
+                    "k8s_cluster_memory_limits/1024/1024/1024",
+                    "k8s_cluster_memory_total/1024/1024/1024"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToGB",
                       "label": "request"
                     },
                     {
-                      "calculation": "byteToGB",
                       "label": "allocatable"
                     },
                     {
-                      "calculation": "byteToGB",
                       "label": "limits"
                     },
                     {
-                      "calculation": "byteToGB",
                       "label": "total"
                     }
                   ]
@@ -137,21 +119,20 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "k8s_cluster_storage_total",
-                    "k8s_cluster_storage_allocatable"
+                  "expressions": [
+                    "k8s_cluster_storage_total/1024/1024/1024",
+                    "k8s_cluster_storage_allocatable/1024/1024/1024"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToGB",
                       "label": "total"
                     },
                     {
-                      "calculation": "byteToGB",
                       "label": "allocatable"
                     }
                   ]
@@ -172,11 +153,12 @@
                     "tableHeaderCol1": "Container-Pod-Waiting Reason",
                     "tableHeaderCol2": ""
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_pod_status_waiting"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -195,11 +177,12 @@
                     "tableHeaderCol1": "Status-Service",
                     "tableHeaderCol2": ""
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_service_pod_status"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -218,11 +201,12 @@
                     "tableHeaderCol1": "Status-Pod",
                     "tableHeaderCol2": ""
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_pod_status_not_running"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -241,11 +225,12 @@
                     "tableHeaderCol1": "Status-Node",
                     "tableHeaderCol2": ""
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_node_status"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -264,11 +249,12 @@
                     "tableHeaderCol1": "Deployment",
                     "tableHeaderCol2": "Replicas"
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_deployment_spec_replicas"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -287,11 +273,12 @@
                     "tableHeaderCol1": "Deployment-Available",
                     "tableHeaderCol2": ""
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_deployment_status"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -310,11 +297,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_container_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -333,11 +321,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_pod_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -356,11 +345,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_service_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -379,11 +369,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_node_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -402,11 +393,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_namespace_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -425,11 +417,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_deployment_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -448,11 +441,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_statefulset_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -471,11 +465,12 @@
                     "textAlign": "center",
                     "showUint": true
                   },
-                  "metrics": [
+                  "expressions": [
                     "k8s_cluster_daemonset_total"
                   ],
-                  "metricTypes": [
-                    "readMetricsValue"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -495,22 +490,21 @@
                     "dashboardName": "K8S-Node",
                     "fontSize": 12
                   },
-                  "metrics": [
-                    "k8s_node_cpu_usage",
-                    "k8s_node_pod_total"
+                  "expressions": [
+                    "avg(k8s_node_cpu_usage)",
+                    "avg(k8s_node_pod_total)"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
                       "label": "CPU Usage",
-                      "unit": "m",
-                      "calculation": "average"
+                      "unit": "m"
                     },
                     {
-                      "calculation": "average",
                       "label": "Pod"
                     }
                   ]

@@ -13,11 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels: []
+      labels:
+        {{- contains .metric.labels }}
+        - key: _
+          value: {{ .value }}
+        {{- end}}
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
