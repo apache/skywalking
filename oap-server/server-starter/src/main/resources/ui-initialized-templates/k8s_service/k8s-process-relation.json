@@ -1,19 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 [
   {
@@ -38,10 +22,11 @@
                   "h":11,
                   "i":"0",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_client_write_cpm"
                   ],
                   "graph":{
@@ -103,10 +88,11 @@
                   "h":11,
                   "i":"1",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_server_write_cpm"
                   ],
                   "graph":{
@@ -168,10 +154,11 @@
                   "h":11,
                   "i":"2",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_client_read_cpm"
                   ],
                   "graph":{
@@ -221,10 +208,11 @@
                   "h":11,
                   "i":"3",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_server_read_cpm"
                   ],
                   "graph":{
@@ -273,11 +261,12 @@
                   "h":11,
                   "i":"4",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_write_total_bytes"
+                  "expressions":[
+                    "process_relation_client_write_total_bytes/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -293,8 +282,7 @@
                   },
                   "metricConfig":[
                     {
-                      "unit":"KB",
-                      "calculation":"byteToKB"
+                      "unit":"KB"
                     }
                   ],
                   "associate":[
@@ -312,11 +300,12 @@
                   "h":11,
                   "i":"5",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_read_total_bytes"
+                  "expressions":[
+                    "process_relation_client_read_total_bytes/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -332,8 +321,7 @@
                   },
                   "metricConfig":[
                     {
-                      "unit":"KB",
-                      "calculation":"byteToKB"
+                      "unit":"KB"
                     }
                   ],
                   "associate":[
@@ -371,11 +359,12 @@
                   "h":11,
                   "i":"6",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_write_total_bytes"
+                  "expressions":[
+                    "process_relation_server_write_total_bytes/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -387,8 +376,7 @@
                   },
                   "metricConfig":[
                     {
-                      "unit":"KB",
-                      "calculation":"byteToKB"
+                      "unit":"KB"
                     }
                   ],
                   "widget":{
@@ -442,11 +430,12 @@
                   "h":11,
                   "i":"7",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_read_total_bytes"
+                  "expressions":[
+                    "process_relation_server_read_total_bytes/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -458,8 +447,7 @@
                   },
                   "metricConfig":[
                     {
-                      "unit":"KB",
-                      "calculation":"byteToKB"
+                      "unit":"KB"
                     }
                   ],
                   "widget":{
@@ -501,11 +489,12 @@
                   "h":11,
                   "i":"8",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_write_avg_exe_time"
+                  "expressions":[
+                    "process_relation_client_write_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -521,7 +510,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -572,11 +560,12 @@
                   "h":11,
                   "i":"9",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_read_avg_exe_time"
+                  "expressions":[
+                    "process_relation_client_read_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -592,7 +581,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -631,11 +619,12 @@
                   "h":11,
                   "i":"10",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_write_avg_exe_time"
+                  "expressions":[
+                    "process_relation_server_write_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -651,8 +640,7 @@
                   },
                   "metricConfig":[
                     {
-                      "unit":"ms",
-                      "calculation":"nanosecondToMillisecond"
+                      "unit":"ms"
                     }
                   ],
                   "associate":[
@@ -670,11 +658,12 @@
                   "h":11,
                   "i":"11",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_read_avg_exe_time"
+                  "expressions":[
+                    "process_relation_server_read_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -690,7 +679,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -729,10 +717,11 @@
                   "h":11,
                   "i":"12",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_client_connect_cpm"
                   ],
                   "graph":{
@@ -766,11 +755,12 @@
                   "h":11,
                   "i":"13",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_connect_exe_time"
+                  "expressions":[
+                    "process_relation_client_connect_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -786,7 +776,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -813,10 +802,11 @@
                   "h":11,
                   "i":"14",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_server_connect_cpm"
                   ],
                   "graph":{
@@ -854,11 +844,12 @@
                   "h":11,
                   "i":"15",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_connect_avg_exe_time"
+                  "expressions":[
+                    "process_relation_server_connect_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -874,7 +865,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -901,10 +891,11 @@
                   "h":11,
                   "i":"16",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_client_close_cpm"
                   ],
                   "graph":{
@@ -938,11 +929,12 @@
                   "h":11,
                   "i":"17",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_close_avg_exe_time"
+                  "expressions":[
+                    "process_relation_client_close_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -958,7 +950,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -985,10 +976,11 @@
                   "h":11,
                   "i":"18",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_server_close_cpm"
                   ],
                   "graph":{
@@ -1026,11 +1018,12 @@
                   "h":11,
                   "i":"19",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_close_avg_exe_time"
+                  "expressions":[
+                    "process_relation_server_close_avg_exe_time/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1046,7 +1039,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond",
                       "unit":"ms"
                     }
                   ],
@@ -1073,10 +1065,11 @@
                   "h":11,
                   "i":"20",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_client_write_rtt_time_percentile"
                   ],
                   "graph":{
@@ -1143,10 +1136,11 @@
                   "h":11,
                   "i":"21",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_server_write_rtt_time_percentile"
                   ],
                   "graph":{
@@ -1208,11 +1202,12 @@
                   "h":11,
                   "i":"22",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_write_exe_time_percentile"
+                  "expressions":[
+                    "process_relation_client_write_exe_time_percentile/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1228,7 +1223,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond"
                     }
                   ],
                   "associate":[
@@ -1278,11 +1272,12 @@
                   "h":11,
                   "i":"23",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_write_exe_time_percentile"
+                  "expressions":[
+                    "process_relation_server_write_exe_time_percentile/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1298,7 +1293,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond"
                     }
                   ],
                   "associate":[
@@ -1348,11 +1342,12 @@
                   "h":11,
                   "i":"24",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_client_read_exe_time_percentile"
+                  "expressions":[
+                    "process_relation_client_read_exe_time_percentile/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1368,7 +1363,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond"
                     }
                   ],
                   "associate":[
@@ -1406,11 +1400,12 @@
                   "h":11,
                   "i":"25",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_server_read_exe_time_percentile"
+                  "expressions":[
+                    "process_relation_server_read_exe_time_percentile/1000000"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1426,7 +1421,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"nanosecondToMillisecond"
                     }
                   ],
                   "associate":[
@@ -1464,10 +1458,11 @@
                   "h":11,
                   "i":"28",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_client_write_avg_rtt_time"
                   ],
                   "graph":{
@@ -1529,10 +1524,11 @@
                   "h":11,
                   "i":"29",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_server_write_avg_rtt_time"
                   ],
                   "graph":{
@@ -1599,10 +1595,11 @@
                   "h":11,
                   "i":"0",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_http1_request_cpm"
                   ],
                   "graph":{
@@ -1658,10 +1655,11 @@
                   "h":11,
                   "i":"1",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_http1_response_status_cpm"
                   ],
                   "graph":{
@@ -1717,11 +1715,12 @@
                   "h":11,
                   "i":"2",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_http1_request_package_size"
+                  "expressions":[
+                    "process_relation_http1_request_package_size/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1737,7 +1736,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"byteToKB"
                     }
                   ],
                   "associate":[
@@ -1781,11 +1779,12 @@
                   "h":11,
                   "i":"3",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_http1_response_package_size"
+                  "expressions":[
+                    "process_relation_http1_response_package_size/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1801,7 +1800,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"byteToKB"
                     }
                   ],
                   "associate":[
@@ -1845,11 +1843,12 @@
                   "h":11,
                   "i":"4",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_http1_request_package_size_percentile"
+                  "expressions":[
+                    "process_relation_http1_request_package_size_percentile/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1865,7 +1864,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"byteToKB"
                     }
                   ],
                   "associate":[
@@ -1909,11 +1907,12 @@
                   "h":11,
                   "i":"5",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
-                    "process_relation_http1_response_package_size_percentile"
+                  "expressions":[
+                    "process_relation_http1_response_package_size_percentile/1024"
                   ],
                   "graph":{
                     "type":"Line",
@@ -1929,7 +1928,6 @@
                   },
                   "metricConfig":[
                     {
-                      "calculation":"byteToKB"
                     }
                   ],
                   "associate":[
@@ -1973,10 +1971,11 @@
                   "h":11,
                   "i":"6",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_http1_client_duration"
                   ],
                   "graph":{
@@ -2032,10 +2031,11 @@
                   "h":11,
                   "i":"7",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_http1_client_duration_percentile"
                   ],
                   "graph":{
@@ -2091,10 +2091,11 @@
                   "h":11,
                   "i":"8",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_http1_server_duration"
                   ],
                   "graph":{
@@ -2150,10 +2151,11 @@
                   "h":11,
                   "i":"9",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readLabeledMetricsValues"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "process_relation_http1_server_duration_percentile"
                   ],
                   "graph":{
@@ -2214,10 +2216,11 @@
                   "h":37,
                   "i":"0",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readRecords"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "RECORD_LIST"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "sampled_slow_trace_record"
                   ],
                   "graph":{
@@ -2240,10 +2243,11 @@
                   "h":37,
                   "i":"1",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readRecords"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "RECORD_LIST"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "sampled_status_4xx_trace_record"
                   ],
                   "graph":{
@@ -2266,10 +2270,11 @@
                   "h":37,
                   "i":"2",
                   "type":"Widget",
-                  "metricTypes":[
-                    "readRecords"
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ],
-                  "metrics":[
+                  "expressions":[
                     "sampled_status_5xx_trace_record"
                   ],
                   "graph":{

@@ -1,19 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 [
   {
@@ -38,11 +22,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "k8s_node_cpu_usage"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -63,21 +48,20 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "k8s_node_network_receive",
-            "k8s_node_network_transmit"
+          "expressions": [
+            "k8s_node_network_receive/1024",
+            "k8s_node_network_transmit/1024"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "byteToKB",
               "label": "receive"
             },
             {
-              "calculation": "byteToKB",
               "label": "transmit"
             }
           ]
@@ -98,11 +82,12 @@
             "tableHeaderCol1": "",
             "tableHeaderCol2": ""
           },
-          "metrics": [
+          "expressions": [
             "k8s_node_node_status"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -121,21 +106,20 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "k8s_node_storage_total",
-            "k8s_node_storage_allocatable"
+          "expressions": [
+            "k8s_node_storage_total/1024/1024/1024",
+            "k8s_node_storage_allocatable/1024/1024/1024"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "byteToGB",
               "label": "total"
             },
             {
-              "calculation": "byteToGB",
               "label": "allocatable"
             }
           ]
@@ -156,17 +140,18 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "k8s_node_cpu_cores_limits",
             "k8s_node_cpu_cores_requests",
             "k8s_node_cpu_cores",
             "k8s_node_cpu_cores_allocatable"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -199,33 +184,30 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "k8s_node_memory_total",
-            "k8s_node_memory_limits",
-            "k8s_node_memory_allocatable",
-            "k8s_node_memory_requests"
+          "expressions": [
+            "k8s_node_memory_total/1024/1024/1024",
+            "k8s_node_memory_limits/1024/1024/1024",
+            "k8s_node_memory_allocatable/1024/1024/1024",
+            "k8s_node_memory_requests/1024/1024/1024"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "byteToGB",
               "label": "total"
             },
             {
-              "calculation": "byteToGB",
               "label": "limits"
             },
             {
-              "calculation": "byteToGB",
               "label": "allocatable"
             },
             {
-              "calculation": "byteToGB",
               "label": "requests"
             }
           ]
@@ -248,15 +230,15 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "k8s_node_memory_usage"
+          "expressions": [
+            "k8s_node_memory_usage/1024/1024/1024"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
-              "calculation": "byteToGB"
             }
           ]
         },
@@ -278,11 +260,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "expressions": [
             "k8s_node_pod_total"
           ],
-          "metricTypes": [
-            "readMetricsValues"
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         }
       ],
