@@ -26,7 +26,7 @@ SkyWalking’s native-image distribution package consists of the following parts
 
 * bin/cmd scripts: Located in the /bin folder. Includes startup Linux shell and Windows cmd scripts for the backend server.
 
-* Backend config: Located in the /config folder. Includes settings files of the backend. Running native-image does not require additional configuration, so you can refer to [backend-setup][https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-setup/] to learn how to configure it.
+* Backend config: Located in the /config folder. Includes settings files of the backend. Running native-image does not require additional configuration, so you can refer to [backend-setup](https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-setup/) to learn how to configure it.
 
 * Native image executable: Located in /image folder. It can be run directly, but it is not recommended to do so, as the absence of some environment variables can lead to startup failure. 
 
