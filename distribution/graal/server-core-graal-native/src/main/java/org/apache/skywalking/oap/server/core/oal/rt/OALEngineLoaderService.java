@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -38,7 +37,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Activate {@link OALEngine} according to {@link OALDefine}
+ * In the old logic, the classpath was scanned to obtain some class files for registering scopes.
+ * This is hard to achieve at native-image runtime, as we cannot configure all classes to support reflection.
+ * Therefore, we generate a list of class files that need to be obtained during compile time, see (@link org.apache.skywalking.graal.Generator) and register at runtime.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -49,13 +50,10 @@ public class OALEngineLoaderService implements Service {
 
     private static boolean SCOPE_REGISTERED = false;
 
-    /**
-     * Normally it is invoked in the {@link ModuleProvider#start()} of the receiver-plugin module.
-     */
+
     public void load(OALDefine define) throws ModuleStartException {
 
         if (oalDefineSet.contains(define)) {
-            // each oal define will only be activated once
             return;
         }
         if (!SCOPE_REGISTERED && Objects.equals(System.getProperty("org.graalvm.nativeimage.imagecode"), "runtime")) {
@@ -107,10 +105,6 @@ public class OALEngineLoaderService implements Service {
         }
     }
 
-    /**
-     * Load the OAL Engine runtime, because runtime module depends on core, so we have to use class::forname to locate
-     * it.
-     */
     private static OALEngine loadOALEngine(OALDefine define) throws ReflectiveOperationException {
         Class<?> engineRTClass = Class.forName("org.apache.skywalking.oal.rt.OALRuntime");
         Constructor<?> engineRTConstructor = engineRTClass.getConstructor(OALDefine.class);

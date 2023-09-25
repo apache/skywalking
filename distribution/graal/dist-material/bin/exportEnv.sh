@@ -17,29 +17,6 @@
 
 
 
-PRG="$0"
-PRGDIR=$(dirname "$PRG")
-[ -z "$OAP_HOME" ] && OAP_HOME=$(cd "$PRGDIR/.." > /dev/null || exit 1; pwd)
-
-OAP_LOG_DIR="${OAP_LOG_DIR:-${OAP_HOME}/logs}"
-JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx4096M}"
-
-. ${OAP_HOME}/bin/exportEnv.sh
-
-if [ ! -d "${OAP_LOG_DIR}" ]; then
-    mkdir -p "${OAP_LOG_DIR}"
-fi
-
-_RUNJAVA=${JAVA_HOME}/bin/java
-[ -z "$JAVA_HOME" ] && _RUNJAVA=java
-
-CLASSPATH="$OAP_HOME/config:$CLASSPATH"
-for i in "$OAP_HOME"/oap-libs/*.jar
-do
-    CLASSPATH="$i:$CLASSPATH"
-done
-
-OAP_OPTIONS=" -Doap.logDir=${OAP_LOG_DIR}"
-
-eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} ${OAP_OPTIONS} -classpath $CLASSPATH org.apache.skywalking.oap.server.starter.OAPServerStartUp \
-        2>${OAP_LOG_DIR}/oap.log 1> /dev/null"
+export SW_CONFIG_PATHS=${OAP_HOME}/config
+export SW_ENVOY_METRIC=default-graalvm
+export SW_LOG_ANALYZER=default-graalvm

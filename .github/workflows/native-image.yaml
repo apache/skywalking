@@ -22,16 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: '17.0.8'
           distribution: 'graalvm-community'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Init And Update Submodule
-        run: |
-           git submodule init
-           git submodule update
       - name: Native Compile
         run: |
           ./mvnw -Dmaven.test.skip install

@@ -248,6 +248,9 @@ log-analyzer:
   default:
     lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,default}
     malFiles: ${SW_LOG_MAL_FILES:""}
+  default-graalvm:
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,default}
+    malFiles: ${SW_LOG_MAL_FILES:""}
 
 event-analyzer:
   selector: ${SW_EVENT_ANALYZER:default}
@@ -317,6 +320,12 @@ envoy-metric:
     # the available variables are `pod`, `service`, f.e., you can use `${service.metadata.name}-${pod.metadata.labels.version}`
     # to append the version number to the service name.
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
+    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
+    istioServiceNameRule: ${ISTIO_SERVICE_NAME_RULE:"${serviceEntry.metadata.name}"}
+  default-graalvm:
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
+    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
+    alsTCPAnalysis: ${SW_ENVOY_METRIC_ALS_TCP_ANALYSIS:""}
     k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
     istioServiceNameRule: ${ISTIO_SERVICE_NAME_RULE:"${serviceEntry.metadata.name}"}
 

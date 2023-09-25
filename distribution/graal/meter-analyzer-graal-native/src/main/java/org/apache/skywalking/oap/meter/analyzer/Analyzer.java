@@ -25,7 +25,9 @@ import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 
 /**
- * do nothing for now.
+ * The old logic of this class used Groovy;
+ * however, GraalVM does not support it well, so it has been replaced with an empty implementation.
+ * In the future, other methods will be used to implement this class.
  */
 public class Analyzer {
 

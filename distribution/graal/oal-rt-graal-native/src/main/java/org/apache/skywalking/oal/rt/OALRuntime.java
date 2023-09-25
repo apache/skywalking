@@ -84,8 +84,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * OAL Runtime is the class generation engine, which load the generated classes from OAL scrip definitions. This runtime
- * is loaded dynamically.
+ * The old logic of this class used runtime class generation, which is not supported by native-image.
+ * Therefore, in the new logic, class files are generated during the compilation process, see (@link org.apache.skywalking.graal.Generator) and loaded at runtime.
  */
 @Slf4j
 public class OALRuntime implements OALEngine {
@@ -155,153 +155,6 @@ public class OALRuntime implements OALEngine {
         storageBuilderFactory = factory;
     }
 
-    // change
-    public void generateOALClassFiles(ClassLoader currentClassLoader, String rootPath) throws ModuleStartException, OALCompileException {
-        this.currentClassLoader = currentClassLoader;
-        Reader read;
-
-        try {
-            String root = rootPath + File.separator + ".." + File.separator +
-                    ".." + File.separator + ".." + File.separator + ".." + File.separator +
-                    "oap-server" + File.separator + "server-starter" + File.separator +
-                    "target" + File.separator + "classes" + File.separator;
-            String configFile = oalDefine.getConfigFile();
-            read = new FileReader(root + configFile);
-        } catch (FileNotFoundException e) {
-            throw new ModuleStartException("Can't locate " + oalDefine.getConfigFile(), e);
-        }
-
-        OALScripts oalScripts;
-        try {
-            ScriptParser scriptParser = ScriptParser.createFromFile(read, oalDefine.getSourcePackage());
-            oalScripts = scriptParser.parse();
-        } catch (IOException e) {
-            throw new ModuleStartException("OAL script parse analysis failure.", e);
-        }
-
-        this.generateClassAtRuntime(oalScripts);
-    }
-
-    @Override
-    public void start(ClassLoader currentClassLoader) {
-        if (INITIALED) {
-            return;
-        }
-        if (Objects.equals(System.getProperty("org.graalvm.nativeimage.imagecode"), "runtime")) {
-            startByNativeImage(currentClassLoader);
-        } else {
-            startByJar(currentClassLoader);
-        }
-        INITIALED = true;
-    }
-
-    private void startByNativeImage(ClassLoader currentClassLoader) {
-        try (FileSystem  fileSystem = FileSystems.newFileSystem(URI.create("resource:/"), Map.of(), currentClassLoader)) {
-            Path metrics = fileSystem.getPath("org/apache/skywalking/oap/server/core/source/oal/rt/metrics");
-            Path dispatcher = fileSystem.getPath("org/apache/skywalking/oap/server/core/source/oal/rt/dispatcher");
-
-            try (java.util.stream.Stream<Path> files = Files.walk(metrics)) {
-                files.forEach(file -> {
-                    if (!file.toString().endsWith(".class")) {
-                        return;
-                    }
-                    String name = file.toString().replace(File.separator, ".");
-
-                    name = name.substring(0, name.length() - ".class".length());
-                    if (name.startsWith("org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder")) {
-                        return;
-                    }
-                    try {
-                        Class<?> aClass = Class.forName(name);
-                        if (!aClass.isAnnotationPresent(Stream.class)) {
-                            return;
-                        }
-                        metricsClasses.add(aClass);
-                    } catch (ClassNotFoundException e) {
-                        // should not reach here
-                        log.error(e.getMessage());
-                    }
-                });
-            }
-            catch (IOException e) {
-                log.error("Failed to walk the path: " + metrics, e);
-            }
-            try (java.util.stream.Stream<Path> files = Files.walk(dispatcher)) {
-                files.forEach(file -> {
-                    if (!file.toString().endsWith(".class")) {
-                        return;
-                    }
-                    String name = file.toString().replace(File.separator, ".");
-                    name = name.substring(0, name.length() - ".class".length());
-                    try {
-                        dispatcherClasses.add(Class.forName(name));
-                    } catch (ClassNotFoundException e) {
-                        // should not reach here
-                        log.error(e.getMessage());
-                    }
-                });
-            }
-            catch (IOException e) {
-                log.error("Failed to walk the path: " + dispatcher, e);
-            }
-        } catch (IOException e) {
-            // should not reach here
-            log.error("Failed to create FileSystem", e);
-        }
-    }
-
-    private void startByJar(ClassLoader currentClassLoader) {
-        String metricsPath = "org/apache/skywalking/oap/server/core/source/oal/rt/metrics";
-        String dispatcherPath = "org/apache/skywalking/oap/server/core/source/oal/rt/dispatcher";
-
-        try {
-            Enumeration<URL> metricsResources = currentClassLoader.getResources(metricsPath);
-            while (metricsResources.hasMoreElements()) {
-                URL resource = metricsResources.nextElement();
-                processResourcePath(resource, metricsClasses, "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder");
-            }
-        } catch (IOException e) {
-            log.error("Failed to locate resource " + metricsPath + " on classpath");
-        }
-
-        try {
-            Enumeration<URL> dispatcherResources = currentClassLoader.getResources(dispatcherPath);
-            while (dispatcherResources.hasMoreElements()) {
-                URL resource = dispatcherResources.nextElement();
-                processResourcePath(resource, dispatcherClasses, null);
-            }
-        } catch (IOException e) {
-            log.error("Failed to locate resource " + dispatcherPath + " on classpath");
-        }
-    }
-
-    private void processResourcePath(URL resource, List<Class> classes, String excludeStartWith) {
-        try {
-            String protocol = resource.getProtocol();
-            if ("file".equals(protocol)) {
-                File dir = new File(resource.getFile());
-                if (dir.isDirectory()) {
-                    for (File file : Objects.requireNonNull(dir.listFiles())) {
-                        if (file.getName().endsWith(".class")) {
-                            String className = file.getPath().replace(File.separatorChar, '.');
-                            className = className.substring(0, className.length() - ".class".length());
-                            if (excludeStartWith != null && className.startsWith(excludeStartWith)) {
-                                continue;
-                            }
-                            Class<?> aClass = Class.forName(className);
-                            if (aClass.isAnnotationPresent(Stream.class)) {
-                                classes.add(aClass);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (ClassNotFoundException e) {
-            // should not reach here
-            log.error(e.getMessage());
-        }
-    }
-    // change end
 
     @Override
     public void notifyAllListeners() throws ModuleStartException {
@@ -671,4 +524,152 @@ public class OALRuntime implements OALEngine {
             }
         }
     }
+
+    // ------------------------------------ substituted method ------------------------------------
+    public void generateOALClassFiles(ClassLoader currentClassLoader, String rootPath) throws ModuleStartException, OALCompileException {
+        this.currentClassLoader = currentClassLoader;
+        Reader read;
+
+        try {
+            String root = rootPath + File.separator + ".." + File.separator +
+                    ".." + File.separator + ".." + File.separator + ".." + File.separator +
+                    "oap-server" + File.separator + "server-starter" + File.separator +
+                    "target" + File.separator + "classes" + File.separator;
+            String configFile = oalDefine.getConfigFile();
+            read = new FileReader(root + configFile);
+        } catch (FileNotFoundException e) {
+            throw new ModuleStartException("Can't locate " + oalDefine.getConfigFile(), e);
+        }
+
+        OALScripts oalScripts;
+        try {
+            ScriptParser scriptParser = ScriptParser.createFromFile(read, oalDefine.getSourcePackage());
+            oalScripts = scriptParser.parse();
+        } catch (IOException e) {
+            throw new ModuleStartException("OAL script parse analysis failure.", e);
+        }
+
+        this.generateClassAtRuntime(oalScripts);
+    }
+
+    @Override
+    public void start(ClassLoader currentClassLoader) {
+        if (INITIALED) {
+            return;
+        }
+        if (Objects.equals(System.getProperty("org.graalvm.nativeimage.imagecode"), "runtime")) {
+            startByNativeImage(currentClassLoader);
+        } else {
+            startByJar(currentClassLoader);
+        }
+        INITIALED = true;
+    }
+
+    private void startByNativeImage(ClassLoader currentClassLoader) {
+        try (FileSystem  fileSystem = FileSystems.newFileSystem(URI.create("resource:/"), Map.of(), currentClassLoader)) {
+            Path metrics = fileSystem.getPath("org/apache/skywalking/oap/server/core/source/oal/rt/metrics");
+            Path dispatcher = fileSystem.getPath("org/apache/skywalking/oap/server/core/source/oal/rt/dispatcher");
+
+            try (java.util.stream.Stream<Path> files = Files.walk(metrics)) {
+                files.forEach(file -> {
+                    if (!file.toString().endsWith(".class")) {
+                        return;
+                    }
+                    String name = file.toString().replace(File.separator, ".");
+
+                    name = name.substring(0, name.length() - ".class".length());
+                    if (name.startsWith("org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder")) {
+                        return;
+                    }
+                    try {
+                        Class<?> aClass = Class.forName(name);
+                        if (!aClass.isAnnotationPresent(Stream.class)) {
+                            return;
+                        }
+                        metricsClasses.add(aClass);
+                    } catch (ClassNotFoundException e) {
+                        // should not reach here
+                        log.error(e.getMessage());
+                    }
+                });
+            }
+            catch (IOException e) {
+                log.error("Failed to walk the path: " + metrics, e);
+            }
+            try (java.util.stream.Stream<Path> files = Files.walk(dispatcher)) {
+                files.forEach(file -> {
+                    if (!file.toString().endsWith(".class")) {
+                        return;
+                    }
+                    String name = file.toString().replace(File.separator, ".");
+                    name = name.substring(0, name.length() - ".class".length());
+                    try {
+                        dispatcherClasses.add(Class.forName(name));
+                    } catch (ClassNotFoundException e) {
+                        // should not reach here
+                        log.error(e.getMessage());
+                    }
+                });
+            }
+            catch (IOException e) {
+                log.error("Failed to walk the path: " + dispatcher, e);
+            }
+        } catch (IOException e) {
+            // should not reach here
+            log.error("Failed to create FileSystem", e);
+        }
+    }
+
+    private void startByJar(ClassLoader currentClassLoader) {
+        String metricsPath = "org/apache/skywalking/oap/server/core/source/oal/rt/metrics";
+        String dispatcherPath = "org/apache/skywalking/oap/server/core/source/oal/rt/dispatcher";
+
+        try {
+            Enumeration<URL> metricsResources = currentClassLoader.getResources(metricsPath);
+            while (metricsResources.hasMoreElements()) {
+                URL resource = metricsResources.nextElement();
+                processResourcePath(resource, metricsClasses, "org.apache.skywalking.oap.server.core.source.oal.rt.metrics.builder");
+            }
+        } catch (IOException e) {
+            log.error("Failed to locate resource " + metricsPath + " on classpath");
+        }
+
+        try {
+            Enumeration<URL> dispatcherResources = currentClassLoader.getResources(dispatcherPath);
+            while (dispatcherResources.hasMoreElements()) {
+                URL resource = dispatcherResources.nextElement();
+                processResourcePath(resource, dispatcherClasses, null);
+            }
+        } catch (IOException e) {
+            log.error("Failed to locate resource " + dispatcherPath + " on classpath");
+        }
+    }
+
+    private void processResourcePath(URL resource, List<Class> classes, String excludeStartWith) {
+        try {
+            String protocol = resource.getProtocol();
+            if ("file".equals(protocol)) {
+                File dir = new File(resource.getFile());
+                if (dir.isDirectory()) {
+                    for (File file : Objects.requireNonNull(dir.listFiles())) {
+                        if (file.getName().endsWith(".class")) {
+                            String className = file.getPath().replace(File.separatorChar, '.');
+                            className = className.substring(0, className.length() - ".class".length());
+                            if (excludeStartWith != null && className.startsWith(excludeStartWith)) {
+                                continue;
+                            }
+                            Class<?> aClass = Class.forName(className);
+                            if (aClass.isAnnotationPresent(Stream.class)) {
+                                classes.add(aClass);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            // should not reach here
+            log.error(e.getMessage());
+        }
+    }
+
 }

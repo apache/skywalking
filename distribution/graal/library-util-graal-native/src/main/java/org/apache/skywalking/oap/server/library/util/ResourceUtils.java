@@ -32,6 +32,11 @@ import java.util.ArrayList;
 
 import java.util.List;
 
+/**
+ * All methods of this class are replaced.
+ * Due to the difficulty that native-image has in acquiring classpath resources,
+ * the methods in this class that should obtain classpath resources are all replaced to acquire resources from the dist/config directory.
+ */
 public class ResourceUtils {
 
     private static final String CONFIG_PATH_ENV = "SW_CONFIG_PATHS";
@@ -39,10 +44,11 @@ public class ResourceUtils {
     private static Path PATH = null;
 
     static {
-        if (System.getenv(CONFIG_PATH_ENV) != null) {
-            String skywalkingConfigPaths = System.getenv(CONFIG_PATH_ENV);
-            PATH = Paths.get(skywalkingConfigPaths);
+        if (System.getenv(CONFIG_PATH_ENV) == null) {
+            throw new NullPointerException("Failed to retrieve the environment variable: " + CONFIG_PATH_ENV);
         }
+        String skyWalkingConfigPaths = System.getenv(CONFIG_PATH_ENV);
+        PATH = Paths.get(skyWalkingConfigPaths);
     }
 
     public static Reader read(String fileName) throws IOException {
@@ -71,10 +77,6 @@ public class ResourceUtils {
                 .filter(Files::isRegularFile)
                 .forEach(p -> fileList.add(p.toFile()));
         return fileList;
-    }
-
-    public static Path getPath(String path) {
-        return PATH.resolve(path);
     }
 
 }

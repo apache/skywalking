@@ -47,10 +47,6 @@
                     <artifactId>log-analyzer</artifactId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>envoy-metrics-receiver-plugin</artifactId>
-                    <groupId>org.apache.skywalking</groupId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.apache.skywalking</groupId>
                     <artifactId>server-core</artifactId>
                 </exclusion>
@@ -71,9 +67,10 @@
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>envoy-metrics-receiver-plugin-graal-native</artifactId>
+            <artifactId>skywalking-providers-graal-native</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>library-util-graal-native</artifactId>
