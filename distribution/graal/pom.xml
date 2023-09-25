@@ -35,9 +35,10 @@
         <module>meter-analyzer-graal-native</module>
         <module>oal-rt-graal-native</module>
         <module>library-util-graal-native</module>
-        <module>skywalking-generate-plugin</module>
+        <module>skywalking-on-graal-compiling-plugin</module>
         <module>apache-skywalking-native-apm</module>
-        <module>skywalking-providers-graal-native</module>
+        <module>log-analyzer-graal-native</module>
+        <module>envoy-metrics-receiver-plugin-graal-native</module>
     </modules>
 
     <dependencyManagement>

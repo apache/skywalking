@@ -33,9 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * All methods of this class are replaced.
- * Due to the difficulty that native-image has in acquiring classpath resources,
- * the methods in this class that should obtain classpath resources are all replaced to acquire resources from the dist/config directory.
+ * All methods of this class are replaced due to the Graal limitation on acquiring classpath resources,
+ * Methods in this class that should obtain classpath resources are all replaced to acquire resources from the dist/config directory.
  */
 public class ResourceUtils {
 
@@ -44,11 +43,10 @@ public class ResourceUtils {
     private static Path PATH = null;
 
     static {
-        if (System.getenv(CONFIG_PATH_ENV) == null) {
-            throw new NullPointerException("Failed to retrieve the environment variable: " + CONFIG_PATH_ENV);
+        String configPaths = System.getenv(CONFIG_PATH_ENV);
+        if (configPaths != null) {
+            PATH = Paths.get(configPaths);
         }
-        String skyWalkingConfigPaths = System.getenv(CONFIG_PATH_ENV);
-        PATH = Paths.get(skyWalkingConfigPaths);
     }
 
     public static Reader read(String fileName) throws IOException {
@@ -56,7 +54,7 @@ public class ResourceUtils {
     }
 
     public static InputStream readToStream(String fileName) throws IOException {
-        return Files.newInputStream(PATH.resolve(fileName));
+        return Files.newInputStream(getRootPath().resolve(fileName));
     }
 
     public static File[] getPathFiles(String path) throws IOException {
@@ -71,7 +69,7 @@ public class ResourceUtils {
      */
     public static List<File> getDirectoryFilesRecursive(String directoryPath,
                                                         int maxDepth) throws IOException {
-        Path subPath = PATH.resolve(directoryPath);
+        Path subPath = getRootPath().resolve(directoryPath);
         List<File> fileList = new ArrayList<>();
         Files.walk(subPath, maxDepth)
                 .filter(Files::isRegularFile)
@@ -80,7 +78,14 @@ public class ResourceUtils {
     }
 
     public static Path getPath(String path) {
-        return PATH.resolve(path);
+        return getRootPath().resolve(path);
+    }
+
+    private static Path getRootPath() {
+        if (PATH == null) {
+            throw new NullPointerException("Failed to retrieve the environment variable: " + CONFIG_PATH_ENV);
+        }
+        return PATH;
     }
 
 }

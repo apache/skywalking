@@ -20,3 +20,4 @@
 export SW_CONFIG_PATHS=${OAP_HOME}/config
 export SW_ENVOY_METRIC=default-graalvm
 export SW_LOG_ANALYZER=default-graalvm
+export SW_OAL_ENGINE_DEBUG=true

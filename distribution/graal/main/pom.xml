@@ -67,7 +67,7 @@
 
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-providers-graal-native</artifactId>
+            <artifactId>envoy-metrics-receiver-plugin-graal-native</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -113,13 +113,14 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.skywalking</groupId>
-                        <artifactId>skywalking-generate-plugin</artifactId>
-                        <version>9.7.0-SNAPSHOT</version>
+                        <artifactId>skywalking-on-graal-compiling-plugin</artifactId>
+                        <version>${project.version}</version>
                         <executions>
                             <execution>
                                 <id>generate</id>
                                 <goals>
-                                    <goal>generate</goal>
+                                    <goal>envoy-generate</goal>
+                                    <goal>oal-generate</goal>
                                 </goals>
                             </execution>
                         </executions>

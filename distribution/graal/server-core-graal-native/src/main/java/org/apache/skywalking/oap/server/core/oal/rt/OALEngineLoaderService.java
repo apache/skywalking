@@ -37,9 +37,8 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * In the old logic, the classpath was scanned to obtain some class files for registering scopes.
- * This is hard to achieve at native-image runtime, as we cannot configure all classes to support reflection.
- * Therefore, we generate a list of class files that need to be obtained during compile time, see (@link org.apache.skywalking.graal.Generator) and register at runtime.
+ * Changed the way of register scpopes due to the Graal limitation on scanning classpath.
+ * Now, A class will be generated during compile time, it contains all the scopes that need to be registered, see (@link org.apache.skywalking.graal.OALGenerator) and register at runtime.
  */
 @Slf4j
 @RequiredArgsConstructor

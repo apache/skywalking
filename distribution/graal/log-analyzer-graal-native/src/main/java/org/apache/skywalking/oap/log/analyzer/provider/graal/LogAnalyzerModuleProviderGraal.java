@@ -16,32 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer;
+package org.apache.skywalking.oap.log.analyzer.provider.graal;
 
-import com.google.common.collect.ImmutableMap;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import org.apache.skywalking.oap.meter.analyzer.dsl.SampleFamily;
-import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
 /**
- * TODO, disabled MAL kernel due to the Graal limitation on Groovy stack.
+ * TODO, disabled LAL kernel due to the Graal limitation on Groovy stack.
  * SkyWalking will provide an alternative solution to replace the groovy stack based solution in the near future.
  */
-
-public class Analyzer {
-
-    public static final Tuple2<String, SampleFamily> NIL = Tuple.of("", null);
-
-    public static Analyzer build(final String metricName,
-                                 final String filterExpression,
-                                 final String expression,
-                                 final MeterSystem meterSystem) {
-
-        return new Analyzer();
+public class LogAnalyzerModuleProviderGraal extends LogAnalyzerModuleProvider {
+    @Override
+    public String name() {
+        return "default-graalvm";
     }
 
-    public void analyse(final ImmutableMap<String, SampleFamily> sampleFamilies) {
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
 
     }
 }
