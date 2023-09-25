@@ -79,4 +79,8 @@ public class ResourceUtils {
         return fileList;
     }
 
+    public static Path getPath(String path) {
+        return PATH.resolve(path);
+    }
+
 }

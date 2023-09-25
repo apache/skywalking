@@ -50,7 +50,6 @@ public class OALEngineLoaderService implements Service {
 
     private static boolean SCOPE_REGISTERED = false;
 
-
     public void load(OALDefine define) throws ModuleStartException {
 
         if (oalDefineSet.contains(define)) {

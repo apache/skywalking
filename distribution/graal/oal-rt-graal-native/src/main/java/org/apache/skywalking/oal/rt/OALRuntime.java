@@ -123,7 +123,6 @@ public class OALRuntime implements OALEngine {
     private final boolean openEngineDebug;
     // change
     private static boolean INITIALED = false;
-
     //change end
 
     public OALRuntime(OALDefine define) {
@@ -154,7 +153,6 @@ public class OALRuntime implements OALEngine {
     public void setStorageBuilderFactory(final StorageBuilderFactory factory) {
         storageBuilderFactory = factory;
     }
-
 
     @Override
     public void notifyAllListeners() throws ModuleStartException {
