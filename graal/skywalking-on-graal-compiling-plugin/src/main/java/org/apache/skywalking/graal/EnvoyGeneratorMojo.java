@@ -58,7 +58,7 @@ public class EnvoyGeneratorMojo extends AbstractMojo {
 
     private static String getConfigFilePath(String targetDirectory) {
         return targetDirectory + File.separator + ".." + File.separator +
-                ".." + File.separator + ".." + File.separator + ".." + File.separator +
+                ".." + File.separator + ".." + File.separator +
                 "oap-server" + File.separator + "server-starter" + File.separator +
                 "target" + File.separator + "classes" + File.separator;
     }

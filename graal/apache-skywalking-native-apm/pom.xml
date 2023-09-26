@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>main</artifactId>
+            <artifactId>graal-server-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

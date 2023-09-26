@@ -27,21 +27,19 @@
         <version>9.7.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>graal</artifactId>
     <packaging>pom</packaging>
-
-    <artifactId>distribution</artifactId>
-
-    <profiles>
-        <profile>
-            <id>native</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>graal</module>
-            </modules>
-        </profile>
-    </profiles>
+    <modules>
+        <module>graal-server-starter</module>
+        <module>server-core-graal-native</module>
+        <module>meter-analyzer-graal-native</module>
+        <module>oal-rt-graal-native</module>
+        <module>library-util-graal-native</module>
+        <module>skywalking-on-graal-compiling-plugin</module>
+        <module>apache-skywalking-native-apm</module>
+        <module>log-analyzer-graal-native</module>
+        <module>envoy-metrics-receiver-plugin-graal-native</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>
@@ -52,17 +50,23 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.skywalking</groupId>
-                <artifactId>library-util</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.skywalking</groupId>
                 <artifactId>oap-server-bom</artifactId>
                 <version>${project.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>library-util</artifactId>
+                <scope>provided</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>server-core</artifactId>
+                <scope>provided</scope>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>

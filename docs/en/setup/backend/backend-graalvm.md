@@ -15,7 +15,11 @@ Notice: If you are not familiar with the compilation process, please read [How-t
 The native-image compilation is not enabled by default. To enable it, we need to activate `native` profile during compilation, such as:
 
 ```shell
+
+./mvnw clean install -Dmaven.test.skip
+
 ./mvnw -Pnative clean package -Dmaven.test.skip
+
 ```
 
 Then, 2 packages are in `distribution/graal/dist`, The package named `apache-skywalking-apm-native-pre-bin.tar.gz` is unnecessary for most users. It is just an intermediate product for generating the final native-image program, used for testing purposes.
@@ -43,4 +47,4 @@ we can successfully start SkyWalking-oap.
 With native-image, some features are not yet supported.
 
 1. [LAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/lal/), [MAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/mal/), and some other features related to them are not supported at the moment.
-2. The configuration file for [OAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/oal/) can only be provided during the compilation period, meaning that it cannot be added or modified during runtime.
+2. The [OAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/oal/) files are used in the compiling stage, which means that users would not see these files inside the native image package, and can't change it. Consider recompiling and packaging from the source codes including your OAL file changes.

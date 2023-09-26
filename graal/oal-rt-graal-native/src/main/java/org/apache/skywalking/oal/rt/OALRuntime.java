@@ -60,15 +60,12 @@ public class OALRuntime implements OALEngine {
     private final List<Class> metricsClasses;
     private final List<Class> dispatcherClasses;
 
-    private final OALDefine oalDefine;
-
     // change
     private static boolean INITIALED = false;
 
     //change end
 
     public OALRuntime(OALDefine define) {
-        oalDefine = define;
         metricsClasses = new ArrayList<>();
         dispatcherClasses = new ArrayList<>();
     }

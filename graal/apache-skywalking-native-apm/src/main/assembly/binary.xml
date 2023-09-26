@@ -35,7 +35,7 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../../dist-material</directory>
+            <directory>${project.basedir}/../../dist-material</directory>
             <outputDirectory>config</outputDirectory>
             <includes>
                 <include>log4j2.xml</include>
@@ -43,14 +43,14 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../../dist-material</directory>
+            <directory>${project.basedir}/../../dist-material</directory>
             <outputDirectory/>
             <includes>
                 <include>config-examples/*</include>
             </includes>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../../oap-server/server-starter/src/main/resources</directory>
+            <directory>${project.basedir}/../../oap-server/server-starter/src/main/resources</directory>
             <includes>
                 <include>application.yml</include>
                 <include>component-libraries.yml</include>
@@ -80,20 +80,20 @@
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/../../../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs</directory>
+            <directory>${project.basedir}/../../oap-server/server-tools/profile-exporter/tool-profile-snapshot-exporter/target/oap-libs</directory>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
 
         <!-- data generator -->
         <fileSet>
-            <directory>${project.basedir}/../../../oap-server/server-tools/data-generator/target/</directory>
+            <directory>${project.basedir}/../../oap-server/server-tools/data-generator/target/</directory>
             <includes>
                 <include>data-generator-${project.version}.jar</include>
             </includes>
             <outputDirectory>oap-libs</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../../oap-server/server-tools/data-generator/src/main/assembly/bin</directory>
+            <directory>${project.basedir}/../../oap-server/server-tools/data-generator/src/main/assembly/bin</directory>
             <outputDirectory>tools/data-generator/bin</outputDirectory>
             <includes>
                 <include>*.sh</include>
@@ -101,7 +101,7 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/../../../oap-server/server-tools/data-generator/src/main/resources</directory>
+            <directory>${project.basedir}/../../oap-server/server-tools/data-generator/src/main/resources</directory>
             <outputDirectory>tools/data-generator/config</outputDirectory>
             <includes>
                 <include>application.yml</include>
@@ -111,12 +111,12 @@
 
         <!-- Profile exporter tools -->
         <fileSet>
-            <directory>${project.basedir}/../tools/profile-exporter</directory>
+            <directory>${project.basedir}/../../tools/profile-exporter</directory>
             <outputDirectory>tools/profile-exporter</outputDirectory>
         </fileSet>
 
         <fileSet>
-            <directory>${project.basedir}/../../../dist-material/release-docs</directory>
+            <directory>${project.basedir}/../../dist-material/release-docs</directory>
             <outputDirectory/>
         </fileSet>
     </fileSets>

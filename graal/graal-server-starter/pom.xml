@@ -26,7 +26,7 @@
         <artifactId>graal</artifactId>
         <version>9.7.0-SNAPSHOT</version>
     </parent>
-    <artifactId>main</artifactId>
+    <artifactId>graal-server-starter</artifactId>
 
     <properties>
         <image.name>skywalking-oap</image.name>

@@ -89,7 +89,7 @@ public class OALGenerator {
         Reader read;
         try {
             String root = rootPath + File.separator + ".." + File.separator +
-                    ".." + File.separator + ".." + File.separator + ".." + File.separator +
+                    ".." + File.separator + ".." + File.separator +
                     "oap-server" + File.separator + "server-starter" + File.separator +
                     "target" + File.separator + "classes" + File.separator;
             String configFile = classGenerator.getOalDefine().getConfigFile();
