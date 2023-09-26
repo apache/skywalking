@@ -69,7 +69,7 @@
                                     <goal>single</goal>
                                 </goals>
                                 <configuration>
-                                    <finalName>apache-skywalking-apm-native-bin</finalName>
+                                    <finalName>apache-skywalking-apm-native-pre-bin</finalName>
                                     <descriptors>
                                         <descriptor>${project.basedir}/src/main/assembly/binary.xml</descriptor>
                                     </descriptors>
@@ -94,7 +94,7 @@
                                 </goals>
                                 <configuration>
                                     <target>
-                                        <copy file="${project.build.directory}/apache-skywalking-apm-native-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-native-bin.tar.gz" overwrite="true" />
+                                        <copy file="${project.build.directory}/apache-skywalking-apm-native-pre-bin.tar.gz" tofile="${project.basedir}/../dist/apache-skywalking-apm-native-pre-bin.tar.gz" overwrite="true" />
                                     </target>
                                 </configuration>
                             </execution>

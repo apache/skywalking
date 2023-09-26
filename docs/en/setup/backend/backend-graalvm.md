@@ -1,4 +1,4 @@
-# How to use SkyWalking with GraalVM native-image (Experimental)
+# GraalVM native-image for SkyWalking (Experimental)
 
 ## Native-Image
 Native Image is a technology to ahead-of-time compile Java code to a standalone executable, called a native image. 
@@ -7,18 +7,19 @@ and statically linked native code from JDK. It does not run on the Java VM, but 
 Substrate VM is the name for the runtime components (like the deoptimizer, garbage collector, thread scheduling etc.).
 The resulting program has faster startup time and lower runtime memory overhead compared to a JVM.
 
-SkyWalking currently offers support for native-image. However, please note that the OAP started in this manner does not have the same functionality as the regular OAP, and some features are not yet supported.
+SkyWalking currently offers support for OAP servers running as native-image. However, please note that the OAP started in this manner does not have the same functionality as the regular OAP, and some features are not yet supported.
 
 ## Compile Guide
 Notice: If you are not familiar with the compilation process, please read [How-to-build](https://skywalking.apache.org/docs/main/next/en/guides/how-to-build/) first.
 
-The native-image compilation is not enabled by default. To enable it, we need to specify `-p native` during compilation, such as:
+The native-image compilation is not enabled by default. To enable it, we need to activate `native` profile during compilation, such as:
 
 ```shell
-./mvnw -P native clean package -Dmaven.test.skip
+./mvnw -Pnative clean package -Dmaven.test.skip
 ```
 
-Then, All packages are in `distribution/graal/dist` (.tar.gz for Linux and .zip for Windows).
+Then, 2 packages are in `distribution/graal/dist`, The package named `apache-skywalking-apm-native-pre-bin.tar.gz` is unnecessary for most users. It is just an intermediate product for generating the final native-image program, used for testing purposes.
+The real outcome is the package named `apache-skywalking-apm-native-bin.tar.gz`, and followings are the introduction to its package structure.
 
 ## Package Structure
 
@@ -38,7 +39,7 @@ By executing following:
 ```
 we can successfully start SkyWalking-oap.
 
-## Problems
+## Differences and TODO
 With native-image, some features are not yet supported.
 
 1. [LAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/lal/), [MAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/mal/), and some other features related to them are not supported at the moment.
