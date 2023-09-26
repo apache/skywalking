@@ -12,7 +12,7 @@
 * [Breaking Change] Elasticsearch storage merge all management data indices into one index `management`, 
   including `ui_template，ui_menu，continuous_profiling_policy`.
 * Add a release mechanism for alarm windows when it is expired in case of OOM.
-* Apply MQE on K8s layer UI-templates
+* Fix Zipkin trace receiver response: make the HTTP status code from `200` to `202`.
 
 #### UI
 
@@ -21,6 +21,7 @@
 * Fix the display height of the link tree structure.
 * Replace the name by shortName on service widget.
 * Refactor: update pagination style. No visualization style change.
+* Apply MQE on K8s layer UI-templates
 
 #### Documentation
 
