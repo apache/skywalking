@@ -32,8 +32,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Native Compile
         run: |
-          ./mvnw -Dmaven.test.skip install
-          ./mvnw -Pnative clean package -Dmaven.test.skip
+          ./mvnw -Pnative,backend clean package -Dmaven.test.skip
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
         with:
