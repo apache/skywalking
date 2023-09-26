@@ -21,15 +21,8 @@ package org.apache.skywalking.oal.rt;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.skywalking.oal.rt.util.OALClassGenerator;
-import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
-import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
-import org.apache.skywalking.oap.server.core.oal.rt.OALEngine;
-import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-
-import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,70 +33,25 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
 import java.util.Map;
 import java.util.Objects;
 
-
 /**
  * Changed the implementation of the OAL kernel due to the Graal limitation on runtime class generation.
  * Now, class generation will be advanced to compile time, see (@link org.apache.skywalking.graal.OALGenerator) and loaded at runtime.
  */
 @Slf4j
-public class OALRuntime implements OALEngine {
+public class OALRuntime extends OALKernel {
 
-    private StreamAnnotationListener streamAnnotationListener;
-    private DispatcherDetectorListener dispatcherDetectorListener;
-    private final List<Class> metricsClasses;
-    private final List<Class> dispatcherClasses;
-
-    // change
     private static boolean INITIALED = false;
 
-    //change end
-
     public OALRuntime(OALDefine define) {
-        metricsClasses = new ArrayList<>();
-        dispatcherClasses = new ArrayList<>();
+        super(define);
     }
 
-    @Override
-    public void setStreamListener(StreamAnnotationListener listener) throws ModuleStartException {
-        this.streamAnnotationListener = listener;
-    }
-
-    @Override
-    public void setDispatcherListener(DispatcherDetectorListener listener) throws ModuleStartException {
-        dispatcherDetectorListener = listener;
-    }
-
-    @Override
-    public void setStorageBuilderFactory(final StorageBuilderFactory factory) {
-
-    }
-
-    @Override
-    public void notifyAllListeners() throws ModuleStartException {
-        for (Class metricsClass : metricsClasses) {
-            try {
-                streamAnnotationListener.notify(metricsClass);
-            } catch (StorageException e) {
-                throw new ModuleStartException(e.getMessage(), e);
-            }
-        }
-        for (Class dispatcherClass : dispatcherClasses) {
-            try {
-                dispatcherDetectorListener.addIfAsSourceDispatcher(dispatcherClass);
-            } catch (Exception e) {
-                throw new ModuleStartException(e.getMessage(), e);
-            }
-        }
-    }
-
-    // ------------------------------------ substituted method ------------------------------------
     @Override
     public void start(ClassLoader currentClassLoader) {
         if (INITIALED) {
@@ -143,7 +91,7 @@ public class OALRuntime implements OALEngine {
                         if (!aClass.isAnnotationPresent(Stream.class)) {
                             return;
                         }
-                        metricsClasses.add(aClass);
+                        getMetricsClasses().add(aClass);
                     } catch (ClassNotFoundException e) {
                         // should not reach here
                         log.error(e.getMessage());
@@ -161,7 +109,7 @@ public class OALRuntime implements OALEngine {
                     String name = file.toString().replace(File.separator, ".");
                     name = name.substring(0, name.length() - ".class".length());
                     try {
-                        dispatcherClasses.add(Class.forName(name));
+                        getDispatcherClasses().add(Class.forName(name));
                     } catch (ClassNotFoundException e) {
                         // should not reach here
                         log.error(e.getMessage());
@@ -187,7 +135,7 @@ public class OALRuntime implements OALEngine {
             Enumeration<URL> metricsResources = currentClassLoader.getResources(metricsPath);
             while (metricsResources.hasMoreElements()) {
                 URL resource = metricsResources.nextElement();
-                processResourcePath(resource, metricsClasses, metricsBuilderPath.replace(File.separatorChar, '.'));
+                processResourcePath(resource, getMetricsClasses(), metricsBuilderPath.replace(File.separatorChar, '.'));
             }
         } catch (IOException e) {
             log.error("Failed to locate resource " + metricsPath + " on classpath");
@@ -197,7 +145,7 @@ public class OALRuntime implements OALEngine {
             Enumeration<URL> dispatcherResources = currentClassLoader.getResources(dispatcherPath);
             while (dispatcherResources.hasMoreElements()) {
                 URL resource = dispatcherResources.nextElement();
-                processResourcePath(resource, dispatcherClasses, null);
+                processResourcePath(resource, getDispatcherClasses(), null);
             }
         } catch (IOException e) {
             log.error("Failed to locate resource " + dispatcherPath + " on classpath");

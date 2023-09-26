@@ -16,12 +16,13 @@ The native-image compilation is not enabled by default. To enable it, we need to
 
 ```shell
 
-./mvnw -Pnative,backend clean package -Dmaven.test.skip
+./mvnw -backend,naative clean package -Dmaven.test.skip
 
 ```
 
-Then, 2 packages are in `distribution/graal/dist`, The package named `apache-skywalking-apm-native-pre-bin.tar.gz` is unnecessary for most users. It is just an intermediate product for generating the final native-image program, used for testing purposes.
-The real outcome is the package named `apache-skywalking-apm-native-bin.tar.gz`, and followings are the introduction to its package structure.
+Then, 2 packages are in `distribution/graal/dist`,
+As this is an experimental feature, a package named `apache-skywalking-apm-native-pre-bin.tar.gz` is a tarball for GraalVMization friendly, including original classes to be compiled by GraalVM.
+The package named `apache-skywalking-apm-native-bin.tar.gz` includes the final compiled native binary, relative configuration files, and booting shells. Read `Package Structure` doc for more details.
 
 ## Package Structure
 

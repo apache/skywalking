@@ -97,13 +97,6 @@
             <artifactId>oal-rt-graal-native</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.graalvm.nativeimage</groupId>
-            <artifactId>svm</artifactId>
-            <scope>provided</scope>
-            <version>22.3.1</version>
-        </dependency>
     </dependencies>
 
     <profiles>
