@@ -94,7 +94,7 @@ public class OALRuntime extends OALKernel {
                         getMetricsClasses().add(aClass);
                     } catch (ClassNotFoundException e) {
                         // should not reach here
-                        log.error(e.getMessage());
+                        log.error(e.getMessage(), e);
                     }
                 });
             }
@@ -112,7 +112,7 @@ public class OALRuntime extends OALKernel {
                         getDispatcherClasses().add(Class.forName(name));
                     } catch (ClassNotFoundException e) {
                         // should not reach here
-                        log.error(e.getMessage());
+                        log.error(e.getMessage(), e);
                     }
                 });
             }
@@ -138,7 +138,7 @@ public class OALRuntime extends OALKernel {
                 processResourcePath(resource, getMetricsClasses(), metricsBuilderPath.replace(File.separatorChar, '.'));
             }
         } catch (IOException e) {
-            log.error("Failed to locate resource " + metricsPath + " on classpath");
+            log.error("Failed to locate resource " + metricsPath + " on classpath", e);
         }
 
         try {
@@ -148,7 +148,7 @@ public class OALRuntime extends OALKernel {
                 processResourcePath(resource, getDispatcherClasses(), null);
             }
         } catch (IOException e) {
-            log.error("Failed to locate resource " + dispatcherPath + " on classpath");
+            log.error("Failed to locate resource " + dispatcherPath + " on classpath", e);
         }
     }
 
@@ -175,7 +175,7 @@ public class OALRuntime extends OALKernel {
             }
         } catch (ClassNotFoundException e) {
             // should not reach here
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
         }
     }
 
