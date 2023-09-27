@@ -16,13 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oal.rt;
+package org.apache.skywalking.oap.log.analyzer.provider.graal;
 
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+import org.apache.skywalking.oap.log.analyzer.provider.LogAnalyzerModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-public class OALRuntime extends OALKernel {
-    public OALRuntime(OALDefine define) {
-        super(define);
+/**
+ * TODO, disabled LAL kernel due to the Graal limitation on Groovy stack.
+ * SkyWalking will provide an alternative solution to replace the groovy stack based solution in the near future.
+ */
+public class LogAnalyzerModuleProviderGraal extends LogAnalyzerModuleProvider {
+    @Override
+    public String name() {
+        return "graalvm";
     }
 
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
+
+    }
 }

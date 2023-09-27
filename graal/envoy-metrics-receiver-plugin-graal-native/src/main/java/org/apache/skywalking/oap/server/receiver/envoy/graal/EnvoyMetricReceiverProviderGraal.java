@@ -16,13 +16,24 @@
  *
  */
 
-package org.apache.skywalking.oal.rt;
+package org.apache.skywalking.oap.server.receiver.envoy.graal;
 
-import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverProvider;
 
-public class OALRuntime extends OALKernel {
-    public OALRuntime(OALDefine define) {
-        super(define);
+/**
+ * change the execution of `prepare()` to the compilation stage due to the Graal limitation on Reflection
+ * see (@link org.apache.skywalking.graal.EnvoyGeneratorMojo).
+ */
+public class EnvoyMetricReceiverProviderGraal extends EnvoyMetricReceiverProvider {
+    @Override
+    public String name() {
+        return "graalvm";
     }
 
+    @Override
+    public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+
+    }
 }
