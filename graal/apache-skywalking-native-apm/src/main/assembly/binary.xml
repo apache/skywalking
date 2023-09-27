@@ -52,7 +52,6 @@
         <fileSet>
             <directory>${project.basedir}/../../oap-server/server-starter/src/main/resources</directory>
             <includes>
-                <include>application.yml</include>
                 <include>component-libraries.yml</include>
                 <include>gateways.yml</include>
                 <include>service-apdex-threshold.yml</include>
@@ -120,4 +119,11 @@
             <outputDirectory/>
         </fileSet>
     </fileSets>
+    <files>
+        <file>
+            <source>${project.basedir}/../graal-server-starter/src/main/resources/application.yml</source>
+            <outputDirectory>config</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+    </files>
 </assembly>

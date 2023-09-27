@@ -112,7 +112,6 @@
                             <execution>
                                 <id>generate</id>
                                 <goals>
-                                    <goal>envoy-generate</goal>
                                     <goal>oal-generate</goal>
                                 </goals>
                             </execution>

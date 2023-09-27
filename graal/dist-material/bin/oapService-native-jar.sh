@@ -30,6 +30,8 @@ if [ ! -d "${OAP_LOG_DIR}" ]; then
     mkdir -p "${OAP_LOG_DIR}"
 fi
 
+export SW_CONFIG_PATHS=${OAP_HOME}/config
+
 _RUNJAVA=${JAVA_HOME}/bin/java
 [ -z "$JAVA_HOME" ] && _RUNJAVA=java
 

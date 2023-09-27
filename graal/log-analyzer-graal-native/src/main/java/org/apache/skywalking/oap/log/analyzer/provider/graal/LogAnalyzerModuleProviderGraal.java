@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class LogAnalyzerModuleProviderGraal extends LogAnalyzerModuleProvider {
     @Override
     public String name() {
-        return "default-graalvm";
+        return "graalvm";
     }
 
     @Override

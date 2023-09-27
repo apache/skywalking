@@ -29,7 +29,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverProvid
 public class EnvoyMetricReceiverProviderGraal extends EnvoyMetricReceiverProvider {
     @Override
     public String name() {
-        return "default-graalvm";
+        return "graalvm";
     }
 
     @Override
