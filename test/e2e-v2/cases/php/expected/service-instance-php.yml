@@ -17,14 +17,14 @@
 
 {{- contains .}}
 - id: {{ notEmpty .id }}
-  name: php-instance
+  name: {{ notEmpty .name }}
   attributes:
   {{- contains .attributes }}
-  - name: os_name
+  - name: Process No.
     value: {{ notEmpty .value }}
-  - name: host_name
+  - name: OS Name
     value: {{ notEmpty .value }}
-  - name: process_no
+  - name: hostname
     value: {{ notEmpty .value }}
   - name: ipv4s
     value: {{ notEmpty .value }}

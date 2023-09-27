@@ -14,6 +14,6 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "php" }}.1_{{ b64enc "/php/info" }}
-  name: /php/info
+- id: {{ b64enc "php" }}.1_{{ b64enc "POST:/php/info" }}
+  name: POST:/php/info
 {{- end}}
