@@ -431,7 +431,7 @@ promql:
     restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
-    
+
 #This module is for LogQL API.
 logql:
   selector: ${SW_LOGQL:default}

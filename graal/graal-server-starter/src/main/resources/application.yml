@@ -1,0 +1,574 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cluster:
+  selector: ${SW_CLUSTER:standalone}
+  standalone:
+  # Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
+  # library the oap-libs folder with your ZooKeeper 3.4.x library.
+  zookeeper:
+    namespace: ${SW_NAMESPACE:""}
+    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
+    # Retry Policy
+    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
+    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+    # Enable ACL
+    enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+    schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
+    expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
+  kubernetes:
+    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+    uidEnvName: ${SW_CLUSTER_K8S_UID:SKYWALKING_COLLECTOR_UID}
+  consul:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+    hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+    aclToken: ${SW_CLUSTER_CONSUL_ACLTOKEN:""}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
+  etcd:
+    # etcd cluster nodes, example: 10.0.0.1:2379,10.0.0.2:2379,10.0.0.3:2379
+    endpoints: ${SW_CLUSTER_ETCD_ENDPOINTS:localhost:2379}
+    namespace: ${SW_CLUSTER_ETCD_NAMESPACE:/skywalking}
+    serviceName: ${SW_CLUSTER_ETCD_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    authentication: ${SW_CLUSTER_ETCD_AUTHENTICATION:false}
+    user: ${SW_CLUSTER_ETCD_USER:}
+    password: ${SW_CLUSTER_ETCD_PASSWORD:}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
+  nacos:
+    serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+    hostPort: ${SW_CLUSTER_NACOS_HOST_PORT:localhost:8848}
+    # Nacos Configuration namespace
+    namespace: ${SW_CLUSTER_NACOS_NAMESPACE:"public"}
+    # Nacos auth username
+    username: ${SW_CLUSTER_NACOS_USERNAME:""}
+    password: ${SW_CLUSTER_NACOS_PASSWORD:""}
+    # Nacos auth accessKey
+    accessKey: ${SW_CLUSTER_NACOS_ACCESSKEY:""}
+    secretKey: ${SW_CLUSTER_NACOS_SECRETKEY:""}
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
+core:
+  selector: ${SW_CORE:default}
+  default:
+    # Mixed: Receive agent data, Level 1 aggregate, Level 2 aggregate
+    # Receiver: Receive agent data, Level 1 aggregate
+    # Aggregator: Level 2 aggregate
+    role: ${SW_CORE_ROLE:Mixed} # Mixed/Receiver/Aggregator
+    restHost: ${SW_CORE_REST_HOST:0.0.0.0}
+    restPort: ${SW_CORE_REST_PORT:12800}
+    restContextPath: ${SW_CORE_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_CORE_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_CORE_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_CORE_REST_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_CORE_GRPC_PORT:11800}
+    maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:-1}
+    gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:-1}
+    gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_CORE_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAPath: ${SW_CORE_GRPC_SSL_TRUSTED_CA_PATH:""}
+    downsampling:
+      - Hour
+      - Day
+    # Set a timeout on metrics data. After the timeout has expired, the metrics data will automatically be deleted.
+    enableDataKeeperExecutor: ${SW_CORE_ENABLE_DATA_KEEPER_EXECUTOR:true} # Turn it off then automatically metrics data delete will be close.
+    dataKeeperExecutePeriod: ${SW_CORE_DATA_KEEPER_EXECUTE_PERIOD:5} # How often the data keeper executor runs periodically, unit is minute
+    recordDataTTL: ${SW_CORE_RECORD_DATA_TTL:3} # Unit is day
+    metricsDataTTL: ${SW_CORE_METRICS_DATA_TTL:7} # Unit is day
+    # The period of L1 aggregation flush to L2 aggregation. Unit is ms.
+    l1FlushPeriod: ${SW_CORE_L1_AGGREGATION_FLUSH_PERIOD:500}
+    # The threshold of session time. Unit is ms. Default value is 70s.
+    storageSessionTimeout: ${SW_CORE_STORAGE_SESSION_TIMEOUT:70000}
+    # The period of doing data persistence. Unit is second.Default value is 25s
+    persistentPeriod: ${SW_CORE_PERSISTENT_PERIOD:25}
+    topNReportPeriod: ${SW_CORE_TOPN_REPORT_PERIOD:10} # top_n record worker report cycle, unit is minute
+    # Extra model column are the column defined by in the codes, These columns of model are not required logically in aggregation or further query,
+    # and it will cause more load for memory, network of OAP and storage.
+    # But, being activated, user could see the name in the storage entities, which make users easier to use 3rd party tool, such as Kibana->ES, to query the data by themselves.
+    activeExtraModelColumns: ${SW_CORE_ACTIVE_EXTRA_MODEL_COLUMNS:false}
+    # The max length of service + instance names should be less than 200
+    serviceNameMaxLength: ${SW_SERVICE_NAME_MAX_LENGTH:70}
+    # The period(in seconds) of refreshing the service cache. Default value is 10s.
+    serviceCacheRefreshInterval: ${SW_SERVICE_CACHE_REFRESH_INTERVAL:10}
+    instanceNameMaxLength: ${SW_INSTANCE_NAME_MAX_LENGTH:70}
+    # The max length of service + endpoint names should be less than 240
+    endpointNameMaxLength: ${SW_ENDPOINT_NAME_MAX_LENGTH:150}
+    # Define the set of span tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
+    searchableTracesTags: ${SW_SEARCHABLE_TAG_KEYS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+    # Define the set of log tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
+    searchableLogsTags: ${SW_SEARCHABLE_LOGS_TAG_KEYS:level}
+    # Define the set of alarm tag keys, which should be searchable through the GraphQL.
+    # The max length of key=value should be less than 256 or will be dropped.
+    searchableAlarmTags: ${SW_SEARCHABLE_ALARM_TAG_KEYS:level}
+    # The max size of tags keys for autocomplete select.
+    autocompleteTagKeysQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_KEYS_QUERY_MAX_SIZE:100}
+    # The max size of tags values for autocomplete select.
+    autocompleteTagValuesQueryMaxSize: ${SW_AUTOCOMPLETE_TAG_VALUES_QUERY_MAX_SIZE:100}
+    # The number of threads used to prepare metrics data to the storage.
+    prepareThreads: ${SW_CORE_PREPARE_THREADS:2}
+    # Turn it on then automatically grouping endpoint by the given OpenAPI definitions.
+    enableEndpointNameGroupingByOpenapi: ${SW_CORE_ENABLE_ENDPOINT_NAME_GROUPING_BY_OPENAPI:true}
+    # The period of HTTP URI pattern recognition. Unit is second.
+    syncPeriodHttpUriRecognitionPattern: ${SW_CORE_SYNC_PERIOD_HTTP_URI_RECOGNITION_PATTERN:10}
+    # The training period of HTTP URI pattern recognition. Unit is second.
+    trainingPeriodHttpUriRecognitionPattern: ${SW_CORE_TRAINING_PERIOD_HTTP_URI_RECOGNITION_PATTERN:60}
+    # The max number of HTTP URIs per service for further URI pattern recognition.
+    maxHttpUrisNumberPerService: ${SW_CORE_MAX_HTTP_URIS_NUMBER_PER_SVR:3000}
+storage:
+  selector: ${SW_STORAGE:h2}
+  elasticsearch:
+    namespace: ${SW_NAMESPACE:""}
+    clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:9200}
+    protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"http"}
+    connectTimeout: ${SW_STORAGE_ES_CONNECT_TIMEOUT:3000}
+    socketTimeout: ${SW_STORAGE_ES_SOCKET_TIMEOUT:30000}
+    responseTimeout: ${SW_STORAGE_ES_RESPONSE_TIMEOUT:15000}
+    numHttpClientThread: ${SW_STORAGE_ES_NUM_HTTP_CLIENT_THREAD:0}
+    user: ${SW_ES_USER:""}
+    password: ${SW_ES_PASSWORD:""}
+    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:""}
+    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
+    secretsManagementFile: ${SW_ES_SECRETS_MANAGEMENT_FILE:""} # Secrets management file in the properties format includes the username, password, which are managed by 3rd party tool.
+    dayStep: ${SW_STORAGE_DAY_STEP:1} # Represent the number of days in the one minute/hour/day index.
+    indexShardsNumber: ${SW_STORAGE_ES_INDEX_SHARDS_NUMBER:1} # Shard number of new indexes
+    indexReplicasNumber: ${SW_STORAGE_ES_INDEX_REPLICAS_NUMBER:1} # Replicas number of new indexes
+    # Specify the settings for each index individually.
+    # If configured, this setting has the highest priority and overrides the generic settings.
+    specificIndexSettings: ${SW_STORAGE_ES_SPECIFIC_INDEX_SETTINGS:""}
+    # Super data set has been defined in the codes, such as trace segments.The following 3 config would be improve es performance when storage super size data in es.
+    superDatasetDayStep: ${SW_STORAGE_ES_SUPER_DATASET_DAY_STEP:-1} # Represent the number of days in the super size dataset record index, the default value is the same as dayStep when the value is less than 0
+    superDatasetIndexShardsFactor: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_SHARDS_FACTOR:5} #  This factor provides more shards for the super data set, shards number = indexShardsNumber * superDatasetIndexShardsFactor. Also, this factor effects Zipkin traces.
+    superDatasetIndexReplicasNumber: ${SW_STORAGE_ES_SUPER_DATASET_INDEX_REPLICAS_NUMBER:0} # Represent the replicas number in the super size dataset record index, the default value is 0.
+    indexTemplateOrder: ${SW_STORAGE_ES_INDEX_TEMPLATE_ORDER:0} # the order of index template
+    bulkActions: ${SW_STORAGE_ES_BULK_ACTIONS:5000} # Execute the async bulk record data every ${SW_STORAGE_ES_BULK_ACTIONS} requests
+    batchOfBytes: ${SW_STORAGE_ES_BATCH_OF_BYTES:10485760} # A threshold to control the max body size of ElasticSearch Bulk flush.
+    # flush the bulk every 5 seconds whatever the number of requests
+    flushInterval: ${SW_STORAGE_ES_FLUSH_INTERVAL:5}
+    concurrentRequests: ${SW_STORAGE_ES_CONCURRENT_REQUESTS:2} # the number of concurrent requests
+    resultWindowMaxSize: ${SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE:10000}
+    metadataQueryMaxSize: ${SW_STORAGE_ES_QUERY_MAX_SIZE:10000}
+    scrollingBatchSize: ${SW_STORAGE_ES_SCROLLING_BATCH_SIZE:5000}
+    segmentQueryMaxSize: ${SW_STORAGE_ES_QUERY_SEGMENT_SIZE:200}
+    profileTaskQueryMaxSize: ${SW_STORAGE_ES_QUERY_PROFILE_TASK_SIZE:200}
+    profileDataQueryBatchSize: ${SW_STORAGE_ES_QUERY_PROFILE_DATA_BATCH_SIZE:100}
+    oapAnalyzer: ${SW_STORAGE_ES_OAP_ANALYZER:"{\"analyzer\":{\"oap_analyzer\":{\"type\":\"stop\"}}}"} # the oap analyzer.
+    oapLogAnalyzer: ${SW_STORAGE_ES_OAP_LOG_ANALYZER:"{\"analyzer\":{\"oap_log_analyzer\":{\"type\":\"standard\"}}}"} # the oap log analyzer. It could be customized by the ES analyzer configuration to support more language log formats, such as Chinese log, Japanese log and etc.
+    advanced: ${SW_STORAGE_ES_ADVANCED:""}
+    # Enable shard metrics and records indices into multi-physical indices, one index template per metric/meter aggregation function or record.
+    logicSharding: ${SW_STORAGE_ES_LOGIC_SHARDING:false}
+    # Custom routing can reduce the impact of searches. Instead of having to fan out a search request to all the shards in an index, the request can be sent to just the shard that matches the specific routing value (or values).
+    enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
+  h2:
+    properties:
+      jdbcUrl: ${SW_STORAGE_H2_URL:jdbc:h2:mem:skywalking-oap-db;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=FALSE}
+      dataSource.user: ${SW_STORAGE_H2_USER:sa}
+    metadataQueryMaxSize: ${SW_STORAGE_H2_QUERY_MAX_SIZE:5000}
+    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:100}
+    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:1}
+  mysql:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true&allowMultiQueries=true"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:root}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
+    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+  postgresql:
+    properties:
+      jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}
+      dataSource.user: ${SW_DATA_SOURCE_USER:postgres}
+      dataSource.password: ${SW_DATA_SOURCE_PASSWORD:123456}
+      dataSource.cachePrepStmts: ${SW_DATA_SOURCE_CACHE_PREP_STMTS:true}
+      dataSource.prepStmtCacheSize: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_SIZE:250}
+      dataSource.prepStmtCacheSqlLimit: ${SW_DATA_SOURCE_PREP_STMT_CACHE_SQL_LIMIT:2048}
+      dataSource.useServerPrepStmts: ${SW_DATA_SOURCE_USE_SERVER_PREP_STMTS:true}
+    metadataQueryMaxSize: ${SW_STORAGE_MYSQL_QUERY_MAX_SIZE:5000}
+    maxSizeOfBatchSql: ${SW_STORAGE_MAX_SIZE_OF_BATCH_SQL:2000}
+    asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
+  banyandb:
+    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
+    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
+    flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
+    metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
+    recordShardsNumber: ${SW_STORAGE_BANYANDB_RECORD_SHARDS_NUMBER:1}
+    superDatasetShardsFactor: ${SW_STORAGE_BANYANDB_SUPERDATASET_SHARDS_FACTOR:2}
+    concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
+    profileTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PROFILE_TASK_QUERY_MAX_SIZE:200} # the max number of fetch task in a request
+    blockIntervalHours: ${SW_STORAGE_BANYANDB_BLOCK_INTERVAL_HOURS:24} # Unit is hour
+    segmentIntervalDays: ${SW_STORAGE_BANYANDB_SEGMENT_INTERVAL_DAYS:1} # Unit is day
+    superDatasetBlockIntervalHours: ${SW_STORAGE_BANYANDB_SUPER_DATASET_BLOCK_INTERVAL_HOURS:4} # Unit is hour
+    superDatasetSegmentIntervalDays: ${SW_STORAGE_BANYANDB_SUPER_DATASET_SEGMENT_INTERVAL_DAYS:1} # Unit is day
+    specificGroupSettings: ${SW_STORAGE_BANYANDB_SPECIFIC_GROUP_SETTINGS:""} # For example, {"group1": {"blockIntervalHours": 4, "segmentIntervalDays": 1}}
+
+agent-analyzer:
+  selector: ${SW_AGENT_ANALYZER:default}
+  default:
+    # The default sampling rate and the default trace latency time configured by the 'traceSamplingPolicySettingsFile' file.
+    traceSamplingPolicySettingsFile: ${SW_TRACE_SAMPLING_POLICY_SETTINGS_FILE:trace-sampling-policy-settings.yml}
+    slowDBAccessThreshold: ${SW_SLOW_DB_THRESHOLD:default:200,mongodb:100} # The slow database access thresholds. Unit ms.
+    forceSampleErrorSegment: ${SW_FORCE_SAMPLE_ERROR_SEGMENT:true} # When sampling mechanism active, this config can open(true) force save some error segment. true is default.
+    segmentStatusAnalysisStrategy: ${SW_SEGMENT_STATUS_ANALYSIS_STRATEGY:FROM_SPAN_STATUS} # Determine the final segment status from the status of spans. Available values are `FROM_SPAN_STATUS` , `FROM_ENTRY_SPAN` and `FROM_FIRST_SPAN`. `FROM_SPAN_STATUS` represents the segment status would be error if any span is in error status. `FROM_ENTRY_SPAN` means the segment status would be determined by the status of entry spans only. `FROM_FIRST_SPAN` means the segment status would be determined by the status of the first span only.
+    # Nginx and Envoy agents can't get the real remote address.
+    # Exit spans with the component in the list would not generate the client-side instance relation metrics.
+    noUpstreamRealAddressAgents: ${SW_NO_UPSTREAM_REAL_ADDRESS:6000,9000}
+    meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling} # Which files could be meter analyzed, files split by ","
+    slowCacheReadThreshold: ${SW_SLOW_CACHE_SLOW_READ_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
+    slowCacheWriteThreshold: ${SW_SLOW_CACHE_SLOW_WRITE_THRESHOLD:default:20,redis:10} # The slow cache write operation thresholds. Unit ms.
+
+log-analyzer:
+  selector: ${SW_LOG_ANALYZER:graalvm}
+  graalvm:
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,default}
+    malFiles: ${SW_LOG_MAL_FILES:""}
+
+event-analyzer:
+  selector: ${SW_EVENT_ANALYZER:default}
+  default:
+
+receiver-sharing-server:
+  selector: ${SW_RECEIVER_SHARING_SERVER:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_RECEIVER_SHARING_REST_HOST:0.0.0.0}
+    restPort: ${SW_RECEIVER_SHARING_REST_PORT:0}
+    restContextPath: ${SW_RECEIVER_SHARING_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_RECEIVER_SHARING_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_SHARING_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_SHARING_REST_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    # For gRPC server
+    gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
+    maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolQueueSize: ${SW_RECEIVER_GRPC_POOL_QUEUE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_RECEIVER_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_RECEIVER_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_RECEIVER_GRPC_SSL_TRUSTED_CAS_PATH:""}
+    authentication: ${SW_AUTHENTICATION:""}
+receiver-register:
+  selector: ${SW_RECEIVER_REGISTER:default}
+  default:
+
+receiver-trace:
+  selector: ${SW_RECEIVER_TRACE:default}
+  default:
+
+receiver-jvm:
+  selector: ${SW_RECEIVER_JVM:default}
+  default:
+
+receiver-clr:
+  selector: ${SW_RECEIVER_CLR:default}
+  default:
+
+receiver-profile:
+  selector: ${SW_RECEIVER_PROFILE:default}
+  default:
+
+receiver-zabbix:
+  selector: ${SW_RECEIVER_ZABBIX:-}
+  default:
+    port: ${SW_RECEIVER_ZABBIX_PORT:10051}
+    host: ${SW_RECEIVER_ZABBIX_HOST:0.0.0.0}
+    activeFiles: ${SW_RECEIVER_ZABBIX_ACTIVE_FILES:agent}
+
+service-mesh:
+  selector: ${SW_SERVICE_MESH:default}
+  default:
+
+envoy-metric:
+  selector: ${SW_ENVOY_METRIC:graalvm}
+  graalvm:
+    acceptMetricsService: ${SW_ENVOY_METRIC_SERVICE:true}
+    alsHTTPAnalysis: ${SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS:""}
+    alsTCPAnalysis: ${SW_ENVOY_METRIC_ALS_TCP_ANALYSIS:""}
+    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
+    istioServiceNameRule: ${ISTIO_SERVICE_NAME_RULE:"${serviceEntry.metadata.name}"}
+
+kafka-fetcher:
+  selector: ${SW_KAFKA_FETCHER:-}
+  default:
+    bootstrapServers: ${SW_KAFKA_FETCHER_SERVERS:localhost:9092}
+    namespace: ${SW_NAMESPACE:""}
+    partitions: ${SW_KAFKA_FETCHER_PARTITIONS:3}
+    replicationFactor: ${SW_KAFKA_FETCHER_PARTITIONS_FACTOR:2}
+    enableNativeProtoLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_PROTO_LOG:true}
+    enableNativeJsonLog: ${SW_KAFKA_FETCHER_ENABLE_NATIVE_JSON_LOG:true}
+    consumers: ${SW_KAFKA_FETCHER_CONSUMERS:1}
+    kafkaHandlerThreadPoolSize: ${SW_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
+    kafkaHandlerThreadPoolQueueSize: ${SW_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
+
+receiver-meter:
+  selector: ${SW_RECEIVER_METER:default}
+  default:
+
+receiver-otel:
+  selector: ${SW_OTEL_RECEIVER:default}
+  default:
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-metrics,otlp-logs"}
+    enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"apisix,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*"}
+
+receiver-zipkin:
+  selector: ${SW_RECEIVER_ZIPKIN:-}
+  default:
+    # Defines a set of span tag keys which are searchable.
+    # The max length of key=value should be less than 256 or will be dropped.
+    searchableTracesTags: ${SW_ZIPKIN_SEARCHABLE_TAG_KEYS:http.method}
+    # The sample rate precision is 1/10000, should be between 0 and 10000
+    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    ## The below configs are for OAP collect zipkin trace from HTTP
+    enableHttpCollector: ${SW_ZIPKIN_HTTP_COLLECTOR_ENABLED:true}
+    restHost: ${SW_RECEIVER_ZIPKIN_REST_HOST:0.0.0.0}
+    restPort: ${SW_RECEIVER_ZIPKIN_REST_PORT:9411}
+    restContextPath: ${SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_RECEIVER_ZIPKIN_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE:0}
+    ## The below configs are for OAP collect zipkin trace from kafka
+    enableKafkaCollector: ${SW_ZIPKIN_KAFKA_COLLECTOR_ENABLED:false}
+    kafkaBootstrapServers: ${SW_ZIPKIN_KAFKA_SERVERS:localhost:9092}
+    kafkaGroupId: ${SW_ZIPKIN_KAFKA_GROUP_ID:zipkin}
+    kafkaTopic: ${SW_ZIPKIN_KAFKA_TOPIC:zipkin}
+    # Kafka consumer config, JSON format as Properties. If it contains the same key with above, would override.
+    kafkaConsumerConfig: ${SW_ZIPKIN_KAFKA_CONSUMER_CONFIG:"{\"auto.offset.reset\":\"earliest\",\"enable.auto.commit\":true}"}
+    # The Count of the topic consumers
+    kafkaConsumers: ${SW_ZIPKIN_KAFKA_CONSUMERS:1}
+    kafkaHandlerThreadPoolSize: ${SW_ZIPKIN_KAFKA_HANDLER_THREAD_POOL_SIZE:-1}
+    kafkaHandlerThreadPoolQueueSize: ${SW_ZIPKIN_KAFKA_HANDLER_THREAD_POOL_QUEUE_SIZE:-1}
+
+receiver-browser:
+  selector: ${SW_RECEIVER_BROWSER:default}
+  default:
+    # The sample rate precision is 1/10000. 10000 means 100% sample in default.
+    sampleRate: ${SW_RECEIVER_BROWSER_SAMPLE_RATE:10000}
+
+receiver-log:
+  selector: ${SW_RECEIVER_LOG:default}
+  default:
+
+query:
+  selector: ${SW_QUERY:graphql}
+  graphql:
+    # Enable the log testing API to test the LAL.
+    # NOTE: This API evaluates untrusted code on the OAP server.
+    # A malicious script can do significant damage (steal keys and secrets, remove files and directories, install malware, etc).
+    # As such, please enable this API only when you completely trust your users.
+    enableLogTestTool: ${SW_QUERY_GRAPHQL_ENABLE_LOG_TEST_TOOL:false}
+    # Maximum complexity allowed for the GraphQL query that can be used to
+    # abort a query if the total number of data fields queried exceeds the defined threshold.
+    maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:3000}
+    # Allow user add, disable and update UI template
+    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
+    # "On demand log" allows users to fetch Pod containers' log in real time,
+    # because this might expose secrets in the logs (if any), users need
+    # to enable this manually, and add permissions to OAP cluster role.
+    enableOnDemandPodLog: ${SW_ENABLE_ON_DEMAND_POD_LOG:false}
+
+# This module is for Zipkin query API and support zipkin-lens UI
+query-zipkin:
+  selector: ${SW_QUERY_ZIPKIN:-}
+  default:
+    # For HTTP server
+    restHost: ${SW_QUERY_ZIPKIN_REST_HOST:0.0.0.0}
+    restPort: ${SW_QUERY_ZIPKIN_REST_PORT:9412}
+    restContextPath: ${SW_QUERY_ZIPKIN_REST_CONTEXT_PATH:/zipkin}
+    restMaxThreads: ${SW_QUERY_ZIPKIN_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_QUERY_ZIPKIN_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_QUERY_ZIPKIN_REST_QUEUE_SIZE:0}
+    # Default look back for traces and autocompleteTags, 1 day in millis
+    lookback: ${SW_QUERY_ZIPKIN_LOOKBACK:86400000}
+    # The Cache-Control max-age (seconds) for serviceNames, remoteServiceNames and spanNames
+    namesMaxAge: ${SW_QUERY_ZIPKIN_NAMES_MAX_AGE:300}
+    ## The below config are OAP support for zipkin-lens UI
+    # Default traces query max size
+    uiQueryLimit: ${SW_QUERY_ZIPKIN_UI_QUERY_LIMIT:10}
+    # Default look back on the UI for search traces, 15 minutes in millis
+    uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
+
+#This module is for PromQL API.
+promql:
+  selector: ${SW_PROMQL:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_PROMQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_PROMQL_REST_PORT:9090}
+    restContextPath: ${SW_PROMQL_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
+
+#This module is for LogQL API.
+logql:
+  selector: ${SW_LOGQL:default}
+  default:
+    # For HTTP server
+    restHost: ${SW_LOGQL_REST_HOST:0.0.0.0}
+    restPort: ${SW_LOGQL_REST_PORT:3100}
+    restContextPath: ${SW_LOGQL_REST_CONTEXT_PATH:/}
+    restMaxThreads: ${SW_LOGQL_REST_MAX_THREADS:200}
+    restIdleTimeOut: ${SW_LOGQL_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_LOGQL_REST_QUEUE_SIZE:0}
+
+alarm:
+  selector: ${SW_ALARM:default}
+  default:
+
+telemetry:
+  selector: ${SW_TELEMETRY:none}
+  none:
+  prometheus:
+    host: ${SW_TELEMETRY_PROMETHEUS_HOST:0.0.0.0}
+    port: ${SW_TELEMETRY_PROMETHEUS_PORT:1234}
+    sslEnabled: ${SW_TELEMETRY_PROMETHEUS_SSL_ENABLED:false}
+    sslKeyPath: ${SW_TELEMETRY_PROMETHEUS_SSL_KEY_PATH:""}
+    sslCertChainPath: ${SW_TELEMETRY_PROMETHEUS_SSL_CERT_CHAIN_PATH:""}
+
+configuration:
+  selector: ${SW_CONFIGURATION:none}
+  none:
+  grpc:
+    host: ${SW_DCS_SERVER_HOST:""}
+    port: ${SW_DCS_SERVER_PORT:80}
+    clusterName: ${SW_DCS_CLUSTER_NAME:SkyWalking}
+    period: ${SW_DCS_PERIOD:20}
+  apollo:
+    apolloMeta: ${SW_CONFIG_APOLLO:http://localhost:8080}
+    apolloCluster: ${SW_CONFIG_APOLLO_CLUSTER:default}
+    apolloEnv: ${SW_CONFIG_APOLLO_ENV:""}
+    appId: ${SW_CONFIG_APOLLO_APP_ID:skywalking}
+  zookeeper:
+    period: ${SW_CONFIG_ZK_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
+    namespace: ${SW_CONFIG_ZK_NAMESPACE:/default}
+    hostPort: ${SW_CONFIG_ZK_HOST_PORT:localhost:2181}
+    # Retry Policy
+    baseSleepTimeMs: ${SW_CONFIG_ZK_BASE_SLEEP_TIME_MS:1000} # initial amount of time to wait between retries
+    maxRetries: ${SW_CONFIG_ZK_MAX_RETRIES:3} # max number of times to retry
+  etcd:
+    period: ${SW_CONFIG_ETCD_PERIOD:60} # Unit seconds, sync period. Default fetch every 60 seconds.
+    endpoints: ${SW_CONFIG_ETCD_ENDPOINTS:http://localhost:2379}
+    namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
+    authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
+    user: ${SW_CONFIG_ETCD_USER:}
+    password: ${SW_CONFIG_ETCD_password:}
+  consul:
+    # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
+    hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}
+    # Sync period in seconds. Defaults to 60 seconds.
+    period: ${SW_CONFIG_CONSUL_PERIOD:60}
+    # Consul aclToken
+    aclToken: ${SW_CONFIG_CONSUL_ACL_TOKEN:""}
+  k8s-configmap:
+    period: ${SW_CONFIG_CONFIGMAP_PERIOD:60}
+    namespace: ${SW_CLUSTER_K8S_NAMESPACE:default}
+    labelSelector: ${SW_CLUSTER_K8S_LABEL:app=collector,release=skywalking}
+  nacos:
+    # Nacos Server Host
+    serverAddr: ${SW_CONFIG_NACOS_SERVER_ADDR:127.0.0.1}
+    # Nacos Server Port
+    port: ${SW_CONFIG_NACOS_SERVER_PORT:8848}
+    # Nacos Configuration Group
+    group: ${SW_CONFIG_NACOS_SERVER_GROUP:skywalking}
+    # Nacos Configuration namespace
+    namespace: ${SW_CONFIG_NACOS_SERVER_NAMESPACE:}
+    # Unit seconds, sync period. Default fetch every 60 seconds.
+    period: ${SW_CONFIG_NACOS_PERIOD:60}
+    # Nacos auth username
+    username: ${SW_CONFIG_NACOS_USERNAME:""}
+    password: ${SW_CONFIG_NACOS_PASSWORD:""}
+    # Nacos auth accessKey
+    accessKey: ${SW_CONFIG_NACOS_ACCESSKEY:""}
+    secretKey: ${SW_CONFIG_NACOS_SECRETKEY:""}
+
+exporter:
+  selector: ${SW_EXPORTER:-}
+  default:
+    # gRPC exporter
+    enableGRPCMetrics: ${SW_EXPORTER_ENABLE_GRPC_METRICS:false}
+    gRPCTargetHost: ${SW_EXPORTER_GRPC_HOST:127.0.0.1}
+    gRPCTargetPort: ${SW_EXPORTER_GRPC_PORT:9870}
+    # Kafka exporter
+    enableKafkaTrace: ${SW_EXPORTER_ENABLE_KAFKA_TRACE:false}
+    enableKafkaLog: ${SW_EXPORTER_ENABLE_KAFKA_LOG:false}
+    kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
+    # Kafka producer config, JSON format as Properties.
+    kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
+    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-export-trace}
+    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-export-log}
+    exportErrorStatusTraceOnly: ${SW_EXPORTER_KAFKA_TRACE_FILTER_ERROR:false}
+
+health-checker:
+  selector: ${SW_HEALTH_CHECKER:-}
+  default:
+    checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
+
+configuration-discovery:
+  selector: ${SW_CONFIGURATION_DISCOVERY:default}
+  default:
+    disableMessageDigest: ${SW_DISABLE_MESSAGE_DIGEST:false}
+
+receiver-event:
+  selector: ${SW_RECEIVER_EVENT:default}
+  default:
+
+receiver-ebpf:
+  selector: ${SW_RECEIVER_EBPF:default}
+  default:
+    # The continuous profiling policy cache time, Unit is second.
+    continuousPolicyCacheTimeout: ${SW_CONTINUOUS_POLICY_CACHE_TIMEOUT:60}
+
+receiver-telegraf:
+  selector: ${SW_RECEIVER_TELEGRAF:default}
+  default:
+    activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
+
+aws-firehose:
+  selector: ${SW_RECEIVER_AWS_FIREHOSE:default}
+  default:
+    host: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_HOST:0.0.0.0}
+    port: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_PORT:12801}
+    contextPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_CONTEXT_PATH:/}
+    maxThreads: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_MAX_THREADS:200}
+    idleTimeOut: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_IDLE_TIME_OUT:30000}
+    acceptQueueSize: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ACCEPT_QUEUE_SIZE:0}
+    maxRequestHeaderSize: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    firehoseAccessKey: ${SW_RECEIVER_AWS_FIREHOSE_ACCESS_KEY:}
+    enableTLS: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_ENABLE_TLS:false}
+    tlsKeyPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_KEY_PATH:}
+    tlsCertChainPath: ${SW_RECEIVER_AWS_FIREHOSE_HTTP_TLS_CERT_CHAIN_PATH:}
+
+ai-pipeline:
+  selector: ${SW_AI_PIPELINE:default}
+  default:
+    uriRecognitionServerAddr: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_ADDR:}
+    uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
