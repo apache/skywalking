@@ -20,7 +20,6 @@ package org.apache.skywalking.oal.rt;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.skywalking.oal.rt.util.OALClassGenerator;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 
@@ -48,6 +47,8 @@ public class OALRuntime extends OALKernel {
 
     private static boolean INITIALED = false;
 
+    private static final String OAL_CLASSES_PACKAGE_BASE = "org.apache.skywalking.oap.server.core.source.oal.rt";
+
     public OALRuntime(OALDefine define) {
         super(define);
     }
@@ -67,7 +68,7 @@ public class OALRuntime extends OALKernel {
 
     private void startByNativeImage(ClassLoader currentClassLoader) {
         try (FileSystem  fileSystem = FileSystems.newFileSystem(URI.create("resource:/"), Map.of(), currentClassLoader)) {
-            String basePackage = OALClassGenerator.getGeneratedFilePath();
+            String basePackage = getOalClassesPackageBasePath();
             String metricsPath = basePackage + File.separator + "metrics";
             String dispatcherPath = basePackage + File.separator + "dispatcher";
             String metricsBuilderPath = metricsPath + File.separator + "builder";
@@ -126,7 +127,7 @@ public class OALRuntime extends OALKernel {
     }
 
     private void startByJar(ClassLoader currentClassLoader) {
-        String basePackage = OALClassGenerator.getGeneratedFilePath();
+        String basePackage = getOalClassesPackageBasePath();
         String metricsPath = basePackage + File.separator + "metrics";
         String dispatcherPath = basePackage + File.separator + "dispatcher";
         String metricsBuilderPath = metricsPath + File.separator + "builder";
@@ -177,6 +178,10 @@ public class OALRuntime extends OALKernel {
             // should not reach here
             log.error(e.getMessage(), e);
         }
+    }
+
+    private String getOalClassesPackageBasePath() {
+        return OAL_CLASSES_PACKAGE_BASE.replace('.', File.separatorChar);
     }
 
 }

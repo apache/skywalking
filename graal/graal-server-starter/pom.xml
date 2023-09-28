@@ -29,7 +29,7 @@
     <artifactId>graal-server-starter</artifactId>
 
     <properties>
-        <image.name>skywalking-oap</image.name>
+        <image.name>skywalking-oap-native</image.name>
     </properties>
 
     <dependencies>
@@ -92,6 +92,7 @@
             <artifactId>log-analyzer-graal-native</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>oal-rt-graal-native</artifactId>
@@ -116,6 +117,31 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>0.9.21</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <verbose>true</verbose>
+                            <agent>f</agent>
+                            <imageName>${image.name}</imageName>
+                            <mainClass>org.apache.skywalking.oap.server.starter.OAPServerStartUp</mainClass>
+                            <metadataRepository>
+                                <enabled>true</enabled>
+                            </metadataRepository>
+                            <useArgFile>true</useArgFile>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

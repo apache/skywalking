@@ -67,6 +67,12 @@
                 <scope>provided</scope>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>meter-analyzer</artifactId>
+                <scope>provided</scope>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerMod
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class EnvoyMetricReceiverProvider extends ModuleProvider {
-    private EnvoyMetricReceiverConfig config;
+    protected EnvoyMetricReceiverConfig config;
 
     protected String fieldMappingFile = "metadata-service-mapping.yaml";
 

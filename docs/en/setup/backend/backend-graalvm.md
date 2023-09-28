@@ -20,7 +20,7 @@ The native-image compilation is not enabled by default. To enable it, we need to
 
 ```
 
-Then, 2 packages are in `distribution/graal/dist`,
+Then, 2 packages are in `graal/dist`,
 As this is an experimental feature, a package named `apache-skywalking-apm-native-pre-bin.tar.gz` is a tarball for GraalVMization friendly, including original classes to be compiled by GraalVM.
 The package named `apache-skywalking-apm-native-bin.tar.gz` includes the final compiled native binary, relative configuration files, and booting shells. Read `Package Structure` doc for more details.
 
