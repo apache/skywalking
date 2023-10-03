@@ -809,9 +809,7 @@ jobs:
       - integration-test
       - slow-integration-test
       - e2e-test
-      # TODO, disable Istio relative e2e tests temporarily,
-      # as they are blocked by the GHA resource limitation.
-      #- e2e-test-istio
+      - e2e-test-istio
       - e2e-test-java-versions
     runs-on: ubuntu-latest
     timeout-minutes: 10
