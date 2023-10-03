@@ -27,6 +27,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class BanyanDBStorageConfig extends ModuleConfig {
+    /**
+     * A comma-separated list of BanyanDB endpoints.
+     *
+     * @since 9.7.0
+     */
     private String endpoints = "127.0.0.1:17912";
     /**
      * The maximum size of write entities in a single batch write call.
