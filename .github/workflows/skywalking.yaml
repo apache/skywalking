@@ -539,7 +539,6 @@ jobs:
           - name: Kafka Log
             config: test/e2e-v2/cases/kafka/log/e2e.yaml
 
-
           - name: Istio Metrics Service 1.15.0
             config: test/e2e-v2/cases/istio/metrics/e2e.yaml
             env: |
