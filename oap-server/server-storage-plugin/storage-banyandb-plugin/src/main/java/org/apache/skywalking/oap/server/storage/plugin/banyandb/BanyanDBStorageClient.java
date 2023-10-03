@@ -55,8 +55,8 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
-    public BanyanDBStorageClient(String host, int port) {
-        this.client = new BanyanDBClient(host + ":" + port);
+    public BanyanDBStorageClient(String... endpoints) {
+        this.client = new BanyanDBClient(endpoints);
     }
 
     @Override
