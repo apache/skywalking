@@ -35,9 +35,9 @@ spans:
       - key: url
         value: {{ notEmpty .value }}
       - key: http.method
-        value: {{ notEmpty .value }}
+        value: POST
       - key: http.status_code
-        value: {{ notEmpty .value }}
+        value: "200"
       {{- end }}
     logs: []
     attachedevents: []
@@ -59,9 +59,9 @@ spans:
     tags:
       {{- contains .tags }}
       - key: url
-        value: {{ notEmpty .value }}
+        value: http://provider:9090/info
       - key: status_code
-        value: {{ notEmpty .value }}
+        value: ”200“
       {{- end }}
     logs: []
     attachedevents: []
@@ -89,13 +89,13 @@ spans:
     tags:
       {{- contains .tags }}
       - key: url
-        value: {{ notEmpty .value}}
+        value: http://provider:9090/info
       - key: http.method
-        value: {{ notEmpty .value }}
-        key: http.status_code
-        value: {{ notEmpty .value }}
+        value: GET
+      - key: http.status_code
+        value: "200"
       {{- end }}
     logs: []
     attachedevents: []
-    {{- end }}
+{{- end }}
 
