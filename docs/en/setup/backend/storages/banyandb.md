@@ -6,7 +6,7 @@ Activate BanyanDB as the storage, and set storage provider to **banyandb**.
 ```yaml
 storage:
   banyandb:
-    endpoints: ${SW_STORAGE_BANYANDB_ENDPOINTS:127.0.0.1:17912}
+    targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
     metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
