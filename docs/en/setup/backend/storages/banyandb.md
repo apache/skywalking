@@ -3,6 +3,8 @@
 [BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community.
 Activate BanyanDB as the storage, and set storage provider to **banyandb**.
 
+The OAP requires BanyanDB 0.5 server. As BanyanDB is still in the beta phase, we don't provide any compatibility besides the required version.
+
 ```yaml
 storage:
   banyandb:
