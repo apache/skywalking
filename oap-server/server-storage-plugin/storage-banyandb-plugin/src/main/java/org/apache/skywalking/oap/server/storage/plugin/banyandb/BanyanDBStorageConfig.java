@@ -28,11 +28,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 public class BanyanDBStorageConfig extends ModuleConfig {
     /**
-     * A comma-separated list of BanyanDB endpoints.
+     * A comma-separated list of BanyanDB targets.
      *
      * @since 9.7.0
      */
-    private String endpoints = "127.0.0.1:17912";
+    private String targets = "127.0.0.1:17912";
     /**
      * The maximum size of write entities in a single batch write call.
      */
@@ -103,7 +103,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private String specificGroupSettings;
 
-    public String[] getEndpointArray() {
-        return Iterables.toArray(Splitter.on(",").omitEmptyStrings().trimResults().split(this.endpoints), String.class);
+    public String[] getTargetArray() {
+        return Iterables.toArray(Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);
     }
 }

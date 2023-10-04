@@ -33,7 +33,7 @@ services:
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
       SW_STORAGE_INFLUXDB_URL: http://influxdb:8086
-      SW_STORAGE_BANYANDB_ENDPOINTS: banyandb:17912
+      SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
       SW_CONFIG_ETCD_PERIOD: 1
       SW_CONFIG_ETCD_ENDPOINTS: http://etcd:2379
       SW_CLUSTER_ETCD_ENDPOINTS: http://etcd:2379
