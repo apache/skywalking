@@ -13,6 +13,8 @@
   including `ui_template，ui_menu，continuous_profiling_policy`.
 * Add a release mechanism for alarm windows when it is expired in case of OOM.
 * Fix Zipkin trace receiver response: make the HTTP status code from `200` to `202`.
+* Update BanyanDB Java Client to 0.5.0.
+* Fix getInstances query in the BanyanDB Metadata DAO.
 
 #### UI
 
