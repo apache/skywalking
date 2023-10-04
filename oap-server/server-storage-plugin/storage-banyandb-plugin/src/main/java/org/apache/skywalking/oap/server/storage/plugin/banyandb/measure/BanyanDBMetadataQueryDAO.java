@@ -19,10 +19,12 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
@@ -92,12 +94,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<Service> listServices() throws IOException {
         MeasureQueryResponse resp = query(ServiceTraffic.INDEX_NAME,
-            SERVICE_TRAFFIC_TAGS,
-            Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                }
-            });
+                SERVICE_TRAFFIC_TAGS,
+                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
+                    @Override
+                    protected void apply(MeasureQuery query) {
+                    }
+                });
 
         final List<Service> services = new ArrayList<>();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(ServiceTraffic.INDEX_NAME, DownSampling.Minute);
@@ -144,8 +146,8 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
-                            query.and(eq(InstanceTraffic.SERVICE_ID, id.getServiceId()))
-                                    .and(eq(InstanceTraffic.NAME, id.getName()));
+                        query.and(eq(InstanceTraffic.SERVICE_ID, id.getServiceId()))
+                                .and(eq(InstanceTraffic.NAME, id.getName()));
                     }
                 });
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
@@ -155,14 +157,19 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
-            INSTANCE_TRAFFIC_TAGS,
-            Collections.emptySet(),
-            new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.and(in(InstanceTraffic.ID, instanceIds));
-                }
-            });
+                INSTANCE_TRAFFIC_TAGS,
+                Collections.emptySet(),
+                new QueryBuilder<MeasureQuery>() {
+                    @Override
+                    protected void apply(MeasureQuery query) {
+                        List<AbstractCriteria> instanceRelationsQueryConditions = new ArrayList<>(instanceIds.size());
+                        for (final String instanceId : instanceIds) {
+                            final IDManager.ServiceInstanceID.InstanceIDDefinition def = IDManager.ServiceInstanceID.analysisId(instanceId);
+                            and(Lists.newArrayList(eq(InstanceTraffic.SERVICE_ID, def.getServiceId()), eq(InstanceTraffic.NAME, def.getName())));
+                        }
+                        query.criteria(or(instanceRelationsQueryConditions));
+                    }
+                });
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
         return resp.getDataPoints().stream().map(e -> buildInstance(e, schema)).collect(Collectors.toList());
     }
