@@ -642,7 +642,6 @@ jobs:
           - name: MQE Service
             config: test/e2e-v2/cases/mqe/e2e.yaml
           - name: Pulsar
-            // TODO: test/e2e-v2/cases/pulsar/e2e.yaml
             config: test/e2e-v2/cases/pulsar/e2e.yaml
 
           - name: UI Menu BanyanDB

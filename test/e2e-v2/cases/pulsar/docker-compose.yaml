@@ -31,7 +31,7 @@ services:
     container_name: zookeeper
     restart: on-failure
     networks:
-      - pulsar
+      - e2e
     volumes:
       - ./data/zookeeper:/pulsar/data/zookeeper
     environment:
@@ -53,7 +53,7 @@ services:
     hostname: pulsar-init
     image: apachepulsar/pulsar:latest
     networks:
-      - pulsar
+      - e2e
     command: >
       bin/pulsar initialize-cluster-metadata \
                --cluster cluster-a \
@@ -70,8 +70,9 @@ services:
     image: apachepulsar/pulsar:latest
     container_name: bookie
     restart: on-failure
+    hostname: bookie
     networks:
-      - pulsar
+      - e2e
     environment:
       - clusterName=cluster-a
       - zkServers=zookeeper:2181
@@ -88,6 +89,8 @@ services:
     # Map the local directory to the container to avoid bookie startup failure due to insufficient container disks.
     volumes:
       - ./data/bookkeeper:/pulsar/data/bookkeeper
+    ports:
+      - "8000:8000"
     command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf && exec bin/pulsar bookie"
 
   # Start broker
@@ -97,7 +100,7 @@ services:
     hostname: broker
     restart: on-failure
     networks:
-      - pulsar
+      - e2e
     environment:
       - metadataStoreUrl=zk:zookeeper:2181
       - zookeeperServers=zookeeper:2181

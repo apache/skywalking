@@ -173,30 +173,6 @@
         },
         {
           "x": 0,
-          "y": 70,
-          "w": 6,
-          "h": 10,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "Bookie Read ThreadPool Queue",
-            "tips": "Number of tasks in the read thread pool queue",
-            "name": "bookie_read_threadpool_queue"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["bookkeeper_server_BookieReadThreadPool_queue_{thread_id}.sum(['cluster', 'bookie'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 0,
           "y": 80,
           "w": 6,
           "h": 10,
