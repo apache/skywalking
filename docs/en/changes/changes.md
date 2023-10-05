@@ -23,7 +23,8 @@
 * Fix the display height of the link tree structure.
 * Replace the name by shortName on service widget.
 * Refactor: update pagination style. No visualization style change.
-* Apply MQE on K8s layer UI-templates
+* Apply MQE on K8s layer UI-templates.
+* Fix icons display in trace tree diagram.
 
 #### Documentation
 
