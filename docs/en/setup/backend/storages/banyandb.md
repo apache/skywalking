@@ -3,11 +3,12 @@
 [BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community.
 Activate BanyanDB as the storage, and set storage provider to **banyandb**.
 
+The OAP requires BanyanDB 0.5 server. As BanyanDB is still in the beta phase, we don't provide any compatibility besides the required version.
+
 ```yaml
 storage:
   banyandb:
-    host: ${SW_STORAGE_BANYANDB_HOST:127.0.0.1}
-    port: ${SW_STORAGE_BANYANDB_PORT:17912}
+    targets: ${SW_STORAGE_BANYANDB_TARGETS:127.0.0.1:17912}
     maxBulkSize: ${SW_STORAGE_BANYANDB_MAX_BULK_SIZE:5000}
     flushInterval: ${SW_STORAGE_BANYANDB_FLUSH_INTERVAL:15}
     metricsShardsNumber: ${SW_STORAGE_BANYANDB_METRICS_SHARDS_NUMBER:1}
