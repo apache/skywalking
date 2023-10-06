@@ -1,6 +1,6 @@
 [
   {
-    "id": "Bookkeeper-Server",
+    "id": "Pulsar-Bookie",
     "configuration": {
       "children": [
         {
@@ -28,8 +28,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 10,
+          "x": 6,
+          "y": 0,
           "w": 6,
           "h": 10,
           "i": "2",
@@ -52,8 +52,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 20,
+          "x": 12,
+          "y": 0,
           "w": 6,
           "h": 10,
           "i": "3",
@@ -76,8 +76,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 30,
+          "x": 18,
+          "y": 0,
           "w": 6,
           "h": 10,
           "i": "4",
@@ -101,7 +101,7 @@
         },
         {
           "x": 0,
-          "y": 40,
+          "y": 10,
           "w": 6,
           "h": 10,
           "i": "5",
@@ -124,8 +124,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 50,
+          "x": 6,
+          "y": 10,
           "w": 6,
           "h": 10,
           "i": "6",
@@ -148,8 +148,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 60,
+          "x": 12,
+          "y": 10,
           "w": 6,
           "h": 10,
           "i": "7",
@@ -172,8 +172,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 80,
+          "x": 18,
+          "y": 10,
           "w": 6,
           "h": 10,
           "i": "9",
@@ -197,7 +197,7 @@
         },
         {
           "x": 0,
-          "y": 90,
+          "y": 20,
           "w": 6,
           "h": 10,
           "i": "10",
@@ -220,8 +220,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 100,
+          "x": 6,
+          "y": 20,
           "w": 6,
           "h": 10,
           "i": "11",
@@ -244,8 +244,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 110,
+          "x": 12,
+          "y": 20,
           "w": 6,
           "h": 10,
           "i": "12",
@@ -268,8 +268,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 120,
+          "x": 18,
+          "y": 20,
           "w": 6,
           "h": 10,
           "i": "13",
@@ -293,7 +293,7 @@
         },
         {
           "x": 0,
-          "y": 130,
+          "y": 30,
           "w": 6,
           "h": 10,
           "i": "14",
@@ -316,8 +316,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 140,
+          "x": 6,
+          "y": 30,
           "w": 6,
           "h": 10,
           "i": "15",
@@ -340,8 +340,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 150,
+          "x": 12,
+          "y": 30,
           "w": 6,
           "h": 10,
           "i": "16",
@@ -364,8 +364,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 160,
+          "x": 18,
+          "y": 30,
           "w": 6,
           "h": 10,
           "i": "17",
@@ -389,7 +389,7 @@
         },
         {
           "x": 0,
-          "y": 170,
+          "y": 40,
           "w": 6,
           "h": 10,
           "i": "18",
@@ -412,8 +412,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 180,
+          "x": 6,
+          "y": 40,
           "w": 6,
           "h": 10,
           "i": "19",
@@ -436,8 +436,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 190,
+          "x": 12,
+          "y": 40,
           "w": 6,
           "h": 10,
           "i": "20",
@@ -460,8 +460,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 200,
+          "x": 18,
+          "y": 40,
           "w": 6,
           "h": 10,
           "i": "21",
@@ -485,7 +485,7 @@
         },
         {
           "x": 0,
-          "y": 210,
+          "y": 50,
           "w": 6,
           "h": 10,
           "i": "22",
@@ -508,8 +508,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 220,
+          "x": 6,
+          "y": 50,
           "w": 6,
           "h": 10,
           "i": "23",
@@ -532,8 +532,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 230,
+          "x": 12,
+          "y": 50,
           "w": 6,
           "h": 10,
           "i": "24",
@@ -556,8 +556,8 @@
           "metricMode": "Expression"
         },
         {
-          "x": 0,
-          "y": 240,
+          "x": 18,
+          "y": 50,
           "w": 6,
           "h": 10,
           "i": "25",
@@ -580,10 +580,10 @@
           "metricMode": "Expression"
         }
       ],
-      "layer": "BOOKKEEPER",
+      "layer": "PULSAR",
       "entity": "ServiceInstance",
-      "name": "Bookkeeper-Server",
-      "id": "Bookkeeper-Server"
+      "name": "Pulsar-Bookkeeper",
+      "id": "Pulsar-Bookkeeper"
     }
   }
 ]

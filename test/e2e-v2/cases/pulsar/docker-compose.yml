@@ -59,7 +59,7 @@ services:
                --cluster cluster-a \
                --zookeeper zookeeper:2181 \
                --configuration-store zookeeper:2181 \
-               --web-service-url http://broker:8080 \
+               --web-service-url http://broker:8081 \
                --broker-service-url pulsar://broker:6650
     depends_on:
       zookeeper:
@@ -118,7 +118,7 @@ services:
         condition: service_started
     ports:
       - "6650:6650"
-      - "8080:8080"
+      - "8081:8081"
     command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
 
   otel-collector:

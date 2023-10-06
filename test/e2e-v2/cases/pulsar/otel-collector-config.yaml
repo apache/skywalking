@@ -21,7 +21,7 @@ receivers:
           scrape_interval: 30s
           static_configs:
             - targets: 
-                - broker:8080
+                - broker:8081
                 - bookie:8000
           relabel_configs:
             - source_labels: [ ]
