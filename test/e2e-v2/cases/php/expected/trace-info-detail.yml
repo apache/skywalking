@@ -61,7 +61,7 @@ spans:
       - key: url
         value: http://provider:9090/info
       - key: status_code
-        value: ”200“
+        value: "200"
       {{- end }}
     logs: []
     attachedevents: []
