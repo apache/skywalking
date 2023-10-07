@@ -3,7 +3,6 @@
     "id": "Pulsar-Broker",
     "configuration": {
       "children": [
-        // Cache Metrics
         {
           "x": 0,
           "y": 0,
@@ -196,7 +195,6 @@
           "typesOfMQE": ["TIME_SERIES_VALUES"],
           "metricMode": "Expression"
         },
-        // Connection Metrics
         {
           "x": 0,
           "y": 20,
@@ -245,7 +243,6 @@
           "typesOfMQE": ["TIME_SERIES_VALUES"],
           "metricMode": "Expression"
         },
-        // Topic and Subscription Metrics
         {
           "x": 12,
           "y": 20,
@@ -294,7 +291,6 @@
           "typesOfMQE": ["TIME_SERIES_VALUES"],
           "metricMode": "Expression"
         },
-        // Producer and Consumer Metrics
         {
           "x": 0,
           "y": 30,
@@ -343,7 +339,6 @@
           "typesOfMQE": ["TIME_SERIES_VALUES"],
           "metricMode": "Expression"
         },
-        // Message Rate and Throughput Metrics
         {
           "x": 12,
           "y": 30,
@@ -440,7 +435,6 @@
           "typesOfMQE": ["TIME_SERIES_VALUES"],
           "metricMode": "Expression"
         },
-        // JVM Metrics
         {
           "x": 12,
           "y": 40,
