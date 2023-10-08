@@ -45,7 +45,7 @@ adjust the configurations below to fit your scenarios.
 
 If you deploy an OAP server cluster on Kubernetes, the oap-server instance (pod) would not have a static IP or hostname. We can leverage [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes) to discover the oap-server instance, and scrape & transfer the metrics to OAP [OpenTelemetry receiver](opentelemetry-receiver.md).
 
-On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-kubernetes).
+On how to install SkyWalking on k8s, you can refer to [Apache SkyWalking Kubernetes](https://github.com/apache/skywalking-helm).
 
 Set this up following these steps:
 
