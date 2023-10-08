@@ -52,7 +52,7 @@ containers:
           fieldPath: metadata.uid
 ```
 
-Read [the complete helm](https://github.com/apache/skywalking-kubernetes/blob/476afd51d44589c77a4cbaac950272cd5d064ea9/chart/skywalking/templates/oap-deployment.yaml#L125) for more details.
+Read [the complete helm](https://github.com/apache/skywalking-helm/blob/476afd51d44589c77a4cbaac950272cd5d064ea9/chart/skywalking/templates/oap-deployment.yaml#L125) for more details.
 
 
 ## Zookeeper coordinator

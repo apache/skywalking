@@ -59,8 +59,8 @@ istioctl install \
   --set meshConfig.enableEnvoyAccessLogService=true \
   --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800
 
-git clone https://github.com/apache/skywalking-kubernetes.git
-cd skywalking-kubernetes/chart
+git clone https://github.com/apache/skywalking-helm.git
+cd skywalking-helm/chart
 
 helm repo add elastic https://helm.elastic.co
 
