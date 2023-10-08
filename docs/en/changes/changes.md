@@ -3,6 +3,7 @@
 #### Project
 
 * Add distribution/graal module to make preliminary preparations for supporting native-image.
+* Bump Java agent to 9.1-dev in the e2e tests.
 
 #### OAP Server
 
@@ -15,6 +16,7 @@
 * Fix Zipkin trace receiver response: make the HTTP status code from `200` to `202`.
 * Update BanyanDB Java Client to 0.5.0.
 * Fix getInstances query in the BanyanDB Metadata DAO.
+* BanyanDBStorageClient: Add `keepAliveProperty` API.
 
 #### UI
 
