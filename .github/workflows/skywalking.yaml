@@ -30,6 +30,9 @@ env:
   MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
 
+permissions:
+  contents: read
+
 jobs:
   license-header:
     if: (github.event_name == 'schedule' && github.repository == 'apache/skywalking') || (github.event_name != 'schedule')
