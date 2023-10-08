@@ -539,28 +539,26 @@ jobs:
           - name: Kafka Log
             config: test/e2e-v2/cases/kafka/log/e2e.yaml
 
-          # TODO, disable Istio relative e2e tests temporarily,
-          # due to 403 issue of images pulling
-          #- name: Istio Metrics Service 1.15.0
-          #  config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-          #  env: |
-          #    ISTIO_VERSION=1.15.0
-          #    KUBERNETES_VERSION=25
-          #- name: Istio Metrics Service 1.16.0
-          #  config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-          #  env: |
-          #    ISTIO_VERSION=1.16.0
-          #    KUBERNETES_VERSION=25
-          #- name: Istio Metrics Service 1.17.0
-          #  config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-          #  env: |
-          #    ISTIO_VERSION=1.17.0
-          #    KUBERNETES_VERSION=25
-          #- name: Istio Metrics Service 1.18.0
-          #  config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-          #  env: |
-          #    ISTIO_VERSION=1.18.0
-          #    KUBERNETES_VERSION=25
+          - name: Istio Metrics Service 1.15.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.15.0
+              KUBERNETES_VERSION=25
+          - name: Istio Metrics Service 1.16.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.16.0
+              KUBERNETES_VERSION=25
+          - name: Istio Metrics Service 1.17.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.17.0
+              KUBERNETES_VERSION=25
+          - name: Istio Metrics Service 1.18.0
+            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
+            env: |
+              ISTIO_VERSION=1.18.0
+              KUBERNETES_VERSION=25
 
           # TODO, disable Istio relative e2e tests temporarily,
           # as they are blocked by the GHA resource limitation.
