@@ -112,6 +112,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public void keepAliveProperty(long leaseId) throws IOException {
+        try {
+            this.client.keepAliveProperty(leaseId);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to keep alive property", ex);
+        }
+    }
+
     public StreamQueryResponse query(StreamQuery q) throws IOException {
         try {
             StreamQueryResponse response = this.client.query(q);

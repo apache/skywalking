@@ -190,8 +190,8 @@ kubectl apply -f https://raw.githubusercontent.com/mrproliu/skywalking-network-p
 The following will install the storage, backend, and UI needed for SkyWalking:
 
 ```bash
-git clone https://github.com/apache/skywalking-kubernetes.git
-cd skywalking-kubernetes
+git clone https://github.com/apache/skywalking-helm.git
+cd skywalking-helm
 cd chart
 helm dep up skywalking
 helm -n istio-system install skywalking skywalking \
