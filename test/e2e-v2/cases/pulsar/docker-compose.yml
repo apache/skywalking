@@ -22,8 +22,16 @@ services:
       service: oap
     ports:
       - "12800:12800"
+    environment:
+        SW_ENABLE_UPDATE_UI_TEMPLATE: true
+        SW_STORAGE: mysql
+        SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
+    entrypoint: [ 'sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh' ]
     networks:
       - e2e
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   # Start zookeeper
   zookeeper:
@@ -122,7 +130,7 @@ services:
     command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.72.0
+    image: otel/opentelemetry-collector:0.50.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
@@ -133,6 +141,34 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+  ui:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: ui
+    environment:
+      - SW_OAP_ADDRESS=http://oap:12800
+      - SW_ZIPKIN_ADDRESS=http://oap:9412
+    depends_on:
+      oap:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  mysql:
+    image: mysql/mysql-server:8.0.13
+    networks:
+      - e2e
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: "root@1234"
+      MYSQL_DATABASE: "swtest"
+      MYSQL_ROOT_HOST: "%"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
 
 networks:
   e2e:

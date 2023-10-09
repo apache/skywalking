@@ -32,7 +32,6 @@ receivers:
               target_label: instance
               replacement: '$1-$2'
 
-
 processors:
   batch:
 
@@ -48,7 +47,6 @@ exporters:
   # Exports data to the console
   logging:
     logLevel: debug
-
 service:
   pipelines:
     metrics:
