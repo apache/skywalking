@@ -298,16 +298,16 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.11.1 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.11.1 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.11.1 Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.86.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.1.99.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec/4.1.99.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.1.94.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.1.94.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-common/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.86.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.86.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.1.99.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.1.99.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.1.99.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-common/4.1.99.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler/4.1.99.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.1.99.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver/4.1.94.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.1.94.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.1.94.Final Apache-2.0
