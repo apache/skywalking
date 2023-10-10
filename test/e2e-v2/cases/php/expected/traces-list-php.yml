@@ -15,12 +15,12 @@
 
 traces:
 {{- contains .traces }}
-- segmentid: {{ notEmpty .segmentid }}
+- segmentid: "{{ notEmpty .segmentid }}"
   endpointnames:
-    - /php/info
+    - POST:/php/info
   duration: {{ ge .duration 0 }}
   start: "{{ notEmpty .start}}"
   iserror: false
   traceids:
-    - {{ (index .traceids 0) }}
+    - "{{ (index .traceids 0) }}"
 {{- end }}
