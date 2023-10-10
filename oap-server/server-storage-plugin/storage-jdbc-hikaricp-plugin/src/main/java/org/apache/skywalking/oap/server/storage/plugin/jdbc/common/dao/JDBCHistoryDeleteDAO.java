@@ -78,7 +78,7 @@ public class JDBCHistoryDeleteDAO implements IHistoryDeleteDAO {
         final var tableName = TableHelper.getTableName(model);
 
         try (final var conn = jdbcClient.getConnection();
-             final var result = conn.getMetaData().getTables(null, null, tableName + "%", new String[]{"TABLE"})) {
+             final var result = conn.getMetaData().getTables(conn.getCatalog(), null, tableName + "%", new String[]{"TABLE"})) {
             while (result.next()) {
                 tablesToDrop.add(result.getString("TABLE_NAME"));
             }
