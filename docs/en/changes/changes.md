@@ -17,6 +17,7 @@
 * Update BanyanDB Java Client to 0.5.0.
 * Fix getInstances query in the BanyanDB Metadata DAO.
 * BanyanDBStorageClient: Add `keepAliveProperty` API.
+* Fix table exists check in the JDBC Storage Plugin.
 
 #### UI
 
