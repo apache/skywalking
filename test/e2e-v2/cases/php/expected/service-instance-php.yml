@@ -16,19 +16,19 @@
 # under the License. shadow
 
 {{- contains .}}
-- id: {{ b64enc "php" }}.1_{{ b64enc "php-instance" }}
-  name: php-instance
+- id: {{ notEmpty .id }}
+  name: {{ notEmpty .name }}
   attributes:
   {{- contains .attributes }}
-  - name: os_name
+  - name: Process No.
     value: {{ notEmpty .value }}
-  - name: host_name
+  - name: OS Name
     value: {{ notEmpty .value }}
-  - name: process_no
+  - name: hostname
     value: {{ notEmpty .value }}
   - name: ipv4s
     value: {{ notEmpty .value }}
   {{- end}}
   language: PHP
-  instanceuuid: {{ b64enc "php" }}.1_{{ b64enc "php-instance" }}
+  instanceuuid: {{ notEmpty .instanceuuid }}
 {{- end}}
