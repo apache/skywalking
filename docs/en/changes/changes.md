@@ -20,6 +20,7 @@
 * BanyanDBStorageClient: Add `keepAliveProperty` API.
 * Fix table exists check in the JDBC Storage Plugin.
 * Enhance extensibility of HTTP Server library.
+* Adjust `AlarmRecord` alarmMessage column length to 512.
 
 #### UI
 
