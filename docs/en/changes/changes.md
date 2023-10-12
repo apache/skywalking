@@ -19,6 +19,7 @@
 * Fix getInstances query in the BanyanDB Metadata DAO.
 * BanyanDBStorageClient: Add `keepAliveProperty` API.
 * Fix table exists check in the JDBC Storage Plugin.
+* Enhance extensibility of HTTP Server library.
 
 #### UI
 
