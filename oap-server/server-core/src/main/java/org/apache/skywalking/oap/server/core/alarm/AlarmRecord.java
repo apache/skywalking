@@ -80,7 +80,7 @@ public class AlarmRecord extends Record {
     private String id1;
     @Column(name = START_TIME)
     private long startTime;
-    @Column(name = ALARM_MESSAGE)
+    @Column(name = ALARM_MESSAGE, length = 512)
     @ElasticSearch.MatchQuery
     private String alarmMessage;
     @Column(name = RULE_NAME)

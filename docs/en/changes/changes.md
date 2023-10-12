@@ -19,6 +19,7 @@
 * Fix getInstances query in the BanyanDB Metadata DAO.
 * BanyanDBStorageClient: Add `keepAliveProperty` API.
 * Fix table exists check in the JDBC Storage Plugin.
+* Adjust `AlarmRecord` alarmMessage column length to 512.
 
 #### UI
 
