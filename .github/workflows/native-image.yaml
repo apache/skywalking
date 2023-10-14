@@ -17,6 +17,16 @@
 name: GraalVM Community Edition build
 on:
   pull_request:
+  push:
+
+concurrency:
+  group: skywalking-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  SW_AGENT_JDK_VERSION: 8
+  MAVEN_OPTS: -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5 # Cache restore timeout
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,10 +41,90 @@ jobs:
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Native Compile
+        env:
+          SW_OAL_ENGINE_DEBUG: true
         run: |
           ./mvnw -Pbackend,native clean package -Dmaven.test.skip
       - uses: actions/upload-artifact@v3
         name: Upload distribution tar
         with:
           name: native-pre-dist
-          path: distribution/graal/dist
+          path: graal/dist
+      - name: Build and save docker images
+        run: |
+          make -f graal/Makefile docker.oap || make -f graal/Makefile docker.oap
+          docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
+      - name: Upload docker images
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-images-native
+          path: docker-images-skywalking-*.tar
+  e2e-test:
+    if: |
+      always() && ! cancelled()
+    name: E2E test
+    needs: [build]
+    runs-on: ${{  'ubuntu-latest' }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - name: Agent NodeJS Backend
+            config: test/e2e-v2/cases/nodejs/e2e.yaml
+          - name: Agent Golang
+            config: test/e2e-v2/cases/go/e2e.yaml
+          - name: Agent NodeJS Frontend
+            config: test/e2e-v2/cases/browser/e2e.yaml
+          - name: Agent NodeJS Frontend ES
+            config: test/e2e-v2/cases/browser/es/e2e.yaml
+          - name: Agent NodeJS Frontend ES Sharding
+            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
+          - name: Agent PHP
+            config: test/e2e-v2/cases/php/e2e.yaml
+          - name: Agent Python
+            config: test/e2e-v2/cases/python/e2e.yaml
+          - name: Agent Lua
+            config: test/e2e-v2/cases/lua/e2e.yaml
+
+          - name: BanyanDB
+            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
+          - name: Storage H2
+            config: test/e2e-v2/cases/storage/h2/e2e.yaml
+          - name: Storage MySQL
+            config: test/e2e-v2/cases/storage/mysql/e2e.yaml
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v3
+        name: Download docker images
+        with:
+          name: docker-images-native
+          path: docker-images
+      - name: Load docker images
+        run: |
+          find docker-images -name "*.tar" -exec docker load -i {} \;
+          find docker-images -name "*.tar" -exec rm {} \;
+      - name: Cache maven repository
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - name: Prepare test services
+        shell: bash
+        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
+      - name: Set env var
+        run: |
+          echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
+      - name: ${{ matrix.test.name }}
+        uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
+        with:
+          e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
+      - uses: actions/upload-artifact@v2
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: logs
+          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"

@@ -48,7 +48,7 @@ public final class SearchHits implements Iterable<SearchHit> {
         return getHits().iterator();
     }
 
-    static final class TotalDeserializer extends JsonDeserializer<Integer> {
+    public static final class TotalDeserializer extends JsonDeserializer<Integer> {
         @Override
         public Integer deserialize(final JsonParser p, final DeserializationContext ctxt)
             throws IOException {
