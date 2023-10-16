@@ -22,7 +22,7 @@
 * Enhance extensibility of HTTP Server library.
 * Adjust `AlarmRecord` alarmMessage column length to 512.
 * Fix `EventHookCallback` build event: build the layer from `Service's Layer`.
-* Fix `AlarmCore` doAlarm: catch exception for each callback to avoid interrupt.
+* Fix `AlarmCore` doAlarm: catch exception for each callback to avoid interruption.
 
 #### UI
 
