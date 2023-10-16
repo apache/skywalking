@@ -82,7 +82,6 @@ public class EventHookCallback implements AlarmCallback {
                 .setMessage(msg.getAlarmMessage())
                 .setType(Type.Error)
                 .setEndTime(now);
-               // .setLayer(Layer.GENERAL.name());
         switch (msg.getScopeId()) {
             case DefaultScopeDefine.SERVICE :
                 IDManager.ServiceID.ServiceIDDefinition serviceIdDef = IDManager.ServiceID.analysisId(msg.getId0());
@@ -170,7 +169,6 @@ public class EventHookCallback implements AlarmCallback {
                                 .build()
                 ).setUuid(UUID.randomUUID().toString());
                 IDManager.ServiceID.ServiceIDDefinition srcEndpointServiceIdDef = IDManager.ServiceID.analysisId(sourceEndpointIDDef.getServiceId());
-                IDManager.ServiceID.ServiceIDDefinition destEndpointServiceIdDef = IDManager.ServiceID.analysisId(destEndpointIDDef.getServiceId());
                 builder.setLayer(getLayer(srcEndpointServiceIdDef.isReal() ? sourceEndpointIDDef.getServiceId() : destEndpointIDDef.getServiceId()));
                 events.add(builder.build());
                 break;
