@@ -4,7 +4,7 @@
 
 * Add distribution/graal module to make preliminary preparations for supporting native-image.
 * Bump Java agent to 9.1-dev in the e2e tests.
-* Bump up netty to 4.1.99.
+* Bump up netty to 4.1.100.
 
 #### OAP Server
 
