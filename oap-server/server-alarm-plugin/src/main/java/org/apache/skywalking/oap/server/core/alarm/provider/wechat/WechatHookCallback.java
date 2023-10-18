@@ -58,7 +58,11 @@ public class WechatHookCallback extends HttpAlarmCallback {
                     final var requestBody = String.format(
                         setting.getTextTemplate(), alarmMessage.getAlarmMessage()
                     );
-                    post(URI.create(url), requestBody, Map.of());
+                    try {
+                        post(URI.create(url), requestBody, Map.of());
+                    } catch (Exception e) {
+                        log.error("Failed to send alarm message to Wechat webhook: {}", url, e);
+                    }
                 }
             }
         }

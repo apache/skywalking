@@ -41,7 +41,7 @@ public class WebhookCallback extends HttpAlarmCallback {
     private final Gson gson = new Gson();
 
     @Override
-    public void doAlarm(List<AlarmMessage> alarmMessages) throws IOException, InterruptedException {
+    public void doAlarm(List<AlarmMessage> alarmMessages) throws Exception {
         Map<String, WebhookSettings> settingsMap = alarmRulesWatcher.getWebHooks();
         if (settingsMap == null || settingsMap.isEmpty()) {
             return;
@@ -57,7 +57,11 @@ public class WebhookCallback extends HttpAlarmCallback {
                 continue;
             }
             for (final var url : setting.getUrls()) {
-                post(URI.create(url), gson.toJson(alarmMessages), Map.of());
+                try {
+                    post(URI.create(url), gson.toJson(messages), Map.of());
+                } catch (Exception e) {
+                    log.error("Failed to send alarm message to Webhook: {}", url, e);
+                }
             }
         }
     }

@@ -24,6 +24,7 @@
 * Fix `EventHookCallback` build event: build the layer from `Service's Layer`.
 * Fix `AlarmCore` doAlarm: catch exception for each callback to avoid interruption.
 * Optimize queryBasicTraces in TraceQueryEsDAO.
+* Fix `WebhookCallback` send incorrect messages, add catch exception for each callback HTTP Post.
 
 #### UI
 
