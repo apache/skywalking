@@ -31,6 +31,8 @@ rules:
     period: 10
     silence-period: 1
     message: Successful rate of service {name} is more than 1% in 1 minutes of last 10 minutes
+    hooks:
+      - webhook.none
   comp_rule:
     expression: sum((service_resp_time > 10) * (service_sla > 100)) >= 1
     period: 10
@@ -48,3 +50,6 @@ hooks:
     custom:
       urls:
         - http://provider:9090/alarm/receive
+    none:
+      urls:
+        - http://none:9090/alarm/receive
