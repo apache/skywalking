@@ -142,12 +142,6 @@
                         </executions>
                         <configuration>
                             <verbose>true</verbose>
-                            <agent>
-                                <enabled>true</enabled>
-                                <metadataCopy>
-                                    <outputDirectory>/Users/zhangyueqin/git/graal-vm/skywalking/graal/graal-server-starter/src/main/resources/test</outputDirectory>
-                                </metadataCopy>
-                            </agent>
                             <imageName>${image.name}</imageName>
                             <mainClass>org.apache.skywalking.oap.server.starter.OAPServerStartUp</mainClass>
                             <metadataRepository>

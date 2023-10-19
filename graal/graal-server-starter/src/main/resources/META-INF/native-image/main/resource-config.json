@@ -52,7 +52,14 @@
     "pattern":"\\Qkotlin/coroutines/coroutines.kotlin_builtins\\E"
   }, {
     "pattern":"\\Qkotlin/internal/internal.kotlin_builtins\\E"
-  }, {
+  },
+    {
+      "pattern":"org/apache/skywalking/oap/server/core/source/oal/rt/dispatcher.*"
+    },
+    {
+      "pattern":"org/apache/skywalking/oap/server/core/source/oal/rt/metrics.*"
+    },
+    {
     "pattern":"\\Qkotlin/kotlin.kotlin_builtins\\E"
   }, {
     "pattern":"\\Qkotlin/ranges/ranges.kotlin_builtins\\E"

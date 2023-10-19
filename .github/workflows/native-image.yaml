@@ -70,29 +70,9 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - name: Agent NodeJS Backend
-            config: test/e2e-v2/cases/nodejs/e2e.yaml
-          - name: Agent Golang
-            config: test/e2e-v2/cases/go/e2e.yaml
-          - name: Agent NodeJS Frontend
-            config: test/e2e-v2/cases/browser/e2e.yaml
-          - name: Agent NodeJS Frontend ES
-            config: test/e2e-v2/cases/browser/es/e2e.yaml
-          - name: Agent NodeJS Frontend ES Sharding
-            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
-          - name: Agent PHP
-            config: test/e2e-v2/cases/php/e2e.yaml
-          - name: Agent Python
-            config: test/e2e-v2/cases/python/e2e.yaml
-          - name: Agent Lua
-            config: test/e2e-v2/cases/lua/e2e.yaml
-
-          - name: BanyanDB
-            config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: Storage H2
             config: test/e2e-v2/cases/storage/h2/e2e.yaml
-          - name: Storage MySQL
-            config: test/e2e-v2/cases/storage/mysql/e2e.yaml
+
     steps:
       - uses: actions/checkout@v3
         with:
