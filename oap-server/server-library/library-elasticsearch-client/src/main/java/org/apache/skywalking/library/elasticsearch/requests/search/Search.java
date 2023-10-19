@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.library.elasticsearch.requests.search;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -33,6 +35,8 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.A
 public final class Search {
     private final Integer from;
     private final Integer size;
+    @JsonProperty("_source")
+    private final ImmutableList<String> source;
     private final Query query;
     private final Sorts sort;
     private final ImmutableMap<String, Aggregation> aggregations;

@@ -93,7 +93,11 @@ public class AlarmCore {
 
                 if (!alarmMessageList.isEmpty()) {
                     for (AlarmCallback callback : allCallbacks) {
-                        callback.doAlarm(alarmMessageList);
+                        try {
+                            callback.doAlarm(alarmMessageList);
+                        } catch (Exception e) {
+                            LOGGER.error(e.getMessage(), e);
+                        }
                     }
                 }
             } catch (Exception e) {

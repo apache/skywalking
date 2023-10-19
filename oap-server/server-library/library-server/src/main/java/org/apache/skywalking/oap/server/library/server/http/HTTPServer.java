@@ -48,9 +48,9 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 public class HTTPServer implements Server {
     private final HTTPServerConfig config;
-    private ServerBuilder sb;
+    protected ServerBuilder sb;
     // Health check service, supports HEAD, GET method.
-    private final Set<HttpMethod> allowedMethods = Sets.newHashSet(HttpMethod.HEAD);
+    protected final Set<HttpMethod> allowedMethods = Sets.newHashSet(HttpMethod.HEAD);
 
     public HTTPServer(HTTPServerConfig config) {
         this.config = config;

@@ -22,5 +22,5 @@ traces:
   start: "{{ notEmpty .start}}"
   iserror: false
   traceids:
-    - {{ (index .traceids 0) }}
+    - "{{ (index .traceids 0) }}"
 {{- end }}

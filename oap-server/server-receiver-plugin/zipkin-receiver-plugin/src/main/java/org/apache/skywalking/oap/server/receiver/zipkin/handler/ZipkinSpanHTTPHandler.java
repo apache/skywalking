@@ -101,7 +101,7 @@ public class ZipkinSpanHTTPHandler {
             try (final HttpData httpData = request.content()) {
                 final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
                 spanForward.send(spanList);
-                return HttpResponse.of(HttpStatus.OK);
+                return HttpResponse.of(HttpStatus.ACCEPTED);
             }
         }));
         response.whenComplete().handle((unused, throwable) -> {

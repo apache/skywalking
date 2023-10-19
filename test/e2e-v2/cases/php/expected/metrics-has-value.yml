@@ -20,6 +20,6 @@
     isemptyvalue: true
 - key: {{ notEmpty .key }}
   value:
-    value: {{ ge .value.value 1 }}
-    isemptyvalue: false
+    value: 0
+    isemptyvalue: true
 {{- end }}

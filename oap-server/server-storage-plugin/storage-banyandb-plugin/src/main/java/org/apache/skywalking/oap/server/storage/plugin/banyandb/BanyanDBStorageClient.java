@@ -55,8 +55,8 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
-    public BanyanDBStorageClient(String host, int port) {
-        this.client = new BanyanDBClient(host, port);
+    public BanyanDBStorageClient(String... targets) {
+        this.client = new BanyanDBClient(targets);
     }
 
     @Override
@@ -109,6 +109,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);
             throw new IOException("fail to delete property", ex);
+        }
+    }
+
+    public void keepAliveProperty(long leaseId) throws IOException {
+        try {
+            this.client.keepAliveProperty(leaseId);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to keep alive property", ex);
         }
     }
 
