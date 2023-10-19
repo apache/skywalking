@@ -70,11 +70,8 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - name: Storage H2
-            config: test/e2e-v2/cases/storage/h2/e2e.yaml
-          - name: Agent Python
-            config: test/e2e-v2/cases/python/e2e.yaml
-
+          - name: Graal Docker Image
+            config: test/e2e-v2/cases/graal/h2/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

@@ -47,3 +47,11 @@ With native-image, some features are not yet supported.
 
 1. [LAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/lal/), [MAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/mal/), and some other features related to them are not supported at the moment.
 2. The [OAL](https://skywalking.apache.org/docs/main/next/en/concepts-and-designs/oal/) files are used in the compiling stage, which means that users would not see these files inside the native image package, and can't change it. Consider recompiling and packaging from the source codes including your OAL file changes.
+
+## Current Limitations
+Native-image supports reflection and other dynamic features through some JSON-formatted configuration files. SkyWalking currently provides a set of configuration files for basic support. You can find them [here](https://github.com/apache/skywalking/tree/master/graal/graal-server-starter/src/main/resources/META-INF/native-image).
+
+For now, these configuration files do not support all runtime environments (but will be fully supported in the future). Therefore, in other environments, users may need to generate the configuration files required by native-image on their own.
+
+SkyWalking uses [native build tools](https://graalvm.github.io/native-build-tools/latest/maven-plugin.html) to generate native-image. Additionally, GraalVM provides an agent to assist in generating configuration files. Therefore, users can generate the required configuration files by referring to [native build tools agent guide](https://graalvm.github.io/native-build-tools/latest/maven-plugin.html#agent-support).
+
