@@ -31,6 +31,7 @@ public final class SearchBuilder {
     private Integer from;
     private Integer size;
     private QueryBuilder queryBuilder;
+    private ImmutableList.Builder<String> source;
     private ImmutableList.Builder<Sort> sort;
     private ImmutableMap.Builder<String, Aggregation> aggregations;
 
@@ -55,6 +56,12 @@ public final class SearchBuilder {
         checkArgument(!Strings.isNullOrEmpty(by), "by cannot be blank");
         requireNonNull(order, "order");
         sort().add(new Sort(by, order));
+        return this;
+    }
+
+    public SearchBuilder source(String field) {
+        checkArgument(!Strings.isNullOrEmpty(field), "field cannot be blank");
+        source().add(field);
         return this;
     }
 
@@ -83,6 +90,13 @@ public final class SearchBuilder {
             sorts = new Sorts(sort.build());
         }
 
+        final ImmutableList<String> source;
+        if (this.source == null) {
+            source = null;
+        } else {
+            source = source().build();
+        }
+
         final ImmutableMap<String, Aggregation> aggregations;
         if (this.aggregations == null) {
             aggregations = null;
@@ -97,8 +111,15 @@ public final class SearchBuilder {
         }
 
         return new Search(
-            from, size, query, sorts, aggregations
+            from, size, source, query, sorts, aggregations
         );
+    }
+
+    private ImmutableList.Builder<String> source() {
+        if (source == null) {
+            source = ImmutableList.builder();
+        }
+        return source;
     }
 
     private ImmutableList.Builder<Sort> sort() {

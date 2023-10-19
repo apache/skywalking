@@ -24,6 +24,7 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
@@ -32,14 +33,13 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebhookCallbackTest {
     private static final AtomicBoolean IS_SUCCESS = new AtomicBoolean();
+    private static final AtomicInteger COUNTER = new AtomicInteger();
 
     @RegisterExtension
     public static final ServerExtension SERVER = new ServerExtension() {
@@ -49,7 +49,8 @@ public class WebhookCallbackTest {
                 req.aggregate().thenApply(r -> {
                     final String content = r.content().toStringUtf8();
                     final JsonArray elements = new Gson().fromJson(content, JsonArray.class);
-                    if (elements.size() == 2) {
+                    if (elements.size() == 1) {
+                        COUNTER.getAndIncrement();
                         IS_SUCCESS.set(true);
                         return HttpResponse.of(HttpStatus.OK);
                     }
@@ -61,13 +62,13 @@ public class WebhookCallbackTest {
     };
 
     @Test
-    public void testWebhook() throws IOException, InterruptedException {
+    public void testWebhook() throws Exception {
         List<String> remoteEndpoints = new ArrayList<>();
         remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
         Rules rules = new Rules();
-        WebhookSettings setting1 = new WebhookSettings("setting1", AlarmHooksType.wechat, true);
+        WebhookSettings setting1 = new WebhookSettings("setting1", AlarmHooksType.webhook, true);
         setting1.setUrls(remoteEndpoints);
-        WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.wechat, false);
+        WebhookSettings setting2 = new WebhookSettings("setting2", AlarmHooksType.webhook, false);
         setting2.setUrls(remoteEndpoints);
         rules.getWebhookSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
@@ -89,5 +90,6 @@ public class WebhookCallbackTest {
         webhookCallback.doAlarm(alarmMessages);
 
         Assertions.assertTrue(IS_SUCCESS.get());
+        Assertions.assertEquals(2, COUNTER.get());
     }
 }

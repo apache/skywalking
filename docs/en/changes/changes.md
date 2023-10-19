@@ -3,6 +3,8 @@
 #### Project
 
 * Add distribution/graal module to make preliminary preparations for supporting native-image.
+* Bump Java agent to 9.1-dev in the e2e tests.
+* Bump up netty to 4.1.100.
 
 #### OAP Server
 
@@ -13,6 +15,16 @@
   including `ui_template，ui_menu，continuous_profiling_policy`.
 * Add a release mechanism for alarm windows when it is expired in case of OOM.
 * Fix Zipkin trace receiver response: make the HTTP status code from `200` to `202`.
+* Update BanyanDB Java Client to 0.5.0.
+* Fix getInstances query in the BanyanDB Metadata DAO.
+* BanyanDBStorageClient: Add `keepAliveProperty` API.
+* Fix table exists check in the JDBC Storage Plugin.
+* Enhance extensibility of HTTP Server library.
+* Adjust `AlarmRecord` alarmMessage column length to 512.
+* Fix `EventHookCallback` build event: build the layer from `Service's Layer`.
+* Fix `AlarmCore` doAlarm: catch exception for each callback to avoid interruption.
+* Optimize queryBasicTraces in TraceQueryEsDAO.
+* Fix `WebhookCallback` send incorrect messages, add catch exception for each callback HTTP Post.
 * Support GraalVM native-image (Experimental).
 
 #### UI
@@ -22,7 +34,8 @@
 * Fix the display height of the link tree structure.
 * Replace the name by shortName on service widget.
 * Refactor: update pagination style. No visualization style change.
-* Apply MQE on K8s layer UI-templates
+* Apply MQE on K8s layer UI-templates.
+* Fix icons display in trace tree diagram.
 
 #### Documentation
 

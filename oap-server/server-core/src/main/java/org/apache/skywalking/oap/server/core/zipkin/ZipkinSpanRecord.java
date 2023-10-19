@@ -45,7 +45,7 @@ import zipkin2.Span;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.skywalking.oap.server.core.analysis.record.Record.TIME_BUCKET;
+import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @SuperDataset
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)

@@ -58,7 +58,7 @@ setup:
     - name: Install SkyWalking
       command: |
         helm -n istio-system install skywalking \
-          oci://ghcr.io/apache/skywalking-kubernetes/skywalking-helm \
+          oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
           --set elasticsearch.replicas=1 \
