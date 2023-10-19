@@ -780,6 +780,10 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"io.netty.util.ResourceLeakDetector$DefaultResourceLeak",
+  "fields":[{"name":"droppedRecords"}, {"name":"head"}]
+},
+{
   "name":"io.netty.util.concurrent.DefaultPromise",
   "fields":[{"name":"result"}]
 },
@@ -4162,7 +4166,8 @@
   "name":"org.apache.skywalking.oap.query.graphql.resolver.EventQuery",
   "allDeclaredFields":true,
   "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"queryEvents","parameterTypes":["org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition"] }]
 },
 {
   "name":"org.apache.skywalking.oap.query.graphql.resolver.HealthQuery",
@@ -4186,14 +4191,15 @@
   "name":"org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery",
   "allDeclaredFields":true,
   "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"getAllServices","parameterTypes":["org.apache.skywalking.oap.server.core.query.input.Duration","java.lang.String"] }]
 },
 {
   "name":"org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2",
   "allDeclaredFields":true,
   "allDeclaredClasses":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"getTimeInfo","parameterTypes":[] }, {"name":"listLayers","parameterTypes":[] }, {"name":"listServices","parameterTypes":["java.lang.String"] }]
+  "methods":[{"name":"findService","parameterTypes":["java.lang.String"] }, {"name":"getTimeInfo","parameterTypes":[] }, {"name":"listLayers","parameterTypes":[] }, {"name":"listServices","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"org.apache.skywalking.oap.query.graphql.resolver.MetricQuery",
@@ -4214,7 +4220,8 @@
   "name":"org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery",
   "allDeclaredFields":true,
   "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"sortMetrics","parameterTypes":["org.apache.skywalking.oap.server.core.query.input.TopNCondition","org.apache.skywalking.oap.server.core.query.input.Duration"] }]
 },
 {
   "name":"org.apache.skywalking.oap.query.graphql.resolver.Mutation",
@@ -6358,16 +6365,22 @@
   "name":"org.apache.skywalking.oap.server.core.query.enumeration.MetricsType"
 },
 {
-  "name":"org.apache.skywalking.oap.server.core.query.enumeration.Order"
+  "name":"org.apache.skywalking.oap.server.core.query.enumeration.Order",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus"
 },
 {
-  "name":"org.apache.skywalking.oap.server.core.query.enumeration.Scope"
+  "name":"org.apache.skywalking.oap.server.core.query.enumeration.Scope",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
-  "name":"org.apache.skywalking.oap.server.core.query.enumeration.Step"
+  "name":"org.apache.skywalking.oap.server.core.query.enumeration.Step",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.input.BrowserErrorLogQueryCondition",
@@ -6390,7 +6403,11 @@
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.input.Duration",
-  "queryAllPublicMethods":true
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setEnd","parameterTypes":["java.lang.String"] }, {"name":"setStart","parameterTypes":["java.lang.String"] }, {"name":"setStep","parameterTypes":["org.apache.skywalking.oap.server.core.query.enumeration.Step"] }]
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.input.EBPFNetworkDataCollectingSettings"
@@ -6439,7 +6456,11 @@
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.input.TopNCondition",
-  "queryAllPublicMethods":true
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setNormal","parameterTypes":["boolean"] }, {"name":"setOrder","parameterTypes":["org.apache.skywalking.oap.server.core.query.enumeration.Order"] }, {"name":"setParentService","parameterTypes":["java.lang.String"] }, {"name":"setScope","parameterTypes":["org.apache.skywalking.oap.server.core.query.enumeration.Scope"] }, {"name":"setTopN","parameterTypes":["int"] }]
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.input.TraceQueryCondition",
@@ -6773,7 +6794,11 @@
   "queryAllDeclaredMethods":true
 },
 {
-  "name":"org.apache.skywalking.oap.server.core.query.type.Pagination"
+  "name":"org.apache.skywalking.oap.server.core.query.type.Pagination",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setPageNum","parameterTypes":["int"] }, {"name":"setPageSize","parameterTypes":["int"] }]
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.type.Process",
@@ -6973,26 +6998,35 @@
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition",
+  "allDeclaredFields":true,
   "allDeclaredClasses":true,
-  "queryAllPublicMethods":true
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setLayer","parameterTypes":["java.lang.String"] }, {"name":"setName","parameterTypes":["java.lang.String"] }, {"name":"setPaging","parameterTypes":["org.apache.skywalking.oap.server.core.query.type.Pagination"] }, {"name":"setSource","parameterTypes":["org.apache.skywalking.oap.server.core.query.type.event.Source"] }, {"name":"setTime","parameterTypes":["org.apache.skywalking.oap.server.core.query.input.Duration"] }]
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.type.event.EventQueryCondition$EventQueryConditionBuilder"
 },
 {
-  "name":"org.apache.skywalking.oap.server.core.query.type.event.EventType"
+  "name":"org.apache.skywalking.oap.server.core.query.type.event.EventType",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.type.event.Events",
   "allDeclaredFields":true,
   "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"getEvents","parameterTypes":[] }]
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.type.event.Source",
   "allDeclaredFields":true,
   "allDeclaredClasses":true,
-  "queryAllDeclaredMethods":true
+  "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setEndpoint","parameterTypes":["java.lang.String"] }, {"name":"setService","parameterTypes":["java.lang.String"] }, {"name":"setServiceInstance","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"org.apache.skywalking.oap.server.core.query.type.event.Source$SourceBuilder"
