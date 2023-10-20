@@ -4373,7 +4373,9 @@
   "refresh": false,
   "schemaVersion": 21,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "skywalking"
+  ],
   "templating": {
     "list": [
       {
