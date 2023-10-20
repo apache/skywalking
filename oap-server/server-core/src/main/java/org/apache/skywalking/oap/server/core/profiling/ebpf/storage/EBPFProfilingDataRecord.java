@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.profiling.ebpf.storage;
 
+import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
-import com.linecorp.armeria.internal.shaded.guava.base.Charsets;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
