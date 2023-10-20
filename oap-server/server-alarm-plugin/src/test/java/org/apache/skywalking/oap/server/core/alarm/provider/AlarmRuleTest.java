@@ -42,6 +42,10 @@ public class AlarmRuleTest {
             Scope.Endpoint.getScopeId()
         );
         ValueColumnMetadata.INSTANCE.putIfAbsent(
+            "meter_status_code", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0,
+            Scope.Service.getScopeId()
+        );
+        ValueColumnMetadata.INSTANCE.putIfAbsent(
             "record", "testColumn", Column.ValueDataType.SAMPLED_RECORD, Function.Avg, 0,
             Scope.Endpoint.getScopeId()
         );
@@ -58,9 +62,15 @@ public class AlarmRuleTest {
     @Test
     public void testExpressionVerify() throws IllegalExpressionException {
         AlarmRule rule = new AlarmRule();
-        //normal
+        //normal common metric
         rule.setExpression("sum(service_percent < 85) >= 3");
-
+        //normal labeled metric
+        //4xx + 5xx > 10
+        rule.setExpression("sum(aggregate_labels(meter_status_code{_='4xx,5xx'},sum) > 10) > 3");
+        rule.setExpression("sum(aggregate_labels(meter_status_code,sum) > 10) > 3");
+        //4xx or 5xx > 10
+        rule.setExpression("sum(meter_status_code{_='4xx,5xx'} > 10) >= 3");
+        rule.setExpression("sum(meter_status_code > 10) >= 3");
         //illegal expression
         Assertions.assertThrows(IllegalExpressionException.class, () -> {
             rule.setExpression("what? sum(service_percent < 85) >= 3");
@@ -68,7 +78,7 @@ public class AlarmRuleTest {
 
         //not exist metric
         Assertions.assertEquals(
-            "Metric: [service_percent111] dose not exist.",
+            "Expression: sum(service_percent111 < 85) >= 3 error: Metric: [service_percent111] dose not exist.",
             Assertions.assertThrows(IllegalExpressionException.class, () -> {
                 rule.setExpression("sum(service_percent111 < 85) >= 3");
             }).getMessage()
@@ -92,7 +102,7 @@ public class AlarmRuleTest {
 
         //not a common or labeled metric
         Assertions.assertEquals(
-            "Metric dose not supported in alarm, metric: [record] is not a common or labeled metric.",
+            "Expression: sum(record < 85) > 1 error: Metric dose not supported in alarm, metric: [record] is not a common or labeled metric.",
             Assertions.assertThrows(IllegalExpressionException.class, () -> {
                 rule.setExpression("sum(record < 85) > 1");
             }).getMessage()
