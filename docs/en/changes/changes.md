@@ -36,6 +36,7 @@
 * Refactor: update pagination style. No visualization style change.
 * Apply MQE on K8s layer UI-templates.
 * Fix icons display in trace tree diagram.
+* Add a new widget to show jvm memory pool detail.
 
 #### Documentation
 
