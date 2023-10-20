@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -39,7 +38,6 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.oap.server.core.alarm.provider.expr.rt.AlarmMQEVerifyVisitor;
-import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
@@ -95,25 +93,11 @@ public class AlarmRule {
     private void verifyIncludeMetrics(Set<String> includeMetrics, String expression) throws IllegalExpressionException {
         Set<String> scopeSet = new HashSet<>();
         for (String metricName : includeMetrics) {
-            Optional<ValueColumnMetadata.ValueColumn> valueColumn = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(
-                metricName);
-            if (valueColumn.isEmpty()) {
-                throw new IllegalExpressionException("Metric: [" + metricName + "] dose not exist.");
-            }
             scopeSet.add(ValueColumnMetadata.INSTANCE.getScope(metricName).name());
-            Column.ValueDataType dataType = valueColumn.get().getDataType();
-            switch (dataType) {
-                case COMMON_VALUE:
-                case LABELED_VALUE:
-                    break;
-                default:
-                    throw new IllegalExpressionException(
-                        "Metric dose not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
-            }
         }
         if (scopeSet.size() != 1) {
             throw new IllegalExpressionException(
-                "The metrics in expression: " + expression + " must have the same scope level, but got: " + scopeSet);
+                "The metrics in expression: " + expression + " must have the same scope level, but got: " + scopeSet + ".");
         }
     }
 }
