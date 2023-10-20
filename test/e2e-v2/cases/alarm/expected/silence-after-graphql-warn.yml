@@ -18,6 +18,30 @@ msgs:
   - starttime: {{ gt .starttime 0 }}
     scope: Service
     id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    message: Percentile response time of service e2e-service-provider alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 10, p75 > 10, p90 > 10, p95 > 10, p99 > 10.
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
+    events:
+      {{- contains .events }}
+      - uuid: {{ notEmpty .uuid }}
+        source:
+          service: e2e-service-provider
+          serviceinstance: ""
+          endpoint: ""
+        name: Alarm
+        type: ""
+        message: {{ notEmpty .message }}
+        parameters: []
+        starttime: {{ gt .starttime 0 }}
+        endtime: {{ gt .endtime 0 }}
+        layer: GENERAL
+      {{- end }}
+  - starttime: {{ gt .starttime 0 }}
+    scope: Service
+    id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     message: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
     tags:
       - key: level
@@ -34,6 +58,30 @@ msgs:
         name: Alarm
         type: ""
         message: {{ notEmpty .message}}
+        parameters: []
+        starttime: {{ gt .starttime 0 }}
+        endtime: {{ gt .endtime 0 }}
+        layer: GENERAL
+      {{- end }}
+  - starttime: {{ gt .starttime 0 }}
+    scope: Service
+    id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
+    message: Percentile response time of service e2e-service-provider alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 10, p75 > 10, p90 > 10, p95 > 10, p99 > 10.
+    tags:
+      - key: level
+        value: WARNING
+      - key: receivers
+        value: lisi
+    events:
+      {{- contains .events }}
+      - uuid: {{ notEmpty .uuid }}
+        source:
+          service: e2e-service-provider
+          serviceinstance: ""
+          endpoint: ""
+        name: Alarm
+        type: ""
+        message: {{ notEmpty .message }}
         parameters: []
         starttime: {{ gt .starttime 0 }}
         endtime: {{ gt .endtime 0 }}
