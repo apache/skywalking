@@ -26,6 +26,7 @@
 * Optimize queryBasicTraces in TraceQueryEsDAO.
 * Fix `WebhookCallback` send incorrect messages, add catch exception for each callback HTTP Post.
 * Fix AlarmRule expression validation: add labeled metrics mock data for check.
+* Support collect ZGC memory pool metrics.
 
 #### UI
 
@@ -36,6 +37,8 @@
 * Refactor: update pagination style. No visualization style change.
 * Apply MQE on K8s layer UI-templates.
 * Fix icons display in trace tree diagram.
+* fix: update tooltip style to support multiple metrics scrolling view in a metrics graph.
+* Add a new widget to show jvm memory pool detail.
 
 #### Documentation
 
