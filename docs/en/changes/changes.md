@@ -25,6 +25,7 @@
 * Fix `AlarmCore` doAlarm: catch exception for each callback to avoid interruption.
 * Optimize queryBasicTraces in TraceQueryEsDAO.
 * Fix `WebhookCallback` send incorrect messages, add catch exception for each callback HTTP Post.
+* Fix AlarmRule expression validation: add labeled metrics mock data for check.
 * Support GraalVM native-image (Experimental).
 
 #### UI

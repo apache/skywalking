@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
-import com.linecorp.armeria.internal.shaded.guava.base.Charsets;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,8 +41,8 @@ public class EBPFProcessProfilingSchedule extends Source {
     public String getEntityId() {
         if (entityId == null) {
             entityId = Hashing.sha256().newHasher()
-                    .putString(String.format("%s_%s_%d", taskId, processId, startTime), Charsets.UTF_8)
-                    .hash().toString();
+                              .putString(String.format("%s_%s_%d", taskId, processId, startTime), Charsets.UTF_8)
+                              .hash().toString();
         }
         return entityId;
     }
