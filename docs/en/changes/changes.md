@@ -27,7 +27,7 @@
 * Fix `WebhookCallback` send incorrect messages, add catch exception for each callback HTTP Post.
 * Fix AlarmRule expression validation: add labeled metrics mock data for check.
 * Support collect ZGC memory pool metrics.
-* Add a component ID for Netty (ID=151).
+* Add a component ID for Netty-http (ID=151).
 
 #### UI
 

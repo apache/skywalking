@@ -502,7 +502,7 @@ Aerospike:
 Nacos:
   id: 150
   languages: Java
-Netty:
+Netty-http:
   id: 151
   languages: Java
 
