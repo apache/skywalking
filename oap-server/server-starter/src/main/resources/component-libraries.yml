@@ -502,6 +502,9 @@ Aerospike:
 Nacos:
   id: 150
   languages: Java
+Netty-http:
+  id: 151
+  languages: Java
 
 
 # .NET/.NET Core components
