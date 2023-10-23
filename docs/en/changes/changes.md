@@ -41,7 +41,9 @@
 * Fix: update tooltip style to support multiple metrics scrolling view in a metrics graph.
 * Add a new widget to show jvm memory pool detail.
 * Fix: avoid querying data with empty parameters.
-* Add a title and a description for trace segments
+* Add a title and a description for trace segments.
+* Add Netty icon for Netty HTTP plugin.
+* Add Pulsar menu i18n files.
 
 #### Documentation
 
