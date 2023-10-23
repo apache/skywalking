@@ -644,6 +644,9 @@ GoFastHttpClient:
 GoFastHttpServer:
   id: 5020
   language: Golang
+Fiber:
+  id: 5021
+  language: Golang
 
 # Lua components
 # [6000, 7000) for Lua agent
