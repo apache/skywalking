@@ -4,8 +4,9 @@ SkyWalking is an Observability Analysis Platform that provides full observabilit
 ## Capabilities
 SkyWalking covers all 3 areas of observability, including, **Tracing**, **Metrics** and **Logging**.
 
-- **Tracing**. SkyWalking native data formats, including Zipkin v1 and v2, as well as Jaeger.
-- **Metrics**. SkyWalking integrates with Service Mesh platforms, such as Istio, Envoy, and Linkerd, to build observability into the data plane 
+- **Tracing**. SkyWalking native data formats, and Zipkin traces of v1 and v2 formats are supported.
+- **Metrics**. SkyWalking supports mature metrics formats, including native meter format, OTEL metrics format, and Telegraf format.
+SkyWalking integrates with Service Mesh platforms, typically Istio and Envoy, to build observability into the data plane 
 or control plane. Also, SkyWalking native agents can run in the metrics mode, which greatly improves performances.
 - **Logging**. Includes logs collected from disk or through network. Native agents could bind the tracing context with logs automatically,
 or use SkyWalking to bind the trace and log through the text content.

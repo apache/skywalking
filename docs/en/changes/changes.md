@@ -51,5 +51,6 @@
 * Separate storage docs to different files, and add an estimated timeline for BanyanDB(end of 2023). 
 * Add topology configuration in UI-Grafana doc.
 * Add missing metrics to the `OpenTelemetry Metrics` doc.
+* Polish docs of `Concepts and Designs`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/193?closed=1)
