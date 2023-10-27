@@ -29,6 +29,7 @@
 * Support collect ZGC memory pool metrics.
 * Add a component ID for Netty-http (ID=151).
 * Add a component ID for Fiber (ID=5021).
+* BanyanDBStorageClient: Add `define(Property property, PropertyStore.Strategy strategy)` API.
 
 #### UI
 
