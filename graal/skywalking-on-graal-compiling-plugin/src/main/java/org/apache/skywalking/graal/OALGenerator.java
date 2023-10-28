@@ -81,6 +81,7 @@ public class OALGenerator {
         for (OALClassGenerator generator :oalClassGenerators) {
             generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
             generator.setCurrentClassLoader(OALGenerator.class.getClassLoader());
+            generator.setOpenEngineDebug(true);
             generateOALClassFiles(rootPath, generator);
         }
     }

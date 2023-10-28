@@ -105,7 +105,6 @@
             <id>native</id>
             <build>
                 <plugins>
-
                     <plugin>
                         <groupId>org.apache.skywalking</groupId>
                         <artifactId>skywalking-on-graal-compiling-plugin</artifactId>
@@ -116,6 +115,42 @@
                                 <goals>
                                     <goal>oal-generate</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>native-config-generator</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <executable>sh</executable>
+                                    <arguments>
+                                        <argument>${project.build.directory}/../../graal-config-generator/configGenerator.sh</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>native-config-filter</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <workingDirectory>${project.build.directory}</workingDirectory>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath/>
+                                        <argument>org.apache.skywalking.oap.graal.NativeConfigFilter</argument>
+                                    </arguments>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

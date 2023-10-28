@@ -201,6 +201,7 @@
         <assertj-core.version>3.20.2</assertj-core.version>
 
         <skipUTs>false</skipUTs>
+        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
 
         <system-stubs.version>2.0.2</system-stubs.version>
 
@@ -347,7 +348,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
-                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                     <executions>
                         <execution>
@@ -374,7 +375,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <skip>${skipUTs}</skip>
-                        <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                        <argLine>${argLine}</argLine>
                     </configuration>
                 </plugin>
 
