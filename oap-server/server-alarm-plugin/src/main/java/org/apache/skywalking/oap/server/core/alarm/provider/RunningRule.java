@@ -198,8 +198,14 @@ public class RunningRule {
      */
     public List<AlarmMessage> check() {
         List<AlarmMessage> alarmMessageList = new ArrayList<>(30);
+        List<AlarmEntity> expiredEntityList = new ArrayList<>();
 
         windows.forEach((alarmEntity, window) -> {
+            if (window.isExpired()) {
+                expiredEntityList.add(alarmEntity);
+                return;
+            }
+
             Optional<AlarmMessage> alarmMessageOptional = window.checkAlarm();
             if (alarmMessageOptional.isPresent()) {
                 AlarmMessage alarmMessage = alarmMessageOptional.get();
@@ -218,6 +224,7 @@ public class RunningRule {
             }
         });
 
+        expiredEntityList.forEach(windows::remove);
         return alarmMessageList;
     }
 
@@ -381,6 +388,17 @@ public class RunningRule {
                 log.trace("Match expression is {}", expression);
             }
             return isMatch == 1;
+        }
+
+        public boolean isExpired() {
+            if (this.values != null) {
+                for (Map<String, Metrics> value : this.values) {
+                    if (value != null) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void init() {

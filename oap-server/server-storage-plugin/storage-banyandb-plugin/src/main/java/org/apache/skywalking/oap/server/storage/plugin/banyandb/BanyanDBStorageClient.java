@@ -55,8 +55,8 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
 
-    public BanyanDBStorageClient(String host, int port) {
-        this.client = new BanyanDBClient(host, port);
+    public BanyanDBStorageClient(String... targets) {
+        this.client = new BanyanDBClient(targets);
     }
 
     @Override
@@ -112,6 +112,16 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    public void keepAliveProperty(long leaseId) throws IOException {
+        try {
+            this.client.keepAliveProperty(leaseId);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to keep alive property", ex);
+        }
+    }
+
     public StreamQueryResponse query(StreamQuery q) throws IOException {
         try {
             StreamQueryResponse response = this.client.query(q);
@@ -145,9 +155,22 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    /**
+     * PropertyStore.Strategy is default to {@link PropertyStore.Strategy#MERGE}
+     */
     public void define(Property property) throws IOException {
         try {
             this.client.apply(property);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to define property", ex);
+        }
+    }
+
+    public void define(Property property, PropertyStore.Strategy strategy) throws IOException {
+        try {
+            this.client.apply(property, strategy);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);

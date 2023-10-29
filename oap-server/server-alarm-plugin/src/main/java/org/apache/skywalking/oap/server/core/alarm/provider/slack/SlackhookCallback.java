@@ -70,7 +70,11 @@ public class SlackhookCallback extends HttpAlarmCallback {
                 }
                 jsonObject.add("blocks", jsonElements);
                 final var body = GSON.toJson(jsonObject);
-                post(URI.create(url), body, Map.of());
+                try {
+                    post(URI.create(url), body, Map.of());
+                } catch (Exception e) {
+                    log.error("Failed to send alarm message to Slack: {}", url, e);
+                }
             }
         }
     }

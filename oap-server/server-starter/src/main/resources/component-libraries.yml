@@ -502,6 +502,9 @@ Aerospike:
 Nacos:
   id: 150
   languages: Java
+Netty-http:
+  id: 151
+  languages: Java
 
 
 # .NET/.NET Core components
@@ -634,6 +637,15 @@ GoMuxServer:
   language: Golang
 Iris:
   id: 5018
+  language: Golang
+GoFastHttpClient:
+  id: 5019
+  language: Golang
+GoFastHttpServer:
+  id: 5020
+  language: Golang
+Fiber:
+  id: 5021
   language: Golang
 
 # Lua components

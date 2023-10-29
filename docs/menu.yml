@@ -38,7 +38,7 @@ catalog:
         catalog:
           - name: "Overview"
             path: "/en/concepts-and-designs/backend-overview"
-          - name: "Analysis Streaming Traces and Mesh Traffic"
+          - name: "Analysis Traces and Mesh Traffic"
             path: "/en/concepts-and-designs/oal"
           - name: "Analysis Metrics and Meters"
             path: "/en/concepts-and-designs/mal"
@@ -59,6 +59,8 @@ catalog:
             path: "/en/setup/backend/backend-docker"
           - name: "Run with Kubernetes"
             path: "/en/setup/backend/backend-k8s"
+          - name: "Run with GraalVM (Experimental)"
+            path: "/en/setup/backend/backend-graalvm"
       - name: "Configuration Vocabulary"
         path: "/en/setup/backend/configuration-vocabulary"
       - name: "Advanced Setup"

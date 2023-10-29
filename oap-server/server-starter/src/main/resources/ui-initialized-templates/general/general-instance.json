@@ -1,19 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 [
   {
@@ -300,7 +284,7 @@
                   "y": 0,
                   "w": 8,
                   "h": 13,
-                  "i": "5",
+                  "i": "4",
                   "type": "Widget",
                   "widget": {
                     "title": "JVM Memory (MB)"
@@ -342,7 +326,88 @@
                   ]
                 },
                 {
-                  "x": 8,
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "JVM Memory Detail (MB)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "CodeCache"
+                    },
+                    {
+                      "label": "NewGen"
+                    },
+                    {
+                      "label": "OldGen"
+                    },
+                    {
+                      "label": "Survivor"
+                    },
+                    {
+                      "label": "PermGen"
+                    },
+                    {
+                      "label": "Metaspace"
+                    },
+                    {
+                      "label": "ZHeap"
+                    },
+                    {
+                      "label": "Compressed Class Space"
+                    },
+                    {
+                      "label": "CodeHeap 'non-nmethods'"
+                    },
+                    {
+                      "label": "CodeHeap 'profiled nmethods'"
+                    },
+                    {
+                      "label": "CodeHeap 'non-profiled nmethods'"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "instance_jvm_memory_pool_code_cache/1048576",
+                    "instance_jvm_memory_pool_newgen/1048576",
+                    "instance_jvm_memory_pool_oldgen/1048576",
+                    "instance_jvm_memory_pool_survivor/1048576",
+                    "instance_jvm_memory_pool_permgen/1048576",
+                    "instance_jvm_memory_pool_metaspace/1048576",
+                    "instance_jvm_memory_pool_zheap/1048576",
+                    "instance_jvm_memory_pool_compressed_class_space/1048576",
+                    "instance_jvm_memory_pool_codeheap_non_nmethods/1048576",
+                    "instance_jvm_memory_pool_codeheap_profiled_nmethods/1048576",
+                    "instance_jvm_memory_pool_codeheap_non_profiled_nmethods/1048576"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 16,
                   "y": 13,
                   "w": 8,
                   "h": 13,
@@ -383,8 +448,8 @@
                   ]
                 },
                 {
-                  "x": 16,
-                  "y": 13,
+                  "x": 0,
+                  "y": 26,
                   "w": 8,
                   "h": 13,
                   "i": "13",
@@ -456,10 +521,10 @@
                   ]
                 },
                 {
-                  "x": 0,
+                  "x": 8,
                   "y": 26,
                   "w": 8,
-                  "h": 12,
+                  "h": 13,
                   "i": "15",
                   "type": "Widget",
                   "widget": {
@@ -495,8 +560,8 @@
                   ]
                 },
                 {
-                  "x": 16,
-                  "y": 0,
+                  "x": 0,
+                  "y": 13,
                   "w": 8,
                   "h": 13,
                   "i": "6",
@@ -536,7 +601,7 @@
                   ]
                 },
                 {
-                  "x": 0,
+                  "x": 8,
                   "y": 13,
                   "w": 8,
                   "h": 13,

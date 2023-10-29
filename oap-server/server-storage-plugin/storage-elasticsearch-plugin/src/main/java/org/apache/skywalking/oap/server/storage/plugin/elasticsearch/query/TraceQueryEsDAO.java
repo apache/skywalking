@@ -122,7 +122,15 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
                 break;
         }
 
-        final SearchBuilder search = Search.builder().query(query);
+        final SearchBuilder search =
+            Search.builder()
+                .query(query)
+                .source(SegmentRecord.TRACE_ID)
+                .source(SegmentRecord.SEGMENT_ID)
+                .source(SegmentRecord.ENDPOINT_ID)
+                .source(SegmentRecord.START_TIME)
+                .source(SegmentRecord.LATENCY)
+                .source(SegmentRecord.IS_ERROR);
 
         switch (queryOrder) {
             case BY_START_TIME:

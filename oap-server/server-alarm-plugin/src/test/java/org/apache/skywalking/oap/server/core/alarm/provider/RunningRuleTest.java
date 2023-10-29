@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -38,9 +39,8 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,8 +58,6 @@ import java.util.Objects;
  * So in this test, we need to simulate a lot of scenario to see the reactions.
  */
 public class RunningRuleTest {
-    private static DateTimeFormatter TIME_BUCKET_FORMATTER = DateTimeFormat.forPattern("yyyyMMddHHmm");
-
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
@@ -81,8 +79,11 @@ public class RunningRuleTest {
             put("key", "value");
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
-        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301434");
-        long timeInPeriod1 = 201808301434L;
+
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.getMillis());
+        DateTime targetTime = new DateTime(TimeBucket.getTimestamp(timeInPeriod1));
+
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
 
         Map<AlarmEntity, RunningRule.Window> windows = Whitebox.getInternalState(runningRule, "windows");
@@ -92,7 +93,7 @@ public class RunningRuleTest {
         int period = Whitebox.getInternalState(window, "period");
         LinkedList<Metrics> metricsBuffer = Whitebox.getInternalState(window, "values");
 
-        Assertions.assertTrue(startTime.equals(endTime));
+        Assertions.assertTrue(targetTime.equals(endTime.toDateTime()));
         Assertions.assertEquals(15, period);
         Assertions.assertEquals(15, metricsBuffer.size());
     }
@@ -109,24 +110,51 @@ public class RunningRuleTest {
             put("key", "value");
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
-        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
 
-        // check at 201808301440
+        // check at startTime - 4
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assertions.assertEquals(0, alarmMessages.size());
 
+        // check at startTime - 2
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
-
-        // check at 201808301440
         alarmMessages = runningRule.check();
         Assertions.assertEquals(1, alarmMessages.size());
+    }
+
+    @Test
+    public void testAlarmMetricsOutOfDate() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule();
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(15);
+        alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
+        alarmRule.setTags(new HashMap<String, String>() {{
+            put("key", "value");
+        }});
+        RunningRule runningRule = new RunningRule(alarmRule);
+
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(153).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(152).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(151).getMillis());
+
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
+        runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
+
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
+        List<AlarmMessage> alarmMessages = runningRule.check();
+        Assertions.assertEquals(0, alarmMessages.size());
     }
 
     @Test
@@ -141,26 +169,24 @@ public class RunningRuleTest {
             put("key", "value");
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
-        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
 
         runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod1, 70, 60, 40, 40, 40));
         runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod2, 60, 60, 40, 40, 40));
 
-        // check at 201808301440
+        // check at startTime - 4
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assertions.assertEquals(0, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
 
+        // check at now
+        runningRule.moveTo(startTime.toLocalDateTime());
         runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
-
-        // check at 201808301440
         alarmMessages = runningRule.check();
         Assertions.assertEquals(1, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
     }
 
     @Test
@@ -199,11 +225,10 @@ public class RunningRuleTest {
             put("key", "value");
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
-        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
-
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
@@ -232,7 +257,6 @@ public class RunningRuleTest {
             put("key", "value");
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
-        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441");
 
         final boolean[] isAlarm = {false};
         AlarmCallback assertCallback = new AlarmCallback() {
@@ -244,24 +268,28 @@ public class RunningRuleTest {
         LinkedList<AlarmCallback> callbackList = new LinkedList<>();
         callbackList.add(assertCallback);
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
-        long timeInPeriod4 = 201808301432L;
-        long timeInPeriod5 = 201808301440L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(7).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(5).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(3).getMillis());
+        long timeInPeriod4 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(9).getMillis());
+        long timeInPeriod5 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(1).getMillis());
+
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod4, 90));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod5, 95));
 
-        // check at 201808301440
+        // check at startTime - 1
         Assertions.assertEquals(0, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
-        // check at 201808301441
+
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301443"));
-        // check at 201808301442
+
+        // check at startTime + 1
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size());
     }
 
@@ -278,23 +306,24 @@ public class RunningRuleTest {
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
+
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
 
-        // check at 201808301440
+        // check at startTime - 4
         Assertions.assertEquals(0, runningRule.check().size()); //check matches, no alarm
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
 
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
-
-        // check at 201808301440
         Assertions.assertEquals(1, runningRule.check().size()); //alarm
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
 
-        // check at 201808301442
+        // check at starTime + 1
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size()); //silence, no alarm
         Assertions.assertEquals(0, runningRule.check().size()); //silence, no alarm
         Assertions.assertNotEquals(0, runningRule.check().size()); //alarm
@@ -317,21 +346,24 @@ public class RunningRuleTest {
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 71));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
 
-        // check at 201808301440
+        // check at startTime - 2
         Assertions.assertEquals(0, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
+
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301442"));
-        // check at 201808301442
+
+        // check at startTime + 1
+        runningRule.moveTo(startTime.plusMinutes(1).toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size());
     }
 
@@ -350,21 +382,24 @@ public class RunningRuleTest {
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301439L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(1).getMillis());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 70));
         runningRule.in(getMetaInAlarm(223), getMetrics(timeInPeriod3, 74));
 
-        // check at 201808301440
+        // check at startTime - 1
         Assertions.assertEquals(1, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
+
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
         Assertions.assertEquals(1, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301446"));
-        // check at 201808301442
+
+        // check at startTime + 6
+        runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size());
     }
 
@@ -383,21 +418,24 @@ public class RunningRuleTest {
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301439L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(1).getMillis());
 
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod1, 70));
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod2, 70));
         runningRule.in(getMetaInAlarm(223), getMetrics(timeInPeriod3, 74));
 
-        // check at 201808301440
+        // check at startTime - 1
         Assertions.assertEquals(1, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
-        // check at 201808301441
+
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
         Assertions.assertEquals(1, runningRule.check().size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301446"));
-        // check at 201808301442
+
+        // check at startTime + 6
+        runningRule.moveTo(startTime.plusMinutes(6).toLocalDateTime());
         Assertions.assertEquals(0, runningRule.check().size());
     }
 
@@ -640,24 +678,23 @@ public class RunningRuleTest {
             put("key", "value");
         }});
         RunningRule runningRule = new RunningRule(alarmRule);
-        LocalDateTime startTime = TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301440");
 
-        long timeInPeriod1 = 201808301434L;
-        long timeInPeriod2 = 201808301436L;
-        long timeInPeriod3 = 201808301438L;
+        DateTime startTime = DateTime.now();
+        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
+        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
+        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
 
         runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod1, value1));
         runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod2, value2));
 
+        // check at startTime - 4
         List<AlarmMessage> alarmMessages = runningRule.check();
         Assertions.assertEquals(0, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
 
+        // check at startTime
+        runningRule.moveTo(startTime.toLocalDateTime());
         runningRule.in(getMetaInAlarm(123, "endpoint_labeled"), getLabeledValueMetrics(timeInPeriod3, value3));
-
-        // check at 201808301440
         alarmMessages = runningRule.check();
         Assertions.assertEquals(alarmMsgSize, alarmMessages.size());
-        runningRule.moveTo(TIME_BUCKET_FORMATTER.parseLocalDateTime("201808301441"));
     }
 }

@@ -118,7 +118,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        this.client = new BanyanDBStorageClient(config.getHost(), config.getPort());
+        this.client = new BanyanDBStorageClient(config.getTargetArray());
         this.modelInstaller = new BanyanDBIndexInstaller(client, getManager(), this.config);
 
         // Stream

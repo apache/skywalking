@@ -560,6 +560,11 @@ jobs:
               ISTIO_VERSION=1.18.0
               KUBERNETES_VERSION=25
 
+          - name: Rover with Istio Process 1.15.0
+            config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
+            env: ISTIO_VERSION=1.15.0
+            runs-on: ubuntu-20.04
+
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml
           - name: Auth
@@ -586,11 +591,6 @@ jobs:
             config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
           - name: MariaDB Prometheus and slowsql
             config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
-
-          - name: Rover with Istio Process 1.15.0
-            config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
-            env: ISTIO_VERSION=1.15.0
-            runs-on: ubuntu-20.04
 
           - name: Zipkin ES
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
@@ -681,6 +681,12 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
+      - name: Login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache maven repository
         uses: actions/cache@v3
         with:
@@ -697,6 +703,11 @@ jobs:
         uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
+      - if: ${{ failure() }}
+        run: |
+          df -h
+          du -sh .
+          docker images
       - uses: actions/upload-artifact@v2
         if: ${{ failure() }}
         name: Upload Logs
@@ -739,6 +750,12 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
+      - name: Login to ghcr
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
         uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
         env:
@@ -747,6 +764,11 @@ jobs:
           ALS_ANALYZER: ${{ matrix.analyzer }}
         with:
           e2e-file: $GITHUB_WORKSPACE/test/e2e-v2/cases/istio/als/e2e.yaml
+      - if: ${{ failure() }}
+        run: |
+          df -h
+          du -sh .
+          docker images
       - uses: actions/upload-artifact@v2
         if: ${{ failure() }}
         name: Upload Logs
