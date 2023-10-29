@@ -68,6 +68,9 @@ public class NativeConfigFilter {
             filteredClasses.addAll(allClassUnderPackage);
         });
 
+        // for kafka
+        filteredClasses.add("org.apache.kafka.clients.consumer.RangeAssignor");
+
         List<ObjectNode> objectNodes = filteredClasses.stream()
                 .map(className -> generateConfig(className))
                 .collect(Collectors.toList());
