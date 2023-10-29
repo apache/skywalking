@@ -200,7 +200,12 @@ public enum Layer {
      * It is used to publish and subscribe to streams of records.
      * Pulsar supports scalable and fault-tolerant messaging, making it suitable for use in distributed systems.
      */
-    PULSAR(32, true);
+    PULSAR(32, true),
+
+    /**
+     * A scalable, fault-tolerant, and low-latency storage service optimized for real-time workloads.
+     */
+    BOOKKEEPER(33, true);
 
     private final int value;
     /**

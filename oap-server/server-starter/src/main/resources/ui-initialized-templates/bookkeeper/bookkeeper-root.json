@@ -1,0 +1,37 @@
+[
+  {
+    "id": "Bookkeeper-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 29,
+          "i": "0",
+          "type": "Widget",
+          "id": "0",
+          "metricTypes": [
+            ""
+          ],
+          "metrics": [
+            ""
+          ],
+          "moved": false,
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "Bookkeeper-Cluster",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          }
+        }
+      ],
+      "layer": "BOOKKEEPER",
+      "entity": "All",
+      "name": "Bookkeeper-Root",
+      "isRoot": true
+    }
+  }
+]

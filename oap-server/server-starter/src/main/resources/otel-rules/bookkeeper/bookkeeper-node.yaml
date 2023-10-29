@@ -28,24 +28,30 @@
 #    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
-filter: "{ tags -> tags.job_name == 'pulsar-monitoring' }" # The OpenTelemetry job name
-expSuffix: tag({tags -> tags.cluster = 'pulsar::' + tags.cluster}).instance(['cluster'], ['node'], Layer.PULSAR)
-metricPrefix: meter_pulsar_broker
+filter: "{ tags -> tags.job_name == 'bookkeeper-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'bookkeeper::' + tags.cluster}).instance(['cluster'], ['node'], Layer.BOOKKEEPER)
+metricPrefix: meter_bookkeeper_node
 
 # Metrics Rules
 metricsRules:
+  # thread executor metrics
+  - name: thread_executor_completed
+    exp: bookkeeper_server_thread_executor_completed.sum(['cluster', 'node'])
+  - name: thread_executor_tasks_completed
+    exp: bookkeeper_server_thread_executor_tasks_completed.sum(['cluster', 'node'])
+  - name: thread_executor_tasks_rejected
+    exp: bookkeeper_server_thread_executor_tasks_rejected.sum(['cluster', 'node'])
+  - name: thread_executor_tasks_failed
+    exp: bookkeeper_server_thread_executor_tasks_failed.sum(['cluster', 'node'])
 
-  # connection Metrics
-  - name: active_connections
-    exp: pulsar_active_connections.sum(['cluster', 'node'])
-  - name: total_connections
-    exp: pulsar_connection_created_total_count.sum(['cluster', 'node'])
-  - name: connection_create_success_count
-    exp: pulsar_connection_create_success_count.sum(['cluster', 'node'])
-  - name: connection_create_fail_count
-    exp: pulsar_connection_create_fail_count.sum(['cluster', 'node'])
-  - name: connection_closed_total_count
-    exp: pulsar_connection_closed_total_count.sum(['cluster', 'node'])
+  - name: high_priority_threads
+    exp: bookkeeper_server_BookieHighPriorityThread_threads.sum(['cluster', 'node'])
+  - name: read_thread_pool_threads
+    exp: bookkeeper_server_BookieReadThreadPool_threads.sum(['cluster', 'node'])
+  - name: high_priority_thread_max_queue_size
+    exp: bookkeeper_server_BookieHighPriorityThread_max_queue_size.sum(['cluster', 'node'])
+  - name: read_thread_pool_max_queue_size
+    exp: bookkeeper_server_BookieReadThreadPool_max_queue_size.sum(['cluster', 'node'])
 
   # JVM Metrics
   - name: jvm_memory_used
@@ -57,9 +63,17 @@ metricsRules:
 
   - name: jvm_memory_pool_used
     exp: jvm_memory_pool_bytes_used.sum(['cluster', 'node', 'pool'])
+  - name: jvm_memory_pool_committed
+    exp: jvm_memory_pool_bytes_committed.sum(['cluster', 'node', 'pool'])
+  - name: jvm_memory_pool_init
+    exp: jvm_memory_pool_bytes_init.sum(['cluster', 'node', 'pool'])
 
   - name: jvm_buffer_pool_used_bytes
     exp: jvm_buffer_pool_used_bytes.sum(['cluster', 'node', 'pool'])
+  - name: jvm_buffer_pool_capacity_bytes
+    exp: jvm_buffer_pool_capacity_bytes.sum(['cluster', 'node', 'pool'])
+  - name: jvm_buffer_pool_used_buffers
+    exp: jvm_buffer_pool_used_buffers.sum(['cluster', 'node', 'pool'])
 
   - name: jvm_gc_collection_seconds_count
     exp: jvm_gc_collection_seconds_count.sum(['cluster', 'node', 'gc']).rate('PT1M')

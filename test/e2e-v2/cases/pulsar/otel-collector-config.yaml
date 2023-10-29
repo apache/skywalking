@@ -14,23 +14,30 @@
 # limitations under the License.
 
 receivers:
+  # Data sources: metrics
   prometheus:
     config:
       scrape_configs:
-        - job_name: "pulsar-monitoring"
-          scrape_interval: 30s
+        - job_name: pulsar-monitoring
+          scrape_interval: 15s
           static_configs:
-            - targets: 
-                - broker:8081
-                - bookie:8000
+            - targets: [broker:8080]
           relabel_configs:
-            - source_labels: [ ]
-              target_label: cluster
-              replacement: pulsar-cluster
             - source_labels: [ __address__ ]
-              regex: '(broker|bookie):(.+)'
-              target_label: instance
-              replacement: '$1-$2'
+              regex: (.+)
+              target_label: node
+              replacement: $$1
+        - job_name: bookkeeper-monitoring
+          scrape_interval: 10s
+          static_configs:
+            - targets: [bookie:8000]
+              labels:
+                cluster: pulsar-cluster
+          relabel_configs:
+            - source_labels: [ __address__ ]
+              regex: (.+)
+              target_label: node
+              replacement: $$1
 
 processors:
   batch:
@@ -45,11 +52,11 @@ exporters:
       insecure: true
     #insecure: true
   # Exports data to the console
-  logging:
-    logLevel: debug
+  debug:
+    verbosity: detailed
 service:
   pipelines:
     metrics:
       receivers: [prometheus]
       processors: [batch]
-      exporters: [otlp, logging]
+      exporters: [debug,otlp]

@@ -35,40 +35,34 @@ metricPrefix: meter_pulsar
 
 # Metrics Rules
 metricsRules:
-  # Connection Metrics
-  - name: active_connections
-    exp: pulsar_active_connections.sum(['cluster', 'broker'])
-  - name: total_connections
-    exp: pulsar_connection_created_total_count.sum(['cluster', 'broker'])
-  - name: connection_create_success_count
-    exp: pulsar_connection_create_success_count.sum(['cluster', 'broker'])
-  - name: connection_create_fail_count
-    exp: pulsar_connection_create_fail_count.sum(['cluster', 'broker'])
-  - name: connection_closed_total_count
-    exp: pulsar_connection_closed_total_count.sum(['cluster', 'broker'])
-  - name: throttled_connections
-    exp: pulsar_broker_throttled_connections.sum(['cluster', 'broker'])
-  - name: throttled_connections_global_limit
-    exp: pulsar_broker_throttled_connections_global_limit.sum(['cluster', 'broker'])
 
   # Topic and Subscription Metrics
   - name: total_topics
-    exp: pulsar_broker_topics_count.sum(['cluster', 'broker'])
+    exp: pulsar_broker_topics_count.sum(['cluster', 'node'])
   - name: total_subscriptions
-    exp: pulsar_broker_subscriptions_count.sum(['cluster', 'broker'])
+    exp: pulsar_broker_subscriptions_count.sum(['cluster', 'node'])
 
   # Producer and Consumer Metrics
   - name: total_producers
-    exp: pulsar_broker_producers_count.sum(['cluster', 'broker'])
+    exp: pulsar_broker_producers_count.sum(['cluster', 'node'])
   - name: total_consumers
-    exp: pulsar_broker_consumers_count.sum(['cluster', 'broker'])
+    exp: pulsar_broker_consumers_count.sum(['cluster', 'node'])
 
   # Message Rate and Throughput Metrics
   - name: message_rate_in
-    exp: pulsar_broker_rate_in.sum(['cluster', 'broker'])
+    exp: pulsar_broker_rate_in.sum(['cluster', 'node'])
   - name: message_rate_out
-    exp: pulsar_broker_rate_out.sum(['cluster', 'broker'])
+    exp: pulsar_broker_rate_out.sum(['cluster', 'node'])
   - name: throughput_in
-    exp: pulsar_broker_throughput_in.sum(['cluster', 'broker'])
+    exp: pulsar_broker_throughput_in.sum(['cluster', 'node'])
   - name: throughput_out
-    exp: pulsar_broker_throughput_out.sum(['cluster', 'broker'])
+    exp: pulsar_broker_throughput_out.sum(['cluster', 'node'])
+
+  - name: storage_size
+    exp: pulsar_broker_storage_size.sum(['cluster', 'node'])
+  - name: storage_logical_size
+    exp: pulsar_broker_storage_logical_size.sum(['cluster', 'node'])
+  - name: storage_write_rate
+    exp: pulsar_broker_storage_write_rate.sum(['cluster', 'node'])
+  - name: storage_read_rate
+    exp: pulsar_broker_storage_read_rate.sum(['cluster', 'node'])

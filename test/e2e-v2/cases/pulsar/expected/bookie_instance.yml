@@ -13,19 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-type: TIME_SERIES_VALUES
-results:
-  {{- contains .results }}
-  - metric:
-      labels: []
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  {{- end}}
-error: null
+{{- contains . }}
+- id: {{ notEmpty .id }}
+  name: bookie:8000
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+  {{- end }}

@@ -6,200 +6,8 @@
         {
           "x": 0,
           "y": 0,
-          "w": 6,
-          "h": 10,
-          "i": "1",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Evictions",
-            "tips": "Number of cache evictions",
-            "name": "cache_evictions"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_evictions.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 6,
-          "y": 0,
-          "w": 6,
-          "h": 10,
-          "i": "2",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Inserted Entries",
-            "tips": "Number of cache inserted entries",
-            "name": "cache_inserted_entries"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_inserted_entries_total.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 12,
-          "y": 0,
-          "w": 6,
-          "h": 10,
-          "i": "3",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Evicted Entries",
-            "tips": "Number of cache evicted entries",
-            "name": "cache_evicted_entries"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_evicted_entries_total.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 18,
-          "y": 0,
-          "w": 6,
-          "h": 10,
-          "i": "4",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Entries",
-            "tips": "Number of cache entries",
-            "name": "cache_entries"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_entries.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 0,
-          "y": 10,
-          "w": 6,
-          "h": 10,
-          "i": "5",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Hits Rate",
-            "tips": "Rate of cache hits",
-            "name": "cache_hits_rate"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_hits_rate.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 6,
-          "y": 10,
-          "w": 6,
-          "h": 10,
-          "i": "6",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Hits Throughput",
-            "tips": "Throughput of cache hits",
-            "name": "cache_hits_throughput"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_hits_throughput.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 12,
-          "y": 10,
-          "w": 6,
-          "h": 10,
-          "i": "7",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Misses Rate",
-            "tips": "Rate of cache misses",
-            "name": "cache_misses_rate"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_misses_rate.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 18,
-          "y": 10,
-          "w": 6,
-          "h": 10,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "Cache Misses Throughput",
-            "tips": "Throughput of cache misses",
-            "name": "cache_misses_throughput"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_ml_cache_misses_throughput.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 0,
-          "y": 20,
-          "w": 6,
-          "h": 10,
+          "w": 12,
+          "h": 11,
           "i": "9",
           "type": "Widget",
           "widget": {
@@ -215,15 +23,29 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "expressions": ["pulsar_active_connections.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
+          "expressions": [
+            "meter_pulsar_broker_active_connections"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricMode": "Expression",
+          "id": "9",
+          "moved": false,
+          "associate": [],
+          "metricConfig": [
+            {
+              "label": "active_connections"
+            }
+          ],
+          "metrics": [],
+          "metricTypes": []
         },
         {
-          "x": 6,
-          "y": 20,
-          "w": 6,
-          "h": 10,
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 11,
           "i": "10",
           "type": "Widget",
           "widget": {
@@ -239,285 +61,34 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "expressions": ["pulsar_connection_created_total_count.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
+          "expressions": [
+            "meter_pulsar_broker_total_connections"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricMode": "Expression",
+          "id": "10",
+          "moved": false,
+          "metricConfig": [
+            {
+              "label": "total_connections"
+            }
+          ],
+          "metrics": [],
+          "metricTypes": []
         },
         {
-          "x": 12,
-          "y": 20,
-          "w": 6,
-          "h": 10,
-          "i": "11",
-          "type": "Widget",
-          "widget": {
-            "title": "Total Topics",
-            "tips": "Total number of topics",
-            "name": "total_topics"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_topics_count.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 18,
-          "y": 20,
-          "w": 6,
-          "h": 10,
-          "i": "12",
-          "type": "Widget",
-          "widget": {
-            "title": "Total Subscriptions",
-            "tips": "Total number of subscriptions",
-            "name": "total_subscriptions"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_subscriptions_count.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 0,
-          "y": 30,
-          "w": 6,
-          "h": 10,
-          "i": "13",
-          "type": "Widget",
-          "widget": {
-            "title": "Total Producers",
-            "tips": "Total number of producers",
-            "name": "total_producers"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_producers_count.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 6,
-          "y": 30,
-          "w": 6,
-          "h": 10,
-          "i": "14",
-          "type": "Widget",
-          "widget": {
-            "title": "Total Consumers",
-            "tips": "Total number of consumers",
-            "name": "total_consumers"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_consumers_count.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 12,
-          "y": 30,
-          "w": 6,
-          "h": 10,
-          "i": "15",
-          "type": "Widget",
-          "widget": {
-            "title": "Message Rate In",
-            "tips": "Message rate in",
-            "name": "message_rate_in"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_rate_in.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 18,
-          "y": 30,
-          "w": 6,
-          "h": 10,
-          "i": "16",
-          "type": "Widget",
-          "widget": {
-            "title": "Message Rate Out",
-            "tips": "Message rate out",
-            "name": "message_rate_out"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_rate_out.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 0,
-          "y": 40,
-          "w": 6,
-          "h": 10,
-          "i": "17",
-          "type": "Widget",
-          "widget": {
-            "title": "Throughput In",
-            "tips": "Throughput in",
-            "name": "throughput_in"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_throughput_in.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 6,
-          "y": 40,
-          "w": 6,
-          "h": 10,
-          "i": "18",
-          "type": "Widget",
-          "widget": {
-            "title": "Throughput Out",
-            "tips": "Throughput out",
-            "name": "throughput_out"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["pulsar_broker_throughput_out.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 12,
-          "y": 40,
-          "w": 6,
-          "h": 10,
-          "i": "19",
-          "type": "Widget",
-          "widget": {
-            "title": "JVM Memory Used",
-            "tips": "JVM memory used",
-            "name": "jvm_memory_used"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["jvm_memory_used_bytes.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 18,
-          "y": 40,
-          "w": 6,
-          "h": 10,
-          "i": "20",
-          "type": "Widget",
-          "widget": {
-            "title": "JVM Memory Committed",
-            "tips": "JVM memory committed",
-            "name": "jvm_memory_committed"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["jvm_memory_committed_bytes.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 0,
-          "y": 50,
-          "w": 6,
-          "h": 10,
-          "i": "21",
-          "type": "Widget",
-          "widget": {
-            "title": "JVM Memory Max",
-            "tips": "JVM memory max",
-            "name": "jvm_memory_max"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["jvm_memory_max_bytes.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 6,
-          "y": 50,
-          "w": 6,
-          "h": 10,
+          "x": 8,
+          "y": 11,
+          "w": 8,
+          "h": 11,
           "i": "22",
           "type": "Widget",
           "widget": {
-            "title": "JVM GC Collection Seconds",
-            "tips": "JVM GC collection seconds",
-            "name": "jvm_gc_collection_seconds"
+            "title": "Connection Create Fail Count",
+            "tips": "",
+            "name": "connection_create_fail_count"
           },
           "graph": {
             "type": "Line",
@@ -527,69 +98,34 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "expressions": ["jvm_gc_collection_seconds.sum(['cluster', 'broker']).rate('PT1M')"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 12,
-          "y": 50,
-          "w": 6,
-          "h": 10,
-          "i": "23",
-          "type": "Widget",
-          "widget": {
-            "title": "JVM Threads Current",
-            "tips": "Current JVM threads",
-            "name": "jvm_threads_current"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["jvm_threads_current.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
-        },
-        {
-          "x": 18,
-          "y": 50,
-          "w": 6,
-          "h": 10,
-          "i": "24",
-          "type": "Widget",
-          "widget": {
-            "title": "JVM Threads Daemon",
-            "tips": "JVM daemon threads",
-            "name": "jvm_threads_daemon"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": ["jvm_threads_daemon.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
+          "expressions": [
+            "meter_pulsar_broker_connection_create_fail_count.sum(['cluster','broker'])"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricMode": "Expression",
+          "id": "22",
+          "moved": false,
+          "metrics": [],
+          "metricTypes": [],
+          "metricConfig": [
+            {
+              "label": "connection_create_fail"
+            }
+          ]
         },
         {
           "x": 0,
-          "y": 60,
-          "w": 6,
-          "h": 10,
+          "y": 11,
+          "w": 8,
+          "h": 11,
           "i": "25",
           "type": "Widget",
           "widget": {
-            "title": "JVM Threads Peak",
+            "title": "Connection Create Success Count",
             "tips": "Peak JVM threads",
-            "name": "jvm_threads_peak"
+            "name": "connection_create_success_count"
           },
           "graph": {
             "type": "Line",
@@ -597,23 +133,41 @@
             "smooth": false,
             "showSymbol": true,
             "showXAxis": true,
-            "showYAxis": true
+            "showYAxis": true,
+            "legend": {
+              "asTable": false,
+              "show": true
+            }
           },
-          "expressions": ["jvm_threads_peak.sum(['cluster', 'broker'])"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
+          "expressions": [
+            "meter_pulsar_broker_connection_create_success_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricMode": "Expression",
+          "id": "25",
+          "moved": false,
+          "metricTypes": [],
+          "metrics": [],
+          "associate": [],
+          "metricConfig": [
+            {
+              "label": "connection_create_success"
+            }
+          ]
         },
         {
-          "x": 6,
-          "y": 60,
-          "w": 6,
-          "h": 10,
+          "x": 16,
+          "y": 11,
+          "w": 8,
+          "h": 11,
           "i": "26",
           "type": "Widget",
           "widget": {
-            "title": "JVM Threads Started Total",
-            "tips": "Total JVM threads started",
-            "name": "jvm_threads_started_total"
+            "title": "Connection Closed Total Count",
+            "tips": "connection_closed_total_count",
+            "name": "connection_closed_total_count"
           },
           "graph": {
             "type": "Line",
@@ -623,9 +177,240 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "expressions": ["jvm_threads_started_total.sum(['cluster', 'broker']).rate('PT1M')"],
-          "typesOfMQE": ["TIME_SERIES_VALUES"],
-          "metricMode": "Expression"
+          "expressions": [
+            "meter_pulsar_broker_connection_closed_total_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "metricMode": "Expression",
+          "id": "26",
+          "moved": false,
+          "metrics": [],
+          "metricTypes": [],
+          "metricConfig": [
+            {
+              "label": "connection_closed"
+            }
+          ]
+        },
+        {
+          "x": 16,
+          "y": 22,
+          "w": 8,
+          "h": 11,
+          "i": "27",
+          "type": "Widget",
+          "id": "27",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_pulsar_broker_jvm_buffer_pool_used_bytes/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_buffer_pool_used_bytes",
+            "title": "JVM Buffer Pool Used (MB)"
+          }
+        },
+        {
+          "x": 8,
+          "y": 22,
+          "w": 8,
+          "h": 11,
+          "i": "28",
+          "type": "Widget",
+          "id": "28",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_pulsar_broker_jvm_memory_pool_used/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_memory_pool_used",
+            "title": "JVM Memory Pool Used (MB)"
+          }
+        },
+        {
+          "x": 0,
+          "y": 22,
+          "w": 8,
+          "h": 11,
+          "i": "29",
+          "type": "Widget",
+          "id": "29",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_pulsar_broker_jvm_memory_used/1024/1024",
+            "meter_pulsar_broker_jvm_memory_committed/1024/1024",
+            "meter_pulsar_broker_jvm_memory_init/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
+            {
+              "label": "used",
+              "unit": "MB"
+            },
+            {
+              "label": "committed",
+              "unit": "MB"
+            },
+            {
+              "unit": "MB",
+              "label": "init"
+            }
+          ],
+          "widget": {
+            "name": "jvm_memory",
+            "title": "JVM Memory (MB)"
+          }
+        },
+        {
+          "x": 16,
+          "y": 33,
+          "w": 8,
+          "h": 11,
+          "i": "30",
+          "type": "Widget",
+          "id": "30",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_pulsar_broker_jvm_threads_current",
+            "meter_pulsar_broker_jvm_threads_daemon",
+            "meter_pulsar_broker_jvm_threads_peak",
+            "meter_pulsar_broker_jvm_threads_deadlocked"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "metricConfig": [
+            {
+              "label": "current threads"
+            },
+            {
+              "label": "daemon threads"
+            },
+            {
+              "label": "peak threads"
+            },
+            {
+              "label": "deadlocked threads"
+            }
+          ],
+          "widget": {
+            "name": "meter_pulsar_broker_jvm_threads",
+            "title": "JVM Threads"
+          }
+        },
+        {
+          "x": 8,
+          "y": 33,
+          "w": 8,
+          "h": 11,
+          "i": "31",
+          "type": "Widget",
+          "id": "31",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_pulsar_broker_jvm_gc_collection_seconds_sum"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_gc_collection_seconds_sum",
+            "title": "GC Time (ms/min)"
+          }
+        },
+        {
+          "x": 0,
+          "y": 33,
+          "w": 8,
+          "h": 11,
+          "i": "32",
+          "type": "Widget",
+          "id": "32",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_pulsar_broker_jvm_gc_collection_seconds_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "name": "jvm_gc_collection_seconds_count",
+            "title": "GC Count"
+          }
         }
       ],
       "layer": "PULSAR",

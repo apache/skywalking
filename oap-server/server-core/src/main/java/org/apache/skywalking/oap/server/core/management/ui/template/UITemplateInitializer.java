@@ -71,6 +71,7 @@ public class UITemplateInitializer {
         Layer.MONGODB.name(),
         Layer.KAFKA.name(),
         Layer.PULSAR.name(),
+        Layer.BOOKKEEPER.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
+version: '3'
 
 services:
   oap:
@@ -22,97 +22,65 @@ services:
       service: oap
     ports:
       - "12800:12800"
-    environment:
-        SW_ENABLE_UPDATE_UI_TEMPLATE: true
-        SW_STORAGE: mysql
-        SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
-    entrypoint: [ 'sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh' ]
     networks:
       - e2e
-    depends_on:
-      mysql:
-        condition: service_healthy
 
   # Start zookeeper
   zookeeper:
-    image: apachepulsar/pulsar:latest
-    container_name: zookeeper
-    restart: on-failure
+    image: zookeeper:latest
+    expose:
+      - 2181
     networks:
       - e2e
-    volumes:
-      - ./data/zookeeper:/pulsar/data/zookeeper
     environment:
-      - metadataStoreUrl=zk:zookeeper:2181
-      - PULSAR_MEM=-Xms256m -Xmx256m -XX:MaxDirectMemorySize=256m
-    command: >
-      bash -c "bin/apply-config-from-env.py conf/zookeeper.conf && \
-             bin/generate-zookeeper-config.sh conf/zookeeper.conf && \
-             exec bin/pulsar zookeeper"
+      - ALLOW_ANONYMOUS_LOGIN=yes
     healthcheck:
-      test: ["CMD", "bin/pulsar-zookeeper-ruok.sh"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-
-  # Init cluster metadata
-  pulsar-init:
-    container_name: pulsar-init
-    hostname: pulsar-init
-    image: apachepulsar/pulsar:latest
-    networks:
-      - e2e
-    command: >
-      bin/pulsar initialize-cluster-metadata \
-               --cluster cluster-a \
-               --zookeeper zookeeper:2181 \
-               --configuration-store zookeeper:2181 \
-               --web-service-url http://broker:8081 \
-               --broker-service-url pulsar://broker:6650
-    depends_on:
-      zookeeper:
-        condition: service_healthy
+      test: ["CMD", "nc", "-nz", "127.0.0.1", "2181"]
+      interval: 15s
+      timeout: 10s
+      retries: 120
 
   # Start bookie
   bookie:
     image: apachepulsar/pulsar:latest
-    container_name: bookie
     restart: on-failure
     hostname: bookie
     networks:
       - e2e
     environment:
-      - clusterName=cluster-a
+      - clusterName=pulsar-cluster
       - zkServers=zookeeper:2181
       - metadataServiceUri=metadata-store:zk:zookeeper:2181
-      # otherwise every time we run docker compose uo or down we fail to start due to Cookie
-      # See: https://github.com/apache/bookkeeper/blob/405e72acf42bb1104296447ea8840d805094c787/bookkeeper-server/src/main/java/org/apache/bookkeeper/bookie/Cookie.java#L57-68
       - advertisedAddress=bookie
       - BOOKIE_MEM=-Xms512m -Xmx512m -XX:MaxDirectMemorySize=256m
+      - allowLoopback=true
     depends_on:
       zookeeper:
         condition: service_healthy
-      pulsar-init:
-        condition: service_completed_successfully
-    # Map the local directory to the container to avoid bookie startup failure due to insufficient container disks.
     volumes:
       - ./data/bookkeeper:/pulsar/data/bookkeeper
+    expose:
+      - 8000
     ports:
       - "8000:8000"
     command: bash -c "bin/apply-config-from-env.py conf/bookkeeper.conf && exec bin/pulsar bookie"
+    healthcheck:
+      test: ["CMD", "nc", "-nz", "127.0.0.1", "8000"]
+      interval: 15s
+      timeout: 10s
+      retries: 120
 
   # Start broker
   broker:
     image: apachepulsar/pulsar:latest
-    container_name: broker
-    hostname: broker
     restart: on-failure
+    hostname: broker
     networks:
       - e2e
     environment:
       - metadataStoreUrl=zk:zookeeper:2181
       - zookeeperServers=zookeeper:2181
-      - clusterName=cluster-a
+      - clusterName=pulsar-cluster
       - managedLedgerDefaultEnsembleSize=1
       - managedLedgerDefaultWriteQuorum=1
       - managedLedgerDefaultAckQuorum=1
@@ -122,15 +90,40 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
-      bookie:
-        condition: service_started
+    expose:
+      - 8081
     ports:
       - "6650:6650"
-      - "8081:8081"
-    command: bash -c "bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+      - "8081:8080"
+    command: bash -c "bin/pulsar initialize-cluster-metadata --cluster pulsar-cluster --zookeeper zookeeper:2181 --configuration-store zookeeper:2181 --web-service-url http://broker:8081 --broker-service-url pulsar://broker:6650 && bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+    healthcheck:
+      test: ["CMD", "nc", "-nz", "127.0.0.1", "8080"]
+      interval: 15s
+      timeout: 10s
+      retries: 120
+
+  consume-perf:
+    image: apachepulsar/pulsar:latest
+    networks:
+      - e2e
+    depends_on:
+      broker:
+        condition: service_healthy
+    command: bash -c "bin/pulsar-perf consume -m 100000 my-topic"
+
+  produce-perf:
+    image: apachepulsar/pulsar:latest
+    networks:
+      - e2e
+    depends_on:
+      broker:
+        condition: service_healthy
+      consume-perf:
+        condition: service_started
+    command: bash -c "bin/pulsar-perf produce -m 100000 my-topic"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
+    image: otel/opentelemetry-collector:0.87.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
@@ -141,34 +134,5 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-  ui:
-    extends:
-      file: ../../script/docker-compose/base-compose.yml
-      service: ui
-    environment:
-      - SW_OAP_ADDRESS=http://oap:12800
-      - SW_ZIPKIN_ADDRESS=http://oap:9412
-    depends_on:
-      oap:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
-
-  mysql:
-    image: mysql/mysql-server:8.0.13
-    networks:
-      - e2e
-    expose:
-      - 3306
-    environment:
-      MYSQL_ROOT_PASSWORD: "root@1234"
-      MYSQL_DATABASE: "swtest"
-      MYSQL_ROOT_HOST: "%"
-    healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/3306"]
-      interval: 5s
-      timeout: 60s
-      retries: 120
-
 networks:
   e2e:

@@ -15,13 +15,8 @@
 
 {{- contains . }}
 - id: {{ notEmpty .id }}
-  name: broker:6650
+  name: broker:8080
   instanceuuid: {{ notEmpty .instanceuuid }}
   attributes: []
   language: UNKNOWN
-- id: {{ notEmpty .id }}
-  name: bookie:6650
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  attributes: []
-  language: UNKNOWN
-{{- end }}
+  {{- end }}

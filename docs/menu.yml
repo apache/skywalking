@@ -263,9 +263,10 @@ catalog:
                 path: "/en/setup/backend/backend-rabbitmq-monitoring"
               - name: "Kafka"
                 path: "/en/setup/backend/backend-kafka-monitoring"
-                // TODO: backend-pulsar-monitoring
               - name: "Pulsar"
                 path: "/en/setup/backend/backend-pulsar-monitoring"
+              - name: "Bookkeeper"
+                path: "/en/setup/backend/backend-bookkeeper-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"
