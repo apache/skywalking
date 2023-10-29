@@ -71,7 +71,7 @@ jobs:
       matrix:
         test:
           - name: Graal Docker Image
-            config: test/e2e-v2/cases/graal/h2/e2e.yaml
+            config: test/e2e-v2/cases/python/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

@@ -42,8 +42,10 @@ public class NativeConfigFilter {
             "jdk.internal.loader.ClassLoaders$PlatformClassLoader"
     );
 
-    private static Set<String> INPUT_CONDITION_PACKAGE_NAME = Set.of(
-            "org.apache.skywalking.oap.server.core.query.input"
+    private static Set<String> NEED_REFLECT_PACKAGE_NAME = Set.of(
+            "org.apache.skywalking.oap.server.core.query",
+            "org.apache.skywalking.oap.query.graphql.resolver",
+            "org.apache.skywalking.oap.query.graphql.type"
     );
 
     public static void main(String[] args) throws IOException {
@@ -61,13 +63,13 @@ public class NativeConfigFilter {
 
         List<String> filteredClasses = findAllSubclasses(ModuleConfig.class);
 
-        INPUT_CONDITION_PACKAGE_NAME.forEach(name -> {
+        NEED_REFLECT_PACKAGE_NAME.forEach(name -> {
             List<String> allClassUnderPackage = findAllClassUnderPackage(name);
             filteredClasses.addAll(allClassUnderPackage);
         });
 
         List<ObjectNode> objectNodes = filteredClasses.stream()
-                .map(className -> generateConfig(objectMapper, className))
+                .map(className -> generateConfig(className))
                 .collect(Collectors.toList());
         List<String> objectNodesName = objectNodes.stream()
                 .map(objectNode -> objectNode.get("name").asText()).collect(Collectors.toList());
@@ -120,20 +122,33 @@ public class NativeConfigFilter {
         return subclasses;
     }
 
-    private static ObjectNode generateConfig(ObjectMapper objectMapper, String className) {
+    private static ObjectNode generateConfig(String className) {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
         ObjectNode rootNode = nodeFactory.objectNode();
+
+        //"queryAllDeclaredConstructors" : true,
+        //    "queryAllPublicConstructors" : true,
+        //    "queryAllDeclaredMethods" : true,
+        //    "queryAllPublicMethods" : true,
+        //    "allDeclaredClasses" : true,
+        //    "allPublicClasses" : true
         rootNode.put("name", className);
-
-        ArrayNode methodsNode = nodeFactory.arrayNode();
-
-        ObjectNode methodNode = nodeFactory.objectNode();
-        methodNode.put("name", "<init>");
-        methodNode.set("parameterTypes", nodeFactory.arrayNode());
-        methodsNode.add(methodNode);
-
-        rootNode.set("methods", methodsNode);
+        rootNode.put("allDeclaredFields", true);
+//        rootNode.put("allPublicFields", true);
+        rootNode.put("allDeclaredClasses", true);
+//        rootNode.put("allPublicClasses", true);
+        rootNode.put("allDeclaredMethods", true);
+        rootNode.put("allDeclaredConstructors", true);
+//        ArrayNode methodsNode = nodeFactoy.arrayNode();
+//
+//        ObjectNode methodNode = nodeFactory.objectNode();
+//        methodNode.put("name", "<init>");
+//
+//        methodNode.set("parameterTypes", nodeFactory.arrayNode());
+//        methodsNode.add(methodNode);
+//
+//        rootNode.set("methods", methodsNode);
 
         return rootNode;
     }
