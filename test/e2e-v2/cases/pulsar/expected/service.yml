@@ -21,4 +21,11 @@
   layers:
     - PULSAR
   normal: true
+- id: {{ b64enc "bookkeeper::pulsar-cluster" }}.1
+  name: bookkeeper::pulsar-cluster
+  group: bookkeeper
+  shortname: pulsar-cluster
+  layers:
+    - BOOKKEEPER
+  normal: true
   {{- end }}

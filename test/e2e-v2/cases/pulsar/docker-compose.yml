@@ -57,8 +57,6 @@ services:
     depends_on:
       zookeeper:
         condition: service_healthy
-    volumes:
-      - ./data/bookkeeper:/pulsar/data/bookkeeper
     expose:
       - 8000
     ports:
