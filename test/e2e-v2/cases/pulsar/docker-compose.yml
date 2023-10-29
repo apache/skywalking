@@ -89,11 +89,12 @@ services:
       zookeeper:
         condition: service_healthy
     expose:
-      - 8081
+      - 8080
+      - 6650
     ports:
       - "6650:6650"
-      - "8081:8080"
-    command: bash -c "bin/pulsar initialize-cluster-metadata --cluster pulsar-cluster --zookeeper zookeeper:2181 --configuration-store zookeeper:2181 --web-service-url http://broker:8081 --broker-service-url pulsar://broker:6650 && bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
+      - "8080:8080"
+    command: bash -c "bin/pulsar initialize-cluster-metadata --cluster pulsar-cluster --zookeeper zookeeper:2181 --configuration-store zookeeper:2181 --web-service-url http://broker:8080 --broker-service-url pulsar://broker:6650 && bin/apply-config-from-env.py conf/broker.conf && exec bin/pulsar broker"
     healthcheck:
       test: ["CMD", "nc", "-nz", "127.0.0.1", "8080"]
       interval: 15s
