@@ -38,7 +38,7 @@ catalog:
         catalog:
           - name: "Overview"
             path: "/en/concepts-and-designs/backend-overview"
-          - name: "Analysis Streaming Traces and Mesh Traffic"
+          - name: "Analysis Traces and Mesh Traffic"
             path: "/en/concepts-and-designs/oal"
           - name: "Analysis Metrics and Meters"
             path: "/en/concepts-and-designs/mal"

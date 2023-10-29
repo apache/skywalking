@@ -155,9 +155,22 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
+    /**
+     * PropertyStore.Strategy is default to {@link PropertyStore.Strategy#MERGE}
+     */
     public void define(Property property) throws IOException {
         try {
             this.client.apply(property);
+            this.healthChecker.health();
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to define property", ex);
+        }
+    }
+
+    public void define(Property property, PropertyStore.Strategy strategy) throws IOException {
+        try {
+            this.client.apply(property, strategy);
             this.healthChecker.health();
         } catch (BanyanDBException ex) {
             healthChecker.unHealth(ex);

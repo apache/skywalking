@@ -22,6 +22,17 @@ instance_jvm_memory_heap = from(ServiceInstanceJVMMemory.used).filter(heapStatus
 instance_jvm_memory_noheap = from(ServiceInstanceJVMMemory.used).filter(heapStatus == false).longAvg();
 instance_jvm_memory_heap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == true).longAvg();
 instance_jvm_memory_noheap_max = from(ServiceInstanceJVMMemory.max).filter(heapStatus == false).longAvg();
+instance_jvm_memory_pool_code_cache = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.CODE_CACHE_USAGE).longAvg();
+instance_jvm_memory_pool_newgen = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.NEWGEN_USAGE).longAvg();
+instance_jvm_memory_pool_oldgen = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.OLDGEN_USAGE).longAvg();
+instance_jvm_memory_pool_survivor = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.SURVIVOR_USAGE).longAvg();
+instance_jvm_memory_pool_permgen = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.PERMGEN_USAGE).longAvg();
+instance_jvm_memory_pool_metaspace = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.METASPACE_USAGE).longAvg();
+instance_jvm_memory_pool_zheap = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.ZHEAP_USAGE).longAvg();
+instance_jvm_memory_pool_compressed_class_space = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.COMPRESSED_CLASS_SPACE_USAGE).longAvg();
+instance_jvm_memory_pool_codeheap_non_nmethods = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.CODEHEAP_NON_NMETHODS_USAGE).longAvg();
+instance_jvm_memory_pool_codeheap_profiled_nmethods = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.CODEHEAP_PROFILED_NMETHODS_USAGE).longAvg();
+instance_jvm_memory_pool_codeheap_non_profiled_nmethods = from(ServiceInstanceJVMMemoryPool.used).filter(poolType == MemoryPoolType.CODEHEAP_NON_PROFILED_NMETHODS_USAGE).longAvg();
 instance_jvm_young_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.NEW).sum();
 instance_jvm_old_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.OLD).sum();
 instance_jvm_normal_gc_time = from(ServiceInstanceJVMGC.time).filter(phase == GCPhase.NORMAL).sum();

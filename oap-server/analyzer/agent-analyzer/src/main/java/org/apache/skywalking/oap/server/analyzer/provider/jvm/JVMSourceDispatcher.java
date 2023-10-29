@@ -174,6 +174,21 @@ public class JVMSourceDispatcher {
                 case CODE_CACHE_USAGE:
                     serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.CODE_CACHE_USAGE);
                     break;
+                case ZHEAP_USAGE:
+                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.ZHEAP_USAGE);
+                    break;
+                case COMPRESSED_CLASS_SPACE_USAGE:
+                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.COMPRESSED_CLASS_SPACE_USAGE);
+                    break;
+                case CODEHEAP_NON_NMETHODS_USAGE:
+                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.CODEHEAP_NON_NMETHODS_USAGE);
+                    break;
+                case CODEHEAP_PROFILED_NMETHODS_USAGE:
+                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.CODEHEAP_PROFILED_NMETHODS_USAGE);
+                    break;
+                case CODEHEAP_NON_PROFILED_NMETHODS_USAGE:
+                    serviceInstanceJVMMemoryPool.setPoolType(MemoryPoolType.CODEHEAP_NON_PROFILED_NMETHODS_USAGE);
+                    break;
             }
 
             serviceInstanceJVMMemoryPool.setInit(memoryPool.getInit());
