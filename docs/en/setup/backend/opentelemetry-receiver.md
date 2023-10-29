@@ -26,21 +26,32 @@ The receiver adds label with key `node_identifier_host_name` to the collected da
 and its value is from `net.host.name` (or `host.name` for some OTLP versions) resource attributes defined in OpenTelemetry proto,
 for identification of the metric data.
 
-| Description                             | Configuration File                             | Data Source                                                                                                       |
-|-----------------------------------------|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| Metrics of Istio Control Plane          | otel-rules/istio-controlplane.yaml             | Istio Control Plane -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                      |
-| Metrics of SkyWalking OAP server itself | otel-rules/oap.yaml                            | SkyWalking OAP Server(SelfObservability) -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server |
-| Metrics of VMs                          | otel-rules/vm.yaml                             | Prometheus node-exporter(VMs) -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server            |
-| Metrics of K8s cluster                  | otel-rules/k8s/k8s-cluster.yaml                | K8s kube-state-metrics -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                   |
-| Metrics of K8s cluster                  | otel-rules/k8s/k8s-node.yaml                   | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server        |
-| Metrics of K8s cluster                  | otel-rules/k8s/k8s-service.yaml                | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server        |
-| Metrics of MYSQL                        | otel-rules/mysql/mysql-instance.yaml           | prometheus/mysqld_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server               |
-| Metrics of MYSQL                        | otel-rules/mysql/mysql-service.yaml            | prometheus/mysqld_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server               |
-| Metrics of PostgreSQL                   | otel-rules/postgresql/postgresql-instance.yaml | postgres_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
-| Metrics of PostgreSQL                   | otel-rules/postgresql/postgresql-service.yaml  | postgres_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
-| Metrics of Apache APISIX                | otel-rules/apisix.yaml                         | apisix prometheus plugin -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                 |
-| Metrics of AWS Cloud EKS                | otel-rules/aws-eks/eks-cluster.yaml            | AWS Container Insights Receiver -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server          |
-| Metrics of AWS Cloud EKS                | otel-rules/aws-eks/eks-service.yaml            | AWS Container Insights Receiver -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server          |
-| Metrics of AWS Cloud EKS                | otel-rules/aws-eks/eks-node.yaml               | AWS Container Insights Receiver -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server          |
-
+| Description                             | Configuration File                                  | Data Source                                                                                                           |
+|-----------------------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Metrics of Istio Control Plane          | otel-rules/istio-controlplane.yaml                  | Istio Control Plane -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                             |
+| Metrics of SkyWalking OAP server itself | otel-rules/oap.yaml                                 | SkyWalking OAP Server(SelfObservability) -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server        |
+| Metrics of Linux OS                     | otel-rules/vm.yaml                                  | prometheus/node_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
+| Metrics of Windows OS                   | otel-rules/windows.yaml                                  | prometheus-community/windows_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server           |
+| Metrics of K8s cluster                  | otel-rules/k8s/k8s-cluster.yaml                     | K8s kube-state-metrics -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                          |
+| Metrics of K8s cluster                  | otel-rules/k8s/k8s-node.yaml                        | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server               |
+| Metrics of K8s cluster                  | otel-rules/k8s/k8s-service.yaml                     | cAdvisor & K8s kube-state-metrics -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server               |
+| Metrics of MYSQL                        | otel-rules/mysql/mysql-instance.yaml                | prometheus/mysqld_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                      |
+| Metrics of MYSQL                        | otel-rules/mysql/mysql-service.yaml                 | prometheus/mysqld_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                      |
+| Metrics of PostgreSQL                   | otel-rules/postgresql/postgresql-instance.yaml      | prometheus-community/postgres_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server          |
+| Metrics of PostgreSQL                   | otel-rules/postgresql/postgresql-service.yaml       | prometheus-community/postgres_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server          |
+| Metrics of Apache APISIX                | otel-rules/apisix.yaml                              | apisix prometheus plugin -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
+| Metrics of AWS Cloud EKS                | otel-rules/aws-eks/eks-cluster.yaml                 | AWS Container Insights Receiver -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                 |
+| Metrics of AWS Cloud EKS                | otel-rules/aws-eks/eks-service.yaml                 | AWS Container Insights Receiver -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                 |
+| Metrics of AWS Cloud EKS                | otel-rules/aws-eks/eks-node.yaml                    | AWS Container Insights Receiver -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                 |
+| Metrics of Elasticsearch                | otel-rules/elasticsearch/elasticsearch-cluster.yaml | prometheus-community/elasticsearch_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server     |
+| Metrics of Elasticsearch                | otel-rules/elasticsearch/elasticsearch-index.yaml   | prometheus-community/elasticsearch_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server     |
+| Metrics of Elasticsearch                | otel-rules/elasticsearch/elasticsearch-node.yaml    | prometheus-community/elasticsearch_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server     |
+| Metrics of Redis                        | otel-rules/redis/redis-service.yaml                 | oliver006/redis_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
+| Metrics of Redis                        | otel-rules/redis/redis-instance.yaml                | oliver006/redis_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
+| Metrics of RabbitMQ                     | otel-rules/rabbitmq/rabbitmq-cluster.yaml           | rabbitmq-prometheus -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                             |
+| Metrics of RabbitMQ                     | otel-rules/rabbitmq/rabbitmq-node.yaml              | rabbitmq-prometheus -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                             |
+| Metrics of MongoDB                      | otel-rules/mongodb/mongodb-cluster.yaml             | percona/mongodb_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
+| Metrics of MongoDB                      | otel-rules/mongodb/mongodb-node.yaml                | percona/mongodb_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
+| Metrics of Kafka                        | otel-rules/kafka/kafka-clusteryaml                  | prometheus/jmx_exporter/jmx_prometheus_javaagent -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server |
+| Metrics of Kafka                        | otel-rules/kafka/kafka-broker.yaml                  | prometheus/jmx_exporter/jmx_prometheus_javaagent -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server |
 **Note**: You can also use OpenTelemetry exporter to transport the metrics to SkyWalking OAP directly. See [OpenTelemetry Exporter](./backend-meter.md#opentelemetry-exporter).

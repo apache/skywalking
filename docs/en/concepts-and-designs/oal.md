@@ -1,13 +1,27 @@
+# Analysis Native Streaming Traces and Service Mesh Traffic
+
+The traces in SkyWalking native format and Service Mesh Traffic(Access Log in gRPC) are able to be analyzed by OAL,
+to build metrics of services, service instances and endpoints, and to build topology/dependency of services, service 
+instances and endpoints(traces-oriented analysis only).
+
+The spans of traces relative with RPC, such as HTTP, gRPC, Dubbo, RocketMQ, Kafka, would be converted to service input/output 
+traffic, like access logs collected from service mesh. Both of those traffic would be cataloged as the defined sources
+in the `Observability Analysis Language` engine.
+
+The metrics are customizable through Observability Analysis Language(OAL) scripts, 
+and the topology/dependency is built by the SkyWalking OAP kernel automatically without
+explicit OAL scripts.
+
 # Observability Analysis Language
 OAL(Observability Analysis Language) serves to analyze incoming data in streaming mode. 
 
 OAL focuses on metrics in Service, Service Instance and Endpoint. Therefore, the language is easy to 
 learn and use.
 
-
-Since 6.3, the OAL engine is embedded in OAP server runtime as `oal-rt`(OAL Runtime).
 OAL scripts are now found in the `/config` folder, and users could simply change and reboot the server to run them.
-However, the OAL script is a compiled language, and the OAL Runtime generates java codes dynamically.
+However, the OAL script is a compiled language, and the OAL Runtime generates java codes dynamically. Don't expect to mount
+the changes of those scripts in the runtime.
+If your OAP servers are running in a cluster mode, these script defined metrics should be aligned.
 
 You can open set `SW_OAL_ENGINE_DEBUG=Y` at system env to see which classes are generated.
 
