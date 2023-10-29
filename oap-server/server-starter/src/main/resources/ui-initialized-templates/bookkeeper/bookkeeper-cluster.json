@@ -269,7 +269,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Bookie Write Cache Count",
+                    "title": "Bookie Read Cache Count",
                     "tips": "",
                     "name": "throughput_out"
                   },

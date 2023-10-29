@@ -76,9 +76,9 @@ metricsRules:
     exp: jvm_buffer_pool_used_buffers.sum(['cluster', 'node', 'pool'])
 
   - name: jvm_gc_collection_seconds_count
-    exp: jvm_gc_collection_seconds_count.sum(['cluster', 'node', 'gc']).rate('PT1M')
+    exp: jvm_gc_collection_seconds_count.sum(['cluster', 'node', 'gc'])
   - name: jvm_gc_collection_seconds_sum
-    exp: jvm_gc_collection_seconds_sum.sum(['cluster', 'node', 'gc']).rate('PT1M')
+    exp: jvm_gc_collection_seconds_sum.sum(['cluster', 'node', 'gc'])
 
   - name: jvm_threads_current
     exp: jvm_threads_current.sum(['cluster', 'node'])

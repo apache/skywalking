@@ -56,15 +56,6 @@ metricsRules:
   - name: bookie_read_cache_count
     exp: bookie_read_cache_count.sum(['cluster', 'node'])
 
-  - name: bookie_write_cache_hits
-    exp: bookie_write_cache_hits.sum(['cluster', 'node']).rate('PT1M')
-  - name: bookie_read_cache_hits
-    exp: bookie_read_cache_hits.sum(['cluster', 'node']).rate('PT1M')
-  - name: bookie_write_cache_misses
-    exp: bookie_write_cache_hits.sum(['cluster', 'node']).rate('PT1M')
-  - name: bookie_read_cache_misses
-    exp: bookie_read_cache_hits.sum(['cluster', 'node']).rate('PT1M')
-
   - name: bookie_write_rate
     exp: bookie_WRITE_BYTES.sum(['cluster', 'node']).rate('PT1M')
   - name: bookie_read_rate
