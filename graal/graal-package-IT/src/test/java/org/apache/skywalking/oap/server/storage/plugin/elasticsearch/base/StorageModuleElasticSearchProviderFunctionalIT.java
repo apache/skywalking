@@ -32,14 +32,13 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.StorageModu
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
-import org.apache.skywalking.oap.server.telemetry.none.NoneTelemetryProvider;
+import org.apache.skywalking.oap.server.testing.module.mock.MockModuleManager;
+import org.apache.skywalking.oap.server.testing.module.mock.MockModuleProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.reflect.Whitebox;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -57,26 +56,28 @@ public class StorageModuleElasticSearchProviderFunctionalIT {
                     .waitingFor(Wait.forHttp("/_cluster/health"))
                     .withEnv("discovery.type", "single-node")
                     .withExposedPorts(9200);
-    @Mock
     private ModuleManager moduleManager;
-    @Mock
-    private NoneTelemetryProvider telemetryProvider;
-    @Mock
-    private CoreModuleProvider coreModuleProvider;
 
     @BeforeEach
     public void init() {
-        Mockito.when(telemetryProvider.getService(MetricsCreator.class))
-                .thenReturn(new MetricsCreatorNoop());
-        TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
-        Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
-        Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
-
-        CoreModule coreModule = Mockito.spy(CoreModule.class);
-        Mockito.when(coreModuleProvider.getService(ModelCreator.class)).thenReturn(new StorageModels());
-        Mockito.when(coreModuleProvider.getService(ConfigService.class)).thenReturn(new ConfigService(new CoreModuleConfig(), coreModuleProvider));
-        Whitebox.setInternalState(coreModule, "loadedProvider", coreModuleProvider);
-        Mockito.when(moduleManager.find(CoreModule.NAME)).thenReturn(coreModule);
+        moduleManager = new MockModuleManager() {
+            @Override
+            protected void init() {
+                register(CoreModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(ModelCreator.class, new StorageModels());
+                        registerServiceImplementation(ConfigService.class, new ConfigService(new CoreModuleConfig(), new CoreModuleProvider()));
+                    }
+                });
+                register(TelemetryModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(MetricsCreator.class, new MetricsCreatorNoop());
+                    }
+                });
+            }
+        };
     }
 
     @Test

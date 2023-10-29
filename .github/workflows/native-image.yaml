@@ -41,8 +41,6 @@ jobs:
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Native Compile
-        env:
-          SW_OAL_ENGINE_DEBUG: true
         run: |
           ./mvnw -Pbackend,native clean package -Dmaven.test.skip
       - uses: actions/upload-artifact@v3
@@ -70,8 +68,8 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - name: Graal Docker Image
-            config: test/e2e-v2/cases/python/e2e.yaml
+          - name: GraalVM Native Image Agent Test
+            config: test/e2e-v2/cases/go/e2e.yaml
     steps:
       - uses: actions/checkout@v3
         with:

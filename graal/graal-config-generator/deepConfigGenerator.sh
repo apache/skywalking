@@ -19,6 +19,6 @@ PRG="$0"
 PRGDIR=$(dirname "$PRG")
 OAP_ROOT=$PRGDIR/../..
 CONFIG_PATH=$PRGDIR/../graal-server-starter/target/classes/META-INF/native-image/main
-$OAP_ROOT/mvnw -f $OAP_ROOT/pom.xml -Pbackend test integration-test -DargLine="-agentlib:native-image-agent=config-merge-dir=$CONFIG_PATH --add-opens java.base/java.lang=ALL-UNNAMED"
+$OAP_ROOT/mvnw -f $OAP_ROOT/pom.xml -Pbackend,native test integration-test -DargLine="-agentlib:native-image-agent=config-merge-dir=$CONFIG_PATH --add-opens java.base/java.lang=ALL-UNNAMED"
 
-echo generated config files are loacated in $CONFIG_PATH
+echo Generated config files are loacated in $CONFIG_PATH
