@@ -130,28 +130,11 @@ public class NativeConfigFilter {
 
         ObjectNode rootNode = nodeFactory.objectNode();
 
-        //"queryAllDeclaredConstructors" : true,
-        //    "queryAllPublicConstructors" : true,
-        //    "queryAllDeclaredMethods" : true,
-        //    "queryAllPublicMethods" : true,
-        //    "allDeclaredClasses" : true,
-        //    "allPublicClasses" : true
         rootNode.put("name", className);
         rootNode.put("allDeclaredFields", true);
-//        rootNode.put("allPublicFields", true);
         rootNode.put("allDeclaredClasses", true);
-//        rootNode.put("allPublicClasses", true);
         rootNode.put("allDeclaredMethods", true);
         rootNode.put("allDeclaredConstructors", true);
-//        ArrayNode methodsNode = nodeFactoy.arrayNode();
-//
-//        ObjectNode methodNode = nodeFactory.objectNode();
-//        methodNode.put("name", "<init>");
-//
-//        methodNode.set("parameterTypes", nodeFactory.arrayNode());
-//        methodsNode.add(methodNode);
-//
-//        rootNode.set("methods", methodsNode);
 
         return rootNode;
     }
