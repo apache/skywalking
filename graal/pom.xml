@@ -39,6 +39,7 @@
         <module>apache-skywalking-native-apm</module>
         <module>log-analyzer-graal-native</module>
         <module>envoy-metrics-receiver-plugin-graal-native</module>
+        <module>graal-package-IT</module>
     </modules>
 
     <dependencyManagement>
@@ -64,6 +65,12 @@
             <dependency>
                 <groupId>org.apache.skywalking</groupId>
                 <artifactId>server-core</artifactId>
+                <scope>provided</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.skywalking</groupId>
+                <artifactId>meter-analyzer</artifactId>
                 <scope>provided</scope>
                 <version>${project.version}</version>
             </dependency>

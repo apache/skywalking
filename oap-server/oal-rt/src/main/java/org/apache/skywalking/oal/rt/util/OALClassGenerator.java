@@ -94,7 +94,7 @@ public class OALClassGenerator {
 
     private static final String CLASS_FILE_CHARSET = "UTF-8";
 
-    private final boolean openEngineDebug;
+    private boolean openEngineDebug;
 
     private AllDispatcherContext allDispatcherContext;
 
@@ -507,6 +507,10 @@ public class OALClassGenerator {
 
     public OALDefine getOalDefine() {
         return oalDefine;
+    }
+
+    public void setOpenEngineDebug(boolean debug) {
+        this.openEngineDebug = debug;
     }
 
 }

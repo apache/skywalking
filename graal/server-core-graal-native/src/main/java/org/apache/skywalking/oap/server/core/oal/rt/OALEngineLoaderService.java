@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.oal.rt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.DispatcherDetectorListener;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -54,19 +55,21 @@ public class OALEngineLoaderService implements Service {
         if (oalDefineSet.contains(define)) {
             return;
         }
-        if (!SCOPE_REGISTERED && Objects.equals(System.getProperty("org.graalvm.nativeimage.imagecode"), "runtime")) {
-            registerAllScope();
-            SCOPE_REGISTERED = true;
-        }
         try {
             OALEngine engine = loadOALEngine(define);
+            DispatcherDetectorListener dispatcherDetectorListener = moduleManager.find(CoreModule.NAME)
+                    .provider()
+                    .getService(SourceReceiver.class)
+                    .getDispatcherDetectorListener();
+            engine.setDispatcherListener(dispatcherDetectorListener);
+            if (!SCOPE_REGISTERED && Objects.equals(System.getProperty("org.graalvm.nativeimage.imagecode"), "runtime")) {
+                registerAllScope(dispatcherDetectorListener);
+                SCOPE_REGISTERED = true;
+            }
 
             StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(moduleManager);
             engine.setStreamListener(streamAnnotationListener);
-            engine.setDispatcherListener(moduleManager.find(CoreModule.NAME)
-                                                      .provider()
-                                                      .getService(SourceReceiver.class)
-                                                      .getDispatcherDetectorListener());
+
             engine.setStorageBuilderFactory(moduleManager.find(StorageModule.NAME)
                                                          .provider()
                                                          .getService(StorageBuilderFactory.class));
@@ -80,14 +83,22 @@ public class OALEngineLoaderService implements Service {
         }
     }
 
-    private void registerAllScope() {
+    private void registerAllScope(DispatcherDetectorListener dispatcherDetectorListener) {
         try {
             Class<?> scannedClasses = Class.forName("org.apache.skywalking.oap.graal.ScannedClasses");
             List<Class> streamClasses = (List<Class>) scannedClasses.getDeclaredField("streamClasses").get(null);
-            List<Class> scopeDeclareClasses = (List<Class>) scannedClasses.getDeclaredField("scopeDeclarationClass").get(null);
+            List<Class> scopeDeclareClasses = (List<Class>) scannedClasses.getDeclaredField("scopeDeclarationClasses").get(null);
+            List<Class> dispatcherClasses = (List<Class>) scannedClasses.getDeclaredField("dispatcherClasses").get(null);
             DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
             StreamAnnotationListener streamAnnotationListener = new StreamAnnotationListener(moduleManager);
 
+            dispatcherClasses.forEach(clazz -> {
+                try {
+                    dispatcherDetectorListener.addIfAsSourceDispatcher(clazz);
+                } catch (IllegalAccessException | InstantiationException e) {
+                    log.error("add dispatcher:" + clazz + "failed", e);
+                }
+            });
             scopeDeclareClasses.forEach(
                     listener::notify
             );
