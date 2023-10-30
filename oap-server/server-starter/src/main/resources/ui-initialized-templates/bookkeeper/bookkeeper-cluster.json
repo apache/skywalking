@@ -162,7 +162,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Bookie Write Cache Size",
+                    "title": "Bookie Write Cache Size (MB)",
                     "tips": "",
                     "name": "bookie_write_cache_size"
                   },
@@ -236,7 +236,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Bookie Read Cache Size",
+                    "title": "Bookie Read Cache  (MB)",
                     "tips": "",
                     "name": "_bookie_read_cache_size"
                   },
