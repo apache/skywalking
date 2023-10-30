@@ -30,7 +30,7 @@
       ],
       "layer": "BOOKKEEPER",
       "entity": "All",
-      "name": "Bookkeeper-Root",
+      "name": "BookKeeper-Root",
       "isRoot": true
     }
   }
