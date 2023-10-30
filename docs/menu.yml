@@ -259,7 +259,7 @@ catalog:
                 path: "/en/setup/backend/backend-elasticsearch-monitoring"
               - name: "MongoDB"
                 path: "/en/setup/backend/backend-mongodb-monitoring"
-              - name: "Bookkeeper"
+              - name: "BookKeeper"
                 path: "/en/setup/backend/backend-bookkeeper-monitoring"
           - name: "MQ Monitoring"
             catalog:

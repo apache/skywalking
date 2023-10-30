@@ -6,7 +6,7 @@ Kafka entity as a `Service` in OAP and on the `Layer: BOOKKEEPER.
 
 ## Data flow
 
-1. BookKeeper exposes metrics in Prometheus format.
+1. BookKeeper exposes metrics through Prometheus endpoint.
 2. OpenTelemetry Collector fetches metrics from BookKeeper cluster via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
    filter/calculate/aggregate and store the results.`
