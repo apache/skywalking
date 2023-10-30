@@ -30,6 +30,7 @@ import org.apache.skywalking.aop.server.receiver.mesh.MeshOALDefine;
 import org.apache.skywalking.oal.rt.parser.OALScripts;
 import org.apache.skywalking.oal.rt.parser.ScriptParser;
 import org.apache.skywalking.oal.rt.util.OALClassGenerator;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
@@ -54,6 +55,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import java.io.Reader;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -81,6 +83,7 @@ public class OALGenerator {
         for (OALClassGenerator generator :oalClassGenerators) {
             generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());
             generator.setCurrentClassLoader(OALGenerator.class.getClassLoader());
+            generator.setOpenEngineDebug(true);
             generateOALClassFiles(rootPath, generator);
         }
     }
@@ -114,6 +117,7 @@ public class OALGenerator {
         ImmutableSet<ClassPath.ClassInfo> classes = classpath.getTopLevelClassesRecursive("org.apache.skywalking");
         List<Class> annotationStreamClass = new ArrayList<>();
         List<Class> annotationScopeDeclarationClass = new ArrayList<>();
+        List<Class> dispatcherClass = new ArrayList<>();
         classes.forEach(classInfo -> {
             Class<?> clazz = classInfo.load();
             if (clazz.isAnnotationPresent(Stream.class)) {
@@ -122,6 +126,11 @@ public class OALGenerator {
             if (clazz.isAnnotationPresent(ScopeDeclaration.class)) {
                 annotationScopeDeclarationClass.add(clazz);
             }
+            if (!clazz.isInterface() && !Modifier.isAbstract(
+                    clazz.getModifiers()) && SourceDispatcher.class.isAssignableFrom(clazz)) {
+                dispatcherClass.add(clazz);
+            }
+
         });
 
         ClassPool pool = ClassPool.getDefault();
@@ -129,10 +138,12 @@ public class OALGenerator {
         CtClass ctClass = pool.makeClass("org.apache.skywalking.oap.graal.ScannedClasses");
 
         CtField listField1 = CtField.make(getFieldString("streamClasses", annotationStreamClass), ctClass);
-        CtField listField2 = CtField.make(getFieldString("scopeDeclarationClass", annotationScopeDeclarationClass), ctClass);
+        CtField listField2 = CtField.make(getFieldString("scopeDeclarationClasses", annotationScopeDeclarationClass), ctClass);
+        CtField listField3 = CtField.make(getFieldString("dispatcherClasses", dispatcherClass), ctClass);
 
         ctClass.addField(listField1);
         ctClass.addField(listField2);
+        ctClass.addField(listField3);
 
         String generatedFilePath = path + File.separator + "classes";
         ctClass.writeFile(generatedFilePath);
