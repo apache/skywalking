@@ -383,7 +383,7 @@
                     "readLabeledMetricsValues"
                   ],
                   "metrics": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "moved": false,
                   "expressions": [
                     "meter_pulsar_storage_size/1024/1024"

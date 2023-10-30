@@ -20,7 +20,7 @@
           "moved": false,
           "graph": {
             "type": "ServiceList",
-            "dashboardName": "Bookkeeper-Cluster",
+            "dashboardName": "BookKeeper-Cluster",
             "fontSize": 12,
             "showXAxis": false,
             "showYAxis": false,
