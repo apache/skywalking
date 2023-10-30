@@ -16,7 +16,7 @@ The native-image compilation is not enabled by default. To enable it, we need to
 
 ```shell
 
-./mvnw -backend,native clean package -Dmaven.test.skip
+./mvnw -Pbackend,native clean package -Dmaven.test.skip
 
 ```
 
