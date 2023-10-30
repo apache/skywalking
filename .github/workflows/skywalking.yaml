@@ -22,7 +22,7 @@ on:
     - cron: "0 18 * * *" # TimeZone: UTC 0
 
 concurrency:
-  group: skywalking-graalvm-${{ github.event.pull_request.number || github.ref }}
+  group: skywalking-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:

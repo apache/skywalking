@@ -20,7 +20,7 @@ on:
   push:
 
 concurrency:
-  group: skywalking-${{ github.event.pull_request.number || github.ref }}
+  group: skywalking-graalvm-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -62,7 +62,7 @@ jobs:
       always() && ! cancelled()
     name: E2E test
     needs: [build]
-    runs-on: ${{  'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
