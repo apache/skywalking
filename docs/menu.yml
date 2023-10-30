@@ -259,6 +259,8 @@ catalog:
                 path: "/en/setup/backend/backend-elasticsearch-monitoring"
               - name: "MongoDB"
                 path: "/en/setup/backend/backend-mongodb-monitoring"
+              - name: "Bookkeeper"
+                path: "/en/setup/backend/backend-bookkeeper-monitoring"
           - name: "MQ Monitoring"
             catalog:
               - name: "RabbitMQ"
@@ -267,8 +269,6 @@ catalog:
                 path: "/en/setup/backend/backend-kafka-monitoring"
               - name: "Pulsar"
                 path: "/en/setup/backend/backend-pulsar-monitoring"
-              - name: "Bookkeeper"
-                path: "/en/setup/backend/backend-bookkeeper-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"

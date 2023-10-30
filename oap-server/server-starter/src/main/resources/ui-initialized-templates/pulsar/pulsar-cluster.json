@@ -387,7 +387,9 @@
                   ],
                   "metricMode": "General",
                   "moved": false,
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_storage_size/1024/1024"
+                  ],
                   "metricConfig": [],
                   "graph": {
                     "type": "Line",

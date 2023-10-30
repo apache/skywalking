@@ -199,7 +199,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Bookie Write Cache Count",
+                    "title": "Bookie Write Cache Entry Count",
                     "tips": "",
                     "name": "bookie_write_cache_count"
                   },
@@ -269,7 +269,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Bookie Read Cache Count",
+                    "title": "Bookie Read Cache Entry Count",
                     "tips": "",
                     "name": "throughput_out"
                   },

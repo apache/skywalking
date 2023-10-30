@@ -1,6 +1,6 @@
 [
   {
-    "id": "Bookkeeper-Root",
+    "id": "BookKeeper-Root",
     "configuration": {
       "children": [
         {

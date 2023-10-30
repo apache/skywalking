@@ -90,14 +90,6 @@ cases:
     expected: expected/metrics-has-value-instance-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_count --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_cache_hits --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_hits --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_cache_misses --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_misses --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_rate --service-name=bookkeeper::pulsar-cluster
     expected: expected/metrics-has-value-instance-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_rate --service-name=bookkeeper::pulsar-cluster

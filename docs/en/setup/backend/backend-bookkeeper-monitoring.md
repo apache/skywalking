@@ -26,18 +26,18 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 
 ### BookKeeper Cluster Supported Metrics
 
-| Monitoring Panel            | Metric Name                                                      | Description                                       | Data Source         |
-|-----------------------------|------------------------------------------------------------------|---------------------------------------------------|---------------------|
-| Bookie Ledgers Count        | meter_bookkeeper_bookie_ledgers_count                            | The number of the bookie ledgers.                 | Bookkeeper Cluster  |
-| Bookie Ledger Writable Dirs | meter_bookkeeper_bookie_ledger_writable_dirs                     | The number of writable directories in the bookie. | Bookkeeper Cluster  |
-| Bookie Ledger Dir Usage     | meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage | The number of successfully created connections.   | Bookkeeper Cluster  |
-| Bookie Entries Count        | meter_bookkeeper_bookie_entries_count                            | The number of the bookie write entries.           | Bookkeeper Cluster  |
-| Bookie Write Cache Size     | meter_bookkeeper_bookie_write_cache_size                         | The size of the bookie write cache.               | Bookkeeper Cluster  |
-| Bookie Write Cache Count    | meter_bookkeeper_bookie_write_cache_count                        | The count of the bookie write cache.              | Bookkeeper Cluster  |
-| Bookie Read Cache Size      | meter_bookkeeper_bookie_read_cache_size                          | The size of the bookie read cache.                | Bookkeeper Cluster  |
-| Bookie Read Cache Count     | meter_bookkeeper_bookie_read_cache_count                         | The count of the bookie read cache.               | Bookkeeper Cluster  |
-| Bookie Read Rate            | meter_bookkeeper_bookie_read_rate                                | The bookie read rate.                             | Bookkeeper Cluster  |
-| Bookie Write Rate           | meter_bookkeeper_bookie_write_rate                               | The bookie write rate.                            | Bookkeeper Cluster  |
+| Monitoring Panel               | Metric Name                                                      | Description                                       | Data Source         |
+|--------------------------------|------------------------------------------------------------------|---------------------------------------------------|---------------------|
+| Bookie Ledgers Count           | meter_bookkeeper_bookie_ledgers_count                            | The number of the bookie ledgers.                 | Bookkeeper Cluster  |
+| Bookie Ledger Writable Dirs    | meter_bookkeeper_bookie_ledger_writable_dirs                     | The number of writable directories in the bookie. | Bookkeeper Cluster  |
+| Bookie Ledger Dir Usage        | meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage | The number of successfully created connections.   | Bookkeeper Cluster  |
+| Bookie Entries Count           | meter_bookkeeper_bookie_entries_count                            | The number of the bookie write entries.           | Bookkeeper Cluster  |
+| Bookie Write Cache Size        | meter_bookkeeper_bookie_write_cache_size                         | The size of the bookie write cache.               | Bookkeeper Cluster  |
+| Bookie Write Cache Entry Count | meter_bookkeeper_bookie_write_cache_count                        | The entry count in the bookie write cache.        | Bookkeeper Cluster  |
+| Bookie Read Cache Size         | meter_bookkeeper_bookie_read_cache_size                          | The size of the bookie read cache.                | Bookkeeper Cluster  |
+| Bookie Read Cache Entry Count  | meter_bookkeeper_bookie_read_cache_count                         | The entry count in the bookie read cache.         | Bookkeeper Cluster  |
+| Bookie Read Rate               | meter_bookkeeper_bookie_read_rate                                | The bookie read rate.                             | Bookkeeper Cluster  |
+| Bookie Write Rate              | meter_bookkeeper_bookie_write_rate                               | The bookie write rate.                            | Bookkeeper Cluster  |
 
 ### BookKeeper Node Supported Metrics
 
