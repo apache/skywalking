@@ -87,6 +87,11 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>meter-analyzer-graal-native</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

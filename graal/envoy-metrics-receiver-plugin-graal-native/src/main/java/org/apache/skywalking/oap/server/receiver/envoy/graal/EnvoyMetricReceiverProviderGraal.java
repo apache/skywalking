@@ -23,8 +23,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverProvider;
 
 /**
- * change the execution of `prepare()` to the compilation stage due to the Graal limitation on Reflection
- * see (@link org.apache.skywalking.graal.EnvoyGeneratorMojo).
+ * TODO, disabled envoy metric receiver due to the Graal limitation on defining hidden class at runtime.
+ * SkyWalking will provide an alternative solution to replace the hidden class defining in the near future.
  */
 public class EnvoyMetricReceiverProviderGraal extends EnvoyMetricReceiverProvider {
     @Override

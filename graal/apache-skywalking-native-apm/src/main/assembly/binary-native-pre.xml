@@ -26,15 +26,6 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/../dist-material/bin</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>*.sh</include>
-                <include>*.bat</include>
-            </includes>
-            <fileMode>0755</fileMode>
-        </fileSet>
-        <fileSet>
             <directory>${project.basedir}/../../dist-material</directory>
             <outputDirectory>config</outputDirectory>
             <includes>
@@ -124,6 +115,11 @@
             <source>${project.basedir}/../graal-server-starter/src/main/resources/application.yml</source>
             <outputDirectory>config</outputDirectory>
             <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}/../dist-material/bin/oapService-native-jar.sh</source>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
         </file>
     </files>
 </assembly>

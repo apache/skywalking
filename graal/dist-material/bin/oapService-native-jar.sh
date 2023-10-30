@@ -24,8 +24,6 @@ PRGDIR=$(dirname "$PRG")
 OAP_LOG_DIR="${OAP_LOG_DIR:-${OAP_HOME}/logs}"
 JAVA_OPTS="${JAVA_OPTS:-  -Xms256M -Xmx4096M}"
 
-. ${OAP_HOME}/bin/exportEnv.sh
-
 if [ ! -d "${OAP_LOG_DIR}" ]; then
     mkdir -p "${OAP_LOG_DIR}"
 fi
