@@ -49,7 +49,7 @@ With native-image, some features are not yet supported.
 2. The [OAL](../../concepts-and-designs/oal.md) files are used in the compiling stage, which means that users would not see these files inside the native image package, and can't change it. Consider recompiling and packaging from the source codes including your OAL file changes.
 
 ## Current Limitations
-Native-image supports reflection and other dynamic features through some JSON-formatted configuration files. SkyWalking currently provides a set of configuration files for basic support. You can find them [here](https://github.com/apache/skywalking/tree/master/graal/graal-server-starter/src/main/resources/META-INF/native-image).
+Native-image supports reflection and other dynamic features through some JSON-formatted configuration files. SkyWalking currently provides a set of configuration files for basic support. You can find them [here](../../../../graal/graal-server-starter/src/main/resources/META-INF/native-image/main).
 
 For now, these configuration files do not support all runtime environments (but will be fully supported in the future). Therefore, in other environments, users may need to generate the configuration files required by native-image on their own.
 
