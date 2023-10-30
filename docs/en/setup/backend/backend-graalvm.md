@@ -9,6 +9,26 @@ The resulting program has faster startup time and lower runtime memory overhead 
 
 SkyWalking currently offers support for OAP servers running as native-image. However, please note that the OAP started in this manner does not have the same functionality as the regular OAP, and some features are not yet supported.
 
+## Prerequisites
+Before proceeding with the compilation process, it's crucial to have the GraalVM JDK installed on your machine as the native-image compilation is dependent on it.
+
+### Installing GraalVM JDK
+Refer to [GraalVM's official download page](https://www.graalvm.org/downloads/) for downloading and configuring GraalVM JDK. A convenient method is utilizing SDKMAN, which allows you to download and install GraalVM JDK with a single command:
+
+```shell
+sdk install java 17.0.9-graal
+```
+Upon executing the above command, SDKMAN will automatically download and install the specified version of GraalVM JDK, preparing your environment for the subsequent native-image compilation process.
+
+### Installing Native Image
+In some download methods, the Native Image component is not automatically installed and needs to be downloaded separately. Users can download this component by executing the following command:
+
+```shell
+gu install native-image
+```
+
+This command utilizes the GraalVM Updater (gu) to install the Native Image component, ensuring the environment is properly set up for native-image compilation.
+
 ## Compile Guide
 Notice: If you are not familiar with the compilation process, please read [How-to-build](../../guides/How-to-build.md) first.
 
