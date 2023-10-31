@@ -34,13 +34,13 @@ results:
         - key: _
           value: "Fetch"
     values:
-      { { - contains .values } }
-      - id: { { notEmpty .id } }
-        value: { { .value } }
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
         traceid: null
-      - id: { { notEmpty .id } }
+      - id: {{ notEmpty .id }}
         value: null
         traceid: null
-      { { - end } }
+      {{- end}}
   {{- end}}
 error: null
