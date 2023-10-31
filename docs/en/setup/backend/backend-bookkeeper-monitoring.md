@@ -36,8 +36,8 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 | Bookie Write Cache Entry Count | meter_bookkeeper_bookie_write_cache_count                        | The entry count in the bookie write cache.        | Bookkeeper Cluster  |
 | Bookie Read Cache Size         | meter_bookkeeper_bookie_read_cache_size                          | The size of the bookie read cache (MB).           | Bookkeeper Cluster  |
 | Bookie Read Cache Entry Count  | meter_bookkeeper_bookie_read_cache_count                         | The entry count in the bookie read cache.         | Bookkeeper Cluster  |
-| Bookie Read Rate               | meter_bookkeeper_bookie_read_rate                                | The bookie read rate (MB/min).                    | Bookkeeper Cluster  |
-| Bookie Write Rate              | meter_bookkeeper_bookie_write_rate                               | The bookie write rate (MB/min).                   | Bookkeeper Cluster  |
+| Bookie Read Rate               | meter_bookkeeper_bookie_read_rate                                | The bookie read rate (bytes/s).                   | Bookkeeper Cluster  |
+| Bookie Write Rate              | meter_bookkeeper_bookie_write_rate                               | The bookie write rate (bytes/s).                  | Bookkeeper Cluster  |
 
 ### BookKeeper Node Supported Metrics
 
