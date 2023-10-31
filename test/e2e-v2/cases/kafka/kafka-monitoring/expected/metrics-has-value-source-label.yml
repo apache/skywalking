@@ -34,7 +34,7 @@ results:
         - key: _
           value: "FetchFollower"
     values:
-      {{ - contains .values }}
+      {{- contains .values }}
       - id: {{ notEmpty .id }}
         value: {{ .value }}
         traceid: null

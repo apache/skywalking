@@ -81,5 +81,3 @@ cases:
     expected: expected/metrics-has-value-source-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_kafka_broker_network_processor_avg_idle_percent --service-name=kafka::kafka-cluster --instance-name=broker1:7071
     expected: expected/metrics-has-value.yml
-
-
