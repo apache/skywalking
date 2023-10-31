@@ -23,106 +23,107 @@ cases:
     expected: expected/bookie_instance.yml
   # service cases for pulsar-cluster
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_topics --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_subscriptions --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_producers --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_total_consumers --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_message_rate_in --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_message_rate_out --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_throughput_in --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_throughput_out --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_size --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_logical_size --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_write_rate --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_storage_read_rate --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-broker-label.yml
 
   # service cases for pulsar-broker
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_active_connections --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_total_connections --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_connection_create_success_count --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_connection_create_fail_count --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_connection_closed_total_count --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_memory_used --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_memory_committed --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_memory_init --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_threads_current --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_threads_daemon --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_threads_peak --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pulsar_broker_jvm_threads_deadlocked --service-name=pulsar::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
 
   # service cases for the bookkeeper cluster
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_ledgers_count --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_ledger_writable_dirs --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_entries_count --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_cache_size --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_cache_count --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_size --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_cache_count --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_write_rate --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_bookie_read_rate --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value-instance-bookie-label.yml
+
 
   # service cases for the bookkeeper node
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_thread_executor_completed --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_thread_executor_tasks_completed --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_thread_executor_tasks_rejected --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_thread_executor_tasks_failed --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_high_priority_threads --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_read_thread_pool_threads --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_high_priority_thread_max_queue_size --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_read_thread_pool_max_queue_size --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_memory_used --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_memory_committed --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_memory_init --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_threads_current --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_threads_daemon --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_threads_peak --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_bookkeeper_node_jvm_threads_deadlocked --service-name=bookkeeper::pulsar-cluster
-    expected: expected/metrics-has-value-instance-label.yml
+    expected: expected/metrics-has-value.yml
