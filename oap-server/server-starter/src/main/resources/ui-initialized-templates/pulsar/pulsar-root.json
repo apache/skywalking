@@ -5,7 +5,7 @@
       "children": [
         {
           "x": 0,
-          "y": 0,
+          "y": 3,
           "w": 24,
           "h": 29,
           "i": "0",
@@ -17,7 +17,6 @@
           "metrics": [
             ""
           ],
-          "moved": false,
           "graph": {
             "type": "ServiceList",
             "dashboardName": "Pulsar-Cluster",

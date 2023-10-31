@@ -34,17 +34,15 @@
                     "tips": "Total number of topics.",
                     "name": "total_topics"
                   },
-                  "expressions": [],
-                  "typesOfMQE": [],
-                  "metricMode": "General",
-                  "id": "16-0-7",
-                  "moved": false,
-                  "metrics": [
+                  "expressions": [
                     "meter_pulsar_total_topics"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-7",
+                  "moved": false,
+                  "metrics": [],
+                  "metricTypes": [],
                   "metricConfig": []
                 },
                 {
@@ -67,18 +65,16 @@
                     "tips": "Total number of subscriptions.",
                     "name": "total_subscriptions"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_total_subscriptions"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-8",
                   "moved": false,
                   "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_pulsar_total_subscriptions"
-                  ]
+                  "metricTypes": [],
+                  "metrics": []
                 },
                 {
                   "x": 12,
@@ -100,18 +96,16 @@
                     "tips": "Total number of producers.",
                     "name": "total_producers"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_total_producers"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-9",
                   "moved": false,
                   "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_pulsar_total_producers"
-                  ]
+                  "metricTypes": [],
+                  "metrics": []
                 },
                 {
                   "x": 18,
@@ -133,18 +127,16 @@
                     "tips": "Total number of consumers.",
                     "name": "total_consumers"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_total_consumers"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-10",
                   "moved": false,
                   "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_pulsar_total_consumers"
-                  ]
+                  "metricTypes": [],
+                  "metrics": []
                 },
                 {
                   "x": 0,
@@ -166,9 +158,11 @@
                     "tips": "Incoming message rate.",
                     "name": "message_rate_in"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_message_rate_in"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-11",
                   "moved": false,
                   "metricConfig": [],
@@ -199,18 +193,16 @@
                     "tips": "Outgoing message rate.",
                     "name": "message_rate_out"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_message_rate_in"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-12",
                   "moved": false,
                   "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_pulsar_message_rate_in"
-                  ]
+                  "metricTypes": [],
+                  "metrics": []
                 },
                 {
                   "x": 0,
@@ -232,18 +224,16 @@
                     "tips": "Incoming throughput.",
                     "name": "throughput_in"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_throughput_in"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-13",
                   "moved": false,
                   "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_pulsar_throughput_in"
-                  ]
+                  "metricTypes": [],
+                  "metrics": []
                 },
                 {
                   "x": 12,
@@ -265,18 +255,16 @@
                     "tips": "Outgoing throughput.",
                     "name": "throughput_out"
                   },
-                  "expressions": [],
+                  "expressions": [
+                    "meter_pulsar_throughput_in"
+                  ],
                   "typesOfMQE": [],
-                  "metricMode": "General",
+                  "metricMode": "Expression",
                   "id": "16-0-14",
                   "moved": false,
                   "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_pulsar_throughput_in"
-                  ]
+                  "metricTypes": [],
+                  "metrics": []
                 },
                 {
                   "x": 12,
@@ -306,7 +294,7 @@
                   },
                   "widget": {
                     "name": "storage_read_rate",
-                    "title": "Storage Read Rate"
+                    "title": "Storage Read Rate (messages per second)"
                   }
                 },
                 {
@@ -337,7 +325,7 @@
                   },
                   "widget": {
                     "name": "storage_logical_size",
-                    "title": "Storage Logical Size"
+                    "title": "Storage Logical Size (MB)"
                   }
                 },
                 {
@@ -368,7 +356,7 @@
                   },
                   "widget": {
                     "name": "storage_write_rate",
-                    "title": "Storage Write Rate"
+                    "title": "Storage Write Rate (messages per second)"
                   }
                 },
                 {
@@ -402,7 +390,7 @@
                   },
                   "widget": {
                     "name": "storage_size",
-                    "title": "Storage Size"
+                    "title": "Storage Size (MB)"
                   },
                   "typesOfMQE": []
                 }

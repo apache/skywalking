@@ -32,12 +32,12 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 | Bookie Ledger Writable Dirs    | meter_bookkeeper_bookie_ledger_writable_dirs                     | The number of writable directories in the bookie. | Bookkeeper Cluster  |
 | Bookie Ledger Dir Usage        | meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage | The number of successfully created connections.   | Bookkeeper Cluster  |
 | Bookie Entries Count           | meter_bookkeeper_bookie_entries_count                            | The number of the bookie write entries.           | Bookkeeper Cluster  |
-| Bookie Write Cache Size        | meter_bookkeeper_bookie_write_cache_size                         | The size of the bookie write cache.               | Bookkeeper Cluster  |
+| Bookie Write Cache Size        | meter_bookkeeper_bookie_write_cache_size                         | The size of the bookie write cache (MB).          | Bookkeeper Cluster  |
 | Bookie Write Cache Entry Count | meter_bookkeeper_bookie_write_cache_count                        | The entry count in the bookie write cache.        | Bookkeeper Cluster  |
-| Bookie Read Cache Size         | meter_bookkeeper_bookie_read_cache_size                          | The size of the bookie read cache.                | Bookkeeper Cluster  |
+| Bookie Read Cache Size         | meter_bookkeeper_bookie_read_cache_size                          | The size of the bookie read cache (MB).           | Bookkeeper Cluster  |
 | Bookie Read Cache Entry Count  | meter_bookkeeper_bookie_read_cache_count                         | The entry count in the bookie read cache.         | Bookkeeper Cluster  |
-| Bookie Read Rate               | meter_bookkeeper_bookie_read_rate                                | The bookie read rate.                             | Bookkeeper Cluster  |
-| Bookie Write Rate              | meter_bookkeeper_bookie_write_rate                               | The bookie write rate.                            | Bookkeeper Cluster  |
+| Bookie Read Rate               | meter_bookkeeper_bookie_read_rate                                | The bookie read rate (MB/min).                    | Bookkeeper Cluster  |
+| Bookie Write Rate              | meter_bookkeeper_bookie_write_rate                               | The bookie write rate (MB/min).                   | Bookkeeper Cluster  |
 
 ### BookKeeper Node Supported Metrics
 
@@ -48,7 +48,7 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 | JVM Threads                   | meter_bookkeeper_node_jvm_threads_current <br /> meter_bookkeeper_node_jvm_threads_daemon <br /> meter_bookkeeper_node_jvm_threads_peak <br /> meter_bookkeeper_node_jvm_threads_deadlocked | The count of the jvm threads.                           | Bookkeeper Bookie  |
 | GC Time                       | meter_bookkeeper_node_jvm_gc_collection_seconds_sum                                                                                                                                         | Time spent in a given JVM garbage collector in seconds. | Bookkeeper Bookie  |
 | GC Count                      | meter_bookkeeper_node_jvm_gc_collection_seconds_count                                                                                                                                       | The count of a given JVM garbage.                       | Bookkeeper Bookie  |
-| Thread Executor               | meter_bookkeeper_node_thread_executor_completed                                                                                                                                             | The count of the executor thread.                       | Bookkeeper Bookie  |
+| Thread Executor Completed     | meter_bookkeeper_node_thread_executor_completed                                                                                                                                             | The count of the executor thread.                       | Bookkeeper Bookie  |
 | Thread Executor Tasks         | meter_bookkeeper_node_thread_executor_tasks_completed <br /> meter_bookkeeper_node_thread_executor_tasks_rejected <br /> meter_bookkeeper_node_thread_executor_tasks_failed                 | The count of the executor tasks.                        | Bookkeeper Bookie  |
 | Pooled Threads                | meter_bookkeeper_node_high_priority_threads <br /> meter_bookkeeper_node_read_thread_pool_threads                                                                                           | The count of the pooled thread.                         | Bookkeeper Bookie  |
 | Pooled Threads Max Queue Size | meter_bookkeeper_node_high_priority_thread_max_queue_size <br />  meter_bookkeeper_node_read_thread_pool_max_queue_size                                                                     | The count of the pooled threads max queue size.         | Bookkeeper Bookie  |

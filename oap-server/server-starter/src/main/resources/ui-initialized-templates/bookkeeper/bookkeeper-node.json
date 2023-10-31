@@ -158,7 +158,7 @@
           },
           "widget": {
             "name": "jvm_gc_collection_seconds_sum",
-            "title": "GC Time (ms/min)"
+            "title": "GC Time (s)"
           }
         },
         {
@@ -225,7 +225,7 @@
           ],
           "widget": {
             "name": "thread_executor_completed",
-            "title": "Thread Executor"
+            "title": "Thread Executor Completed"
           }
         },
         {

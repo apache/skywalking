@@ -299,7 +299,7 @@
                   "metricMode": "Expression",
                   "moved": false,
                   "expressions": [
-                    "meter_bookkeeper_bookie_read_rate"
+                    "meter_bookkeeper_bookie_read_rate/1024/1024"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -314,7 +314,7 @@
                   },
                   "widget": {
                     "name": "bookie_read_rate",
-                    "title": "Bookie Read Rate"
+                    "title": "Bookie Read Rate(MB/min)"
                   }
                 },
                 {
@@ -330,7 +330,7 @@
                   "metricMode": "Expression",
                   "moved": false,
                   "expressions": [
-                    "meter_bookkeeper_bookie_write_rate"
+                    "meter_bookkeeper_bookie_write_rate/1024/1024"
                   ],
                   "metricConfig": [],
                   "graph": {
@@ -346,7 +346,7 @@
                   },
                   "widget": {
                     "name": "bookie_write_rate",
-                    "title": "Bookie Write Rate"
+                    "title": "Bookie Write Rate(MB/min)"
                   },
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
