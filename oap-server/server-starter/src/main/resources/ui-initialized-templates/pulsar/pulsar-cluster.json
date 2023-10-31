@@ -1,0 +1,435 @@
+[
+  {
+    "id": "Pulsar-Cluster",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 54,
+          "i": "16",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 10,
+                  "i": "7",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Topics",
+                    "tips": "Total number of topics.",
+                    "name": "total_topics"
+                  },
+                  "expressions": [
+                    "meter_pulsar_total_topics"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-7",
+                  "moved": false,
+                  "metrics": [],
+                  "metricTypes": [],
+                  "metricConfig": []
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 10,
+                  "i": "8",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Subscriptions",
+                    "tips": "Total number of subscriptions.",
+                    "name": "total_subscriptions"
+                  },
+                  "expressions": [
+                    "meter_pulsar_total_subscriptions"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-8",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [],
+                  "metrics": []
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 10,
+                  "i": "9",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Producers",
+                    "tips": "Total number of producers.",
+                    "name": "total_producers"
+                  },
+                  "expressions": [
+                    "meter_pulsar_total_producers"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-9",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [],
+                  "metrics": []
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 10,
+                  "i": "10",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Total Consumers",
+                    "tips": "Total number of consumers.",
+                    "name": "total_consumers"
+                  },
+                  "expressions": [
+                    "meter_pulsar_total_consumers"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-10",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [],
+                  "metrics": []
+                },
+                {
+                  "x": 0,
+                  "y": 10,
+                  "w": 12,
+                  "h": 10,
+                  "i": "11",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Message Rate In",
+                    "tips": "Incoming message rate.",
+                    "name": "message_rate_in"
+                  },
+                  "expressions": [
+                    "meter_pulsar_message_rate_in"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-11",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [
+                    "meter_pulsar_message_rate_in"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 10,
+                  "w": 12,
+                  "h": 10,
+                  "i": "12",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Message Rate Out",
+                    "tips": "Outgoing message rate.",
+                    "name": "message_rate_out"
+                  },
+                  "expressions": [
+                    "meter_pulsar_message_rate_in"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-12",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [],
+                  "metrics": []
+                },
+                {
+                  "x": 0,
+                  "y": 20,
+                  "w": 12,
+                  "h": 10,
+                  "i": "13",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Throughput In",
+                    "tips": "Incoming throughput.",
+                    "name": "throughput_in"
+                  },
+                  "expressions": [
+                    "meter_pulsar_throughput_in"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-13",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [],
+                  "metrics": []
+                },
+                {
+                  "x": 12,
+                  "y": 20,
+                  "w": 12,
+                  "h": 10,
+                  "i": "14",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Throughput Out",
+                    "tips": "Outgoing throughput.",
+                    "name": "throughput_out"
+                  },
+                  "expressions": [
+                    "meter_pulsar_throughput_in"
+                  ],
+                  "typesOfMQE": [],
+                  "metricMode": "Expression",
+                  "id": "16-0-14",
+                  "moved": false,
+                  "metricConfig": [],
+                  "metricTypes": [],
+                  "metrics": []
+                },
+                {
+                  "x": 12,
+                  "y": 40,
+                  "w": 12,
+                  "h": 10,
+                  "i": "15",
+                  "type": "Widget",
+                  "id": "16-0-15",
+                  "metricTypes": [],
+                  "metrics": [],
+                  "metricMode": "Expression",
+                  "moved": false,
+                  "expressions": [
+                    "meter_pulsar_storage_read_rate.sum(['cluster','node'])"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "storage_read_rate",
+                    "title": "Storage Read Rate (messages per second)"
+                  }
+                },
+                {
+                  "x": 12,
+                  "y": 30,
+                  "w": 12,
+                  "h": 10,
+                  "i": "16",
+                  "type": "Widget",
+                  "id": "16-0-16",
+                  "metricTypes": [],
+                  "metrics": [],
+                  "metricMode": "Expression",
+                  "moved": false,
+                  "expressions": [
+                    "meter_pulsar_storage_logical_size.sum(['cluster','node'])/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "storage_logical_size",
+                    "title": "Storage Logical Size (MB)"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 40,
+                  "w": 12,
+                  "h": 10,
+                  "i": "17",
+                  "type": "Widget",
+                  "id": "16-0-17",
+                  "metricTypes": [],
+                  "metrics": [],
+                  "metricMode": "Expression",
+                  "moved": false,
+                  "expressions": [
+                    "meter_pulsar_storage_write_rate.sum(['cluster','node'])"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "name": "storage_write_rate",
+                    "title": "Storage Write Rate (messages per second)"
+                  }
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 12,
+                  "h": 10,
+                  "i": "18",
+                  "type": "Widget",
+                  "id": "16-0-18",
+                  "metricTypes": [
+                    "readLabeledMetricsValues"
+                  ],
+                  "metrics": [],
+                  "metricMode": "Expression",
+                  "moved": false,
+                  "expressions": [
+                    "meter_pulsar_storage_size/1024/1024"
+                  ],
+                  "metricConfig": [],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true,
+                    "legend": {
+                      "asTable": false
+                    }
+                  },
+                  "widget": {
+                    "name": "storage_size",
+                    "title": "Storage Size (MB)"
+                  },
+                  "typesOfMQE": []
+                }
+              ]
+            },
+            {
+              "name": "Node",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 48,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Pulsar-Broker",
+                    "fontSize": 12
+                  },
+                  "metrics": [],
+                  "metricTypes": [],
+                  "metricConfig": [],
+                  "id": "16-1-0",
+                  "moved": false
+                }
+              ]
+            }
+          ],
+          "id": "16",
+          "activedTabIndex": 0,
+          "moved": false
+        }
+      ],
+      "layer": "PULSAR",
+      "entity": "Service",
+      "name": "Pulsar-Cluster",
+      "id": "Pulsar-Cluster",
+      "isRoot": false
+    }
+  }
+]
