@@ -34,6 +34,7 @@
 * Add a component ID for Fiber (ID=5021).
 * BanyanDBStorageClient: Add `define(Property property, PropertyStore.Strategy strategy)` API.
 * Support GraalVM native-image (Experimental).
+* Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
 
 #### UI
 
