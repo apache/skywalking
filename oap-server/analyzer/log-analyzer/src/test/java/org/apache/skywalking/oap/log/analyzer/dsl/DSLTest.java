@@ -176,6 +176,17 @@ public class DSLTest {
                                 "          }\n" +
                                 "        }\n" +
                                 "      }"
+                },
+                new String[] {
+                    "extractor-patterned-timestamp",
+                    "filter {\n" +
+                        "  extractor {\n" +
+                        "    service \"test\"\n" +
+                        "    instance \"test\"\n" +
+                        "    endpoint \"test\"\n" +
+                        "    timestamp \"2023-11-01 22:10:10\", \"yyyy-MM-dd HH:mm:ss\"\n" +
+                        "  }\n" +
+                        "}",
                 }
         );
     }

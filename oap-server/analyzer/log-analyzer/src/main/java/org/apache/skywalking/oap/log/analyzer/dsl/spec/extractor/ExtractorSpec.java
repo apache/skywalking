@@ -22,6 +22,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +59,7 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,11 +206,29 @@ public class ExtractorSpec extends AbstractSpec {
 
     @SuppressWarnings("unused")
     public void timestamp(final String timestamp) {
+        timestamp(timestamp, null);
+    }
+
+    @SuppressWarnings("unused")
+    public void timestamp(final String timestamp, final String formatPattern) {
         if (BINDING.get().shouldAbort()) {
             return;
         }
-        if (nonNull(timestamp) && StringUtils.isNumeric(timestamp)) {
-            BINDING.get().log().setTimestamp(Long.parseLong(timestamp));
+        if (StringUtil.isEmpty(timestamp)) {
+            return;
+        }
+
+        if (StringUtil.isEmpty(formatPattern)) {
+            if (StringUtils.isNumeric(timestamp)) {
+                BINDING.get().log().setTimestamp(Long.parseLong(timestamp));
+            }
+        } else {
+            SimpleDateFormat format = new SimpleDateFormat(formatPattern);
+            try {
+                BINDING.get().log().setTimestamp(format.parse(timestamp).getTime());
+            } catch (ParseException e) {
+                // ignore
+            }
         }
     }
 
