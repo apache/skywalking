@@ -195,7 +195,7 @@ filter {
     }
 }
 ```
-or a datetime string with specified pattern:
+or a datetime string with a specified pattern:
 ```groovy
 filter {
     // ... parser
