@@ -201,7 +201,7 @@ filter {
     // ... parser
 
     extractor {
-        timestamp parsed.time, "yyyy-MM-dd HH:mm:ss"
+        timestamp parsed.time as String, "yyyy-MM-dd HH:mm:ss"
     }
 }
 ```
