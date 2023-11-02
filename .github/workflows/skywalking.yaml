@@ -440,6 +440,9 @@ jobs:
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
             env: ES_VERSION=8.8.1
 
+          - name: Log Extract Timestamp
+            config: test/e2e-v2/cases/log/extract-timestamp/e2e.yaml
+
           - name: Trace Profiling BanyanDB
             config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
           - name: Trace Profiling H2
