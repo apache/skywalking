@@ -185,7 +185,26 @@ dropped) and is used to associate with traces / metrics.
 `timestamp` extracts the timestamp from the `parsed` result, and set it into the `LogData`, which will be persisted (if
 not dropped) and is used to associate with traces / metrics.
 
-The unit of `timestamp` is millisecond.
+The parameter of `timestamp` can be a millisecond:
+```groovy
+filter {
+    // ... parser
+
+    extractor {
+        timestamp parsed.time as String
+    }
+}
+```
+or a datetime string with a specified pattern:
+```groovy
+filter {
+    // ... parser
+
+    extractor {
+        timestamp parsed.time as String, "yyyy-MM-dd HH:mm:ss"
+    }
+}
+```
 
 - `layer`
 

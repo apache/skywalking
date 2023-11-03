@@ -35,6 +35,7 @@
 * BanyanDBStorageClient: Add `define(Property property, PropertyStore.Strategy strategy)` API.
 * Support GraalVM native-image (Experimental).
 * Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
+* Support extract timestamp from patterned datetime string in LAL.
 
 #### UI
 
