@@ -36,7 +36,6 @@
 * Support GraalVM native-image (Experimental).
 * Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
 * Support extract timestamp from patterned datetime string in LAL.
-* Fix incorrect notes of slowCacheReadThreshold.
 
 #### UI
 
@@ -60,5 +59,6 @@
 * Add topology configuration in UI-Grafana doc.
 * Add missing metrics to the `OpenTelemetry Metrics` doc.
 * Polish docs of `Concepts and Designs`.
+* Fix incorrect notes of slowCacheReadThreshold.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/193?closed=1)
