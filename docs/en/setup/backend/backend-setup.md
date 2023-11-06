@@ -86,7 +86,7 @@ module.telemetry.provider                  |   none
 oap.external.grpc.host                     |   0.0.0.0               
 oap.external.grpc.port                     |   11800                 
 oap.external.http.host                     |   0.0.0.0               
-oap.external.http.port                     |   7788                  
+oap.external.http.port                     |   12800                  
 oap.internal.comm.host                     |   0.0.0.0               
 oap.internal.comm.port                     |   11800       
 ```
