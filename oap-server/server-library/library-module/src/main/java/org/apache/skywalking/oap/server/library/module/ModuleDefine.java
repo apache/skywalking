@@ -23,7 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ServiceLoader;
-import org.apache.logging.log4j.core.util.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
