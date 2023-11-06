@@ -60,6 +60,7 @@
 * Add topology configuration in UI-Grafana doc.
 * Add missing metrics to the `OpenTelemetry Metrics` doc.
 * Polish docs of `Concepts and Designs`.
+* Fix incorrect notes of slowCacheReadThreshold.
 * Update OAP setup and cluster coordinator docs to explain new booting parameters table in the logs, and how to setup
   cluster mode.
 
