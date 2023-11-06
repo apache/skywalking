@@ -86,6 +86,9 @@ public class SharingServerModuleProvider extends ModuleProvider {
             httpServerConfig.setPort(config.getRestPort());
             httpServerConfig.setContextPath(config.getRestContextPath());
 
+            setBootingParameter("oap.external.http.host", config.getRestHost());
+            setBootingParameter("oap.external.http.port", config.getRestPort());
+
             httpServer = new HTTPServer(httpServerConfig);
             httpServer.initialize();
 
@@ -114,6 +117,8 @@ public class SharingServerModuleProvider extends ModuleProvider {
                     config.getGRPCPort()
                 );
             }
+            setBootingParameter("oap.external.grpc.host", config.getGRPCHost());
+            setBootingParameter("oap.external.grpc.port", config.getGRPCPort());
             if (config.getMaxMessageSize() > 0) {
                 grpcServer.setMaxMessageSize(config.getMaxMessageSize());
             }

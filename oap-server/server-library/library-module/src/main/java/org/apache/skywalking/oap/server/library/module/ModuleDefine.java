@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import org.apache.logging.log4j.core.util.Loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,8 +61,11 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
      * @param configuration of this module
      * @throws ProviderNotFoundException when even don't find a single one providers.
      */
-    void prepare(ModuleManager moduleManager, ApplicationConfiguration.ModuleConfiguration configuration,
-                 ServiceLoader<ModuleProvider> moduleProviderLoader) throws ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException, ModuleStartException {
+    void prepare(ModuleManager moduleManager,
+                 ApplicationConfiguration.ModuleConfiguration configuration,
+                 ServiceLoader<ModuleProvider> moduleProviderLoader,
+                 TerminalFriendlyTable bootingParameters)
+        throws ProviderNotFoundException, ServiceNotProvidedException, ModuleConfigException, ModuleStartException {
         for (ModuleProvider provider : moduleProviderLoader) {
             if (!configuration.has(provider.name())) {
                 continue;
@@ -72,6 +76,7 @@ public abstract class ModuleDefine implements ModuleProviderHolder {
                     loadedProvider = provider;
                     loadedProvider.setManager(moduleManager);
                     loadedProvider.setModuleDefine(this);
+                    loadedProvider.setBootingParameters(bootingParameters);
                 } else {
                     throw new DuplicateProviderException(
                         this.name() + " module has one " + loadedProvider.name() + "[" + loadedProvider

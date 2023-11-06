@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Properties;
 
 /**
- * Modulization configurations. The {@link ModuleManager} is going to start, lookup, start modules based on this.
+ * Modularization configurations. The {@link ModuleManager} is going to start, lookup, start modules based on this.
  */
 public class ApplicationConfiguration {
     private HashMap<String, ModuleConfiguration> modules = new HashMap<>();

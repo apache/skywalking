@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.tool.profile.exporter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
 import org.apache.skywalking.oap.server.starter.config.ApplicationConfigLoader;
 
 import java.io.File;
@@ -28,7 +29,10 @@ import java.io.File;
 @Slf4j
 public class ProfileSnapshotExporterBootstrap {
     public static void export(String[] args) {
-        ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
+        TerminalFriendlyTable bootingParameters
+            = new TerminalFriendlyTable("The key booting parameters of Apache SkyWalking OAP are listed as following.");
+
+        ApplicationConfigLoader configLoader = new ApplicationConfigLoader(bootingParameters);
         ModuleManager manager = new ModuleManager();
         try {
             // parse config and init

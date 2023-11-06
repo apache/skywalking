@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
@@ -44,7 +45,13 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
     private static final String DISABLE_SELECTOR = "-";
     private static final String SELECTOR = "selector";
 
-    private final Yaml yaml = new Yaml();
+    private final TerminalFriendlyTable bootingParameters;
+    private final Yaml yaml;
+
+    public ApplicationConfigLoader(final TerminalFriendlyTable bootingParameters) {
+        this.bootingParameters = bootingParameters;
+        this.yaml = new Yaml();
+    }
 
     @Override
     public ApplicationConfiguration load() throws ConfigFileNotFoundException {
@@ -71,6 +78,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                 "Get a provider define belong to {} module, provider name: {}", moduleName,
                                 providerName
                             );
+                            bootingParameters.addRow(new TerminalFriendlyTable.Row("module." + moduleName + ".provider", providerName));
                             final Map<String, ?> propertiesConfig = (Map<String, ?>) config;
                             final Properties properties = new Properties();
                             if (propertiesConfig != null) {
