@@ -29,7 +29,7 @@ import lombok.Setter;
  * And each moduleDefine can have one or more implementation, which depends on `application.yml`
  */
 public abstract class ModuleProvider implements ModuleServiceHolder {
-    @Setter(AccessLevel.PACKAGE)
+    @Setter
     private ModuleManager manager;
     @Setter(AccessLevel.PACKAGE)
     private ModuleDefine moduleDefine;

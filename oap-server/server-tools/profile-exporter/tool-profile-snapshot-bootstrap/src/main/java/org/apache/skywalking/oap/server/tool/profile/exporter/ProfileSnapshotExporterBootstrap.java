@@ -33,7 +33,7 @@ public class ProfileSnapshotExporterBootstrap {
             = new TerminalFriendlyTable("The key booting parameters of Apache SkyWalking OAP are listed as following.");
 
         ApplicationConfigLoader configLoader = new ApplicationConfigLoader(bootingParameters);
-        ModuleManager manager = new ModuleManager();
+        ModuleManager manager = new ModuleManager("Apache SkyWalking OAP Exporter");
         try {
             // parse config and init
             ExporterConfig exporterConfig = ExporterConfig.parse(args);
