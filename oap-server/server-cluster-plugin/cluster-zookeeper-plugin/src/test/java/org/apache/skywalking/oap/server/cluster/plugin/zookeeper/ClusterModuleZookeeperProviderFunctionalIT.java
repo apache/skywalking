@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.zookeeper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
@@ -45,10 +48,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -73,7 +72,7 @@ public class ClusterModuleZookeeperProviderFunctionalIT {
     @BeforeEach
     public void init() {
         Mockito.when(telemetryProvider.getService(MetricsCreator.class))
-                .thenReturn(new MetricsCreatorNoop());
+               .thenReturn(new MetricsCreatorNoop());
         TelemetryModule telemetryModule = Mockito.spy(TelemetryModule.class);
         Whitebox.setInternalState(telemetryModule, "loadedProvider", telemetryProvider);
         Mockito.when(moduleManager.find(TelemetryModule.NAME)).thenReturn(telemetryModule);
@@ -229,7 +228,7 @@ public class ClusterModuleZookeeperProviderFunctionalIT {
     }
 
     private ClusterModuleZookeeperProvider createProvider(String namespace, String internalComHost,
-        int internalComPort) throws Exception {
+                                                          int internalComPort) throws Exception {
         ClusterModuleZookeeperProvider provider = new ClusterModuleZookeeperProvider();
         provider.setManager(moduleManager);
         ClusterModuleZookeeperConfig moduleConfig = new ClusterModuleZookeeperConfig();

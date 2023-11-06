@@ -28,7 +28,8 @@ import java.util.Map;
 public abstract class MockModuleManager extends ModuleManager {
     private final Map<String, ModuleProviderHolder> moduleProviderHolderMap = Maps.newHashMap();
 
-    public MockModuleManager() {
+    public MockModuleManager(String description) {
+        super(description);
         init();
     }
 

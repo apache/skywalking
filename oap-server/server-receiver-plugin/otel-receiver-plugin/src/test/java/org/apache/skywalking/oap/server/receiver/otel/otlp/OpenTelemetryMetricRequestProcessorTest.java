@@ -48,7 +48,7 @@ public class OpenTelemetryMetricRequestProcessorTest {
 
     @BeforeEach
     public void setUp() {
-        manager = new ModuleManager();
+        manager = new ModuleManager("Test");
         config = new OtelMetricReceiverConfig();
         metricRequestProcessor = new OpenTelemetryMetricRequestProcessor(manager, config);
         nodeLabels = new HashMap<>();

@@ -219,6 +219,11 @@ public class CoreModuleProvider extends ModuleProvider {
         } else {
             grpcServer = new GRPCServer(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort());
         }
+        setBootingParameter("oap.internal.comm.host", moduleConfig.getGRPCHost());
+        setBootingParameter("oap.internal.comm.port", moduleConfig.getGRPCPort());
+        setBootingParameter("oap.external.grpc.host", moduleConfig.getGRPCHost());
+        setBootingParameter("oap.external.grpc.port", moduleConfig.getGRPCPort());
+
         if (moduleConfig.getMaxConcurrentCallsPerConnection() > 0) {
             grpcServer.setMaxConcurrentCallsPerConnection(moduleConfig.getMaxConcurrentCallsPerConnection());
         }
@@ -244,6 +249,8 @@ public class CoreModuleProvider extends ModuleProvider {
                                                             .maxRequestHeaderSize(
                                                                 moduleConfig.getHttpMaxRequestHeaderSize())
                                                             .build();
+        setBootingParameter("oap.external.http.host", moduleConfig.getRestHost());
+        setBootingParameter("oap.external.http.port", moduleConfig.getRestPort());
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.initialize();
 
@@ -335,10 +342,12 @@ public class CoreModuleProvider extends ModuleProvider {
             throw new ModuleStartException(
                 "Metric TTL should be at least 2 days, current value is " + moduleConfig.getMetricsDataTTL());
         }
+        setBootingParameter("TTL.metrics", moduleConfig.getMetricsDataTTL());
         if (moduleConfig.getRecordDataTTL() < 2) {
             throw new ModuleStartException(
                 "Record TTL should be at least 2 days, current value is " + moduleConfig.getRecordDataTTL());
         }
+        setBootingParameter("TTL.record", moduleConfig.getRecordDataTTL());
 
         final MetricsStreamProcessor metricsStreamProcessor = MetricsStreamProcessor.getInstance();
         metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());

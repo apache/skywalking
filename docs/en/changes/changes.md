@@ -36,6 +36,7 @@
 * Support GraalVM native-image (Experimental).
 * Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
 * Support extract timestamp from patterned datetime string in LAL.
+* Support output key parameters in the booting logs.
 
 #### UI
 
@@ -60,5 +61,7 @@
 * Add missing metrics to the `OpenTelemetry Metrics` doc.
 * Polish docs of `Concepts and Designs`.
 * Fix incorrect notes of slowCacheReadThreshold.
+* Update OAP setup and cluster coordinator docs to explain new booting parameters table in the logs, and how to setup
+  cluster mode.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/193?closed=1)

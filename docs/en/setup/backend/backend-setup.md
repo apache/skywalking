@@ -43,6 +43,62 @@ The default startup scripts are `/bin/oapService.sh`(.bat).
 Read the [start up mode](backend-start-up-mode.md) document to learn other ways to start up the backend.
 
 
+### Key Parameters In The Booting Logs
+After the OAP booting process completed, you should be able to see all important parameters listed in the logs.
+
+```
+2023-11-06 21:10:45,988 org.apache.skywalking.oap.server.starter.OAPServerBootstrap 67 [main] INFO  [] - The key booting parameters of Apache SkyWalking OAP are listed as following.
+
+Running Mode                               |   null                  
+TTL.metrics                                |   7                     
+TTL.record                                 |   3                     
+Version                                    |   9.7.0-SNAPSHOT-92af797
+module.agent-analyzer.provider             |   default               
+module.ai-pipeline.provider                |   default               
+module.alarm.provider                      |   default               
+module.aws-firehose.provider               |   default               
+module.cluster.provider                    |   standalone            
+module.configuration-discovery.provider    |   default               
+module.configuration.provider              |   none                  
+module.core.provider                       |   default               
+module.envoy-metric.provider               |   default               
+module.event-analyzer.provider             |   default               
+module.log-analyzer.provider               |   default               
+module.logql.provider                      |   default               
+module.promql.provider                     |   default               
+module.query.provider                      |   graphql               
+module.receiver-browser.provider           |   default               
+module.receiver-clr.provider               |   default               
+module.receiver-ebpf.provider              |   default               
+module.receiver-event.provider             |   default               
+module.receiver-jvm.provider               |   default               
+module.receiver-log.provider               |   default               
+module.receiver-meter.provider             |   default               
+module.receiver-otel.provider              |   default               
+module.receiver-profile.provider           |   default               
+module.receiver-register.provider          |   default               
+module.receiver-sharing-server.provider    |   default               
+module.receiver-telegraf.provider          |   default               
+module.receiver-trace.provider             |   default               
+module.service-mesh.provider               |   default               
+module.storage.provider                    |   h2                    
+module.telemetry.provider                  |   none                  
+oap.external.grpc.host                     |   0.0.0.0               
+oap.external.grpc.port                     |   11800                 
+oap.external.http.host                     |   0.0.0.0               
+oap.external.http.port                     |   12800                  
+oap.internal.comm.host                     |   0.0.0.0               
+oap.internal.comm.port                     |   11800       
+```
+
+- `oap.external.grpc.host`:`oap.external.grpc.port` is for reporting telemetry data through gRPC channel, including
+  native agents, OTEL.
+- `oap.external.http.host`:`oap.external.http.port` is for reporting telemetry data through HTTP channel and query,
+  including native GraphQL(UI), PromQL, LogQL.
+- `oap.internal.comm.host`:`oap.internal.comm.port` is for OAP cluster internal communication via gRPC/HTTP2 protocol.
+  The default host(`0.0.0.0`) is not suitable for the cluster mode, unless in k8s deployment. Please
+  read [Cluster Doc](backend-cluster.md) to understand how to set up the SkyWalking backend in the cluster mode.
+  
 ## application.yml
 SkyWalking backend startup behaviours are driven by `config/application.yml`. Understanding the settings file will help you read this document.
 
@@ -107,14 +163,3 @@ For example, metrics time will be formatted like yyyyMMddHHmm in minute dimensio
 By default, SkyWalking's OAP backend chooses the **OS default timezone**.
 Please follow the Java and OS documents if you want to override the timezone.
 
-#### How to query the storage directly from a 3rd party tool?
-SkyWalking provides different options based on browser UI, CLI and GraphQL to support extensions. But some users may want to query data
-directly from the storage. For example, in the case of ElasticSearch, Kibana is a great tool for doing this.
-
-By default, SkyWalking saves based64-encoded ID(s) only in metrics entities to reduce memory, network and storage space usages.
-But these tools usually don't support nested queries and are not convenient to work with. For these exceptional reasons,
-SkyWalking provides a config to add all necessary name column(s) into the final metrics entities with ID as a trade-off.
-
-Take a look at `core/default/activeExtraModelColumns` config in the `application.yaml`, and set it as `true` to enable this feature.
-
-Note that this feature is simply for 3rd party integration and doesn't provide any new features to native SkyWalking use cases.
