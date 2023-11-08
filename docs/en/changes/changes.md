@@ -5,8 +5,6 @@
 * Add distribution/graal module to make preliminary preparations for supporting native-image.
 * Bump Java agent to 9.1-dev in the e2e tests.
 * Bump up netty to 4.1.100.
-* Add eclipse-temurin:21-jre as a new image runtime. Now, eclipse-temurin:11-jre as default. Both eclipse-temurin:17-jre
-  eclipse-temurin:21-jre are available for every commit and release.
 
 #### OAP Server
 

@@ -79,10 +79,5 @@ jobs:
           SW_OAP_BASE_IMAGE: eclipse-temurin:17-jre
           TAG: ${{ env.TAG }}-java17
         run: make build.all docker.push
-      - name: Build and push docker images based on Java 21
-        env:
-          SW_OAP_BASE_IMAGE: eclipse-temurin:21-jre
-          TAG: ${{ env.TAG }}-java21
-        run: make build.all docker.push
       - name: Build and push docker images
         run: make build.all docker.push
