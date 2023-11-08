@@ -37,6 +37,7 @@
 * Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
 * Support extract timestamp from patterned datetime string in LAL.
 * Support output key parameters in the booting logs.
+* Fix cannot query zipkin traces with `annotationQuery` parameter in the JDBC related storage.
 
 #### UI
 
