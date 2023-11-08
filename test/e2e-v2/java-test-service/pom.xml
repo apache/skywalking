@@ -51,7 +51,7 @@
         <guava.version>30.1.1-jre</guava.version>
         <h2.version>2.1.210</h2.version>
         <mysql.version>8.0.13</mysql.version>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
         <kafka-clients.version>2.4.1</kafka-clients.version>
 
         <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>

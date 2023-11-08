@@ -166,7 +166,7 @@
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>5.9.2</junit.version>
         <mockito-core.version>4.11.0</mockito-core.version>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.30</lombok.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.53.0</grpc.version>
