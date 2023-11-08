@@ -7,6 +7,7 @@
 * Bump up netty to 4.1.100.
 * Add eclipse-temurin:21-jre as a new image runtime. Now, eclipse-temurin:11-jre as default. Both eclipse-temurin:17-jre
   eclipse-temurin:21-jre are available for every commit and release.
+* Add eclipse-temurin:21-jre as OAP runtime tests with the Java agent in JRE21 verification cases.
 
 #### OAP Server
 
