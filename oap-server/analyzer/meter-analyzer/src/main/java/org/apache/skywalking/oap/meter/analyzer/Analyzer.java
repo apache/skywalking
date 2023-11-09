@@ -89,7 +89,7 @@ public class Analyzer {
         if (!Strings.isNullOrEmpty(filterExpression)) {
             filter = new FilterExpression(filterExpression);
         }
-        ExpressionParsingContext ctx = e.parse();
+        ExpressionParsingContext ctx = e.parse(metricName);
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
         analyzer.init();
         return analyzer;
@@ -130,7 +130,7 @@ public class Analyzer {
         if (filterExpression != null) {
             input = filterExpression.filter(input);
         }
-        Result r = expression.run(input);
+        Result r = expression.run(metricName, input);
         if (!r.isSuccess()) {
             return;
         }

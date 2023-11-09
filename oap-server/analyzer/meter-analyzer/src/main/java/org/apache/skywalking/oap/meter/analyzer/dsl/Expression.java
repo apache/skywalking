@@ -23,6 +23,7 @@ import groovy.lang.ExpandoMetaClass;
 import groovy.lang.GroovyObjectSupport;
 import groovy.util.DelegatingScript;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -34,7 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ToString(of = {"literal"})
 public class Expression {
-    private static final ThreadLocal<Map<String, SampleFamily>> PROPERTY_REPOSITORY = new ThreadLocal<>();
 
     private final String literal;
 
@@ -51,9 +51,9 @@ public class Expression {
      *
      * @return Parsed context of the expression.
      */
-    public ExpressionParsingContext parse() {
+    public ExpressionParsingContext parse(String metricName) {
         try (ExpressionParsingContext ctx = ExpressionParsingContext.create()) {
-            Result r = run(ImmutableMap.of());
+            Result r = run(metricName, ImmutableMap.of());
             if (!r.isSuccess() && r.isThrowable()) {
                 throw new ExpressionParsingException(
                     "failed to parse expression: " + literal + ", error:" + r.getError());
@@ -69,11 +69,13 @@ public class Expression {
     /**
      * Run the expression with a data map.
      *
+     * @param metricName     metric name.
      * @param sampleFamilies a data map includes all of candidates to be analysis.
      * @return The result of execution.
      */
-    public Result run(final Map<String, SampleFamily> sampleFamilies) {
-        PROPERTY_REPOSITORY.set(sampleFamilies);
+    public Result run(final String metricName, final Map<String, SampleFamily> sampleFamilies) {
+        final ExpressionRunningContext expressionRunningContext = ExpressionRunningContext.create(
+            metricName, sampleFamilies);
         try {
             SampleFamily sf = (SampleFamily) expression.run();
             if (sf == SampleFamily.EMPTY) {
@@ -89,7 +91,7 @@ public class Expression {
             log.error("failed to run \"{}\"", literal, t);
             return Result.fail(t);
         } finally {
-            PROPERTY_REPOSITORY.remove();
+            expressionRunningContext.close();
         }
     }
 
@@ -117,21 +119,22 @@ public class Expression {
 
         private final String literal;
 
-        public SampleFamily propertyMissing(String metricName) {
+        public SampleFamily propertyMissing(String sampleName) {
             ExpressionParsingContext.get().ifPresent(ctx -> {
-                if (!ctx.samples.contains(metricName)) {
-                    ctx.samples.add(metricName);
+                if (!ctx.samples.contains(sampleName)) {
+                    ctx.samples.add(sampleName);
                 }
             });
-            Map<String, SampleFamily> sampleFamilies = PROPERTY_REPOSITORY.get();
-            if (sampleFamilies == null) {
-                return SampleFamily.EMPTY;
-            }
-            if (sampleFamilies.containsKey(metricName)) {
-                return sampleFamilies.get(metricName);
+            Map<String, SampleFamily> sampleFamilies = ExpressionRunningContext
+                .get()
+                .map(ExpressionRunningContext::getSampleFamilies)
+                .orElse(Collections.singletonMap(sampleName, SampleFamily.EMPTY));
+
+            if (sampleFamilies.containsKey(sampleName)) {
+                return sampleFamilies.get(sampleName);
             }
             if (!ExpressionParsingContext.get().isPresent()) {
-                log.warn("{} referred by \"{}\" doesn't exist in {}", metricName, literal, sampleFamilies.keySet());
+                log.warn("{} referred by \"{}\" doesn't exist in {}", sampleName, literal, sampleFamilies.keySet());
             }
             return SampleFamily.EMPTY;
         }

@@ -273,10 +273,18 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
+
+        String metricName = ExpressionRunningContext.get().map(ExpressionRunningContext::getMetricName)
+                                                    .orElseThrow(() -> new RuntimeException(
+                                                        "metrics name required in running context"));
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
-                  .map(sample -> sample.increase(range, (lowerBoundValue, unused) -> sample.value - lowerBoundValue))
+                  .map(sample -> sample.increase(
+                      range,
+                      metricName,
+                      (lowerBoundValue, unused) -> sample.value - lowerBoundValue
+                  ))
                   .toArray(Sample[]::new)
         );
     }
@@ -286,11 +294,16 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
+
+        String metricName = ExpressionRunningContext.get().map(ExpressionRunningContext::getMetricName)
+                                                    .orElseThrow(() -> new RuntimeException(
+                                                        "metrics name required in running context"));
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
                       range,
+                      metricName,
                       (lowerBoundValue, lowerBoundTime) -> {
                           final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
                           return timeDiff < 1L ? 0.0 : (sample.value - lowerBoundValue) / timeDiff;
@@ -304,10 +317,15 @@ public class SampleFamily {
         if (this == EMPTY) {
             return EMPTY;
         }
+
+        String metricName = ExpressionRunningContext.get().map(ExpressionRunningContext::getMetricName)
+                                                    .orElseThrow(() -> new RuntimeException(
+                                                        "metrics name required in running context"));
         return SampleFamily.build(
             this.context,
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
+                      metricName,
                       (lowerBoundValue, lowerBoundTime) -> {
                           final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
                           return timeDiff < 1L ? 0.0 : (sample.value - lowerBoundValue) / timeDiff;
