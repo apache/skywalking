@@ -238,7 +238,7 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
             .client(getClient())
             .search(search.build())
             .index(index)
-            .queryMaxSize(queryMaxSize)
+            .queryMaxSize(limit)
             .resultConverter(searchHit -> {
                 final var sourceAsMap = searchHit.getSource();
 

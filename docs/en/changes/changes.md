@@ -33,6 +33,7 @@
 * Add a component ID for Fiber (ID=5021).
 * BanyanDBStorageClient: Add `define(Property property, PropertyStore.Strategy strategy)` API.
 * Support GraalVM native-image (Experimental).
+* Fix `limit` doesn't work for `findEndpoint` API in ES storage.
 
 #### UI
 
