@@ -35,6 +35,7 @@
 * Support extract timestamp from patterned datetime string in LAL.
 * Support output key parameters in the booting logs.
 * Fix cannot query zipkin traces with `annotationQuery` parameter in the JDBC related storage.
+* Fix `limit` doesn't work for `findEndpoint` API in ES storage.
 
 #### UI
 

@@ -61,12 +61,12 @@ public class ElasticSearchScroller<T> {
                 }
                 for (final var searchHit : response.getHits()) {
                     results.add(resultConverter.apply(searchHit));
+                    if (queryMaxSize > 0 && results.size() >= queryMaxSize) {
+                        return results;
+                    }
                 }
                 if (search.getSize() != null && response.getHits().getHits().size() < search.getSize()) {
-                    break;
-                }
-                if (queryMaxSize > 0 && results.size() >= queryMaxSize) {
-                    break;
+                    return results;
                 }
                 response = client.scroll(SCROLL_CONTEXT_RETENTION, scrollId);
             }

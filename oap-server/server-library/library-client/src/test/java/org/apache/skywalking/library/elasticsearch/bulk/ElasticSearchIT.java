@@ -26,8 +26,10 @@ import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder
 import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.Index;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchScroller;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.IndexRequestWrapper;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.junit.jupiter.api.Assertions;
@@ -41,6 +43,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Slf4j
@@ -171,6 +174,30 @@ public class ElasticSearchIT {
                                                                       .get("message"));
         client.deleteById(indexName, id);
         Assertions.assertFalse(client.existDoc(indexName, id));
+
+        for (int i = 0; i < 100; i++) {
+            builder = ImmutableMap.<String, Object>builder()
+                                  .put("user", "sw")
+                                  .put("post_date", "2009-11-15T14:12:12")
+                                  .put("message", "trying out Elasticsearch")
+                                  .build();
+
+            indexName = "test_scroller";
+            client.forceInsert(indexName, UUID.randomUUID().toString(), builder);
+        }
+
+        SearchBuilder search = Search.builder().size(50);
+        search.query(Query.term("user", "sw"));
+        final var scroller = ElasticSearchScroller
+            .<SearchHit>builder()
+            .client(client)
+            .search(search.build())
+            .index(indexName)
+            .queryMaxSize(40)
+            .resultConverter(Function.identity())
+            .build();
+        Assertions.assertEquals(40, scroller.scroll().size());
+
         client.shutdown();
         server.stop();
     }
