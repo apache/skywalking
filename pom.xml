@@ -143,15 +143,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>native</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>graal</module>
-            </modules>
-        </profile>
     </profiles>
 
     <properties>
