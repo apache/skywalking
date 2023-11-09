@@ -2,7 +2,6 @@
 
 #### Project
 
-* Add distribution/graal module to make preliminary preparations for supporting native-image.
 * Bump Java agent to 9.1-dev in the e2e tests.
 * Bump up netty to 4.1.100.
 * Add eclipse-temurin:21-jre as a new image runtime. Now, eclipse-temurin:11-jre as default. Both eclipse-temurin:17-jre
@@ -34,7 +33,6 @@
 * Add a component ID for Netty-http (ID=151).
 * Add a component ID for Fiber (ID=5021).
 * BanyanDBStorageClient: Add `define(Property property, PropertyStore.Strategy strategy)` API.
-* Support GraalVM native-image (Experimental).
 * Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
 * Support extract timestamp from patterned datetime string in LAL.
 * Support output key parameters in the booting logs.

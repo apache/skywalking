@@ -59,8 +59,6 @@ catalog:
             path: "/en/setup/backend/backend-docker"
           - name: "Run with Kubernetes"
             path: "/en/setup/backend/backend-k8s"
-          - name: "Run with GraalVM (Experimental)"
-            path: "/en/setup/backend/backend-graalvm"
       - name: "Configuration Vocabulary"
         path: "/en/setup/backend/configuration-vocabulary"
       - name: "Advanced Setup"
