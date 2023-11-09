@@ -2,17 +2,16 @@
 
 #### Project
 
-* Add distribution/graal module to make preliminary preparations for supporting native-image.
 * Bump Java agent to 9.1-dev in the e2e tests.
 * Bump up netty to 4.1.100.
-* Add eclipse-temurin:21-jre as a new image runtime. Now, eclipse-temurin:11-jre as default. Both eclipse-temurin:17-jre
-  eclipse-temurin:21-jre are available for every commit and release.
+* Update Groovy 3 to 4.0.15.
 
 #### OAP Server
 
 * ElasticSearchClient: Add `deleteById` API.
 * Fix Custom alarm rules are overwritten by 'resource/alarm-settings.yml'
 * Support Kafka Monitoring.
+* Support Pulsar server and BookKeeper server Monitoring.
 * [Breaking Change] Elasticsearch storage merge all management data indices into one index `management`, 
   including `ui_template，ui_menu，continuous_profiling_policy`.
 * Add a release mechanism for alarm windows when it is expired in case of OOM.
@@ -32,7 +31,10 @@
 * Add a component ID for Netty-http (ID=151).
 * Add a component ID for Fiber (ID=5021).
 * BanyanDBStorageClient: Add `define(Property property, PropertyStore.Strategy strategy)` API.
-* Support GraalVM native-image (Experimental).
+* Correct the file format and fix typos in the filenames for monitoring Kafka's e2e tests.
+* Support extract timestamp from patterned datetime string in LAL.
+* Support output key parameters in the booting logs.
+* Fix cannot query zipkin traces with `annotationQuery` parameter in the JDBC related storage.
 * Fix `limit` doesn't work for `findEndpoint` API in ES storage.
 
 #### UI
@@ -57,5 +59,8 @@
 * Add topology configuration in UI-Grafana doc.
 * Add missing metrics to the `OpenTelemetry Metrics` doc.
 * Polish docs of `Concepts and Designs`.
+* Fix incorrect notes of slowCacheReadThreshold.
+* Update OAP setup and cluster coordinator docs to explain new booting parameters table in the logs, and how to setup
+  cluster mode.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/193?closed=1)

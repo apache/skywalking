@@ -70,7 +70,7 @@ public class NacosConfigurationIT {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
-        final ModuleManager moduleManager = new ModuleManager();
+        final ModuleManager moduleManager = new ModuleManager("Test");
         moduleManager.init(applicationConfiguration);
 
         provider = (NacosConfigurationTestProvider) moduleManager.find(NacosConfigurationTestModule.NAME).provider();

@@ -28,6 +28,7 @@ public abstract class MockModuleManager extends ModuleManager {
     private final Map<String, ModuleProviderHolder> moduleProviderHolderMap = Maps.newHashMap();
 
     public MockModuleManager() {
+        super("Mock");
         init();
     }
 

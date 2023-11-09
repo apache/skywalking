@@ -33,7 +33,7 @@ public class ModuleManagerTest {
         configuration.addModule("BaseA").addProviderConfiguration("P-A", new Properties());
         configuration.addModule("BaseB").addProviderConfiguration("P-B", new Properties());
 
-        ModuleManager manager = new ModuleManager();
+        ModuleManager manager = new ModuleManager("Test");
         manager.init(configuration);
 
         BaseModuleA.ServiceABusiness1 serviceABusiness1 = manager.find("BaseA")
@@ -52,7 +52,7 @@ public class ModuleManagerTest {
         settings.put("attr4", true);
         configuration.addModule("BaseA").addProviderConfiguration("P-A", settings);
 
-        ModuleManager manager = new ModuleManager();
+        ModuleManager manager = new ModuleManager("Test");
         manager.init(configuration);
 
         final ModuleServiceHolder provider = manager.find("BaseA").provider();
@@ -72,7 +72,7 @@ public class ModuleManagerTest {
             configuration.addModule("BaseA").addProviderConfiguration("P-A", new Properties());
             configuration.addModule("BaseB").addProviderConfiguration("P-B2", new Properties());
 
-            ModuleManager manager = new ModuleManager();
+            ModuleManager manager = new ModuleManager("Test");
             manager.init(configuration);
         });
     }
@@ -84,7 +84,7 @@ public class ModuleManagerTest {
             configuration.addModule("BaseA").addProviderConfiguration("P-A2", new Properties());
             configuration.addModule("BaseB").addProviderConfiguration("P-B3", new Properties());
 
-            ModuleManager manager = new ModuleManager();
+            ModuleManager manager = new ModuleManager("Test");
             manager.init(configuration);
         });
     }

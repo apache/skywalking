@@ -71,7 +71,7 @@ public class ZookeeperConfigurationIT {
         final ApplicationConfiguration applicationConfiguration = new ApplicationConfiguration();
         loadConfig(applicationConfiguration);
 
-        final ModuleManager moduleManager = new ModuleManager();
+        final ModuleManager moduleManager = new ModuleManager("Test");
         moduleManager.init(applicationConfiguration);
 
         provider = (MockZookeeperConfigurationProvider) moduleManager.find(MockZookeeperConfigurationModule.NAME)

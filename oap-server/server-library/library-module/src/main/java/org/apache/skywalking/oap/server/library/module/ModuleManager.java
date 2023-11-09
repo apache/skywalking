@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
+import lombok.Getter;
 
 /**
  * The <code>ModuleManager</code> takes charge of all {@link ModuleDefine}s in collector.
@@ -30,12 +31,21 @@ import java.util.ServiceLoader;
 public class ModuleManager implements ModuleDefineHolder {
     private boolean isInPrepareStage = true;
     private final Map<String, ModuleDefine> loadedModules = new HashMap<>();
+    @Getter
+    private final TerminalFriendlyTable bootingParameters;
+
+    public ModuleManager(String description) {
+        bootingParameters = new TerminalFriendlyTable(
+            String.format("The key booting parameters of %s are listed as following.", description));
+    }
 
     /**
      * Init the given modules
      */
-    public void init(
-        ApplicationConfiguration applicationConfiguration) throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException, CycleDependencyException, ModuleConfigException, ModuleStartException {
+    public void init(ApplicationConfiguration applicationConfiguration)
+        throws ModuleNotFoundException, ProviderNotFoundException, ServiceNotProvidedException,
+        CycleDependencyException, ModuleConfigException, ModuleStartException {
+
         String[] moduleNames = applicationConfiguration.moduleList();
         ServiceLoader<ModuleDefine> moduleServiceLoader = ServiceLoader.load(ModuleDefine.class);
         ServiceLoader<ModuleProvider> moduleProviderLoader = ServiceLoader.load(ModuleProvider.class);
@@ -43,7 +53,12 @@ public class ModuleManager implements ModuleDefineHolder {
         HashSet<String> moduleSet = new HashSet<>(Arrays.asList(moduleNames));
         for (ModuleDefine module : moduleServiceLoader) {
             if (moduleSet.contains(module.name())) {
-                module.prepare(this, applicationConfiguration.getModuleConfiguration(module.name()), moduleProviderLoader);
+                module.prepare(
+                    this,
+                    applicationConfiguration.getModuleConfiguration(module.name()),
+                    moduleProviderLoader,
+                    bootingParameters
+                );
                 loadedModules.put(module.name(), module);
                 moduleSet.remove(module.name());
             }

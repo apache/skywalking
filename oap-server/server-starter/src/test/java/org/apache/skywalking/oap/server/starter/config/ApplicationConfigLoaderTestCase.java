@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.starter.config;
 
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
+import org.apache.skywalking.oap.server.library.module.TerminalFriendlyTable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +37,7 @@ public class ApplicationConfigLoaderTestCase {
         System.setProperty("SW_STORAGE", "mysql");
         System.setProperty("SW_RECEIVER_ZIPKIN", "default");
         System.setProperty("SW_DATA_SOURCE_PASSWORD", "!AI!3B");
-        ApplicationConfigLoader configLoader = new ApplicationConfigLoader();
+        ApplicationConfigLoader configLoader = new ApplicationConfigLoader(new TerminalFriendlyTable("test"));
         applicationConfiguration = configLoader.load();
     }
 
