@@ -86,7 +86,7 @@ public class FilterTest {
                      String expression,
                      Result want) {
         Expression e = DSL.parse(expression);
-        Result r = e.run(input);
+        Result r = e.run(name, input);
         assertThat(r).isEqualTo(want);
     }
 }

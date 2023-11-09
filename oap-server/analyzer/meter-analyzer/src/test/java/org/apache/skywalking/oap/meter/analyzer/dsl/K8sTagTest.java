@@ -273,7 +273,7 @@ public class K8sTagTest {
         Expression e = DSL.parse(expression);
         Result r = null;
         try {
-            r = e.run(input);
+            r = e.run(name, input);
         } catch (Throwable t) {
             if (isThrow) {
                 return;

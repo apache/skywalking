@@ -223,7 +223,7 @@ public class IncreaseTest {
         for (int i = 0; i < input.size(); i++) {
             Result r = null;
             try {
-                r = e.run(input.get(i));
+                r = e.run(name, input.get(i));
             } catch (Throwable t) {
                 if (isThrow) {
                     return;

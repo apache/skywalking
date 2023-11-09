@@ -98,7 +98,7 @@ public class ExpressionParsingTest {
         Expression e = DSL.parse(expression);
         ExpressionParsingContext r = null;
         try {
-            r = e.parse();
+            r = e.parse(name);
         } catch (Throwable t) {
             if (isThrow) {
                 return;
