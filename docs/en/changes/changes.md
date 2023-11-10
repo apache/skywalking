@@ -5,6 +5,7 @@
 * Bump Java agent to 9.1-dev in the e2e tests.
 * Bump up netty to 4.1.100.
 * Update Groovy 3 to 4.0.15.
+* Support packaging the project in JDK21. Compiler source and target remain in JDK11.
 
 #### OAP Server
 
