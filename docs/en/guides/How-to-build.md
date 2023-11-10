@@ -16,7 +16,7 @@ If you need to execute build behind the proxy, edit the *.mvn/jvm.config* and se
 ```
 
 ### Building from GitHub
-1. Prepare git, JDK 11/17/21(LTS versions), and Maven 3.6+.
+1. Prepare git, JDK 11 or 17 (LTS versions), and Maven 3.6+.
 1. Clone the project.
 
     If you want to build a release from source codes, set a `tag name` by using `git clone -b [tag_name] ...` while cloning.
