@@ -84,12 +84,12 @@ public class Analyzer {
                                  final String filterExpression,
                                  final String expression,
                                  final MeterSystem meterSystem) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(metricName, expression);
         FilterExpression filter = null;
         if (!Strings.isNullOrEmpty(filterExpression)) {
             filter = new FilterExpression(filterExpression);
         }
-        ExpressionParsingContext ctx = e.parse(metricName);
+        ExpressionParsingContext ctx = e.parse();
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
         analyzer.init();
         return analyzer;
@@ -130,7 +130,7 @@ public class Analyzer {
         if (filterExpression != null) {
             input = filterExpression.filter(input);
         }
-        Result r = expression.run(metricName, input);
+        Result r = expression.run(input);
         if (!r.isSuccess()) {
             return;
         }

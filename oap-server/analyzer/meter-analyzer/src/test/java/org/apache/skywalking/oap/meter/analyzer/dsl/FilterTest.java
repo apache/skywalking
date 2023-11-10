@@ -85,8 +85,8 @@ public class FilterTest {
                      ImmutableMap<String, SampleFamily> input,
                      String expression,
                      Result want) {
-        Expression e = DSL.parse(expression);
-        Result r = e.run(name, input);
+        Expression e = DSL.parse(name, expression);
+        Result r = e.run(input);
         assertThat(r).isEqualTo(want);
     }
 }

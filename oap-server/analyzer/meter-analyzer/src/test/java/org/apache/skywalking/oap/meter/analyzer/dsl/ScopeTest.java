@@ -614,10 +614,10 @@ public class ScopeTest {
                      final String expression,
                      final boolean isThrow,
                      final Map<MeterEntity, Sample[]> want) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(name, expression);
         Result r = null;
         try {
-            r = e.run(name, input);
+            r = e.run(input);
         } catch (Throwable t) {
             if (isThrow) {
                 return;

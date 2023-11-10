@@ -120,8 +120,8 @@ public class MetricConvert {
     }
 
     private void handleInitExp(String exp) {
-        Expression e = DSL.parse(exp);
-        final Result result = e.run(null, ImmutableMap.of());
+        Expression e = DSL.parse(null, exp);
+        final Result result = e.run(ImmutableMap.of());
         if (!result.isSuccess() && result.isThrowable()) {
             throw new ExpressionParsingException(
                 "failed to execute init expression: " + exp + ", error:" + result.getError());

@@ -46,10 +46,11 @@ public final class DSL {
     /**
      * Parse string literal to Expression object, which can be reused.
      *
+     * @param metricName the name of metric defined in mal rule
      * @param expression string literal represents the DSL expression.
      * @return Expression object could be executed.
      */
-    public static Expression parse(final String expression) {
+    public static Expression parse(final String metricName, final String expression) {
         CompilerConfiguration cc = new CompilerConfiguration();
         cc.setScriptBaseClass(DelegatingScript.class.getName());
         ImportCustomizer icz = new ImportCustomizer();
@@ -82,6 +83,6 @@ public final class DSL {
 
         GroovyShell sh = new GroovyShell(new Binding(), cc);
         DelegatingScript script = (DelegatingScript) sh.parse(expression);
-        return new Expression(expression, script);
+        return new Expression(metricName, expression, script);
     }
 }
