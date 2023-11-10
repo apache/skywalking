@@ -153,11 +153,14 @@
         <!-- `project.build.outputTimestamp` is required for reproducible builds: https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->
         <project.build.outputTimestamp>1693572743</project.build.outputTimestamp>
 
+        <!-- Compiling and test stages tools. -->
         <powermock.version>2.0.9</powermock.version>
         <checkstyle.version>6.18</checkstyle.version>
         <junit.version>5.9.2</junit.version>
         <mockito-core.version>4.11.0</mockito-core.version>
-        <lombok.version>1.18.22</lombok.version>
+        <system-stubs.version>2.1.4</system-stubs.version>
+        <lombok.version>1.18.30</lombok.version>
+        <byte-buddy.version>1.14.9</byte-buddy.version>
 
         <!-- core lib dependency -->
         <grpc.version>1.53.0</grpc.version>
@@ -193,8 +196,6 @@
 
         <skipUTs>false</skipUTs>
         <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
-
-        <system-stubs.version>2.0.2</system-stubs.version>
 
         <delombok.output.dir>${project.build.directory}/delombok</delombok.output.dir>
     </properties>
@@ -284,6 +285,28 @@
                 <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito-core.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy-agent</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>${byte-buddy.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy-agent</artifactId>
+                <version>${byte-buddy.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -303,6 +326,16 @@
                 <artifactId>system-stubs-jupiter</artifactId>
                 <version>${system-stubs.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.bytebuddy</groupId>
+                        <artifactId>byte-buddy-agent</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
