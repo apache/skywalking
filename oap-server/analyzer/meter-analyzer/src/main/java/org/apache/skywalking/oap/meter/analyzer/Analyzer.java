@@ -84,7 +84,7 @@ public class Analyzer {
                                  final String filterExpression,
                                  final String expression,
                                  final MeterSystem meterSystem) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(metricName, expression);
         FilterExpression filter = null;
         if (!Strings.isNullOrEmpty(filterExpression)) {
             filter = new FilterExpression(filterExpression);

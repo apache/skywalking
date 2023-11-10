@@ -95,7 +95,7 @@ public class ExpressionParsingTest {
                      String expression,
                      ExpressionParsingContext want,
                      boolean isThrow) {
-        Expression e = DSL.parse(expression);
+        Expression e = DSL.parse(name, expression);
         ExpressionParsingContext r = null;
         try {
             r = e.parse();
