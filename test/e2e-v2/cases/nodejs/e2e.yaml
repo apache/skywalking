@@ -89,11 +89,11 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_sla --instance-name=provider-instance --service-name=provider |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=/users --service-name=consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=consumer |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=/users --service-name=consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=POST:/users --service-name=consumer |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=/users --service-name=consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/users --service-name=consumer |yq e 'to_entries' -
       expected: expected/metrics-has-value.yml
     # service relation metrics
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=consumer --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
