@@ -73,8 +73,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Observe the Virtual Cache which is conjectured by language agent through various plugins.",
             "fontSize": 14,
             "textAlign": "left",

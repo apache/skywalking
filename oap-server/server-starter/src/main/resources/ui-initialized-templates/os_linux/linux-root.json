@@ -57,8 +57,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Provide Linux OS monitoring.",
             "fontSize": 14,
             "textAlign": "left",

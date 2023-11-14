@@ -65,8 +65,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Provide Browser-Side monitoring of Web-App, Versions and Pages, through Apache SkyWalking Client JS.",
             "fontSize": 14,
             "textAlign": "left",

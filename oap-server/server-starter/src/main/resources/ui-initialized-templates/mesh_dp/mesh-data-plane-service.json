@@ -67,8 +67,8 @@
                   "i": "2",
                   "type": "Text",
                   "graph": {
-                    "fontColor": "white",
-                    "backgroundColor": "blue",
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
                     "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
                     "fontSize": 14,
                     "textAlign": "left",

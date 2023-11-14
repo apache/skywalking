@@ -83,8 +83,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Provide monitoring of the status and resources of the K8S Cluster.",
             "fontSize": 14,
             "textAlign": "left",

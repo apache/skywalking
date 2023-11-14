@@ -32,8 +32,8 @@
           "i": "100",
           "type": "Text",
           "graph": {
-            "fontColor":"blue",
-            "backgroundColor":"white",
+            "fontColor":"theme",
+            "backgroundColor":"theme",
             "content":"Provide AWS Cloud EKS monitoring through AWS Container Insights Receiver",
             "fontSize":14,
             "textAlign":"left",

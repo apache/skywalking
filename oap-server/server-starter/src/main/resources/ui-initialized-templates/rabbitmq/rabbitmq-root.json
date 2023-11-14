@@ -42,8 +42,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Provide RabbitMQ monitoring through OpenTelemetry's Prometheus Receiver",
             "fontSize": 14,
             "textAlign": "left",

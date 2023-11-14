@@ -189,8 +189,8 @@
           "i": "100",
           "type": "Text",
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Observe Service Mesh through telemetry data collected from Envoy Access Log Service (ALS).",
             "fontSize": 14,
             "textAlign": "left",

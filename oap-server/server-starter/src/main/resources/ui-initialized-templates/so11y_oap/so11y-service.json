@@ -56,8 +56,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "The OAP backend cluster itself is a distributed streaming process system, this is the monitoring for the OAP backend itself.",
             "fontSize": 14,
             "textAlign": "left",
