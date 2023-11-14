@@ -12,8 +12,8 @@
           "i":"1",
           "type":"Text",
           "graph":{
-            "fontColor":"blue",
-            "backgroundColor":"white",
+            "fontColor":"theme",
+            "backgroundColor":"theme",
             "content":"Provide Elasticsearch Server monitoring through OpenTelemetry's Prometheus Receiver",
             "fontSize":14,
             "textAlign":"left",

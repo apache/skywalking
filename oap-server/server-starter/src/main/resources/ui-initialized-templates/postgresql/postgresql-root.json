@@ -12,8 +12,8 @@
                "i":"0",
                "type":"Text",
                "graph":{
-                  "fontColor":"blue",
-                  "backgroundColor":"white",
+                  "fontColor":"theme",
+                  "backgroundColor":"theme",
                   "content":"Provide PostgreSQL monitoring through OpenTelemetry's Prometheus Receiver",
                   "fontSize":14,
                   "textAlign":"left",
