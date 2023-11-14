@@ -224,8 +224,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications. OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.",
             "fontSize": 14,
             "textAlign": "left",

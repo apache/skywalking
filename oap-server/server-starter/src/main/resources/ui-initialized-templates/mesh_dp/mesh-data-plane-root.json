@@ -45,8 +45,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "black",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Observe Envoy Proxy through Envoy Metrics Service.",
             "fontSize": 14,
             "textAlign": "left",

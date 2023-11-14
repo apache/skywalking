@@ -2133,8 +2133,8 @@
                   "i": "3",
                   "type": "Text",
                   "graph": {
-                    "fontColor": "white",
-                    "backgroundColor": "blue",
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
                     "content": "The sampled HTTP 1.x requests within tracing context.",
                     "fontSize": 14,
                     "textAlign": "left"

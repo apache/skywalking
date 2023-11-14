@@ -59,8 +59,8 @@
             ""
           ],
           "graph": {
-            "fontColor": "blue",
-            "backgroundColor": "white",
+            "fontColor": "theme",
+            "backgroundColor": "theme",
             "content": "Observe Service status and resources from Kubernetes.",
             "fontSize": 14,
             "textAlign": "left",

@@ -220,8 +220,8 @@
             ""
           ],
           "graph":{
-            "fontColor":"blue",
-            "backgroundColor":"white",
+            "fontColor":"theme",
+            "backgroundColor":"theme",
             "content":"Satellite: an open-source agent designed for the cloud-native infrastructures, which provides a low-cost, high-efficient, and more secure way to collect telemetry data. It is the recommended load balancer for telemetry collecting.",
             "fontSize":14,
             "textAlign":"left",

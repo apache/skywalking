@@ -54,6 +54,9 @@
 * Add a title and a description for trace segments.
 * Add Netty icon for Netty HTTP plugin.
 * Add Pulsar menu i18n files.
+* Refactor Logs view.
+* Implement the Dark Theme.
+* Change UI templates for Text widgets.
 
 #### Documentation
 
