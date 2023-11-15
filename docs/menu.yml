@@ -239,6 +239,8 @@ catalog:
             path: "/en/setup/service-agent/browser-agent"
           - name: "Gateway Monitoring"
             catalog:
+              - name: "Nginx Monitoring"
+                path: "/en/setup/backend/backend-nginx-monitoring"
               - name: "APISIX Monitoring"
                 path: "/en/setup/backend/backend-apisix-monitoring"
               - name: "AWS API Gateway"

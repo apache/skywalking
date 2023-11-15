@@ -205,7 +205,12 @@ public enum Layer {
     /**
      * A scalable, fault-tolerant, and low-latency storage service optimized for real-time workloads.
      */
-    BOOKKEEPER(33, true);
+    BOOKKEEPER(33, true),
+
+    /**
+     * Nginx is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP/UDP proxy server.
+     */
+    NGINX(34, true);
 
     private final int value;
     /**

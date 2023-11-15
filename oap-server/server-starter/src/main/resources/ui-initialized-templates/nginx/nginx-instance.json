@@ -1,0 +1,214 @@
+[
+  {
+    "id": "nginx-Instance",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "0",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Request Trend (requests per second)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_service_http_requests"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Latency (ms)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_service_http_latency"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Bandwidth (KB/s)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_service_http_bandwidth/1024"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "expressions": [
+            "meter_nginx_service_http_connections"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "HTTP Connections"
+          }
+        },
+        {
+          "x": 0,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "widget": {
+            "title": "HTTP Status Trend (requests per second)"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_nginx_service_http_status"
+          ],
+          "metricMode": "Expression",
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "metricMode": "Expression",
+          "expressions": [
+            "(meter_nginx_instance_http_4xx_requests_increment/meter_nginx_instance_http_requests_increment)*100"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "HTTP Status 4xx Percent (%)"
+          }
+        },
+        {
+          "x": 12,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "metricMode": "Expression",
+          "expressions": [
+            "(meter_nginx_service_http_5xx_requests_increment/meter_nginx_service_http_requests_increment)*100"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "HTTP Status 5xx Percent (%)"
+          }
+        },
+        {
+          "x": 18,
+          "y": 13,
+          "w": 6,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_nginx_instance_error_log_count"
+          ],
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
+          },
+          "widget": {
+            "title": "Error Log Count (Per Minute)"
+          },
+          "typesOfMQE": [
+            "UNKNOWN"
+          ]
+        }
+      ],
+      "layer": "NGINX",
+      "entity": "ServiceInstance",
+      "name": "Nginx-Instance",
+      "id": "nginx-Instance",
+      "isRoot": false
+    }
+  }
+]

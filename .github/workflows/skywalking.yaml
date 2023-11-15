@@ -611,6 +611,8 @@ jobs:
           - name: Zipkin BanyanDB
             config: test/e2e-v2/cases/zipkin/banyandb/e2e.yaml
 
+          - name: Nginx
+            config: test/e2e-v2/cases/nginx/e2e.yaml
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
           - name: Exporter Kafka

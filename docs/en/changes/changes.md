@@ -39,6 +39,7 @@
 * Fix `limit` doesn't work for `findEndpoint` API in ES storage.
 * Isolate MAL CounterWindow cache by metric name.
 * Fix JDBC Log query order.
+* Support Nginx monitoring.
 
 #### UI
 

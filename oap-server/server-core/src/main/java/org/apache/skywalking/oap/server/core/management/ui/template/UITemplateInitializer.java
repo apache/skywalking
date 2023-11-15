@@ -72,6 +72,7 @@ public class UITemplateInitializer {
         Layer.KAFKA.name(),
         Layer.PULSAR.name(),
         Layer.BOOKKEEPER.name(),
+        Layer.NGINX.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
