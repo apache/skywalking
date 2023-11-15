@@ -122,7 +122,7 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
                 )
             );
         }
-        final var comparator = Order.DES.equals(queryOrder) ?
+        final var comparator = Order.ASC.equals(queryOrder) ?
             comparing(Log::getTimestamp) :
             comparing(Log::getTimestamp).reversed();
 
