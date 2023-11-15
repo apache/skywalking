@@ -38,6 +38,7 @@
 * Fix cannot query zipkin traces with `annotationQuery` parameter in the JDBC related storage.
 * Fix `limit` doesn't work for `findEndpoint` API in ES storage.
 * Isolate MAL CounterWindow cache by metric name.
+* Fix JDBC Log query order.
 
 #### UI
 
