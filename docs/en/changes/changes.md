@@ -40,7 +40,7 @@
 * Isolate MAL CounterWindow cache by metric name.
 * Fix JDBC Log query order.
 * Change the DataCarrier IF_POSSIBLE strategy to use ArrayBlockingQueue implementation.
-* Change the policy of the queue(DataCarrier) L1 metric aggregate worker to IF_POSSIBLE mode. 
+* Change the policy of the queue(DataCarrier) in the L1 metric aggregate worker to IF_POSSIBLE mode. 
 * Add self-observability metric `metrics_aggregator_abandon` to count the number of abandon metrics.
 
 #### UI
