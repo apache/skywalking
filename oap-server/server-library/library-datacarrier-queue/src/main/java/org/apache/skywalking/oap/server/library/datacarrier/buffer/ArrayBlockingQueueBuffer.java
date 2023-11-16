@@ -41,8 +41,8 @@ public class ArrayBlockingQueueBuffer<T> implements QueueBuffer<T> {
     @Override
     public boolean save(T data) {
         try {
-            if (BufferStrategy.IF_POSSIBLE.equals(strategy) && queue.remainingCapacity() == 0) {
-                return false;
+            if (BufferStrategy.IF_POSSIBLE.equals(strategy)) {
+                return queue.offer(data);
             }
             queue.put(data);
         } catch (InterruptedException e) {
