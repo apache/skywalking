@@ -27,6 +27,7 @@ services:
 
   nginx:
     build:
+      context: .
       dockerfile: Dockerfile.nginx
     volumes:
       - ./nginx.conf:/var/nginx/conf.d/nginx.conf
