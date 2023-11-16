@@ -35,11 +35,7 @@ public class Channels<T> {
         this.strategy = strategy;
         bufferChannels = new QueueBuffer[channelSize];
         for (int i = 0; i < channelSize; i++) {
-            if (BufferStrategy.BLOCKING.equals(strategy)) {
-                bufferChannels[i] = new ArrayBlockingQueueBuffer<>(bufferSize, strategy);
-            } else {
-                bufferChannels[i] = new Buffer<>(bufferSize, strategy);
-            }
+            bufferChannels[i] = new ArrayBlockingQueueBuffer<>(bufferSize, strategy);
         }
         // noinspection PointlessArithmeticExpression
         size = 1L * channelSize * bufferSize; // it's not pointless, it prevents numeric overflow before assigning an integer to a long

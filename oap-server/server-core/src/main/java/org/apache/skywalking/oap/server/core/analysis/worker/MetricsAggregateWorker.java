@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.datacarrier.DataCarrier;
+import org.apache.skywalking.oap.server.library.datacarrier.buffer.BufferStrategy;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.BulkConsumePool;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.ConsumerPoolFactory;
 import org.apache.skywalking.oap.server.library.datacarrier.consumer.IConsumer;
@@ -46,6 +47,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private AbstractWorker<Metrics> nextWorker;
     private final DataCarrier<Metrics> dataCarrier;
     private final MergableBufferedData<Metrics> mergeDataCache;
+    private CounterMetrics abandonCounter;
     private CounterMetrics aggregationCounter;
     private long lastSendTime = 0;
 
@@ -68,7 +70,7 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             queueBufferSize = 1_000;
         }
         this.dataCarrier = new DataCarrier<>(
-            "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize);
+            "MetricsAggregateWorker." + modelName, name, queueChannelSize, queueBufferSize, BufferStrategy.IF_POSSIBLE);
 
         BulkConsumePool.Creator creator = new BulkConsumePool.Creator(
             name, BulkConsumePool.Creator.recommendMaxSize() * 2, 20);
@@ -82,6 +84,11 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
                                                           .provider()
                                                           .getService(MetricsCreator.class);
+        abandonCounter = metricsCreator.createCounter(
+            "metrics_aggregator_abandon", "The abandon number of rows received in aggregation",
+            new MetricsTag.Keys("metricName", "level", "dimensionality"),
+            new MetricsTag.Values(modelName, "1", "minute")
+        );
         aggregationCounter = metricsCreator.createCounter(
             "metrics_aggregation", "The number of rows in aggregation",
             new MetricsTag.Keys("metricName", "level", "dimensionality"),
@@ -95,7 +102,9 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
      */
     @Override
     public final void in(Metrics metrics) {
-        dataCarrier.produce(metrics);
+        if (!dataCarrier.produce(metrics)) {
+            abandonCounter.inc();
+        }
     }
 
     /**

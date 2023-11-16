@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.library.datacarrier.consumer;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.library.datacarrier.buffer.Buffer;
 import org.apache.skywalking.oap.server.library.datacarrier.buffer.QueueBuffer;
 
 public class ConsumerThread<T> extends Thread {
@@ -88,9 +87,6 @@ public class ConsumerThread<T> extends Thread {
         running = false;
     }
 
-    /**
-     * DataSource is a refer to {@link Buffer}.
-     */
     class DataSource {
         private QueueBuffer<T> sourceBuffer;
 
