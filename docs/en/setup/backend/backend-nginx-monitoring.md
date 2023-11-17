@@ -1,18 +1,18 @@
 # Nginx monitoring
 ## Nginx performance from nginx-lua-prometheus
-The [nginx-lua-prometheus](https://github.com/openresty/lua-nginx-module) is a lua library that can be used with Nginx to collect metrics 
+The [nginx-lua-prometheus](https://github.com/knyar/nginx-lua-prometheus) is a lua library that can be used with Nginx to collect metrics 
 and expose them on a separate web page. 
 To use this library, you will need Nginx with [lua-nginx-module](https://github.com/openresty/lua-nginx-module) or directly [OpenResty](https://openresty.org/).
 
 SkyWalking leverages OpenTelemetry Collector to transfer the metrics to [OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
 
 ### Data flow
-1. [nginx-lua-prometheus](https://github.com/openresty/lua-nginx-module) collects metrics from Nginx and expose them to an endpoint.
+1. [nginx-lua-prometheus](https://github.com/knyar/nginx-lua-prometheus) collects metrics from Nginx and expose them to an endpoint.
 2. OpenTelemetry Collector fetches metrics from the endpoint expose above via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ### Set up
-1. Collect Nginx metrics and expose the following four metrics by [nginx-lua-prometheus](https://github.com/openresty/lua-nginx-module). For details on metrics definition, refer to [here](../../../../test/e2e-v2/cases/nginx/nginx.conf).
+1. Collect Nginx metrics and expose the following four metrics by [nginx-lua-prometheus](https://github.com/knyar/nginx-lua-prometheus). For details on metrics definition, refer to [here](../../../../test/e2e-v2/cases/nginx/nginx.conf).
 - histogram: nginx_http_latency
 - gauge: nginx_http_connections
 - counter: nginx_http_size_bytes
