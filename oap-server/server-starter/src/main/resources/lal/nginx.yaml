@@ -19,6 +19,16 @@ rules:
     dsl: |
       filter {
         if (tag("LOG_KIND") == "NGINX_ACCESS_LOG") {
+          text {
+            regexp $/.+ \"(?<request>.+)\" (?<status>\d{3}) .+/$
+          }
+
+          extractor {
+            if (parsed.status) {
+              tag 'http.status_code': parsed.status
+            }
+          }
+
           sink {
           }
         }
@@ -33,6 +43,7 @@ rules:
           }
 
           extractor {
+            tag level: parsed.level
             timestamp parsed.time as String, "yyyy/MM/dd HH:mm:ss"
 
             metrics {
