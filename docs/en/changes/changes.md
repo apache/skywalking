@@ -61,6 +61,8 @@
 * Refactor Logs view.
 * Implement the Dark Theme.
 * Change UI templates for Text widgets.
+* Add Nginx menu i18n.
+* Fix the height for trace widget.
 
 #### Documentation
 
