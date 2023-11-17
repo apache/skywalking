@@ -143,6 +143,11 @@ menus:
     description: API gateway is an API management tool that sits between a client and a collection of backend services
     i18nKey: gateway
     menus:
+      - title: Nginx
+        layer: NGINX
+        description: Provide Nginx monitoring through OpenTelemetry's Prometheus Receiver.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-nginx-monitoring/
+        i18nKey: gateway_nginx
       - title: APISIX
         layer: APISIX
         description: Provide APISIX monitoring through OpenTelemetry's Prometheus Receiver.

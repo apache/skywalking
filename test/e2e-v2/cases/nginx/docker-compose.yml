@@ -1,0 +1,72 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: '2.1'
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    networks:
+      - e2e
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    volumes:
+      - ./nginx.conf:/var/nginx/conf.d/nginx.conf
+      - /tmp/skywalking-logs/nginx:/var/log/nginx
+    entrypoint: ['bash', '-c', 'sleep 5 && openresty -c /var/nginx/conf.d/nginx.conf']
+    depends_on:
+      oap:
+        condition: service_healthy
+    ports:
+      - 8080
+    expose:
+      - 9145
+    networks:
+      - e2e
+
+  fluent-bit:
+    image: fluent/fluent-bit:1.7
+    volumes:
+      - /tmp/skywalking-logs/nginx:/var/log/nginx
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+      - ./fluent-bit-script.lua:/fluent-bit/etc/fluent-bit-script.lua
+    depends_on:
+      - oap
+      - nginx
+    networks:
+      - e2e
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.50.0
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    depends_on:
+      - oap
+      - nginx
+    expose:
+      - 55678
+    networks:
+      e2e:
+
+networks:
+  e2e:
