@@ -128,7 +128,7 @@
             "showYAxis": true
           },
           "widget": {
-            "title": "HTTP Status 4xx Percent (%)"
+            "title": "HTTP Status 4xx Percent Per Minute (%)"
           }
         },
         {
@@ -152,7 +152,7 @@
             "showYAxis": true
           },
           "widget": {
-            "title": "HTTP Status 5xx Percent (%)"
+            "title": "HTTP Status 5xx Percent Per Minute (%)"
           }
         }
       ],

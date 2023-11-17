@@ -39,7 +39,6 @@ services:
     ports:
       - 8080
     expose:
-      - 8080
       - 9145
     networks:
       - e2e

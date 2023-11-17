@@ -46,38 +46,37 @@ verify:
     # service cases
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/service.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_nginx_service_http_requests --service-name=nginx::e2e-test | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_requests --service-name=nginx::e2e-test
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_service_http_latency --service-name=nginx::e2e-test | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_latency --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_service_http_bandwidth --service-name=nginx::e2e-test | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_bandwidth --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_service_http_connections --service-name=nginx::e2e-test | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_connections --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_service_http_status --service-name=nginx::e2e-test | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_status --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_nginx_service_http_requests_increment --service-name=nginx::e2e-test | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_requests_increment --service-name=nginx::e2e-test
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_service_error_log_count --service-name=nginx::e2e-test | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_error_log_count --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=nginx::e2e-test
       expected: expected/logs.yml
 
-
     # service instance cases
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=nginx::e2e-test
       expected: expected/service-instance.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_nginx_instance_http_requests --service-name=nginx::e2e-test --instance-name=e2e-test-instance | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_requests --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_instance_http_latency --service-name=nginx::e2e-test --instance-name=e2e-test-instance | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_latency --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_instance_http_bandwidth --service-name=nginx::e2e-test --instance-name=e2e-test-instance | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_bandwidth --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_instance_http_status --service-name=nginx::e2e-test --instance-name=e2e-test-instance | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_status --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_nginx_instance_http_requests_increment --service-name=nginx::e2e-test --instance-name=e2e-test-instance | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_requests_increment --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_instance_error_log_count --service-name=nginx::e2e-test --instance-name=e2e-test-instance | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_error_log_count --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value-label.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/logs.yml
@@ -85,13 +84,13 @@ verify:
     # service endpoint cases
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --service-name=nginx::e2e-test
       expected: expected/service-endpoint.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_nginx_endpoint_http_requests --service-name=nginx::e2e-test --endpoint-name=/test/** | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_requests --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_endpoint_http_latency --service-name=nginx::e2e-test --endpoint-name=/test/** | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_latency --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_endpoint_http_bandwidth --service-name=nginx::e2e-test --endpoint-name=/test/** | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_bandwidth --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_nginx_endpoint_http_status --service-name=nginx::e2e-test --endpoint-name=/test/** | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_status --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value-label.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_nginx_endpoint_http_requests_increment --service-name=nginx::e2e-test --endpoint-name=/test/** | yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_requests_increment --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value.yml
