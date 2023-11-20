@@ -70,9 +70,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     private static final Set<String> INSTANCE_TRAFFIC_TAGS = ImmutableSet.of(InstanceTraffic.NAME,
             InstanceTraffic.PROPERTIES, InstanceTraffic.LAST_PING_TIME_BUCKET, InstanceTraffic.SERVICE_ID);
 
-    private static final Set<String> INSTANCE_TRAFFIC_COMPACT_TAGS = ImmutableSet.of(InstanceTraffic.NAME,
-            InstanceTraffic.PROPERTIES);
-
     private static final Set<String> ENDPOINT_TRAFFIC_TAGS = ImmutableSet.of(EndpointTraffic.NAME,
             EndpointTraffic.SERVICE_ID);
 
@@ -80,10 +77,6 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE,
             ProcessTraffic.PROPERTIES, ProcessTraffic.LABELS_JSON, ProcessTraffic.LAST_PING_TIME_BUCKET,
             ProcessTraffic.PROFILING_SUPPORT_STATUS);
-
-    private static final Set<String> PROCESS_TRAFFIC_COMPACT_TAGS = ImmutableSet.of(ProcessTraffic.NAME,
-            ProcessTraffic.SERVICE_ID, ProcessTraffic.INSTANCE_ID, ProcessTraffic.AGENT_ID, ProcessTraffic.DETECT_TYPE,
-            ProcessTraffic.PROPERTIES, ProcessTraffic.LABELS_JSON);
 
     private static final Gson GSON = new Gson();
 
@@ -141,7 +134,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     public ServiceInstance getInstance(String instanceId) throws IOException {
         IDManager.ServiceInstanceID.InstanceIDDefinition id = IDManager.ServiceInstanceID.analysisId(instanceId);
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
-                INSTANCE_TRAFFIC_COMPACT_TAGS,
+                INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
@@ -322,7 +315,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public Process getProcess(String processId) throws IOException {
         MeasureQueryResponse resp = query(ProcessTraffic.INDEX_NAME,
-                PROCESS_TRAFFIC_COMPACT_TAGS,
+                PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 new QueryBuilder<MeasureQuery>() {
                     @Override
