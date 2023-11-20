@@ -28,10 +28,10 @@
   normal: true
   layers:
     - GENERAL
-- id: {{ b64enc "go2sky" }}.1
-  name: go2sky
+- id: {{ b64enc "go-service" }}.1
+  name: go-service
   group: ""
-  shortname: go2sky
+  shortname: go-service
   normal: true
   layers:
     - GENERAL

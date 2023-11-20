@@ -13,25 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.13 AS builder
-
-ARG SW_AGENT_GO_COMMIT
-ARG GO2SKY_CODE=${SW_AGENT_GO_COMMIT}.tar.gz
-ARG GO2SKY_CODE_URL=https://github.com/SkyAPM/go2sky/archive/${GO2SKY_CODE}
+ARG SW_AGENT_GO_COMMIT=
+FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.18 as base
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
 
-WORKDIR /go2sky
+WORKDIR /go-service
+COPY .. /go-service
 
-ADD ${GO2SKY_CODE_URL} .
-RUN tar -xf ${GO2SKY_CODE} --strip 1
-RUN rm ${GO2SKY_CODE}
-
-WORKDIR /go2sky/test/e2e/example-server
-RUN go build -o main
+RUN go mod tidy && go build -toolexec="skywalking-go-agent" -a -o service
 
 FROM alpine:3.10
 
-COPY --from=builder /go2sky/test/e2e/example-server/main .
-ENTRYPOINT ["/main"]
+COPY --from=base /go-service/service /service
+
+ENTRYPOINT ["/service"]

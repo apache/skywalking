@@ -44,6 +44,7 @@
 * Add self-observability metric `metrics_aggregator_abandon` to count the number of abandon metrics.
 * Support Nginx monitoring.
 * Fix `BanyanDB Metadata Query`: make query single instance/process return full tags to avoid NPE.
+* Repleace go2sky E2E to GO agent.
 
 #### UI
 
