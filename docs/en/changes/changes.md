@@ -43,6 +43,7 @@
 * Change the policy of the queue(DataCarrier) in the L1 metric aggregate worker to IF_POSSIBLE mode. 
 * Add self-observability metric `metrics_aggregator_abandon` to count the number of abandon metrics.
 * Support Nginx monitoring.
+* Repleace go2sky E2E to GO agent.
 
 #### UI
 

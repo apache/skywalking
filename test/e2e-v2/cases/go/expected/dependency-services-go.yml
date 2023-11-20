@@ -23,9 +23,9 @@ nodes:
   name: e2e-service-consumer
   type: Tomcat
   isreal: true
-- id: {{ b64enc "go2sky" }}.1
-  name: go2sky
-  type: GoHttpServer
+- id: {{ b64enc "go-service" }}.1
+  name: go-service
+  type: Gin
   isreal: true
 {{- end }}
 calls:
@@ -33,20 +33,20 @@ calls:
 - source: {{ b64enc "e2e-service-consumer"}}.1
   sourcecomponents:
     - SpringRestTemplate
-  target: {{ b64enc "go2sky"}}.1
+  target: {{ b64enc "go-service"}}.1
   targetcomponents:
-    - GoHttpServer
-  id: {{ b64enc "e2e-service-consumer"}}.1-{{ b64enc "go2sky"}}.1
+    - Gin
+  id: {{ b64enc "e2e-service-consumer"}}.1-{{ b64enc "go-service"}}.1
   detectpoints:
     - CLIENT
     - SERVER
-- source: {{ b64enc "go2sky" }}.1
+- source: {{ b64enc "go-service" }}.1
   sourcecomponents:
     - GoHttpClient
   target: {{ b64enc "e2e-service-provider"}}.1
   targetcomponents:
     - Tomcat
-  id: {{ b64enc "go2sky" }}.1-{{ b64enc "e2e-service-provider"}}.1
+  id: {{ b64enc "go-service" }}.1-{{ b64enc "e2e-service-provider"}}.1
   detectpoints:
     - CLIENT
     - SERVER
