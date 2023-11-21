@@ -66,6 +66,7 @@
 * Change UI templates for Text widgets.
 * Add Nginx menu i18n.
 * Fix the height for trace widget.
+* Remove OpenFunction(FAAS layer) relative UI templates and menu item.
 
 #### Documentation
 
