@@ -18,11 +18,12 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metrics": [
+          "metricMode": "Expression",
+          "expressions": [
             "meter_oap_instance_jvm_gc_count"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -43,17 +44,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_instance_jvm_memory_bytes_used"
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_instance_jvm_memory_bytes_used/1024/1024"
           ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "calculation": "byteToMB",
-              "label": "used"
-            }
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -74,11 +70,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "metricMode": "Expression",
+          "expressions": [
             "meter_oap_instance_jvm_gc_time"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -95,14 +92,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metrics": [
-            "meter_oap_instance_mesh_count",
-            "meter_oap_instance_mesh_analysis_error_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
               "label": "count"
@@ -110,6 +99,15 @@
             {
               "label": "error_count"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_instance_mesh_count",
+            "meter_oap_instance_mesh_analysis_error_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -130,17 +128,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_instance_trace_latency_percentile"
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(meter_oap_instance_trace_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "labelsIndex": "50,70,90,99",
-              "label": "P50,P70,P90,P99"
-            }
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -159,16 +152,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_jvm_class_loaded_count",
-            "meter_oap_jvm_class_total_unloaded_count",
-            "meter_oap_jvm_class_total_loaded_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
               "label": "loaded"
@@ -179,6 +162,17 @@
             {
               "label": "total_loaded"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_jvm_class_loaded_count",
+            "meter_oap_jvm_class_total_unloaded_count",
+            "meter_oap_jvm_class_total_loaded_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -195,14 +189,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metrics": [
-            "meter_oap_instance_persistence_prepare_count",
-            "meter_oap_instance_persistence_execute_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
               "label": "prepare_count"
@@ -210,6 +196,15 @@
             {
               "label": "execute_count"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_instance_persistence_prepare_count",
+            "meter_oap_instance_persistence_execute_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -230,16 +225,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_jvm_thread_live_count",
-            "meter_oap_jvm_thread_peak_count",
-            "meter_oap_jvm_thread_daemon_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
               "label": "live"
@@ -250,6 +235,17 @@
             {
               "label": "daemon"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_jvm_thread_live_count",
+            "meter_oap_jvm_thread_peak_count",
+            "meter_oap_jvm_thread_daemon_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -270,17 +266,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_instance_persistence_execute_percentile"
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(meter_oap_instance_persistence_execute_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "labelsIndex": "50,70,90,99",
-              "label": "P50,P70,P90,P99"
-            }
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -301,17 +292,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_instance_persistence_prepare_percentile"
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(meter_oap_instance_persistence_prepare_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "labelsIndex": "50,70,90,99",
-              "label": "P50,P70,P90,P99"
-            }
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -328,18 +314,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metrics": [
-            "meter_oap_jvm_thread_runnable_count",
-            "meter_oap_jvm_thread_timed_waiting_count",
-            "meter_oap_jvm_thread_blocked_count",
-            "meter_oap_jvm_thread_waiting_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
               "label": "runnable"
@@ -353,6 +327,19 @@
             {
               "label": "waiting"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_jvm_thread_runnable_count",
+            "meter_oap_jvm_thread_timed_waiting_count",
+            "meter_oap_jvm_thread_blocked_count",
+            "meter_oap_jvm_thread_waiting_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -373,11 +360,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "metricMode": "Expression",
+          "expressions": [
             "meter_oap_instance_metrics_aggregation"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -398,17 +386,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
-            "meter_oap_instance_mesh_latency_percentile"
+          "metricMode": "Expression",
+          "expressions": [
+            "relabels(meter_oap_instance_mesh_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
           ],
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "label": "P50,P70,P90,P99",
-              "labelsIndex": "50,70,90,99"
-            }
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -425,14 +408,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metrics": [
-            "meter_oap_instance_trace_count",
-            "meter_oap_instance_trace_analysis_error_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
           "metricConfig": [
             {
               "label": "count"
@@ -440,6 +415,15 @@
             {
               "label": "error_count"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_instance_trace_count",
+            "meter_oap_instance_trace_analysis_error_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -460,16 +444,12 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metrics": [
+          "metricMode": "Expression",
+          "expressions": [
             "meter_oap_instance_cpu_percentage"
           ],
-          "metricTypes": [
-            "readMetricsValues"
-          ],
-          "metricConfig": [
-            {
-              "label": "percentage"
-            }
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -479,12 +459,6 @@
           "h": 13,
           "i": "15",
           "type": "Widget",
-          "metricTypes": [
-            "readLabeledMetricsValues"
-          ],
-          "metrics": [
-            "meter_oap_instance_metrics_persistent_cache"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -495,7 +469,14 @@
           },
           "widget": {
             "title": "Metrics Persistent Cache Count(Per Minute)"
-          }
+          },
+          "metricMode": "Expression",
+          "expressions": [
+            "meter_oap_instance_metrics_persistent_cache"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
         }
       ],
       "layer": "SO11Y_OAP",

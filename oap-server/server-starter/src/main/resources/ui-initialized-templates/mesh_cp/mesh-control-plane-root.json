@@ -10,9 +10,6 @@
           "h": 51,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "Mesh-Control-Plane-Service",
@@ -21,42 +18,44 @@
             "showYAxis": false,
             "showGroup": true
           },
-          "metrics": [
+          "metricConfig": [
+            {
+              "label": "CPU"
+            },
+            {
+              "label": "Goroutines"
+            },
+            {
+              "label": "Pilot xDS"
+            },
+            {
+              "label": "Pilot Services"
+            },
+            {
+              "label": "Pilot Virt Services"
+            }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "avg(meter_istio_cpu)",
+            "avg(meter_istio_go_goroutines)",
+            "avg(meter_istio_pilot_xds)",
+            "avg(meter_istio_pilot_services)",
+            "avg(meter_istio_pilot_virt_services)"
+          ],
+          "subExpressions": [
             "meter_istio_cpu",
             "meter_istio_go_goroutines",
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
             "meter_istio_pilot_virt_services"
           ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
-          "metricConfig": [
-            {
-              "label": "CPU",
-              "calculation": "average"
-            },
-            {
-              "calculation": "average",
-              "label": "Goroutines"
-            },
-            {
-              "calculation": "average",
-              "label": "Pilot xDS"
-            },
-            {
-              "calculation": "average",
-              "label": "Pilot Services"
-            },
-            {
-              "calculation": "average",
-              "label": "Pilot Virt Services"
-            }
+          "subTypesOfMQE": [
+            "",
+            "",
+            "",
+            "",
+            ""
           ]
         },
         {
@@ -66,12 +65,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
@@ -79,8 +72,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/istio/readme/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "Mesh-Control-Plane-Root",

@@ -76,41 +76,41 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance --service-name=go-service --dest-service-name=e2e-service-provider
       expected: expected/dependency-instance-go.yml
     # service metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_sla --service-name=go-service
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_cpm --service-name=go-service
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=go-service
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_apdex --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_apdex --service-name=go-service
       expected: expected/metrics-has-value.yml
     # service instance metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_resp_time --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_resp_time --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_cpm --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_cpm --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_sla --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_sla --instance-name=provider1 --service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
     # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/correlation --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=POST:/correlation --service-name=go-service
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=POST:/correlation --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=POST:/correlation --service-name=go-service
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/correlation --service-name=go-service |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_sla --endpoint-name=POST:/correlation --service-name=go-service
       expected: expected/metrics-has-value.yml
     # service relation metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=go-service --dest-service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=go-service --dest-service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_server_cpm  --service-name=go-service --dest-service-name=e2e-service-provider |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_server_cpm  --service-name=go-service --dest-service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
     # service instance relation metrics
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_client_cpm --instance-name=$( \
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_client_cpm --instance-name=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
-           --service-name=go-service --dest-instance-name=provider1 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
+           --service-name=go-service --dest-instance-name=provider1 --dest-service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
     - query: |
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_server_cpm --instance-name=$( \
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_server_cpm --instance-name=$( \
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=go-service | yq e '.[0].name' - ) \
-           --service-name=go-service --dest-instance-name=provider1 --dest-service-name=e2e-service-provider |yq e 'to_entries' -
+           --service-name=go-service --dest-instance-name=provider1 --dest-service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml

@@ -41,13 +41,13 @@
     - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql instance list --service-name=test-service
       expected: expected/service-instance.yml
     # metrics minute
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0259" --end "2022-01-26 0301" |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics exec --expression=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0259" --end "2022-01-26 0301"
       expected: expected/metrics-minute-first.yml
     # metrics toHour
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05" |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics exec --expression=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05"
       expected: expected/metrics-hour-first.yml
     # metrics toDay
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27" |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics exec --expression=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27"
       expected: expected/metrics-day-first.yml
     # send metrics to each oap second time UTC 2022-01-26 03:10:00
     - query: |
@@ -56,11 +56,11 @@
         sleep 10;
       expected: expected/send-metrics-rsp.yml
     # metrics minute
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0309" --end "2022-01-26 0311" |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics exec --expression=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 0309" --end "2022-01-26 0311"
       expected: expected/metrics-minute-second.yml
     # metrics toHour
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05" |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics exec --expression=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26 01" --end "2022-01-26 05"
       expected: expected/metrics-hour-second.yml
     # metrics toDay
-    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics linear --name=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27" |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${ui_host}:${ui_8080}/graphql metrics exec --expression=test_meter_downsampling_sum --instance-name=test-instance --service-name=test-service --start "2022-01-26" --end "2022-01-27"
       expected: expected/metrics-day-second.yml

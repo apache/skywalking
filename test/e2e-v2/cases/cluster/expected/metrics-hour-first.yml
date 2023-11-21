@@ -13,23 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- key: 2022-01-26 01
-  value:
-    value: 0
-    isemptyvalue: true
-- key: 2022-01-26 02
-  value:
-    value: 0
-    isemptyvalue: true
-- key: 2022-01-26 03
-  value:
-    value: 200
-    isemptyvalue: false
-- key: 2022-01-26 04
-  value:
-    value: 0
-    isemptyvalue: true
-- key: 2022-01-26 05
-  value:
-    value: 0
-    isemptyvalue: true
+type: TIME_SERIES_VALUES
+results:
+  - metric:
+      labels: []
+    values:
+      - id: "1643158800000"
+        value: null
+        traceid: null
+      - id: "1643162400000"
+        value: null
+        traceid: null
+      - id: "1643166000000"
+        value: "200"
+        traceid: null
+      - id: "1643169600000"
+        value: null
+        traceid: null
+      - id: "1643173200000"
+        value: null
+        traceid: null
+error: null
