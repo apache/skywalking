@@ -57,7 +57,6 @@ public class UITemplateInitializer {
         Layer.VIRTUAL_CACHE.name(),
         Layer.K8S_SERVICE.name(),
         Layer.SO11Y_SATELLITE.name(),
-        Layer.FAAS.name(),
         Layer.APISIX.name(),
         Layer.VIRTUAL_MQ.name(),
         Layer.AWS_EKS.name(),
