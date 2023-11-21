@@ -1259,18 +1259,12 @@
                     }
                   ],
                   "expressions": [
-                    "meter_instance_golang_live_goroutines_num"
+                    "meter_instance_golang_live_goroutines_num",
+                    "meter_instance_golang_os_threads_num"
                   ],
                   "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"
-                  ],
-                  "metrics": [
-                    "meter_instance_golang_os_threads_num",
-                    "meter_instance_golang_live_goroutines_num"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
                   ]
                 },
                 {
