@@ -230,7 +230,7 @@ public class CoreModuleConfig extends ModuleConfig {
      * @since 9.7.0
      */
     @Getter
-    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey}";
+    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey";
 
     /**
      * Disable core HTTP:port/debugging/config/dump
