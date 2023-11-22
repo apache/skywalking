@@ -19,7 +19,7 @@ results:
 - metric:
     labels:
       - key: _
-        value: "accepted"
+        value: "reading"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -32,7 +32,7 @@ results:
 - metric:
     labels:
       - key: _
-        value: "handled"
+        value: "waiting"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}

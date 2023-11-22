@@ -46,6 +46,7 @@
 * Fix `BanyanDB Metadata Query`: make query single instance/process return full tags to avoid NPE.
 * Repleace go2sky E2E to GO agent.
 * Replace Metrics v2 protocol with MQE in UI templates and E2E Test.
+* Fix incorrect apisix metrics otel rules.
 
 #### UI
 
