@@ -255,7 +255,7 @@ public class CoreModuleProvider extends ModuleProvider {
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
-        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
+        this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
         this.registerServiceImplementation(
             DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 

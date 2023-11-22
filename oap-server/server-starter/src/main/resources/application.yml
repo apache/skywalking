@@ -137,6 +137,10 @@ core:
     trainingPeriodHttpUriRecognitionPattern: ${SW_CORE_TRAINING_PERIOD_HTTP_URI_RECOGNITION_PATTERN:60}
     # The max number of HTTP URIs per service for further URI pattern recognition.
     maxHttpUrisNumberPerService: ${SW_CORE_MAX_HTTP_URIS_NUMBER_PER_SVR:3000}
+    # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
+    keywords4MaskingSecretsOfConfig: ${SW_CORE_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey}
+    # Disable core HTTP:port/debugging/config/dump
+    disableConfigDump: ${SW_DISABLE_CONFIG_DUMP:false}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
@@ -534,6 +538,10 @@ health-checker:
   selector: ${SW_HEALTH_CHECKER:-}
   default:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:5}
+
+debugging-query:
+  selector: ${SW_DEBUGGING_QUERY:default}
+  default:
 
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}

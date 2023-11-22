@@ -224,6 +224,21 @@ public class CoreModuleConfig extends ModuleConfig {
     @Getter
     private int serviceCacheRefreshInterval = 10;
 
+    /**
+     * Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
+     *
+     * @since 9.7.0
+     */
+    @Getter
+    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey}";
+
+    /**
+     * Disable core HTTP:port/debugging/config/dump
+     *
+     * @since 9.7.0
+     */
+    private boolean disableConfigDump = false;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

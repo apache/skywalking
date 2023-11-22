@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.starter.config;
 
+import java.util.List;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ProviderNotFoundException;
@@ -47,10 +49,13 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
 
     private final TerminalFriendlyTable bootingParameters;
     private final Yaml yaml;
+    @Getter
+    private final List<ApplicationConfiguration.ModuleConfiguration> resolvedConfigurations;
 
     public ApplicationConfigLoader(final TerminalFriendlyTable bootingParameters) {
         this.bootingParameters = bootingParameters;
         this.yaml = new Yaml();
+        this.resolvedConfigurations = new ArrayList<>();
     }
 
     @Override
@@ -97,6 +102,7 @@ public class ApplicationConfigLoader implements ConfigLoader<ApplicationConfigur
                                 });
                             }
                             moduleConfiguration.addProviderConfiguration(providerName, properties);
+                            resolvedConfigurations.add(moduleConfiguration);
                         });
                     } else {
                         log.warn(

@@ -113,6 +113,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>debugging-query-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>envoy-metrics-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
