@@ -775,11 +775,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_up_cx_none_healthy_incr"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -800,11 +801,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_lb_healthy_panic_incr"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -825,11 +827,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_up_rq_pending_active"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -850,11 +853,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_up_cx_active"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -875,11 +879,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_up_rq_active"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -900,11 +905,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_up_cx_incr"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -925,11 +931,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_sr_cluster_up_rq_incr"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

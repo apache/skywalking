@@ -19,201 +19,201 @@ cases:
   # service cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected: expected/service.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_cluster_health_status --service-name=elasticsearch::cluster-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_health_status --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_breakers_tripped --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_breakers_tripped --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_cpu_usage_avg --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_cpu_usage_avg --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_jvm_memory_used_avg --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_jvm_memory_used_avg --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_nodes --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_nodes --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_data_nodes --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_data_nodes --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_pending_tasks_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_pending_tasks_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_open_file_count --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_open_file_count --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_primary_shards_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_primary_shards_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_shards_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_shards_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_initializing_shards_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_initializing_shards_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_delayed_unassigned_shards_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_delayed_unassigned_shards_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_relocating_shards_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_relocating_shards_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_cluster_unassigned_shards_total --service-name=elasticsearch::cluster-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_cluster_unassigned_shards_total --service-name=elasticsearch::cluster-e2e
     expected: expected/metrics-has-value.yml
 
   # instance cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=elasticsearch::cluster-e2e
     expected: expected/instance.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_rules --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_rules --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_jvm_memory_heap_used --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_jvm_memory_heap_used --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_jvm_memory_nonheap_used --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_jvm_memory_nonheap_used --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_jvm_memory_heap_max --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_jvm_memory_heap_max --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_jvm_memory_pool_peak_used --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_jvm_memory_pool_peak_used --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_jvm_gc_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_jvm_gc_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_jvm_gc_time --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_jvm_gc_time --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_process_cpu_percent --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_process_cpu_percent --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_docs --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_docs --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_segment_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_segment_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_all_disk_free_space --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_all_disk_free_space --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_open_file_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_open_file_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_search_query_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_search_query_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_search_fetch_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_search_fetch_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_indexing_index_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_indexing_index_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_merges_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_merges_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_refresh_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_refresh_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_flush_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_flush_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_get_exists_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_get_exists_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_get_missing_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_get_missing_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_get_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_get_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_indexing_delete_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_indexing_delete_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_search_scroll_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_search_scroll_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_search_suggest_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_search_suggest_total_req_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_translog_operations --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_translog_operations --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_translog_size --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_translog_size --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_breakers_tripped --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_breakers_tripped --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_breakers_estimated_size --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_breakers_estimated_size --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_docs --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_docs --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_docs_deleted_total --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_docs_deleted_total --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_docs_deleted --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_docs_deleted --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_merges_docs_total --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_merges_docs_total --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_indices_merges_total_size_bytes_total --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_indices_merges_total_size_bytes_total --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_segment_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_segment_count --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_segment_memory --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_segment_memory --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_network_send_bytes --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_network_send_bytes --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_node_network_receive_bytes --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_network_receive_bytes --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_disk_usage_percent --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_disk_usage_percent --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_node_disk_usage --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_node_disk_usage --service-name=elasticsearch::cluster-e2e --instance-name=node-e2e
     expected: expected/metrics-has-value-label.yml
 
   # endpoint cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=elasticsearch::cluster-e2e
     expected: expected/endpoint.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_docs_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_docs_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_deleted_docs_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_deleted_docs_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_store_size_bytes_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_store_size_bytes_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_docs_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_docs_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_store_size_bytes_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_store_size_bytes_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_segment_count_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_segment_count_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_segment_memory_bytes_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_segment_memory_bytes_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_segment_count_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_segment_count_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_segment_memory_bytes_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_segment_memory_bytes_primary --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_merge_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_merge_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_flush_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_flush_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_refresh_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_refresh_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_warmer_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_warmer_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_indexing_delete_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_indexing_delete_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_fetch_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_fetch_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_scroll_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_scroll_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_suggest_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_suggest_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_get_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_get_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_merge_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_merge_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_flush_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_flush_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_refresh_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_refresh_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_warmer_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_warmer_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_indexing_delete_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_indexing_delete_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_fetch_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_fetch_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_query_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_query_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_scroll_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_scroll_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_suggest_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_suggest_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_indexing_index_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_indexing_index_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_get_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_get_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_merge_stopped_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_merge_stopped_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_merge_throttle_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_merge_throttle_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_indexing_throttle_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_indexing_throttle_time_seconds_total --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_elasticsearch_index_indices_shards_docs --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_shards_docs --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_docs_primary_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_docs_primary_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_indexing_index_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_indexing_index_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_indices_docs_total_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_indices_docs_total_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_stats_search_query_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_stats_search_query_total_req_rate --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_search_fetch_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_search_fetch_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_search_query_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_search_query_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_search_suggest_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_search_suggest_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_elasticsearch_index_search_scroll_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_elasticsearch_index_search_scroll_avg_time --service-name=elasticsearch::cluster-e2e --endpoint-name=e2e-index-0
     expected: expected/metrics-has-value.yml

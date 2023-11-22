@@ -11,35 +11,35 @@
           "h": 52,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "InstanceList",
             "dashboardName": "Self-Observability-OAP-Instance",
             "fontSize": 12
           },
-          "standard": {},
-          "metrics": [
-            "meter_oap_instance_cpu_percentage",
-            "meter_oap_instance_persistence_execute_count"
-          ],
-          "metricTypes": [
-            "readMetricsValues",
-            "readMetricsValues"
-          ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "CPU Avg Usage",
-              "unit": "%",
-              "calculation": "average"
+              "detailLabel": "cpu_avg_usage",
+              "unit": "%"
             },
             {
               "label": "Persistence Count",
               "unit": "Per 5 Minutes",
-              "calculation": "average"
+              "detailLabel": "persistence_count"
             }
+          ],
+          "metricMode": "Expression",
+          "expressions": [
+            "avg(meter_oap_instance_cpu_percentage)",
+            "avg(meter_oap_instance_persistence_execute_count)"
+          ],
+          "subExpressions": [
+            "meter_oap_instance_cpu_percentage",
+            "meter_oap_instance_persistence_execute_count"
+          ],
+          "subTypesOfMQE": [
+            "",
+            ""
           ]
         },
         {
@@ -49,12 +49,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
@@ -62,8 +56,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-telemetry/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "Self-Observability-OAP-Service",

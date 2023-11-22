@@ -45,6 +45,7 @@
 * Support Nginx monitoring.
 * Fix `BanyanDB Metadata Query`: make query single instance/process return full tags to avoid NPE.
 * Repleace go2sky E2E to GO agent.
+* Replace Metrics v2 protocol with MQE in UI templates and E2E Test.
 
 #### UI
 
@@ -66,6 +67,7 @@
 * Change UI templates for Text widgets.
 * Add Nginx menu i18n.
 * Fix the height for trace widget.
+* Polish list style.
 * Remove OpenFunction(FAAS layer) relative UI templates and menu item.
 
 #### Documentation

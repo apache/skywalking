@@ -475,12 +475,6 @@
                   "h": 13,
                   "i": "23",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_sidecar_internal_req_latency_nanos"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -492,7 +486,14 @@
                   "widget": {
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_sidecar_internal_req_latency_nanos"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 8,
@@ -501,12 +502,6 @@
                   "h": 13,
                   "i": "24",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_sidecar_internal_resp_latency_nanos"
-                  ],
                   "widget": {
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)",
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
@@ -518,7 +513,14 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 }
               ]
             },
@@ -537,32 +539,43 @@
                     "dashboardName": "Mesh-Instance",
                     "fontSize": 12
                   },
-                  "metrics": [
-                    "service_instance_cpm",
-                    "service_instance_sla",
-                    "service_instance_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "label": "Load",
                       "unit": "calls or packets / min",
-                      "calculation": "average"
+                      "label": "Load",
+                      "detailLabel": "load"
                     },
                     {
-                      "calculation": "percentageAvg",
+                      "label": "Success Rate",
                       "unit": "%",
-                      "label": "Success Rate"
+                      "detailLabel": "success_rate"
                     },
                     {
-                      "calculation": "average",
                       "label": "Latency",
-                      "unit": "ms"
+                      "unit": "ms",
+                      "detailLabel": "latency"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(service_instance_cpm)",
+                    "avg(service_instance_sla)/100",
+                    "avg(service_instance_resp_time)"
+                  ],
+                  "subExpressions": [
+                    "service_instance_cpm",
+                    "service_instance_sla/100",
+                    "service_instance_resp_time"
+                  ],
+                  "subTypesOfMQE": [
+                    "",
+                    "",
+                    ""
+                  ],
+                  "typesOfMQE":[
+                    "",
+                    "",
+                    ""
                   ]
                 }
               ]
@@ -584,32 +597,38 @@
                     "showXAxis": false,
                     "showYAxis": false
                   },
-                  "metrics": [
-                    "endpoint_cpm",
-                    "endpoint_sla",
-                    "endpoint_resp_time"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "Load",
                       "unit": "calls or packets / min",
-                      "calculation": "average"
+                      "detailLabel": "load"
                     },
                     {
-                      "calculation": "percentageAvg",
+                      "label": "Success Rate",
                       "unit": "%",
-                      "label": "Success Rate"
+                      "detailLabel": "success_rate"
                     },
                     {
-                      "calculation": "average",
                       "label": "Latency",
-                      "unit": "ms"
+                      "unit": "ms",
+                      "detailLabel": "latency"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(endpoint_cpm)",
+                    "avg(endpoint_sla)/100",
+                    "avg(endpoint_resp_time)"
+                  ],
+                  "subExpressions": [
+                    "endpoint_cpm",
+                    "endpoint_sla/100",
+                    "endpoint_resp_time"
+                  ],
+                  "subTypesOfMQE": [
+                    "",
+                    "",
+                    ""
                   ]
                 }
               ]
