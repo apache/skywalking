@@ -54,7 +54,7 @@ public class OAPServerBootstrap {
             manager.find(CoreModule.NAME)
                    .provider()
                    .getService(ServerStatusService.class)
-                   .bootedNow(System.currentTimeMillis());
+                   .bootedNow(configLoader.getResolvedConfigurations(), System.currentTimeMillis());
 
             if (RunningMode.isInitMode()) {
                 log.info("OAP starts up in init mode successfully, exit now...");

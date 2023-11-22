@@ -323,6 +323,10 @@ catalog:
             path: "/en/api/logql-service"
   - name: "Security Notice"
     path: "/en/security/readme"
+  - name: "Debugging"
+    catalog:
+      - name: "Scratch The OAP Config Dump"
+        path: "en/debugging/config_dump"
   - name: "Academy"
     catalog:
       - name: "Scaling SkyWalking server automatically in kubernetes"
