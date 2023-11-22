@@ -69,6 +69,7 @@
 * Add Nginx menu i18n.
 * Fix the height for trace widget.
 * Polish list style.
+* Fixes Log associate with Trace.
 
 #### Documentation
 
