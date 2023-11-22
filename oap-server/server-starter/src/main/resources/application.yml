@@ -539,7 +539,7 @@ debugging-query:
   selector: ${SW_DEBUGGING_QUERY:default}
   default:
     # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
-    keywords4MaskingSecretsOfConfig: ${SW_CORE_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
+    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
 
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
