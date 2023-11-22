@@ -54,81 +54,81 @@ cases:
       )
     expected: expected/trace-users-detail.yml
   # service metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_sla --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_cpm --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_apdex --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_apdex --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_sla --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_cpm --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_apdex --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_apdex --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
   # service instance metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_resp_time --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_resp_time --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_cpm --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_cpm --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_sla --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_sla --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
   # service instance JVM metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_memory_heap --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_memory_heap --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_memory_heap_max --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_memory_heap_max --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_memory_noheap --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_memory_noheap --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_live_count --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_live_count --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_daemon_count --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_daemon_count --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_peak_count --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_peak_count --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_runnable_state_thread_count --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_runnable_state_thread_count --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_class_loaded_class_count --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_class_loaded_class_count --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_class_total_loaded_class_count --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_class_total_loaded_class_count --instance-name=consumer1 --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_memory_heap --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_memory_heap --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_memory_heap_max --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_memory_heap_max --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_memory_noheap --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_memory_noheap --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_live_count --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_live_count --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_daemon_count --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_daemon_count --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_peak_count --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_peak_count --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_thread_runnable_state_thread_count --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_thread_runnable_state_thread_count --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_class_loaded_class_count --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_class_loaded_class_count --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=instance_jvm_class_total_loaded_class_count --instance-name=provider1 --service-name=e2e-service-provider |yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=instance_jvm_class_total_loaded_class_count --instance-name=provider1 --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
   # service endpoint metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=POST:/users --service-name=e2e-service-provider | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=POST:/users --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-provider | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-provider
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-consumer | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=POST:/users --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=POST:/users --service-name=e2e-service-consumer | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=POST:/users --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-consumer | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_sla --endpoint-name=POST:/users --service-name=e2e-service-consumer
     expected: expected/metrics-has-value.yml
   # service endpoint metrics percentile
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer
     expected: expected/metrics-has-value-percentile.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_percentile --endpoint-name=POST:/users --service-name=e2e-service-consumer
     expected: expected/metrics-has-value-percentile.yml

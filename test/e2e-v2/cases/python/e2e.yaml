@@ -93,51 +93,51 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance --service-name=consumer-py --dest-service-name=provider-py-kafka
       expected: expected/dependency-instance-provider-py-kafka.yml
     # service metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_sla --service-name=consumer-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_sla --service-name=consumer-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_cpm --service-name=consumer-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_cpm --service-name=consumer-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-name=consumer-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=consumer-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_apdex --service-name=consumer-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_apdex --service-name=consumer-py
       expected: expected/metrics-has-value.yml
     # service instance metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_resp_time --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_resp_time --instance-name=consumer1 --service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_cpm --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_cpm --instance-name=consumer1 --service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_sla --instance-name=consumer1 --service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_sla --instance-name=consumer1 --service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
     # service endpoint metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_cpm --endpoint-name=/users --service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=/users --service-name=provider-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_resp_time --endpoint-name=/users --service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=/users --service-name=provider-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=endpoint_sla --endpoint-name=/users --service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_sla --endpoint-name=/users --service-name=provider-py
       expected: expected/metrics-has-value.yml
     # service relation metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=consumer-py --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=consumer-py --dest-service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_server_cpm  --service-name=consumer-py --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_server_cpm  --service-name=consumer-py --dest-service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=consumer-py --dest-service-name=provider-py-kafka |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=consumer-py --dest-service-name=provider-py-kafka
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_server_cpm  --service-name=consumer-py --dest-service-name=provider-py-kafka |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_server_cpm  --service-name=consumer-py --dest-service-name=provider-py-kafka
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_client_cpm  --service-name=e2e-service-consumer --dest-service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=e2e-service-consumer --dest-service-name=provider-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_relation_server_cpm  --service-name=e2e-service-consumer --dest-service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_relation_server_cpm  --service-name=e2e-service-consumer --dest-service-name=provider-py
       expected: expected/metrics-has-value.yml
     # service instance relation metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_client_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_client_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_server_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_server_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_client_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=provider-py-kafka-instance --dest-service-name=provider-py-kafka |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_client_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=provider-py-kafka-instance --dest-service-name=provider-py-kafka
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_server_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=provider-py-kafka-instance --dest-service-name=provider-py-kafka |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_server_cpm  --instance-name=consumer-py-instance  --service-name=consumer-py --dest-instance-name=provider-py-kafka-instance --dest-service-name=provider-py-kafka
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_client_cpm  --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider-py-instance --dest-service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_client_cpm  --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider-py-instance --dest-service-name=provider-py
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_instance_relation_server_cpm  --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider-py-instance --dest-service-name=provider-py |yq e 'to_entries' -
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_server_cpm  --instance-name=consumer1 --service-name=e2e-service-consumer --dest-instance-name=provider-py-instance --dest-service-name=provider-py
       expected: expected/metrics-has-value.yml

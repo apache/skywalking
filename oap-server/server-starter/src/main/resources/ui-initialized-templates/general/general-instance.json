@@ -852,12 +852,6 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "meter_process_cpu_usage"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -868,7 +862,14 @@
                   },
                   "widget": {
                     "title": "Instance CPU Usage (%)"
-                  }
+                  },
+                  "metricMode":"Expression",
+                  "expressions":[
+                    "meter_process_cpu_usage"
+                  ],
+                  "typesOfMQE":[
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 0,
@@ -1258,18 +1259,12 @@
                     }
                   ],
                   "expressions": [
-                    "meter_instance_golang_live_goroutines_num"
+                    "meter_instance_golang_live_goroutines_num",
+                    "meter_instance_golang_os_threads_num"
                   ],
                   "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"
-                  ],
-                  "metrics": [
-                    "meter_instance_golang_os_threads_num",
-                    "meter_instance_golang_live_goroutines_num"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
                   ]
                 },
                 {

@@ -19,101 +19,101 @@ cases:
   # service cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected: expected/service.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_uptime --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_uptime --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_data_size --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_data_size --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_collection_count --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_collection_count --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_object_count --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_object_count --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_document_avg_qps --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_document_avg_qps --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_operation_avg_qps --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_operation_avg_qps --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_connections --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_connections --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_cursor_avg --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_cursor_avg --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_repl_lag --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_repl_lag --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_db_data_size --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_data_size --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_db_index_size --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_index_size --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_db_collection_count --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_collection_count --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_cluster_db_index_count --service-name=mongodb::replset | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_index_count --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
 
   # instance cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=mongodb::replset
     expected: expected/instance.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_uptime --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_uptime --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_latency --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_latency --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_memory_usage --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_memory_usage --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_version --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_version --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_rs_state --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_rs_state --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_cpu_total_percentage --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_cpu_total_percentage --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_network_bytes_in --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_network_bytes_in --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_network_bytes_out --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_network_bytes_out --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_memory_free_kb --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_memory_free_kb --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_swap_memory_free_kb --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_swap_memory_free_kb --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_fs_used_size --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_fs_used_size --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_fs_total_size --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_fs_total_size --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_connections --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_connections --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_active_total_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_active_total_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_active_reader_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_active_reader_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_active_writer_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_active_writer_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_transactions_active --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_transactions_active --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_transactions_inactive --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_transactions_inactive --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_document_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_document_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_operation_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_operation_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_repl_operation_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_repl_operation_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_operation_latency --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_operation_latency --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_cursor --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_cursor --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_mem_virtual --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_mem_virtual --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_mem_resident --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_mem_resident --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_asserts --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_asserts --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_repl_buffer_count --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_repl_buffer_count --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_repl_buffer_size --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_repl_buffer_size --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_repl_buffer_size_max --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_repl_buffer_size_max --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics multiple-linear --name=meter_mongodb_node_queued_operation --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_queued_operation --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_write_wait_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_write_wait_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_write_wait_timeout_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_write_wait_timeout_num --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=meter_mongodb_node_write_wait_time --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216 | yq e 'to_entries' -
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_write_wait_time --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml

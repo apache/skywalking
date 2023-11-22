@@ -192,11 +192,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_rq_active"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -217,14 +218,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "envoy_total_connections_used",
-                    "envoy_parent_connections_used"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total"
@@ -232,6 +225,15 @@
                     {
                       "label": "parent"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "envoy_total_connections_used",
+                    "envoy_parent_connections_used"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -252,11 +254,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_membership_healthy"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -277,11 +280,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_cx_incr"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -302,11 +306,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_rq_pending_active"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -327,47 +332,48 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
-                    "envoy_memory_allocated_max",
-                    "envoy_heap_memory_used",
-                    "envoy_memory_allocated",
-                    "envoy_memory_physical_size",
-                    "envoy_memory_physical_size_max",
-                    "envoy_heap_memory_max_used"
-                  ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
                   "metricConfig": [
                     {
-                      "calculation": "byteToMB",
-                      "label": "allocated_max"
+                      "label": "allocated_max",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "heap_memory_used"
+                      "label": "heap_memory_used",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "allocated"
+                      "label": "allocated",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "physical_size"
+                      "label": "physical_size",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "physical_size_max"
+                      "label": "physical_size_max",
+                      "unit": "MB"
                     },
                     {
-                      "calculation": "byteToMB",
-                      "label": "max_used"
+                      "label": "max_used",
+                      "unit": "MB"
                     }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "envoy_memory_allocated_max/1024/1024",
+                    "envoy_heap_memory_used/1024/1024",
+                    "envoy_memory_allocated/1024/1024",
+                    "envoy_memory_physical_size/1024/1024",
+                    "envoy_memory_physical_size_max/1024/1024",
+                    "envoy_heap_memory_max_used/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -388,11 +394,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_bug_failures"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -413,21 +420,14 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
                   ],
-                  "metricTypes": [
-                    "readMetricsValues",
-                    "readMetricsValues"
-                  ],
-                  "metricConfig": [
-                    {
-                      "label": "threads_max"
-                    },
-                    {
-                      "label": "threads"
-                    }
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -448,11 +448,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_cx_active"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -473,11 +474,12 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metrics": [
+                  "metricMode": "Expression",
+                  "expressions": [
                     "envoy_cluster_up_rq_incr"
                   ],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -487,12 +489,6 @@
                   "h": 13,
                   "i": "20",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_instance_sidecar_internal_req_latency_nanos"
-                  ],
                   "widget": {
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Request)",
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon"
@@ -504,7 +500,14 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_instance_sidecar_internal_req_latency_nanos"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 },
                 {
                   "x": 18,
@@ -513,12 +516,6 @@
                   "h": 13,
                   "i": "21",
                   "type": "Widget",
-                  "metricTypes": [
-                    "readMetricsValues"
-                  ],
-                  "metrics": [
-                    "service_instance_sidecar_internal_resp_latency_nanos"
-                  ],
                   "widget": {
                     "tips": "For more details to understand this metrics, refer to https://www.envoyproxy.io/docs/envoy/v1.22.0/api-v3/data/accesslog/v3/accesslog.proto.html#data-accesslog-v3-accesslogcommon",
                     "title": "Proxy Sidecar Internal Latency in Nanoseconds (Response)"
@@ -530,7 +527,14 @@
                     "showSymbol": true,
                     "showXAxis": true,
                     "showYAxis": true
-                  }
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "service_instance_sidecar_internal_resp_latency_nanos"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
                 }
               ]
             },

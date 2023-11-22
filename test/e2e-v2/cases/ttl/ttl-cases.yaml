@@ -20,7 +20,7 @@
     - query: |
         curl -s -XPOST http://${sender_host}:${sender_9093}/sendMetrics4TTL/7 > /dev/null;
         sleep 10;
-        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics linear --name=service_resp_time --service-name=e2e-test-dest-service --start="-193h" --end="-191h" |yq e 'to_entries' -
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_resp_time --service-name=e2e-test-dest-service --start="-193h" --end="-191h"
       expected: expected/metrics-has-value.yml
     # verify metrics has been deleted
     - query: |

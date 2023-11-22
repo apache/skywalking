@@ -33,8 +33,8 @@ cases:
 
   # check profiling metrics
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml metrics linear \
-        --service-name sqrt --instance-name test-instance --process-name sqrt --name continuous_profiling_process_cpu |yq e 'to_entries' -
+      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml metrics exec \
+        --service-name sqrt --instance-name test-instance --process-name sqrt --expression=continuous_profiling_process_cpu
     expected: expected/metrics-has-value.yml
 
   # check triggered profiling task

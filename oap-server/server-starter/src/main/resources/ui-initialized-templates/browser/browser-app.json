@@ -264,7 +264,7 @@
                   "h": 14,
                   "i": "14",
                   "type": "Widget",
-                  "metrics": [
+                  "expressions": [
                     "top_n(browser_app_single_version_error_sum,10,des)"
                   ],
                   "metricMode": "Expression",
