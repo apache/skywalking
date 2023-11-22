@@ -34,8 +34,9 @@ expSuffix:
 metricPrefix: meter_apisix
 metricsRules:
   # Service
+    # Ignore http_connections metrics with accepted and handled state as the actual type is counter
   - name: sv_http_connections
-    exp: apisix_nginx_http_current_connections.sum(['state','service_name']).service(['service_name'] , Layer.APISIX)
+    exp: apisix_nginx_http_current_connections.tagNotMatch('state','accepted|handled').sum(['state','service_name']).service(['service_name'] , Layer.APISIX)
   - name: sv_http_requests
     exp: apisix_http_requests_total.sum(['service_instance_id','service_name']).rate('PT1M').service(['service_name'] , Layer.APISIX)
     # Not match any route
@@ -63,8 +64,9 @@ metricsRules:
     exp: apisix_etcd_modify_indexes.sum(['key','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
   - name: instance_etcd_reachable
     exp: apisix_etcd_reachable.downsampling(LATEST).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+    # Ignore http_connections metrics with accepted and handled state as the actual type is counter
   - name: instance_http_connections
-    exp: apisix_nginx_http_current_connections.sum(['state','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
+    exp: apisix_nginx_http_current_connections.tagNotMatch('state','accepted|handled').sum(['state','service_name','service_instance_id']).instance(['service_name'],['service_instance_id'], Layer.APISIX)
   - name: instance_http_requests
     exp: apisix_http_requests_total.rate('PT1M').instance(['service_name'],['service_instance_id'], Layer.APISIX)
     # Match a route
