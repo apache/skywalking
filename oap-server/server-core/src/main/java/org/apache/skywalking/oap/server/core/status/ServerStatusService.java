@@ -85,14 +85,11 @@ public class ServerStatusService implements Service {
      * @return a complete list of booting configurations with effected values.
      * @since 9.7.0
      */
-    public String dumpBootingConfigurations() {
+    public String dumpBootingConfigurations(String keywords4MaskingSecretsOfConfig) {
         if (configurations == null || configurations.isEmpty()) {
             return "No available booting configurations.";
         }
-        if (moduleConfig.isDisableConfigDump()) {
-            return "Config dump is disabled.";
-        }
-        final String[] keywords = moduleConfig.getKeywords4MaskingSecretsOfConfig().split(",");
+        final String[] keywords = keywords4MaskingSecretsOfConfig.split(",");
         StringBuilder configList = new StringBuilder();
         for (ApplicationConfiguration.ModuleConfiguration configuration : configurations) {
             final String moduleName = configuration.getModuleName();

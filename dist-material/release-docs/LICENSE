@@ -211,7 +211,6 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/0.6.13 Apache-2.0
     https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/0.6.13 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/native-osx-aarch64/1.12.0 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/service/1.12.0 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-api/1.4.2 Apache-2.0
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-client/1.4.2 Apache-2.0

@@ -65,10 +65,10 @@ keywords4MaskingSecretsOfConfig: ${SW_CORE_KEYWORDS_FOR_MASKING_SECRETS:user,pas
 
 ## Disable The Config Dump Service
 
-By default, this service is open for helping users to debug and diagnose. If you want to disable it, you could set the
-following configuration to false.
+By default, this service is open for helping users to debug and diagnose. If you want to disable it, you need to diable the whole
+`debugging-query` module through setting `selector=-`.
 
 ```yaml
-# Disable core HTTP:port/debugging/config/dump
-disableConfigDump: ${SW_DISABLE_CONFIG_DUMP:false}
+debugging-query:
+  selector: ${SW_DEBUGGING_QUERY:-}
 ```

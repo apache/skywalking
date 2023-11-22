@@ -31,6 +31,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 public class DebuggingQueryProvider extends ModuleProvider {
     public static final String NAME = "default";
 
+    private DebuggingQueryConfig config;
+
     public String name() {
         return NAME;
     }
@@ -40,7 +42,17 @@ public class DebuggingQueryProvider extends ModuleProvider {
     }
 
     public ConfigCreator<? extends ModuleConfig> newConfigCreator() {
-        return null;
+        return new ConfigCreator<DebuggingQueryConfig>() {
+            @Override
+            public Class<DebuggingQueryConfig> type() {
+                return DebuggingQueryConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final DebuggingQueryConfig initialized) {
+                config = initialized;
+            }
+        };
     }
 
     public void prepare() throws ServiceNotProvidedException {
@@ -52,7 +64,7 @@ public class DebuggingQueryProvider extends ModuleProvider {
                                                   .provider()
                                                   .getService(HTTPHandlerRegister.class);
         service.addHandler(
-            new DebuggingHTTPHandler(getManager()),
+            new DebuggingHTTPHandler(getManager(), config),
             Collections.singletonList(HttpMethod.GET)
         );
     }

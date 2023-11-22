@@ -27,15 +27,17 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 @Slf4j
 public class DebuggingHTTPHandler {
     private final ServerStatusService serverStatusService;
+    final DebuggingQueryConfig config;
 
-    public DebuggingHTTPHandler(final ModuleManager manager) {
+    public DebuggingHTTPHandler(final ModuleManager manager, final DebuggingQueryConfig config) {
         serverStatusService = manager.find(CoreModule.NAME)
-               .provider()
-               .getService(ServerStatusService.class);
+                                     .provider()
+                                     .getService(ServerStatusService.class);
+        this.config = config;
     }
 
     @Get("/debugging/config/dump")
     public String dumpConfigurations() {
-        return serverStatusService.dumpBootingConfigurations();
+        return serverStatusService.dumpBootingConfigurations(config.getKeywords4MaskingSecretsOfConfig());
     }
 }
