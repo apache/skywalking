@@ -48,6 +48,8 @@
 * Replace Metrics v2 protocol with MQE in UI templates and E2E Test.
 * Fix incorrect apisix metrics otel rules.
 * Support `Scratch The OAP Config Dump`.
+* Group service endpoints into `_abandoned` when endpoints have high
+  cardinality.
 
 #### UI
 
