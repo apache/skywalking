@@ -17,35 +17,24 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>oap-server</artifactId>
+        <artifactId>server-query-plugin</artifactId>
         <groupId>org.apache.skywalking</groupId>
         <version>9.7.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>debugging-query-plugin</artifactId>
+    <packaging>jar</packaging>
+
     <dependencies>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>library-module</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>server-core</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
-    <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>server-query-plugin</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>query-graphql-plugin</module>
-        <module>zipkin-query-plugin</module>
-        <module>promql-plugin</module>
-        <module>logql-plugin</module>
-        <module>debugging-query-plugin</module>
-    </modules>
 </project>

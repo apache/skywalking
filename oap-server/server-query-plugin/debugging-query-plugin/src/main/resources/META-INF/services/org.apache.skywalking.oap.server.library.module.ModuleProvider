@@ -1,3 +1,4 @@
+#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -12,35 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+#
 
-type: TIME_SERIES_VALUES
-results:
-  {{- contains .results }}
-- metric:
-    labels:
-      - key: _
-        value: "reading"
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      traceid: null
-    - id: {{ notEmpty .id }}
-      value: null
-      traceid: null
-    {{- end}}
-- metric:
-    labels:
-      - key: _
-        value: "waiting"
-  values:
-    {{- contains .values }}
-    - id: {{ notEmpty .id }}
-      value: {{ .value }}
-      traceid: null
-    - id: {{ notEmpty .id }}
-      value: null
-      traceid: null
-    {{- end}}
-{{- end}}
-error: null
+org.apache.skywalking.oap.query.debug.DebuggingQueryProvider
