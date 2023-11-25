@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.core.config.group;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,9 @@ import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import io.vavr.Tuple2;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +71,13 @@ public class EndpointNameGrouping {
      * If the URI is unformatted, the value would be an empty queue.
      */
     private final Map<String/* service */, Map<String/* uri */, Queue<String>/* candidate patterns */>> cachedHttpUris = new ConcurrentHashMap<>();
-    private final Map<String/* service */, Set<String>/* unformatted uris */> unformattedHttpUris = new ConcurrentHashMap<>();
+    private final LoadingCache<String/* service */, Set<String>/* unformatted uris */> unformattedHttpUrisCache = 
+        CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(10)).build(new CacheLoader<>() {
+            @Override
+            public Set<String> load(String service) {
+                return ConcurrentHashMap.newKeySet();
+            }
+        });
     private final AtomicInteger aiPipelineExecutionCounter = new AtomicInteger(0);
     /**
      * The max number of HTTP URIs per service for further URI pattern recognition.
@@ -117,8 +127,7 @@ public class EndpointNameGrouping {
 
         // If there are too many unformatted URIs, we will abandon the unformatted URIs to reduce
         // the load of OAP and storage.
-        final var unformattedUrisOfService =
-            unformattedHttpUris.computeIfAbsent(serviceName, k -> ConcurrentHashMap.newKeySet());
+        final var unformattedUrisOfService = unformattedHttpUrisCache.getUnchecked(serviceName);
         if (!formattedName._2()) {
             if (unformattedUrisOfService.size() < maxHttpUrisNumberPerService) {
                 unformattedUrisOfService.add(endpointName);
