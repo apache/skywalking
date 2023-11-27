@@ -287,47 +287,67 @@
                   "linkDashboard": "General-Endpoint-Relation",
                   "nodeDashboard": "General-Endpoint",
                   "linkServerMetrics": [
-                    "endpoint_relation_sla",
-                    "endpoint_relation_resp_time",
-                    "endpoint_relation_cpm"
+
                   ],
-                  "linkClientMetrics": [],
+                  "linkClientMetrics": [
+
+                  ],
                   "nodeMetrics": [
-                    "endpoint_sla",
-                    "endpoint_resp_time",
-                    "endpoint_cpm"
+
                   ],
-                  "legend": [],
-                  "description": {},
+                  "legend": [
+
+                  ],
+                  "description": {
+
+                  },
                   "linkServerMetricConfig": [
                     {
-                      "unit": "%",
                       "label": "Success Rate",
-                      "calculation": "percentage"
+                      "unit": "%"
                     },
                     {
-                      "unit": "ms",
-                      "label": "Latency"
+                      "label": "Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "unit": "calls / min"
                     }
                   ],
                   "nodeMetricConfig": [
                     {
-                      "unit": "%",
                       "label": "Success Rate",
-                      "calculation": "percentage"
+                      "unit": "%"
                     },
                     {
-                      "unit": "ms",
-                      "label": "Latency"
+                      "label": "Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls / min ",
-                      "label": "Load"
+                      "label": "Load",
+                      "unit": "calls / min"
                     }
+                  ],
+                  "linkServerExpressions": [
+                    "avg(endpoint_relation_sla/100)",
+                    "avg(endpoint_relation_resp_time)",
+                    "avg(endpoint_relation_cpm)"
+                  ],
+                  "linkClientExpressions": [
+
+                  ],
+                  "nodeExpressions": [
+                    "avg(endpoint_sla/100)",
+                    "avg(endpoint_resp_time)",
+                    "avg(endpoint_cpm)"
+                  ],
+                  "metricMode": "Expression",
+                  "legendMQE": {
+                    "expression": ""
+                  },
+                  "linkClientMetricConfig": [
+
                   ]
                 }
               ]
