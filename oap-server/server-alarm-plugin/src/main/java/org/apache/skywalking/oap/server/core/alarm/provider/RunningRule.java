@@ -237,7 +237,6 @@ public class RunningRule {
      */
     public class Window {
         private LocalDateTime endTime;
-        private final int period;
         private final int additionalPeriod;
         private final int size;
         private int silenceCountdown;
@@ -245,7 +244,6 @@ public class RunningRule {
         private ReentrantLock lock = new ReentrantLock();
 
         public Window(int period, int additionalPeriod) {
-            this.period = period;
             this.additionalPeriod = additionalPeriod;
             this.size = period + additionalPeriod;
             // -1 means silence countdown is not running.
