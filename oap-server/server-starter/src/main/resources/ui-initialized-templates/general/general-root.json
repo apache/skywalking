@@ -108,29 +108,16 @@
                     }
                   ],
                   "linkServerMetrics": [
-                    "service_relation_server_resp_time",
-                    "service_relation_server_cpm"
+
                   ],
                   "linkClientMetrics": [
-                    "service_relation_client_cpm",
-                    "service_relation_client_resp_time"
+
                   ],
                   "nodeMetrics": [
-                    "service_cpm",
-                    "service_sla",
-                    "service_resp_time"
+
                   ],
                   "legend": [
-                    {
-                      "name": "service_sla",
-                      "condition": "<",
-                      "value": "9500"
-                    },
-                    {
-                      "name": "service_cpm",
-                      "condition": ">",
-                      "value": "1"
-                    }
+
                   ],
                   "description": {
                     "healthy": "Healthy",
@@ -138,39 +125,55 @@
                   },
                   "nodeMetricConfig": [
                     {
-                      "unit": "calls / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "unit": "calls / min"
                     },
                     {
-                      "calculation": "percentage",
                       "unit": "%",
                       "label": "Success Rate"
                     },
                     {
-                      "unit": "ms",
-                      "label": "Latency"
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ],
                   "linkServerMetricConfig": [
                     {
-                      "unit": "ms",
-                      "label": "Server Latency"
+                      "label": "Server Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls / min",
-                      "label": "Server Load"
+                      "label": "Server Load",
+                      "unit": "calls / min"
                     }
                   ],
                   "linkClientMetricConfig": [
                     {
-                      "unit": "calls / min",
-                      "label": "Client Load"
+                      "label": "Client Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "ms",
-                      "label": "Client Latency"
+                      "label": "Client Load",
+                      "unit": "calls / min"
                     }
-                  ]
+                  ],
+                  "linkServerExpressions": [
+                    "avg(service_relation_server_resp_time)",
+                    "avg(service_relation_server_cpm)"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(service_relation_client_resp_time)",
+                    "avg(service_relation_client_cpm)"
+                  ],
+                  "nodeExpressions": [
+                    "avg(service_cpm)",
+                    "avg(service_sla/100)",
+                    "avg(service_resp_time)"
+                  ],
+                  "metricMode": "Expression",
+                  "legendMQE": {
+                    "expression": "avg(service_sla < 9500) and avg(service_cpm) > 1"
+                  }
                 }
               ]
             },

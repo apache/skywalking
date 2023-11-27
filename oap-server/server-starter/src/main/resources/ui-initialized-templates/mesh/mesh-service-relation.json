@@ -702,55 +702,71 @@
                   "linkDashboard": "Mesh-Instance-Relation",
                   "nodeDashboard": "Mesh-Instance",
                   "linkServerMetrics": [
-                    "service_instance_relation_server_resp_time",
-                    "service_instance_relation_server_cpm"
+
                   ],
                   "linkClientMetrics": [
-                    "service_instance_relation_client_resp_time",
-                    "service_instance_relation_client_cpm"
+
                   ],
                   "nodeMetrics": [
-                    "service_instance_sla",
-                    "service_instance_cpm",
-                    "service_instance_resp_time"
+
                   ],
-                  "legend": [],
-                  "description": {},
+                  "legend": [
+
+                  ],
+                  "description": {
+
+                  },
                   "nodeMetricConfig": [
                     {
-                      "unit": "%",
-                      "calculation": "percentage",
-                      "label": "Success Rate"
+                      "label": "Success Rate",
+                      "unit": "%"
                     },
                     {
-                      "unit": "calls or packets / min",
-                      "label": "Load"
+                      "label": "Load",
+                      "unit": "calls or packets / min"
                     },
                     {
-                      "unit": "ms",
-                      "label": "Latency"
+                      "label": "Latency",
+                      "unit": "ms"
                     }
                   ],
                   "linkServerMetricConfig": [
                     {
-                      "unit": "ms",
-                      "label": "Server Latency"
+                      "label": "Server Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls or packets / min ",
-                      "label": "Server Load"
+                      "label": "Server Load",
+                      "unit": "calls or packets / min"
                     }
                   ],
                   "linkClientMetricConfig": [
                     {
-                      "unit": "ms",
-                      "label": "Client Latency"
+                      "label": "Client Latency",
+                      "unit": "ms"
                     },
                     {
-                      "unit": "calls or packets / min",
-                      "label": "Client Load"
+                      "label": "Client Load",
+                      "unit": "calls or packets / min"
                     }
-                  ]
+                  ],
+                  "linkServerExpressions": [
+                    "avg(service_instance_relation_server_resp_time)",
+                    "avg(service_instance_relation_server_cpm)"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(service_instance_relation_client_resp_time)",
+                    "avg(service_instance_relation_client_cpm)"
+                  ],
+                  "nodeExpressions": [
+                    "avg(service_instance_sla/100)",
+                    "avg(service_instance_cpm)",
+                    "avg(service_instance_resp_time)"
+                  ],
+                  "metricMode": "Expression",
+                  "legendMQE": {
+                    "expression": ""
+                  }
                 }
               ]
             },
