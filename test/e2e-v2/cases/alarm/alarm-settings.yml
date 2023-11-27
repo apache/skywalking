@@ -16,10 +16,10 @@
 rules:
   # service response time > 10ms
   service_resp_time_rule:
-    expression: sum(abs(increase(service_resp_time,3)) > 0) >= 1
+    expression: sum(abs(increase(service_resp_time,1)) > 0) >= 1
     period: 10
     silence-period: 1
-    message: Response time of service {name} is increase/decrease in 3 minutes of last 10 minutes.
+    message: Response time of service {name} is increase/decrease in 1 minutes of last 10 minutes.
     tags:
       level: WARNING
       receivers: lisi
