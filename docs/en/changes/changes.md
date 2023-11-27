@@ -48,6 +48,8 @@
 * Replace Metrics v2 protocol with MQE in UI templates and E2E Test.
 * Fix incorrect apisix metrics otel rules.
 * Support `Scratch The OAP Config Dump`.
+* Group service endpoints into `_abandoned` when endpoints have high
+  cardinality.
 
 #### UI
 
@@ -70,7 +72,11 @@
 * Add Nginx menu i18n.
 * Fix the height for trace widget.
 * Polish list style.
-* Fixes Log associate with Trace.
+* Fix Log associate with Trace.
+* Enhance layout for broken Topology widget.
+* Fix calls metric with call type for Topology widget.
+* Fix changing metrics config for Topology widget.
+* Fix routes for Tab widget.
 * Remove OpenFunction(FAAS layer) relative UI templates and menu item.
 
 #### Documentation
