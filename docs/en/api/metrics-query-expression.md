@@ -296,6 +296,37 @@ view_as_seq(not_existing, service_cpm)
 #### Result Type
 The result type is determined by the type of selected not-null metric expression.
 
+## Trend Operation
+Trend Operation takes an expression and performs a trend calculation on its results.
+
+Expression:
+```text
+<Trend-Operator>(Metrics Expression, time_range)
+```
+
+`time_range` is the number of the calculates range, should be a positive integer. The unit will automatically adjusts according to the query [Step](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/query/enumeration/Step.java),
+for example, if the query Step is `MINUTE`, the unit of `time_range` is `minute`.
+
+
+| Operator | Definition                                                                            | ExpressionResultType          |
+|----------|---------------------------------------------------------------------------------------|-------------------------------|
+| increase | returns the increase in the time range in the time series                             | TIME_SERIES_VALUES |
+| rate     | returns the per-second average rate of increase in the time range in the time series  | TIME_SERIES_VALUES |
+
+For example:
+If we want to query the increase value of the `service_cpm` metric in 2 minute(assume the query Step is MINUTE),
+we can use the following expression:
+
+```text
+increase(service_cpm, 2)
+```
+
+**Note**:
+* If the calculated metric value is empty, the result will be empty. Assume the T3 point, the increase = T3 - T1, If the metric value(T3 or T1) is empty, the result will be empty.
+
+### Result Type
+TIME_SERIES_VALUES.
+
 ## Expression Query Example
 ### Labeled Value Metrics
 ```text

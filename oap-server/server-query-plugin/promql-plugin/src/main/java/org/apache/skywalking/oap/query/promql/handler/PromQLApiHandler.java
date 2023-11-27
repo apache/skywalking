@@ -29,7 +29,7 @@ import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Path;
 import com.linecorp.armeria.server.annotation.Post;
-import graphql.org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

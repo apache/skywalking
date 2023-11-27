@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.mqe.rt.MQEVisitorBase;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -59,15 +60,19 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
     private final int windowSize;
     private final LocalDateTime endTime;
     private final ArrayList<String> windowTimes;
+    private final int maxTrendRange;
 
     public AlarmMQEVisitor(final LinkedList<Map<String, Metrics>> metricsValues,
-                           final LocalDateTime endTime) {
+                           final LocalDateTime endTime,
+                           final int maxTrendRange) {
+        super(Step.MINUTE);
         this.metricsValues = metricsValues;
         this.commonValuesMap = new HashMap<>();
         this.labeledValuesMap = new HashMap<>();
         this.endTime = endTime;
         this.windowSize = metricsValues.size();
         this.windowTimes = initWindowTimes();
+        this.maxTrendRange = maxTrendRange;
         this.initMetricsValues();
     }
 
@@ -114,9 +119,35 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
             result.setError("Unsupported value type: " + dataType);
             return result;
         }
-
+        if (!(ctx.parent instanceof MQEParser.TrendOPContext)) {
+            //Trim the redundant data
+            result.getResults().forEach(resultValues -> {
+                List<MQEValue> mqeValues = resultValues.getValues();
+                if (maxTrendRange > 0 && mqeValues.size() > maxTrendRange) {
+                    resultValues.setValues(mqeValues.subList(maxTrendRange, mqeValues.size()));
+                }
+            });
+        }
         result.setResults(mqeValuesList);
         result.setType(ExpressionResultType.TIME_SERIES_VALUES);
+        return result;
+    }
+
+    @Override
+    public ExpressionResult visitTrendOP(MQEParser.TrendOPContext ctx) {
+        ExpressionResult result = super.visitTrendOP(ctx);
+        int trendRange = Integer.parseInt(ctx.INTEGER().getText());
+        //super.visitTrendOP only trim self trend range, trim more here due to all metrics window size is the same
+        int trimIndex = maxTrendRange - trendRange;
+        if (trimIndex > 0) {
+            //Trim the redundant data
+            result.getResults().forEach(resultValues -> {
+                List<MQEValue> mqeValues = resultValues.getValues();
+                if (mqeValues.size() > trimIndex) {
+                    resultValues.setValues(mqeValues.subList(trimIndex, mqeValues.size()));
+                }
+            });
+        }
         return result;
     }
 

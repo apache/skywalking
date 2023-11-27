@@ -35,6 +35,7 @@ import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -48,6 +49,11 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 @Slf4j
 public class AlarmMQEVerifyVisitor extends MQEVisitorBase {
     private final Set<String> includeMetrics = new HashSet<>();
+    private int maxTrendRange = 0;
+
+    public AlarmMQEVerifyVisitor() {
+        super(Step.MINUTE);
+    }
 
     @Override
     public ExpressionResult visitMetric(MQEParser.MetricContext ctx) {
@@ -111,6 +117,25 @@ public class AlarmMQEVerifyVisitor extends MQEVisitorBase {
             result.setType(ExpressionResultType.UNKNOWN);
             result.setError("Metric dose not supported in alarm, metric: [" + metricName + "] is not a common or labeled metric.");
             return result;
+        }
+    }
+
+    @Override
+    public ExpressionResult visitTrendOP(MQEParser.TrendOPContext ctx) {
+        int trendRange = Integer.parseInt(ctx.INTEGER().getText());
+        if (trendRange < 1) {
+            ExpressionResult result = new ExpressionResult();
+            result.setType(ExpressionResultType.UNKNOWN);
+            result.setError("The trend range must be greater than 0.");
+            return result;
+        }
+        setMaxTrendRange(trendRange);
+        return super.visitTrendOP(ctx);
+    }
+
+    private void setMaxTrendRange(int trendRange) {
+        if (trendRange > maxTrendRange) {
+            maxTrendRange = trendRange;
         }
     }
 }

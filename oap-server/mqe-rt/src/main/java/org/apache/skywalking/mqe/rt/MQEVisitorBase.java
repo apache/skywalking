@@ -30,17 +30,24 @@ import org.apache.skywalking.mqe.rt.operation.BinaryOp;
 import org.apache.skywalking.mqe.rt.operation.CompareOp;
 import org.apache.skywalking.mqe.rt.operation.LogicalFunctionOp;
 import org.apache.skywalking.mqe.rt.operation.MathematicalFunctionOp;
+import org.apache.skywalking.mqe.rt.operation.TrendOp;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResult> {
     public final static String GENERAL_LABEL_NAME = "_";
+    public final Step queryStep;
+
+    protected MQEVisitorBase(final Step queryStep) {
+        this.queryStep = queryStep;
+    }
 
     @Override
     public ExpressionResult visitParensOp(MQEParser.ParensOpContext ctx) {
@@ -242,6 +249,34 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
                 result.setBoolResult(true);
             }
             return result;
+        } catch (IllegalExpressionException e) {
+            ExpressionResult result = new ExpressionResult();
+            result.setType(ExpressionResultType.UNKNOWN);
+            result.setError(e.getMessage());
+            return result;
+        }
+    }
+
+    @Override
+    public ExpressionResult visitTrendOP(MQEParser.TrendOPContext ctx) {
+        int opType = ctx.trend().getStart().getType();
+        int trendRange = Integer.parseInt(ctx.INTEGER().getText());
+        if (trendRange < 1) {
+            ExpressionResult result = new ExpressionResult();
+            result.setType(ExpressionResultType.UNKNOWN);
+            result.setError("The trend range must be greater than 0.");
+            return result;
+        }
+        ExpressionResult expResult = visit(ctx.metric());
+        if (StringUtil.isNotEmpty(expResult.getError())) {
+            return expResult;
+        }
+        if (expResult.getType() != ExpressionResultType.TIME_SERIES_VALUES) {
+            expResult.setError("The result of expression [" + ctx.metric().getText() + "] is not a time series result.");
+            return expResult;
+        }
+        try {
+            return TrendOp.doTrendOp(expResult, opType, trendRange, queryStep);
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);

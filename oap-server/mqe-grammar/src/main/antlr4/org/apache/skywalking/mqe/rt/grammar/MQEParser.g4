@@ -31,8 +31,9 @@ expression
     | aggregation L_PAREN expression R_PAREN # aggregationOp
     | mathematical_operator0 L_PAREN expression R_PAREN #mathematicalOperator0OP
     | mathematical_operator1 L_PAREN expression COMMA parameter R_PAREN #mathematicalOperator1OP
+    | trend L_PAREN metric COMMA INTEGER R_PAREN #trendOP
     | logical_operator L_PAREN expressionList R_PAREN #logicalOperatorOP
-    | topN L_PAREN metric COMMA parameter COMMA order R_PAREN  #topNOP
+    | topN L_PAREN metric COMMA INTEGER COMMA order R_PAREN  #topNOP
     | relabels L_PAREN expression COMMA label R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
     ;
@@ -68,6 +69,9 @@ mathematical_operator0:
 // 1 parameter function
 mathematical_operator1:
     ROUND;
+
+trend:
+    INCREASE | RATE;
 
 topN: TOP_N;
 

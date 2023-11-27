@@ -21,7 +21,7 @@ messages:
     id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     id1: ""
     ruleName: service_resp_time_rule
-    alarmMessage: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    alarmMessage: Response time of service e2e-service-provider is increase/decrease than 10ms in 3 minutes of last 10 minutes.
     startTime: {{ gt .startTime 0 }}
     tags:
       - key: level
@@ -47,7 +47,7 @@ messages:
     id0: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     id1: ""
     ruleName: service_resp_time_rule
-    alarmMessage: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    alarmMessage: Response time of service e2e-service-provider is increase/decrease than 10ms in 3 minutes of last 10 minutes.
     startTime: {{ gt .startTime 0 }}
     tags:
       - key: level

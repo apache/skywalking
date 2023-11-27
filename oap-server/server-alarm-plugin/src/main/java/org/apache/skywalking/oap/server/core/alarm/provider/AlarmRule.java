@@ -58,6 +58,7 @@ public class AlarmRule {
     private String message;
     private Map<String, String> tags;
     private Set<String> hooks;
+    private int maxTrendRange;
 
     /**
      * Init includeMetrics and verify the expression.
@@ -67,6 +68,7 @@ public class AlarmRule {
         MQELexer lexer = new MQELexer(CharStreams.fromString(expression));
         lexer.addErrorListener(new ParseErrorListener());
         MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
+        parser.addErrorListener(new ParseErrorListener());
         ParseTree tree;
         try {
             tree = parser.expression();
@@ -88,6 +90,7 @@ public class AlarmRule {
         verifyIncludeMetrics(visitor.getIncludeMetrics(), expression);
         this.expression = expression;
         this.includeMetrics = visitor.getIncludeMetrics();
+        this.maxTrendRange = visitor.getMaxTrendRange();
     }
 
     private void verifyIncludeMetrics(Set<String> includeMetrics, String expression) throws IllegalExpressionException {

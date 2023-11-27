@@ -52,6 +52,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.mqe.rt.MQEVisitorBase;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.joda.time.DateTime;
 
 @Slf4j
 public class MQEVisitor extends MQEVisitorBase {
@@ -64,6 +65,7 @@ public class MQEVisitor extends MQEVisitorBase {
                       final RecordsQuery recordsQuery,
                       final Entity entity,
                       final Duration duration) {
+        super(duration.getStep());
         this.metricsQuery = metricsQuery;
         this.recordsQuery = recordsQuery;
         this.entity = entity;
@@ -87,14 +89,27 @@ public class MQEVisitor extends MQEVisitorBase {
             if (Column.ValueDataType.COMMON_VALUE == dataType) {
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
                     MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
-                    querySortMetrics(metricName, Integer.parseInt(parent.parameter().getText()),
+                    int topN = Integer.parseInt(parent.INTEGER().getText());
+                    if (topN <= 0) {
+                        throw new IllegalExpressionException("TopN value must be > 0.");
+                    }
+                    querySortMetrics(metricName, Integer.parseInt(parent.INTEGER().getText()),
                                      Order.valueOf(parent.order().getText().toUpperCase()), result
                     );
+                } else if (ctx.parent instanceof MQEParser.TrendOPContext) {
+                    //trend query requires get previous data according to the trend range
+                    MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
+                    int trendRange = Integer.parseInt(parent.INTEGER().getText());
+                    queryMetrics(metricName, getTrendQueryDuration(trendRange), result);
                 } else {
-                    queryMetrics(metricName, result);
+                    queryMetrics(metricName, this.duration, result);
                 }
             } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
                 List<String> queryLabelList = Collections.emptyList();
+                if (ctx.parent instanceof MQEParser.TopNOPContext) {
+                    throw new IllegalExpressionException(
+                        "Metric: [" + metricName + "] is labeled value, dose not support top_n query.");
+                }
                 if (ctx.label() != null) {
                     String labelValue = ctx.label().labelValue().getText();
                     String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
@@ -102,11 +117,21 @@ public class MQEVisitor extends MQEVisitorBase {
                         queryLabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
                     }
                 }
-                queryLabeledMetrics(metricName, queryLabelList, result);
+                if (ctx.parent instanceof MQEParser.TrendOPContext) {
+                    MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
+                    int trendRange = Integer.parseInt(parent.INTEGER().getText());
+                    queryLabeledMetrics(metricName, queryLabelList, getTrendQueryDuration(trendRange), result);
+                } else {
+                    queryLabeledMetrics(metricName, queryLabelList, this.duration, result);
+                }
             } else if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
                     MQEParser.TopNOPContext parent = (MQEParser.TopNOPContext) ctx.parent;
-                    queryRecords(metricName, Integer.parseInt(parent.parameter().getText()),
+                    int topN = Integer.parseInt(parent.INTEGER().getText());
+                    if (topN <= 0) {
+                        throw new IllegalExpressionException("TopN value must be > 0.");
+                    }
+                    queryRecords(metricName, Integer.parseInt(parent.INTEGER().getText()),
                                  Order.valueOf(parent.order().getText().toUpperCase()), result
                     );
                 } else {
@@ -182,15 +207,15 @@ public class MQEVisitor extends MQEVisitorBase {
         result.setType(ExpressionResultType.RECORD_LIST);
     }
 
-    private void queryMetrics(String metricName, ExpressionResult result) throws IOException {
+    private void queryMetrics(String metricName, Duration queryDuration, ExpressionResult result) throws IOException {
         MetricsCondition metricsCondition = new MetricsCondition();
         metricsCondition.setName(metricName);
         metricsCondition.setEntity(entity);
-        MetricsValues metricsValues = metricsQuery.readMetricsValues(metricsCondition, duration);
-        List<PointOfTime> times = duration.assembleDurationPoints();
+        MetricsValues metricsValues = metricsQuery.readMetricsValues(metricsCondition, queryDuration);
+        List<PointOfTime> times = queryDuration.assembleDurationPoints();
         List<MQEValue> mqeValueList = new ArrayList<>(times.size());
         for (int i = 0; i < times.size(); i++) {
-            long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(duration.getStep(), times.get(i).getPoint())
+            long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(queryDuration.getStep(), times.get(i).getPoint())
                                                       .getMillis();
             KVInt kvInt = metricsValues.getValues().getValues().get(i);
             MQEValue mqeValue = new MQEValue();
@@ -209,17 +234,18 @@ public class MQEVisitor extends MQEVisitorBase {
 
     private void queryLabeledMetrics(String metricName,
                                      List<String> queryLabelList,
+                                     Duration queryDuration,
                                      ExpressionResult result) throws IOException {
         MetricsCondition metricsCondition = new MetricsCondition();
         metricsCondition.setName(metricName);
         metricsCondition.setEntity(entity);
         List<MetricsValues> metricsValuesList = metricsQuery.readLabeledMetricsValues(
-            metricsCondition, queryLabelList, duration);
-        List<PointOfTime> times = duration.assembleDurationPoints();
+            metricsCondition, queryLabelList, queryDuration);
+        List<PointOfTime> times = queryDuration.assembleDurationPoints();
         metricsValuesList.forEach(metricsValues -> {
             List<MQEValue> mqeValueList = new ArrayList<>(times.size());
             for (int i = 0; i < times.size(); i++) {
-                long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(duration.getStep(), times.get(i).getPoint())
+                long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(queryDuration.getStep(), times.get(i).getPoint())
                                                           .getMillis();
                 KVInt kvInt = metricsValues.getValues().getValues().get(i);
                 MQEValue mqeValue = new MQEValue();
@@ -241,5 +267,30 @@ public class MQEVisitor extends MQEVisitorBase {
         });
         result.setType(ExpressionResultType.TIME_SERIES_VALUES);
         result.setLabeledResult(true);
+    }
+
+    private Duration getTrendQueryDuration(int stepRange) {
+        Duration duration = new Duration();
+        duration.setStep(this.duration.getStep());
+        duration.setEnd(this.duration.getEnd());
+        DateTime startDT = new DateTime(this.duration.getStartTimestamp());
+
+        switch (duration.getStep()) {
+            case DAY:
+                duration.setStart(startDT.minusDays(stepRange).toString(DurationUtils.YYYY_MM_DD));
+                break;
+            case HOUR:
+                duration.setStart(startDT.minusHours(stepRange).toString(DurationUtils.YYYY_MM_DD_HH));
+                break;
+            case MINUTE:
+                duration.setStart(startDT.minusMinutes(stepRange).toString(DurationUtils.YYYY_MM_DD_HHMM));
+                break;
+            case SECOND:
+                duration.setStart(startDT.minusSeconds(stepRange).toString(DurationUtils.YYYY_MM_DD_HHMMSS));
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported query step: " + duration.getStep());
+        }
+        return duration;
     }
 }
