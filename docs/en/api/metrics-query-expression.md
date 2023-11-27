@@ -304,7 +304,7 @@ Expression:
 <Trend-Operator>(Metrics Expression, time_range)
 ```
 
-`time_range` is the number of the calculates range, should be a positive integer. The unit will automatically adjusts according to the query [Step](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/query/enumeration/Step.java),
+`time_range` is the positive int of the calculated range. The unit will automatically align with to the query [Step](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/query/enumeration/Step.java),
 for example, if the query Step is `MINUTE`, the unit of `time_range` is `minute`.
 
 
