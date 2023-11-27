@@ -71,10 +71,11 @@ public class RunningRuleTest {
     @Test
     public void testInitAndStart() throws IllegalExpressionException {
         AlarmRule alarmRule = new AlarmRule();
-        alarmRule.setAlarmRuleName("endpoint_percent_rule");
-        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.setAlarmRuleName("mix_rule");
+        alarmRule.setExpression("sum((increase(endpoint_cpm,5) + increase(endpoint_percent,2)) > 0) >= 1");
         alarmRule.getIncludeMetrics().add("endpoint_percent");
-        alarmRule.setPeriod(15);
+        alarmRule.getIncludeMetrics().add("endpoint_cpm");
+        alarmRule.setPeriod(10);
         alarmRule.setTags(new HashMap<String, String>() {{
             put("key", "value");
         }});
@@ -90,11 +91,11 @@ public class RunningRuleTest {
 
         RunningRule.Window window = windows.get(getAlarmEntity(123));
         LocalDateTime endTime = Whitebox.getInternalState(window, "endTime");
-        int period = Whitebox.getInternalState(window, "period");
+        int additionalPeriod = Whitebox.getInternalState(window, "additionalPeriod");
         LinkedList<Metrics> metricsBuffer = Whitebox.getInternalState(window, "values");
 
         Assertions.assertTrue(targetTime.equals(endTime.toDateTime()));
-        Assertions.assertEquals(15, period);
+        Assertions.assertEquals(5, additionalPeriod);
         Assertions.assertEquals(15, metricsBuffer.size());
     }
 

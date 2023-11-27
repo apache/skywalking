@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-import graphql.org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import java.text.DecimalFormat;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

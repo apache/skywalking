@@ -59,6 +59,8 @@ ABS:         'abs';
 CEIL:        'ceil';
 FLOOR:       'floor';
 ROUND:       'round';
+INCREASE:    'increase';
+RATE:        'rate';
 
 // TopN
 TOP_N:        'top_n';

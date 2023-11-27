@@ -42,7 +42,7 @@ msgs:
   - starttime: {{ gt .starttime 0 }}
     scope: Service
     id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
-    message: Response time of service e2e-service-provider is more than 10ms in 1 minutes of last 10 minutes.
+    message: Response time of service e2e-service-provider is increase/decrease in 1 minutes of last 10 minutes.
     tags:
       - key: level
         value: WARNING

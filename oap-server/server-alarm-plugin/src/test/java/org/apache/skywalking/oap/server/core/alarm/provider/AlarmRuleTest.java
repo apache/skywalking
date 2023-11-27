@@ -113,5 +113,8 @@ public class AlarmRuleTest {
             rule.setExpression("sum(service_percent > endpoint_percent) >= 1");
         }).getMessage().contains("The metrics in expression: sum(service_percent > endpoint_percent) >= 1 must have the same scope level, but got:"));
 
+        //trend expression
+        rule.setExpression("sum((increase(service_percent,5) + increase(service_percent,2)) > 0) >= 1");
+        Assertions.assertEquals(5, rule.getMaxTrendRange());
     }
 }

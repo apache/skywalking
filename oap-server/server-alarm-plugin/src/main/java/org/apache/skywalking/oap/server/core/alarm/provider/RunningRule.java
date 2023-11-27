@@ -82,6 +82,8 @@ public class RunningRule {
     private final Set<String> hooks;
     private final Set<String> includeMetrics;
     private final ParseTree exprTree;
+    // The additional period is used to calculate the trend.
+    private final int additionalPeriod;
 
     public RunningRule(AlarmRule alarmRule) {
         expression = alarmRule.getExpression();
@@ -108,6 +110,7 @@ public class RunningRule {
         MQEParser parser = new MQEParser(new CommonTokenStream(lexer));
         parser.addErrorListener(new ParseErrorListener());
         this.exprTree = parser.expression();
+        this.additionalPeriod = alarmRule.getMaxTrendRange();
     }
 
     /**
@@ -134,7 +137,7 @@ public class RunningRule {
         AlarmEntity entity = new AlarmEntity(
             meta.getScope(), meta.getScopeId(), meta.getName(), meta.getId0(), meta.getId1());
 
-        Window window = windows.computeIfAbsent(entity, ignored -> new Window(period));
+        Window window = windows.computeIfAbsent(entity, ignored -> new Window(this.period, this.additionalPeriod));
         window.add(meta.getMetricsName(), metrics);
     }
 
@@ -234,13 +237,15 @@ public class RunningRule {
      */
     public class Window {
         private LocalDateTime endTime;
-        private final int period;
+        private final int additionalPeriod;
+        private final int size;
         private int silenceCountdown;
         private LinkedList<Map<String, Metrics>> values;
         private ReentrantLock lock = new ReentrantLock();
 
-        public Window(int period) {
-            this.period = period;
+        public Window(int period, int additionalPeriod) {
+            this.additionalPeriod = additionalPeriod;
+            this.size = period + additionalPeriod;
             // -1 means silence countdown is not running.
             silenceCountdown = -1;
             init();
@@ -342,7 +347,7 @@ public class RunningRule {
 
         private boolean isMatch() {
             int isMatch = 0;
-            AlarmMQEVisitor visitor = new AlarmMQEVisitor(this.values, this.endTime);
+            AlarmMQEVisitor visitor = new AlarmMQEVisitor(this.values, this.endTime, this.additionalPeriod);
             ExpressionResult parseResult = visitor.visit(exprTree);
             if (StringUtil.isNotBlank(parseResult.getError())) {
                 log.error("expression:" + expression + " error: " + parseResult.getError());
@@ -403,7 +408,7 @@ public class RunningRule {
 
         private void init() {
             values = new LinkedList<>();
-            for (int i = 0; i < period; i++) {
+            for (int i = 0; i < size; i++) {
                 values.add(null);
             }
         }
