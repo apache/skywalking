@@ -67,16 +67,6 @@ menus:
         description: Observe Envoy Proxy through Envoy Metrics Service.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/envoy/metrics_service_setting/
         i18nKey: service_mesh_data_plane
-  - title: Functions
-    icon: functions
-    description: FaaS (Function-as-a-Service) is a type of cloud-computing service that allows you to execute code in response to events without the complex infrastructure typically associated with building and launching microservices applications.
-    i18nKey: functions
-    menus:
-      - title: OpenFunction
-        layer: FAAS
-        description: OpenFunction as a FaaS platform, provides out-of-box observability with SkyWalking integration.
-        documentLink: https://openfunction.dev/
-        i18nKey: functions_openfunction
   - title: Kubernetes
     icon: kubernetes
     description: Kubernetes is an open-source container orchestration system for automating software deployment, scaling, and management.

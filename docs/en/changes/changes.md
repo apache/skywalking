@@ -78,6 +78,7 @@
 * Fix calls metric with call type for Topology widget.
 * Fix changing metrics config for Topology widget.
 * Fix routes for Tab widget.
+* Remove OpenFunction(FAAS layer) relative UI templates and menu item.
 
 #### Documentation
 

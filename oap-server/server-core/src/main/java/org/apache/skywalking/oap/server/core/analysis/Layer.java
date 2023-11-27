@@ -56,7 +56,10 @@ public enum Layer {
 
     /**
      * Function as a Service
+     *
+     * Deprecated since 9.7.0. OpenFunction relative features are not maintained anymore.
      */
+    @Deprecated
     FAAS(5, true),
 
     /**
