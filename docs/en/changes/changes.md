@@ -72,7 +72,11 @@
 * Add Nginx menu i18n.
 * Fix the height for trace widget.
 * Polish list style.
-* Fixes Log associate with Trace.
+* Fix Log associate with Trace.
+* Enhance layout for broken Topology widget.
+* Fix calls metric with call type for Topology widget.
+* Fix changing metrics config for Topology widget.
+* Fix routes for Tab widget.
 
 #### Documentation
 
