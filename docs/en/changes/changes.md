@@ -78,6 +78,8 @@
 * Fix changing metrics config for Topology widget.
 * Fix routes for Tab widget.
 * Remove OpenFunction(FAAS layer) relative UI templates and menu item.
+* Fix: change colors to match dark theme for Network Profiling.
+* Remove the description of OpenFunction in the UI i18n. 
 
 #### Documentation
 
