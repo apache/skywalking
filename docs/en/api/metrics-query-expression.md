@@ -321,8 +321,17 @@ we can use the following expression:
 increase(service_cpm, 2)
 ```
 
+If the query duration is 3 minutes, from (T1 to T3) and the metric has values in time series:
+```text
+V(T1-2), V(T1-1), V(T1), V(T2), V(T3)
+```
+then the expression result is:
+```text
+V(T1)-V(T1-2), V(T2)-V(T1-1), V(T3)-V(T1)
+```
+
 **Note**:
-* If the calculated metric value is empty, the result will be empty. Assume the T3 point, the increase = T3 - T1, If the metric value(T3 or T1) is empty, the result will be empty.
+* If the calculated metric value is empty, the result will be empty. Assume in the T3 point, the increase value = V(T3)-V(T1), If the metric V(T3) or V(T1) is empty, the result value in T3 will be empty.
 
 ### Result Type
 TIME_SERIES_VALUES.
