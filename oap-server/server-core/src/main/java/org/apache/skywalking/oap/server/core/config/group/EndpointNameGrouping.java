@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.core.config.group;
 
-import io.vavr.Tuple2;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriPattern;
 import org.apache.skywalking.oap.server.ai.pipeline.services.api.HttpUriRecognition;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointGroupingRule4Openapi;
@@ -37,9 +38,17 @@ import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.library.util.StringFormatGroup;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import io.vavr.Tuple2;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class EndpointNameGrouping {
+    public static final String ABANDONED_ENDPOINT_NAME = "_abandoned";
+
     /**
      * Endpoint grouping according to local endpoint-name-grouping.yml or associated dynamic configuration.
      */
@@ -61,7 +70,14 @@ public class EndpointNameGrouping {
      * If the URI is formatted by the rules, the value would be the first 10 formatted names.
      * If the URI is unformatted, the value would be an empty queue.
      */
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, ArrayBlockingQueue<String>>> cachedHttpUris = new ConcurrentHashMap<>();
+    private final Map<String/* service */, Map<String/* uri */, Queue<String>/* candidate patterns */>> cachedHttpUris = new ConcurrentHashMap<>();
+    private final LoadingCache<String/* service */, Set<String>/* unformatted uris */> unformattedHttpUrisCache = 
+        CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(10)).build(new CacheLoader<>() {
+            @Override
+            public Set<String> load(String service) {
+                return ConcurrentHashMap.newKeySet();
+            }
+        });
     private final AtomicInteger aiPipelineExecutionCounter = new AtomicInteger(0);
     /**
      * The max number of HTTP URIs per service for further URI pattern recognition.
@@ -90,7 +106,7 @@ public class EndpointNameGrouping {
         if (!formattedName._2() && quickUriGroupingRule != null) {
             formattedName = formatByQuickUriPattern(serviceName, endpointName);
 
-            ConcurrentHashMap<String, ArrayBlockingQueue<String>> svrHttpUris =
+            Map<String, Queue<String>> svrHttpUris =
                 cachedHttpUris.computeIfAbsent(serviceName, k -> new ConcurrentHashMap<>());
 
             // Only cache first N (determined by maxHttpUrisNumberPerService) URIs per 30 mins.
@@ -99,16 +115,27 @@ public class EndpointNameGrouping {
                     // Algorithm side should not return a pattern that has no {var} in it else this
                     // code may accidentally retrieve the size 1 queue created by unformatted endpoint
                     // The queue size is 10, which means only cache the first 10 formatted names.
-                    final ArrayBlockingQueue<String> formattedURIs = svrHttpUris.computeIfAbsent(
+                    final Queue<String> formattedURIs = svrHttpUris.computeIfAbsent(
                         formattedName._1(), k -> new ArrayBlockingQueue<>(10));
-                    if (formattedURIs.size() < 10) {
-                        // Try to push the raw URI as a candidate of formatted name.
-                        formattedURIs.offer(endpointName);
-                    }
+                    // Try to push the raw URI as a candidate of formatted name.
+                    formattedURIs.offer(endpointName);
                 } else {
                     svrHttpUris.computeIfAbsent(endpointName, k -> new ArrayBlockingQueue<>(1));
                 }
             }
+        }
+
+        // If there are too many unformatted URIs, we will abandon the unformatted URIs to reduce
+        // the load of OAP and storage.
+        final var unformattedUrisOfService = unformattedHttpUrisCache.getUnchecked(serviceName);
+        if (!formattedName._2()) {
+            if (unformattedUrisOfService.size() < maxHttpUrisNumberPerService) {
+                unformattedUrisOfService.add(endpointName);
+            } else {
+                formattedName = new Tuple2<>(ABANDONED_ENDPOINT_NAME, true);
+            }
+        } else {
+            unformattedUrisOfService.remove(endpointName);
         }
 
         return formattedName;
@@ -204,8 +231,6 @@ public class EndpointNameGrouping {
                                              final List<HttpUriPattern> patterns
                                                  = httpUriRecognitionSvr.fetchAllPatterns(service.getName());
                                              if (CollectionUtils.isNotEmpty(patterns)) {
-                                                 StringFormatGroup group = new StringFormatGroup(
-                                                     patterns.size());
                                                  patterns.forEach(
                                                      p -> quickUriGroupingRule.addRule(
                                                          service.getName(), p.getPattern()));
