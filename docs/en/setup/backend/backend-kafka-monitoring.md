@@ -16,7 +16,7 @@ Kafka entity as a `Service` in OAP and on the `Layer: KAFKA`.
 1. Setup [prometheus_JMX_Exporter](https://github.com/prometheus/jmx_exporter). This is an example for JMX Exporter configuration [kafka-2_0_0.yml](https://github.com/prometheus/jmx_exporter/blob/main/example_configs/kafka-2_0_0.yml).
 2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example
    for OpenTelemetry Collector configuration, refer
-   to [here](../../../../test/e2e-v2/cases/rabbitmq/otel-collector-config.yaml).
+   to [here](../../../../test/e2e-v2/cases/kafka/kafka-monitoring/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## Kafka Monitoring
@@ -74,7 +74,7 @@ the OAP. In each cluster, the kafka brokers are represented as `Instance`.
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `/config/otel-rules/kafka/kafka-cluster.yaml, /config/otel-rules/kafka/kafka-node.yaml`.
-The RabbitMQ dashboard panel configurations are found in `/config/ui-initialized-templates/kafka`.
+The Kafka dashboard panel configurations are found in `/config/ui-initialized-templates/kafka`.
 
 ## Reference
 For more details on monitoring Kafka and the metrics to focus on, see the following articles:
