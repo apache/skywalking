@@ -4,7 +4,7 @@
 
 
 #### OAP Server
-
+* Add `layer` parameter to the global topology graphQL query.
 
 #### UI
 

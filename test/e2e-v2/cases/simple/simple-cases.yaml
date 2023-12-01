@@ -31,6 +31,8 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --keyword=users --service-name=e2e-service-consumer
     expected: expected/service-endpoint-consumer.yml
   # dependency service
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=GENERAL
+    expected: expected/dependency-services-provider.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-provider
     expected: expected/dependency-services-provider.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-consumer

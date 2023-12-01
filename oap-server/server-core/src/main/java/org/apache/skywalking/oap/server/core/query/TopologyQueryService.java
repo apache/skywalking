@@ -39,12 +39,16 @@ import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class TopologyQueryService implements Service {
@@ -52,6 +56,7 @@ public class TopologyQueryService implements Service {
     private final StorageModels storageModels;
     private ITopologyQueryDAO topologyQueryDAO;
     private IComponentLibraryCatalogService componentLibraryCatalogService;
+    private MetadataQueryService metadataQueryService;
 
     public TopologyQueryService(ModuleManager moduleManager, StorageModels storageModels) {
         this.moduleManager = moduleManager;
@@ -65,6 +70,13 @@ public class TopologyQueryService implements Service {
         return topologyQueryDAO;
     }
 
+    private MetadataQueryService getMetadataQueryService() {
+        if (metadataQueryService == null) {
+            metadataQueryService = moduleManager.find(CoreModule.NAME).provider().getService(MetadataQueryService.class);
+        }
+        return metadataQueryService;
+    }
+
     private IComponentLibraryCatalogService getComponentLibraryCatalogService() {
         if (componentLibraryCatalogService == null) {
             componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
@@ -74,7 +86,13 @@ public class TopologyQueryService implements Service {
         return componentLibraryCatalogService;
     }
 
-    public Topology getGlobalTopology(final Duration duration) throws IOException {
+    public Topology getGlobalTopology(final Duration duration, final String layer) throws IOException {
+        if (StringUtil.isNotEmpty(layer)) {
+            final List<String> serviceIdList = Optional.ofNullable(getMetadataQueryService().listServices(layer, null))
+                .map(list -> list.stream().map(s -> s.getId()).collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+            return getServiceTopology(duration, serviceIdList);
+        }
         List<Call.CallDetail> serviceRelationServerCalls = getTopologyQueryDAO().loadServiceRelationsDetectedAtServerSide(
             duration);
         List<Call.CallDetail> serviceRelationClientCalls = getTopologyQueryDAO().loadServiceRelationDetectedAtClientSide(
