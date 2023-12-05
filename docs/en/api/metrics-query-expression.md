@@ -312,7 +312,7 @@ is_present(not_existing, existing_without_value, existing_with_value)
 ```
 
 #### Result Type
-The result type is `SINGLE_VALUE`, and the result(`1` or `0`) in the first result.
+The result type is `SINGLE_VALUE`, and the result(`1` or `0`) in the first value.
 
 ## Trend Operation
 Trend Operation takes an expression and performs a trend calculation on its results.
