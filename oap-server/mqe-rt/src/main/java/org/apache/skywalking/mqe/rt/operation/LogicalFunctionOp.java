@@ -22,7 +22,13 @@ import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.grammar.MQEParserBaseVisitor;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
+import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
+import org.apache.skywalking.mqe.rt.type.MQEValue;
+import org.apache.skywalking.mqe.rt.type.MQEValues;
+import org.apache.skywalking.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+
+import java.util.Objects;
 
 public class LogicalFunctionOp {
 
@@ -31,6 +37,8 @@ public class LogicalFunctionOp {
         switch (opType) {
             case MQEParser.VIEW_AS_SEQ:
                 return viewAsSeq(expressionListContext, visitor);
+            case MQEParser.IS_PRESENT:
+                return isPresent(expressionListContext, visitor);
         }
 
         throw new IllegalExpressionException("Unsupported function.");
@@ -57,4 +65,31 @@ public class LogicalFunctionOp {
         return firstResult;
     }
 
+    private static ExpressionResult isPresent(MQEParser.ExpressionListContext expressionListContext,
+                                              MQEParserBaseVisitor<ExpressionResult> visitor) {
+        boolean present = false;
+        for (MQEParser.ExpressionContext expContext : expressionListContext.expression()) {
+            final ExpressionResult result = visitor.visit(expContext);
+            // the expression data exist and contains not empty value
+            if (result != null) {
+                present = result.getResults().stream().filter(Objects::nonNull).anyMatch(r ->
+                    r.getValues().stream().anyMatch(v -> !v.isEmptyValue()));
+            }
+            if (present) {
+                break;
+            }
+        }
+
+        final ExpressionResult result = new ExpressionResult();
+        result.setType(ExpressionResultType.SINGLE_VALUE);
+
+        MQEValue mqeValue = new MQEValue();
+        MQEValues mqeValues = new MQEValues();
+        mqeValues.setMetric(new Metadata());
+        mqeValues.getValues().add(mqeValue);
+        result.getResults().add(mqeValues);
+        mqeValue.setDoubleValue(present ? 1 : 0);
+        mqeValue.setEmptyValue(false);
+        return result;
+    }
 }

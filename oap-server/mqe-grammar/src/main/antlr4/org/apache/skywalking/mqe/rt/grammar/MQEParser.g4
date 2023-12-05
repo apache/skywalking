@@ -76,7 +76,7 @@ trend:
 topN: TOP_N;
 
 logical_operator:
-    VIEW_AS_SEQ;
+    VIEW_AS_SEQ | IS_PRESENT;
 
 relabels: RELABELS;
 
