@@ -293,6 +293,9 @@ The following example would return the content of the **service_cpm** metric.
 view_as_seq(not_existing, service_cpm)
 ```
 
+#### Result Type
+The result type is determined by the type of selected not-null metric expression.
+
 ### IsPresent Operation
 IsPresent operation represents that in a list of metrics, if any expression has a value, it would return `1` in the result; otherwise, it would return `0`.
 
@@ -305,11 +308,11 @@ For example:
 When the meter does not exist or the metrics has no value, it would return `0`. 
 However, if the metrics list contains meter with values, it would return `1`.
 ```text
-is_present(not_existing, existing_without_value, exiting_with_value)
+is_present(not_existing, existing_without_value, existing_with_value)
 ```
 
 #### Result Type
-The result type is determined by the type of selected not-null metric expression.
+The result type is `SINGLE_VALUE`, and the result(`1` or `0`) in the first result.
 
 ## Trend Operation
 Trend Operation takes an expression and performs a trend calculation on its results.
