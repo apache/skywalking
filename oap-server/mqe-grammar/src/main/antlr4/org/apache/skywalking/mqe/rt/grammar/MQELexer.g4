@@ -68,6 +68,9 @@ TOP_N:        'top_n';
 // ViewAsSeq
 VIEW_AS_SEQ: 'view_as_seq';
 
+// IsPresent
+IS_PRESENT: 'is_present';
+
 // Relabels
 RELABELS:     'relabels';
 
