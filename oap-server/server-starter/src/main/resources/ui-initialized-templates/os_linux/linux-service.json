@@ -101,8 +101,8 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_vm_network_receive",
-            "meter_vm_network_transmit"
+            "meter_vm_network_receive/1024",
+            "meter_vm_network_transmit/1024"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
