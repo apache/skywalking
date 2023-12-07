@@ -8,6 +8,7 @@
 * Add `is_present` function in MQE for check if the list metrics has a value or not.
 
 #### UI
+* Fix: "Network Bandwidth Usage" widget issue in Dashboard Linux-Service Panel
 
 
 #### Documentation
