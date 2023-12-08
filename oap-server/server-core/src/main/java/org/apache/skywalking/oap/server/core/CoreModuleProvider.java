@@ -230,9 +230,6 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.getMaxMessageSize() > 0) {
             grpcServer.setMaxMessageSize(moduleConfig.getMaxMessageSize());
         }
-        if (moduleConfig.getGRPCThreadPoolQueueSize() > 0) {
-            grpcServer.setThreadPoolQueueSize(moduleConfig.getGRPCThreadPoolQueueSize());
-        }
         if (moduleConfig.getGRPCThreadPoolSize() > 0) {
             grpcServer.setThreadPoolSize(moduleConfig.getGRPCThreadPoolSize());
         }

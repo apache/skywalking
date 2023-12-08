@@ -34,7 +34,6 @@ core:
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_CORE_GRPC_MAX_MESSAGE_SIZE:0}
-    gRPCThreadPoolQueueSize: ${SW_CORE_GRPC_POOL_QUEUE_SIZE:-1}
     gRPCThreadPoolSize: ${SW_CORE_GRPC_THREAD_POOL_SIZE:-1}
     gRPCSslEnabled: ${SW_CORE_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_CORE_GRPC_SSL_KEY_PATH:""}

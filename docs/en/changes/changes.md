@@ -6,6 +6,9 @@
 #### OAP Server
 * Add `layer` parameter to the global topology graphQL query.
 * Add `is_present` function in MQE for check if the list metrics has a value or not.
+* Remove unreasonable default configurations for gRPC thread executor.
+* Remove `gRPCThreadPoolQueueSize (SW_RECEIVER_GRPC_POOL_QUEUE_SIZE)`
+  configuration.
 
 #### UI
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.

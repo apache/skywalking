@@ -77,7 +77,6 @@ public class CoreModuleConfig extends ModuleConfig {
 
     private int gRPCThreadPoolSize;
 
-    private int gRPCThreadPoolQueueSize;
     /**
      * Timeout for cluster internal communication, in seconds.
      */
