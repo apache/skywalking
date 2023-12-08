@@ -26,9 +26,9 @@ import io.grpc.netty.NettyServerBuilder;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Optional;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -50,14 +50,11 @@ public class GRPCServer implements Server {
     private String privateKeyFile;
     private String trustedCAsFile;
     private DynamicSslContext sslContext;
-    private int threadPoolSize = Runtime.getRuntime().availableProcessors() * 4;
-    private int threadPoolQueueSize = 10000;
+    private int threadPoolSize;
 
     public GRPCServer(String host, int port) {
         this.host = host;
         this.port = port;
-        this.maxConcurrentCallsPerConnection = 4;
-        this.maxMessageSize = Integer.MAX_VALUE;
     }
 
     public void setMaxConcurrentCallsPerConnection(int maxConcurrentCallsPerConnection) {
@@ -70,10 +67,6 @@ public class GRPCServer implements Server {
 
     public void setThreadPoolSize(int threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
-    }
-
-    public void setThreadPoolQueueSize(int threadPoolQueueSize) {
-        this.threadPoolQueueSize = threadPoolQueueSize;
     }
 
     /**
@@ -92,15 +85,22 @@ public class GRPCServer implements Server {
     @Override
     public void initialize() {
         InetSocketAddress address = new InetSocketAddress(host, port);
-        ArrayBlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(threadPoolQueueSize);
-        ExecutorService executor = new ThreadPoolExecutor(
-            threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, blockingQueue,
-            new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler()
-        );
         nettyServerBuilder = NettyServerBuilder.forAddress(address);
-        nettyServerBuilder = nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection)
-                                               .maxInboundMessageSize(maxMessageSize)
-                                               .executor(executor);
+
+        if (maxConcurrentCallsPerConnection > 0) {
+            nettyServerBuilder.maxConcurrentCallsPerConnection(maxConcurrentCallsPerConnection);
+        }
+        if (maxMessageSize > 0) {
+            nettyServerBuilder.maxInboundMessageSize(maxMessageSize);
+        }
+        if (threadPoolSize > 0) {
+            ExecutorService executor = new ThreadPoolExecutor(
+                threadPoolSize, threadPoolSize, 60, TimeUnit.SECONDS, new SynchronousQueue<>(),
+                new CustomThreadFactory("grpcServerPool"), new CustomRejectedExecutionHandler()
+            );
+            nettyServerBuilder.executor(executor);
+        }
+
         if (!Strings.isNullOrEmpty(privateKeyFile) && !Strings.isNullOrEmpty(certChainFile)) {
             sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile, trustedCAsFile);
             nettyServerBuilder.sslContext(sslContext);
@@ -109,10 +109,9 @@ public class GRPCServer implements Server {
     }
 
     static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
-
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            log.warn("Grpc server thread pool is full, rejecting the task");
+            log.warn("Task {} rejected from {}", r.toString(), executor.toString());
         }
     }
 

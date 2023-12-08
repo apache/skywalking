@@ -125,9 +125,6 @@ public class SharingServerModuleProvider extends ModuleProvider {
             if (config.getMaxConcurrentCallsPerConnection() > 0) {
                 grpcServer.setMaxConcurrentCallsPerConnection(config.getMaxConcurrentCallsPerConnection());
             }
-            if (config.getGRPCThreadPoolQueueSize() > 0) {
-                grpcServer.setThreadPoolQueueSize(config.getGRPCThreadPoolQueueSize());
-            }
             if (config.getGRPCThreadPoolSize() > 0) {
                 grpcServer.setThreadPoolSize(config.getGRPCThreadPoolSize());
             }

@@ -23,7 +23,6 @@ receiver-sharing-server:
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
     maxConcurrentCallsPerConnection: ${SW_RECEIVER_GRPC_MAX_CONCURRENT_CALL:0}
     maxMessageSize: ${SW_RECEIVER_GRPC_MAX_MESSAGE_SIZE:0}
-    gRPCThreadPoolQueueSize: ${SW_RECEIVER_GRPC_POOL_QUEUE_SIZE:0}
     gRPCThreadPoolSize: ${SW_RECEIVER_GRPC_THREAD_POOL_SIZE:0}
     gRPCSslEnabled: ${SW_RECEIVER_GRPC_SSL_ENABLED:false}
     gRPCSslKeyPath: ${SW_RECEIVER_GRPC_SSL_KEY_PATH:""}
