@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy;
 
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.apache.skywalking.oap.meter.analyzer.prometheus.rule.Rule;
@@ -41,6 +43,7 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String k8sServiceNameRule;
     @Getter
     private String istioServiceNameRule;
+    private String istioServiceEntryIgnoredNamespaces;
 
     private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
     @Getter
@@ -70,5 +73,10 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
 
     public ServiceMetaInfoFactory serviceMetaInfoFactory() {
         return serviceMetaInfoFactory;
+    }
+
+    public Set<String> getIstioServiceEntryIgnoredNamespaces() {
+        final var s = Strings.nullToEmpty(istioServiceEntryIgnoredNamespaces);
+        return Splitter.on(",").omitEmptyStrings().trimResults().splitToStream(s).collect(Collectors.toSet());
     }
 }

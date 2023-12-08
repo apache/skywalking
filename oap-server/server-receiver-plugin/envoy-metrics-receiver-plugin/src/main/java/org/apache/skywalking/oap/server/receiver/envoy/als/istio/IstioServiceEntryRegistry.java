@@ -58,6 +58,8 @@ public class IstioServiceEntryRegistry {
 
         serviceNameFormatter = new ServiceNameFormatter(config.getIstioServiceNameRule());
 
+        final var ignoredNamespaces = config.getIstioServiceEntryIgnoredNamespaces();
+
         final var cacheBuilder = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofMinutes(3));
 
         ipServiceMetaInfoMap = cacheBuilder.build(new CacheLoader<>() {
@@ -69,6 +71,7 @@ public class IstioServiceEntryRegistry {
                     .parallelStream()
                     .filter(se -> se.getMetadata() != null)
                     .filter(se -> se.getSpec() != null)
+                    .filter(se -> !ignoredNamespaces.contains(se.getMetadata().getNamespace()))
                     .filter(se -> {
                         final var spec = se.getSpec();
                         switch (spec.getResolution()) {

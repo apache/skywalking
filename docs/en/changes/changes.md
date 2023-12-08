@@ -9,6 +9,8 @@
 * Remove unreasonable default configurations for gRPC thread executor.
 * Remove `gRPCThreadPoolQueueSize (SW_RECEIVER_GRPC_POOL_QUEUE_SIZE)`
   configuration.
+* Allow excluding ServiceEntries in some namespaces when looking up
+  ServiceEntries as a final resolution method of service metadata.
 
 #### UI
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.
