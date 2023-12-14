@@ -19,5 +19,6 @@
 #### Documentation
 * Update the release doc to remove the announcement as the tests are through e2e rather than manually.
 * Update the release notification mail a little.
+* Polish docs structure. Move customization docs separately from the introduction docs. 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
