@@ -163,7 +163,17 @@ hooks:
 Currently, SkyWalking supports the following hook types:
 
 ### Webhook
-The Webhook requires the peer to be a web container. The alarm message will be sent through HTTP post by `application/json` content type. The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with the following key information:
+The Webhook requires the peer to be a web container. The alarm message will be sent through HTTP post by `application/json` content type after you have set up Webhook hooks as follows: 
+```yml
+webhook:
+  default:
+    is-default: true
+    urls:
+      - http://ip:port/xxx
+      - http://ip:port/yyy
+```
+
+The JSON format is based on `List<org.apache.skywalking.oap.server.core.alarm.AlarmMessage>` with the following key information:
 - **scopeId**, **scope**. All scopes are defined in `org.apache.skywalking.oap.server.core.source.DefaultScopeDefine`.
 - **name**. Target scope entity name. Please follow the [entity name definitions](#entity-name).
 - **id0**. The ID of the scope entity that matches with the name. When using the relation scope, it is the source entity ID.
@@ -205,7 +215,15 @@ See the following example:
 ```
 
 ### gRPC
-The alarm message will be sent through remote gRPC method by `Protobuf` content type. 
+The alarm message will be sent through remote gRPC method by `Protobuf` content type after you have set up gRPC hooks as follows:
+```yml
+gRPC:
+  default:
+    is-default: true
+    target-host: ip
+    target-port: port
+```
+
 The message contains key information which are defined in `oap-server/server-alarm-plugin/src/main/proto/alarm-hook.proto`.
 
 Part of the protocol looks like this:
