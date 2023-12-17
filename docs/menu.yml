@@ -370,6 +370,8 @@ catalog:
                 path: "/en/guides/how-to-bump-up-zipkin"
           - name: "I18n"
             path: "/en/guides/i18n"
+  - name: "SWIP"
+    path: "/en/swip/readme"
   - name: "Changelog"
     catalog:
       - name: "Current Version"
