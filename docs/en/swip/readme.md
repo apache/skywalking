@@ -4,10 +4,8 @@ SWIP - SkyWalking Improvement Proposal, is an official document to propose a new
 which
 are relative to end users and developers.
 
-SkyWalking has been very stable since v9.x. We are getting over the rapid changing stage. The core concepts, protocols
-for
-reporting telemetry and query, 3rd party integration, and the streaming process kernel are very stable. From now(2024)
-on,
+SkyWalking has been very stable since v9.x. We are getting over the rapid changing stage. The core concepts, protocols for
+reporting telemetry and query, 3rd party integration, and the streaming process kernel are very stable. From now(2024) on,
 SkyWalking community would focus more on improvement and controllable improvement. All major changes should be evaluated
 more seriously, and try as good as possible to avoid incompatible breaking changes.
 
