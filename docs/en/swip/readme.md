@@ -54,4 +54,4 @@ Here is the process for starting a SWIP.
 
 ## Known SWIPs
 
-Next FLIP Number: 2
+Next SWIP Number: 2
