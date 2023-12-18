@@ -34,6 +34,7 @@ and community member to understand the proposal better.
 
 - Motivation - the description of new feature or improvement.
 - Architecture Graph - describing the relationship between your new proposal part and existing components.
+- Proposed Changes - state your proposal in detail.
 - Imported Dependencies libs and their licenses.
 - Compatibility - Whether breaking configuration, storage structure, protocols.
 - General usage docs - This doesn't have to be final version, but help the reviews to understand how to use this new
@@ -43,15 +44,19 @@ and community member to understand the proposal better.
 
 Here is the process for starting a SWIP.
 
-1. Start a discussion at [GitHub Discussion Page](https://github.com/apache/skywalking/discussions) with
-   title `[DISCUSS] xxxx`.
+1. Start a SWIP discussion at [GitHub Discussion Page](https://github.com/apache/skywalking/discussions/categories/swip)
+   with title `[DISCUSS] xxxx`.
 2. Fill in the sections as described above in `SWIP Template`.
 3. At least one SkyWalking committer commented on the discussion to show interests to adopt it.
 4. This committer could update this page to grant a **SWIP ID**, and update the title to `[SWIP-ID NO.] [DISCUSS] xxxx`.
 5. All further discussion could happen on the discussion page.
 6. Once the consensus is made by enough committer supporters, and/or through a mail list vote, this SWIP should be
-   added [here](./) as `SWIP-ID NO.md` and listed in the below as `Known SWIPs`. 
+   added [here](./) as `SWIP-ID NO.md` and listed in the below as `Known SWIPs`.
+
+All accepted and proposed SWIPs could be found in [here](https://github.com/apache/skywalking/discussions/categories/swip).
 
 ## Known SWIPs
 
 Next SWIP Number: 2
+
+- [SWIP-1 Create and detect Service Hierarchy Relationship](SWIP-1.md)
