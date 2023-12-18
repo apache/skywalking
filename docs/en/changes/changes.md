@@ -21,5 +21,6 @@
 * Update the release notification mail a little.
 * Polish docs structure. Move customization docs separately from the introduction docs. 
 * Add webhook/gRPC hooks settings example for `backend-alarm.md`.
+* Begin the process of `SWIP - SkyWalking Improvement Proposal`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
