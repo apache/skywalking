@@ -1,38 +1,62 @@
-# Welcome
+# SWIP - SkyWalking Improvement Proposal
 
-**This is the official documentation of SkyWalking 9. Welcome to the SkyWalking community!**
+SWIP - SkyWalking Improvement Proposal, is an official document to propose a new feature and/or feature improvement,
+which
+are relative to end users and developers.
 
-Here you can learn all you need to know about **SkyWalking**’s architecture, understand how to deploy and use
-SkyWalking, and contribute to the project based on SkyWalking's contributing guidelines.
+SkyWalking has been very stable since v9.x. We are getting over the rapid changing stage. The core concepts, protocols for
+reporting telemetry and query, 3rd party integration, and the streaming process kernel are very stable. From now(2024) on,
+SkyWalking community would focus more on improvement and controllable improvement. All major changes should be evaluated
+more seriously, and try as good as possible to avoid incompatible breaking changes.
 
-- **Concepts and Designs**. You'll find the core logic behind SkyWalking. You may start from here if you want to
-  understand what is going on under our cool features and visualization.
+## What is considered a major change?
 
-- **Setup**. A guide to installing SkyWalking for different use cases. It is an observability platform that supports
-  multiple observability modes.
+The catalogs of a major change are listed as follows
 
-- **Contributing Guides**. If you are a PMC member, a committer, or a new contributor, learn how to start contributing
-  with these guides!
+- New Feature. A feature doesn't exist for the latest version.
+- Any change of the network Interfaces, especially
+  for [Query Protocol](https://github.com/apache/skywalking-query-protocol),
+  [Data Collect Protocols](https://github.com/apache/skywalking-data-collect-protocol),
+  Dynamic Configuration APIs, Exporting APIs, AI pipeline APIs.
+- Any change of storage structure.
 
-- **Protocols**. The protocols show how agents/probes and the backend communicate with one another. Anyone interested in
-  uplink telemetry data should definitely read this.
+**Q: Is Agent side feature or change considered a SWIP?**
 
-- **FAQs**. A manifest of known issues with setup and secondary developments processes. Should you encounter any
-  problems, check here first.
+A: Right now, SWIP targets on OAP and UI side changes. All agent side changes are pending on the reviews from the
+committers of those agents.
 
-You might also find these links interesting:
+## SWIP Template
 
-- The latest and old releases are all available
-  at [Apache SkyWalking release page](https://skywalking.apache.org/downloads/). The change logs can be
-  found [here](https://github.com/apache/skywalking/tree/master/changes).
+The purpose of this template should not be considered a hard requirement. The major purpose of SWIP is helping the PMC
+and community member to understand the proposal better.
 
-- [SkyWalking WIKI](https://cwiki.apache.org/confluence/display/SKYWALKING/Home) hosts the context of some changes and
-  events.
+* Title: SWIP-1234 xxxx
 
-- You can find the conference schedules, video recordings, and articles about SkyWalking in
-  the [community resource catalog](https://github.com/OpenSkywalking/Community).
+- Motivation - the description of new feature or improvement.
+- Architecture Graph - describing the relationship between your new proposal part and existing components.
+- Proposed Changes - state your proposal in detail.
+- Imported Dependencies libs and their licenses.
+- Compatibility - Whether breaking configuration, storage structure, protocols.
+- General usage docs - This doesn't have to be final version, but help the reviews to understand how to use this new
+  feature.
 
-We're always looking for help to improve our documentation and codes, so please don’t hesitate
-to [file an issue](https://github.com/apache/skywalking/issues/new) if you see any problems. Or better yet, directly
-contribute by submitting a pull request to help us get better!
+## SWIP Process
 
+Here is the process for starting a SWIP.
+
+1. Start a SWIP discussion at [GitHub Discussion Page](https://github.com/apache/skywalking/discussions/categories/swip)
+   with title `[DISCUSS] xxxx`.
+2. Fill in the sections as described above in `SWIP Template`.
+3. At least one SkyWalking committer commented on the discussion to show interests to adopt it.
+4. This committer could update this page to grant a **SWIP ID**, and update the title to `[SWIP-ID NO.] [DISCUSS] xxxx`.
+5. All further discussion could happen on the discussion page.
+6. Once the consensus is made by enough committer supporters, and/or through a mail list vote, this SWIP should be
+   added [here](./) as `SWIP-ID NO.md` and listed in the below as `Known SWIPs`.
+
+All accepted and proposed SWIPs could be found in [here](https://github.com/apache/skywalking/discussions/categories/swip).
+
+## Known SWIPs
+
+Next SWIP Number: 2
+
+- [SWIP-1 Create and detect Service Hierarchy Relationship](SWIP-1.md)
