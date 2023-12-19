@@ -123,9 +123,9 @@ type ServiceInstanceNode {
   | id                    | String    | entityId                                                    |
   | entity_id             | String    | serviceId.servicelayer-relatedServiceId.relatedServiceLayer |
   | service_id            | String    |                                                             |
-  | service_layer         | int       | Service Layer Value                                         |
+  | service_layer         | int       | service layer value                                         |
   | related_service_id    | String    |                                                             |
-  | related_service_layer | int       | Service Layer Value                                         |
+  | related_service_layer | int       | related service layer value                                 |
   | time_bucket           | long      |                                                             |
 
 - instance_hierarchy
@@ -135,9 +135,9 @@ type ServiceInstanceNode {
   | id                    | String    | entityId                                                     |
   | entity_id             | String    | instanceId.servicelayer-relateInstanceId.relatedServiceLayer |
   | instance_id           | String    |                                                              |
-  | service_layer         | int       | Service Layer Value                                          |
+  | service_layer         | int       | service layer value                                          |
   | related_instance_id   | String    |                                                              |
-  | related_service_layer | int       | Service Layer Value                                          |
+  | related_service_layer | int       | related service layer value                                  |
   | time_bucket           | long      |                                                              |
 
 ## Internal APIs
