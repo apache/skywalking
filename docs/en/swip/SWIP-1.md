@@ -60,36 +60,91 @@ going to be added. If the user is using Elasticsearch and BanyanDB, this should 
 re-run `init-mode` OAP to extend the existing models. But for SQL database users(MySQL, PostgreSQL), this could require
 new tables.
 
+## GraphQL query protocol
+New query protocol `hierarchy.graphqls` is going to be added.
+```graphql
+type HierarchyRelatedService {
+    # The related service ID.
+    id: ID!
+    # The literal name of the #id.
+    name: String!
+    # The related service's Layer name.
+    layer: String
+}
+
+type HierarchyRelatedInstance {
+    # The related instance ID.
+    id: ID!
+    # The literal name of the #id. Instance Name.
+    name: String!
+    # The related instance service's Layer name.
+    layer: String
+}
+
+type ServiceHierarchy {
+    upper: [HierarchyRelatedService!]!
+    lower: [HierarchyRelatedService!]!
+}
+
+type InstanceHierarchy {
+    upper: [HierarchyRelatedInstance!]!
+    lower: [HierarchyRelatedInstance!]!
+}
+
+extend type Query {
+    # Query the service hierarchy, based on the given service
+    getServiceHierarchy(serviceId: ID!, layer: String): ServiceHierarchy
+    # Query the instance hierarchy, based on the given instance
+    getInstanceHierarchy(instanceId: ID!): InstanceHierarchy
+}
+```
+New fields are going to be added to the `topology.graphqls`.
+```graphql
+# Node in Topology
+type Node {
+...
+    # The service hierarchy of the node.
+    serviceHierarchy: ServiceHierarchy
+}
+
+# Node in ServiceInstanceTopology
+type ServiceInstanceNode {
+...
+    # The service instance hierarchy of the node.
+    instanceHierarchy: InstanceHierarchy
+}
+```
+
 ## New data models
 - service_hierarchy
 
-  | Column name          | Data type | Description                                               |
-  |----------------------|-----------|-----------------------------------------------------------|
-  | id                   | String    | entityId                                                  |
-  | entity_id            | String    | serviceId.servicelayer-relateServiceId.relateServiceLayer |
-  | service_id           | String    |                                                           |
-  | service_layer        | int       | Service Layer Value                                       |
-  | relate_service_id    | String    |                                                           |
-  | relate_service_layer | int       | Service Layer Value                                       |
-  | time_bucket          | long      |                                                           |
+  | Column name           | Data type | Description                                                 |
+  |-----------------------|-----------|-------------------------------------------------------------|
+  | id                    | String    | entityId                                                    |
+  | entity_id             | String    | serviceId.servicelayer-relatedServiceId.relatedServiceLayer |
+  | service_id            | String    |                                                             |
+  | service_layer         | int       | Service Layer Value                                         |
+  | related_service_id    | String    |                                                             |
+  | related_service_layer | int       | Service Layer Value                                         |
+  | time_bucket           | long      |                                                             |
 
 - instance_hierarchy
 
-  | Column name          | Data type | Description                 |
-  |----------------------|-----------|-----------------------------|
-  | id                   | String    | entityId                    |
-  | entity_id            | String    | instanceId-relateInstanceId |
-  | instance_id          | String    |                             |
-  | service_layer        | int       | Service Layer Value         |
-  | relate_instance_id   | String    |                             |
-  | relate_service_layer | int       | Service Layer Value         |
-  | time_bucket          | long      |                             |
+  | Column name           | Data type | Description                                                  |
+  |-----------------------|-----------|--------------------------------------------------------------|
+  | id                    | String    | entityId                                                     |
+  | entity_id             | String    | instanceId.servicelayer-relateInstanceId.relatedServiceLayer |
+  | instance_id           | String    |                                                              |
+  | service_layer         | int       | Service Layer Value                                          |
+  | related_instance_id   | String    |                                                              |
+  | related_service_layer | int       | Service Layer Value                                          |
+  | time_bucket           | long      |                                                              |
 
 ## Internal APIs
 Internal APIs should be exposed in the Core module to support building the hierarchy relationship.
 ```java
-public void toServiceHierarchy(String serviceName, Layer serviceLayer, String relateServiceName, Layer relateServiceLayer);
-public void toInstanceHierarchy(String instanceName, String serviceName, Layer serviceLayer, String relateInstanceName, String relateServiceName, Layer relateServiceLayer);
+public void toServiceHierarchy(String serviceName, Layer serviceLayer, String relatedServiceName, Layer relatedServiceLayer);
+public void toInstanceHierarchy(String instanceName, String serviceName, Layer serviceLayer, String relatedInstanceName, String relatedServiceName, Layer relateServiceLayer);
 ```
 
 # General usage docs
