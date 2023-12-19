@@ -60,6 +60,38 @@ going to be added. If the user is using Elasticsearch and BanyanDB, this should 
 re-run `init-mode` OAP to extend the existing models. But for SQL database users(MySQL, PostgreSQL), this could require
 new tables.
 
+## New data models
+- service_hierarchy
+
+  | Column name          | Data type | Description                                               |
+  |----------------------|-----------|-----------------------------------------------------------|
+  | id                   | String    | entityId                                                  |
+  | entity_id            | String    | serviceId.servicelayer-relateServiceId.relateServiceLayer |
+  | service_id           | String    |                                                           |
+  | service_layer        | int       | Service Layer Value                                       |
+  | relate_service_id    | String    |                                                           |
+  | relate_service_layer | int       | Service Layer Value                                       |
+  | time_bucket          | long      |                                                           |
+
+- instance_hierarchy
+
+  | Column name          | Data type | Description                 |
+  |----------------------|-----------|-----------------------------|
+  | id                   | String    | entityId                    |
+  | entity_id            | String    | instanceId-relateInstanceId |
+  | instance_id          | String    |                             |
+  | service_layer        | int       | Service Layer Value         |
+  | relate_instance_id   | String    |                             |
+  | relate_service_layer | int       | Service Layer Value         |
+  | time_bucket          | long      |                             |
+
+## Internal APIs
+Internal APIs should be exposed in the Core module to support building the hierarchy relationship.
+```java
+public void toServiceHierarchy(String serviceName, Layer serviceLayer, String relateServiceName, Layer relateServiceLayer);
+public void toInstanceHierarchy(String instanceName, String serviceName, Layer serviceLayer, String relateInstanceName, String relateServiceName, Layer relateServiceLayer);
+```
+
 # General usage docs
 
 This proposal doesn't impact the end user in any way of using SkyWalking. The remarkable change will be in the UI. On
