@@ -64,62 +64,82 @@ new tables.
 New query protocol `hierarchy.graphqls` is going to be added.
 ```graphql
 type HierarchyRelatedService {
-    # The related service ID.
-    id: ID!
-    # The literal name of the #id.
-    name: String!
-    # The related service's Layer name.
-    layer: String
+  # The related service ID.
+  id: ID!
+  # The literal name of the #id.
+  name: String!
+  # The related service's Layer name.
+  layer: String!
 }
 
 type HierarchyRelatedInstance {
-    # The related instance ID.
-    id: ID!
-    # The literal name of the #id. Instance Name.
-    name: String!
-    # The related instance service's Layer name.
-    layer: String
+  # The related instance ID.
+  id: ID!
+  # The literal name of the #id. Instance Name.
+  name: String!
+  # The related instance service's Layer name.
+  layer: String!
+}
+
+type HierarchyRelatedServices {
+  # The self service ID.
+  id: ID!
+  # The literal name of the #id.
+  name: String!
+  # The self service's Layer name.
+  layer: String!
+  upper: [HierarchyRelatedService!]!
+  lower: [HierarchyRelatedService!]!
+}
+
+type HierarchyRelatedInstances {
+  # The self instance ID.
+  id: ID!
+  # The literal name of the #id. Instance Name.
+  name: String!
+  # The self instance service's Layer name.
+  layer: String!
+  upper: [HierarchyRelatedInstance!]!
+  lower: [HierarchyRelatedInstance!]!
 }
 
 type ServiceHierarchy {
-    upper: [HierarchyRelatedService!]!
-    lower: [HierarchyRelatedService!]!
+  services: [HierarchyRelatedServices!]!
 }
 
 type InstanceHierarchy {
-    upper: [HierarchyRelatedInstance!]!
-    lower: [HierarchyRelatedInstance!]!
+  instances: [HierarchyRelatedInstances!]!
 }
 
 extend type Query {
-    # Query the service hierarchy, based on the given service
-    getServiceHierarchy(serviceId: ID!, layer: String): ServiceHierarchy
-    # Query the instance hierarchy, based on the given instance
-    getInstanceHierarchy(instanceId: ID!): InstanceHierarchy
+  # Query the service hierarchy, based on the given service. Will recursively return all related layers services in the hierarchy.
+  getServiceHierarchy(serviceId: ID!, layer: String!): ServiceHierarchy!
+  # Query the instance hierarchy, based on the given instance. Will return all direct related layers instances in the hierarchy, no recursive.
+  getInstanceHierarchy(instanceId: ID!): InstanceHierarchy!
 }
 ```
 New fields are going to be added to the `topology.graphqls`.
 ```graphql
 # Node in Topology
 type Node {
-...
-    # The service hierarchy of the node.
-    serviceHierarchy: ServiceHierarchy
+  ...
+# The service hierarchy of the node.
+serviceHierarchy: ServiceHierarchy
 }
 
 # Node in ServiceInstanceTopology
 type ServiceInstanceNode {
 ...
-    # The service instance hierarchy of the node.
-    instanceHierarchy: InstanceHierarchy
+# The service instance hierarchy of the node.
+instanceHierarchy: InstanceHierarchy
 }
 ```
 
 ## New data models
-- service_hierarchy
+- service_hierarchy_relation
 
   | Column name           | Data type | Description                                                 |
-  |-----------------------|-----------|-------------------------------------------------------------|
+    |-----------------------|-----------|-------------------------------------------------------------|
   | id                    | String    | entityId                                                    |
   | entity_id             | String    | serviceId.servicelayer-relatedServiceId.relatedServiceLayer |
   | service_id            | String    |                                                             |
@@ -128,10 +148,10 @@ type ServiceInstanceNode {
   | related_service_layer | int       | related service layer value                                 |
   | time_bucket           | long      |                                                             |
 
-- instance_hierarchy
+- instance_hierarchy_relation
 
   | Column name           | Data type | Description                                                  |
-  |-----------------------|-----------|--------------------------------------------------------------|
+    |-----------------------|-----------|--------------------------------------------------------------|
   | id                    | String    | entityId                                                     |
   | entity_id             | String    | instanceId.servicelayer-relateInstanceId.relatedServiceLayer |
   | instance_id           | String    |                                                              |
@@ -143,8 +163,8 @@ type ServiceInstanceNode {
 ## Internal APIs
 Internal APIs should be exposed in the Core module to support building the hierarchy relationship.
 ```java
-public void toServiceHierarchy(String serviceName, Layer serviceLayer, String relatedServiceName, Layer relatedServiceLayer);
-public void toInstanceHierarchy(String instanceName, String serviceName, Layer serviceLayer, String relatedInstanceName, String relatedServiceName, Layer relateServiceLayer);
+public void toServiceHierarchyRelation(String serviceName, Layer serviceLayer, String relatedServiceName, Layer relatedServiceLayer);
+public void toInstanceHierarchyRelation(String instanceName, String serviceName, Layer serviceLayer, String relatedInstanceName, String relatedServiceName, Layer relateServiceLayer);
 ```
 
 # General usage docs
