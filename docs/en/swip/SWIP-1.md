@@ -81,34 +81,22 @@ type HierarchyRelatedInstance {
   layer: String!
 }
 
-type HierarchyRelatedServices {
-  # The self service ID.
-  id: ID!
-  # The literal name of the #id.
-  name: String!
-  # The self service's Layer name.
-  layer: String!
-  upper: [HierarchyRelatedService!]!
-  lower: [HierarchyRelatedService!]!
+type HierarchyServiceRelation {
+  upperService: HierarchyRelatedService!
+  lowerService: HierarchyRelatedService!
 }
 
-type HierarchyRelatedInstances {
-  # The self instance ID.
-  id: ID!
-  # The literal name of the #id. Instance Name.
-  name: String!
-  # The self instance service's Layer name.
-  layer: String!
-  upper: [HierarchyRelatedInstance!]!
-  lower: [HierarchyRelatedInstance!]!
+type HierarchyInstanceRelation {
+  upperInstance: HierarchyRelatedInstance!
+  lowerInstance: HierarchyRelatedInstance!
 }
 
 type ServiceHierarchy {
-  services: [HierarchyRelatedServices!]!
+  relations: [HierarchyServiceRelation!]!
 }
 
 type InstanceHierarchy {
-  instances: [HierarchyRelatedInstances!]!
+  relations: [HierarchyInstanceRelation!]!
 }
 
 extend type Query {
@@ -124,14 +112,14 @@ New fields are going to be added to the `topology.graphqls`.
 type Node {
   ...
 # The service hierarchy of the node.
-serviceHierarchy: ServiceHierarchy
+serviceHierarchy: ServiceHierarchy!
 }
 
 # Node in ServiceInstanceTopology
 type ServiceInstanceNode {
 ...
 # The service instance hierarchy of the node.
-instanceHierarchy: InstanceHierarchy
+instanceHierarchy: InstanceHierarchy!
 }
 ```
 
