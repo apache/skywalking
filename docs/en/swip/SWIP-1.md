@@ -111,17 +111,16 @@ New fields are going to be added to the `topology.graphqls`.
 # Node in Topology
 type Node {
   ...
-# The service hierarchy of the node.
-serviceHierarchy: ServiceHierarchy!
+  # The service hierarchy of the node.
+  serviceHierarchy: ServiceHierarchy!
 }
 
 # Node in ServiceInstanceTopology
 type ServiceInstanceNode {
-...
-# The service instance hierarchy of the node.
-instanceHierarchy: InstanceHierarchy!
+  ...
+  # The service instance hierarchy of the node.
+  instanceHierarchy: InstanceHierarchy!
 }
-```
 
 ## New data models
 - service_hierarchy_relation
