@@ -50,19 +50,19 @@ public class ServiceInstanceRelationServerSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = SOURCE_SERVICE_ID)
+    @Column(name = SOURCE_SERVICE_ID, length = 250)
     private String sourceServiceId;
     @Setter
     @Getter
-    @Column(name = SOURCE_SERVICE_INSTANCE_ID)
+    @Column(name = SOURCE_SERVICE_INSTANCE_ID, length = 250)
     private String sourceServiceInstanceId;
     @Setter
     @Getter
-    @Column(name = DEST_SERVICE_ID)
+    @Column(name = DEST_SERVICE_ID, length = 250)
     private String destServiceId;
     @Setter
     @Getter
-    @Column(name = DEST_SERVICE_INSTANCE_ID)
+    @Column(name = DEST_SERVICE_INSTANCE_ID, length = 250)
     private String destServiceInstanceId;
     @Setter
     @Getter
