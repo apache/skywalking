@@ -1,15 +1,17 @@
-# Motivation
+# Collecting and Gathering Kubernetes Monitoring Data
+
+## Motivation
 SkyWalking has provided an access log collector based on the Agent layer and Service Mesh layer, 
 and can generate corresponding topology maps and metrics based on the data. However, the Kubernetes Layer still lacks 
 corresponding access log collector and analysis work.
 
 This proposal is dedicated to collecting and analyzing network access logs in Kubernetes.
 
-# Architecture Graph
+## Architecture Graph
 There is no significant architecture-level change. Still using the Rover project to collect data and report it to 
 SkyWalking OAP using the gRPC protocol.
 
-# Propose Changes
+## Propose Changes
 
 Based on the content in Motivation, if we want to ignore the application types(different program languages) and 
 only monitor network logs, using eBPF is a good choice. It mainly reflects in the following aspects:
@@ -24,7 +26,7 @@ Based on these reasons and collected data, they can be implemented in SkyWalking
 2. Periodically report data content via [gRPC protocol](https://github.com/apache/skywalking-data-collect-protocol/blob/master/ebpf/accesslog.proto) to SkyWalking OAP.
 3. SkyWalking OAP parses network access logs and generates corresponding network topology, metrics, etc.
 
-## Limitation
+### Limitation
 
 For content that uses TLS for data transmission, Rover will detect whether the current language uses libraries 
 such as [OpenSSL](https://www.openssl.org/). If it is used, it will asynchronously intercept relevant OpenSSL methods 
@@ -34,25 +36,25 @@ However, this approach is not feasible for Java because Java does not use the Op
 through Java code. Currently, eBPF cannot intercept Java method calls. Therefore, it results in an inability to perceive 
 the TLS data protocol in Java.
 
-### Service with Istio sidecar scenario
+#### Service with Istio sidecar scenario
 
 If the Service is deployed in Istio sidecar, it will still monitor each process. 
 If the Service is a Java service and uses TLS, it can analyze the relevant traffic generated in the sidecar (envoy).
 
-# Imported Dependencies libs and their licenses.
+## Imported Dependencies libs and their licenses.
 
 No new library is planned to be added to the codebase.
 
-# Compatibility
+## Compatibility
 
 About the **protocol**, there should be no breaking changes, but enhancements only:
 
 1. `Rover`: adding a new gRPC data collection protocol for reporting the [access logs](https://github.com/apache/skywalking-data-collect-protocol/blob/master/ebpf/accesslog.proto).
 2. `OAP`: It should have no protocol updates. The existing query protocols are already sufficient for querying Kubernetes topology and metric data.
 
-## Data Generation
+### Data Generation
 
-### Entity
+#### Entity
 
 * service_traffic
 
@@ -80,7 +82,7 @@ About the **protocol**, there should be no breaking changes, but enhancements on
 | service_id | string    | base64(service_name).1                      |
 | name       | string    | access log endpoint name(for HTTP1, is URI) |
 
-### Entity Relation
+#### Entity Relation
 
 All entity information is built on connections. If the target address is remote, the name will be resolved in the following order:
 
@@ -98,7 +100,7 @@ Different entities have different displays for remote addresses. Please refer to
 **NOTICE**: If it is the internal data interaction within the pod, such as exchanging data between services and sidecar (envoy), 
 no corresponding traffic will be generated. We only generate and interact with external pods.
 
-#### Limitation
+##### Limitation
 
 If the service IP is used to send requests to the upstream, we will use eBPF to perceive the real target PodIP by 
 perceiving relevant [conntrack records](https://en.wikipedia.org/wiki/Netfilter#Connection_tracking).
@@ -107,11 +109,11 @@ However, if conntrack technology is not used, it is difficult to perceive the re
 In this case, instance relation data of this kind will be **dropped,** but we will mark all discarded relationship 
 generation counts through a metric for better understanding of the situation.
 
-### Metrics
+#### Metrics
 
 Integrate the data into the OAL system and generate corresponding metrics through predefined data combined with OAL statements.
 
-# General usage docs
+## General usage docs
 
 This proposal will only add a module to Rover that explains the configuration of access logs, and changes in the Kubernetes module on the UI.
 

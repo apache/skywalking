@@ -30,15 +30,26 @@ committers of those agents.
 The purpose of this template should not be considered a hard requirement. The major purpose of SWIP is helping the PMC
 and community member to understand the proposal better.
 
-* Title: SWIP-1234 xxxx
+```markdown
+# Title: SWIP-1234 xxxx
 
-- Motivation - the description of new feature or improvement.
-- Architecture Graph - describing the relationship between your new proposal part and existing components.
-- Proposed Changes - state your proposal in detail.
-- Imported Dependencies libs and their licenses.
-- Compatibility - Whether breaking configuration, storage structure, protocols.
-- General usage docs - This doesn't have to be final version, but help the reviews to understand how to use this new
-  feature.
+## Motivation 
+The description of new feature or improvement.
+
+## Architecture Graph
+Describe the relationship between your new proposal part and existing components.
+
+## Proposed Changes
+State your proposal in detail.
+
+## Imported Dependencies libs and their licenses.
+
+## Compatibility
+Whether breaking configuration, storage structure, protocols.
+
+## General usage docs
+This doesn't have to be final version, but help the reviews to understand how to use this new feature.
+```
 
 ## SWIP Process
 
@@ -59,5 +70,6 @@ All accepted and proposed SWIPs could be found in [here](https://github.com/apac
 
 Next SWIP Number: 3
 
+### Accepted SWIPs
 - [SWIP-2 Collecting and Gathering Kubernetes Monitoring Data](SWIP-2.md)
 - [SWIP-1 Create and detect Service Hierarchy Relationship](SWIP-1.md)

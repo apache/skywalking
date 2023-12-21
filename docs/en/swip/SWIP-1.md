@@ -1,4 +1,6 @@
-# Motivation
+# Create and detect Service Hierarchy Relationship
+
+## Motivation
 
 Service relationship is one of the most important parts of collaborating data in the APM. Service Map is supported for
 years from tracing to trace analysis. But still due to the means of the probs, a service could be detected from multiple
@@ -6,11 +8,11 @@ methods, which is the same service in multiple
 layers. [v9 proposal](https://github.com/apache/skywalking/discussions/8241) mentioned the concept of the layer.
 Through this proposal, we plan to establish a kernel-level concept to connect services detected in different layers.
 
-# Architecture Graph
+## Architecture Graph
 
 There is no significant architecture-level change.
 
-# Propose Changes
+## Propose Changes
 
 The data sources of SkyWalking APM have covered traditional agent installed service, VMs, cloud infra, k8s, etc.
 
@@ -44,11 +46,11 @@ Meanwhile, as usual with the new major version change, I would expect UI side ch
 capabilities to show hierarchy services from the service view and topology view. Also, we could consider a deeper view
 of the instance part as well.
 
-# Imported Dependencies libs and their licenses.
+## Imported Dependencies libs and their licenses.
 
 No new library is planned to be added to the codebase.
 
-# Compatibility
+## Compatibility
 
 About the **protocol**, there should be no breaking changes, but enhancements only. New query protocols(
 service-hierarchy and instance-hierarchy) are considered to be added, some new fields should be added on things like
@@ -60,7 +62,7 @@ going to be added. If the user is using Elasticsearch and BanyanDB, this should 
 re-run `init-mode` OAP to extend the existing models. But for SQL database users(MySQL, PostgreSQL), this could require
 new tables.
 
-## GraphQL query protocol
+### GraphQL query protocol
 New query protocol `hierarchy.graphqls` is going to be added.
 ```graphql
 type HierarchyRelatedService {
@@ -154,14 +156,14 @@ public void toServiceHierarchyRelation(String serviceName, Layer serviceLayer, S
 public void toInstanceHierarchyRelation(String instanceName, String serviceName, Layer serviceLayer, String relatedInstanceName, String relatedServiceName, Layer relateServiceLayer);
 ```
 
-# General usage docs
+## General usage docs
 
 This proposal doesn't impact the end user in any way of using SkyWalking. The remarkable change will be in the UI. On
 the service dashboard and topology map, the user should be able to see the hierarchy relationship, which means other
 services in other layers are logically the same as the current one. UI would provide the link to jump to the relative
 service's dashboard.
 
-# No Goal
+## No Goal
 
 This proposal doesn't cover all the logic about how to detect the service hierarchy structure. All those should be in a
 separate SWIP.
