@@ -52,15 +52,15 @@ public class ProcessRelationClientSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = SERVICE_INSTANCE_ID)
+    @Column(name = SERVICE_INSTANCE_ID, length = 250)
     private String serviceInstanceId;
     @Setter
     @Getter
-    @Column(name = SOURCE_PROCESS_ID)
+    @Column(name = SOURCE_PROCESS_ID, length = 250)
     private String sourceProcessId;
     @Setter
     @Getter
-    @Column(name = DEST_PROCESS_ID)
+    @Column(name = DEST_PROCESS_ID, length = 250)
     private String destProcessId;
     @Setter
     @Getter

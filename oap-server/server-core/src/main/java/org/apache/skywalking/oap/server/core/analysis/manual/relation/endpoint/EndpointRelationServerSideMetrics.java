@@ -49,11 +49,11 @@ public class EndpointRelationServerSideMetrics extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = SOURCE_ENDPOINT)
+    @Column(name = SOURCE_ENDPOINT, length = 250)
     private String sourceEndpoint;
     @Setter
     @Getter
-    @Column(name = DEST_ENDPOINT)
+    @Column(name = DEST_ENDPOINT, length = 250)
     private String destEndpoint;
     @Setter
     @Getter
