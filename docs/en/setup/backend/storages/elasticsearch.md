@@ -95,8 +95,8 @@ storage:
     user: ${SW_ES_USER:""} # User needs to be set when Http Basic authentication is enabled
     password: ${SW_ES_PASSWORD:""} # Password to be set when Http Basic authentication is enabled
     clusterNodes: ${SW_STORAGE_ES_CLUSTER_NODES:localhost:443}
-    trustStorePath: ${SW_SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
-    trustStorePass: ${SW_SW_STORAGE_ES_SSL_JKS_PASS:""}
+    trustStorePath: ${SW_STORAGE_ES_SSL_JKS_PATH:"../es_keystore.jks"}
+    trustStorePass: ${SW_STORAGE_ES_SSL_JKS_PASS:""}
     protocol: ${SW_STORAGE_ES_HTTP_PROTOCOL:"https"}
     ...
 ```
