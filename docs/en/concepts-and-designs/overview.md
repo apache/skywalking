@@ -30,6 +30,10 @@ Besides the support of various kinds of telemetry formats, the hierarchy structu
 **service**(s), **service instance**(s), **endpoint**(s), **process**(s). The terms Service,
 Instance and Endpoint are used everywhere today, so it is worth defining their specific meanings in the context of SkyWalking:
 
+- **Layer**. A **layer** represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
+  and Kubernetes(k8s layer). A layer is an abstract collection of services. A service typically only belongs to one layer,
+  but in some scenarios, a service could belong to multiple layers. For example, a service could be deployed in an Istio service mesh,
+  it could belong to mesh and mesh-dp(mesh data plane) layer.
 - **Service**. Represents a set/group of workloads which provide the same behaviours for incoming requests. You can define the service
   name when you are using instrument agents or SDKs. SkyWalking can also use the name you define in platforms such as Istio.
 - **Service Instance**. Each individual workload in the Service group is known as an instance. Like `pods` in Kubernetes, it 
@@ -38,14 +42,12 @@ Instance and Endpoint are used everywhere today, so it is worth defining their s
 - **Process**. An operating system process. In some scenarios, a Service Instance is
   not a process, such as a pod Kubernetes could contain multiple processes.
 
-SkyWalking allows users to understand the topology relationship between Services and Endpoints, to view the metrics of every 
-Service/Service Instance/Endpoint and to set alarm rules.
+SkyWalking allows users to understand the topology relationship between Services and Endpoints, also detect API dependencies
+in the distributed environment if you use our native agents.,
 
-Starting from v9, SkyWalking introduces the new core concept **Layer**.
-A **layer** represents an abstract framework in computer science, such as Operating System(OS_LINUX layer),
-Kubernetes(k8s layer). All detected instances belong to a layer to represent the running environment of this instance, 
-the service would have one or multiple layer definitions according to its instances.
-
+Besides topology map, SkyWalking provides Service Hierarchy Relationship, which defines the relationships of existing 
+logically same services in various layers. For example, a service could be deployed in a Kubernetes cluster with Istio mesh, 
+services are detected by k8s monitoring and Istio mesh, this hierarchy relationship could connect the services in k8s layer and mesh layer.
 
 ## Architecture
 SkyWalking is logically split into four parts: Probes, Platform backend, Storage and UI.

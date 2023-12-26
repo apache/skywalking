@@ -27,5 +27,6 @@
 * Begin the process of `SWIP - SkyWalking Improvement Proposal`.
 * Add `SWIP-1 Create and detect Service Hierarchy Relationship`.
 * Add `SWIP-2 Collecting and Gathering Kubernetes Monitoring Data`.
+* Update the `Overview` docs to add the `Service Hierarchy Relationship` section.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
