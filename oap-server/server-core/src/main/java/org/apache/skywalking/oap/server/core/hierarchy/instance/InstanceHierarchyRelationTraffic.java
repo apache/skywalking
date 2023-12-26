@@ -55,8 +55,6 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
     private String entityId;
 
     @Setter
-
-
     @Getter
     @Column(name = INSTANCE_ID, length = 250)
     private String instanceId;

@@ -112,7 +112,7 @@ public class HierarchyQueryService implements Service {
             List<String> relatedLowerLayers = getHierarchyDefinition().getOrDefault(
                 traffic.getRelatedServiceLayer().name(), new ArrayList<>());
 
-            //should build the relations in 2 direction
+            // Build the relations in 2 directions
             if (lowerLayers.contains(traffic.getRelatedServiceLayer().name())) {
                 serviceRelations.getLowerServices().add(relatedService);
                 relationServiceRelations.getUpperServices().add(service);

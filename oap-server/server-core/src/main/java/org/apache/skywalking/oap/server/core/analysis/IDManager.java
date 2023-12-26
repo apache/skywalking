@@ -116,8 +116,8 @@ public class IDManager {
         public static class ServiceHierarchyRelationDefine {
             private final String serviceId;
             private final Layer serviceLayer;
-            private final String relateServiceId;
-            private final Layer relateServiceLayer;
+            private final String relatedServiceId;
+            private final Layer relatedServiceLayer;
         }
     }
 
@@ -210,8 +210,8 @@ public class IDManager {
         public static class InstanceHierarchyRelationDefine {
             private final String instanceId;
             private final Layer serviceLayer;
-            private final String relateInstanceId;
-            private final Layer relateServiceLayer;
+            private final String relatedInstanceId;
+            private final Layer relatedServiceLayer;
         }
     }
 
