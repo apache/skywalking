@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.EBPFProcessProfilingMuta
 import org.apache.skywalking.oap.query.graphql.resolver.EBPFProcessProfilingQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.EventQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.HierarchyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogTestQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQuery;
@@ -143,7 +144,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      .file("query-protocol/continuous-profiling.graphqls")
                      .resolvers(new ContinuousProfilingQuery(getManager()), new ContinuousProfilingMutation(getManager()))
                      .file("query-protocol/record.graphqls")
-                     .resolvers(new RecordsQuery(getManager()));
+                     .resolvers(new RecordsQuery(getManager()))
+            .file("query-protocol/hierarchy.graphqls").resolvers(new HierarchyQuery(getManager()));
 
         if (config.isEnableOnDemandPodLog()) {
             schemaBuilder

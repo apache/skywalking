@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -65,6 +66,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEBPFP
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCEventQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCLogQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCMetadataQueryDAO;
@@ -221,6 +223,8 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             ISpanAttachedEventQueryDAO.class,
             new JDBCSpanAttachedEventQueryDAO(jdbcClient, tableHelper));
+        this.registerServiceImplementation(IHierarchyQueryDAO.class,
+            new JDBCHierarchyQueryDAO(jdbcClient, config.getMetadataQueryMaxSize(), tableHelper));
     }
 
     @Override

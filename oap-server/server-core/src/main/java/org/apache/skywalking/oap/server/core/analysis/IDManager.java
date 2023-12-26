@@ -72,6 +72,15 @@ public class IDManager {
         }
 
         /**
+         * @return encoded service hierarchy relation id
+         */
+        public static String buildServiceHierarchyRelationId(ServiceHierarchyRelationDefine define) {
+            return define.serviceId + Const.SERVICE_ID_CONNECTOR + define.serviceLayer.value() +
+                Const.RELATION_ID_CONNECTOR +
+                define.relateServiceId + Const.SERVICE_ID_CONNECTOR + define.relateServiceLayer.value();
+        }
+
+        /**
          * @return service relation ID object decoded from {@link #buildRelationId(ServiceRelationDefine)} result
          */
         public static ServiceRelationDefine analysisRelationId(String entityId) {
@@ -99,6 +108,16 @@ public class IDManager {
         public static class ServiceRelationDefine {
             private final String sourceId;
             private final String destId;
+        }
+
+        @RequiredArgsConstructor
+        @Getter
+        @EqualsAndHashCode
+        public static class ServiceHierarchyRelationDefine {
+            private final String serviceId;
+            private final Layer serviceLayer;
+            private final String relateServiceId;
+            private final Layer relateServiceLayer;
         }
     }
 
@@ -141,6 +160,15 @@ public class IDManager {
         }
 
         /**
+         * @return encoded instance hierarchy relation id
+         */
+        public static String buildInstanceHierarchyRelationId(InstanceHierarchyRelationDefine define) {
+            return define.instanceId + Const.POINT + define.serviceLayer.value() +
+                Const.RELATION_ID_CONNECTOR +
+                define.relateInstanceId + Const.POINT + define.relateServiceLayer.value();
+        }
+
+        /**
          * @return service instance relation ID object decoded from {@link #buildRelationId(ServiceInstanceRelationDefine)}
          * result
          */
@@ -174,6 +202,16 @@ public class IDManager {
              * Built by {@link ServiceInstanceID#buildId(String, String)}
              */
             private final String destId;
+        }
+
+        @RequiredArgsConstructor
+        @Getter
+        @EqualsAndHashCode
+        public static class InstanceHierarchyRelationDefine {
+            private final String instanceId;
+            private final Layer serviceLayer;
+            private final String relateInstanceId;
+            private final Layer relateServiceLayer;
         }
     }
 

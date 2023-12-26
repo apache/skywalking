@@ -105,7 +105,7 @@ extend type Query {
   # Query the service hierarchy, based on the given service. Will recursively return all related layers services in the hierarchy.
   getServiceHierarchy(serviceId: ID!, layer: String!): ServiceHierarchy!
   # Query the instance hierarchy, based on the given instance. Will return all direct related layers instances in the hierarchy, no recursive.
-  getInstanceHierarchy(instanceId: ID!): InstanceHierarchy!
+  getInstanceHierarchy(instanceId: ID!, layer: String!): InstanceHierarchy!
 }
 ```
 New fields are going to be added to the `topology.graphqls`.

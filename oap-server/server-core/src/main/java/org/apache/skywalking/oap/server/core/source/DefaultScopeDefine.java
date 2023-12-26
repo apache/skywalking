@@ -127,6 +127,8 @@ public class DefaultScopeDefine {
 
     public static final int UI_MENU = 69;
 
+    public static final int SERVICE_HIERARCHY_RELATION = 70;
+    public static final int INSTANCE_HIERARCHY_RELATION = 71;
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
      */
