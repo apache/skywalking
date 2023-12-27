@@ -77,7 +77,7 @@ public class IDManager {
         public static String buildServiceHierarchyRelationId(ServiceHierarchyRelationDefine define) {
             return define.serviceId + Const.SERVICE_ID_CONNECTOR + define.serviceLayer.value() +
                 Const.RELATION_ID_CONNECTOR +
-                define.relateServiceId + Const.SERVICE_ID_CONNECTOR + define.relateServiceLayer.value();
+                define.relatedServiceId + Const.SERVICE_ID_CONNECTOR + define.relatedServiceLayer.value();
         }
 
         /**
@@ -163,9 +163,9 @@ public class IDManager {
          * @return encoded instance hierarchy relation id
          */
         public static String buildInstanceHierarchyRelationId(InstanceHierarchyRelationDefine define) {
-            return define.instanceId + Const.POINT + define.serviceLayer.value() +
+            return define.instanceId + Const.SERVICE_ID_CONNECTOR + define.serviceLayer.value() +
                 Const.RELATION_ID_CONNECTOR +
-                define.relateInstanceId + Const.POINT + define.relateServiceLayer.value();
+                define.relatedInstanceId + Const.SERVICE_ID_CONNECTOR + define.relatedServiceLayer.value();
         }
 
         /**

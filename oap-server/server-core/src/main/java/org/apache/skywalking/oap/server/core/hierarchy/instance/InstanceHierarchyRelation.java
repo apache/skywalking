@@ -24,16 +24,10 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
-import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
 import org.apache.skywalking.oap.server.core.source.Source;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
-
-import static org.apache.skywalking.oap.server.core.analysis.IDManager.ServiceInstanceID.buildInstanceHierarchyRelationId;
 
 @ScopeDeclaration(id = DefaultScopeDefine.INSTANCE_HIERARCHY_RELATION, name = "InstanceHierarchyRelation")
-@ScopeDefaultColumn.VirtualColumnDefinition(fieldName = "entityId", columnName = "entity_id", isID = true, type = String.class)
 public class InstanceHierarchyRelation extends Source {
-    private String entityId;
     @Setter
     @Getter
     private String instanceName;
@@ -68,12 +62,7 @@ public class InstanceHierarchyRelation extends Source {
 
     @Override
     public String getEntityId() {
-        if (StringUtil.isEmpty(entityId)) {
-            entityId = buildInstanceHierarchyRelationId(
-                new IDManager.ServiceInstanceID.InstanceHierarchyRelationDefine(
-                    instanceId, serviceLayer, relatedInstanceId, relatedServiceLayer));
-        }
-        return entityId;
+        return null;
     }
 
     @Override

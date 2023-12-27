@@ -30,7 +30,6 @@ import org.apache.skywalking.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.hierarchy.instance.InstanceHierarchyRelationTraffic;
 import org.apache.skywalking.oap.server.core.hierarchy.service.ServiceHierarchyRelationTraffic;
 import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
@@ -41,11 +40,17 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractB
 
 public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IHierarchyQueryDAO {
     private static final Set<String> SERVICE_HIERARCHY_RELATION_TAGS = ImmutableSet.of(
-        ServiceHierarchyRelationTraffic.ENTITY_ID,
         ServiceHierarchyRelationTraffic.SERVICE_ID,
         ServiceHierarchyRelationTraffic.SERVICE_LAYER,
         ServiceHierarchyRelationTraffic.RELATED_SERVICE_ID,
         ServiceHierarchyRelationTraffic.RELATED_SERVICE_LAYER
+    );
+
+    private static final Set<String> INSTANCE_HIERARCHY_RELATION_TAGS = ImmutableSet.of(
+        InstanceHierarchyRelationTraffic.INSTANCE_ID,
+        InstanceHierarchyRelationTraffic.SERVICE_LAYER,
+        InstanceHierarchyRelationTraffic.RELATED_INSTANCE_ID,
+        InstanceHierarchyRelationTraffic.RELATED_SERVICE_LAYER
     );
 
     public BanyanDBHierarchyQueryDAO(final BanyanDBStorageClient client) {
@@ -79,9 +84,7 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
     public List<InstanceHierarchyRelationTraffic> readInstanceHierarchyRelations(final String instanceId,
                                                                                  final String layer) throws Exception {
         MeasureQueryResponse resp = query(InstanceHierarchyRelationTraffic.INDEX_NAME,
-                                          ImmutableSet.of(
-                                              Metrics.ENTITY_ID
-                                          ),
+                                              INSTANCE_HIERARCHY_RELATION_TAGS,
                                           Collections.emptySet(), buildInstanceRelationsQuery(instanceId, layer)
         );
 

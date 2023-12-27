@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.hierarchy.instance;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -39,7 +40,10 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
     builder = InstanceHierarchyRelationTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
 @EqualsAndHashCode(of = {
-    "entityId"
+    "instanceId",
+    "serviceLayer",
+    "relatedInstanceId",
+    "relatedServiceLayer"
 }, callSuper = true)
 public class InstanceHierarchyRelationTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_hierarchy_relation";
@@ -50,33 +54,39 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
 
     @Setter
     @Getter
-    @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
-    private String entityId;
-
-    @Setter
-    @Getter
     @Column(name = INSTANCE_ID, length = 250)
+    @BanyanDB.SeriesID(index = 0)
     private String instanceId;
 
     @Setter
     @Getter
     @Column(name = SERVICE_LAYER)
-    private Layer servicelayer = Layer.UNDEFINED;
+    @BanyanDB.SeriesID(index = 1)
+    private Layer serviceLayer = Layer.UNDEFINED;
 
     @Setter
     @Getter
     @Column(name = RELATED_INSTANCE_ID, length = 250)
+    @BanyanDB.SeriesID(index = 2)
     private String relatedInstanceId;
 
     @Setter
     @Getter
     @Column(name = RELATED_SERVICE_LAYER)
+    @BanyanDB.SeriesID(index = 3)
     private Layer relatedServiceLayer = Layer.UNDEFINED;
 
     @Override
     protected StorageID id0() {
-        return new StorageID().append(ENTITY_ID, entityId);
+        String id = IDManager.ServiceInstanceID.buildInstanceHierarchyRelationId(
+            new IDManager.ServiceInstanceID.InstanceHierarchyRelationDefine(
+                instanceId, serviceLayer, relatedInstanceId, relatedServiceLayer));
+        return new StorageID().appendMutant(new String[] {
+            INSTANCE_ID,
+            RELATED_INSTANCE_ID,
+            SERVICE_LAYER,
+            RELATED_SERVICE_LAYER
+        }, id);
     }
 
     @Override
@@ -101,10 +111,9 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
 
     @Override
     public void deserialize(final RemoteData remoteData) {
-        setEntityId(remoteData.getDataStrings(0));
-        setInstanceId(remoteData.getDataStrings(1));
-        setServicelayer(Layer.valueOf(remoteData.getDataIntegers(0)));
-        setRelatedInstanceId(remoteData.getDataStrings(2));
+        setInstanceId(remoteData.getDataStrings(0));
+        setServiceLayer(Layer.valueOf(remoteData.getDataIntegers(0)));
+        setRelatedInstanceId(remoteData.getDataStrings(1));
         setRelatedServiceLayer(Layer.valueOf(remoteData.getDataIntegers(1)));
         setTimeBucket(remoteData.getDataLongs(0));
     }
@@ -112,9 +121,8 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
     @Override
     public RemoteData.Builder serialize() {
         final RemoteData.Builder builder = RemoteData.newBuilder();
-        builder.addDataStrings(getEntityId());
         builder.addDataStrings(instanceId);
-        builder.addDataIntegers(servicelayer.value());
+        builder.addDataIntegers(serviceLayer.value());
         builder.addDataStrings(relatedInstanceId);
         builder.addDataIntegers(relatedServiceLayer.value());
         builder.addDataLongs(getTimeBucket());
@@ -132,11 +140,10 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
             InstanceHierarchyRelationTraffic traffic = new InstanceHierarchyRelationTraffic();
             traffic.setInstanceId((String) converter.get(INSTANCE_ID));
             traffic.setRelatedInstanceId((String) converter.get(RELATED_INSTANCE_ID));
-            traffic.setEntityId((String) converter.get(ENTITY_ID));
             if (converter.get(SERVICE_LAYER) != null) {
-                traffic.setServicelayer(Layer.valueOf(((Number) converter.get(SERVICE_LAYER)).intValue()));
+                traffic.setServiceLayer(Layer.valueOf(((Number) converter.get(SERVICE_LAYER)).intValue()));
             } else {
-                traffic.setServicelayer(Layer.UNDEFINED);
+                traffic.setServiceLayer(Layer.UNDEFINED);
             }
             if (converter.get(RELATED_SERVICE_LAYER) != null) {
                 traffic.setRelatedServiceLayer(
@@ -151,13 +158,13 @@ public class InstanceHierarchyRelationTraffic extends Metrics {
         }
 
         @Override
-        public void entity2Storage(final InstanceHierarchyRelationTraffic storageData, final Convert2Storage converter) {
+        public void entity2Storage(final InstanceHierarchyRelationTraffic storageData,
+                                   final Convert2Storage converter) {
             converter.accept(INSTANCE_ID, storageData.getInstanceId());
             converter.accept(RELATED_INSTANCE_ID, storageData.getRelatedInstanceId());
-            converter.accept(SERVICE_LAYER, storageData.getServicelayer().value());
+            converter.accept(SERVICE_LAYER, storageData.getServiceLayer().value());
             converter.accept(RELATED_SERVICE_LAYER, storageData.getRelatedServiceLayer().value());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            converter.accept(ENTITY_ID, storageData.getEntityId());
         }
     }
 }

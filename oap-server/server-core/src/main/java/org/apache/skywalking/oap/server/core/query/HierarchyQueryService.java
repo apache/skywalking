@@ -97,7 +97,7 @@ public class HierarchyQueryService implements Service {
             HierarchyRelatedService service = new HierarchyRelatedService();
             service.setId(traffic.getServiceId());
             service.setName(IDManager.ServiceID.analysisId(traffic.getServiceId()).getName());
-            service.setLayer(traffic.getServicelayer().name());
+            service.setLayer(traffic.getServiceLayer().name());
             HierarchyRelatedService relatedService = new HierarchyRelatedService();
             relatedService.setId(traffic.getRelatedServiceId());
             relatedService.setName(IDManager.ServiceID.analysisId(traffic.getRelatedServiceId()).getName());
@@ -108,7 +108,7 @@ public class HierarchyQueryService implements Service {
             ServiceRelations relationServiceRelations = serviceRelationsMap.computeIfAbsent(
                 relatedService, k -> new ServiceRelations());
             List<String> lowerLayers = getHierarchyDefinition().getOrDefault(
-                traffic.getServicelayer().name(), new ArrayList<>());
+                traffic.getServiceLayer().name(), new ArrayList<>());
             List<String> relatedLowerLayers = getHierarchyDefinition().getOrDefault(
                 traffic.getRelatedServiceLayer().name(), new ArrayList<>());
 
@@ -116,7 +116,7 @@ public class HierarchyQueryService implements Service {
             if (lowerLayers.contains(traffic.getRelatedServiceLayer().name())) {
                 serviceRelations.getLowerServices().add(relatedService);
                 relationServiceRelations.getUpperServices().add(service);
-            } else if (relatedLowerLayers.contains(traffic.getServicelayer().name())) {
+            } else if (relatedLowerLayers.contains(traffic.getServiceLayer().name())) {
                 serviceRelations.getUpperServices().add(relatedService);
                 relationServiceRelations.getLowerServices().add(service);
             }
@@ -160,20 +160,20 @@ public class HierarchyQueryService implements Service {
             HierarchyRelatedInstance instance = new HierarchyRelatedInstance();
             instance.setId(traffic.getInstanceId());
             instance.setName(IDManager.ServiceInstanceID.analysisId(traffic.getInstanceId()).getName());
-            instance.setLayer(traffic.getServicelayer().name());
+            instance.setLayer(traffic.getServiceLayer().name());
             HierarchyRelatedInstance relatedInstance = new HierarchyRelatedInstance();
             relatedInstance.setId(traffic.getRelatedInstanceId());
             relatedInstance.setName(IDManager.ServiceInstanceID.analysisId(traffic.getRelatedInstanceId()).getName());
             relatedInstance.setLayer(traffic.getRelatedServiceLayer().name());
             List<String> lowerLayers = getHierarchyDefinition().getOrDefault(
-                traffic.getServicelayer().name(), new ArrayList<>());
+                traffic.getServiceLayer().name(), new ArrayList<>());
             List<String> relatedLowerLayers = getHierarchyDefinition().getOrDefault(
                 traffic.getRelatedServiceLayer().name(), new ArrayList<>());
 
             //should build the relations in 2 direction
             if (lowerLayers.contains(traffic.getRelatedServiceLayer().name())) {
                 hierarchy.getRelations().add(new HierarchyInstanceRelation(instance, relatedInstance));
-            } else if (relatedLowerLayers.contains(traffic.getServicelayer().name())) {
+            } else if (relatedLowerLayers.contains(traffic.getServiceLayer().name())) {
                 hierarchy.getRelations().add(new HierarchyInstanceRelation(relatedInstance, instance));
             }
         }

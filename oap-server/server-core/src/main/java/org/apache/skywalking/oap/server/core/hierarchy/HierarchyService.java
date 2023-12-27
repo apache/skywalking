@@ -62,7 +62,13 @@ public class HierarchyService implements Service {
 
     /**
      * Build the hierarchy relation between the 2 services. the `serviceLayer` and `relatedServiceLayer` hierarchy
-     * relations should be defined in `config/layer-hierarchy.yml`.
+     * relations should be defined in `config/hierarchy-definition.yml`. Generally, if service A and service B could detect
+     * each other, then build the hierarchy in one side is enough.
+     *
+     * @param serviceName         the name of the source service (self)
+     * @param serviceLayer        the layer of the source service
+     * @param relatedServiceName  the name of the detected related service
+     * @param relatedServiceLayer the layer of the detected related service
      */
     public void toServiceHierarchyRelation(String serviceName,
                                            Layer serviceLayer,
@@ -71,7 +77,9 @@ public class HierarchyService implements Service {
         if (!this.isEnableHierarchy) {
             return;
         }
-        checkHierarchyDefinition(serviceLayer, relatedServiceLayer);
+        if (!checkHierarchyDefinition(serviceLayer, relatedServiceLayer)) {
+            return;
+        }
         ServiceHierarchyRelation serviceHierarchy = new ServiceHierarchyRelation();
         serviceHierarchy.setServiceName(serviceName);
         serviceHierarchy.setServiceLayer(serviceLayer);
@@ -83,7 +91,15 @@ public class HierarchyService implements Service {
 
     /**
      * Build the hierarchy relation between the 2 instances. the `serviceLayer` and `relatedServiceLayer` hierarchy
-     * relations should be defined in `config/layer-hierarchy.yml`.
+     * relations should be defined in `config/hierarchy-definition.yml`. Generally, if instance A and instance B could detect
+     * each other, then build the hierarchy in one side is enough.
+     *
+     * @param instanceName        the name of the source instance (self)
+     * @param serviceName         the name of the source service (self)
+     * @param serviceLayer        the layer of the source service
+     * @param relatedInstanceName the name of the detected related instance
+     * @param relatedServiceName  the name of the detected related service
+     * @param relatedServiceLayer the layer of the detected related service
      */
     public void toInstanceHierarchyRelation(String instanceName,
                                             String serviceName,
@@ -94,7 +110,9 @@ public class HierarchyService implements Service {
         if (!this.isEnableHierarchy) {
             return;
         }
-        checkHierarchyDefinition(serviceLayer, relatedServiceLayer);
+        if (!checkHierarchyDefinition(serviceLayer, relatedServiceLayer)) {
+            return;
+        }
         InstanceHierarchyRelation instanceHierarchy = new InstanceHierarchyRelation();
         instanceHierarchy.setInstanceName(instanceName);
         instanceHierarchy.setServiceName(serviceName);
@@ -106,17 +124,20 @@ public class HierarchyService implements Service {
         this.getSourceReceiver().receive(instanceHierarchy);
     }
 
-    private void checkHierarchyDefinition(Layer serviceLayer, Layer relatedServiceLayer) {
+    private boolean checkHierarchyDefinition(Layer serviceLayer, Layer relatedServiceLayer) {
         List<String> lowerLayers = getHierarchyDefinition().get(serviceLayer.name());
         List<String> relatedLowerLayers = getHierarchyDefinition().get(relatedServiceLayer.name());
         if (lowerLayers == null || relatedLowerLayers == null) {
             log.error("serviceLayer " + serviceLayer.name() + " or relatedServiceLayer " + relatedServiceLayer.name()
-                          + " is not defined in layer-hierarchy.yml.");
+                          + " is not defined in hierarchy-definition.yml.");
+            return false;
         }
 
         if (!lowerLayers.contains(relatedServiceLayer.name()) || !relatedLowerLayers.contains(serviceLayer.name())) {
             log.error("serviceLayer " + serviceLayer.name() + " and relatedServiceLayer " + relatedServiceLayer.name()
-                          + " should have the hierarchy relation in layer-hierarchy.yml.");
+                          + " should have the hierarchy relation in hierarchy-definition.yml.");
+            return false;
         }
+        return true;
     }
 }

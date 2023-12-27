@@ -26,11 +26,10 @@ public class ServiceHierarchyTrafficRelationDispatcher implements SourceDispatch
     public void dispatch(final ServiceHierarchyRelation source) {
         ServiceHierarchyRelationTraffic traffic = new ServiceHierarchyRelationTraffic();
         traffic.setServiceId(source.getServiceId());
-        traffic.setServicelayer(source.getServiceLayer());
+        traffic.setServiceLayer(source.getServiceLayer());
         traffic.setRelatedServiceId(source.getRelatedServiceId());
         traffic.setRelatedServiceLayer(source.getRelatedServiceLayer());
         traffic.setTimeBucket(source.getTimeBucket());
-        traffic.setEntityId(source.getEntityId());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }
