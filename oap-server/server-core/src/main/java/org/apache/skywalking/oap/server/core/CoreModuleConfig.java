@@ -223,6 +223,14 @@ public class CoreModuleConfig extends ModuleConfig {
     @Getter
     private int serviceCacheRefreshInterval = 10;
 
+    /**
+     * If disable the hierarchy, the service and instance hierarchy relation will not be built.
+     * And the query of hierarchy will return empty result.
+     */
+    @Setter
+    @Getter
+    private boolean enableHierarchy = true;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

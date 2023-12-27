@@ -59,6 +59,7 @@
                 <include>endpoint-name-grouping.yml</include>
                 <include>metadata-service-mapping.yaml</include>
                 <include>trace-sampling-policy-settings.yml</include>
+                <include>hierarchy-definition.yml</include>
                 <include>oal/*.oal</include>
                 <include>fetcher-prom-rules/*.yaml</include>
                 <include>envoy-metrics-rules/**</include>

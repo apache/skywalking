@@ -16,16 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core;
+package org.apache.skywalking.oap.server.core.query.type;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-public class CoreModuleTest {
-    @Test
-    public void testOpenServiceList() {
-        CoreModule coreModule = new CoreModule();
-
-        Assertions.assertEquals(44, coreModule.services().length);
-    }
+@Getter
+@Setter
+@AllArgsConstructor
+public class HierarchyInstanceRelation {
+    private HierarchyRelatedInstance upperInstance;
+    private HierarchyRelatedInstance lowerInstance;
 }

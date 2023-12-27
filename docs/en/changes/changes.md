@@ -12,6 +12,7 @@
   service metadata.
 * Set up the length of source and dest IDs in relation entities of service, instance, endpoint, and process to 250(was
   200).
+* Support build Service/Instance Hierarchy and query.
 
 #### UI
 

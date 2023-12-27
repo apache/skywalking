@@ -44,11 +44,13 @@ import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
+import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointNameGroupingRule4OpenapiWatcher;
+import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
 import org.apache.skywalking.oap.server.core.logging.LoggingConfigWatcher;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
@@ -66,6 +68,7 @@ import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
+import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
@@ -253,6 +256,8 @@ public class CoreModuleProvider extends ModuleProvider {
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
         this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
+        this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
+        this.registerServiceImplementation(HierarchyService.class, new HierarchyService(getManager(), moduleConfig));
         this.registerServiceImplementation(
             DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 
@@ -293,6 +298,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(
             TagAutoCompleteQueryService.class, new TagAutoCompleteQueryService(getManager(), moduleConfig));
         this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));
+        this.registerServiceImplementation(HierarchyQueryService.class, new HierarchyQueryService(getManager(), moduleConfig));
 
         // add profile service implementations
         this.registerServiceImplementation(
