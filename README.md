@@ -40,10 +40,7 @@ microservices, cloud native and container-based architectures.
 - Find the [SkyWalking live demo with native UI and Grafana](https://skywalking.apache.org/#demo), and [screenshots](https://skywalking.apache.org/#arch) on our website.
 - Follow the [showcase](https://skywalking.apache.org/docs/skywalking-showcase/next/readme/) to set up a preview deployment quickly.
 
-# Documentation & Docs AI
-> [!TIP]
-> Check out the "Ask AI" button to the right of SkyWalking website for AI-based Q&A, data is based on all SkyWalking projects documentation, blogs and troubleshooting info (issues/discussions).
-
+# Documentation
 - [Official documentation](https://skywalking.apache.org/docs/#SkyWalking)
 
 # Downloads
