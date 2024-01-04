@@ -195,7 +195,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         }
         double upperBound;
         for (int i = 0; i < negativeBucketCounts.size(); i++) {
-            upperBound = -Math.pow(base, negativeOffset + i);
+            upperBound = -Math.pow(base, (double) negativeOffset + i);
             if (upperBound == Double.NEGATIVE_INFINITY) {
                 log.warn("Receive and reject out-of-range ExponentialHistogram data");
                 return new HashMap<>();
@@ -203,7 +203,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             result.put(upperBound, negativeBucketCounts.get(i));
         }
         for (int i = 0; i < positiveBucketCounts.size() - 1; i++) {
-            upperBound = Math.pow(base, positiveOffset + i + 1);
+            upperBound = Math.pow(base, positiveOffset + i + 1D);
             if (upperBound == Double.POSITIVE_INFINITY) {
                 log.warn("Receive and reject out-of-range ExponentialHistogram data");
                 return new HashMap<>();

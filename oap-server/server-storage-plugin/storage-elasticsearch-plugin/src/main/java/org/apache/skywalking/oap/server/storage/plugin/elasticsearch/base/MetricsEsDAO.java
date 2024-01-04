@@ -127,7 +127,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
             cachedValue.getTimeBucket(), model.getDownsampling());
         // Fast fail check. If the duration is still less than TTL - 1 days(absolute)
         // the cache should not be expired.
-        if (currentTimeMillis - metricTimestamp < TimeUnit.DAYS.toMillis(ttl - 1)) {
+        if (currentTimeMillis - metricTimestamp < TimeUnit.DAYS.toMillis(ttl - 1L)) {
             return false;
         }
         final long deadline = Long.parseLong(new DateTime(currentTimeMillis).plusDays(-ttl).toString("yyyyMMdd"));

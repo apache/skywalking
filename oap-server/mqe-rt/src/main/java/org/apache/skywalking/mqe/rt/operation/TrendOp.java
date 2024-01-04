@@ -82,13 +82,13 @@ public class TrendOp {
                 rangeSeconds = trendRange;
                 break;
             case MINUTE:
-                rangeSeconds = trendRange * 60;
+                rangeSeconds = trendRange * 60L;
                 break;
             case HOUR:
-                rangeSeconds = trendRange * 3600;
+                rangeSeconds = trendRange * 3600L;
                 break;
             case DAY:
-                rangeSeconds = trendRange * 86400;
+                rangeSeconds = trendRange * 86400L;
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported step: " + step);

@@ -144,7 +144,7 @@ public class TimeBucket {
         calendar.setTimeInMillis(timestamp);
 
         long year = calendar.get(Calendar.YEAR);
-        long month = calendar.get(Calendar.MONTH) + 1;
+        long month = calendar.get(Calendar.MONTH) + 1L;
         long day = calendar.get(Calendar.DAY_OF_MONTH);
         long hour = calendar.get(Calendar.HOUR_OF_DAY);
         long minute = calendar.get(Calendar.MINUTE);

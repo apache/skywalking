@@ -126,7 +126,7 @@ public abstract class Metrics extends StreamData implements StorageData {
         } else if (isHourBucket()) {
             return 60;
         } else if (isDayBucket()) {
-            return 24 * 60;
+            return 24L * 60;
         }
         throw new IllegalStateException("Time bucket (" + timeBucket + ") can't be recognized.");
     }
