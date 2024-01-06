@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.receiver.ebpf.provider;
 
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.receiver.ebpf.module.EBPFReceiverModule;
+import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.AccessLogServiceHandler;
 import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.ContinuousProfilingServiceHandler;
 import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.EBPFProcessServiceHandler;
 import org.apache.skywalking.oap.server.receiver.ebpf.provider.handler.EBPFProfilingServiceHandler;
@@ -65,12 +67,19 @@ public class EBPFReceiverProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        // load official analysis
+        getManager().find(CoreModule.NAME)
+            .provider()
+            .getService(OALEngineLoaderService.class)
+            .load(EBPFOALDefine.INSTANCE);
+
         final GRPCHandlerRegister grpcHandlerRegister = getManager().find(SharingServerModule.NAME)
                 .provider()
                 .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(new EBPFProcessServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new EBPFProfilingServiceHandler(getManager()));
         grpcHandlerRegister.addHandler(new ContinuousProfilingServiceHandler(getManager(), this.config));
+        grpcHandlerRegister.addHandler(new AccessLogServiceHandler(getManager()));
     }
 
     @Override

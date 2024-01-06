@@ -101,6 +101,7 @@ public class K8sInfoRegistry {
                     .filter(it -> Objects.equals(it.getMetadata().getNamespace(), pod.get().getMetadata().getNamespace()))
                     .filter(it -> it.getSpec() != null)
                     .filter(it -> requireNonNull(it.getSpec()).getSelector() != null)
+                    .filter(it -> !it.getSpec().getSelector().isEmpty())
                     .filter(it -> {
                         final Map<String, String> labels = pod.get().getMetadata().getLabels();
                         final Map<String, String> selector = it.getSpec().getSelector();
@@ -124,23 +125,27 @@ public class K8sInfoRegistry {
 
     @SneakyThrows
     public String findServiceName(String namespace, String podName) {
+        return findService(namespace, podName).toString();
+    }
+
+    @SneakyThrows
+    public ObjectID findService(String namespace, String podName) {
         return this.podServiceMap.get(
-            ObjectID
-                .builder()
-                .name(podName)
-                .namespace(namespace)
-                .build())
-            .toString();
+                ObjectID
+                    .builder()
+                    .name(podName)
+                    .namespace(namespace)
+                    .build());
     }
 
     @SneakyThrows
-    public String findPodByIP(String ip) {
-        return this.ipPodMap.get(ip).toString();
+    public ObjectID findPodByIP(String ip) {
+        return this.ipPodMap.get(ip);
     }
 
     @SneakyThrows
-    public String findServiceByIP(String ip) {
-        return this.ipServiceMap.get(ip).toString();
+    public ObjectID findServiceByIP(String ip) {
+        return this.ipServiceMap.get(ip);
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {

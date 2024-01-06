@@ -38,6 +38,1597 @@
                   "linkDashboard":"Kubernetes-Process-Relation-Metrics"
                 }
               ]
+            },
+            {
+              "name": "TCP",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_connect_cpm",
+                    "kubernetes_service_instance_connect_success_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total"
+                    },
+                    {
+                      "label": "Success"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Connect CPM",
+                    "name": "Connect-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_connect_duration/kubernetes_service_instance_connect_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Connect Avg Duration(nanoseconds)",
+                    "name": "Connect-Avg-Duration"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Duration"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_accept_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Accept CPM",
+                    "name": "Accept-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_accept_duration/kubernetes_service_instance_accept_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Accept Avg Duration(nanoseconds)",
+                    "name": "Accept-Avg-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_write_package_cpm",
+                    "kubernetes_service_instance_write_retrains_package_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total"
+                    },
+                    {
+                      "label": "Retrains"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Write Package Count",
+                    "name": "Write-Package-Count"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "5",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_write_package_size/1024",
+                    "kubernetes_service_instance_write_package_size/kubernetes_service_instance_write_package_cpm/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total"
+                    },
+                    {
+                      "label": "Avg"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Write Package Size(KB)",
+                    "name": "Write-Package-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "6",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_read_package_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Read Package CPM",
+                    "name": "Read-PackageCPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Total"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 12,
+                  "w": 6,
+                  "h": 12,
+                  "i": "7",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_read_package_size/1024",
+                    "kubernetes_service_instance_read_package_size/kubernetes_service_instance_read_package_cpm/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Avg"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Read Package Size(KB)",
+                    "name": "Read-Package-Size"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 12,
+                  "h": 12,
+                  "i": "8",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_write_duration/kubernetes_service_instance_write_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Write Avg Duration(nanoseconds)",
+                    "name": "Write-Avg-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 24,
+                  "w": 12,
+                  "h": 12,
+                  "i": "9",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_read_duration/kubernetes_service_instance_read_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Read Avg Duration(nanoseconds)",
+                    "name": "Read-Avg-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 36,
+                  "w": 12,
+                  "h": 12,
+                  "i": "10",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_read_l4_duration/kubernetes_service_instance_read_cpm",
+                    "kubernetes_service_instance_read_l3_duration/kubernetes_service_instance_read_cpm",
+                    "kubernetes_service_instance_read_l3_rcv_duration/kubernetes_service_instance_read_cpm",
+                    "kubernetes_service_instance_read_l3_local_duration/kubernetes_service_instance_read_cpm",
+                    "kubernetes_service_instance_read_package_to_queue_duration/kubernetes_service_instance_read_package_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "L4 Total"
+                    },
+                    {
+                      "label": "L3 Total"
+                    },
+                    {
+                      "label": "L3 Rcv"
+                    },
+                    {
+                      "label": "L3 Local"
+                    },
+                    {
+                      "label": "Package To Queue"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Read Package L2-L4 Duration(nanoseconds)",
+                    "name": "Read-Package-L2-L4-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 36,
+                  "w": 12,
+                  "h": 12,
+                  "i": "11",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_write_l4_duration/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l3_duration/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l3_local_duration/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l3_output_duration/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l2_duration/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l2_enter_queue_count/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l2_ready_send_duration/kubernetes_service_instance_write_cpm",
+                    "kubernetes_service_instance_write_l2_net_device_send_duration/kubernetes_service_instance_write_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "L4 Total"
+                    },
+                    {
+                      "label": "L3 Total"
+                    },
+                    {
+                      "label": "L3 Local"
+                    },
+                    {
+                      "label": "L3 Output"
+                    },
+                    {
+                      "label": "L2 Total"
+                    },
+                    {
+                      "label": "L2 Enter Queue"
+                    },
+                    {
+                      "label": "L2 Ready Send Device"
+                    },
+                    {
+                      "label": "L2 Send Device"
+                    }
+                  ],
+                  "widget": {
+                    "title": "Write Package L2-L4 Duration(nanoseconds)",
+                    "name": "Write-Package-L2-L4-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "12",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_write_netfilter_cpm",
+                    "kubernetes_service_instance_read_netfilter_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Write"
+                    },
+                    {
+                      "label": "Read"
+                    }
+                  ],
+                  "widget": {
+                    "title": "NetFilter CPM",
+                    "name": "NetFilter-CPM"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "13",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_write_netfilter_duration/kubernetes_service_instance_write_netfilter_cpm",
+                    "kubernetes_service_instance_read_netfilter_duration/kubernetes_service_instance_read_netfilter_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Write"
+                    },
+                    {
+                      "label": "Read"
+                    }
+                  ],
+                  "widget": {
+                    "title": "NetFilter Use Duration(nanoseconds)",
+                    "name": "NetFilter-Use-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "14",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_resolve_mac_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Resolve Mac Address CPM",
+                    "name": "Resolve-Mac-Address-CPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Count"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    },
+                    {
+                      "widgetId": "0-3-15"
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 48,
+                  "w": 6,
+                  "h": 12,
+                  "i": "15",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_resolve_mac_duration/kubernetes_service_instance_resolve_mac_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Resolve Mac Address Duration(nanoseconds)",
+                    "name": "Avg-Resolve-Mac-Address-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-3-1"
+                    },
+                    {
+                      "widgetId": "0-3-2"
+                    },
+                    {
+                      "widgetId": "0-3-3"
+                    },
+                    {
+                      "widgetId": "0-3-4"
+                    },
+                    {
+                      "widgetId": "0-3-5"
+                    },
+                    {
+                      "widgetId": "0-3-6"
+                    },
+                    {
+                      "widgetId": "0-3-7"
+                    },
+                    {
+                      "widgetId": "0-3-8"
+                    },
+                    {
+                      "widgetId": "0-3-9"
+                    },
+                    {
+                      "widgetId": "0-3-10"
+                    },
+                    {
+                      "widgetId": "0-3-11"
+                    },
+                    {
+                      "widgetId": "0-3-12"
+                    },
+                    {
+                      "widgetId": "0-3-13"
+                    },
+                    {
+                      "widgetId": "0-3-14"
+                    },
+                    {
+                      "widgetId": "0-3-0"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "HTTP",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_http_call_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Receive HTTP Request CPM",
+                    "name": "Receive-HTTP-Request-CPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Count"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm/1000000"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Duration"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Response HTTP Duration(milliseconds)",
+                    "name": "Response-HTTP-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-4-0"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 12,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_http_req_header_size/kubernetes_service_instance_http_call_cpm/1024",
+                    "kubernetes_service_instance_http_req_body_size/kubernetes_service_instance_http_call_cpm/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Receive Request Size(KB)",
+                    "name": "Avg-Receive-Request-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header"
+                    },
+                    {
+                      "label": "Body"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-0"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 12,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_http_resp_header_size/kubernetes_service_instance_http_call_cpm/1024",
+                    "kubernetes_service_instance_http_resp_body_size/kubernetes_service_instance_http_call_cpm/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Send Response Size(KB)",
+                    "name": "Avg-Send-Response-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header"
+                    },
+                    {
+                      "label": "Body"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-0"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 24,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_instance_http_status_1xx_cpm",
+                    "kubernetes_service_instance_http_status_2xx_cpm",
+                    "kubernetes_service_instance_http_status_3xx_cpm",
+                    "kubernetes_service_instance_http_status_4xx_cpm",
+                    "kubernetes_service_instance_http_status_5xx_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Response Status Code CPM",
+                    "name": "Avg-Response-Status-Code-CPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "1xx"
+                    },
+                    {
+                      "label": "2xx"
+                    },
+                    {
+                      "label": "3xx"
+                    },
+                    {
+                      "label": "4xx"
+                    },
+                    {
+                      "label": "5xx"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-0"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }

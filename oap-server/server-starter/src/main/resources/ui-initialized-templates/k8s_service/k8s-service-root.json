@@ -6,47 +6,6 @@
       "children": [
         {
           "x": 0,
-          "y": 2,
-          "w": 24,
-          "h": 50,
-          "i": "0",
-          "type": "Widget",
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "expressions": [
-            "avg(k8s_service_pod_total)",
-            "avg(k8s_service_cpu_cores_requests)",
-            "avg(k8s_service_cpu_cores_limits)"
-          ],
-          "moved": false,
-          "graph": {
-            "type": "ServiceList",
-            "dashboardName": "K8S-Service-Service",
-            "fontSize": 12,
-            "showXAxis": false,
-            "showYAxis": false,
-            "showGroup": true
-          },
-          "metricConfig": [
-            {
-              "label": "Pod"
-            },
-            {
-              "label": "CPU Requests",
-              "unit": "m"
-            },
-            {
-              "label": "CPU Limits",
-              "unit": "m"
-            }
-          ]
-        },
-        {
-          "x": 0,
           "y": 0,
           "w": 24,
           "h": 2,
@@ -54,6 +13,7 @@
           "type": "Text",
           "metricMode": "Expression",
           "typesOfMQE": [
+
           ],
           "expressions": [
             ""
@@ -65,15 +25,154 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/"
-          },
-          "moved": false
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 50,
+          "i": "101",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Services",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 43,
+                  "w": 24,
+                  "h": 50,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "expressions": [
+                    "avg(k8s_service_pod_total)",
+                    "avg(k8s_service_cpu_cores_requests)",
+                    "avg(k8s_service_cpu_cores_limits)"
+                  ],
+                  "graph": {
+                    "type": "ServiceList",
+                    "dashboardName": "K8S-Service-Service",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false,
+                    "showGroup": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Pod"
+                    },
+                    {
+                      "label": "CPU Requests",
+                      "unit": "m"
+                    },
+                    {
+                      "label": "CPU Limits",
+                      "unit": "m"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Topology",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 50,
+                  "i": "0",
+                  "type": "Topology",
+                  "graph": {
+                    "showDepth": true
+                  },
+                  "metricMode": "Expression",
+                  "linkDashboard": "K8S-Service-Relation",
+                  "nodeDashboard": [
+                    {
+                      "scope": "Endpoint",
+                      "dashboard": "K8S-Endpoint"
+                    }
+                  ],
+                  "linkServerMetrics": [
+
+                  ],
+                  "linkClientMetrics": [
+
+                  ],
+                  "nodeMetrics": [
+
+                  ],
+                  "linkServerExpressions": [
+                    "avg(kubernetes_service_relation_server_write_package_size)/60",
+                    "avg(kubernetes_service_relation_server_read_package_size)/60"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(kubernetes_service_relation_client_write_package_size)/60",
+                    "avg(kubernetes_service_relation_client_read_package_size)/60"
+                  ],
+                  "nodeExpressions": [
+                    "avg(kubernetes_service_write_package_size)/60",
+                    "avg(kubernetes_service_read_package_size)/60"
+                  ],
+                  "legend": [
+
+                  ],
+                  "legendMQE": {
+                    "expression": ""
+                  },
+                  "description": {
+
+                  },
+                  "linkServerMetricConfig": [
+                    {
+                      "unit": "bytes",
+                      "label": "Server Write Per Seconds"
+                    },
+                    {
+                      "unit": "bytes",
+                      "label": "Server Read Per Seconds"
+                    }
+                  ],
+                  "linkClientMetricConfig": [
+                    {
+                      "unit": "bytes",
+                      "label": "Client Write Per Seconds"
+                    },
+                    {
+                      "label": "Client Read Per Seconds",
+                      "unit": "bytes"
+                    }
+                  ],
+                  "nodeMetricConfig": [
+                    {
+                      "unit": "bytes",
+                      "label": "Write Per Seconds"
+                    },
+                    {
+                      "unit": "bytes",
+                      "label": "Read Per Seconds"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ],
       "id": "K8S-Service-Root",
       "layer": "K8S_SERVICE",
       "entity": "All",
       "name": "K8S-Service-Root",
-      "isRoot": true
+      "isRoot": true,
+      "path": "/Kubernetes/Service"
     }
   }
 ]

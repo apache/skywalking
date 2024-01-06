@@ -308,7 +308,8 @@ public class StorageEsInstaller extends ModelInstaller {
         Map<String, Object> properties = new HashMap<>();
         Mappings.Source source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
-            final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType(), columnDefine.getElasticSearchExtension());
+            final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType(), columnDefine.getLength(),
+                columnDefine.getElasticSearchExtension());
             String columnName = columnDefine.getColumnName().getName();
             String legacyName = columnDefine.getElasticSearchExtension().getLegacyColumnName();
             if (config.isLogicSharding() && !Strings.isNullOrEmpty(legacyName)) {

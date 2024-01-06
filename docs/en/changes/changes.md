@@ -13,10 +13,12 @@
 * Set up the length of source and dest IDs in relation entities of service, instance, endpoint, and process to 250(was
   200).
 * Support build Service/Instance Hierarchy and query.
+* Support handler eBPF access log protocol.
 
 #### UI
 
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.
+* Update Kubernetes related UI templates for adapt data from eBPF access log. 
 
 #### Documentation
 
