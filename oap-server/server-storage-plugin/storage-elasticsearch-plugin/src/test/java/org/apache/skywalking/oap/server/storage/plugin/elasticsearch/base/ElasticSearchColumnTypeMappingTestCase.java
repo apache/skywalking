@@ -50,12 +50,12 @@ public class ElasticSearchColumnTypeMappingTestCase {
 
         final Type listFieldType = this.getClass().getField("a").getGenericType();
         Assertions.assertEquals("keyword", mapping.transform(List.class, listFieldType, defaultLength, defaultStorageOnly,
-            new ElasticSearchExtension(null, null, false, false)
+                                                         new ElasticSearchExtension(null, null, false, false)
         ));
 
         Assertions.assertEquals("keyword", mapping.transform(IntList.class, int.class, defaultLength, defaultStorageOnly,
-            new ElasticSearchExtension(null, null, true, false)));
+                                                         new ElasticSearchExtension(null, null, true, false)));
         Assertions.assertEquals("text", mapping.transform(IntList.class, int.class, defaultLength, defaultStorageOnly,
-            new ElasticSearchExtension(null, null, false, false)));
+                                                         new ElasticSearchExtension(null, null, false, false)));
     }
 }
