@@ -13,6 +13,8 @@
 * Set up the length of source and dest IDs in relation entities of service, instance, endpoint, and process to 250(was
   200).
 * Support build Service/Instance Hierarchy and query.
+* Change the string field in Elasticsearch storage from **keyword** type to **text** type if it set more than `32766` length.
+* [Break Change] Change the configuration field of `ui_template` and `ui_menu` in Elasticsearch storage from **keyword** type to **text**.
 
 #### UI
 
