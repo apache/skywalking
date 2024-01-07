@@ -64,4 +64,4 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `otel-rules/pulsar/pulsar-cluster.yaml, otel-rules/pulsar/pulsar-broker.yaml`.
-The RabbitMQ dashboard panel configurations are found in `ui-initialized-templates/pulsar`.
+The Pulsar dashboard panel configurations are found in `ui-initialized-templates/pulsar`.

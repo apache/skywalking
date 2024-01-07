@@ -58,4 +58,4 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `otel-rules/bookkeeper/bookkeeper-cluster.yaml, otel-rules/bookkeeper/bookkeeper-node.yaml`.
-The RabbitMQ dashboard panel configurations are found in `/config/ui-initialized-templates/bookkeeper`.
+The Bookkeeper dashboard panel configurations are found in `/config/ui-initialized-templates/bookkeeper`.
