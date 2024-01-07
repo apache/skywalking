@@ -255,7 +255,7 @@ public class StorageEsInstaller extends ModelInstaller {
         if (!CollectionUtils.isEmpty(specificSettings)) {
             indexSettings.putAll(specificSettings);
         }
-        
+
         return setting;
     }
 
@@ -308,7 +308,9 @@ public class StorageEsInstaller extends ModelInstaller {
         Map<String, Object> properties = new HashMap<>();
         Mappings.Source source = new Mappings.Source();
         for (ModelColumn columnDefine : model.getColumns()) {
-            final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType(), columnDefine.getElasticSearchExtension());
+            final String type = columnTypeEsMapping.transform(columnDefine.getType(), columnDefine.getGenericType(),
+                columnDefine.getLength(), columnDefine.isStorageOnly(),
+                columnDefine.getElasticSearchExtension());
             String columnName = columnDefine.getColumnName().getName();
             String legacyName = columnDefine.getElasticSearchExtension().getLegacyColumnName();
             if (config.isLogicSharding() && !Strings.isNullOrEmpty(legacyName)) {
