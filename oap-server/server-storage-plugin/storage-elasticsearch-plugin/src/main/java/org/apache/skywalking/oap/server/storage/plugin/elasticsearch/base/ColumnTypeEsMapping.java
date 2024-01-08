@@ -28,14 +28,14 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObje
 
 public class ColumnTypeEsMapping {
 
-    public String transform(Class<?> type, Type genericType, int length, final ElasticSearchExtension elasticSearchExtension) {
+    public String transform(Class<?> type, Type genericType, int length, boolean storageOnly, final ElasticSearchExtension elasticSearchExtension) {
         if (Integer.class.equals(type) || int.class.equals(type) || Layer.class.equals(type)) {
             return "integer";
         } else if (Long.class.equals(type) || long.class.equals(type)) {
             return "long";
         } else if (Double.class.equals(type) || double.class.equals(type)) {
             return "double";
-        } else if (String.class.equals(type) && length > 32766) {   // 32766 is the max length of a keywords field in ES
+        } else if (String.class.equals(type) && storageOnly && length > 32766) {   // 32766 is the max length of a keywords field in ES
             return "text";
         } else if (String.class.equals(type) || elasticSearchExtension.isKeyword()) {
             return "keyword";
@@ -47,7 +47,7 @@ public class ColumnTypeEsMapping {
             return "text";
         } else if (List.class.isAssignableFrom(type)) {
             final Type elementType = ((ParameterizedType) genericType).getActualTypeArguments()[0];
-            return transform((Class<?>) elementType, elementType, length, elasticSearchExtension);
+            return transform((Class<?>) elementType, elementType, length, storageOnly, elasticSearchExtension);
         } else {
             throw new IllegalArgumentException("Unsupported data type: " + type.getName());
         }

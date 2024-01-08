@@ -33,27 +33,29 @@ public class ElasticSearchColumnTypeMappingTestCase {
     public void test() throws NoSuchFieldException {
         ColumnTypeEsMapping mapping = new ColumnTypeEsMapping();
         int defaultLength = 200;
+        boolean defaultStorageOnly = false;
 
-        Assertions.assertEquals("integer", mapping.transform(int.class, int.class, defaultLength, null));
-        Assertions.assertEquals("integer", mapping.transform(Integer.class, Integer.class, defaultLength, null));
+        Assertions.assertEquals("integer", mapping.transform(int.class, int.class, defaultLength, defaultStorageOnly, null));
+        Assertions.assertEquals("integer", mapping.transform(Integer.class, Integer.class, defaultLength, defaultStorageOnly, null));
 
-        Assertions.assertEquals("long", mapping.transform(long.class, long.class, defaultLength, null));
-        Assertions.assertEquals("long", mapping.transform(Long.class, Long.class, defaultLength, null));
+        Assertions.assertEquals("long", mapping.transform(long.class, long.class, defaultLength, defaultStorageOnly, null));
+        Assertions.assertEquals("long", mapping.transform(Long.class, Long.class, defaultLength, defaultStorageOnly, null));
 
-        Assertions.assertEquals("double", mapping.transform(double.class, double.class, defaultLength, null));
-        Assertions.assertEquals("double", mapping.transform(Double.class, Double.class, defaultLength, null));
+        Assertions.assertEquals("double", mapping.transform(double.class, double.class, defaultLength, defaultStorageOnly, null));
+        Assertions.assertEquals("double", mapping.transform(Double.class, Double.class, defaultLength, defaultStorageOnly, null));
 
-        Assertions.assertEquals("keyword", mapping.transform(String.class, String.class, defaultLength, null));
-        Assertions.assertEquals("text", mapping.transform(String.class, String.class, 100_000, null));
+        Assertions.assertEquals("keyword", mapping.transform(String.class, String.class, defaultLength, defaultStorageOnly, null));
+        Assertions.assertEquals("keyword", mapping.transform(String.class, String.class, 100_000, defaultStorageOnly, null));
+        Assertions.assertEquals("text", mapping.transform(String.class, String.class, 100_000, true, null));
 
         final Type listFieldType = this.getClass().getField("a").getGenericType();
-        Assertions.assertEquals("keyword", mapping.transform(List.class, listFieldType, defaultLength,
+        Assertions.assertEquals("keyword", mapping.transform(List.class, listFieldType, defaultLength, defaultStorageOnly,
                                                          new ElasticSearchExtension(null, null, false, false)
         ));
 
-        Assertions.assertEquals("keyword", mapping.transform(IntList.class, int.class, defaultLength,
+        Assertions.assertEquals("keyword", mapping.transform(IntList.class, int.class, defaultLength, defaultStorageOnly,
                                                          new ElasticSearchExtension(null, null, true, false)));
-        Assertions.assertEquals("text", mapping.transform(IntList.class, int.class, defaultLength,
+        Assertions.assertEquals("text", mapping.transform(IntList.class, int.class, defaultLength, defaultStorageOnly,
                                                          new ElasticSearchExtension(null, null, false, false)));
     }
 }

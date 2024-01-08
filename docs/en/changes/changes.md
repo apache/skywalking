@@ -13,6 +13,8 @@
 * Set up the length of source and dest IDs in relation entities of service, instance, endpoint, and process to 250(was
   200).
 * Support build Service/Instance Hierarchy and query.
+* Change the string field in Elasticsearch storage from **keyword** type to **text** type if it set more than `32766` length.
+* [Break Change] Change the configuration field of `ui_template` and `ui_menu` in Elasticsearch storage from **keyword** type to **text**.
 * Support handler eBPF access log protocol.
 
 #### UI
@@ -30,5 +32,6 @@
 * Add `SWIP-1 Create and detect Service Hierarchy Relationship`.
 * Add `SWIP-2 Collecting and Gathering Kubernetes Monitoring Data`.
 * Update the `Overview` docs to add the `Service Hierarchy Relationship` section.
+* Fix incorrect words for `backend-bookkeeper-monitoring.md` and `backend-pulsar-monitoring.md`
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
