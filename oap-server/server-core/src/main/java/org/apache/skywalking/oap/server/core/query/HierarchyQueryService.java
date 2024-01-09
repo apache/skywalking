@@ -178,7 +178,7 @@ public class HierarchyQueryService implements Service {
     }
 
     /**
-     * @return return the related service hierarchy recursively, e.g. A->B->C, query A will return A->B, B->C
+     * @return return the related service hierarchy recursively, e.g. A-B-C, query A will return A-B, B-C
      */
     public ServiceHierarchy getServiceHierarchy(String serviceId, String layer) throws Exception {
         if (!this.isEnableHierarchy) {
