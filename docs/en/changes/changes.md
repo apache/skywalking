@@ -31,5 +31,6 @@
 * Add `SWIP-2 Collecting and Gathering Kubernetes Monitoring Data`.
 * Update the `Overview` docs to add the `Service Hierarchy Relationship` section.
 * Fix incorrect words for `backend-bookkeeper-monitoring.md` and `backend-pulsar-monitoring.md`
+* Document a new way to load balance OAP.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)

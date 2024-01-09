@@ -84,7 +84,7 @@ catalog:
             path: "/en/setup/backend/dynamical-logging"
           - name: "Security(SSL/TLS/mTLS)"
             path: "/en/setup/backend/grpc-security"
-          - name: "Setup Native Load Balancer"
+          - name: "Setup Load Balancer"
             path: "/en/setup/backend/backend-load-balancer"
           - name: "OAP Self Observability Telemetry"
             path: "/en/setup/backend/backend-telemetry"
