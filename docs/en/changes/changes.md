@@ -16,6 +16,7 @@
 * Change the string field in Elasticsearch storage from **keyword** type to **text** type if it set more than `32766` length.
 * [Break Change] Change the configuration field of `ui_template` and `ui_menu` in Elasticsearch storage from **keyword** type to **text**.
 * Support Service Hierarchy auto matching.
+* Add `namespace` suffix for `K8S_SERVICE_NAME_RULE/ISTIO_SERVICE_NAME_RULE` and `metadata-service-mapping.yaml` as default.
 
 #### UI
 
