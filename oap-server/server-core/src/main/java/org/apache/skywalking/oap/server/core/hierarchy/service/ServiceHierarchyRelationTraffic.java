@@ -39,12 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @Stream(name = ServiceHierarchyRelationTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_HIERARCHY_RELATION,
     builder = ServiceHierarchyRelationTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
-@EqualsAndHashCode(of = {
-    "serviceId",
-    "serviceLayer",
-    "relatedServiceId",
-    "relatedServiceLayer"
-}, callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class ServiceHierarchyRelationTraffic extends Metrics {
     public static final String INDEX_NAME = "service_hierarchy_relation";
     public static final String SERVICE_ID = "service_id";
@@ -52,24 +47,36 @@ public class ServiceHierarchyRelationTraffic extends Metrics {
     public static final String RELATED_SERVICE_ID = "related_service_id";
     public static final String RELATED_SERVICE_LAYER = "related_service_layer";
 
+    /**
+     * The service id of the upper service.
+     */
     @Setter
     @Getter
     @Column(name = SERVICE_ID, length = 250)
     @BanyanDB.SeriesID(index = 0)
     private String serviceId;
 
+    /**
+     * The service layer of the upper service.
+     */
     @Setter
     @Getter
     @Column(name = SERVICE_LAYER)
     @BanyanDB.SeriesID(index = 1)
     private Layer serviceLayer = Layer.UNDEFINED;
 
+    /**
+     * The service id of the lower service.
+     */
     @Setter
     @Getter
     @Column(name = RELATED_SERVICE_ID, length = 250)
     @BanyanDB.SeriesID(index = 2)
     private String relatedServiceId;
 
+    /**
+     * The service layer of the lower service.
+     */
     @Setter
     @Getter
     @Column(name = RELATED_SERVICE_LAYER)

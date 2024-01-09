@@ -135,6 +135,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private LoggingConfigWatcher loggingConfigWatcher;
     private EndpointNameGroupingRule4OpenapiWatcher endpointNameGroupingRule4OpenapiWatcher;
     private EndpointNameGrouping endpointNameGrouping;
+    private HierarchyService hierarchyService;
 
     public CoreModuleProvider() {
         super();
@@ -257,7 +258,8 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
         this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager(), moduleConfig));
         this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
-        this.registerServiceImplementation(HierarchyService.class, new HierarchyService(getManager(), moduleConfig));
+        hierarchyService = new HierarchyService(getManager(), moduleConfig);
+        this.registerServiceImplementation(HierarchyService.class, hierarchyService);
         this.registerServiceImplementation(
             DownSamplingConfigService.class, new DownSamplingConfigService(moduleConfig.getDownsampling()));
 
@@ -451,6 +453,7 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (IOException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+        hierarchyService.startAutoMatchingServiceHierarchy();
     }
 
     @Override

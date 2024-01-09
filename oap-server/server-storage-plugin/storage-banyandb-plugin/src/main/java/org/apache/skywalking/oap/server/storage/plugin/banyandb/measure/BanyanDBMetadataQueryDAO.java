@@ -106,10 +106,14 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
 
     @Override
     public List<ServiceInstance> listInstances(Duration duration, String serviceId) throws IOException {
+        TimestampRange timestampRange = null;
+        if (duration != null) {
+            timestampRange = new TimestampRange(0, duration.getEndTimestamp());
+        }
         MeasureQueryResponse resp = query(InstanceTraffic.INDEX_NAME,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                new TimestampRange(0, duration.getEndTimestamp()),
+                timestampRange,
                 new QueryBuilder<MeasureQuery>() {
                     @Override
                     protected void apply(MeasureQuery query) {
