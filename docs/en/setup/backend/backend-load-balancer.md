@@ -33,7 +33,7 @@ each of the OAP instance can have similar amount of gRPC connections.
 Before that, you need to calculate the number of connections for each OAP
 instance as follows:
 
-```
+```shell
 NUMBER_OF_SERVICE_PODS=<the-number-of-service-pods-that-are-monitored-by-skywalking>
 
 # Each service Pod has 2 connections to OAP
@@ -62,6 +62,52 @@ spec:
           filter:
             name: envoy.filters.network.http_connection_manager
         portNumber: 11800
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.network.ConnectionLimit
+        typed_config:
+          '@type': type.googleapis.com/envoy.extensions.filters.network.connection_limit.v3.ConnectionLimit
+          max_connections: $NUMBER_OF_CONNECTIONS_PER_OAP
+          stat_prefix: envoy_filters_network_connection_limit
+  workloadSelector:
+    labels:
+      app: oap
+EOF
+```
+
+By this approach, we can limit the connections to port 11800 per OAP instance, but there
+is another corner case when the amount of service Pods are huge. Because the limiting is
+on connection level, and each service Pod has 2 connections to OAP port 11800, one for
+Envoy ALS to send access log, the other one for Envoy metrics, and because the traffic
+of the 2 connections can vary very much, if the number of service Pods is large enough,
+an extreme case might happen that one OAP instance is serving all Envoy metrics connections
+and the other OAP instance is serving all Envoy ALS connections, which in turn might be
+unbalanced again, to solve this, we can split the ALS connections to a dedicated port,
+and limit the connections to that port only.
+
+You can set the environment variable `SW_ALS_GRPC_PORT` to a port number other than `0`
+when deploying skywalking, and limit connections to that port only in the `EnvoyFilter`:
+
+```shell
+export SW_ALS_GRPC_PORT=11802
+
+kubectl -n $SKYWALKING_NAMESPACE apply -f - <<EOF
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: oap-limit-connections
+  namespace: istio-system
+spec:
+  configPatches:
+  - applyTo: NETWORK_FILTER
+    match:
+      context: ANY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+        portNumber: $SW_ALS_GRPC_PORT
     patch:
       operation: INSERT_BEFORE
       value:
