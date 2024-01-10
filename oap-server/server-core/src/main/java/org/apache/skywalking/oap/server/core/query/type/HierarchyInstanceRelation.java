@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.core.query.type;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@EqualsAndHashCode
 public class HierarchyInstanceRelation {
     private HierarchyRelatedInstance upperInstance;
     private HierarchyRelatedInstance lowerInstance;

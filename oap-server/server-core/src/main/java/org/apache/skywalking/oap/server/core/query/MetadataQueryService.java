@@ -84,6 +84,14 @@ public class MetadataQueryService implements org.apache.skywalking.oap.server.li
         return Arrays.stream(Layer.values()).filter(layer -> layer.value() > 0).map(Layer::name).collect(Collectors.toSet());
     }
 
+    /**
+     * @return all services, key is service id, value is services with different layers.
+     */
+    @SneakyThrows
+    public Map<String, List<Service>> listAllServices() {
+        return this.serviceCache.get(true);
+    }
+
     @SneakyThrows
     public List<Service> listServices(final String layer, final String group) throws IOException {
         return this.combineServices(this.serviceCache.get(true).values().stream().flatMap(Collection::stream)

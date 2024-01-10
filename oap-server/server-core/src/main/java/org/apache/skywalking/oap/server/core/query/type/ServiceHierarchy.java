@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,5 +28,5 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode
 public class ServiceHierarchy {
-    private List<HierarchyServiceRelation> relations = new ArrayList<>();
+    private Set<HierarchyServiceRelation> relations = new HashSet<>();
 }

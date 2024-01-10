@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.server.core.hierarchy;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
@@ -28,16 +31,19 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.hierarchy.instance.InstanceHierarchyRelation;
 import org.apache.skywalking.oap.server.core.hierarchy.service.ServiceHierarchyRelation;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 
 @Slf4j
-public class HierarchyService implements Service {
+public class HierarchyService implements org.apache.skywalking.oap.server.library.module.Service {
     private final ModuleManager moduleManager;
     private final boolean isEnableHierarchy;
     private SourceReceiver sourceReceiver;
-    private Map<String, List<String>> hierarchyDefinition;
+    private MetadataQueryService metadataQueryService;
+    private Map<String, Map<String, HierarchyDefinitionService.MatchingRule>> hierarchyDefinition;
 
     public HierarchyService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
@@ -49,9 +55,10 @@ public class HierarchyService implements Service {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         }
         return sourceReceiver;
+
     }
 
-    private Map<String, List<String>> getHierarchyDefinition() {
+    private Map<String, Map<String, HierarchyDefinitionService.MatchingRule>> getHierarchyDefinition() {
         if (hierarchyDefinition == null) {
             hierarchyDefinition = moduleManager.find(CoreModule.NAME)
                                                .provider()
@@ -60,84 +67,149 @@ public class HierarchyService implements Service {
         return hierarchyDefinition;
     }
 
+    private MetadataQueryService getMetadataQueryService() {
+        if (metadataQueryService == null) {
+            this.metadataQueryService = moduleManager.find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(MetadataQueryService.class);
+        }
+        return metadataQueryService;
+    }
+
     /**
      * Build the hierarchy relation between the 2 services. the `serviceLayer` and `relatedServiceLayer` hierarchy
-     * relations should be defined in `config/hierarchy-definition.yml`. Generally, if service A and service B could detect
-     * each other, then build the hierarchy in one side is enough.
+     * relations should be defined in `config/hierarchy-definition.yml`.
      *
-     * @param serviceName         the name of the source service (self)
-     * @param serviceLayer        the layer of the source service
-     * @param relatedServiceName  the name of the detected related service
-     * @param relatedServiceLayer the layer of the detected related service
+     * @param upperServiceName         the name of the service
+     * @param upperServiceLayer        the layer of the service
+     * @param lowerServiceName  the name of the lower service
+     * @param lowerServiceLayer the layer of the lower service
      */
-    public void toServiceHierarchyRelation(String serviceName,
-                                           Layer serviceLayer,
-                                           String relatedServiceName,
-                                           Layer relatedServiceLayer) {
+    public void toServiceHierarchyRelation(String upperServiceName,
+                                           Layer upperServiceLayer,
+                                           String lowerServiceName,
+                                           Layer lowerServiceLayer) {
         if (!this.isEnableHierarchy) {
             return;
         }
-        if (!checkHierarchyDefinition(serviceLayer, relatedServiceLayer)) {
+        Map<String, HierarchyDefinitionService.MatchingRule> lowerLayers = getHierarchyDefinition().get(upperServiceLayer.name());
+        if (lowerLayers == null || !lowerLayers.containsKey(lowerServiceLayer.name())) {
+            log.error("upperServiceLayer " + upperServiceLayer.name() + " or lowerServiceLayer " + lowerServiceLayer.name()
+                          + " is not defined in hierarchy-definition.yml.");
             return;
         }
-        ServiceHierarchyRelation serviceHierarchy = new ServiceHierarchyRelation();
-        serviceHierarchy.setServiceName(serviceName);
-        serviceHierarchy.setServiceLayer(serviceLayer);
-        serviceHierarchy.setRelatedServiceName(relatedServiceName);
-        serviceHierarchy.setRelatedServiceLayer(relatedServiceLayer);
-        serviceHierarchy.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-        this.getSourceReceiver().receive(serviceHierarchy);
+        autoMatchingServiceRelation(upperServiceName, upperServiceLayer, lowerServiceName, lowerServiceLayer);
     }
 
     /**
      * Build the hierarchy relation between the 2 instances. the `serviceLayer` and `relatedServiceLayer` hierarchy
-     * relations should be defined in `config/hierarchy-definition.yml`. Generally, if instance A and instance B could detect
-     * each other, then build the hierarchy in one side is enough.
+     * relations should be defined in `config/hierarchy-definition.yml`.
      *
-     * @param instanceName        the name of the source instance (self)
-     * @param serviceName         the name of the source service (self)
-     * @param serviceLayer        the layer of the source service
-     * @param relatedInstanceName the name of the detected related instance
-     * @param relatedServiceName  the name of the detected related service
-     * @param relatedServiceLayer the layer of the detected related service
+     * @param upperInstanceName        the name of the upper instance
+     * @param upperServiceName         the name of the upper service
+     * @param upperServiceLayer        the layer of the upper service
+     * @param lowerInstanceName the name of the lower related instance
+     * @param lowerServiceName  the name of the lower related service
+     * @param lowerServiceLayer the layer of the lower related service
      */
-    public void toInstanceHierarchyRelation(String instanceName,
-                                            String serviceName,
-                                            Layer serviceLayer,
-                                            String relatedInstanceName,
-                                            String relatedServiceName,
-                                            Layer relatedServiceLayer) {
+    public void toInstanceHierarchyRelation(String upperInstanceName,
+                                            String upperServiceName,
+                                            Layer upperServiceLayer,
+                                            String lowerInstanceName,
+                                            String lowerServiceName,
+                                            Layer lowerServiceLayer) {
         if (!this.isEnableHierarchy) {
             return;
         }
-        if (!checkHierarchyDefinition(serviceLayer, relatedServiceLayer)) {
+        Map<String, HierarchyDefinitionService.MatchingRule> lowerLayers = getHierarchyDefinition().get(upperServiceLayer.name());
+        if (lowerLayers == null || !lowerLayers.containsKey(lowerServiceLayer.name())) {
+            log.error("upperServiceLayer " + upperServiceLayer.name() + " or lowerServiceLayer " + lowerServiceLayer.name()
+                          + " is not defined in hierarchy-definition.yml.");
             return;
         }
+
+        buildInstanceHierarchyRelation(upperInstanceName, upperServiceName, upperServiceLayer, lowerInstanceName,
+                                           lowerServiceName, lowerServiceLayer);
+    }
+
+    public void startAutoMatchingServiceHierarchy() {
+        if (!this.isEnableHierarchy) {
+            return;
+        }
+        Executors.newSingleThreadScheduledExecutor()
+                 .scheduleWithFixedDelay(
+                     new RunnableWithExceptionProtection(this::autoMatchingServiceRelation, t -> log.error(
+                         "Scheduled auto matching service hierarchy from service traffic failure.", t)), 1, 20, TimeUnit.SECONDS);
+    }
+
+    private void autoMatchingServiceRelation(String upperServiceName,
+                                             Layer upperServiceLayer,
+                                             String lowerServiceName,
+                                             Layer lowerServiceLayer) {
+        ServiceHierarchyRelation serviceHierarchy = new ServiceHierarchyRelation();
+        serviceHierarchy.setServiceName(upperServiceName);
+        serviceHierarchy.setServiceLayer(upperServiceLayer);
+        serviceHierarchy.setRelatedServiceName(lowerServiceName);
+        serviceHierarchy.setRelatedServiceLayer(lowerServiceLayer);
+        serviceHierarchy.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        this.getSourceReceiver().receive(serviceHierarchy);
+    }
+
+    private void buildInstanceHierarchyRelation(String upperInstanceName,
+                                                String upperServiceName,
+                                                Layer upperServiceLayer,
+                                                String lowerInstanceName,
+                                                String lowerServiceName,
+                                                Layer lowerServiceLayer) {
         InstanceHierarchyRelation instanceHierarchy = new InstanceHierarchyRelation();
-        instanceHierarchy.setInstanceName(instanceName);
-        instanceHierarchy.setServiceName(serviceName);
-        instanceHierarchy.setServiceLayer(serviceLayer);
-        instanceHierarchy.setRelatedInstanceName(relatedInstanceName);
-        instanceHierarchy.setRelatedServiceName(relatedServiceName);
-        instanceHierarchy.setRelatedServiceLayer(relatedServiceLayer);
+        instanceHierarchy.setInstanceName(upperInstanceName);
+        instanceHierarchy.setServiceName(upperServiceName);
+        instanceHierarchy.setServiceLayer(upperServiceLayer);
+        instanceHierarchy.setRelatedInstanceName(lowerInstanceName);
+        instanceHierarchy.setRelatedServiceName(lowerServiceName);
+        instanceHierarchy.setRelatedServiceLayer(lowerServiceLayer);
         instanceHierarchy.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         this.getSourceReceiver().receive(instanceHierarchy);
     }
 
-    private boolean checkHierarchyDefinition(Layer serviceLayer, Layer relatedServiceLayer) {
-        List<String> lowerLayers = getHierarchyDefinition().get(serviceLayer.name());
-        List<String> relatedLowerLayers = getHierarchyDefinition().get(relatedServiceLayer.name());
-        if (lowerLayers == null || relatedLowerLayers == null) {
-            log.error("serviceLayer " + serviceLayer.name() + " or relatedServiceLayer " + relatedServiceLayer.name()
-                          + " is not defined in hierarchy-definition.yml.");
-            return false;
+    private void autoMatchingServiceRelation() {
+        List<Service> allServices = getMetadataQueryService().listAllServices()
+                                                             .values()
+                                                             .stream()
+                                                             .flatMap(List::stream)
+                                                             .collect(Collectors.toList());
+        if (allServices.size() > 1) {
+            for (int i = 0; i < allServices.size(); i++) {
+                for (int j = i + 1; j < allServices.size(); j++) {
+                    Service service = allServices.get(i);
+                    Service comparedService = allServices.get(j);
+                    String serviceLayer = service.getLayers().iterator().next();
+                    String comparedServiceLayer = comparedService.getLayers().iterator().next();
+                    Map<String, HierarchyDefinitionService.MatchingRule> lowerLayers = getHierarchyDefinition().get(
+                        serviceLayer);
+                    Map<String, HierarchyDefinitionService.MatchingRule> comparedLowerLayers = getHierarchyDefinition().get(
+                        comparedServiceLayer);
+                    if (lowerLayers != null
+                        && lowerLayers.get(comparedServiceLayer) != null
+                        && lowerLayers.get(comparedServiceLayer)
+                                      .getClosure()
+                                      .call(service, comparedService)) {
+                        autoMatchingServiceRelation(service.getName(), Layer.nameOf(serviceLayer),
+                                                    comparedService.getName(),
+                                                    Layer.nameOf(comparedServiceLayer)
+                        );
+                    } else if (comparedLowerLayers != null
+                        && comparedLowerLayers.get(serviceLayer) != null
+                        && comparedLowerLayers.get(serviceLayer)
+                                             .getClosure()
+                                             .call(comparedService, service)) {
+                        autoMatchingServiceRelation(comparedService.getName(), Layer.nameOf(comparedServiceLayer),
+                                                    service.getName(),
+                                                    Layer.nameOf(serviceLayer)
+                        );
+                    }
+                }
+            }
         }
-
-        if (!lowerLayers.contains(relatedServiceLayer.name()) || !relatedLowerLayers.contains(serviceLayer.name())) {
-            log.error("serviceLayer " + serviceLayer.name() + " and relatedServiceLayer " + relatedServiceLayer.name()
-                          + " should have the hierarchy relation in hierarchy-definition.yml.");
-            return false;
-        }
-        return true;
     }
 }

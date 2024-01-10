@@ -28,19 +28,37 @@ import org.apache.skywalking.oap.server.core.source.Source;
 
 @ScopeDeclaration(id = DefaultScopeDefine.SERVICE_HIERARCHY_RELATION, name = "ServiceHierarchyRelation")
 public class ServiceHierarchyRelation extends Source {
+    /**
+     * The service id of the upper service.
+     */
     @Setter
     @Getter
     private String serviceName;
+    /**
+     * The service id of the upper service.
+     */
     @Getter
     private String serviceId;
+    /**
+     * The service layer of the upper service.
+     */
     @Setter
     @Getter
     private Layer serviceLayer;
+    /**
+     * The service name of the lower service.
+     */
     @Setter
     @Getter
     private String relatedServiceName;
+    /**
+     * The service id of the lower service.
+     */
     @Getter
     private String relatedServiceId;
+    /**
+     * The service layer of the lower service.
+     */
     @Setter
     @Getter
     private Layer relatedServiceLayer;

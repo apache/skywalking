@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.core.query.enumeration.ProfilingSupportStatus;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.Endpoint;
@@ -37,11 +38,11 @@ public interface IMetadataQueryDAO extends DAO {
     List<Service> listServices() throws IOException;
 
     /**
-     * @param duration   The instance is required to be live in this duration.
+     * @param duration   The instance is required to be live in this duration, could be null.
      * @param serviceId      the owner of the instances.
      * @return list of instances matching the given conditions.
      */
-    List<ServiceInstance> listInstances(final Duration duration,
+    List<ServiceInstance> listInstances(@Nullable final Duration duration,
                                         final String serviceId) throws IOException;
 
     ServiceInstance getInstance(final String instanceId) throws IOException;
