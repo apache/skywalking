@@ -208,6 +208,11 @@ menus:
         description: Provide pulsar monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-pulsar-monitoring/
         i18nKey: mq_pulsar
+      - title: RocketMQ
+        layer: ROCKETMQ
+        description: Provide RocketMQ monitoring through OpenTelemetry's Prometheus Receiver.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-rocketmq-monitoring/
+        i18nKey: mq_rocketmq
   - title: Self Observability
     icon: self_observability
     description: Self Observability provides the observabilities for running components and servers from the SkyWalking ecosystem.

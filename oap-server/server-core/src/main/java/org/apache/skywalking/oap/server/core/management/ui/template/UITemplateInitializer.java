@@ -72,6 +72,7 @@ public class UITemplateInitializer {
         Layer.PULSAR.name(),
         Layer.BOOKKEEPER.name(),
         Layer.NGINX.name(),
+        Layer.ROCKETMQ.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;
