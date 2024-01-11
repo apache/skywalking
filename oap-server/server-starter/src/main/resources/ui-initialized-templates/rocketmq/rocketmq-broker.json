@@ -1,0 +1,142 @@
+[
+  {
+    "id": "RocketMQ-Broker",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 14,
+          "i": "8",
+          "type": "Widget",
+          "id": "8",
+          "metricTypes": [],
+          "metrics": [],
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Produce Tps",
+            "tips": "The number of broker produces messages per second",
+            "name": "produce qps"
+          },
+          "metricMode": "Expression",
+          "metricConfig": [],
+          "expressions": [
+            "meter_rocketmq_broker_produce_tps"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 14,
+          "i": "9",
+          "type": "Widget",
+          "id": "9",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_broker_consume_qps"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Consume Qps",
+            "tips": "The number of broker consumes messages per second",
+            "name": "consume qps"
+          }
+        },
+        {
+          "x": 0,
+          "y": 14,
+          "w": 12,
+          "h": 13,
+          "i": "13",
+          "type": "Widget",
+          "id": "13",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_broker_producer_message_size/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "producer_message_size_per_second",
+            "title": "Producer Message Size(MB)",
+            "tips": "The size of the messages produced per second"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "w": 12,
+          "h": 13,
+          "i": "14",
+          "type": "Widget",
+          "id": "14",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_broker_consumer_message_size/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "consumer message size",
+            "title": "Consumer Message Size(MB)",
+            "tips": "The size of the messages consumed per second"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        }
+      ],
+      "layer": "ROCKETMQ",
+      "entity": "ServiceInstance",
+      "name": "RocketMQ-Broker",
+      "id": "RocketMQ-Broker"
+    }
+  }
+]

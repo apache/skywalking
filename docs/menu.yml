@@ -246,6 +246,8 @@ catalog:
                 path: "/en/setup/backend/backend-mongodb-monitoring"
               - name: "BookKeeper"
                 path: "/en/setup/backend/backend-bookkeeper-monitoring"
+              - name: "RocketMQ"
+                path: "/en/setup/backend/backend-rocketmq-monitoring"
           - name: "MQ Monitoring"
             catalog:
               - name: "RabbitMQ"
