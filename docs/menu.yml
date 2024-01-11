@@ -32,6 +32,8 @@ catalog:
             path: "/en/concepts-and-designs/service-agent"
           - name: "Manual Instrument SDK"
             path: "/en/concepts-and-designs/manual-sdk"
+      - name: "Service Hierarchy"
+        path: "/en/concepts-and-designs/service-hierarchy"
   - name: "Setup"
     catalog:
       - name: "Quick Start"

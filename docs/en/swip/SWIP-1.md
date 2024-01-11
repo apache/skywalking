@@ -101,20 +101,21 @@ type InstanceHierarchy {
   relations: [HierarchyInstanceRelation!]!
 }
 
+type LayerLevel {
+  # The layer name.
+  layer: String!
+  # The layer level.
+  # The level of the upper service should greater than the level of the lower service.
+  level: Int!
+}
+
 extend type Query {
   # Query the service hierarchy, based on the given service. Will recursively return all related layers services in the hierarchy.
   getServiceHierarchy(serviceId: ID!, layer: String!): ServiceHierarchy!
   # Query the instance hierarchy, based on the given instance. Will return all direct related layers instances in the hierarchy, no recursive.
   getInstanceHierarchy(instanceId: ID!, layer: String!): InstanceHierarchy!
-}
-```
-New fields are going to be added to the `topology.graphqls`.
-```graphql
-# Node in Topology
-type Node {
-  ...
-  # The service hierarchy of the node.
-  serviceHierarchy: ServiceHierarchy!
+  # List layer hierarchy levels. The layer levels are defined in the `hierarchy-definition.yml`.
+  listLayerLevels: [LayerLevel!]!
 }
 ```
 
@@ -169,7 +170,7 @@ hierarchy:
     K8S_SERVICE: lower-short-name-remove-ns
 
   MYSQL:
-    K8S_SERVICE: lower-short-name-remove-ns
+    K8S_SERVICE: ~
 
   VIRTUAL_DATABASE:
     MYSQL: ~
@@ -183,6 +184,16 @@ auto-matching-rules:
   short-name: "{ (u, l) -> u.shortName == l.shortName }"
   # remove the namespace from the lower service short name
   lower-short-name-remove-ns: "{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }"
+
+layer-levels:
+  # The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation.
+  # The level of the upper service should greater than the level of the lower service in `hierarchy` section.
+  MESH: 3
+  GENERAL: 3
+  VIRTUAL_DATABASE: 3
+  MYSQL: 2
+  MESH_DP: 1
+  K8S_SERVICE: 0
 ```
 
 ## General usage docs

@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.core.query.type.HierarchyRelatedInstance
 import org.apache.skywalking.oap.server.core.query.type.HierarchyRelatedService;
 import org.apache.skywalking.oap.server.core.query.type.HierarchyServiceRelation;
 import org.apache.skywalking.oap.server.core.query.type.InstanceHierarchy;
+import org.apache.skywalking.oap.server.core.query.type.LayerLevel;
 import org.apache.skywalking.oap.server.core.query.type.ServiceHierarchy;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -59,6 +60,7 @@ public class HierarchyQueryService implements Service {
     private IHierarchyQueryDAO hierarchyQueryDAO;
     private IMetadataQueryDAO metadataQueryDAO;
     private Map<String, Map<String, HierarchyDefinitionService.MatchingRule>> hierarchyDefinition;
+    private Map<String, Integer> layerLevels;
     private LoadingCache<Boolean, Map<HierarchyRelatedService, ServiceRelations>> serviceHierarchyCache;
 
     public HierarchyQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
@@ -104,6 +106,15 @@ public class HierarchyQueryService implements Service {
                                                .getService(HierarchyDefinitionService.class).getHierarchyDefinition();
         }
         return hierarchyDefinition;
+    }
+
+    private Map<String, Integer> getLayerLevels() {
+        if (layerLevels == null) {
+            layerLevels = moduleManager.find(CoreModule.NAME)
+                                               .provider()
+                                               .getService(HierarchyDefinitionService.class).getLayerLevels();
+        }
+        return layerLevels;
     }
 
     private Map<HierarchyRelatedService, ServiceRelations> mapServiceHierarchy() throws Exception {
@@ -275,6 +286,13 @@ public class HierarchyQueryService implements Service {
         InstanceHierarchy hierarchy = new InstanceHierarchy();
         hierarchy.setRelations(relations.stream().distinct().collect(Collectors.toList()));
         return hierarchy;
+    }
+
+    public List<LayerLevel> listLayerLevels() {
+        return getLayerLevels().entrySet()
+                               .stream()
+                               .map(entry -> new LayerLevel(entry.getKey(), entry.getValue()))
+                               .collect(Collectors.toList());
     }
 
     private Predicate<Attribute> hostAttrFilter() {

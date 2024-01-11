@@ -19,9 +19,12 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import java.util.List;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
 import org.apache.skywalking.oap.server.core.query.type.InstanceHierarchy;
+import org.apache.skywalking.oap.server.core.query.type.LayerLevel;
 import org.apache.skywalking.oap.server.core.query.type.ServiceHierarchy;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -48,5 +51,9 @@ public class HierarchyQuery implements GraphQLQueryResolver {
 
     public InstanceHierarchy getInstanceHierarchy(String instanceId, String layer) throws Exception {
         return getHierarchyQueryService().getInstanceHierarchy(instanceId, layer);
+    }
+
+    public List<LayerLevel> listLayerLevels() throws Exception {
+        return getHierarchyQueryService().listLayerLevels();
     }
 }
