@@ -45,6 +45,25 @@ public class EnvoyMetricReceiverConfig extends ModuleConfig {
     private String istioServiceNameRule;
     private String istioServiceEntryIgnoredNamespaces;
 
+    @Getter
+    private String gRPCHost;
+    @Getter
+    private int gRPCPort;
+    @Getter
+    private int maxConcurrentCallsPerConnection;
+    @Getter
+    private int maxMessageSize;
+    @Getter
+    private int gRPCThreadPoolSize;
+    @Getter
+    private boolean gRPCSslEnabled = false;
+    @Getter
+    private String gRPCSslKeyPath;
+    @Getter
+    private String gRPCSslCertChainPath;
+    @Getter
+    private String gRPCSslTrustedCAsPath;
+
     private final ServiceMetaInfoFactory serviceMetaInfoFactory = new ServiceMetaInfoFactoryImpl();
     @Getter
     private final ClusterManagerMetricsAdapter clusterManagerMetricsAdapter = new ClusterManagerMetricsAdapter(this);
