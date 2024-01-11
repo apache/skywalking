@@ -322,6 +322,15 @@ envoy-metric:
     # service name, users can use this config to exclude ServiceEntries that
     # they don't want to be used. Comma separated.
     istioServiceEntryIgnoredNamespaces: ${SW_ISTIO_SERVICE_ENTRY_IGNORED_NAMESPACES:""}
+    gRPCHost: ${SW_ALS_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_ALS_GRPC_PORT:0}
+    maxConcurrentCallsPerConnection: ${SW_ALS_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_ALS_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_ALS_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_ALS_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_ALS_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_ALS_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_ALS_GRPC_SSL_TRUSTED_CAS_PATH:""}
 
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}
