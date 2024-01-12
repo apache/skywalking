@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.hierarchy.instance.InstanceHierarchyRelationTraffic;
 import org.apache.skywalking.oap.server.core.hierarchy.service.ServiceHierarchyRelationTraffic;
@@ -123,13 +124,19 @@ public class HierarchyQueryService implements Service {
 
         for (ServiceHierarchyRelationTraffic traffic : traffics) {
             HierarchyRelatedService service = new HierarchyRelatedService();
+            IDManager.ServiceID.ServiceIDDefinition serviceIdDef = IDManager.ServiceID.analysisId(
+                traffic.getServiceId());
             service.setId(traffic.getServiceId());
-            service.setName(IDManager.ServiceID.analysisId(traffic.getServiceId()).getName());
+            service.setName(serviceIdDef.getName());
             service.setLayer(traffic.getServiceLayer().name());
+            service.setNormal(serviceIdDef.isReal());
             HierarchyRelatedService relatedService = new HierarchyRelatedService();
+            IDManager.ServiceID.ServiceIDDefinition relatedServiceIdDef = IDManager.ServiceID.analysisId(
+                traffic.getRelatedServiceId());
             relatedService.setId(traffic.getRelatedServiceId());
-            relatedService.setName(IDManager.ServiceID.analysisId(traffic.getRelatedServiceId()).getName());
+            relatedService.setName(relatedServiceIdDef.getName());
             relatedService.setLayer(traffic.getRelatedServiceLayer().name());
+            relatedService.setNormal(relatedServiceIdDef.isReal());
 
             ServiceRelations serviceRelations = serviceRelationsMap.computeIfAbsent(
                 service, k -> new ServiceRelations());
@@ -183,8 +190,8 @@ public class HierarchyQueryService implements Service {
         self.setId(serviceId);
         self.setName(IDManager.ServiceID.analysisId(serviceId).getName());
         self.setLayer(layer);
+        self.setNormal(Layer.nameOf(layer).isNormal());
         buildServiceRelation(hierarchy, self, maxDepth, direction);
-
         return hierarchy;
     }
 
@@ -214,6 +221,8 @@ public class HierarchyQueryService implements Service {
         //build from service hierarchy and instance traffic
         IDManager.ServiceInstanceID.InstanceIDDefinition idDefinition = IDManager.ServiceInstanceID.analysisId(
             instanceId);
+        IDManager.ServiceID.ServiceIDDefinition serviceIdDefinition = IDManager.ServiceID.analysisId(
+            idDefinition.getServiceId());
         //instance is only query 1 depth of service hierarchy, set max depth to 1
         ServiceHierarchy serviceHierarchy = getServiceHierarchy(idDefinition.getServiceId(), layer, 1, HierarchyDirection.All);
 
@@ -245,13 +254,19 @@ public class HierarchyQueryService implements Service {
             HierarchyRelatedInstance instance = new HierarchyRelatedInstance();
             instance.setId(self.getId());
             instance.setName(self.getName());
+            instance.setServiceId(idDefinition.getServiceId());
+            instance.setServiceName(serviceIdDefinition.getName());
+            instance.setNormal(serviceIdDefinition.isReal());
             instance.setLayer(layer);
             //The instances could be same but the service layer is different
             if (lower.isPresent() && !layer.equals(serviceRelation.getLowerService().getLayer())) {
                 HierarchyRelatedInstance relatedInstance = new HierarchyRelatedInstance();
                 relatedInstance.setId(lower.get().getId());
                 relatedInstance.setName(lower.get().getName());
+                relatedInstance.setServiceId(serviceRelation.getLowerService().getId());
+                relatedInstance.setServiceName(serviceRelation.getLowerService().getName());
                 relatedInstance.setLayer(serviceRelation.getLowerService().getLayer());
+                relatedInstance.setNormal(serviceRelation.getLowerService().isNormal());
                 relations.add(new HierarchyInstanceRelation(instance, relatedInstance));
             }
 
@@ -259,7 +274,10 @@ public class HierarchyQueryService implements Service {
                 HierarchyRelatedInstance relatedInstance = new HierarchyRelatedInstance();
                 relatedInstance.setId(upper.get().getId());
                 relatedInstance.setName(upper.get().getName());
+                relatedInstance.setServiceId(serviceRelation.getUpperService().getId());
+                relatedInstance.setServiceName(serviceRelation.getUpperService().getName());
                 relatedInstance.setLayer(serviceRelation.getUpperService().getLayer());
+                relatedInstance.setNormal(serviceRelation.getUpperService().isNormal());
                 relations.add(new HierarchyInstanceRelation(relatedInstance, instance));
             }
         }
@@ -270,13 +288,27 @@ public class HierarchyQueryService implements Service {
 
         for (InstanceHierarchyRelationTraffic traffic : traffics) {
             HierarchyRelatedInstance instance = new HierarchyRelatedInstance();
+            IDManager.ServiceInstanceID.InstanceIDDefinition idDef = IDManager.ServiceInstanceID.analysisId(
+                instanceId);
+            IDManager.ServiceID.ServiceIDDefinition serviceIdDef = IDManager.ServiceID.analysisId(
+                idDefinition.getServiceId());
             instance.setId(traffic.getInstanceId());
-            instance.setName(IDManager.ServiceInstanceID.analysisId(traffic.getInstanceId()).getName());
+            instance.setName(idDef.getName());
+            instance.setServiceId(idDef.getServiceId());
+            instance.setServiceName(serviceIdDef.getName());
             instance.setLayer(traffic.getServiceLayer().name());
+            instance.setNormal(serviceIdDef.isReal());
             HierarchyRelatedInstance relatedInstance = new HierarchyRelatedInstance();
+            IDManager.ServiceInstanceID.InstanceIDDefinition relatedIdDef = IDManager.ServiceInstanceID.analysisId(
+                traffic.getRelatedInstanceId());
+            IDManager.ServiceID.ServiceIDDefinition relatedServiceIdDef = IDManager.ServiceID.analysisId(
+                relatedIdDef.getServiceId());
             relatedInstance.setId(traffic.getRelatedInstanceId());
-            relatedInstance.setName(IDManager.ServiceInstanceID.analysisId(traffic.getRelatedInstanceId()).getName());
+            relatedInstance.setName(relatedIdDef.getName());
+            relatedInstance.setServiceId(relatedIdDef.getServiceId());
+            relatedInstance.setServiceName(relatedServiceIdDef.getName());
             relatedInstance.setLayer(traffic.getRelatedServiceLayer().name());
+            relatedInstance.setNormal(relatedServiceIdDef.isReal());
             Map<String, HierarchyDefinitionService.MatchingRule> lowerLayers = getHierarchyDefinition().get(
                 traffic.getServiceLayer().name());
             if (lowerLayers != null && lowerLayers.containsKey(traffic.getRelatedServiceLayer().name())) {

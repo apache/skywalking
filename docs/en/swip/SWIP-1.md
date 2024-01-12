@@ -72,6 +72,7 @@ type HierarchyRelatedService {
   name: String!
   # The related service's Layer name.
   layer: String!
+  normal: Boolean!
 }
 
 type HierarchyRelatedInstance {
@@ -79,8 +80,14 @@ type HierarchyRelatedInstance {
   id: ID!
   # The literal name of the #id. Instance Name.
   name: String!
-  # The related instance service's Layer name.
+  # Service id
+  serviceId: ID!
+  # The literal name of the #serviceId.
+  serviceName: String!
+  # The service's Layer name.
+  # Service could have multiple layers, this is the layer of the service that the instance belongs to.
   layer: String!
+  normal: Boolean!
 }
 
 type HierarchyServiceRelation {
@@ -185,9 +192,9 @@ auto-matching-rules:
   # remove the namespace from the lower service short name
   lower-short-name-remove-ns: "{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }"
 
+# The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation,
+# The level of the upper service should greater than the level of the lower service in `hierarchy` section.
 layer-levels:
-  # The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation.
-  # The level of the upper service should greater than the level of the lower service in `hierarchy` section.
   MESH: 3
   GENERAL: 3
   VIRTUAL_DATABASE: 3

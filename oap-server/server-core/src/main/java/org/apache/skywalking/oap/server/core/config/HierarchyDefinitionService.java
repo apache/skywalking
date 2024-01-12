@@ -91,7 +91,7 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
                     "hierarchy-definition.yml  layer-levels: " + layer + " is not defined");
             }
 
-            for(String lowerLayer : lowerLayers.keySet()) {
+            for (String lowerLayer : lowerLayers.keySet()) {
                 Integer lowerLayerLevel = this.layerLevels.get(lowerLayer);
                 if (lowerLayerLevel == null) {
                     throw new IllegalArgumentException(
