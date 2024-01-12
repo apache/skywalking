@@ -40,7 +40,7 @@
               "children": [
                 {
                   "x": 0,
-                  "y": 43,
+                  "y": 0,
                   "w": 24,
                   "h": 50,
                   "i": "0",
@@ -112,24 +112,32 @@
                   ],
                   "linkServerExpressions": [
                     "avg(kubernetes_service_relation_server_write_package_size)/60",
-                    "avg(kubernetes_service_relation_server_read_package_size)/60"
+                    "avg(kubernetes_service_relation_server_read_package_size)/60",
+                    "avg(kubernetes_service_relation_client_http_call_cpm)/60",
+                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm)/1000000"
                   ],
                   "linkClientExpressions": [
                     "avg(kubernetes_service_relation_client_write_package_size)/60",
-                    "avg(kubernetes_service_relation_client_read_package_size)/60"
+                    "avg(kubernetes_service_relation_client_read_package_size)/60",
+                    "avg(kubernetes_service_relation_server_http_call_cpm)/60",
+                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm)/1000000"
                   ],
                   "nodeExpressions": [
                     "avg(kubernetes_service_write_package_size)/60",
-                    "avg(kubernetes_service_read_package_size)/60"
+                    "avg(kubernetes_service_read_package_size)/60",
+                    "avg(kubernetes_service_http_call_cpm)",
+                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)/1000000",
+                    "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
                   ],
                   "legend": [
 
                   ],
                   "legendMQE": {
-                    "expression": ""
+                    "expression": "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95 and avg(kubernetes_service_http_call_cpm) > 1"
                   },
                   "description": {
-
+                    "healthy": "Healthy",
+                    "unhealthy": "HTTP Success Rate < 95% and HTTP Traffic > 1 calls / min"
                   },
                   "linkServerMetricConfig": [
                     {
@@ -139,6 +147,14 @@
                     {
                       "unit": "bytes",
                       "label": "Server Read Per Seconds"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Client HTTP Load"
+                    },
+                    {
+                      "label": "Client HTTP Latency",
+                      "unit": "ms"
                     }
                   ],
                   "linkClientMetricConfig": [
@@ -149,6 +165,14 @@
                     {
                       "label": "Client Read Per Seconds",
                       "unit": "bytes"
+                    },
+                    {
+                      "unit": "calls / min",
+                      "label": "Server HTTP Load"
+                    },
+                    {
+                      "label": "Server HTTP Latency",
+                      "unit": "ms"
                     }
                   ],
                   "nodeMetricConfig": [
@@ -159,6 +183,18 @@
                     {
                       "unit": "bytes",
                       "label": "Read Per Seconds"
+                    },
+                    {
+                      "label": "HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "HTTP Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "HTTP Success Rate",
+                      "unit": "%"
                     }
                   ]
                 }

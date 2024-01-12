@@ -292,9 +292,12 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         switch (protocolLog.getProtocolCase()) {
             case HTTP:
                 final AccessLogHTTPProtocol http = protocolLog.getHttp();
+                success = http.getResponse().getStatusCode() < 500;
+
                 startTimeBucket = node.parseMinuteTimeBucket(http.getStartTime());
                 protocol.setType(K8SMetrics.PROTOCOL_TYPE_HTTP);
                 protocol.setHttp(new K8SMetrics.ProtocolHTTP());
+                protocol.setSuccess(success);
 
                 protocol.getHttp().setLatency(getDurationFromTimestamp(node, http.getStartTime(), http.getEndTime()));
                 protocol.getHttp().setUrl(http.getRequest().getPath());
@@ -304,7 +307,6 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
                 protocol.getHttp().setSizeOfRequestBody(http.getRequest().getSizeOfBodyBytes());
                 protocol.getHttp().setSizeOfResponseHeader(http.getResponse().getSizeOfHeadersBytes());
                 protocol.getHttp().setSizeOfResponseBody(http.getResponse().getSizeOfBodyBytes());
-                success = http.getResponse().getStatusCode() >= 200 && http.getResponse().getStatusCode() < 400;
                 duration = protocol.getHttp().getLatency();
                 break;
         }
@@ -323,7 +325,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
 
         // endpoint, endpoint relation
         final String endpointName = buildProtocolEndpointName(connection, protocolLog);
-        Stream.of(connection.toEndpoint(endpointName, success, duration), connection.toEndpointRelation(endpointName))
+        Stream.of(connection.toEndpoint(endpointName, success, duration), connection.toEndpointRelation(endpointName, success))
             .filter(Objects::nonNull)
             .forEach(metric -> {
                 metric.setType(protocol.getType());
@@ -607,7 +609,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             return endpoint;
         }
 
-        public K8SEndpointRelation toEndpointRelation(String endpointName) {
+        public K8SEndpointRelation toEndpointRelation(String endpointName, boolean success) {
             final Tuple2<KubernetesProcessAddress, KubernetesProcessAddress> tuple = convertSourceAndDestAddress();
             final String sourceServiceName = buildServiceNameByAddress(nodeInfo, tuple._1);
             final String destServiceName = buildServiceNameByAddress(nodeInfo, tuple._2);
@@ -623,6 +625,7 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
             endpointRelation.setDestServiceName(destServiceName);
             endpointRelation.setDestEndpointName(namingControl.formatEndpointName(destServiceName, endpointName));
             endpointRelation.setDestLayer(Layer.K8S_SERVICE);
+            endpointRelation.setSuccess(success);
             return endpointRelation;
         }
 

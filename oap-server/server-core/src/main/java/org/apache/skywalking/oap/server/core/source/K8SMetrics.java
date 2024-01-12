@@ -132,6 +132,7 @@ public abstract class K8SMetrics extends Source {
     @Data
     public static class Protocol {
         private String type;
+        private boolean success;
 
         private ProtocolHTTP http;
     }
@@ -151,6 +152,10 @@ public abstract class K8SMetrics extends Source {
     @Data
     public static abstract class ProtocolMetrics extends Source {
         private String type;
+        /**
+         * Is executed success or not. In HTTP, the status code is 2XX or 3XX means success.
+         */
+        private boolean success;
 
         private ProtocolHTTP http;
     }

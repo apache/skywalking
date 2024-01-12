@@ -414,3 +414,80 @@ This calculates the endpoint dimensional metrics data from each request of MQ sy
 | transmissionLatency | The latency from produce side to consume side .              |           | int(in ms) |
 | status              | Indicates the success or failure of the request.             |           | boolean    |
 | operation           | Indicates this access is on `Produce` or `Consume` side      |           | enum       |
+
+### SCOPES with `K8S` Prefix
+
+All metrics starting with `K8S` are derived from monitoring the Access Log in Kubernetes.
+
+#### Service, Service Instance and relations
+
+For all `K8SService`, `K8SInstance`, `K8SServiceRelation` and `K8SServiceInstanceRelation`, they all have the 
+following **package**/**protocol** level metric contents.
+
+| Name                                | Remarks                                                                                                                                     | Group Key | Type                 |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------|----------------------|
+| type                                | The metrics from log type, the following names should have the type prefix. The value may be connect, accept, close, write, read, protocol. |           | string               |
+| connect.duration                    | Connect to other service use duration.                                                                                                      |           | long(in nanoseconds) |
+| connect.success                     | The connect is success or not.                                                                                                              |           | boolean              |
+| accept.duration                     | Accept connection from client use duration.                                                                                                 |           | long(in nanoseconds) |
+| close.duration                      | Close one connection use duration.                                                                                                          |           | long(in nanoseconds) |
+| close.success                       | Close one connection is success or not.                                                                                                     |           | boolean              |
+| write.duration                      | Write data to the connection use duration.                                                                                                  |           | long(in nanoseconds) |
+| write.syscall                       | Write data to the connection syscall name. The value should be Write, Writev, Send, SendTo, SendMsg, SendMmsg, SendFile, SendFile64.        |           | string               |
+| write.l4.duration                   | Write data to the connection use duration on Linux Layer 4.                                                                                 |           | long(in nanoseconds) |
+| write.l4.transmitPackageCount       | Total package count on write data to the connection.                                                                                        |           | long                 |
+| write.l4.retransmitPackageCount     | Total retransmit package count on write data to the connection.                                                                             |           | long                 |
+| write.l4.totalPackageSize           | Total transmit package size on write data to the connection.                                                                                |           | long(bytes)          |
+| write.l3.duration                   | Write data to the connection use duration on Linux Layer 3.                                                                                 |           | long(in nanoseconds) |
+| write.l3.localDuration              | Write data to the connection use local duration on Linux Layer 3.                                                                           |           | long(in nanoseconds) |
+| write.l3.outputDuration             | Write data to the connection use output duration on Linux Layer 3.                                                                          |           | long(in nanoseconds) |
+| write.l3.resolveMACCount            | Total resolve remote MAC address count on write data to the connection.                                                                     |           | long                 |
+| write.l3.resolveMACDuration         | Total resolve remote MAC address use duration on write data to the connection.                                                              |           | long(in nanoseconds) |
+| write.l3.netFilterCount             | Total do net filtering count on write data to the connection.                                                                               |           | long                 |
+| write.l3.netFilterDuration          | Total do net filtering use duration on write data to the connection.                                                                        |           | long(in nanoseconds) |
+| write.l2.duration                   | Write data to the connection use duration on Linux L2.                                                                                      |           | long(nanoseconds)    |
+| write.l2.networkDeviceName          | The network device name on write data to the connection.                                                                                    |           | string               |
+| write.l2.enterQueueBufferCount      | The write package count to the network device queue on write data to the connection.                                                        |           | long                 |
+| write.l2.readySendDuration          | Total ready send buffer duration on write data to the connection.                                                                           |           | long(in nanoseconds) |
+| write.l2.networkDeviceSendDuration  | Total network send buffer use duration on write data to the connection.                                                                     |           | long(in nanoseconds) |
+| read.duration                       | Read data from the connection use duration.                                                                                                 |           | long(in nanoseconds) | 
+| read.syscall                        | Read data from the connection syscall name. The value should Read, Readv, Recv, RecvFrom, RecvMsg, RecvMmsg.                                |           | string               |
+| read.l4.duration                    | Read data to the connection use duration on Linux Layer 4.                                                                                  |           | long(in nanoseconds) | 
+| read.l3.duration                    | Read data to the connection use duration on Linux Layer 3.                                                                                  |           | long(in nanoseconds) | 
+| read.l3.rcvDuration                 | Read data to the connection use receive duration on Linux Layer 3.                                                                          |           | long(in nanoseconds) | 
+| read.l3.localDuration               | Read data to the connection use local duration on Linux Layer 3.                                                                            |           | long(in nanoseconds) |
+| read.l3.netFilterCount              | Total do net filtering count on read data from the connection.                                                                              |           | long                 |
+| read.l3.netFilterDuration           | Total do net filtering use duration on read data from the connection.                                                                       |           | long(in nanoseconds) |
+| read.l2.netDeviceName               | The network device name on read data from the connection.                                                                                   |           | string               | 
+| read.l2.packageCount                | Total read package count on the connection.                                                                                                 |           | long                 |
+| read.l2.totalPackageSize            | Total read package size on the connection.                                                                                                  |           | long(bytes)          |
+| read.l2.packageToQueueDuration      | Total read package to the queue duration on the connection.                                                                                 |           | long(in nanoseconds) |
+| read.l2.rcvPackageFromQueueDuration | Total read package from the queue duration on the connection.                                                                               |           | long(in nanoseconds) | 
+| protocol.type                       | The protocol type name, the following names should have the type prefix. The value should be HTTP.                                          |           | string               |
+| protocol.success                    | This protocol request and response is success or not.                                                                                       |           | boolean              | 
+| protocol.http.latency               | The latency of HTTP response.                                                                                                               |           | long(in nanoseconds) |
+| protocol.http.url                   | The url path of HTTP request.                                                                                                               |           | string               |
+| protocol.http.method                | The method name of HTTP request.                                                                                                            |           | string               | 
+| protocol.http.statusCode            | The response code of HTTP response.                                                                                                         |           | int                  | 
+| protocol.http.sizeOfRequestHeader   | The header size of HTTP request.                                                                                                            |           | long(bytes)          |
+| protocol.http.sizeOfRequestBody     | The body size of HTTP request.                                                                                                              |           | long(bytes)          |
+| protocol.http.sizeOfResponseHeader  | The header size of HTTP response.                                                                                                           |           | long(bytes)          |
+| protocol.http.sizeOfResponseBody    | The body size of HTTP response.                                                                                                             |           | long(bytes)          |
+
+#### Endpoint and Endpoint Relation
+
+For `K8SEndpoint` and `K8SEndpointRelation`, they only have the following **protocol** level metric contents.
+
+| Name                                | Remarks                                                                                                                                     | Group Key | Type                 |
+|-------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|-----------|----------------------|
+| protocol.type                       | The protocol type name, the following names should have the type prefix. The value should be HTTP.                                          |           | string               |
+| protocol.success                    | This protocol request and response is success or not.                                                                                       |           | boolean              |
+| protocol.http.latency               | The latency of HTTP response.                                                                                                               |           | long(in nanoseconds) |
+| protocol.http.url                   | The url path of HTTP request.                                                                                                               |           | string               |
+| protocol.http.method                | The method name of HTTP request.                                                                                                            |           | string               |
+| protocol.http.statusCode            | The response code of HTTP response.                                                                                                         |           | int                  |
+| protocol.http.sizeOfRequestHeader   | The header size of HTTP request.                                                                                                            |           | long(bytes)          |
+| protocol.http.sizeOfRequestBody     | The body size of HTTP request.                                                                                                              |           | long(bytes)          |
+| protocol.http.sizeOfResponseHeader  | The header size of HTTP response.                                                                                                           |           | long(bytes)          |
+| protocol.http.sizeOfResponseBody    | The body size of HTTP response.                                                                                                             |           | long(bytes)          |
+

@@ -59,6 +59,7 @@ kubernetes_service_read_netfilter_duration = from(K8SService.read.l3.netFilterDu
 
 kubernetes_service_http_call_cpm = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
 kubernetes_service_http_call_duration = from(K8SService.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_http_call_success_count = from(K8SService.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
 kubernetes_service_http_req_header_size = from(K8SService.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_http_req_body_size = from(K8SService.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_http_resp_header_size = from(K8SService.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
@@ -216,6 +217,7 @@ kubernetes_service_relation_client_read_netfilter_cpm = from(K8SServiceRelation.
 kubernetes_service_relation_client_read_netfilter_duration = from(K8SServiceRelation.read.l3.netFilterDuration).filter(detectPoint == DetectPoint.CLIENT).filter(type == "read").sum();
 
 kubernetes_service_relation_server_http_call_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_relation_server_http_success_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
 kubernetes_service_relation_server_http_call_duration = from(K8SServiceRelation.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_relation_server_http_req_header_size = from(K8SServiceRelation.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_relation_server_http_req_body_size = from(K8SServiceRelation.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
@@ -223,6 +225,7 @@ kubernetes_service_relation_server_http_resp_header_size = from(K8SServiceRelati
 kubernetes_service_relation_server_http_resp_body_size = from(K8SServiceRelation.protocol.http.sizeOfResponseBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 
 kubernetes_service_relation_client_http_call_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").cpm();
+kubernetes_service_relation_client_http_success_cpm = from(K8SServiceRelation.*).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
 kubernetes_service_relation_client_http_call_duration = from(K8SServiceRelation.protocol.http.latency).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_relation_client_http_req_header_size = from(K8SServiceRelation.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_relation_client_http_req_body_size = from(K8SServiceRelation.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.CLIENT).filter(type == "protocol").filter(protocol.type == "http").sum();

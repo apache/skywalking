@@ -36,10 +36,6 @@ public class K8SEndpoint extends K8SMetrics.ProtocolMetrics {
     private Layer layer;
     private String endpointName;
 
-    /**
-     * Is executed success or not. In HTTP, the status code is 2XX or 3XX means success.
-     */
-    private boolean success;
     private long duration;
 
     @Override
