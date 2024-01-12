@@ -4,8 +4,8 @@ OAP will detect the services from different layers, and try to build the connect
 
 ## Detect Service Hierarchy Connections
 There 2 ways to detect the connections:
-1. Automatically matching through the existing service info.
-2. Build the connections through the internal API.
+1. Automatically matching through OAP internal mechanism, no extra work is required.
+2. Build the connections through specific agents.
 
 **Note:** All the relationships should be defined in the `config/hierarchy-definition.yml` file.
 
