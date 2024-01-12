@@ -36,7 +36,4 @@ the following rules:
 3. The upper instance attribute `pod/hostname` equals the lower instance name.
 4. The upper instance name equals the lower instance attribute `pod/hostname`.
 
-### Build Through Internal API
-```java
-public void toInstanceHierarchyRelation(String upperInstanceName, String upperServiceName, Layer upperServiceLayer, String lowerInstanceName, String lowerServiceName, Layer lowerServiceLayer);
-```
+### Build Through Specific Agents
