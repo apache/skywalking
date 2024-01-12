@@ -32,6 +32,8 @@ catalog:
             path: "/en/concepts-and-designs/service-agent"
           - name: "Manual Instrument SDK"
             path: "/en/concepts-and-designs/manual-sdk"
+      - name: "Service Hierarchy"
+        path: "/en/concepts-and-designs/service-hierarchy"
   - name: "Setup"
     catalog:
       - name: "Quick Start"
@@ -318,6 +320,8 @@ catalog:
         path: "/en/concepts-and-designs/lal"
       - name: "Profiling"
         path: "/en/concepts-and-designs/profiling"
+      - name : "Service Hierarchy Configuration"
+        path: "/en/concepts-and-designs/service-hierarchy-configuration"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Debugging"

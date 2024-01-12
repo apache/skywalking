@@ -24,9 +24,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(of = {"id", "serviceId", "layer"})
 public class HierarchyRelatedInstance {
     private String id;
     private String name;
+    private String serviceId;
+    private String serviceName;
     private String layer;
+    private boolean normal;
 }

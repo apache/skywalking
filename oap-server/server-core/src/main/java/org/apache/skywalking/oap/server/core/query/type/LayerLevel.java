@@ -18,16 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-@EqualsAndHashCode(of = {"id", "layer"})
-public class HierarchyRelatedService {
-    private String id;
-    private String name;
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LayerLevel {
     private String layer;
-    private boolean normal;
+    private int level;
 }

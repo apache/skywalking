@@ -139,7 +139,7 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
         Executors.newSingleThreadScheduledExecutor()
                  .scheduleWithFixedDelay(
                      new RunnableWithExceptionProtection(this::autoMatchingServiceRelation, t -> log.error(
-                         "Scheduled auto matching service hierarchy from service traffic failure.", t)), 1, 20, TimeUnit.SECONDS);
+                         "Scheduled auto matching service hierarchy from service traffic failure.", t)), 30, 20, TimeUnit.SECONDS);
     }
 
     private void autoMatchingServiceRelation(String upperServiceName,
