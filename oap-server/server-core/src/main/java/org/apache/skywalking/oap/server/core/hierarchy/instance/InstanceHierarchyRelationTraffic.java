@@ -39,12 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @Stream(name = InstanceHierarchyRelationTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.INSTANCE_HIERARCHY_RELATION,
     builder = InstanceHierarchyRelationTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
-@EqualsAndHashCode(of = {
-    "instanceId",
-    "serviceLayer",
-    "relatedInstanceId",
-    "relatedServiceLayer"
-}, callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class InstanceHierarchyRelationTraffic extends Metrics {
     public static final String INDEX_NAME = "instance_hierarchy_relation";
     public static final String SERVICE_LAYER = "service_layer";

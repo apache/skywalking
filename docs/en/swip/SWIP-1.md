@@ -72,6 +72,7 @@ type HierarchyRelatedService {
   name: String!
   # The related service's Layer name.
   layer: String!
+  normal: Boolean!
 }
 
 type HierarchyRelatedInstance {
@@ -79,8 +80,14 @@ type HierarchyRelatedInstance {
   id: ID!
   # The literal name of the #id. Instance Name.
   name: String!
-  # The related instance service's Layer name.
+  # Service id
+  serviceId: ID!
+  # The literal name of the #serviceId.
+  serviceName: String!
+  # The service's Layer name.
+  # Service could have multiple layers, this is the layer of the service that the instance belongs to.
   layer: String!
+  normal: Boolean!
 }
 
 type HierarchyServiceRelation {
@@ -101,59 +108,99 @@ type InstanceHierarchy {
   relations: [HierarchyInstanceRelation!]!
 }
 
+type LayerLevel {
+  # The layer name.
+  layer: String!
+  # The layer level.
+  # The level of the upper service should greater than the level of the lower service.
+  level: Int!
+}
+
 extend type Query {
   # Query the service hierarchy, based on the given service. Will recursively return all related layers services in the hierarchy.
   getServiceHierarchy(serviceId: ID!, layer: String!): ServiceHierarchy!
   # Query the instance hierarchy, based on the given instance. Will return all direct related layers instances in the hierarchy, no recursive.
   getInstanceHierarchy(instanceId: ID!, layer: String!): InstanceHierarchy!
+  # List layer hierarchy levels. The layer levels are defined in the `hierarchy-definition.yml`.
+  listLayerLevels: [LayerLevel!]!
 }
 ```
-New fields are going to be added to the `topology.graphqls`.
-```graphql
-# Node in Topology
-type Node {
-  ...
-  # The service hierarchy of the node.
-  serviceHierarchy: ServiceHierarchy!
-}
-
-# Node in ServiceInstanceTopology
-type ServiceInstanceNode {
-  ...
-  # The service instance hierarchy of the node.
-  instanceHierarchy: InstanceHierarchy!
-}
 
 ## New data models
 - service_hierarchy_relation
 
   | Column name           | Data type | Description                                                 |
-    |-----------------------|-----------|-------------------------------------------------------------|
-  | id                    | String    | entityId                                                    |
-  | entity_id             | String    | serviceId.servicelayer-relatedServiceId.relatedServiceLayer |
-  | service_id            | String    |                                                             |
-  | service_layer         | int       | service layer value                                         |
-  | related_service_id    | String    |                                                             |
-  | related_service_layer | int       | related service layer value                                 |
+  |-----------------------|-----------|-------------------------------------------------------------|
+  | id                    | String    | serviceId.servicelayer-relatedServiceId.relatedServiceLayer |
+  | service_id            | String    | upper service id                                            |
+  | service_layer         | int       | upper service layer value                                   |
+  | related_service_id    | String    | lower service id                                            |
+  | related_service_layer | int       | lower service layer value                                   |
   | time_bucket           | long      |                                                             |
 
 - instance_hierarchy_relation
 
   | Column name           | Data type | Description                                                  |
-    |-----------------------|-----------|--------------------------------------------------------------|
-  | id                    | String    | entityId                                                     |
-  | entity_id             | String    | instanceId.servicelayer-relateInstanceId.relatedServiceLayer |
-  | instance_id           | String    |                                                              |
-  | service_layer         | int       | service layer value                                          |
-  | related_instance_id   | String    |                                                              |
-  | related_service_layer | int       | related service layer value                                  |
+  |-----------------------|-----------|--------------------------------------------------------------|
+  | id                    | String    | instanceId.servicelayer-relateInstanceId.relatedServiceLayer |
+  | instance_id           | String    | upper instance id                                            |
+  | service_layer         | int       | upper service layer value                                    |
+  | related_instance_id   | String    | lower instance id                                            |
+  | related_service_layer | int       | lower service layer value                                    |
   | time_bucket           | long      |                                                              |
 
 ## Internal APIs
 Internal APIs should be exposed in the Core module to support building the hierarchy relationship.
 ```java
-public void toServiceHierarchyRelation(String serviceName, Layer serviceLayer, String relatedServiceName, Layer relatedServiceLayer);
-public void toInstanceHierarchyRelation(String instanceName, String serviceName, Layer serviceLayer, String relatedInstanceName, String relatedServiceName, Layer relateServiceLayer);
+public void toServiceHierarchyRelation(String upperServiceName, Layer upperServiceLayer, String lowerServiceName, Layer lowerServiceLayer);
+public void toInstanceHierarchyRelation(String upperInstanceName, String upperServiceName, Layer upperServiceLayer, String lowerInstanceName, String lowerServiceName, Layer lowerServiceLayer);
+```
+
+## Hierarchy Definition
+All layers hierarchy relations are defined in the `hierarchy-definition.yml` file. 
+OAP will check the hierarchy relations before building and use the matching rules to auto match the relations. Here is an example:
+
+```yaml
+# Define the hierarchy of service layers, the layers under the specific layer are related lower of the layer.
+# The relation could have a matching rule for auto matching, which are defined in the `auto-matching-rules` section.
+# All the layers are defined in the file `org.apache.skywalking.oap.server.core.analysis.Layers.java`.
+
+hierarchy:
+  MESH:
+    MESH_DP: name
+    K8S_SERVICE: short-name
+
+  MESH_DP:
+    K8S_SERVICE: short-name
+
+  GENERAL:
+    K8S_SERVICE: lower-short-name-remove-ns
+
+  MYSQL:
+    K8S_SERVICE: ~
+
+  VIRTUAL_DATABASE:
+    MYSQL: ~
+
+# Use Groovy script to define the matching rules, the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean.
+# which are used to match the relation between the upper service(u) and the lower service(l) on the different layers.
+auto-matching-rules:
+  # the name of the upper service is equal to the name of the lower service
+  name: "{ (u, l) -> u.name == l.name }"
+  # the short name of the upper service is equal to the short name of the lower service
+  short-name: "{ (u, l) -> u.shortName == l.shortName }"
+  # remove the namespace from the lower service short name
+  lower-short-name-remove-ns: "{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }"
+
+# The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation,
+# The level of the upper service should greater than the level of the lower service in `hierarchy` section.
+layer-levels:
+  MESH: 3
+  GENERAL: 3
+  VIRTUAL_DATABASE: 3
+  MYSQL: 2
+  MESH_DP: 1
+  K8S_SERVICE: 0
 ```
 
 ## General usage docs

@@ -314,14 +314,23 @@ envoy-metric:
     # the available variables are `pod`, `service`, f.e., you can use `${service.metadata.name}-${pod.metadata.labels.version}`
     # to append the version number to the service name.
     # Be careful, when using environment variables to pass this configuration, use single quotes(`''`) to avoid it being evaluated by the shell.
-    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}"}
-    istioServiceNameRule: ${ISTIO_SERVICE_NAME_RULE:"${serviceEntry.metadata.name}"}
+    k8sServiceNameRule: ${K8S_SERVICE_NAME_RULE:"${pod.metadata.labels.(service.istio.io/canonical-name)}.${pod.metadata.namespace}"}
+    istioServiceNameRule: ${ISTIO_SERVICE_NAME_RULE:"${serviceEntry.metadata.name}.${serviceEntry.metadata.namespace}"}
     # When looking up service informations from the Istio ServiceEntries, some
     # of the ServiceEntries might be created in several namespaces automatically
     # by some components, and OAP will randomly pick one of them to build the
     # service name, users can use this config to exclude ServiceEntries that
     # they don't want to be used. Comma separated.
     istioServiceEntryIgnoredNamespaces: ${SW_ISTIO_SERVICE_ENTRY_IGNORED_NAMESPACES:""}
+    gRPCHost: ${SW_ALS_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_ALS_GRPC_PORT:0}
+    maxConcurrentCallsPerConnection: ${SW_ALS_GRPC_MAX_CONCURRENT_CALL:0}
+    maxMessageSize: ${SW_ALS_GRPC_MAX_MESSAGE_SIZE:0}
+    gRPCThreadPoolSize: ${SW_ALS_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_ALS_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_ALS_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_ALS_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_ALS_GRPC_SSL_TRUSTED_CAS_PATH:""}
 
 kafka-fetcher:
   selector: ${SW_KAFKA_FETCHER:-}

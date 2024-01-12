@@ -18,62 +18,105 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
+import groovy.lang.Closure;
+import groovy.lang.GroovyShell;
 import java.io.FileNotFoundException;
 import java.io.Reader;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
+import static java.util.stream.Collectors.toMap;
+
 @Slf4j
-public class HierarchyDefinitionService implements Service {
+public class HierarchyDefinitionService implements org.apache.skywalking.oap.server.library.module.Service {
+
     @Getter
-    private Map<String, List<String>> hierarchyDefinition;
+    private final Map<String, Map<String, MatchingRule>> hierarchyDefinition;
+    @Getter
+    private Map<String, Integer> layerLevels;
+    private Map<String, MatchingRule> matchingRules;
 
     public HierarchyDefinitionService(CoreModuleConfig moduleConfig) {
         this.hierarchyDefinition = new HashMap<>();
+        this.layerLevels = new HashMap<>();
         if (moduleConfig.isEnableHierarchy()) {
             this.init();
             this.checkLayers();
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void init() {
         try {
             Reader applicationReader = ResourceUtils.read("hierarchy-definition.yml");
             Yaml yaml = new Yaml();
-            this.hierarchyDefinition = yaml.loadAs(applicationReader, Map.class);
+            Map<String, Map> config = yaml.loadAs(applicationReader, Map.class);
+            Map<String, Map<String, String>> hierarchy = (Map<String, Map<String, String>>) config.get("hierarchy");
+            Map<String, String> matchingRules = (Map<String, String>) config.get("auto-matching-rules");
+            this.layerLevels = (Map<String, Integer>) config.get("layer-levels");
+            this.matchingRules = matchingRules.entrySet().stream().map(entry -> {
+                MatchingRule matchingRule = new MatchingRule(entry.getKey(), entry.getValue());
+                return Map.entry(entry.getKey(), matchingRule);
+            }).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+            hierarchy.forEach((layer, lowerLayers) -> {
+                Map<String, MatchingRule> rules = new HashMap<>();
+                lowerLayers.forEach((lowerLayer, ruleName) -> {
+                    rules.put(lowerLayer, this.matchingRules.get(ruleName));
+                });
+                this.hierarchyDefinition.put(layer, rules);
+            });
         } catch (FileNotFoundException e) {
             throw new UnexpectedException("hierarchy-definition.yml not found.", e);
         }
     }
 
     private void checkLayers() {
-        this.hierarchyDefinition.forEach((layer, lowerLayers) -> {
-            if (lowerLayers.contains(layer)) {
+        this.layerLevels.keySet().forEach(layer -> {
+            if (Layer.nameOf(layer).equals(Layer.UNDEFINED)) {
                 throw new IllegalArgumentException(
-                    "hierarchy-definition.yml " + layer + " contains recursive hierarchy relation.");
+                    "hierarchy-definition.yml " + layer + " is not a valid layer name.");
             }
-            checkRecursive(layer);
+        });
+        this.hierarchyDefinition.forEach((layer, lowerLayers) -> {
+            Integer layerLevel = this.layerLevels.get(layer);
+            if (this.layerLevels.get(layer) == null) {
+                throw new IllegalArgumentException(
+                    "hierarchy-definition.yml  layer-levels: " + layer + " is not defined");
+            }
+
+            for (String lowerLayer : lowerLayers.keySet()) {
+                Integer lowerLayerLevel = this.layerLevels.get(lowerLayer);
+                if (lowerLayerLevel == null) {
+                    throw new IllegalArgumentException(
+                        "hierarchy-definition.yml  layer-levels: " + lowerLayer + " is not defined.");
+                }
+                if (layerLevel <= lowerLayerLevel) {
+                    throw new IllegalArgumentException(
+                        "hierarchy-definition.yml hierarchy: " + layer + " layer-level should be greater than " + lowerLayer + " layer-level.");
+                }
+            }
         });
     }
 
-    private void checkRecursive(String layerName) {
-        try {
-            List<String> lowerLayers = this.hierarchyDefinition.get(layerName);
-            if (lowerLayers == null) {
-                return;
-            }
-            lowerLayers.forEach(this::checkRecursive);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(
-                "hierarchy-definition.yml " + layerName + " contains recursive hierarchy relation.");
+    @Getter
+    public static class MatchingRule {
+        private final String name;
+        private final String expression;
+        private final Closure<Boolean> closure;
+
+        @SuppressWarnings("unchecked")
+        public MatchingRule(final String name, final String expression) {
+            this.name = name;
+            this.expression = expression;
+            GroovyShell sh = new GroovyShell();
+            closure = (Closure<Boolean>) sh.evaluate(expression);
         }
     }
 }

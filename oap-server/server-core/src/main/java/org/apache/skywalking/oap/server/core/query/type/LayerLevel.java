@@ -18,15 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.query.type;
 
-import java.util.HashSet;
-import java.util.Set;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-public class ServiceHierarchy {
-    private Set<HierarchyServiceRelation> relations = new HashSet<>();
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LayerLevel {
+    private String layer;
+    private int level;
 }

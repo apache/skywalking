@@ -102,6 +102,10 @@
             <artifactId>ai-pipeline</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

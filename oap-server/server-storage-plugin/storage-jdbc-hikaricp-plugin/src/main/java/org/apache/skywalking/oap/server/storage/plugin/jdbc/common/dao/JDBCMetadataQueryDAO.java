@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.linecorp.armeria.common.annotation.Nullable;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -105,15 +106,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<ServiceInstance> listInstances(Duration duration,
+    public List<ServiceInstance> listInstances(@Nullable Duration duration,
                                                String serviceId) {
         final var results = new ArrayList<ServiceInstance>();
-
-        final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-        final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
         final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
         for (String table : tables) {
-            final var sqlAndParameters = buildSQLForListInstances(serviceId, startMinuteTimeBucket, endMinuteTimeBucket, table);
+            final var sqlAndParameters = buildSQLForListInstances(serviceId, duration, table);
             results.addAll(
                 jdbcClient.executeQuery(
                     sqlAndParameters.sql(),
@@ -129,16 +127,20 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             .collect(toList());
     }
 
-    protected SQLAndParameters buildSQLForListInstances(String serviceId, long minuteTimeBucket, long endMinuteTimeBucket, String table) {
+    protected SQLAndParameters buildSQLForListInstances(String serviceId, Duration duration, String table) {
         final var  sql = new StringBuilder();
         final var parameters = new ArrayList<>(5);
         sql.append("select * from ").append(table).append(" where ")
             .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(InstanceTraffic.INDEX_NAME);
-        sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
-        parameters.add(minuteTimeBucket);
-        sql.append(" and ").append(InstanceTraffic.TIME_BUCKET).append(" < ?");
-        parameters.add(endMinuteTimeBucket);
+        if (duration != null) {
+            final var startMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+            final var endMinuteTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getEndTimestamp());
+            sql.append(" and ").append(InstanceTraffic.LAST_PING_TIME_BUCKET).append(" >= ?");
+            parameters.add(startMinuteTimeBucket);
+            sql.append(" and ").append(InstanceTraffic.TIME_BUCKET).append(" < ?");
+            parameters.add(endMinuteTimeBucket);
+        }
         sql.append(" and ").append(InstanceTraffic.SERVICE_ID).append("=?");
         parameters.add(serviceId);
         sql.append(" limit ").append(metadataQueryMaxSize);

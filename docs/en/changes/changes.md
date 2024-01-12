@@ -15,6 +15,10 @@
 * Support build Service/Instance Hierarchy and query.
 * Change the string field in Elasticsearch storage from **keyword** type to **text** type if it set more than `32766` length.
 * [Break Change] Change the configuration field of `ui_template` and `ui_menu` in Elasticsearch storage from **keyword** type to **text**.
+* Support Service Hierarchy auto matching.
+* Add `namespace` suffix for `K8S_SERVICE_NAME_RULE/ISTIO_SERVICE_NAME_RULE` and `metadata-service-mapping.yaml` as default.
+* Allow using a dedicated port for ALS receiver.
+* Fix log query by traceId in `JDBCLogQueryDAO`.
 * Support handler eBPF access log protocol.
 
 #### UI
@@ -33,5 +37,6 @@
 * Add `SWIP-2 Collecting and Gathering Kubernetes Monitoring Data`.
 * Update the `Overview` docs to add the `Service Hierarchy Relationship` section.
 * Fix incorrect words for `backend-bookkeeper-monitoring.md` and `backend-pulsar-monitoring.md`
+* Document a new way to load balance OAP.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
