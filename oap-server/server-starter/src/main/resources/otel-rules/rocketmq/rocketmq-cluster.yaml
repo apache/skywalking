@@ -33,7 +33,6 @@ filter: "{ tags -> tags.job_name == 'rocketmq-monitoring' }" # The OpenTelemetry
 expSuffix: tag({tags -> tags.cluster = 'rocketmq::' + tags.cluster}).service(['cluster'], Layer.ROCKETMQ)
 metricPrefix: meter_rocketmq_cluster
 
-# Metrics Rules
 metricsRules:
 
   - name: messages_produced_today

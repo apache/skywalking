@@ -33,7 +33,6 @@ expSuffix: tag({tags -> tags.cluster = 'rocketmq::' + tags.cluster}).instance(['
 metricPrefix: meter_rocketmq_broker
 metricsRules:
 
-  # produce
   - name: produce_tps
     exp: rocketmq_broker_tps.sum(['cluster', 'broker'])
 
