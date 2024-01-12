@@ -18,15 +18,11 @@ There 2 ways to detect the connections:
 | MESH_DP     | K8S_SERVICE  | upper service short name equals lower service short name              |
 | GENERAL     | K8S_SERVICE  | upper service short name equals lower service name without namespace  |
 
-### Build Through Internal API
-```java
-public void toServiceHierarchyRelation(String upperServiceName, Layer upperServiceLayer, String lowerServiceName, Layer lowerServiceLayer);
-```
-Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) report 
-the service hierarchy relations through the internal API.
+### Build Through Specific Agents
+Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) detect the service hierarchy relations.
 
-| Upper layer | Lower layer  | Matching rule | Detect tech |
-|-------------|--------------|---------------|-------------|
+| Upper layer | Lower layer  | Agent |
+|-------------|--------------|-------|
 
 
 # Instance Hierarchy
