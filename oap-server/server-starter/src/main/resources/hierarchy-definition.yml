@@ -20,7 +20,6 @@
 hierarchy:
   MESH:
     MESH_DP: name
-    K8S_SERVICE: short-name
 
   MESH_DP:
     K8S_SERVICE: short-name

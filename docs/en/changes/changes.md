@@ -25,13 +25,14 @@
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.
 * Add theme change animation.
 * Implement the Service and Instance hierarchy topology.
-* Support Tabs in the widget visiable when MQE expressions.
+* Support Tabs in the widget visible when using MQE.
 * Support search on Marketplace.
-* Fix default route.
+* Set default route to marketplace if no active menus.
 * Fix layout on the Log widget.
 * Fix Trace associates with Log widget.
 * Add isDefault to the dashboard configuration.
-* Add expressions to dashboard configurations on the dashboard list page.
+* Add MQE to dashboard configurations on the dashboard list page.
+* Implement the Service and Instance hierarchy topology.
 
 #### Documentation
 
