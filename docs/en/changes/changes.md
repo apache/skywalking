@@ -32,7 +32,6 @@
 * Fix Trace associates with Log widget.
 * Add isDefault to the dashboard configuration.
 * Add MQE to dashboard configurations on the dashboard list page.
-* Implement the Service and Instance hierarchy topology.
 
 #### Documentation
 
