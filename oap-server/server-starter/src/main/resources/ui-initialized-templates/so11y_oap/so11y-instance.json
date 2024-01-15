@@ -5,477 +5,555 @@
     "configuration": {
       "children": [
         {
-          "x": 12,
-          "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "0",
-          "type": "Widget",
-          "widget": {
-            "title": "GC Count (Per Minute)"
-          },
-          "graph": {
-            "type": "Bar",
-            "showBackground": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_jvm_gc_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 6,
-          "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "1",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory (MB)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_jvm_memory_bytes_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 18,
-          "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "2",
-          "type": "Widget",
-          "widget": {
-            "title": "GC Time (ms / min)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_jvm_gc_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 12,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "3",
-          "type": "Widget",
-          "widget": {
-            "title": "Mesh Analysis Count (Per Minute)"
-          },
-          "graph": {
-            "type": "Bar",
-            "showBackground": true
-          },
-          "metricConfig": [
-            {
-              "label": "count"
-            },
-            {
-              "label": "error_count"
-            }
-          ],
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_mesh_count",
-            "meter_oap_instance_mesh_analysis_error_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 6,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "4",
-          "type": "Widget",
-          "widget": {
-            "title": "Trace Analysis Latency (ms / min)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "relabels(meter_oap_instance_trace_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 18,
-          "y": 39,
-          "w": 6,
-          "h": 13,
-          "i": "5",
-          "type": "Widget",
-          "widget": {
-            "title": "Class Count"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricConfig": [
-            {
-              "label": "loaded"
-            },
-            {
-              "label": "total_unloaded"
-            },
-            {
-              "label": "total_loaded"
-            }
-          ],
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_jvm_class_loaded_count",
-            "meter_oap_jvm_class_total_unloaded_count",
-            "meter_oap_jvm_class_total_loaded_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 6,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "6",
-          "type": "Widget",
-          "widget": {
-            "title": "Persistence Count (Per Minutes)"
-          },
-          "graph": {
-            "type": "Bar",
-            "showBackground": true
-          },
-          "metricConfig": [
-            {
-              "label": "prepare_count"
-            },
-            {
-              "label": "execute_count"
-            }
-          ],
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_persistence_prepare_count",
-            "meter_oap_instance_persistence_execute_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 6,
-          "y": 39,
-          "w": 6,
-          "h": 13,
-          "i": "7",
-          "type": "Widget",
-          "widget": {
-            "title": "Thread Count"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricConfig": [
-            {
-              "label": "live"
-            },
-            {
-              "label": "peak"
-            },
-            {
-              "label": "daemon"
-            }
-          ],
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_jvm_thread_live_count",
-            "meter_oap_jvm_thread_peak_count",
-            "meter_oap_jvm_thread_daemon_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 18,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "Persistence Execution Latency Per Metric Type (ms / 5min)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "relabels(meter_oap_instance_persistence_execute_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 12,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "9",
-          "type": "Widget",
-          "widget": {
-            "title": "Persistence Preparing Latency Per Metric Type (ms / 5min)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "relabels(meter_oap_instance_persistence_prepare_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 12,
-          "y": 39,
-          "w": 6,
-          "h": 13,
-          "i": "10",
-          "type": "Widget",
-          "widget": {
-            "title": "Thread State Count"
-          },
-          "graph": {
-            "type": "Bar",
-            "showBackground": true
-          },
-          "metricConfig": [
-            {
-              "label": "runnable"
-            },
-            {
-              "label": "timed_waiting"
-            },
-            {
-              "label": "blocked"
-            },
-            {
-              "label": "waiting"
-            }
-          ],
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_jvm_thread_runnable_count",
-            "meter_oap_jvm_thread_timed_waiting_count",
-            "meter_oap_jvm_thread_blocked_count",
-            "meter_oap_jvm_thread_waiting_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 0,
-          "y": 26,
-          "w": 6,
-          "h": 13,
-          "i": "11",
-          "type": "Widget",
-          "widget": {
-            "title": "Aggregation (Per Minute)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_metrics_aggregation"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 18,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "12",
-          "type": "Widget",
-          "widget": {
-            "title": "Mesh Analysis Latency (ms / min)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "relabels(meter_oap_instance_mesh_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 0,
-          "y": 13,
-          "w": 6,
-          "h": 13,
-          "i": "13",
-          "type": "Widget",
-          "widget": {
-            "title": "Trace Analysis Count (Per Minute)"
-          },
-          "graph": {
-            "type": "Bar",
-            "showBackground": true
-          },
-          "metricConfig": [
-            {
-              "label": "count"
-            },
-            {
-              "label": "error_count"
-            }
-          ],
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_trace_count",
-            "meter_oap_instance_trace_analysis_error_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
           "x": 0,
           "y": 0,
-          "w": 6,
-          "h": 13,
-          "i": "14",
-          "type": "Widget",
-          "widget": {
-            "title": "CPU (%)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_cpu_percentage"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x": 0,
-          "y": 39,
-          "w": 6,
-          "h": 13,
-          "i": "15",
-          "type": "Widget",
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "widget": {
-            "title": "Metrics Persistent Cache Count(Per Minute)"
-          },
-          "metricMode": "Expression",
-          "expressions": [
-            "meter_oap_instance_metrics_persistent_cache"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "w": 24,
+          "h": 59,
+          "i": "16",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Status",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "14",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "CPU (%)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_cpu_percentage"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Memory (MB)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_jvm_memory_bytes_used/1024/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "GC Count (Per Minute)"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_jvm_gc_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "GC Time (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_jvm_gc_time"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "11",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Aggregation (Per Minute)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_metrics_aggregation"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Persistence Count (Per Minutes)"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "prepare_count"
+                    },
+                    {
+                      "label": "execute_count"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_persistence_prepare_count",
+                    "meter_oap_instance_persistence_execute_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Persistence Preparing Latency Per Metric Type (ms / 5min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(meter_oap_instance_persistence_prepare_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Persistence Execution Latency Per Metric Type (ms / 5min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(meter_oap_instance_persistence_execute_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "15",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Metrics Persistent Cache Count(Per Minute)"
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_metrics_persistent_cache"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Thread Count"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "live"
+                    },
+                    {
+                      "label": "peak"
+                    },
+                    {
+                      "label": "daemon"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_jvm_thread_live_count",
+                    "meter_oap_jvm_thread_peak_count",
+                    "meter_oap_jvm_thread_daemon_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "10",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Thread State Count"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "runnable"
+                    },
+                    {
+                      "label": "timed_waiting"
+                    },
+                    {
+                      "label": "blocked"
+                    },
+                    {
+                      "label": "waiting"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_jvm_thread_runnable_count",
+                    "meter_oap_jvm_thread_timed_waiting_count",
+                    "meter_oap_jvm_thread_blocked_count",
+                    "meter_oap_jvm_thread_waiting_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 26,
+                  "w": 6,
+                  "h": 13,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Class Count"
+                  },
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "loaded"
+                    },
+                    {
+                      "label": "total_unloaded"
+                    },
+                    {
+                      "label": "total_loaded"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_jvm_class_loaded_count",
+                    "meter_oap_jvm_class_total_unloaded_count",
+                    "meter_oap_jvm_class_total_loaded_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Traffic Handler",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "13",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Trace Analysis Count (Per Minute)"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "count"
+                    },
+                    {
+                      "label": "error_count"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_trace_count",
+                    "meter_oap_instance_trace_analysis_error_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Trace Analysis Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(meter_oap_instance_trace_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Mesh Analysis Count (Per Minute)"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "count"
+                    },
+                    {
+                      "label": "error_count"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_mesh_count",
+                    "meter_oap_instance_mesh_analysis_error_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 13,
+                  "i": "12",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Mesh Analysis Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(meter_oap_instance_mesh_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "17",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "K8S ALS Analysis Count (Per Minute)"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "count"
+                    },
+                    {
+                      "label": "drop_count"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "meter_oap_instance_k8s_als_count",
+                    "meter_oap_instance_k8s_als_drop"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 13,
+                  "i": "18",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "K8S ALS Analysis Latency (ms / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "relabels(meter_oap_instance_k8s_als_latency_percentile{_='50,75,90,95,99'},_='P50,P75,P90,P95,P99')"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                }
+              ]
+            }
           ]
         }
       ],

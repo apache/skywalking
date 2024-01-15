@@ -203,11 +203,11 @@ catalog:
           - name: "Kubernetes"
             catalog:
               - name: "Observe Kubernetes"
-                catalog:
-                  - name: "kube-state-metrics + cAdvisor"
-                    path: "/en/setup/backend/backend-k8s-monitoring-metrics-cadvisor"
-                  - name: "Rover"
-                    path: "/en/setup/backend/backend-k8s-monitoring-rover"
+                path: "/en/setup/backend/backend-k8s-monitoring"
+              - name: "kube-state-metrics + cAdvisor"
+                path: "/en/setup/backend/backend-k8s-monitoring-metrics-cadvisor"
+              - name: "Rover"
+                path: "/en/setup/backend/backend-k8s-monitoring-rover"
               - name: "Profile Pod's Network"
                 path: "/en/setup/backend/backend-k8s-network-monitoring"
           - name: "Infrastructure Monitoring"

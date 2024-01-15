@@ -10,7 +10,6 @@ SkyWalking uses the SkyWalking Rover system to collect access logs from Kubernet
 1. Setup [Rover in the Kubernetes](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/examples/deploy/kubernetes/readme/) and enable [access log service](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/configuration/accesslog/).
 2. Setup eBPF receiver module by the following configuration.
 ```yaml
-```yaml
 receiver-ebpf:
   selector: ${SW_RECEIVER_EBPF:default}
   default:

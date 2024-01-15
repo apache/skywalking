@@ -93,3 +93,9 @@ metricsRules:
     exp: jvm_classes_unloaded_total.sum(['service', 'host_name'])
   - name: jvm_class_total_loaded_count
     exp: jvm_classes_loaded_total.sum(['service', 'host_name'])
+  - name: instance_k8s_als_count
+    exp: k8s_als_in_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_k8s_als_drop
+    exp: k8s_als_drop_count.sum(['service', 'host_name']).increase('PT1M')
+  - name: instance_k8s_als_latency_percentile
+    exp: k8s_als_in_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,70,90,99])

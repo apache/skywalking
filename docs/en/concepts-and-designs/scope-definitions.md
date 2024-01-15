@@ -417,11 +417,11 @@ This calculates the endpoint dimensional metrics data from each request of MQ sy
 
 ### SCOPES with `K8S` Prefix
 
-All metrics starting with `K8S` are derived from monitoring the Access Log in Kubernetes.
+All metrics starting with `K8S` are derived from Kubernetes monitoring by Rover(eBPF agent).
 
 #### Service, Service Instance and relations
 
-For all `K8SService`, `K8SInstance`, `K8SServiceRelation` and `K8SServiceInstanceRelation`, they all have the 
+For all `K8SService`, `K8SServiceInstance`, `K8SServiceRelation` and `K8SServiceInstanceRelation`, they all have the 
 following **package**/**protocol** level metric contents.
 
 | Name                                | Remarks                                                                                                                                     | Group Key | Type                 |
@@ -474,6 +474,61 @@ following **package**/**protocol** level metric contents.
 | protocol.http.sizeOfResponseHeader  | The header size of HTTP response.                                                                                                           |           | long(bytes)          |
 | protocol.http.sizeOfResponseBody    | The body size of HTTP response.                                                                                                             |           | long(bytes)          |
 
+##### SCOPE `K8SService`
+
+| Name        | Remarks                                                            | Group Key | Type   |
+|-------------|--------------------------------------------------------------------|-----------|--------|
+| name        | The service name in kubernetes.                                    |           | string |
+| layer       | The layer in kubernetes service.                                   |           | string |
+| detectPoint | Where the relation is detected. The value may be client or server. |           | enum   |
+
+#### SCOPE `K8SServiceInstance`
+
+| Name                | Remarks                                                            | Group Key | Type   |
+|---------------------|--------------------------------------------------------------------|-----------|--------|
+| serviceName         | The service name in kubernetes.                                    |           | string |
+| serviceInstanceName | The pod name in kubernetes.                                        |           | string |
+| layer               | The layer of kubernetes service.                                   |           | string |
+| detectPoint         | Where the relation is detected. The value may be client or server. |           | enum   |
+
+##### SCOPE `K8SServiceRelation`
+
+| Name              | Remarks                                                            | Group Key | Type   |
+|-------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName | The source service name in kubernetes.                             |           | string |
+| sourceLayer       | The source layer service in kubernetes.                            |           | string |
+| detectPoint       | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId       | The ID of component used in this call.                             |           | string |
+| tlsMode           | The TLS mode of relation. The value may be Plain or TLS.           |           | enum   |
+| destServiceName   | The dest service name in kubernetes.                               |           | string |
+| destLayer         | The dest layer service in kubernetes.                              |           | string |
+
+##### SCOPE `K8SServiceRelation`
+
+| Name              | Remarks                                                            | Group Key | Type   |
+|-------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName | The source service name in kubernetes.                             |           | string |
+| sourceLayer       | The source layer service in kubernetes.                            |           | string |
+| detectPoint       | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId       | The ID of component used in this call.                             |           | string |
+| tlsMode           | The TLS mode of relation. The value may be Plain or TLS.           |           | enum   |
+| destServiceName   | The dest service name in kubernetes.                               |           | string |
+| destLayer         | The dest layer service in kubernetes.                              |           | string |
+
+##### SCOPE `K8SServiceInstanceRelation`
+
+| Name                      | Remarks                                                            | Group Key | Type   |
+|---------------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName         | The source service name in kubernetes.                             |           | string |
+| sourceServiceInstanceName | The source pod name in kubernetes.                                 |           | string |
+| sourceLayer               | The source layer service in kubernetes.                            |           | string |
+| detectPoint               | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId               | The ID of component used in this call.                             |           | string |
+| tlsMode                   | The TLS mode of relation. The value may be Plain or TLS.           |           | enum   |
+| destServiceName           | The dest service name in kubernetes.                               |           | string |
+| destServiceInstanceName   | The dest pod name in kubernetes.                                   |           | string |
+| destLayer                 | The dest layer service in kubernetes.                              |           | string |
+
 #### Endpoint and Endpoint Relation
 
 For `K8SEndpoint` and `K8SEndpointRelation`, they only have the following **protocol** level metric contents.
@@ -491,3 +546,24 @@ For `K8SEndpoint` and `K8SEndpointRelation`, they only have the following **prot
 | protocol.http.sizeOfResponseHeader  | The header size of HTTP response.                                                                                                           |           | long(bytes)          |
 | protocol.http.sizeOfResponseBody    | The body size of HTTP response.                                                                                                             |           | long(bytes)          |
 
+##### SCOPE `K8SEndpoint`
+
+| Name         | Remarks                                                 | Group Key | Type   |
+|--------------|---------------------------------------------------------|-----------|--------|
+| serviceName  | The service name in kubernetes.                         |           | string |
+| layer        | The layer in kubernetes service.                        |           | string |
+| endpointName | The endpoint name detect in kubernetes service.         |           | string |
+| duration     | The duration of the service endpoint response latency.  |           | long   |
+
+##### SCOPE `K8SEndpointRelation`
+
+| Name               | Remarks                                                            | Group Key | Type   |
+|--------------------|--------------------------------------------------------------------|-----------|--------|
+| sourceServiceName  | The source service name in kubernetes.                             |           | string |
+| sourceServiceName  | The layer in kubernetes source service.                            |           | string |
+| sourceEndpointName | The endpoint name detect in kubernetes source service.             |           | string |
+| detectPoint        | Where the relation is detected. The value may be client or server. |           | enum   |
+| componentId        | The ID of component used in this call.                             |           | string |
+| destServiceName    | The dest service name in kubernetes.                               |           | string |
+| destServiceName    | The layer in kubernetes dest service.                              |           | string |
+| destEndpointName   | The endpoint name detect in kubernetes dest service.               |           | string |

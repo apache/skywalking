@@ -27,7 +27,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1615789059662,
+  "iteration": 1705280937759,
   "links": [],
   "panels": [
     {
@@ -2304,7 +2304,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "$datasource",
+      "datasource": null,
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2312,6 +2312,264 @@
         "w": 8,
         "x": 0,
         "y": 58
+      },
+      "hiddenSeries": false,
+      "id": 123,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(k8s_als_in_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "K8S ALS Received Count / Second",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 58
+      },
+      "hiddenSeries": false,
+      "id": 125,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "increase(k8s_als_in_latency_sum{instance=\"$instance\",job=\"$job\"}[1m])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "K8S ALS Analysis Time (Increment) / Minute",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 58
+      },
+      "hiddenSeries": false,
+      "id": 127,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "increase(k8s_als_drop_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "K8S ALS Drop Count (Increment) / Minute",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "$datasource",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 64
       },
       "hiddenSeries": false,
       "id": 101,
@@ -2402,7 +2660,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 58
+        "y": 64
       },
       "hiddenSeries": false,
       "id": 102,
@@ -2496,7 +2754,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 58
+        "y": 64
       },
       "hiddenSeries": false,
       "id": 103,
@@ -2588,7 +2846,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 64
+        "y": 70
       },
       "hiddenSeries": false,
       "id": 104,
@@ -2679,7 +2937,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 64
+        "y": 70
       },
       "hiddenSeries": false,
       "id": 105,
@@ -2773,7 +3031,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 64
+        "y": 70
       },
       "hiddenSeries": false,
       "id": 106,
@@ -2865,7 +3123,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 70
+        "y": 76
       },
       "hiddenSeries": false,
       "id": 107,
@@ -2956,7 +3214,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 70
+        "y": 76
       },
       "hiddenSeries": false,
       "id": 108,
@@ -3050,7 +3308,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 70
+        "y": 76
       },
       "hiddenSeries": false,
       "id": 109,
@@ -3142,7 +3400,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 76
+        "y": 82
       },
       "hiddenSeries": false,
       "id": 110,
@@ -3233,7 +3491,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 76
+        "y": 82
       },
       "hiddenSeries": false,
       "id": 111,
@@ -3327,7 +3585,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 76
+        "y": 82
       },
       "hiddenSeries": false,
       "id": 112,
@@ -3419,7 +3677,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 82
+        "y": 88
       },
       "hiddenSeries": false,
       "id": 113,
@@ -3510,7 +3768,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 82
+        "y": 88
       },
       "hiddenSeries": false,
       "id": 114,
@@ -3604,7 +3862,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 82
+        "y": 88
       },
       "hiddenSeries": false,
       "id": 115,
@@ -3696,7 +3954,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 88
+        "y": 94
       },
       "hiddenSeries": false,
       "id": 116,
@@ -3787,7 +4045,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 88
+        "y": 94
       },
       "hiddenSeries": false,
       "id": 117,
@@ -3881,7 +4139,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 88
+        "y": 94
       },
       "hiddenSeries": false,
       "id": 118,
@@ -3973,7 +4231,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 94
+        "y": 100
       },
       "hiddenSeries": false,
       "id": 119,
@@ -4071,7 +4329,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 94
+        "y": 100
       },
       "hiddenSeries": false,
       "id": 120,
@@ -4169,7 +4427,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 94
+        "y": 100
       },
       "hiddenSeries": false,
       "id": 23,
@@ -4262,7 +4520,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 100
+        "y": 106
       },
       "hiddenSeries": false,
       "id": 95,
@@ -4353,7 +4611,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 100
+        "y": 106
       },
       "hiddenSeries": false,
       "id": 96,
@@ -4445,7 +4703,7 @@
         "h": 12,
         "w": 8,
         "x": 16,
-        "y": 100
+        "y": 106
       },
       "id": 121,
       "links": [],
@@ -4507,7 +4765,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 106
+        "y": 112
       },
       "hiddenSeries": false,
       "id": 18,
@@ -4600,7 +4858,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 106
+        "y": 112
       },
       "hiddenSeries": false,
       "id": 98,
@@ -4693,7 +4951,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 112
+        "y": 118
       },
       "hiddenSeries": false,
       "id": 97,
@@ -4786,7 +5044,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 112
+        "y": 118
       },
       "hiddenSeries": false,
       "id": 99,
@@ -4879,7 +5137,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 112
+        "y": 118
       },
       "hiddenSeries": false,
       "id": 100,
@@ -4962,7 +5220,7 @@
     }
   ],
   "refresh": "",
-  "schemaVersion": 21,
+  "schemaVersion": 27,
   "style": "dark",
   "tags": [
     "skywalking"
@@ -5064,5 +5322,5 @@
   "timezone": "",
   "title": "SkyWalking OAP Instance Monitor Dashboard",
   "uid": "7NEmel8mki",
-  "version": 29
+  "version": 30
 }

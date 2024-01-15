@@ -30,4 +30,15 @@ public class EBPFReceiverModuleConfig extends ModuleConfig {
      */
     @Setter
     private int continuousPolicyCacheTimeout = 60;
+
+    private String gRPCHost;
+    private int gRPCPort;
+    private int maxConcurrentCallsPerConnection;
+    private int maxMessageSize;
+    private int gRPCThreadPoolSize;
+    private boolean gRPCSslEnabled = false;
+    private String gRPCSslKeyPath;
+    private String gRPCSslCertChainPath;
+    private String gRPCSslTrustedCAsPath;
+
 }
