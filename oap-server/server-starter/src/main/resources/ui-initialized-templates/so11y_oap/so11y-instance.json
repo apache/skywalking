@@ -376,7 +376,7 @@
               ]
             },
             {
-              "name": "Traffic Handler",
+              "name": "Inbound Traffic",
               "children": [
                 {
                   "x": 0,
