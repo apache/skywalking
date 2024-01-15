@@ -19,6 +19,7 @@
 * Add `namespace` suffix for `K8S_SERVICE_NAME_RULE/ISTIO_SERVICE_NAME_RULE` and `metadata-service-mapping.yaml` as default.
 * Allow using a dedicated port for ALS receiver.
 * Fix log query by traceId in `JDBCLogQueryDAO`.
+* Support handler eBPF access log protocol.
 * Add `max` and min functions for MAL down sampling.
 
 #### UI
@@ -33,6 +34,7 @@
 * Fix Trace associates with Log widget.
 * Add isDefault to the dashboard configuration.
 * Add expressions to dashboard configurations on the dashboard list page.
+* Update Kubernetes related UI templates for adapt data from eBPF access log.
 
 #### Documentation
 
