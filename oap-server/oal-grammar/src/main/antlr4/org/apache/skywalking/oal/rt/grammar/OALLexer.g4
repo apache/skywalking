@@ -52,6 +52,12 @@ SRC_EVENT: 'Event';
 SRC_CACHE_ACCESS: 'CacheAccess';
 SRC_MQ_ACCESS: 'MQAccess';
 SRC_MQ_ENDPOINT_ACCESS: 'MQEndpointAccess';
+SRC_K8S_SERVICE: 'K8SService';
+SRC_K8S_SERVICE_INSTANCE: 'K8SServiceInstance';
+SRC_K8S_ENDPOINT: 'K8SEndpoint';
+SRC_K8S_SERVICE_RELATION: 'K8SServiceRelation';
+SRC_K8S_SERVICE_INSTANCE_RELATION: 'K8SServiceInstanceRelation';
+SRC_K8S_ENDPOINT_RELATION: 'K8SEndpointRelation';
 
 
 // Browser keywords

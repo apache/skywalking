@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.meter.analyzer.dsl.registry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.k8s.K8sInfoRegistry;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -54,12 +55,13 @@ public class ProcessRegistry {
         String ip = StringUtils.substringBeforeLast(remoteAddress, ":");
 
         // find remote through k8s metadata
-        String name = K8sInfoRegistry.getInstance().findPodByIP(ip);
-        if (StringUtils.isEmpty(name)) {
-            name = K8sInfoRegistry.getInstance().findServiceByIP(ip);
+        ObjectID metadata = K8sInfoRegistry.getInstance().findPodByIP(ip);
+        if (metadata == ObjectID.EMPTY) {
+            metadata = K8sInfoRegistry.getInstance().findServiceByIP(ip);
         }
+        String name = metadata.toString();
         // if not exists, then just use remote unknown
-        if (StringUtils.isEmpty(name)) {
+        if (StringUtils.isBlank(name)) {
             name = REMOTE_VIRTUAL_PROCESS;
         }
 
