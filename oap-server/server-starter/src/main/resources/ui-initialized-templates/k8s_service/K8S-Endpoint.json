@@ -1,0 +1,289 @@
+
+[
+  {
+    "id": "d533b98c-cecc-40c8-89cb-40df3e47c323",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 51,
+          "i": "0",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "HTTP",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 12,
+                  "i": "0",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_endpoint_http_call_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Receive HTTP Request CPM",
+                    "name": "Receive-HTTP-Request-CPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Count"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 12,
+                  "i": "1",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_endpoint_http_call_duration/kubernetes_service_endpoint_http_call_cpm/1000000"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Duration"
+                    }
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Response HTTP Duration(milliseconds)",
+                    "name": "Response-HTTP-Duration"
+                  },
+                  "associate": [
+                    {
+                      "widgetId": "0-4-0"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 12,
+                  "w": 12,
+                  "h": 12,
+                  "i": "2",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_endpoint_http_req_header_size/kubernetes_service_endpoint_http_call_cpm/1024",
+                    "kubernetes_service_endpoint_http_req_body_size/kubernetes_service_endpoint_http_call_cpm/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Receive Request Size(KB)",
+                    "name": "Avg-Receive-Request-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header"
+                    },
+                    {
+                      "label": "Body"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-0"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 12,
+                  "w": 12,
+                  "h": 12,
+                  "i": "3",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_endpoint_http_resp_header_size/kubernetes_service_endpoint_http_call_cpm/1024",
+                    "kubernetes_service_endpoint_http_resp_body_size/kubernetes_service_endpoint_http_call_cpm/1024"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Send Response Size(KB)",
+                    "name": "Avg-Send-Response-Size"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Header"
+                    },
+                    {
+                      "label": "Body"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-0"
+                    },
+                    {
+                      "widgetId": "0-4-4"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 24,
+                  "h": 12,
+                  "i": "4",
+                  "type": "Widget",
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "kubernetes_service_endpoint_http_status_1xx_cpm",
+                    "kubernetes_service_endpoint_http_status_2xx_cpm",
+                    "kubernetes_service_endpoint_http_status_3xx_cpm",
+                    "kubernetes_service_endpoint_http_status_4xx_cpm",
+                    "kubernetes_service_endpoint_http_status_5xx_cpm"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ],
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Avg Response Status Code CPM",
+                    "name": "Avg-Response-Status-Code-CPM"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "1xx"
+                    },
+                    {
+                      "label": "2xx"
+                    },
+                    {
+                      "label": "3xx"
+                    },
+                    {
+                      "label": "4xx"
+                    },
+                    {
+                      "label": "5xx"
+                    }
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "0-4-1"
+                    },
+                    {
+                      "widgetId": "0-4-2"
+                    },
+                    {
+                      "widgetId": "0-4-3"
+                    },
+                    {
+                      "widgetId": "0-4-0"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "K8S_SERVICE",
+      "entity": "Endpoint",
+      "name": "K8S-Endpoint",
+      "isRoot": false
+    }
+  }
+]
