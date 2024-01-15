@@ -16,29 +16,16 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.ebpf.provider;
+package org.apache.skywalking.oap.server.core.query.type;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-public class EBPFReceiverModuleConfig extends ModuleConfig {
-
-    /**
-     * The continuous profiling policy cache time, Unit is second. Default value is 60 seconds.
-     */
-    @Setter
-    private int continuousPolicyCacheTimeout = 60;
-
-    private String gRPCHost;
-    private int gRPCPort;
-    private int maxConcurrentCallsPerConnection;
-    private int maxMessageSize;
-    private int gRPCThreadPoolSize;
-    private boolean gRPCSslEnabled = false;
-    private String gRPCSslKeyPath;
-    private String gRPCSslCertChainPath;
-    private String gRPCSslTrustedCAsPath;
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LayerLevel {
+    private String layer;
+    private int level;
 }

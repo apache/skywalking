@@ -16,29 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.receiver.ebpf.provider;
+package org.apache.skywalking.oap.server.core.analysis.manual.service;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.skywalking.oap.server.library.module.ModuleConfig;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.K8SService;
 
-@Getter
-public class EBPFReceiverModuleConfig extends ModuleConfig {
-
-    /**
-     * The continuous profiling policy cache time, Unit is second. Default value is 60 seconds.
-     */
-    @Setter
-    private int continuousPolicyCacheTimeout = 60;
-
-    private String gRPCHost;
-    private int gRPCPort;
-    private int maxConcurrentCallsPerConnection;
-    private int maxMessageSize;
-    private int gRPCThreadPoolSize;
-    private boolean gRPCSslEnabled = false;
-    private String gRPCSslKeyPath;
-    private String gRPCSslCertChainPath;
-    private String gRPCSslTrustedCAsPath;
-
+public class K8SServiceTrafficDispatcher implements SourceDispatcher<K8SService> {
+    @Override
+    public void dispatch(K8SService source) {
+        final ServiceTraffic traffic = new ServiceTraffic();
+        traffic.setTimeBucket(source.getTimeBucket());
+        traffic.setName(source.getName());
+        traffic.setLayer(source.getLayer());
+        MetricsStreamProcessor.getInstance().in(traffic);
+    }
 }

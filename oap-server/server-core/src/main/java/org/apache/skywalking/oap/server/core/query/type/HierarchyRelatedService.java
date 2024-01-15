@@ -29,4 +29,5 @@ public class HierarchyRelatedService {
     private String id;
     private String name;
     private String layer;
+    private boolean normal;
 }

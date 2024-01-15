@@ -28,6 +28,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModuleConfig;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
@@ -38,10 +39,13 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
 
     @Getter
     private final Map<String, Map<String, MatchingRule>> hierarchyDefinition;
+    @Getter
+    private Map<String, Integer> layerLevels;
     private Map<String, MatchingRule> matchingRules;
 
     public HierarchyDefinitionService(CoreModuleConfig moduleConfig) {
         this.hierarchyDefinition = new HashMap<>();
+        this.layerLevels = new HashMap<>();
         if (moduleConfig.isEnableHierarchy()) {
             this.init();
             this.checkLayers();
@@ -56,6 +60,7 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
             Map<String, Map> config = yaml.loadAs(applicationReader, Map.class);
             Map<String, Map<String, String>> hierarchy = (Map<String, Map<String, String>>) config.get("hierarchy");
             Map<String, String> matchingRules = (Map<String, String>) config.get("auto-matching-rules");
+            this.layerLevels = (Map<String, Integer>) config.get("layer-levels");
             this.matchingRules = matchingRules.entrySet().stream().map(entry -> {
                 MatchingRule matchingRule = new MatchingRule(entry.getKey(), entry.getValue());
                 return Map.entry(entry.getKey(), matchingRule);
@@ -73,26 +78,31 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
     }
 
     private void checkLayers() {
-        this.hierarchyDefinition.forEach((layer, lowerLayers) -> {
-            if (lowerLayers.containsKey(layer)) {
+        this.layerLevels.keySet().forEach(layer -> {
+            if (Layer.nameOf(layer).equals(Layer.UNDEFINED)) {
                 throw new IllegalArgumentException(
-                    "hierarchy-definition.yml " + layer + " contains recursive hierarchy relation.");
+                    "hierarchy-definition.yml " + layer + " is not a valid layer name.");
             }
-            checkRecursive(layer);
         });
-    }
-
-    private void checkRecursive(String layerName) {
-        try {
-            Map<String, MatchingRule> lowerLayers = this.hierarchyDefinition.get(layerName);
-            if (lowerLayers == null) {
-                return;
+        this.hierarchyDefinition.forEach((layer, lowerLayers) -> {
+            Integer layerLevel = this.layerLevels.get(layer);
+            if (this.layerLevels.get(layer) == null) {
+                throw new IllegalArgumentException(
+                    "hierarchy-definition.yml  layer-levels: " + layer + " is not defined");
             }
-            lowerLayers.keySet().forEach(this::checkRecursive);
-        } catch (Throwable e) {
-            throw new IllegalArgumentException(
-                "hierarchy-definition.yml " + layerName + " contains recursive hierarchy relation.");
-        }
+
+            for (String lowerLayer : lowerLayers.keySet()) {
+                Integer lowerLayerLevel = this.layerLevels.get(lowerLayer);
+                if (lowerLayerLevel == null) {
+                    throw new IllegalArgumentException(
+                        "hierarchy-definition.yml  layer-levels: " + lowerLayer + " is not defined.");
+                }
+                if (layerLevel <= lowerLayerLevel) {
+                    throw new IllegalArgumentException(
+                        "hierarchy-definition.yml hierarchy: " + layer + " layer-level should be greater than " + lowerLayer + " layer-level.");
+                }
+            }
+        });
     }
 
     @Getter

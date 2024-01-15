@@ -18,11 +18,23 @@
 * Support Service Hierarchy auto matching.
 * Add `namespace` suffix for `K8S_SERVICE_NAME_RULE/ISTIO_SERVICE_NAME_RULE` and `metadata-service-mapping.yaml` as default.
 * Allow using a dedicated port for ALS receiver.
-* Support rocketmq monitoring.
+* Fix log query by traceId in `JDBCLogQueryDAO`.
+* Support handler eBPF access log protocol.
+* Support Apache RocketMQ server monitoring.
 
 #### UI
 
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.
+* Add theme change animation.
+* Implement the Service and Instance hierarchy topology.
+* Support Tabs in the widget visiable when MQE expressions.
+* Support search on Marketplace.
+* Fix default route.
+* Fix layout on the Log widget.
+* Fix Trace associates with Log widget.
+* Add isDefault to the dashboard configuration.
+* Add expressions to dashboard configurations on the dashboard list page.
+* Update Kubernetes related UI templates for adapt data from eBPF access log. 
 
 #### Documentation
 
