@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.latest.LatestFunction;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
@@ -100,7 +99,7 @@ public class SumPerMinFunctionTest {
     public void testSerialize() {
         long time = 1597113447737L;
         function.accept(MeterEntity.newService("sum_sync_time", Layer.GENERAL), time);
-        LatestFunction function2 = Mockito.spy(LatestFunction.class);
+        SumPerMinFunction function2 = Mockito.spy(SumPerMinFunction.class);
         function2.deserialize(function.serialize().build());
         assertThat(function2.getEntityId()).isEqualTo(function.getEntityId());
         assertThat(function2.getTimeBucket()).isEqualTo(function.getTimeBucket());

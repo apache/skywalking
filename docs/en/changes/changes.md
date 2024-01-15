@@ -20,6 +20,7 @@
 * Allow using a dedicated port for ALS receiver.
 * Fix log query by traceId in `JDBCLogQueryDAO`.
 * Support handler eBPF access log protocol.
+* Fix SumPerMinFunctionTest error function.
 
 #### UI
 
