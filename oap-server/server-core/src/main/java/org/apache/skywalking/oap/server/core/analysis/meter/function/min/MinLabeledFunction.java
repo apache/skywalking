@@ -146,11 +146,11 @@ public abstract class MinLabeledFunction extends Meter implements AcceptableValu
     }
 
     @Override
-    public Class<? extends AvgLabeledStorageBuilder> builder() {
-        return AvgLabeledStorageBuilder.class;
+    public Class<? extends MinLabeledStorageBuilder> builder() {
+        return MinLabeledStorageBuilder.class;
     }
 
-    public static class AvgLabeledStorageBuilder implements StorageBuilder<MinLabeledFunction> {
+    public static class MinLabeledStorageBuilder implements StorageBuilder<MinLabeledFunction> {
         @Override
         public MinLabeledFunction storage2Entity(final Convert2Entity converter) {
             MinLabeledFunction metrics = new MinLabeledFunction() {

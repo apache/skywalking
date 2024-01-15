@@ -41,9 +41,9 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @ExtendWith(MockitoExtension.class)
 public class MinLabeledFunctionTest {
 
-    private static final DataTable HTTP_CODE_COUNT_1 = new DataTable("200,1|301,2|404,3|502,4");
+    private static final DataTable HTTP_CODE_COUNT_1 = new DataTable("200,2|301,2|404,3|502,4");
 
-    private static final DataTable HTTP_CODE_COUNT_2 = new DataTable("200,2|301,4|404,5|502,1|505,1");
+    private static final DataTable HTTP_CODE_COUNT_2 = new DataTable("200,1|301,4|404,5|502,1|505,1");
 
     private static final DataTable HTTP_CODE_COUNT_3 = new DataTable("200,1|301,2|404,3|502,1|505,1");
 

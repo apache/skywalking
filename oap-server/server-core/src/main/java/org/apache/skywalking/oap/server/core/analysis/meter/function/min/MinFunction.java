@@ -66,12 +66,13 @@ public abstract class MinFunction extends Meter implements AcceptableValue<Long>
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
     @BanyanDB.MeasureField
-    private long value;
+    private long value = Long.MAX_VALUE;
 
     @Override
     public void accept(MeterEntity entity, Long value) {
         setEntityId(entity.id());
         setServiceId(entity.serviceId());
+
         if (this.value > value) {
             setValue(value);
         }

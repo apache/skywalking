@@ -146,11 +146,11 @@ public abstract class MaxLabeledFunction extends Meter implements AcceptableValu
     }
 
     @Override
-    public Class<? extends AvgLabeledStorageBuilder> builder() {
-        return AvgLabeledStorageBuilder.class;
+    public Class<? extends MaxLabeledStorageBuilder> builder() {
+        return MaxLabeledStorageBuilder.class;
     }
 
-    public static class AvgLabeledStorageBuilder implements StorageBuilder<MaxLabeledFunction> {
+    public static class MaxLabeledStorageBuilder implements StorageBuilder<MaxLabeledFunction> {
         @Override
         public MaxLabeledFunction storage2Entity(final Convert2Entity converter) {
             MaxLabeledFunction metrics = new MaxLabeledFunction() {

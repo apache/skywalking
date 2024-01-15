@@ -66,7 +66,7 @@ public class MinFunctionTest {
     @Test
     public void testAccept() {
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
-        assertThat(function.getValue()).isEqualTo(LARGE_VALUE);
+        assertThat(function.getValue()).isEqualTo(SMALL_VALUE);
 
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
         assertThat(function.getValue()).isEqualTo(SMALL_VALUE);

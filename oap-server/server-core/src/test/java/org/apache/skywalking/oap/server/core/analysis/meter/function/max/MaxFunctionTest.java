@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.sum.SumLabeledFunctionTest;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
@@ -109,7 +110,7 @@ public class MaxFunctionTest {
     @Test
     public void testSerialize() {
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
-        MaxFunction function2 = Mockito.spy(MaxFunction.class);
+        MaxFunction function2 = new MaxFunctionInst();
         function2.deserialize(function.serialize().build());
 
         assertThat(function2.getEntityId()).isEqualTo(function.getEntityId());
