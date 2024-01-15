@@ -22,7 +22,6 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.sum.SumLabeledFunctionTest;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
@@ -32,7 +31,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
