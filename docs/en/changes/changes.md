@@ -21,6 +21,7 @@
 * Fix log query by traceId in `JDBCLogQueryDAO`.
 * Support handler eBPF access log protocol.
 * Fix SumPerMinFunctionTest error function.
+* Add `max` and `min` functions for MAL down sampling.
 
 #### UI
 

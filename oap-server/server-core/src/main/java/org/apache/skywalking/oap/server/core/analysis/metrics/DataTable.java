@@ -153,4 +153,34 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
         });
         return this;
     }
+
+    public DataTable setMaxValue(DataTable dataTable) {
+        dataTable.data.forEach((key, value) -> {
+            Long current = this.data.get(key);
+            if (current == null) {
+                current = value;
+            } else {
+                if (current < value) {
+                    current = value;
+                }
+            }
+            this.data.put(key, current);
+        });
+        return this;
+    }
+
+    public DataTable setMinValue(DataTable dataTable) {
+        dataTable.data.forEach((key, value) -> {
+            Long current = this.data.get(key);
+            if (current == null) {
+                current = value;
+            } else {
+                if (current > value) {
+                    current = value;
+                }
+            }
+            this.data.put(key, current);
+        });
+        return this;
+    }
 }
