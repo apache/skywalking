@@ -50,5 +50,6 @@
 * Update the `Overview` docs to add the `Service Hierarchy Relationship` section.
 * Fix incorrect words for `backend-bookkeeper-monitoring.md` and `backend-pulsar-monitoring.md`
 * Document a new way to load balance OAP.
+* Add `SWIP-3 Support rocketmq monitoring`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
