@@ -21,6 +21,7 @@
 * Fix log query by traceId in `JDBCLogQueryDAO`.
 * Support handler eBPF access log protocol.
 * Fix SumPerMinFunctionTest error function.
+* Remove unnecessary annotations and functions from Meter Functions.
 
 #### UI
 
