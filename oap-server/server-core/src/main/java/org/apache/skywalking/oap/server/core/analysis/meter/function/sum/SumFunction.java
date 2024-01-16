@@ -64,7 +64,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     @Override
     public final boolean combine(Metrics metrics) {
         final SumFunction sumFunc = (SumFunction) metrics;
-        this.value = sumFunc.getValue();
+        this.value += sumFunc.getValue();
         return true;
     }
 
