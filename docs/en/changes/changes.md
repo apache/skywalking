@@ -22,6 +22,7 @@
 * Support handler eBPF access log protocol.
 * Fix SumPerMinFunctionTest error function.
 * Remove unnecessary annotations and functions from Meter Functions.
+* Add `max` and `min` functions for MAL down sampling.
 
 #### UI
 

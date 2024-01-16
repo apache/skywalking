@@ -19,5 +19,5 @@
 package org.apache.skywalking.oap.server.core.query.sql;
 
 public enum Function {
-    None, Avg, Sum, Latest
+    None, Avg, Sum, Latest, MAX, MIN
 }
