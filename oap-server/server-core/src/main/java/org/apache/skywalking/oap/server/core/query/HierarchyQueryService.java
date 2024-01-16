@@ -205,10 +205,10 @@ public class HierarchyQueryService implements Service {
             log.warn("CoreModuleConfig config {enableHierarchy} is false, return empty ServiceHierarchy.");
             return new ServiceHierarchy();
         }
-
+        int maxDepth = 10;
         //build relation recursively, set max depth to 10
-        ServiceHierarchy hierarchy = getServiceHierarchy(serviceId, layer, 10, HierarchyDirection.All);
-        return filterConjecturableRelations(serviceHierarchyCache.get(true), hierarchy);
+        ServiceHierarchy hierarchy = getServiceHierarchy(serviceId, layer, maxDepth, HierarchyDirection.All);
+        return filterConjecturableRelations(serviceHierarchyCache.get(true), hierarchy, maxDepth);
     }
 
     public InstanceHierarchy getInstanceHierarchy(String instanceId, String layer) throws Exception {
@@ -363,7 +363,8 @@ public class HierarchyQueryService implements Service {
 
     //If the lower service relation could be found from other lower relations, then it could be conjectured.
     private ServiceHierarchy filterConjecturableRelations(Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap,
-                                                          ServiceHierarchy hierarchy) {
+                                                          ServiceHierarchy hierarchy,
+                                                          int maxDepth) {
         Set<HierarchyServiceRelation> relations = hierarchy.getRelations();
         List<HierarchyServiceRelation> relationList = new ArrayList<>(relations);
         for (HierarchyServiceRelation relation : relationList) {
@@ -372,7 +373,7 @@ public class HierarchyQueryService implements Service {
             ServiceRelations serviceRelations = serviceRelationsMap.get(upperService);
             // if only one lower service, keep the relation
             if (serviceRelations.lowerServices.size() > 1) {
-                if (checkIfConjecturable(serviceRelationsMap, serviceRelations.lowerServices, lowerService)) {
+                if (checkIfConjecturable(serviceRelationsMap, serviceRelations.lowerServices, lowerService, maxDepth)) {
                     // if the lower service is conjecturable, remove the relation
                     relations.remove(relation);
                 }
@@ -381,14 +382,21 @@ public class HierarchyQueryService implements Service {
         return hierarchy;
     }
 
-    private boolean checkIfConjecturable(Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap, List<HierarchyRelatedService> services, HierarchyRelatedService conjecturalService) {
+    private boolean checkIfConjecturable(Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap,
+                                         List<HierarchyRelatedService> services,
+                                         HierarchyRelatedService conjecturalService,
+                                         int maxDepth) {
+        if (maxDepth < 1) {
+            return false;
+        }
+        maxDepth--;
         for (HierarchyRelatedService service : services) {
             if (!service.equals(conjecturalService)) {
                 List<HierarchyRelatedService> lowerServices = serviceRelationsMap.get(service).lowerServices;
                 if (lowerServices.contains(conjecturalService)) {
                     return true;
                 } else {
-                    return checkIfConjecturable(serviceRelationsMap, lowerServices, conjecturalService);
+                    return checkIfConjecturable(serviceRelationsMap, lowerServices, conjecturalService, maxDepth);
                 }
             }
         }
