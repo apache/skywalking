@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.sumpermin;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,8 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableV
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -39,8 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
-import java.util.Objects;
 
 @ToString
 @MeterFunction(functionName = "sumPerMin")
@@ -71,15 +68,10 @@ public abstract class SumPerMinFunction extends Meter implements AcceptableValue
     @BanyanDB.MeasureField
     private long total;
 
-    @Entrance
-    public final void combine(@SourceFrom long value) {
-        this.total += value;
-    }
-
     @Override
     public boolean combine(Metrics metrics) {
         final SumPerMinFunction sumPerMinFunction = (SumPerMinFunction) metrics;
-        combine(sumPerMinFunction.getTotal());
+        this.total += sumPerMinFunction.getTotal();
         return true;
     }
 

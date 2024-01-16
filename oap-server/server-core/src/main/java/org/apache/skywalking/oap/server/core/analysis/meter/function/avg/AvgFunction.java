@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
 
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,9 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableV
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -40,8 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-
-import java.util.Objects;
 
 @MeterFunction(functionName = "avg")
 @ToString
@@ -80,16 +76,11 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @BanyanDB.MeasureField
     private long value;
 
-    @Entrance
-    public final void combine(@SourceFrom long summation, @ConstOne long count) {
-        this.summation += summation;
-        this.count += count;
-    }
-
     @Override
     public final boolean combine(Metrics metrics) {
         AvgFunction longAvgMetrics = (AvgFunction) metrics;
-        combine(longAvgMetrics.summation, longAvgMetrics.count);
+        this.summation += longAvgMetrics.summation;
+        this.count += longAvgMetrics.count;
         return true;
     }
 
