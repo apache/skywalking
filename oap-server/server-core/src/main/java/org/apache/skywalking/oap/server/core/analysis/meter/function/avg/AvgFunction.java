@@ -76,15 +76,11 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @BanyanDB.MeasureField
     private long value;
 
-    public final void combine(long summation, long count) {
-        this.summation += summation;
-        this.count += count;
-    }
-
     @Override
     public final boolean combine(Metrics metrics) {
         AvgFunction longAvgMetrics = (AvgFunction) metrics;
-        combine(longAvgMetrics.summation, longAvgMetrics.count);
+        this.summation += longAvgMetrics.summation;
+        this.count += longAvgMetrics.count;
         return true;
     }
 
