@@ -29,8 +29,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableV
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -64,7 +62,7 @@ public abstract class MinFunction extends Meter implements AcceptableValue<Long>
 
     @Getter
     @Setter
-    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.MIN)
     @BanyanDB.MeasureField
     private long value = Long.MAX_VALUE;
 
@@ -78,17 +76,12 @@ public abstract class MinFunction extends Meter implements AcceptableValue<Long>
         }
     }
 
-    @Entrance
-    public final void combine(@SourceFrom long value) {
-        if (this.value > value) {
-            setValue(value);
-        }
-    }
-
     @Override
     public final boolean combine(Metrics metrics) {
         final MinFunction minFunction = (MinFunction) metrics;
-        combine(minFunction.getValue());
+        if (this.value > minFunction.getValue()) {
+            setValue(value);
+        }
         return true;
     }
 

@@ -30,8 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFuncti
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
-import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.SourceFrom;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -68,11 +66,6 @@ public abstract class MinLabeledFunction extends Meter implements AcceptableValu
     @BanyanDB.MeasureField
     private DataTable value = new DataTable(30);
 
-    @Entrance
-    public final void combine(@SourceFrom DataTable value) {
-        this.value.setMinValue(value);
-    }
-
     @Override
     public void accept(final MeterEntity entity, final DataTable value) {
         setEntityId(entity.id());
@@ -83,7 +76,7 @@ public abstract class MinLabeledFunction extends Meter implements AcceptableValu
     @Override
     public final boolean combine(Metrics metrics) {
         final MinLabeledFunction minLabeledFunction = (MinLabeledFunction) metrics;
-        combine(minLabeledFunction.getValue());
+        this.value.setMinValue(minLabeledFunction.getValue());
         return true;
     }
 
