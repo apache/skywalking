@@ -1,19 +1,20 @@
+# Support RocketMQ Monitoring
 ## Motivation
-RocketMQ is a cloud native messaging and streaming platform, making it simple to build event-driven applications。Now that Skywalking has the capability to monitor OpenTelemetry metrics, I want to add RocketMQ monitoring via the OpenTelemetry Collector, which fetches metrics from the RocketMQ Exporter
+RocketMQ is a cloud native messaging and streaming platform, making it simple to build event-driven applications. Now that Skywalking can monitor OpenTelemetry metrics, I want to add RocketMQ monitoring via the OpenTelemetry Collector, which fetches metrics from the RocketMQ Exporter
 
 ## Architecture Graph
 There is no significant architecture-level change.
 
 ## Proposed Changes
-```rocketmq-exporter``` collects metrics from rocketmq and transport the data to opentelemetry collector,using skyWalking openTelemetry receiver to receive these metrics。
-Provide cluster ,broker and topic dimensions monitoring.
+```rocketmq-exporter``` collects metrics from RocketMQ and transport the data to OpenTelemetry collector, using SkyWalking openTelemetry receiver to receive these metrics。
+Provide cluster, broker, and topic dimensions monitoring.
 
 ### RocketMQ Cluster Supported Metrics
 
 | Monitoring Panel                           |Unit        | Metric Name                                                             | Description                                                              | Data Source      |
 |--------------------------------------------|------------|-------------------------------------------------------------------------|--------------------------------------------------------------------------|------------------|
-| Messages Produced Today                    | Count      | meter_rocketmq_cluster_messages_produced_today                          | The number of the cluster messages produced today.                       | RocketMQ Exporter |
-| Messages Consumed Today                    | Count      | meter_rocketmq_cluster_messages_consumed_today                          | The number of the cluster messages consumed today.                       | RocketMQ Exporter |
+| Messages Produced Today                    | Count      | meter_rocketmq_cluster_messages_produced_today                          | The number of cluster messages produced today.                       | RocketMQ Exporter |
+| Messages Consumed Today                    | Count      | meter_rocketmq_cluster_messages_consumed_today                          | The number of cluster messages consumed today.                       | RocketMQ Exporter |
 | Total Producer Tps                         | Msg/sec    | meter_rocketmq_cluster_total_producer_tps                               | The number of messages produced per second.                              | RocketMQ Exporter |
 | Total Consume Tps                          | Msg/sec    | meter_rocketmq_cluster_total_consumer_tps                               | The number of messages consumed per second.                              | RocketMQ Exporter |
 | Producer Message Size                      | Bytes/sec  | meter_rocketmq_cluster_producer_message_size                            | The max size of a message produced per second.                           | RocketMQ Exporter |
@@ -22,9 +23,9 @@ Provide cluster ,broker and topic dimensions monitoring.
 | Messages Consumed Until Yesterday          | Count      | meter_rocketmq_cluster_messages_consumed_until_yesterday                | The total number of messages read until 12 o'clock last night.           | RocketMQ Exporter |
 | Max Consumer Latency                       | ms         | meter_rocketmq_cluster_max_consumer_latency                             | The max number of consumer latency.                                      | RocketMQ Exporter |
 | Max CommitLog Disk Ratio                   | %          | meter_rocketmq_cluster_max_commitLog_disk_ratio                         | The max utilization ratio of the commit log disk.                        | RocketMQ Exporter |
-| CommitLog Disk Ratio                       | %          | meter_rocketmq_cluster_commitLog_disk_ratio                             | The utilization ratio of the commit log disk per brokerIp.               | RocketMQ Exporter |
-| Pull ThreadPool Queue Head Wait Time       | ms         | meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time             | The wait time in milliseconds for pulling threadPool queue per brokerIp. | RocketMQ Exporter |
-| Send ThreadPool Queue Head Wait Time       | ms         | meter_rocketmq_cluster_send_threadPool_queue_head_wait_time             | The wait time in milliseconds for sending threadPool queue per brokerIp. | RocketMQ Exporter |
+| CommitLog Disk Ratio                       | %          | meter_rocketmq_cluster_commitLog_disk_ratio                             | The utilization ratio of the commit log disk per broker IP.               | RocketMQ Exporter |
+| Pull ThreadPool Queue Head Wait Time       | ms         | meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time             | The wait time in milliseconds for pulling threadPool queue per broker IP. | RocketMQ Exporter |
+| Send ThreadPool Queue Head Wait Time       | ms         | meter_rocketmq_cluster_send_threadPool_queue_head_wait_time             | The wait time in milliseconds for sending threadPool queue per broker IP. | RocketMQ Exporter |
 
 ### RocketMQ Broker Supported Metrics
 
@@ -57,4 +58,4 @@ no breaking changes.
 
 ## General usage docs
 
-This feature is out of box.
+This feature is out of the box.
