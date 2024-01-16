@@ -158,7 +158,6 @@ public class HierarchyQueryService implements Service {
             return;
         }
         maxDepth--;
-       // Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap = serviceHierarchyCache.get(true);
         ServiceRelations serviceRelations = serviceRelationsMap.getOrDefault(self, new ServiceRelations());
 
         if (serviceRelations.getLowerServices().isEmpty() && serviceRelations.getUpperServices().isEmpty()) {
