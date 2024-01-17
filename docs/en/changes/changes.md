@@ -23,7 +23,7 @@
 * Fix SumPerMinFunctionTest error function.
 * Remove unnecessary annotations and functions from Meter Functions.
 * Add `max` and `min` functions for MAL down sampling.
-* Change topN group key from `StorageId` to `entityId + timeBucket`.
+* Fix critical bug of uncontrolled memory cost of TopN statistics. Change topN group key from `StorageId` to `entityId + timeBucket`.
 
 #### UI
 
