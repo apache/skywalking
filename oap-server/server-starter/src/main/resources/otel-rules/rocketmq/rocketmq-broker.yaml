@@ -40,7 +40,7 @@ metricsRules:
     exp: rocketmq_broker_qps.sum(['cluster','broker'])
 
   - name: producer_message_size
-    exp: rocketmq_producer_message_size.sum(['cluster','broker'])
+    exp: rocketmq_producer_message_size.sum(['cluster','broker']).downsampling(MAX)
 
   - name: consumer_message_size
-    exp: rocketmq_consumer_message_size.sum(['cluster','broker'])
+    exp: rocketmq_consumer_message_size.sum(['cluster','broker']).downsampling(MAX)

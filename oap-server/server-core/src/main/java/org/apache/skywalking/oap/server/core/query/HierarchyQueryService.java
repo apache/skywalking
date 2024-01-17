@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -62,7 +63,7 @@ public class HierarchyQueryService implements Service {
     private IMetadataQueryDAO metadataQueryDAO;
     private Map<String, Map<String, HierarchyDefinitionService.MatchingRule>> hierarchyDefinition;
     private Map<String, Integer> layerLevels;
-    private LoadingCache<Boolean, Map<HierarchyRelatedService, ServiceRelations>> serviceHierarchyCache;
+    private LoadingCache<Boolean, Map<HierarchyRelatedService/*self*/, ServiceRelations/*upper and lower service list*/>> serviceHierarchyCache;
 
     public HierarchyQueryService(ModuleManager moduleManager, CoreModuleConfig moduleConfig) {
         this.moduleManager = moduleManager;
@@ -152,12 +153,11 @@ public class HierarchyQueryService implements Service {
         return serviceRelationsMap;
     }
 
-    private void buildServiceRelation(ServiceHierarchy hierarchy, HierarchyRelatedService self, int maxDepth, HierarchyDirection direction) throws ExecutionException {
+    private void buildServiceRelation(Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap, ServiceHierarchy hierarchy, HierarchyRelatedService self, int maxDepth, HierarchyDirection direction) throws ExecutionException {
         if (maxDepth < 1) {
             return;
         }
         maxDepth--;
-        Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap = serviceHierarchyCache.get(true);
         ServiceRelations serviceRelations = serviceRelationsMap.getOrDefault(self, new ServiceRelations());
 
         if (serviceRelations.getLowerServices().isEmpty() && serviceRelations.getUpperServices().isEmpty()) {
@@ -170,7 +170,7 @@ public class HierarchyQueryService implements Service {
                 if (!hierarchy.getRelations().add(relation)) {
                     continue;
                 }
-                buildServiceRelation(hierarchy, lowerService, maxDepth, direction);
+                buildServiceRelation(serviceRelationsMap, hierarchy, lowerService, maxDepth, direction);
             }
         }
         if (direction == HierarchyDirection.UPPER || direction == HierarchyDirection.All) {
@@ -179,7 +179,7 @@ public class HierarchyQueryService implements Service {
                 if (!hierarchy.getRelations().add(relation)) {
                     continue;
                 }
-                buildServiceRelation(hierarchy, upperService, maxDepth, direction);
+                buildServiceRelation(serviceRelationsMap, hierarchy, upperService, maxDepth, direction);
             }
         }
     }
@@ -191,20 +191,23 @@ public class HierarchyQueryService implements Service {
         self.setName(IDManager.ServiceID.analysisId(serviceId).getName());
         self.setLayer(layer);
         self.setNormal(Layer.nameOf(layer).isNormal());
-        buildServiceRelation(hierarchy, self, maxDepth, direction);
+        buildServiceRelation(serviceHierarchyCache.get(true), hierarchy, self, maxDepth, direction);
         return hierarchy;
     }
 
     /**
      * @return return the related service hierarchy recursively, e.g. A-B-C, query A will return A-B, B-C
+     * If the relation could be conjectured will be removed, e.g. A-B-C-D and A-D, query A will return A-B, B-C, C-D because A-D could be conjectured.
      */
     public ServiceHierarchy getServiceHierarchy(String serviceId, String layer) throws Exception {
         if (!this.isEnableHierarchy) {
             log.warn("CoreModuleConfig config {enableHierarchy} is false, return empty ServiceHierarchy.");
             return new ServiceHierarchy();
         }
+        int maxDepth = 10;
         //build relation recursively, set max depth to 10
-        return getServiceHierarchy(serviceId, layer, 10, HierarchyDirection.All);
+        ServiceHierarchy hierarchy = getServiceHierarchy(serviceId, layer, maxDepth, HierarchyDirection.All);
+        return filterConjecturableRelations(serviceHierarchyCache.get(true), hierarchy, maxDepth);
     }
 
     public InstanceHierarchy getInstanceHierarchy(String instanceId, String layer) throws Exception {
@@ -357,13 +360,58 @@ public class HierarchyQueryService implements Service {
         };
     }
 
+    //If the lower service relation could be found from other lower relations, then it could be conjectured.
+    private ServiceHierarchy filterConjecturableRelations(Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap,
+                                                          ServiceHierarchy hierarchy,
+                                                          int maxDepth) {
+        Set<HierarchyServiceRelation> relations = hierarchy.getRelations();
+        List<HierarchyServiceRelation> relationList = new ArrayList<>(relations);
+        for (HierarchyServiceRelation relation : relationList) {
+            HierarchyRelatedService upperService = relation.getUpperService();
+            HierarchyRelatedService lowerService = relation.getLowerService();
+            ServiceRelations serviceRelations = serviceRelationsMap.get(upperService);
+            // if only one lower service, keep the relation
+            if (serviceRelations.lowerServices.size() > 1) {
+                if (checkIfConjecturable(serviceRelationsMap, serviceRelations.lowerServices, lowerService, maxDepth)) {
+                    // if the lower service is conjecturable, remove the relation
+                    relations.remove(relation);
+                }
+            }
+        }
+        return hierarchy;
+    }
+
+    private boolean checkIfConjecturable(Map<HierarchyRelatedService, ServiceRelations> serviceRelationsMap,
+                                         List<HierarchyRelatedService> services,
+                                         HierarchyRelatedService conjecturalService,
+                                         int maxDepth) {
+        if (maxDepth < 1) {
+            return false;
+        }
+        maxDepth--;
+        for (HierarchyRelatedService service : services) {
+            if (!service.equals(conjecturalService)) {
+                List<HierarchyRelatedService> lowerServices = serviceRelationsMap.get(service).lowerServices;
+                if (lowerServices.contains(conjecturalService)) {
+                    return true;
+                } else {
+                    return checkIfConjecturable(serviceRelationsMap, lowerServices, conjecturalService, maxDepth);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Record the all upper and lower services of the specified service.
+     */
     @Data
-    static class ServiceRelations {
+    public static class ServiceRelations {
         private List<HierarchyRelatedService> upperServices = new ArrayList<>();
         private List<HierarchyRelatedService> lowerServices = new ArrayList<>();
     }
 
-    enum HierarchyDirection {
+    public enum HierarchyDirection {
         All,
         UPPER,
         LOWER

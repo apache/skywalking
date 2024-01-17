@@ -16,9 +16,8 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.analysis.meter.function.avg;
+package org.apache.skywalking.oap.server.core.analysis.meter.function.min;
 
-import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -39,12 +38,13 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
-@MeterFunction(functionName = "avg")
+import java.util.Objects;
+
+@MeterFunction(functionName = "min")
 @ToString
-public abstract class AvgFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
-    protected static final String SUMMATION = "summation";
-    protected static final String COUNT = "count";
-    protected static final String VALUE = "value";
+public abstract class MinFunction extends Meter implements AcceptableValue<Long>, LongValueHolder {
+
+    public static final String VALUE = "value";
 
     @Setter
     @Getter
@@ -62,135 +62,112 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
 
     @Getter
     @Setter
-    @Column(name = SUMMATION, storageOnly = true)
+    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.MIN)
     @BanyanDB.MeasureField
-    protected long summation;
-    @Getter
-    @Setter
-    @Column(name = COUNT, storageOnly = true)
-    @BanyanDB.MeasureField
-    protected long count;
-    @Getter
-    @Setter
-    @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE, function = Function.Avg)
-    @BanyanDB.MeasureField
-    private long value;
+    private long value = Long.MAX_VALUE;
+
+    @Override
+    public void accept(MeterEntity entity, Long value) {
+        setEntityId(entity.id());
+        setServiceId(entity.serviceId());
+
+        if (this.value > value) {
+            setValue(value);
+        }
+    }
 
     @Override
     public final boolean combine(Metrics metrics) {
-        AvgFunction longAvgMetrics = (AvgFunction) metrics;
-        this.summation += longAvgMetrics.summation;
-        this.count += longAvgMetrics.count;
+        final MinFunction minFunction = (MinFunction) metrics;
+        if (this.value > minFunction.getValue()) {
+            setValue(value);
+        }
         return true;
     }
 
     @Override
-    public final void calculate() {
-        long result = this.summation / this.count;
-        // The minimum of avg result is 1, that means once there's some data in a duration user can get "1" instead of
-        // "0".
-        if (result == 0 && this.summation > 0) {
-            result = 1;
-        }
-        this.value = result;
+    public void calculate() {
+
     }
 
     @Override
     public Metrics toHour() {
-        AvgFunction metrics = (AvgFunction) createNew();
+        MinFunction metrics = (MinFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInHour());
         metrics.setServiceId(getServiceId());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
+        metrics.setValue(getValue());
         return metrics;
     }
 
     @Override
     public Metrics toDay() {
-        AvgFunction metrics = (AvgFunction) createNew();
+        MinFunction metrics = (MinFunction) createNew();
         metrics.setEntityId(getEntityId());
         metrics.setTimeBucket(toTimeBucketInDay());
         metrics.setServiceId(getServiceId());
-        metrics.setSummation(getSummation());
-        metrics.setCount(getCount());
+        metrics.setValue(getValue());
         return metrics;
     }
 
     @Override
     public int remoteHashCode() {
-        return entityId.hashCode();
+        return getEntityId().hashCode();
     }
 
     @Override
-    public void deserialize(final RemoteData remoteData) {
-        this.count = remoteData.getDataLongs(0);
-        this.summation = remoteData.getDataLongs(1);
-        setTimeBucket(remoteData.getDataLongs(2));
-
-        this.entityId = remoteData.getDataStrings(0);
-        this.serviceId = remoteData.getDataStrings(1);
+    public void deserialize(RemoteData remoteData) {
+        setEntityId(remoteData.getDataStrings(0));
+        setServiceId(remoteData.getDataStrings(1));
+        setTimeBucket(remoteData.getDataLongs(1));
+        setValue(remoteData.getDataLongs(0));
     }
 
     @Override
     public RemoteData.Builder serialize() {
-        RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
-        remoteBuilder.addDataLongs(count);
-        remoteBuilder.addDataLongs(summation);
+        final RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
+        remoteBuilder.addDataLongs(getValue());
         remoteBuilder.addDataLongs(getTimeBucket());
-
-        remoteBuilder.addDataStrings(entityId);
-        remoteBuilder.addDataStrings(serviceId);
-
+        remoteBuilder.addDataStrings(getEntityId());
+        remoteBuilder.addDataStrings(getServiceId());
         return remoteBuilder;
     }
 
     @Override
     protected StorageID id0() {
         return new StorageID()
-            .append(TIME_BUCKET, getTimeBucket())
-            .append(ENTITY_ID, getEntityId());
-    }
-
-    @Override
-    public void accept(final MeterEntity entity, final Long value) {
-        this.entityId = entity.id();
-        this.serviceId = entity.serviceId();
-        this.summation += value;
-        this.count += 1;
+                .append(TIME_BUCKET, getTimeBucket())
+                .append(ENTITY_ID, getEntityId());
     }
 
     @Override
     public Class<? extends StorageBuilder> builder() {
-        return AvgStorageBuilder.class;
+        return MinStorageBuilder.class;
     }
 
-    public static class AvgStorageBuilder implements StorageBuilder<AvgFunction> {
+    public static class MinStorageBuilder implements StorageBuilder<MinFunction> {
+
         @Override
-        public AvgFunction storage2Entity(final Convert2Entity converter) {
-            AvgFunction metrics = new AvgFunction() {
+        public MinFunction storage2Entity(Convert2Entity converter) {
+            MinFunction metrics = new MinFunction() {
                 @Override
                 public AcceptableValue<Long> createNew() {
                     throw new UnexpectedException("createNew should not be called");
                 }
             };
-            metrics.setSummation(((Number) converter.get(SUMMATION)).longValue());
-            metrics.setValue(((Number) converter.get(VALUE)).longValue());
-            metrics.setCount(((Number) converter.get(COUNT)).longValue());
-            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
-            metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
             metrics.setEntityId((String) converter.get(ENTITY_ID));
+            metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
+            metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
+            metrics.setValue(((Number) converter.get(VALUE)).longValue());
             return metrics;
         }
 
         @Override
-        public void entity2Storage(final AvgFunction storageData, final Convert2Storage converter) {
-            converter.accept(SUMMATION, storageData.getSummation());
-            converter.accept(VALUE, storageData.getValue());
-            converter.accept(COUNT, storageData.getCount());
-            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
-            converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
+        public void entity2Storage(final MinFunction storageData, final Convert2Storage converter) {
             converter.accept(ENTITY_ID, storageData.getEntityId());
+            converter.accept(InstanceTraffic.SERVICE_ID, storageData.getServiceId());
+            converter.accept(TIME_BUCKET, storageData.getTimeBucket());
+            converter.accept(VALUE, storageData.getValue());
         }
     }
 
@@ -199,16 +176,16 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
         if (this == o) {
             return true;
         }
-        if (!(o instanceof AvgFunction)) {
+        if (!(o instanceof MinFunction)) {
             return false;
         }
-        AvgFunction function = (AvgFunction) o;
-        return Objects.equals(entityId, function.entityId) &&
-            getTimeBucket() == function.getTimeBucket();
+        final MinFunction function = (MinFunction) o;
+        return Objects.equals(getEntityId(), function.getEntityId())
+                && Objects.equals(getTimeBucket(), function.getTimeBucket());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entityId, getTimeBucket());
+        return Objects.hash(getEntityId(), getTimeBucket());
     }
 }

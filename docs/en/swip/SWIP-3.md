@@ -1,28 +1,13 @@
-# RocketMQ monitoring
+# Support RocketMQ Monitoring
+## Motivation
+RocketMQ is a cloud native messaging and streaming platform, making it simple to build event-driven applications. Now that Skywalking can monitor OpenTelemetry metrics, I want to add RocketMQ monitoring via the OpenTelemetry Collector, which fetches metrics from the RocketMQ Exporter
 
-SkyWalking leverages rocketmq-exporter for collecting metrics data from RocketMQ. It leverages OpenTelemetry
-Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/meter.md).
+## Architecture Graph
+There is no significant architecture-level change.
 
-## Data flow
-
-1. The `rocketmq-exporter` collects metrics data from RocketMQ, The RocketMQ version is required to be 4.3.2+.
-2. OpenTelemetry Collector fetches metrics from rocketmq-exporter via Prometheus Receiver and pushes metrics to
-   SkyWalking OAP Server via OpenTelemetry gRPC exporter.
-3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
-   filter/calculate/aggregate and store the results.
-
-## Setup
-
-1. Setup [rocketmq-exporter](https://github.com/apache/rocketmq-exporter).
-2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#docker). The example for OpenTelemetry Collector configuration, refer
-   to [here](../../../../test/e2e-v2/cases/rocketmq/otel-collector-config.yaml).
-3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
-
-## RocketMQ Monitoring
-
-RocketMQ monitoring provides multidimensional metrics monitoring of RocketMQ Exporter as `Layer: RocketMQ` `Service` in
-the OAP. In each cluster, the broker is represented as `Instance` and the topic is represented as `Endpoint`.
+## Proposed Changes
+```rocketmq-exporter``` collects metrics from RocketMQ and transport the data to OpenTelemetry collector, using SkyWalking openTelemetry receiver to receive these metrics。
+Provide cluster, broker, and topic dimensions monitoring.
 
 ### RocketMQ Cluster Supported Metrics
 
@@ -65,9 +50,12 @@ the OAP. In each cluster, the broker is represented as `Instance` and the topic 
 | Producer Message Size                      | Byte/sec   | meter_rocketmq_topic_producer_message_size                              | The max size of messages produced per second.                         | RocketMQ Exporter |
 | Consumer Message Size                      | Byte/sec   | meter_rocketmq_topic_consumer_message_size                              | The max size of messages consumed per second.                         | RocketMQ Exporter |
 
-## Customizations
+## Imported Dependencies libs and their licenses.
+No new dependency.
 
-You can customize your own metrics/expression/dashboard panel.
-The metrics definition and expression rules are found
-in `otel-rules/rocketmq/rocketmq-cluster.yaml, otel-rules/rocketmq/rocketmq-broker.yaml, otel-rules/rocketmq/rocketmq-topic.yaml`.
-The RocketMQ dashboard panel configurations are found in `ui-initialized-templates/rocketmq`.
+## Compatibility
+no breaking changes.
+
+## General usage docs
+
+This feature is out of the box.

@@ -51,14 +51,14 @@ metricsRules:
     exp: rocketmq_consumer_tps.sum(['cluster','topic'])
 
   - name: producer_offset
-    exp: rocketmq_producer_offset.sum(['cluster','topic'])
+    exp: rocketmq_producer_offset.sum(['cluster','topic']).downsampling(MAX)
 
   - name: consumer_group_offset
-    exp: rocketmq_consumer_offset.sum(['cluster','topic','group'])
+    exp: rocketmq_consumer_offset.sum(['cluster','topic','group']).downsampling(MAX)
 
   - name: producer_message_size
-    exp: rocketmq_producer_message_size.sum(['cluster','topic'])
+    exp: rocketmq_producer_message_size.sum(['cluster','topic']).downsampling(MAX)
 
   - name: consumer_message_size
-    exp: rocketmq_consumer_message_size.sum(['cluster','topic','group'])
+    exp: rocketmq_consumer_message_size.sum(['cluster','topic','group']).downsampling(MAX)
 
