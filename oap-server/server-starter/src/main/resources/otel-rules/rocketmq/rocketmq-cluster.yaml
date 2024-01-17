@@ -48,10 +48,10 @@ metricsRules:
     exp: rocketmq_consumer_tps.sum(['cluster'])
 
   - name: producer_message_size
-    exp: rocketmq_producer_message_size.sum(['cluster'])
+    exp: rocketmq_producer_message_size.sum(['cluster']).downsampling(MAX)
 
   - name: consumer_message_size
-    exp: rocketmq_consumer_message_size.sum(['cluster'])
+    exp: rocketmq_consumer_message_size.sum(['cluster']).downsampling(MAX)
 
   - name: messages_produced_until_yesterday
     exp: rocketmq_brokeruntime_msg_puttotal_yesterdaymorning.sum(['cluster'])
