@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 
 /**
@@ -39,7 +40,7 @@ public class LimitedSizeBufferedData<STORAGE_DATA extends TopN> implements Buffe
 
     @Override
     public void accept(final STORAGE_DATA data) {
-        final String topGroupKey = data.getEntityId() + data.getTimeBucket();
+        final String topGroupKey = data.getEntityId() + TimeBucket.getMinuteTimeBucket(data.getTimestamp());
         LinkedList<STORAGE_DATA> storageDataList = this.data.get(topGroupKey);
         if (storageDataList == null) {
             storageDataList = new LinkedList<>();

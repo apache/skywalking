@@ -27,24 +27,27 @@ public class LimitedSizeBufferedDataTest {
     @Test
     public void testPut() {
         LimitedSizeBufferedData<MockStorageData> collection = new LimitedSizeBufferedData<>(5);
-        collection.accept(new MockStorageData(1, 202401161130L));
-        collection.accept(new MockStorageData(3, 202401161130L));
-        collection.accept(new MockStorageData(5, 202401161130L));
-        collection.accept(new MockStorageData(7, 202401161130L));
-        collection.accept(new MockStorageData(9, 202401161130L));
+        //2024-01-17 17:00:00
+        collection.accept(new MockStorageData(1, 1705482000000L));
+        collection.accept(new MockStorageData(3, 1705482000000L));
+        collection.accept(new MockStorageData(5, 1705482000000L));
+        collection.accept(new MockStorageData(7, 1705482000000L));
+        collection.accept(new MockStorageData(9, 1705482000000L));
 
-        MockStorageData income = new MockStorageData(4, 202401161130L);
-        MockStorageData incomeWithDifferentTimeBucket = new MockStorageData(4, 202401161131L);
+        //2024-01-17 17:00:00
+        MockStorageData income = new MockStorageData(4, 1705482000000L);
+        //2024-01-17 17:01:00
+        MockStorageData incomeWithDifferentTimeBucket = new MockStorageData(4, 1705482060000L);
 
         collection.accept(income);
         collection.accept(incomeWithDifferentTimeBucket);
         int[] expected = new int[] {
-            4,
             3,
             4,
             5,
             7,
-            9
+            9,
+            4
         };
         int i = 0;
         for (MockStorageData data : collection.read()) {
@@ -54,11 +57,11 @@ public class LimitedSizeBufferedDataTest {
 
     private class MockStorageData extends TopN {
         private long latency;
-        private long timeBucket;
+        private long timestamp;
 
-        public MockStorageData(long latency, long timeBucket) {
+        public MockStorageData(long latency, long timestamp) {
             this.latency = latency;
-            this.timeBucket = timeBucket;
+            this.timestamp = timestamp;
         }
 
         @Override
@@ -83,8 +86,8 @@ public class LimitedSizeBufferedDataTest {
         }
 
         @Override
-        public long getTimeBucket() {
-            return this.timeBucket;
+        public long getTimestamp() {
+            return timestamp;
         }
     }
 }
