@@ -18,27 +18,28 @@
 
 package org.apache.skywalking.oap.server.core.analysis.data;
 
-import org.apache.skywalking.oap.server.core.storage.ComparableStorageData;
+import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.Objects;
 
 public class LimitedSizeBufferedDataTest {
     @Test
     public void testPut() {
         LimitedSizeBufferedData<MockStorageData> collection = new LimitedSizeBufferedData<>(5);
-        collection.accept(new MockStorageData(1));
-        collection.accept(new MockStorageData(3));
-        collection.accept(new MockStorageData(5));
-        collection.accept(new MockStorageData(7));
-        collection.accept(new MockStorageData(9));
+        collection.accept(new MockStorageData(1, 202401161130L));
+        collection.accept(new MockStorageData(3, 202401161130L));
+        collection.accept(new MockStorageData(5, 202401161130L));
+        collection.accept(new MockStorageData(7, 202401161130L));
+        collection.accept(new MockStorageData(9, 202401161130L));
 
-        MockStorageData income = new MockStorageData(4);
+        MockStorageData income = new MockStorageData(4, 202401161130L);
+        MockStorageData incomeWithDifferentTimeBucket = new MockStorageData(4, 202401161131L);
+
         collection.accept(income);
-
+        collection.accept(incomeWithDifferentTimeBucket);
         int[] expected = new int[] {
+            4,
             3,
             4,
             5,
@@ -51,11 +52,13 @@ public class LimitedSizeBufferedDataTest {
         }
     }
 
-    private class MockStorageData implements ComparableStorageData {
+    private class MockStorageData extends TopN {
         private long latency;
+        private long timeBucket;
 
-        public MockStorageData(long latency) {
+        public MockStorageData(long latency, long timeBucket) {
             this.latency = latency;
+            this.timeBucket = timeBucket;
         }
 
         @Override
@@ -70,13 +73,18 @@ public class LimitedSizeBufferedDataTest {
         }
 
         @Override
-        public boolean equals(Object o) {
-            return true;
+        public long getLatency() {
+            return this.latency;
         }
 
         @Override
-        public int hashCode() {
-            return Objects.hash(1);
+        public String getEntityId() {
+            return "dbtest";
+        }
+
+        @Override
+        public long getTimeBucket() {
+            return this.timeBucket;
         }
     }
 }
