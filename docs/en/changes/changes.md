@@ -38,6 +38,8 @@
 * Add isDefault to the dashboard configuration.
 * Add expressions to dashboard configurations on the dashboard list page.
 * Update Kubernetes related UI templates for adapt data from eBPF access log. 
+* Fix dashboard `K8S-Service-Root` metrics expression.
+* Add dashboards for Service/Instance Hierarchy.
 
 #### Documentation
 

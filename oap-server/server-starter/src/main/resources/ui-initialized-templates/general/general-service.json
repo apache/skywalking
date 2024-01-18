@@ -1,4 +1,3 @@
-
 [
   {
     "id": "General-Service",
@@ -911,10 +910,29 @@
           "eventAssociate": true
         }
       ],
+      "name": "General-Service",
       "layer": "GENERAL",
       "entity": "Service",
-      "name": "General-Service",
-      "id": "General-Service"
+      "isDefault": true,
+      "expressions": [
+        "avg(service_cpm)",
+        "avg(service_sla/100)",
+        "avg(service_resp_time)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "calls / min",
+          "label": "Load"
+        },
+        {
+          "unit": "%",
+          "label": "Success Rate"
+        },
+        {
+          "unit": "ms",
+          "label": "Latency"
+        }
+      ]
     }
   }
 ]

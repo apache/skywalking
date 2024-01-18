@@ -579,7 +579,27 @@
       "layer": "MESH",
       "entity": "ServiceInstance",
       "name": "Mesh-Instance",
-      "id": "Mesh-Instance"
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(service_instance_cpm)",
+        "avg(service_instance_sla/100)",
+        "avg(service_instance_resp_time)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "calls / min",
+          "label": "Load"
+        },
+        {
+          "label": "Success Rate",
+          "unit": "%"
+        },
+        {
+          "label": "Latency",
+          "unit": "ms"
+        }
+      ]
     }
   }
 ]
