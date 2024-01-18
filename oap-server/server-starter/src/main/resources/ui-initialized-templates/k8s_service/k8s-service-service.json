@@ -1937,7 +1937,50 @@
       "layer": "K8S_SERVICE",
       "entity": "Service",
       "name": "K8S-Service-Service",
-      "id": "K8S-Service-Service"
+      "isDefault": true,
+      "expressions": [
+        "latest(k8s_service_pod_total)",
+        "latest(k8s_service_cpu_cores_requests)",
+        "latest(k8s_service_cpu_cores_limits)",
+        "avg(kubernetes_service_write_package_size)/60",
+        "avg(kubernetes_service_read_package_size)/60",
+        "avg(kubernetes_service_http_call_cpm)",
+        "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm/1000000)",
+        "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "Pod Total"
+        },
+        {
+          "unit": "m",
+          "label": "CPU Requests"
+        },
+        {
+          "unit": "m",
+          "label": "CPU Limits"
+        },
+        {
+          "unit": "bytes",
+          "label": "Write Per Seconds"
+        },
+        {
+          "unit": "bytes",
+          "label": "Read Per Seconds"
+        },
+        {
+          "label": "HTTP Load",
+          "unit": "calls / min"
+        },
+        {
+          "label": "HTTP Latency",
+          "unit": "ms"
+        },
+        {
+          "label": "HTTP Success Rate",
+          "unit": "%"
+        }
+      ]
     }
   }
 ]

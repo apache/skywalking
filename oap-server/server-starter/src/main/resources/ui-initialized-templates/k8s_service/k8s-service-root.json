@@ -52,9 +52,9 @@
                     "TIME_SERIES_VALUES"
                   ],
                   "expressions": [
-                    "avg(k8s_service_pod_total)",
-                    "avg(k8s_service_cpu_cores_requests)",
-                    "avg(k8s_service_cpu_cores_limits)"
+                    "latest(k8s_service_pod_total)",
+                    "latest(k8s_service_cpu_cores_requests)",
+                    "latest(k8s_service_cpu_cores_limits)"
                   ],
                   "graph": {
                     "type": "ServiceList",

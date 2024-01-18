@@ -1,4 +1,3 @@
-
 [
   {
     "id": "General-Instance",
@@ -863,11 +862,11 @@
                   "widget": {
                     "title": "Instance CPU Usage (%)"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "metricMode": "Expression",
+                  "expressions": [
                     "meter_process_cpu_usage"
                   ],
-                  "typesOfMQE":[
+                  "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ]
                 },
@@ -1771,8 +1770,27 @@
       "layer": "GENERAL",
       "entity": "ServiceInstance",
       "name": "General-Instance",
-      "id": "General-Instance",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(service_instance_cpm)",
+        "avg(service_instance_sla/100)",
+        "avg(service_instance_resp_time)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "calls / min",
+          "label": "Load"
+        },
+        {
+          "label": "Success Rate",
+          "unit": "%"
+        },
+        {
+          "label": "Latency",
+          "unit": "ms"
+        }
+      ]
     }
   }
 ]
