@@ -1646,12 +1646,12 @@
       ],
       "expressionsConfig": [
         {
-          "unit": "bytes",
-          "label": "Write Per Seconds"
+          "unit": "bytes / s",
+          "label": "Write"
         },
         {
-          "unit": "bytes",
-          "label": "Read Per Seconds"
+          "unit": "bytes / s",
+          "label": "Read"
         },
         {
           "label": "HTTP Load",

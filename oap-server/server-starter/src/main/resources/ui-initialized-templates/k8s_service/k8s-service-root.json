@@ -141,12 +141,12 @@
                   },
                   "linkServerMetricConfig": [
                     {
-                      "unit": "bytes",
-                      "label": "Server Write Per Seconds"
+                      "unit": "bytes / s",
+                      "label": "Server Write"
                     },
                     {
-                      "unit": "bytes",
-                      "label": "Server Read Per Seconds"
+                      "unit": "bytes / s",
+                      "label": "Server Read"
                     },
                     {
                       "unit": "calls / min",
@@ -159,12 +159,12 @@
                   ],
                   "linkClientMetricConfig": [
                     {
-                      "unit": "bytes",
-                      "label": "Client Write Per Seconds"
+                      "unit": "bytes / s",
+                      "label": "Client Write"
                     },
                     {
-                      "label": "Client Read Per Seconds",
-                      "unit": "bytes"
+                      "label": "Client Read",
+                      "unit": "bytes / s"
                     },
                     {
                       "unit": "calls / min",
@@ -177,12 +177,12 @@
                   ],
                   "nodeMetricConfig": [
                     {
-                      "unit": "bytes",
-                      "label": "Write Per Seconds"
+                      "unit": "bytes / s",
+                      "label": "Write"
                     },
                     {
-                      "unit": "bytes",
-                      "label": "Read Per Seconds"
+                      "unit": "bytes / s",
+                      "label": "Read"
                     },
                     {
                       "label": "HTTP Load",
