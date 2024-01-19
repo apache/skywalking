@@ -1,5 +1,18 @@
-# Kubernetes (K8s) monitoring 
+# Kubernetes (K8s) monitoring
 
-SkyWalking offers the following two different methods to receive monitoring data from Kubernetes:
-1. [kube-state-metrics and cAdvisor](./backend-k8s-monitoring-metrics-cadvisor.md)
-2. [Rover](./backend-k8s-monitoring-rover.md)
+Kubernetes is an open-source container-orchestration system for automating computer application deployment, scaling, and
+management. It was originally designed by Google and is now maintained by the Cloud Native Computing Foundation. It aims
+to provide a "platform for automating deployment, scaling, and operations of application containers across clusters of
+hosts". It works with a range of container tools, including Docker.
+
+Nowadays, Kubernetes is the fundamental infrastructure for cloud native applications. SkyWalking provides the following
+ways to monitor deployments on Kubernetes.
+
+1. Use kube-state-metrics (KSM) and cAdvisor to collect metrics of Kubernetes resources, such as CPU, service, pod, and
+   node. Read [kube-state-metrics and cAdvisor setup guide](./backend-k8s-monitoring-metrics-cadvisor.md) for more details.
+2. Rover is a SkyWalking native eBPF agent to collect network Access Logs to support topology-aware and metrics 
+   analysis. Meanwhile, due to the power of eBPF, it could profile running services written by C++, Rust, Golang, etc. 
+   Read [Rover setup guide](./backend-k8s-monitoring-rover.md) for more details.
+
+SkyWalking deeply integrates with Kubernetes to help users understand the status of their applications on Kubernetes.
+Cillium with Hubble is in our v10 plan. 
