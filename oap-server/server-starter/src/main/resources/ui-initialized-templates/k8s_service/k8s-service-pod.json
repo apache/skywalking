@@ -1636,8 +1636,36 @@
       "layer": "K8S_SERVICE",
       "entity": "ServiceInstance",
       "name": "K8S-Service-Pods",
-      "id": "89a35b46-449d-4ef0-8297-2109f69086eb",
-      "isRoot": false
+      "isDefault": true,
+      "expressions": [
+        "avg(kubernetes_service_instance_write_package_size)/60",
+        "avg(kubernetes_service_instance_read_package_size)/60",
+        "avg(kubernetes_service_instance_http_call_cpm)",
+        "avg(kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm/1000000)",
+        "avg(kubernetes_service_instance_http_call_success_count / kubernetes_service_instance_http_call_cpm*100)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "bytes / s",
+          "label": "Write"
+        },
+        {
+          "unit": "bytes / s",
+          "label": "Read"
+        },
+        {
+          "label": "HTTP Load",
+          "unit": "calls / min"
+        },
+        {
+          "label": "HTTP Latency",
+          "unit": "ms"
+        },
+        {
+          "label": "HTTP Success Rate",
+          "unit": "%"
+        }
+      ]
     }
   }
 ]

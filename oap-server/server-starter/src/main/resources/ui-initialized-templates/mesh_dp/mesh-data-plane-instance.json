@@ -332,8 +332,25 @@
       "layer": "MESH_DP",
       "entity": "ServiceInstance",
       "name": "Mesh-Data-Plane-Instance",
-      "id": "Mesh-Data-Plane-Instance",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "latest(envoy_total_connections_used)",
+        "latest(envoy_worker_threads)",
+        "avg(envoy_heap_memory_used)/1024/1024"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "Connections"
+        },
+        {
+          "label": "Worker Threads"
+        },
+        {
+          "label": "Heap Memory Used",
+          "unit": "MB"
+        }
+      ]
     }
   }
 ]
