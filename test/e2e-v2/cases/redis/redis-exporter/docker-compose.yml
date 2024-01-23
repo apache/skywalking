@@ -80,7 +80,7 @@ services:
     environment:
       - REDIS_ADDR=redis_3:6379
   otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
+    image: otel/opentelemetry-collector:0.92.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]

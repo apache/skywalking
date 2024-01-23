@@ -175,7 +175,7 @@ services:
       METRICS_PROMETHEUS: "true"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.72.0
+    image: otel/opentelemetry-collector:0.92.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]

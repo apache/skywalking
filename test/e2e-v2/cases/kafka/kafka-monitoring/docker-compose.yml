@@ -119,7 +119,7 @@ services:
         kafka-consumer-perf-test.sh --bootstrap-server broker1:9092,broker2:9093 --topic perftest --messages 100000
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.50.0
+    image: otel/opentelemetry-collector:0.92.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
