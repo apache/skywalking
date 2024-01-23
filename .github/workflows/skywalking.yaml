@@ -330,6 +330,8 @@ jobs:
     needs: [docker]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
+    env:
+      OTEL_COLLECTOR_VERSION: 0.92.0
     strategy:
       fail-fast: false
       matrix:
