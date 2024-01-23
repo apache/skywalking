@@ -128,8 +128,12 @@ services:
     expose:
       - 55678
     depends_on:
-      - broker1
-      - broker2
+      oap:
+        condition: service_healthy
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
 
 networks:
   e2e:
