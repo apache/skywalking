@@ -39,10 +39,10 @@
                   "metricMode": "Expression",
                   "metricConfig": [],
                   "expressions": [
-                    "meter_rocketmq_cluster_messages_produced_today"
+                    "latest(meter_rocketmq_cluster_messages_produced_today)"
                   ],
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -70,10 +70,10 @@
                   "metricMode": "Expression",
                   "metricConfig": [],
                   "expressions": [
-                    "meter_rocketmq_cluster_messages_consumed_today"
+                    "latest(meter_rocketmq_cluster_messages_consumed_today)"
                   ],
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -217,10 +217,10 @@
                     "showUnit": true
                   },
                   "expressions": [
-                    "meter_rocketmq_cluster_messages_produced_until_yesterday"
+                    "latest(meter_rocketmq_cluster_messages_produced_until_yesterday)"
                   ],
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ],
                   "widget": {
                     "name": "messages produced until yesterday",
@@ -247,10 +247,10 @@
                     "showUnit": true
                   },
                   "expressions": [
-                    "meter_rocketmq_cluster_messages_consumed_until_yesterday"
+                    "latest(meter_rocketmq_cluster_messages_consumed_until_yesterday)"
                   ],
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ],
                   "widget": {
                     "name": "messages consumed until yesterday",
@@ -276,10 +276,10 @@
                   "metricMode": "Expression",
                   "moved": false,
                   "expressions": [
-                    "meter_rocketmq_cluster_max_consumer_latency"
+                    "latest(meter_rocketmq_cluster_max_consumer_latency)"
                   ],
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ],
                   "graph": {
                     "type": "Card",
@@ -311,7 +311,7 @@
                   "metricMode": "Expression",
                   "moved": false,
                   "expressions": [
-                    "meter_rocketmq_cluster_max_commitLog_disk_ratio"
+                    "latest(meter_rocketmq_cluster_max_commitLog_disk_ratio)"
                   ],
                   "graph": {
                     "type": "Card",
@@ -325,7 +325,7 @@
                     "tips": "The max utilization ratio of the commit log disk"
                   },
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {

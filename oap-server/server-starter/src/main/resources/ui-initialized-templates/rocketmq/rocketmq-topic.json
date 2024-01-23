@@ -77,10 +77,10 @@
           ],
           "moved": false,
           "expressions": [
-            "meter_rocketmq_topic_max_consumer_message_size/1024/1024"
+            "latest(meter_rocketmq_topic_max_consumer_message_size)/1024/1024"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "widget": {
             "name": "max_consumer_message_size",
@@ -112,10 +112,10 @@
           "metricMode": "Expression",
           "moved": false,
           "expressions": [
-            "meter_rocketmq_topic_max_producer_message_size/1024/1024"
+            "latest(meter_rocketmq_topic_max_producer_message_size)/1024/1024"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "widget": {
             "name": "max_producer_message_size",
@@ -142,7 +142,7 @@
           "metricMode": "Expression",
           "moved": false,
           "expressions": [
-            "meter_rocketmq_topic_consumer_latency/1000"
+            "avg(meter_rocketmq_topic_consumer_latency)/1000"
           ],
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
