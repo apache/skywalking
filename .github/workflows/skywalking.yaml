@@ -583,21 +583,16 @@ jobs:
             config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
           - name: VM Prometheus
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: VM Telegraf
             config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
           - name: So11y
             config: test/e2e-v2/cases/so11y/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: MySQL Prometheus and slowsql
             config: test/e2e-v2/cases/mysql/mysql-slowsql/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: PostgreSQL Prometheus
             config: test/e2e-v2/cases/postgresql/postgres-exporter/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: MariaDB Prometheus and slowsql
             config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
 
           - name: Zipkin ES
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
@@ -618,10 +613,8 @@ jobs:
 
           - name: Nginx
             config: test/e2e-v2/cases/nginx/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: APISIX metrics
             config: test/e2e-v2/cases/apisix/otel-collector/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: Exporter Kafka
             config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
           - name: Virtual MQ
@@ -642,24 +635,18 @@ jobs:
             config: test/e2e-v2/cases/aws/api-gateway/e2e.yaml
           - name: Redis Prometheus and Log Collecting
             config: test/e2e-v2/cases/redis/redis-exporter/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: Elasticsearch
             config: test/e2e-v2/cases/elasticsearch/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: MongoDB
             config: test/e2e-v2/cases/mongodb/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: RabbitMQ
             config: test/e2e-v2/cases/rabbitmq/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: Kafka
             config: test/e2e-v2/cases/kafka/kafka-monitoring/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
           - name: MQE Service
             config: test/e2e-v2/cases/mqe/e2e.yaml
           - name: Pulsar and BookKeeper
             config: test/e2e-v2/cases/pulsar/e2e.yaml
-            env: OTEL_COLLECTOR_VERSION=0.92.0
 
           - name: UI Menu BanyanDB
             config: test/e2e-v2/cases/menu/banyandb/e2e.yaml

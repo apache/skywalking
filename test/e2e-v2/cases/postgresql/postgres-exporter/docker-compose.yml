@@ -131,7 +131,7 @@ services:
         condition: service_healthy
 
   otel-collector:
-    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
+    image: otel/opentelemetry-collector:0.92.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
