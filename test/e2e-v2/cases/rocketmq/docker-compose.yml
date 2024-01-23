@@ -101,7 +101,7 @@ services:
       - e2e
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.87.0
+    image: otel/opentelemetry-collector:0.92.0
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]

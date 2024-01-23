@@ -6,7 +6,7 @@ Collector to transfer the metrics to
 
 ## Data flow
 
-1. The `rocketmq-exporter` collects metrics data from RocketMQ, The RocketMQ version is required to be 4.3.2+.
+1. The `rocketmq-exporter` (https://github.com/apache/rocketmq-exporter/tree/master) collects metrics data from RocketMQ, The RocketMQ version is required to be 4.3.2+.
 2. OpenTelemetry Collector fetches metrics from rocketmq-exporter via Prometheus Receiver and pushes metrics to
    SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
