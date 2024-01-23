@@ -25,7 +25,7 @@ services:
     networks:
       e2e:
   otel-collector:
-    image: otel/opentelemetry-collector:0.92.0
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
     command: [ "--config=/etc/otel-collector-config.yaml" ]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
