@@ -116,7 +116,7 @@ services:
       - bash
       - -c
       - >
-        kafka-consumer-perf-test.sh --bootstrap-servers broker1:9092,broker2:9093 --topic perftest --messages 100000
+        kafka-consumer-perf-test.sh --broker-list broker1:9092,broker2:9093 --topic perftest --messages 100000
 
   otel-collector:
     image: otel/opentelemetry-collector:0.50.0
