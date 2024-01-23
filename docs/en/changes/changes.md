@@ -24,6 +24,7 @@
 * Remove unnecessary annotations and functions from Meter Functions.
 * Add `max` and `min` functions for MAL down sampling.
 * Fix critical bug of uncontrolled memory cost of TopN statistics. Change topN group key from `StorageId` to `entityId + timeBucket`.
+* Upgrade `OTEL collector` version to `0.92.0` in e2e test
 
 #### UI
 
