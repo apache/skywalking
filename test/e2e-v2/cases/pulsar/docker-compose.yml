@@ -122,7 +122,7 @@ services:
     command: bash -c "bin/pulsar-perf produce -m 100000 my-topic"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.92.0
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
