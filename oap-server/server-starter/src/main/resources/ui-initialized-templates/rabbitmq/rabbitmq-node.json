@@ -26,10 +26,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_queue_messages_ready"
+            "latest(meter_rabbitmq_node_queue_messages_ready)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -55,10 +55,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_incoming_messages"
+            "latest(meter_rabbitmq_node_incoming_messages)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -84,10 +84,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_unacknowledged_messages"
+            "latest(meter_rabbitmq_node_unacknowledged_messages)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -113,10 +113,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_outgoing_messages_total"
+            "latest(meter_rabbitmq_node_outgoing_messages_total)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -142,10 +142,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_connections_total"
+            "latest(meter_rabbitmq_node_connections_total)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -171,10 +171,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_publisher_total"
+            "latest(meter_rabbitmq_node_publisher_total)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -200,10 +200,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_consumer_total"
+            "latest(meter_rabbitmq_node_consumer_total)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -229,10 +229,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_channel_total"
+            "latest(meter_rabbitmq_node_channel_total)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -258,10 +258,10 @@
           "metricMode": "Expression",
           "metricConfig": [],
           "expressions": [
-            "meter_rabbitmq_node_queue_total"
+            "latest(meter_rabbitmq_node_queue_total)"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -291,10 +291,10 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "meter_rabbitmq_node_allocated_used_percent/100"
+            "latest(meter_rabbitmq_node_allocated_used_percent)/100"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -324,10 +324,10 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "meter_rabbitmq_node_allocated_used_bytes/1024/1204"
+            "latest(meter_rabbitmq_node_allocated_used_bytes)/1024/1204"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -357,10 +357,10 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "meter_rabbitmq_node_allocated_unused_bytes/1024/1024"
+            "latest(meter_rabbitmq_node_allocated_unused_bytes)/1024/1024"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -390,10 +390,10 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "meter_rabbitmq_node_process_resident_memory_bytes/1024/1024"
+            "latest(meter_rabbitmq_node_process_resident_memory_bytes)/1024/1024"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -423,10 +423,10 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "meter_rabbitmq_node_allocated_unused_percent/100"
+            "latest(meter_rabbitmq_node_allocated_unused_percent)/100"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -456,10 +456,10 @@
           ],
           "metricMode": "Expression",
           "expressions": [
-            "meter_rabbitmq_node_allocated_total_bytes/1024/1024"
+            "latest(meter_rabbitmq_node_allocated_total_bytes)/1024/1024"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {

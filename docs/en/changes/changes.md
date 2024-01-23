@@ -40,6 +40,7 @@
 * Update Kubernetes related UI templates for adapt data from eBPF access log. 
 * Fix dashboard `K8S-Service-Root` metrics expression.
 * Add dashboards for Service/Instance Hierarchy.
+* Fix MQE in dashboards when using `Card widget`.
 
 #### Documentation
 

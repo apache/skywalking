@@ -11,12 +11,17 @@ There 2 ways to detect the connections:
 
 ### Automatically Matching 
 
-| Upper layer | Lower layer  | Matching rule                                                         |
-|-------------|--------------|-----------------------------------------------------------------------|
-| MESH        | MESH_DP      | upper service name equals lower service name                          |
-| MESH        | K8S_SERVICE  | upper service short name equals lower service short name              |
-| MESH_DP     | K8S_SERVICE  | upper service short name equals lower service short name              |
-| GENERAL     | K8S_SERVICE  | upper service short name equals lower service name without namespace  |
+| Upper layer       | Lower layer  | Matching rule                                                                         |
+|-------------------|--------------|---------------------------------------------------------------------------------------|
+| MESH              | MESH_DP      | upper service name equals lower service name                                          |
+| MESH              | K8S_SERVICE  | upper service short name equals lower service short name                              |
+| MESH_DP           | K8S_SERVICE  | upper service short name equals lower service short name                              |
+| GENERAL           | K8S_SERVICE  | upper service short name equals lower service name without namespace                  |
+| MYSQL             | K8S_SERVICE  | upper service name without namespace equals lower service short name                  |
+| POSTGRESQL        | K8S_SERVICE  | upper service name without namespace equals lower service name                        |
+| SO11Y_OAP         | K8S_SERVICE  | upper service name without namespace equals lower service name                        |
+| VIRTUAL_DATABASE  | MYSQL        | upper service short name remove port is equal to lower service short name  with fqdn  |
+| VIRTUAL_DATABASE  | POSTGRESQL   | upper service short name remove port is equal to lower service short name  with fqdn  |
 
 ### Build Through Specific Agents
 Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) detect the service hierarchy relations.

@@ -195,8 +195,27 @@
       "layer": "VIRTUAL_DATABASE",
       "entity": "Service",
       "name": "Virtual-Database-Service",
-      "id": "Virtual-Database-Service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(database_access_resp_time)",
+        "avg(database_access_sla)/100",
+        "avg(database_access_cpm)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "ms",
+          "label": "Latency"
+        },
+        {
+          "unit": "%",
+          "label": "Successful Rate"
+        },
+        {
+          "unit": "calls / min",
+          "label": "Traffic"
+        }
+      ]
     }
   }
 ]

@@ -1,7 +1,7 @@
 
 [
    {
-      "id":"postgresql-root",
+      "id":"PostgreSQL-Root",
       "configuration":{
          "children":[
             {
@@ -41,7 +41,6 @@
          "layer":"POSTGRESQL",
          "entity":"All",
          "name":"PostgreSQL-Root",
-         "id":"postgresql-root",
          "isRoot":true
       }
    }

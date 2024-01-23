@@ -21,7 +21,7 @@
             "showUnit": true
           },
           "expressions": [
-            "aws_s3_4xx"
+            "latest(aws_s3_4xx)"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -45,7 +45,7 @@
             "showUnit": true
           },
           "expressions": [
-            "aws_s3_5xx"
+            "latest(aws_s3_5xx)"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -69,7 +69,7 @@
             "showUnit": true
           },
           "expressions": [
-            "aws_s3_all_requests"
+            "latest(aws_s3_all_requests)"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -93,7 +93,7 @@
             "showUnit": true
           },
           "expressions": [
-            "aws_s3_request_latency"
+            "avg(aws_s3_request_latency)"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
