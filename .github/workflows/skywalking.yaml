@@ -196,7 +196,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [11, 17]
+        java-version: [11, 17, 21]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -791,7 +791,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [11, 17]
+        java-version: [11, 17, 21]
     steps:
       - uses: actions/checkout@v3
         with:
