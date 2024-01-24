@@ -339,11 +339,11 @@
             "showUnit": true
           },
           "expressions": [
-            "meter_vm_memory_swap_percentage/100"
+            "avg(meter_vm_memory_swap_percentage)/100"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
@@ -368,11 +368,11 @@
             "showUnit": true
           },
           "expressions": [
-            "meter_vm_memory_used/1024/1024"
+            "avg(meter_vm_memory_used)/1024/1024"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
@@ -401,7 +401,7 @@
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {

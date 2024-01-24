@@ -561,7 +561,22 @@
       "entity": "ServiceInstance",
       "name": "Self-Observability-OAP-Instance",
       "id": "Self-Observability-OAP-Instance",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_oap_instance_cpu_percentage)",
+        "avg(meter_oap_instance_persistence_execute_count)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "%",
+          "label": "CPU Avg Usage"
+        },
+        {
+          "unit": "count / 5min",
+          "label": "Persistence Count"
+        }
+      ]
     }
   }
 ]

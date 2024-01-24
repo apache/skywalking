@@ -494,11 +494,11 @@
             "showUnit": true
           },
           "expressions": [
-            "meter_apisix_instance_etcd_reachable"
+            "latest(meter_apisix_instance_etcd_reachable)"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "associate": [
             {
