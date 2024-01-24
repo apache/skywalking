@@ -145,7 +145,7 @@
             "avg(meter_rocketmq_topic_consumer_latency)/1000"
           ],
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ],
           "widget": {
             "name": "consumer_latency",
