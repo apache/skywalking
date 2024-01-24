@@ -14,7 +14,7 @@ SkyWalking's backend distribution package consists of the following parts:
 
 ## Requirements and default settings
 
-Requirement: **JDK11 or JDK17**. 
+Requirement: **Java 11/17/21**. 
 
 Before you begin, you should understand that the main purpose of the following quickstart is to help you obtain a basic configuration for previews/demos. Performance and long-term running are **NOT** among the purposes of the quickstart.
 
