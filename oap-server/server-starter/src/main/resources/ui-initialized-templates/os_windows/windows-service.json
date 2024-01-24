@@ -182,7 +182,7 @@
         ],
         "metricMode": "Expression",
         "typesOfMQE": [
-          "TIME_SERIES_VALUES"
+          "SINGLE_VALUE"
         ],
         "metricConfig": [{
           "unit": "%"
@@ -209,7 +209,7 @@
         ],
         "metricMode": "Expression",
         "typesOfMQE": [
-          "TIME_SERIES_VALUES"
+          "SINGLE_VALUE"
         ],
         "metricConfig": [{
           "unit": "MB"
@@ -236,7 +236,7 @@
       ],
       "metricMode": "Expression",
       "typesOfMQE": [
-        "TIME_SERIES_VALUES"
+        "SINGLE_VALUE"
       ],
       "metricConfig": [{
         "unit": "%"

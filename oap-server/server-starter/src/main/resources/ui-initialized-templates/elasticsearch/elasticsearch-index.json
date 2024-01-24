@@ -534,7 +534,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_docs_primary"
+            "latest(meter_elasticsearch_index_indices_docs_primary)"
           ]
         },
         {
@@ -551,11 +551,16 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Data (GB)"
+            "title":"Data"
           },
+          "metricConfig": [
+            {
+              "unit": "GB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_store_size_bytes_total/1024/1024/1024"
+            "latest(meter_elasticsearch_index_indices_store_size_bytes_total)/1024/1024/1024"
           ]
         },
         {
@@ -572,14 +577,19 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Data (Primary Shards) (GB)"
+            "title":"Data (Primary Shards)"
           },
+          "metricConfig": [
+            {
+              "unit": "GB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_store_size_bytes_primary/1024/1024/1024"
+            "latest(meter_elasticsearch_index_indices_store_size_bytes_primary)/1024/1024/1024"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -600,7 +610,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_segment_count_total"
+            "latest(meter_elasticsearch_index_indices_segment_count_total)"
           ]
         },
         {
@@ -621,7 +631,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_segment_count_primary"
+            "latest(meter_elasticsearch_index_indices_segment_count_primary)"
           ]
         },
         {
@@ -638,14 +648,19 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Segments Memory (MB)"
+            "title":"Segments Memory"
           },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_segment_memory_bytes_primary/1024/1024"
+            "latest(meter_elasticsearch_index_indices_segment_memory_bytes_primary)/1024/1024"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -666,7 +681,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_docs_primary"
+            "latest(meter_elasticsearch_index_indices_docs_primary)"
           ]
         },
         {
@@ -683,11 +698,16 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Segments Memory (Primary Shards) (MB)"
+            "title":"Segments Memory (Primary Shards)"
           },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_index_indices_segment_memory_bytes_primary/1024/1024"
+            "latest(meter_elasticsearch_index_indices_segment_memory_bytes_primary)/1024/1024"
           ]
         },
         {

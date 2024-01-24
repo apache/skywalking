@@ -22,10 +22,10 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_redis_instance_uptime/3600/24"
+            "latest(meter_redis_instance_uptime)/3600/24"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -46,10 +46,10 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_redis_instance_connected_clients"
+            "latest(meter_redis_instance_connected_clients)"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -156,10 +156,10 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_redis_instance_memory_max_bytes/1000/1000"
+            "latest(meter_redis_instance_memory_max_bytes)/1000/1000"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -257,10 +257,10 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_redis_instance_redis_blocked_clients"
+            "latest(meter_redis_instance_redis_blocked_clients)"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {

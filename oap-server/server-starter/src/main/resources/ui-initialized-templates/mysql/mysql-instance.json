@@ -1,7 +1,7 @@
 
 [
   {
-    "id":"mysql-instance                                                                                                            ",
+    "id":"MySQL-Instance",
     "configuration":{
       "children":[
         {
@@ -18,14 +18,19 @@
             "showUnit":true
           },
           "widget":{
-            "title":"MySQL Uptime (day)"
+            "title":"MySQL Uptime"
           },
+          "metricConfig": [
+            {
+              "unit": "day"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_mysql_instance_uptime/3600/24"
+            "latest(meter_mysql_instance_uptime)/3600/24"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -53,7 +58,7 @@
             }
           ],
           "expressions":[
-            "meter_mysql_instance_qps"
+            "avg(meter_mysql_instance_qps)"
           ],
           "typesOfMQE":[
             "TIME_SERIES_VALUES"
@@ -73,14 +78,19 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Innodb Buffer Pool Size (MB)"
+            "title":"Innodb Buffer Pool Size"
           },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_mysql_instance_innodb_buffer_pool_size/1024/1024"
+            "latest(meter_mysql_instance_innodb_buffer_pool_size)/1024/1024"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -101,10 +111,10 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_mysql_instance_max_connections"
+            "latest(meter_mysql_instance_max_connections)"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -125,10 +135,10 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_mysql_instance_thread_cache_size"
+            "latest(meter_mysql_instance_thread_cache_size)"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -357,8 +367,33 @@
       "layer":"MYSQL",
       "entity":"ServiceInstance",
       "name":"MySQL-Instance",
-      "id":"mysql-instance                                                                                                            ",
-      "isRoot":false
+      "id":"mysql-instance",
+      "isRoot":false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_mysql_instance_commands_select_rate)",
+        "avg(meter_mysql_instance_commands_insert_rate)",
+        "avg(meter_mysql_instance_commands_update_rate)",
+        "avg(meter_mysql_instance_commands_delete_rate)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Fetch"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Update"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Delete"
+        }
+      ]
     }
   }
 ]
