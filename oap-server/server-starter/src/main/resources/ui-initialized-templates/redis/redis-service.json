@@ -33,7 +33,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "max(meter_redis_uptime)/3600/24"
+                    "latest(meter_redis_uptime)/3600/24"
                   ],
                   "typesOfMQE":[
                     "SINGLE_VALUE"
@@ -57,7 +57,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "avg(meter_redis_connected_clients)"
+                    "latest(meter_redis_connected_clients)"
                   ],
                   "typesOfMQE":[
                     "TIME_SERIES_VALUES"
@@ -244,7 +244,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "avg(meter_redis_blocked_clients)"
+                    "latest(meter_redis_blocked_clients)"
                   ],
                   "typesOfMQE":[
                     "SINGLE_VALUE"

@@ -15,7 +15,11 @@
 * Support build Service/Instance Hierarchy and query.
 * Change the string field in Elasticsearch storage from **keyword** type to **text** type if it set more than `32766` length.
 * [Break Change] Change the configuration field of `ui_template` and `ui_menu` in Elasticsearch storage from **keyword** type to **text**.
-* Support Service Hierarchy auto matching.
+* Support Service Hierarchy auto matching, add auto matching layer relationships (upper -> lower) as following:
+  - MESH -> MESH_DP
+  - MESH -> K8S_SERVICE
+  - MESH_DP -> K8S_SERVICE
+  - GENERAL -> K8S_SERVICE
 * Add `namespace` suffix for `K8S_SERVICE_NAME_RULE/ISTIO_SERVICE_NAME_RULE` and `metadata-service-mapping.yaml` as default.
 * Allow using a dedicated port for ALS receiver.
 * Fix log query by traceId in `JDBCLogQueryDAO`.
@@ -24,7 +28,13 @@
 * Remove unnecessary annotations and functions from Meter Functions.
 * Add `max` and `min` functions for MAL down sampling.
 * Fix critical bug of uncontrolled memory cost of TopN statistics. Change topN group key from `StorageId` to `entityId + timeBucket`.
-* Upgrade `OTEL collector` version to `0.92.0` in e2e test
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - MYSQL -> K8S_SERVICE
+  - POSTGRESQL -> K8S_SERVICE
+  - SO11Y_OAP -> K8S_SERVICE
+  - VIRTUAL_DATABASE -> MYSQL
+  - VIRTUAL_DATABASE -> POSTGRESQL
+* Upgrade `OTEL collector` version to `0.92.0` in e2e test。
 
 #### UI
 
@@ -41,6 +51,7 @@
 * Update Kubernetes related UI templates for adapt data from eBPF access log. 
 * Fix dashboard `K8S-Service-Root` metrics expression.
 * Add dashboards for Service/Instance Hierarchy.
+* Fix MQE in dashboards when using `Card widget`.
 
 #### Documentation
 
