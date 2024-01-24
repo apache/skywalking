@@ -1,7 +1,7 @@
 
 [
    {
-      "id":"postgresql-instance",
+      "id":"PostgreSQL-Instance",
       "configuration":{
          "children":[
             {
@@ -18,14 +18,19 @@
                   "showUnit":true
                },
                "widget":{
-                  "title":"Shared Buffers (MB)"
+                  "title":"Shared Buffers"
                },
+               "metricConfig": [
+                  {
+                     "unit": "MB"
+                  }
+               ],
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_shared_buffers/1024/1024"
+                  "latest(meter_pg_instance_shared_buffers)/1024/1024"
                ],
                "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                ]
             },
             {
@@ -42,14 +47,19 @@
                   "showUnit":true
                },
                "widget":{
-                  "title":"Effective Cache (GB)"
+                  "title":"Effective Cache"
                },
+               "metricConfig": [
+                  {
+                     "unit": "GB"
+                  }
+               ],
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_effective_cache/1024/1024/1024"
+                  "latest(meter_pg_instance_effective_cache)/1024/1024/1024"
                ],
                "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                ]
             },
             {
@@ -66,14 +76,19 @@
                   "showUnit":true
                },
                "widget":{
-                  "title":"Maintenance Work Mem (MB)"
+                  "title":"Maintenance Work Mem"
                },
+               "metricConfig": [
+                  {
+                     "unit": "MB"
+                  }
+               ],
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_maintenance_work_mem/1024/1024"
+                  "latest(meter_pg_instance_maintenance_work_mem)/1024/1024"
                ],
                "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                ]
             },
             {
@@ -90,11 +105,16 @@
                   "showUnit":true
                },
                "widget":{
-                  "title":"Work Mem (MB)"
+                  "title":"Work Mem"
                },
+               "metricConfig": [
+                  {
+                     "unit": "MB"
+                  }
+               ],
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_work_mem/1024/1024"
+                  "latest(meter_pg_instance_work_mem)/1024/1024"
                ]
             },
             {
@@ -115,7 +135,7 @@
                },
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_seq_page_cost"
+                  "latest(meter_pg_instance_seq_page_cost)"
                ],
                "typesOfMQE":[
                   "UNKNOWN"
@@ -139,10 +159,10 @@
                },
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_random_page_cost"
+                  "latest(meter_pg_instance_random_page_cost)"
                ],
                "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                ]
             },
             {
@@ -159,14 +179,19 @@
                   "showUnit":true
                },
                "widget":{
-                  "title":"Max WAL Size (GB)"
+                  "title":"Max WAL Size"
                },
+               "metricConfig": [
+                  {
+                     "unit": "GB"
+                  }
+               ],
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_max_wal_size/1024/1024/1024"
+                  "latest(meter_pg_instance_max_wal_size)/1024/1024/1024"
                ],
                "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                ]
             },
             {
@@ -187,10 +212,10 @@
                },
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_max_parallel_workers"
+                  "latest(meter_pg_instance_max_parallel_workers)"
                ],
                "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                ]
             },
             {
@@ -211,7 +236,7 @@
                },
                "metricMode":"Expression",
                "expressions":[
-                  "meter_pg_instance_max_worker_processes"
+                  "latest(meter_pg_instance_max_worker_processes)"
                ]
             },
             {
@@ -644,7 +669,32 @@
          "layer":"POSTGRESQL",
          "entity":"ServiceInstance",
          "name":"PostgreSQL-Instance",
-         "id":"postgresql-instance"
+         "isRoot": false,
+         "isDefault": true,
+         "expressions": [
+            "avg(aggregate_labels(meter_pg_instance_fetched_rows_rate,sum))",
+            "avg(aggregate_labels(meter_pg_instance_inserted_rows_rate,sum))",
+            "avg(aggregate_labels(meter_pg_instance_updated_rows_rate,sum))",
+            "avg(aggregate_labels(meter_pg_instance_deleted_rows_rate,sum))"
+         ],
+         "expressionsConfig": [
+            {
+               "unit": "rows / s",
+               "label": "Fetch"
+            },
+            {
+               "unit": "rows / s",
+               "label": "Insert"
+            },
+            {
+               "unit": "rows / s",
+               "label": "Update"
+            },
+            {
+               "unit": "rows / s",
+               "label": "Delete"
+            }
+         ]
       }
    }
 ]

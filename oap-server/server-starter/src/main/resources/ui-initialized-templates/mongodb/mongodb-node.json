@@ -27,7 +27,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_mongodb_node_uptime/3600/24"
+            "latest(meter_mongodb_node_uptime)/3600/24"
           ],
           "typesOfMQE":[
             "SINGLE_VALUE"
@@ -50,7 +50,7 @@
             "title":"QPS"
           },
           "expressions":[
-            "meter_mongodb_node_qps"
+            "avg(meter_mongodb_node_qps)"
           ],
           "typesOfMQE":[
             "SINGLE_VALUE"
@@ -74,7 +74,7 @@
             "title":"Latency"
           },
           "expressions":[
-            "meter_mongodb_node_latency"
+            "avg(meter_mongodb_node_latency)"
           ],
           "typesOfMQE":[
             "SINGLE_VALUE"
@@ -109,7 +109,7 @@
             "title":"Memory Usage"
           },
           "expressions":[
-            "meter_mongodb_node_memory_usage"
+            "avg(meter_mongodb_node_memory_usage)"
           ],
           "typesOfMQE":[
             "SINGLE_VALUE"

@@ -189,24 +189,45 @@ public class HierarchyService implements org.apache.skywalking.oap.server.librar
                         serviceLayer);
                     Map<String, HierarchyDefinitionService.MatchingRule> comparedLowerLayers = getHierarchyDefinition().get(
                         comparedServiceLayer);
-                    if (lowerLayers != null
-                        && lowerLayers.get(comparedServiceLayer) != null
-                        && lowerLayers.get(comparedServiceLayer)
-                                      .getClosure()
-                                      .call(service, comparedService)) {
-                        autoMatchingServiceRelation(service.getName(), Layer.nameOf(serviceLayer),
-                                                    comparedService.getName(),
-                                                    Layer.nameOf(comparedServiceLayer)
-                        );
-                    } else if (comparedLowerLayers != null
-                        && comparedLowerLayers.get(serviceLayer) != null
-                        && comparedLowerLayers.get(serviceLayer)
-                                             .getClosure()
-                                             .call(comparedService, service)) {
-                        autoMatchingServiceRelation(comparedService.getName(), Layer.nameOf(comparedServiceLayer),
-                                                    service.getName(),
-                                                    Layer.nameOf(serviceLayer)
-                        );
+                    if (lowerLayers != null && lowerLayers.get(comparedServiceLayer) != null) {
+                        try {
+                            if (lowerLayers.get(comparedServiceLayer)
+                                           .getClosure()
+                                           .call(service, comparedService)) {
+                                autoMatchingServiceRelation(service.getName(), Layer.nameOf(serviceLayer),
+                                                            comparedService.getName(),
+                                                            Layer.nameOf(comparedServiceLayer)
+                                );
+                            }
+                        } catch (Throwable e) {
+                            log.error(
+                                "Auto matching service hierarchy from service traffic failure. Upper layer {}, lower layer {}, closure{}",
+                                serviceLayer,
+                                comparedServiceLayer,
+                                lowerLayers.get(comparedServiceLayer).getExpression(), e
+                            );
+                        }
+
+                    } else if (comparedLowerLayers != null && comparedLowerLayers.get(serviceLayer) != null) {
+                        try {
+                            if (comparedLowerLayers.get(serviceLayer)
+                                                   .getClosure()
+                                                   .call(comparedService, service)) {
+                                autoMatchingServiceRelation(
+                                    comparedService.getName(),
+                                    Layer.nameOf(comparedServiceLayer),
+                                    service.getName(),
+                                    Layer.nameOf(serviceLayer)
+                                );
+                            }
+                        } catch (Throwable e) {
+                            log.error(
+                                "Auto matching service hierarchy from service traffic failure. Upper layer {}, lower layer {}, closure{}",
+                                comparedServiceLayer,
+                                serviceLayer,
+                                comparedLowerLayers.get(serviceLayer).getExpression(), e
+                            );
+                        }
                     }
                 }
             }

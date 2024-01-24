@@ -592,7 +592,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_node_indices_docs"
+            "latest(meter_elasticsearch_node_indices_docs)"
           ]
         },
         {
@@ -614,8 +614,13 @@
             }
           },
           "widget":{
-            "title":"OS CPU Usage Persent (%)"
+            "title":"OS CPU Usage Percent"
           },
+          "metricConfig": [
+            {
+              "unit": "%"
+            }
+          ],
           "metricMode":"Expression",
           "metricConfig":[
             {
@@ -751,7 +756,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_node_segment_count"
+            "latest(meter_elasticsearch_node_segment_count)"
           ]
         },
         {
@@ -772,7 +777,7 @@
           },
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_node_open_file_count"
+            "avg(meter_elasticsearch_node_open_file_count)"
           ]
         },
         {
@@ -794,8 +799,13 @@
             }
           },
           "widget":{
-            "title":"Disk Write (KBs)"
+            "title":"Disk Write"
           },
+          "metricConfig": [
+            {
+              "unit": "KB/s"
+            }
+          ],
           "metricMode":"Expression",
           "metricConfig":[
             {
@@ -825,12 +835,17 @@
           "widget":{
             "title":"JVM Memory Used (MB)"
           },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_node_jvm_memory_used/1024/1024"
+            "avg(meter_elasticsearch_node_jvm_memory_used)/1024/1024"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
@@ -847,11 +862,16 @@
             "showUnit":true
           },
           "widget":{
-            "title":"CPU Usage (%)"
+            "title":"CPU Usage"
           },
+          "metricConfig": [
+            {
+              "unit": "%"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_node_process_cpu_percent"
+            "avg(meter_elasticsearch_node_process_cpu_percent)"
           ]
         },
         {
@@ -868,14 +888,19 @@
             "showUnit":true
           },
           "widget":{
-            "title":"Disk Free Space (GB)"
+            "title":"Disk Free Space"
           },
+          "metricConfig": [
+            {
+              "unit": "GB"
+            }
+          ],
           "metricMode":"Expression",
           "expressions":[
-            "meter_elasticsearch_node_all_disk_free_space/1024/1024/1024"
+            "latest(meter_elasticsearch_node_all_disk_free_space)/1024/1024/1024"
           ],
           "typesOfMQE":[
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {
