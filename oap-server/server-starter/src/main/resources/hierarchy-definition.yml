@@ -16,6 +16,7 @@
 # Define the hierarchy of service layers, the layers under the specific layer are related lower of the layer.
 # The relation could have a matching rule for auto matching, which are defined in the `auto-matching-rules` section.
 # All the layers are defined in the file `org.apache.skywalking.oap.server.core.analysis.Layers.java`.
+# Notice: some hierarchy relations and auto matching rules are only works on k8s env.
 
 hierarchy:
   MESH:
@@ -48,9 +49,11 @@ auto-matching-rules:
   name: "{ (u, l) -> u.name == l.name }"
   # the short name of the upper service is equal to the short name of the lower service
   short-name: "{ (u, l) -> u.shortName == l.shortName }"
-  # remove the namespace from the lower service short name
+  # remove the k8s namespace from the lower service short name
+  # this rule is only works on k8s env.
   lower-short-name-remove-ns: "{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }"
-  # the short name of the upper remove port is equal to the short name of the lower service with fqdn
+  # the short name of the upper remove port is equal to the short name of the lower service with fqdn suffix
+  # this rule is only works on k8s env.
   lower-short-name-with-fqdn: "{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }"
 
 # The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation.
