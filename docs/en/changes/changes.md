@@ -1,6 +1,8 @@
 ## 10.0.0
 
 #### Project
+* Support Java 21 runtime.
+* Support oap-java21 image for Java 21 runtime.
 
 #### OAP Server
 

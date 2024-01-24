@@ -196,7 +196,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        java-version: [11, 17, 21]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -315,7 +315,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       - uses: actions/setup-java@v3
         with:
-          java-version: 21
+          java-version: 11
           distribution: temurin
       - name: ${{ matrix.test.name }}
         run: |
@@ -326,7 +326,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test Java 21
+    name: E2E test
     needs: [docker]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
@@ -679,7 +679,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-21
+          name: docker-images-11
           path: docker-images
       - name: Load docker images
         run: |
@@ -723,7 +723,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test Java21
+    name: E2E test
     needs: [docker]
     runs-on: ubuntu-20.04
     timeout-minutes: 60
@@ -748,7 +748,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-21
+          name: docker-images-11
           path: docker-images
       - name: Load docker images
         run: |
