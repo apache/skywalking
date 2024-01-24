@@ -98,10 +98,8 @@ services:
     networks:
       - e2e
     depends_on:
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
+      - broker1
+      - broker2
     command:
       - bash
       - -c
@@ -113,8 +111,7 @@ services:
     networks:
       - e2e
     depends_on:
-      kafka-producer-perf-test:
-        condition: service_completed_successfully
+      - kafka-producer-perf-test
     command:
       - bash
       - -c
@@ -131,12 +128,8 @@ services:
     expose:
       - 55678
     depends_on:
-      oap:
-        condition: service_healthy
-      broker1:
-        condition: service_healthy
-      broker2:
-        condition: service_healthy
+      - broker1
+      - broker2
 
 networks:
   e2e:
