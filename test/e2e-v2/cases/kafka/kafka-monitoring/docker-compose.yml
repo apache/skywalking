@@ -26,7 +26,7 @@ services:
       - e2e
 
   zookeeper:
-    image: zookeeper:latest
+    image: zookeeper:3.4
     expose:
       - 2181
     networks:
