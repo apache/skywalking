@@ -57,7 +57,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_nodes"
+                    "latest(meter_elasticsearch_cluster_nodes)"
                   ]
                 },
                 {
@@ -78,7 +78,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_nodes"
+                    "latest(meter_elasticsearch_cluster_nodes)"
                   ]
                 },
                 {
@@ -99,7 +99,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_pending_tasks_total"
+                    "avg(meter_elasticsearch_cluster_pending_tasks_total)"
                   ]
                 },
                 {
@@ -120,7 +120,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_primary_shards_total"
+                    "latest(meter_elasticsearch_cluster_primary_shards_total)"
                   ]
                 },
                 {
@@ -141,10 +141,10 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_shards_total"
+                    "latest(meter_elasticsearch_cluster_shards_total)"
                   ],
                   "typesOfMQE":[
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -165,7 +165,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_initializing_shards_total"
+                    "latest(meter_elasticsearch_cluster_initializing_shards_total)"
                   ]
                 },
                 {
@@ -186,7 +186,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_delayed_unassigned_shards_total"
+                    "latest(meter_elasticsearch_cluster_delayed_unassigned_shards_total)"
                   ]
                 },
                 {
@@ -207,7 +207,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_relocating_shards_total"
+                    "latest(meter_elasticsearch_cluster_relocating_shards_total)"
                   ]
                 },
                 {
@@ -228,7 +228,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_unassigned_shards_total"
+                    "latest(meter_elasticsearch_cluster_unassigned_shards_total)"
                   ]
                 },
                 {
@@ -249,10 +249,10 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_breakers_tripped"
+                    "latest(meter_elasticsearch_cluster_breakers_tripped)"
                   ],
                   "typesOfMQE":[
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -269,14 +269,19 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"CPU Usage Avg. (%)"
+                    "title":"CPU Usage Avg"
                   },
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ],
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_cpu_usage_avg"
+                    "avg(meter_elasticsearch_cluster_cpu_usage_avg)"
                   ],
                   "typesOfMQE":[
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -293,14 +298,19 @@
                     "showUnit":true
                   },
                   "widget":{
-                    "title":"JVM Memory Used Avg. (%)"
+                    "title":"JVM Memory Used Avg"
                   },
+                  "metricConfig": [
+                    {
+                      "unit": "%"
+                    }
+                  ],
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_jvm_memory_used_avg"
+                    "avg(meter_elasticsearch_cluster_jvm_memory_used_avg)"
                   ],
                   "typesOfMQE":[
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -321,7 +331,7 @@
                   },
                   "metricMode":"Expression",
                   "expressions":[
-                    "meter_elasticsearch_cluster_open_file_count"
+                    "avg(meter_elasticsearch_cluster_open_file_count)"
                   ]
                 },
                 {

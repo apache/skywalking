@@ -24,7 +24,7 @@
                   "type":"Widget",
                   "metricMode":"Expression",
                   "expressions":[
-                    "aggregate_labels(meter_mongodb_cluster_uptime,max)/3600/24"
+                    "latest(aggregate_labels(meter_mongodb_cluster_uptime,max))/3600/24"
                   ],
                   "typesOfMQE":[
                     "SINGLE_VALUE"
@@ -53,7 +53,7 @@
                   "type":"Widget",
                   "metricMode":"Expression",
                   "expressions":[
-                    "aggregate_labels(meter_mongodb_cluster_data_size,sum)/1024/1024/1024"
+                    "latest(aggregate_labels(meter_mongodb_cluster_data_size,sum))/1024/1024/1024"
                   ],
                   "typesOfMQE":[
                     "SINGLE_VALUE"
@@ -82,7 +82,7 @@
                   "type":"Widget",
                   "metricMode":"Expression",
                   "expressions":[
-                    "aggregate_labels(meter_mongodb_cluster_collection_count,sum)"
+                    "latest(aggregate_labels(meter_mongodb_cluster_collection_count,sum))"
                   ],
                   "typesOfMQE":[
                     "SINGLE_VALUE"
@@ -106,7 +106,7 @@
                   "type":"Widget",
                   "metricMode":"Expression",
                   "expressions":[
-                    "aggregate_labels(meter_mongodb_cluster_object_count,sum)"
+                    "latest(aggregate_labels(meter_mongodb_cluster_object_count,sum))"
                   ],
                   "typesOfMQE":[
                     "SINGLE_VALUE"

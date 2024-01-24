@@ -298,11 +298,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_container_total"
+                    "latest(k8s_cluster_container_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -322,11 +322,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_pod_total"
+                    "latest(k8s_cluster_pod_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -346,11 +346,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_service_total"
+                    "latest(k8s_cluster_service_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -370,11 +370,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_node_total"
+                    "latest(k8s_cluster_node_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -394,11 +394,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_namespace_total"
+                    "latest(k8s_cluster_namespace_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -418,11 +418,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_deployment_total"
+                    "latest(k8s_cluster_deployment_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -442,11 +442,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_statefulset_total"
+                    "latest(k8s_cluster_statefulset_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -466,11 +466,11 @@
                     "showUint": true
                   },
                   "expressions": [
-                    "k8s_cluster_daemonset_total"
+                    "latest(k8s_cluster_daemonset_total)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 }
               ]
