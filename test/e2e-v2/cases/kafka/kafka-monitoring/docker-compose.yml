@@ -45,16 +45,10 @@ services:
     expose:
       - 9092
       - 7071
-    ports:
-      - '9092:9092'
-      - '7071:7071'
     networks:
       - e2e
     environment:
-      - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker1:9092
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_OPTS=-javaagent:/etc/jmx_prometheus_javaagent-0.18.0.jar=7071:/etc/kafka-2_0_0.yml
     depends_on:
@@ -72,16 +66,10 @@ services:
     expose:
       - 9093
       - 7072
-    ports:
-      - '9093:9093'
-      - '7072:7072'
     networks:
       - e2e
     environment:
-      - KAFKA_ENABLE_KRAFT=no
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9093
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://broker2:9093
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_OPTS=-javaagent:/etc/jmx_prometheus_javaagent-0.18.0.jar=7072:/etc/kafka-2_0_0.yml
     depends_on:
@@ -116,7 +104,7 @@ services:
       - bash
       - -c
       - >
-        kafka-consumer-perf-test.sh --bootstrap-server broker1:9092,broker2:9093 --topic perftest --messages 100000
+        kafka-consumer-perf-test.sh --broker-list broker1:9092,broker2:9093 --topic perftest --messages 100000
 
   otel-collector:
     image: otel/opentelemetry-collector:0.50.0
