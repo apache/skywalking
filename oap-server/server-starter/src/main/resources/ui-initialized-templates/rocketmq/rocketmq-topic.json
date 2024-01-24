@@ -142,7 +142,7 @@
           "metricMode": "Expression",
           "moved": false,
           "expressions": [
-            "avg(meter_rocketmq_topic_consumer_latency)/1000"
+            "meter_rocketmq_topic_consumer_latency/1000"
           ],
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
