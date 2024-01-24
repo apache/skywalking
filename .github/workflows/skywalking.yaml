@@ -269,7 +269,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        java-version: [11, 17]
+        java-version: [11, 17, 21]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -868,3 +868,4 @@ jobs:
           [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
 
           exit 0;
+
