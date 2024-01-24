@@ -98,8 +98,10 @@ services:
     networks:
       - e2e
     depends_on:
-      - broker1
-      - broker2
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
     command:
       - bash
       - -c
@@ -111,7 +113,8 @@ services:
     networks:
       - e2e
     depends_on:
-      - kafka-producer-perf-test
+      kafka-producer-perf-test:
+        condition: service_completed_successfully
     command:
       - bash
       - -c
