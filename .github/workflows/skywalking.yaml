@@ -315,7 +315,7 @@ jobs:
           restore-keys: ${{ runner.os }}-maven-
       - uses: actions/setup-java@v3
         with:
-          java-version: 11
+          java-version: 21
           distribution: temurin
       - name: ${{ matrix.test.name }}
         run: |
@@ -326,7 +326,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: E2E test Java 21
     needs: [docker]
     runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
     timeout-minutes: 60
@@ -428,7 +428,7 @@ jobs:
           - name: Log ES 7.17.10
             config: test/e2e-v2/cases/log/es/e2e.yaml
             env: ES_VERSION=7.17.10
-          - name: Log ES 8.8.1 Sharding
+          - name: Log ES 8.8.1 Shardng
             config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.8.1
 
@@ -679,93 +679,6 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-11
-          path: docker-images
-      - name: Load docker images
-        run: |
-          find docker-images -name "*.tar" -exec docker load -i {} \;
-          find docker-images -name "*.tar" -exec rm {} \;
-      - name: Login to ghcr
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Cache maven repository
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
-      - name: Prepare test services
-        shell: bash
-        run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
-      - name: Set env var
-        run: |
-          echo "${{ matrix.test.env }}"  >> $GITHUB_ENV
-      - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@0a5b398fc9668ccb848b16e6da4f09180955dc3e
-        with:
-          e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
-      - if: ${{ failure() }}
-        run: |
-          df -h
-          du -sh .
-          docker images
-      - uses: actions/upload-artifact@v2
-        if: ${{ failure() }}
-        name: Upload Logs
-        with:
-          name: logs
-          path: "${{ env.SW_INFRA_E2E_LOG_DIR }}"
-
-  e2e-test-java21:
-    if: |
-      ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test Java 21
-    needs: [ docker ]
-    runs-on: ${{ matrix.test.runs-on || 'ubuntu-latest' }}
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        test:
-          - name: Agent Golang
-            config: test/e2e-v2/cases/go/e2e.yaml
-          - name: Alarm H2
-            config: test/e2e-v2/cases/alarm/h2/e2e.yaml
-          - name: Log H2
-            config: test/e2e-v2/cases/log/h2/e2e.yaml
-          - name: Log FluentBit ES 8.8.1
-            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
-            env: ES_VERSION=8.8.1
-          - name: Trace Profiling H2
-            config: test/e2e-v2/cases/profiling/trace/h2/e2e.yaml
-          - name: Istio Metrics Service 1.18.0
-            config: test/e2e-v2/cases/istio/metrics/e2e.yaml
-            env: |
-              ISTIO_VERSION=1.18.0
-              KUBERNETES_VERSION=25
-          - name: Zipkin H2
-            config: test/e2e-v2/cases/zipkin/h2/e2e.yaml
-          - name: Nginx
-            config: test/e2e-v2/cases/nginx/e2e.yaml
-          - name: Elasticsearch
-            config: test/e2e-v2/cases/elasticsearch/e2e.yaml
-          - name: MQE Service
-            config: test/e2e-v2/cases/mqe/e2e.yaml
-
-          - name: UI Menu H2
-            config: test/e2e-v2/cases/menu/h2/e2e.yaml
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: true
-      - uses: actions/download-artifact@v3
-        name: Download docker images
-        with:
           name: docker-images-21
           path: docker-images
       - name: Load docker images
@@ -810,7 +723,7 @@ jobs:
     if: |
       ( always() && ! cancelled() ) &&
       ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.oap == 'true')
-    name: E2E test
+    name: E2E test Java21
     needs: [docker]
     runs-on: ubuntu-20.04
     timeout-minutes: 60
@@ -835,7 +748,7 @@ jobs:
       - uses: actions/download-artifact@v3
         name: Download docker images
         with:
-          name: docker-images-11
+          name: docker-images-21
           path: docker-images
       - name: Load docker images
         run: |
@@ -878,7 +791,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [11, 17, 21]
+        java-version: [11, 17]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -952,3 +865,4 @@ jobs:
           [[ ${timeConsumingITResults} == 'success' ]] || [[ ${execute} != 'true' && ${timeConsumingITResults} == 'skipped' ]] || exit -8;
 
           exit 0;
+
