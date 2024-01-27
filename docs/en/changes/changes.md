@@ -3,6 +3,7 @@
 #### Project
 * Support Java 21 runtime.
 * Support oap-java21 image for Java 21 runtime.
+* Upgrade `OTEL collector` version to `0.92.0` in all e2e tests.
 
 #### OAP Server
 
@@ -36,7 +37,6 @@
   - SO11Y_OAP -> K8S_SERVICE
   - VIRTUAL_DATABASE -> MYSQL
   - VIRTUAL_DATABASE -> POSTGRESQL
-* Upgrade `OTEL collector` version to `0.92.0` in all e2e tests.
 
 #### UI
 
