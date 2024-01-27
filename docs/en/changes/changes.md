@@ -3,6 +3,7 @@
 #### Project
 * Support Java 21 runtime.
 * Support oap-java21 image for Java 21 runtime.
+* Upgrade `OTEL collector` version to `0.92.0` in all e2e tests.
 
 #### OAP Server
 

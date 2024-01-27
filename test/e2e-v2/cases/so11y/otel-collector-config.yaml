@@ -33,7 +33,7 @@ exporters:
     tls:
       insecure: true
   logging:
-    logLevel: debug
+    loglevel: debug
 
 service:
   pipelines:

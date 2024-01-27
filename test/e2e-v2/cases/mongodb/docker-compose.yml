@@ -80,7 +80,7 @@ services:
       - '--collector.diagnosticdata'
       - '--collector.replicasetstatus'
   otel-collector:
-    image: otel/opentelemetry-collector:0.72.0
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
     networks:
       - e2e
     command: [ "--config=/etc/otel-collector-config.yaml" ]
