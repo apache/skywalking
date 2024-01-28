@@ -37,6 +37,7 @@
   - SO11Y_OAP -> K8S_SERVICE
   - VIRTUAL_DATABASE -> MYSQL
   - VIRTUAL_DATABASE -> POSTGRESQL
+* Add Golang Amqp componentID.
 
 #### UI
 
