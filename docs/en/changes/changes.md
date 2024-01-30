@@ -38,13 +38,14 @@
   - VIRTUAL_DATABASE -> MYSQL
   - VIRTUAL_DATABASE -> POSTGRESQL
 * Add Golang as a supported language for AMQP.
+* Support available layers of service in the topology.
 
 #### UI
 
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.
 * Add theme change animation.
 * Implement the Service and Instance hierarchy topology.
-* Support Tabs in the widget visiable when MQE expressions.
+* Support Tabs in the widget visible when MQE expressions.
 * Support search on Marketplace.
 * Fix default route.
 * Fix layout on the Log widget.
@@ -55,6 +56,10 @@
 * Fix dashboard `K8S-Service-Root` metrics expression.
 * Add dashboards for Service/Instance Hierarchy.
 * Fix MQE in dashboards when using `Card widget`.
+* Optimize tooltips style.
+* Fix resizing window causes the trace graph to display incorrectly.
+* Add the not found page(404).
+* Enhance VNode logic and support multiple Trace IDs in span's ref.
 
 #### Documentation
 
