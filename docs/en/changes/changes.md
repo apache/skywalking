@@ -60,6 +60,7 @@
 * Fix resizing window causes the trace graph to display incorrectly.
 * Add the not found page(404).
 * Enhance VNode logic and support multiple Trace IDs in span's ref.
+* Add the layers filed and associate layers dashboards for the service topology nodes.
 
 #### Documentation
 
