@@ -71,6 +71,7 @@ All accepted and proposed SWIPs could be found in [here](https://github.com/apac
 Next SWIP Number: 4
 
 ### Accepted SWIPs
+- [SWIP-4 Support available layers of service in the topology](SWIP-4.md)
 - [SWIP-3 Support RocketMQ Monitoring](SWIP-3.md)
 - [SWIP-2 Collecting and Gathering Kubernetes Monitoring Data](SWIP-2.md)
 - [SWIP-1 Create and detect Service Hierarchy Relationship](SWIP-1.md)

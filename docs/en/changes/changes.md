@@ -38,6 +38,7 @@
   - VIRTUAL_DATABASE -> MYSQL
   - VIRTUAL_DATABASE -> POSTGRESQL
 * Add Golang as a supported language for AMQP.
+* Add `layers` field to the `Node` for topology query. 
 
 #### UI
 
