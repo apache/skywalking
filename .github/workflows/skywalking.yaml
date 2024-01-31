@@ -238,9 +238,9 @@ jobs:
         os: [ubuntu-latest, macos-14, windows-latest]
         java-version: [11]
         include:
-          - os: ubuntu
+          - os: ubuntu-latest
             java-version: 17
-          - os: ubuntu
+          - os: ubuntu-latest
             java-version: 21
     steps:
       - uses: actions/checkout@v3
