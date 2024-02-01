@@ -229,7 +229,7 @@ Down sampling function is called `downsampling` in MAL, and it accepts the follo
  - MIN
  - MAX
  - MEAN (TODO)
- - COUNT (TODO)
+ - COUNT
 
 The default type is `AVG`.
 

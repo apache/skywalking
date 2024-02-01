@@ -39,6 +39,7 @@
   - VIRTUAL_DATABASE -> POSTGRESQL
 * Add Golang as a supported language for AMQP.
 * Support available layers of service in the topology.
+* Add `count` function for MAL down sampling.
 
 #### UI
 
