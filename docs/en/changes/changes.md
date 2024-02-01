@@ -4,6 +4,7 @@
 * Support Java 21 runtime.
 * Support oap-java21 image for Java 21 runtime.
 * Upgrade `OTEL collector` version to `0.92.0` in all e2e tests.
+* Switch CI macOS runner to m1.
 
 #### OAP Server
 
@@ -37,13 +38,16 @@
   - SO11Y_OAP -> K8S_SERVICE
   - VIRTUAL_DATABASE -> MYSQL
   - VIRTUAL_DATABASE -> POSTGRESQL
+* Add Golang as a supported language for AMQP.
+* Support available layers of service in the topology.
+* Add `count` function for MAL down sampling.
 
 #### UI
 
 * Fix the mismatch between the unit and calculation of the "Network Bandwidth Usage" widget in Linux-Service Dashboard.
 * Add theme change animation.
 * Implement the Service and Instance hierarchy topology.
-* Support Tabs in the widget visiable when MQE expressions.
+* Support Tabs in the widget visible when MQE expressions.
 * Support search on Marketplace.
 * Fix default route.
 * Fix layout on the Log widget.
@@ -54,6 +58,11 @@
 * Fix dashboard `K8S-Service-Root` metrics expression.
 * Add dashboards for Service/Instance Hierarchy.
 * Fix MQE in dashboards when using `Card widget`.
+* Optimize tooltips style.
+* Fix resizing window causes the trace graph to display incorrectly.
+* Add the not found page(404).
+* Enhance VNode logic and support multiple Trace IDs in span's ref.
+* Add the layers filed and associate layers dashboards for the service topology nodes.
 
 #### Documentation
 

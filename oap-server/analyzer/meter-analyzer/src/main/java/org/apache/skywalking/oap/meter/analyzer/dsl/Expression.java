@@ -119,6 +119,7 @@ public class Expression {
         public static final DownsamplingType SUM_PER_MIN = DownsamplingType.SUM_PER_MIN;
         public static final DownsamplingType MAX = DownsamplingType.MAX;
         public static final DownsamplingType MIN = DownsamplingType.MIN;
+        public static final DownsamplingType COUNT = DownsamplingType.COUNT;
 
         private final String metricName;
         private final String literal;
