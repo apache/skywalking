@@ -242,6 +242,37 @@ public class SampleFamily {
         );
     }
 
+    public SampleFamily count(List<String> by) {
+        ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        if (by == null) {
+            double result = Arrays.stream(samples).mapToDouble(Sample::getValue).average().orElse(0.0D);
+            return SampleFamily.build(
+                    this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, result));
+        }
+
+        Stream<Map.Entry<ImmutableMap<String, String>, List<Sample>>> stream = Arrays.stream(samples)
+                .collect(groupingBy(it -> InternalOps.groupByExcludedLabels(by, it), mapping(identity(), toList())))
+                .entrySet().stream();
+
+        Sample[] array = stream
+                .map(entry -> InternalOps.newSample(
+                        entry.getValue().get(0).getName(),
+                        entry.getKey(),
+                        entry.getValue().get(0).getTimestamp(),
+                        entry.getValue().size()
+                ))
+                .toArray(Sample[]::new);
+
+        SampleFamily sampleFamily = SampleFamily.build(
+                this.context,
+                array
+        );
+        return sampleFamily;
+    }
+
     protected SampleFamily aggregate(List<String> by, DoubleBinaryOperator aggregator) {
         ExpressionParsingContext.get().ifPresent(ctx -> ctx.aggregationLabels.addAll(by));
         if (this == EMPTY) {
@@ -800,6 +831,15 @@ public class SampleFamily {
                                 Function.identity(),
                                 labelKey -> sample.labels.getOrDefault(labelKey, "")
                             ));
+        }
+
+        private static ImmutableMap<String, String> groupByExcludedLabels(final List<String> excludedLabelKeys, final Sample sample) {
+            Stream<Map.Entry<String, String>> stream = sample
+                    .labels
+                    .entrySet()
+                    .stream()
+                    .filter(v -> !excludedLabelKeys.contains(v.getKey()));
+            return stream.collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
         }
     }
 
