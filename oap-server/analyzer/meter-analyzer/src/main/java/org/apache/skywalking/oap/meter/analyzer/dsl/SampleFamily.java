@@ -254,7 +254,7 @@ public class SampleFamily {
         }
 
         Stream<Map.Entry<ImmutableMap<String, String>, List<Sample>>> stream = Arrays.stream(samples)
-                .collect(groupingBy(it -> InternalOps.groupByExcludedLabels(by, it), mapping(identity(), toList())))
+                .collect(groupingBy(it -> InternalOps.groupByRemainingLabels(by, it), mapping(identity(), toList())))
                 .entrySet().stream();
 
         Sample[] array = stream
@@ -833,12 +833,12 @@ public class SampleFamily {
                             ));
         }
 
-        private static ImmutableMap<String, String> groupByExcludedLabels(final List<String> excludedLabelKeys, final Sample sample) {
+        private static ImmutableMap<String, String> groupByRemainingLabels(final List<String> labels, final Sample sample) {
             Stream<Map.Entry<String, String>> stream = sample
                     .labels
                     .entrySet()
                     .stream()
-                    .filter(v -> !excludedLabelKeys.contains(v.getKey()));
+                    .filter(v -> !labels.contains(v.getKey()));
             return stream.collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
         }
     }
