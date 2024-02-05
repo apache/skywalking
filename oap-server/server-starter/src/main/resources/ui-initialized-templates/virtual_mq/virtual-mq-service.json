@@ -377,7 +377,8 @@
       "entity": "Service",
       "name": "Virtual-MQ-Service",
       "id": "Virtual-MQ-Service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true
     }
   }
 ]

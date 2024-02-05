@@ -27,12 +27,19 @@ hierarchy:
     K8S_SERVICE: short-name
 
   GENERAL:
+    APISIX: lower-short-name-remove-ns
     K8S_SERVICE: lower-short-name-remove-ns
 
   MYSQL:
     K8S_SERVICE: short-name
 
   POSTGRESQL:
+    K8S_SERVICE: short-name
+
+  APISIX:
+    K8S_SERVICE: short-name
+
+  NGINX:
     K8S_SERVICE: short-name
 
   SO11Y_OAP:
@@ -66,6 +73,8 @@ layer-levels:
 
   MYSQL: 2
   POSTGRESQL: 2
+  APISIX: 2
+  NGINX: 2
 
   MESH_DP: 1
 
