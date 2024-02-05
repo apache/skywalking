@@ -154,7 +154,7 @@ resulting in a new sample family having fewer samples (sometimes having just a s
  - min (select minimum over dimensions)
  - max (select maximum over dimensions)
  - avg (calculate the average over dimensions)
- - count (calculate the count over dimensions)
+ - count (calculate the count over dimensions, the last tag will be counted)
 
 These operations can be used to aggregate overall label dimensions or preserve distinct dimensions by inputting `by` parameter( the keyword `by` could be omitted)
 

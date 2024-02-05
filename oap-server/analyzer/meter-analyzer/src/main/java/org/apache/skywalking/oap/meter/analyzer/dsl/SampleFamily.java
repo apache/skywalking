@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.Function;
@@ -248,14 +249,36 @@ public class SampleFamily {
             return EMPTY;
         }
         if (by == null) {
-            double result = Arrays.stream(samples).mapToDouble(Sample::getValue).average().orElse(0.0D);
+            long result = Arrays.stream(samples).count();
             return SampleFamily.build(
                     this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, result));
         }
 
-        Stream<Map.Entry<ImmutableMap<String, String>, List<Sample>>> stream = Arrays.stream(samples)
-                .collect(groupingBy(it -> InternalOps.groupByRemainingLabels(by, it), mapping(identity(), toList())))
-                .entrySet().stream();
+        if (by.size() == 1) {
+            Set<String> set = Arrays
+                    .stream(samples)
+                    .map(sample -> sample.labels.get(by.get(0)))
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toSet());
+
+            return SampleFamily.build(
+                    this.context, InternalOps.newSample(samples[0].name, ImmutableMap.of(), samples[0].timestamp, set.size()));
+        }
+
+        Stream<Map.Entry<ImmutableMap<String, String>, List<Sample>>> stream = Arrays
+                .stream(samples)
+                .filter(sample -> sample.labels.keySet().containsAll(by))
+                .collect(groupingBy(it -> InternalOps.getLabels(by, it)))
+                .entrySet()
+                .stream()
+                .map(entry -> InternalOps.newSample(
+                        entry.getValue().get(0).getName(),
+                        entry.getKey(),
+                        entry.getValue().get(0).getTimestamp(),
+                        entry.getValue().size()))
+                .collect(groupingBy(it -> InternalOps.groupByExcludedLabel(by.get(by.size() - 1), it), mapping(identity(), toList())))
+                .entrySet()
+                .stream();
 
         Sample[] array = stream
                 .map(entry -> InternalOps.newSample(
@@ -833,13 +856,13 @@ public class SampleFamily {
                             ));
         }
 
-        private static ImmutableMap<String, String> groupByRemainingLabels(final List<String> labels, final Sample sample) {
-            Stream<Map.Entry<String, String>> stream = sample
+        private static ImmutableMap<String, String> groupByExcludedLabel(final String excludedLabelKey, final Sample sample) {
+            return sample
                     .labels
                     .entrySet()
                     .stream()
-                    .filter(v -> !labels.contains(v.getKey()));
-            return stream.collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+                    .filter(v -> !v.getKey().equals(excludedLabelKey))
+                    .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
         }
     }
 
