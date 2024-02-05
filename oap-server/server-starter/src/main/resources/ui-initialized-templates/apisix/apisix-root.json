@@ -1,7 +1,7 @@
 
 [
    {
-      "id":"apisix-root",
+      "id":"APISIX-Root",
       "configuration":{
          "children":[
             {
@@ -37,7 +37,6 @@
                }
             }
          ],
-         "id":"apisix-root",
          "layer":"APISIX",
          "entity":"All",
          "name":"APISIX-Root",

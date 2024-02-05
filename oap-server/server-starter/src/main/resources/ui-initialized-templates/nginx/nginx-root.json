@@ -1,6 +1,6 @@
 [
   {
-    "id": "nginx-root",
+    "id": "Nginx-Root",
     "configuration": {
       "children": [
         {
@@ -36,7 +36,6 @@
           }
         }
       ],
-      "id": "nginx-root",
       "layer": "NGINX",
       "entity": "All",
       "name": "Nginx-Root",

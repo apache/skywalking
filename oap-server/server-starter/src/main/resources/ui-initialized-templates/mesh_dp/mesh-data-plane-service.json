@@ -92,7 +92,8 @@
       "entity": "Service",
       "name": "Mesh-Data-Plane-Service",
       "id": "Mesh-Data-Plane-Service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true
     }
   }
 ]
