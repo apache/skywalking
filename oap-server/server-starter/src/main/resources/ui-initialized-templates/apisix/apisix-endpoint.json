@@ -1,7 +1,7 @@
 
 [
   {
-    "id": "apisix-Endpoint",
+    "id": "APISIX-Endpoint",
     "configuration": {
       "children": [
         {
@@ -120,7 +120,6 @@
       "layer": "APISIX",
       "entity": "Endpoint",
       "name": "APISIX-Endpoint",
-      "id": "apisix-Endpoint",
       "isRoot": false
     }
   }

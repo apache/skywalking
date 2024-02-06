@@ -427,7 +427,8 @@
       "entity": "Service",
       "name": "Browser-App",
       "id": "Browser-app",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true
     }
   }
 ]

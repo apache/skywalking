@@ -41,6 +41,10 @@
 * Add Golang as a supported language for AMQP.
 * Support available layers of service in the topology.
 * Add `count` aggregation function for MAL
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - NGINX -> K8S_SERVICE
+  - APISIX -> K8S_SERVICE
+  - GENERAL -> APISIX
 
 #### UI
 
@@ -63,6 +67,7 @@
 * Add the not found page(404).
 * Enhance VNode logic and support multiple Trace IDs in span's ref.
 * Add the layers filed and associate layers dashboards for the service topology nodes.
+* Fix `Nginx-Instance` metrics to instance level.
 
 #### Documentation
 

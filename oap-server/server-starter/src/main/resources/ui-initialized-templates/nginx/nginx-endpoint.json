@@ -1,6 +1,6 @@
 [
   {
-    "id": "nginx-Endpoint",
+    "id": "Nginx-Endpoint",
     "configuration": {
       "children": [
         {
@@ -159,7 +159,6 @@
       "layer": "NGINX",
       "entity": "Endpoint",
       "name": "Nginx-Endpoint",
-      "id": "nginx-Endpoint",
       "isRoot": false
     }
   }

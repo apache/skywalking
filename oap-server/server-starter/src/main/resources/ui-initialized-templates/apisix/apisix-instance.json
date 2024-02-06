@@ -1,7 +1,7 @@
 
 [
   {
-    "id": "apisix-Instance",
+    "id": "APISIX-Instance",
     "configuration": {
       "children": [
         {
@@ -528,8 +528,37 @@
       "layer": "APISIX",
       "entity": "ServiceInstance",
       "name": "APISIX-Instance",
-      "id": "apisix-Instance",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_apisix_instance_http_status_matched{_='200'})",
+        "avg(meter_apisix_instance_http_status_matched{_='304'})",
+        "avg(meter_apisix_instance_http_status_matched{_='404'})",
+        "avg(meter_apisix_instance_http_status_matched{_='499'})",
+        "avg(meter_apisix_instance_http_status_matched{_='503'})"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 200"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 304"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 404"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 499"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 503"
+        }
+      ]
     }
   }
 ]
