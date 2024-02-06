@@ -147,6 +147,51 @@ public class AggregationTest {
                 ).build()),
                 false,
             },
+
+            {
+                "count",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t3")).value(100).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t2")).value(3).name("http_success_request").build()
+                ).build()),
+                "http_success_request.count()",
+                Result.success(SampleFamilyBuilder.newBuilder(Sample.builder().labels(ImmutableMap.of()).value(3).name("http_success_request").build()).build()),
+                false,
+            },
+            {
+                "count-by-one",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1", "region", "cn", "instance", "10.0.0.1")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t2", "region", "us", "instance", "10.0.0.2")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.3")).value(100).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t2", "region", "cn", "instance", "10.0.0.3")).value(3).name("http_success_request").build()
+                ).build()),
+                "http_success_request.count(by = ['instance'])",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(ImmutableMap.of()).value(3).name("http_success_request").build()
+                ).build()),
+                false,
+            },
+            {
+                "count-by-multi",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("idc", "t1")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1", "region", "cn", "instance", "10.0.0.1")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1", "region", "cn", "instance", "10.0.0.1")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t2", "region", "us", "instance", "10.0.0.2")).value(50).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.3")).value(100).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t1", "region", "us", "instance", "10.0.0.4")).value(100).name("http_success_request").build(),
+                        Sample.builder().labels(of("idc", "t2", "region", "cn", "instance", "10.0.0.5")).value(3).name("http_success_request").build()
+                ).build()),
+                "http_success_request.count(by = ['region','instance'])",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                        Sample.builder().labels(of("region", "us")).value(3).name("http_success_request").build(),
+                        Sample.builder().labels(of("region", "cn")).value(2).name("http_success_request").build()
+                ).build()),
+                false,
+            },
         });
     }
 

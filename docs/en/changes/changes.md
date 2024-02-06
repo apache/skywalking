@@ -40,6 +40,7 @@
   - VIRTUAL_DATABASE -> POSTGRESQL
 * Add Golang as a supported language for AMQP.
 * Support available layers of service in the topology.
+* Add `count` aggregation function for MAL
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - NGINX -> K8S_SERVICE
   - APISIX -> K8S_SERVICE
