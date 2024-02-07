@@ -144,7 +144,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 34,
+                  "y": 48,
                   "w": 12,
                   "h": 14,
                   "i": "12",
@@ -360,7 +360,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 48,
+                  "y": 34,
                   "w": 12,
                   "h": 14,
                   "i": "22",
@@ -443,7 +443,7 @@
                   "widget": {
                     "name": "topic count",
                     "title": "Topic Count",
-                    "tips": "The count of topic"
+                    "tips": "The number of topics that received messages from the producer"
                   },
                   "graph": {
                     "type": "Card",
@@ -468,16 +468,16 @@
                     "latest(meter_rocketmq_cluster_broker_count)"
                   ],
                   "typesOfMQE": [
-                    "UNKNOWN"
+                    "SINGLE_VALUE"
                   ],
                   "widget": {
                     "name": "broker count",
                     "title": "Broker Count",
-                    "tips": "The count of broker"
+                    "tips": "The number of brokers that received messages from the producer"
                   },
                   "graph": {
                     "type": "Card",
-                    "fontSize": 14,
+                    "fontSize": 26,
                     "textAlign": "center",
                     "showUnit": true
                   }

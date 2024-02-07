@@ -316,7 +316,7 @@
           "widget": {
             "name": "consumer group count",
             "title": "Consumer Group Count",
-            "tips": "The count of consumer group"
+            "tips": "The number of consumer groups"
           }
         },
         {
@@ -346,7 +346,7 @@
           "widget": {
             "name": "broker count",
             "title": "Broker Count",
-            "tips": "The count of broker"
+            "tips": "The number of topics that received messages from the producer"
           }
         },
         {

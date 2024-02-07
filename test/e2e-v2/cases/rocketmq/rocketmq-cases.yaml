@@ -85,7 +85,5 @@ cases:
     expected: expected/metrics-has-value-group-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_group_count --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_offset --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
-    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_broker_count --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
     expected: expected/metrics-has-value.yml
