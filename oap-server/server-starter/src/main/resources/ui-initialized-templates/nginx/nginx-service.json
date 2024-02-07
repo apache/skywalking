@@ -1,6 +1,6 @@
 [
   {
-    "id": "nginx-service",
+    "id": "Nginx-Service",
     "configuration": {
       "children": [
         {
@@ -287,8 +287,27 @@
       "layer": "NGINX",
       "entity": "Service",
       "name": "Nginx-Service",
-      "id": "nginx-service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_nginx_service_http_status{_='200'})",
+        "avg(meter_nginx_service_http_status{_='404'})",
+        "avg(meter_nginx_service_http_status{_='500'})"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 200"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 404"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 500"
+        }
+      ]
     }
   }
 ]

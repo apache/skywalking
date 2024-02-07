@@ -1,6 +1,6 @@
 [
   {
-    "id": "nginx-Instance",
+    "id": "Nginx-Instance",
     "configuration": {
       "children": [
         {
@@ -22,7 +22,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_nginx_service_http_requests"
+            "meter_nginx_instance_http_requests"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -48,7 +48,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_nginx_service_http_latency"
+            "meter_nginx_instance_http_latency"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -74,7 +74,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_nginx_service_http_bandwidth/1024"
+            "meter_nginx_instance_http_bandwidth/1024"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -89,7 +89,7 @@
           "i": "4",
           "type": "Widget",
           "expressions": [
-            "meter_nginx_service_http_connections"
+            "meter_nginx_instance_http_connections"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -126,7 +126,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_nginx_service_http_status"
+            "meter_nginx_instance_http_status"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
@@ -166,7 +166,7 @@
           "type": "Widget",
           "metricMode": "Expression",
           "expressions": [
-            "(meter_nginx_service_http_5xx_requests_increment/meter_nginx_service_http_requests_increment)*100"
+            "(meter_nginx_instance_http_5xx_requests_increment/meter_nginx_instance_http_requests_increment)*100"
           ],
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
@@ -207,8 +207,27 @@
       "layer": "NGINX",
       "entity": "ServiceInstance",
       "name": "Nginx-Instance",
-      "id": "nginx-Instance",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_nginx_instance_http_status{_='200'})",
+        "avg(meter_nginx_instance_http_status{_='404'})",
+        "avg(meter_nginx_instance_http_status{_='500'})"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 200"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 404"
+        },
+        {
+          "unit": "req / s",
+          "label": "HTTP Status 500"
+        }
+      ]
     }
   }
 ]

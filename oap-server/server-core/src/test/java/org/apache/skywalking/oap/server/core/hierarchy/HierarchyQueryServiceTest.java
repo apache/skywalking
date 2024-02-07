@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.Hierarchy;
+package org.apache.skywalking.oap.server.core.hierarchy;
 
 import java.util.HashMap;
 import java.util.Map;
