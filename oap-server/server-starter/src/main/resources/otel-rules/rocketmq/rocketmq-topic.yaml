@@ -62,3 +62,12 @@ metricsRules:
   - name: consumer_message_size
     exp: rocketmq_consumer_message_size.sum(['cluster','topic','group']).downsampling(MAX)
 
+  - name: consumer_group_count
+    exp: rocketmq_consumer_offset.count(['cluster','topic','group'])
+
+  - name: consumer_offset
+    exp: rocketmq_consumer_offset.sum(['cluster','topic']).downsampling(MAX)
+
+  - name: broker_count
+    exp: rocketmq_producer_offset.count(['cluster','topic','broker'])
+

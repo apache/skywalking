@@ -73,3 +73,9 @@ metricsRules:
 
   - name: send_threadPool_queue_head_wait_time
     exp: rocketmq_brokeruntime_send_threadpoolqueue_headwait_timemills.sum(['cluster','brokerIP'])
+
+  - name: topic_count
+    exp: rocketmq_producer_offset.count(['cluster','topic'])
+
+  - name: broker_count
+    exp: rocketmq_producer_offset.count(['cluster','broker'])
