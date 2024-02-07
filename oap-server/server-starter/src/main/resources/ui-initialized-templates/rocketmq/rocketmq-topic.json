@@ -314,7 +314,9 @@
             "SINGLE_VALUE"
           ],
           "widget": {
-            "title": "latest(meter_rocketmq_topic_consumer_group_count)"
+            "name": "consumer group count",
+            "title": "Consumer Group Count",
+            "tips": "The count of consumer group"
           }
         },
         {
@@ -342,7 +344,9 @@
             "UNKNOWN"
           ],
           "widget": {
-            "title": "meter_rocketmq_topic_broker_count"
+            "name": "broker count",
+            "title": "Broker Count",
+            "tips": "The count of broker"
           }
         },
         {
@@ -372,7 +376,9 @@
             "TIME_SERIES_VALUES"
           ],
           "widget": {
-            "title": "backlogged messages"
+            "name": "backlogged messages",
+            "title": "Backlogged Messages",
+            "tips": "The number of backlogged messages in each group"
           }
         }
       ],

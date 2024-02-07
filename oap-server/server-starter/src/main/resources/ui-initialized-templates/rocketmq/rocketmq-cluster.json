@@ -440,6 +440,11 @@
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
+                  "widget": {
+                    "name": "topic count",
+                    "title": "Topic Count",
+                    "tips": "The count of topic"
+                  },
                   "graph": {
                     "type": "Card",
                     "fontSize": 26,
@@ -465,6 +470,11 @@
                   "typesOfMQE": [
                     "UNKNOWN"
                   ],
+                  "widget": {
+                    "name": "broker count",
+                    "title": "Broker Count",
+                    "tips": "The count of broker"
+                  },
                   "graph": {
                     "type": "Card",
                     "fontSize": 14,
