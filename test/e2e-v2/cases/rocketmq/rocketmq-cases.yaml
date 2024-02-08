@@ -46,9 +46,9 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_send_threadPool_queue_head_wait_time --service-name=rocketmq::rocketmq-cluster
     expected: expected/metrics-has-value-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_topic_count --service-name=rocketmq::rocketmq-cluster
-    expected: expected/metrics-has-value-label.yml
+    expected: expected/metrics-has-value-empty-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_broker_count --service-name=rocketmq::rocketmq-cluster
-    expected: expected/metrics-has-value-label.yml
+    expected: expected/metrics-has-value-empty-label.yml
 
   # instance cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=rocketmq::rocketmq-cluster
@@ -84,6 +84,6 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_message_size --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
     expected: expected/metrics-has-value-group-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_group_count --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
-    expected: expected/metrics-has-value-label.yml
+    expected: expected/metrics-has-value-empty-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_broker_count --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
-    expected: expected/metrics-has-value-label.yml
+    expected: expected/metrics-has-value-empty-label.yml
