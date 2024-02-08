@@ -15,10 +15,10 @@
               "name": "Overview",
               "children": [
                 {
-                  "x": 8,
+                  "x": 12,
                   "y": 0,
-                  "w": 4,
-                  "h": 7,
+                  "w": 6,
+                  "h": 6,
                   "i": "8",
                   "type": "Widget",
                   "id": "0-0-8",
@@ -46,10 +46,10 @@
                   ]
                 },
                 {
-                  "x": 0,
-                  "y": 7,
-                  "w": 4,
-                  "h": 7,
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 6,
                   "i": "9",
                   "type": "Widget",
                   "id": "0-0-9",
@@ -78,7 +78,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 14,
+                  "y": 20,
                   "w": 12,
                   "h": 14,
                   "i": "10",
@@ -111,7 +111,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 14,
+                  "y": 20,
                   "w": 12,
                   "h": 14,
                   "i": "11",
@@ -144,7 +144,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 42,
+                  "y": 48,
                   "w": 12,
                   "h": 14,
                   "i": "12",
@@ -172,7 +172,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 42,
+                  "y": 48,
                   "w": 12,
                   "h": 14,
                   "i": "13",
@@ -201,8 +201,8 @@
                 {
                   "x": 0,
                   "y": 0,
-                  "w": 4,
-                  "h": 7,
+                  "w": 6,
+                  "h": 6,
                   "i": "16",
                   "type": "Widget",
                   "id": "0-0-16",
@@ -229,10 +229,10 @@
                   }
                 },
                 {
-                  "x": 4,
+                  "x": 6,
                   "y": 0,
-                  "w": 4,
-                  "h": 7,
+                  "w": 6,
+                  "h": 6,
                   "i": "17",
                   "type": "Widget",
                   "id": "0-0-17",
@@ -259,9 +259,9 @@
                   }
                 },
                 {
-                  "x": 8,
-                  "y": 7,
-                  "w": 4,
+                  "x": 6,
+                  "y": 6,
+                  "w": 6,
                   "h": 7,
                   "i": "18",
                   "type": "Widget",
@@ -294,9 +294,9 @@
                   }
                 },
                 {
-                  "x": 4,
-                  "y": 7,
-                  "w": 4,
+                  "x": 0,
+                  "y": 6,
+                  "w": 6,
                   "h": 7,
                   "i": "19",
                   "type": "Widget",
@@ -330,7 +330,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 0,
+                  "y": 6,
                   "w": 12,
                   "h": 14,
                   "i": "21",
@@ -360,7 +360,7 @@
                 },
                 {
                   "x": 0,
-                  "y": 28,
+                  "y": 34,
                   "w": 12,
                   "h": 14,
                   "i": "22",
@@ -392,7 +392,7 @@
                 },
                 {
                   "x": 12,
-                  "y": 28,
+                  "y": 34,
                   "w": 12,
                   "h": 14,
                   "i": "23",
@@ -421,6 +421,66 @@
                     "showXAxis": true,
                     "showYAxis": true
                   }
+                },
+                {
+                  "x": 0,
+                  "y": 13,
+                  "w": 6,
+                  "h": 7,
+                  "i": "24",
+                  "type": "Widget",
+                  "id": "0-0-24",
+                  "metricTypes": [],
+                  "metrics": [],
+                  "metricMode": "Expression",
+                  "moved": false,
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_topic_count)"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ],
+                  "widget": {
+                    "name": "topic count",
+                    "title": "Topic Count",
+                    "tips": "The number of topics that received messages from the producer"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  }
+                },
+                {
+                  "x": 6,
+                  "y": 13,
+                  "w": 6,
+                  "h": 7,
+                  "i": "25",
+                  "type": "Widget",
+                  "id": "0-0-25",
+                  "metricTypes": [],
+                  "metrics": [],
+                  "metricMode": "Expression",
+                  "moved": false,
+                  "expressions": [
+                    "latest(meter_rocketmq_cluster_broker_count)"
+                  ],
+                  "typesOfMQE": [
+                    "SINGLE_VALUE"
+                  ],
+                  "widget": {
+                    "name": "broker count",
+                    "title": "Broker Count",
+                    "tips": "The number of brokers that received messages from the producer"
+                  },
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 26,
+                    "textAlign": "center",
+                    "showUnit": true
+                  }
                 }
               ]
             },
@@ -441,7 +501,8 @@
                   },
                   "metrics": [],
                   "metricTypes": [],
-                  "metricConfig": []
+                  "metricConfig": [],
+                  "id": "0-1-0"
                 }
               ]
             },
@@ -462,7 +523,8 @@
                   },
                   "metrics": [],
                   "metricTypes": [],
-                  "metricConfig": []
+                  "metricConfig": [],
+                  "id": "0-2-0"
                 }
               ]
             }

@@ -20,7 +20,7 @@ microservices, cloud native and container-based architectures.
 * Agents for your stack
   * Java, .Net Core, PHP, NodeJS, Golang, LUA, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
 * eBPF early adoption
-  * Rover agent works as a monitor and profiler powered by eBPF to diagnose CPU and network performance.
+  * Rover agent works as a monitor and profiler powered by eBPF to monitor Kubernetes deployments and diagnose CPU and network performance.
 * Scaling
   * 100+ billion telemetry data could be collected and analyzed from one SkyWalking cluster.
 * Mature Telemetry Ecosystems Supported
