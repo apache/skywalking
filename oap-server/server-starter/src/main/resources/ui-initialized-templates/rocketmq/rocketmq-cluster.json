@@ -538,7 +538,8 @@
       "entity": "Service",
       "name": "RocketMQ-Cluster",
       "id": "RocketMQ-Cluster",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true
     }
   }
 ]
