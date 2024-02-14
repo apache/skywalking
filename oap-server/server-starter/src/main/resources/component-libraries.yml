@@ -119,7 +119,7 @@ ElasticJob:
   languages: Java
 RocketMQ:
   id: 25
-  languages: Java
+  languages: Java,Golang
 httpasyncclient:
   id: 26
   languages: Java
@@ -158,10 +158,10 @@ postgresql-jdbc-driver:
   languages: Java
 rocketMQ-producer:
   id: 38
-  languages: Java
+  languages: Java,Golang
 rocketMQ-consumer:
   id: 39
-  languages: Java
+  languages: Java,Golang
 kafka-producer:
   id: 40
   languages: Java,Python
