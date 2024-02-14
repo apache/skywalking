@@ -45,9 +45,15 @@ hierarchy:
   SO11Y_OAP:
     K8S_SERVICE: short-name
 
+  ROCKETMQ:
+    K8S_SERVICE: short-name
+
   VIRTUAL_DATABASE:
     MYSQL: lower-short-name-with-fqdn
     POSTGRESQL: lower-short-name-with-fqdn
+
+  VIRTUAL_MQ:
+    ROCKETMQ: lower-short-name-with-fqdn
 
 # Use Groovy script to define the matching rules, the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean,
 # which are used to match the relation between the upper service(u) and the lower service(l) on the different layers.
@@ -70,11 +76,13 @@ layer-levels:
   GENERAL: 3
   SO11Y_OAP: 3
   VIRTUAL_DATABASE: 3
+  VIRTUAL_MQ: 3
 
   MYSQL: 2
   POSTGRESQL: 2
   APISIX: 2
   NGINX: 2
+  ROCKETMQ: 2
 
   MESH_DP: 1
 
