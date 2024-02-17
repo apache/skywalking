@@ -351,10 +351,6 @@
           "moved": false,
           "metricConfig": [
             {
-              "unit": "calls / min",
-              "label": "Consume Traffic"
-            },
-            {
               "unit": "ms",
               "label": "Transmission Latency"
             },
@@ -382,41 +378,7 @@
       "name": "Virtual-MQ-Service",
       "id": "Virtual-MQ-Service",
       "isRoot": false,
-      "isDefault": true,
-      "expressionsConfig": [
-        {
-          "unit": "calls / min",
-          "label": "Consume Traffic"
-        },
-        {
-          "unit": "ms",
-          "label": "Latency Percentile"
-        },
-        {
-          "unit": "ms",
-          "label": "AVG Latency"
-        },
-        {
-          "unit": "calls / min",
-          "label": "Produce Traffic"
-        },
-        {
-          "unit": "%",
-          "label": "Successful Rate"
-        },
-        {
-          "unit": "ms",
-          "label": "Transmission Latency"
-        },
-        {
-          "unit": "%",
-          "label": "Consume Successful Rate"
-        },
-        {
-          "unit": "%",
-          "label": "Produce Successful Rate"
-        }
-      ]
+      "isDefault": true
     }
   }
 ]
