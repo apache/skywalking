@@ -94,7 +94,7 @@
                   "widget": {
                     "title": "Total Producer Tps",
                     "tips": "The number of messages produced per second",
-                    "name": "total producer tps"
+                    "name": "total producer TPS"
                   },
                   "expressions": [
                     "meter_rocketmq_cluster_total_producer_tps"
@@ -127,7 +127,7 @@
                   "widget": {
                     "title": "Total Consume Tps",
                     "tips": "The number of messages consumed per second",
-                    "name": "total consumer tps"
+                    "name": "total consumer TPS"
                   },
                   "expressions": [
                     "meter_rocketmq_cluster_total_consumer_tps"
@@ -549,11 +549,11 @@
       "expressionsConfig": [
         {
           "unit": "messages / s",
-          "label": "Producer Tps"
+          "label": "Producer TPS"
         },
         {
           "unit": "messages / s",
-          "label": "Consumer Tps"
+          "label": "Consumer TPS"
         },
         {
           "unit": "MB / s",
