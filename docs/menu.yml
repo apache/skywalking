@@ -260,6 +260,8 @@ catalog:
                 path: "/en/setup/backend/backend-kafka-monitoring"
               - name: "Pulsar"
                 path: "/en/setup/backend/backend-pulsar-monitoring"
+              - name: "RocketMQ"
+                path: "/en/setup/backend/backend-rocketmq-monitoring"
           - name: "Self Observability"
             catalog:
               - name: "OAP self telemetry"

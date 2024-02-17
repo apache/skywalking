@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to show how to write configuration files and can be used to test.
+
+cases:
+  # service cases
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
+    expected: expected/service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_messages_produced_today --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_messages_consumed_today --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_total_producer_tps --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_total_consumer_tps --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_producer_message_size --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_consumer_message_size --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_messages_produced_until_yesterday --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_messages_consumed_until_yesterday --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_max_consumer_latency --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_max_commitLog_disk_ratio --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_commitLog_disk_ratio --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_send_threadPool_queue_head_wait_time --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_topic_count --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-empty-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_cluster_broker_count --service-name=rocketmq::rocketmq-cluster
+    expected: expected/metrics-has-value-empty-label.yml
+
+  # instance cases
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=rocketmq::rocketmq-cluster
+    expected: expected/instance.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_broker_produce_tps --service-name=rocketmq::rocketmq-cluster --instance-name=rocketmq-broker-1
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_broker_consume_qps --service-name=rocketmq::rocketmq-cluster --instance-name=rocketmq-broker-1
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_broker_producer_message_size --service-name=rocketmq::rocketmq-cluster --instance-name=rocketmq-broker-1
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_broker_consumer_message_size --service-name=rocketmq::rocketmq-cluster --instance-name=rocketmq-broker-1
+    expected: expected/metrics-has-value.yml
+
+  # endpoint cases
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=rocketmq::rocketmq-cluster
+    expected: expected/endpoint.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_max_producer_message_size --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_max_consumer_message_size --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value-group-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_latency --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value-group-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_producer_tps --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_group_tps --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_producer_offset --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_group_offset --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value-group-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_producer_message_size --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_message_size --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value-group-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_consumer_group_count --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value-empty-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rocketmq_topic_broker_count --service-name=rocketmq::rocketmq-cluster --endpoint-name=TopicTest
+    expected: expected/metrics-has-value-empty-label.yml

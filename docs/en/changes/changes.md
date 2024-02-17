@@ -46,6 +46,10 @@
   - APISIX -> K8S_SERVICE
   - GENERAL -> APISIX
 * Add Golang as a supported language for RocketMQ.
+* Support Apache RocketMQ server monitoring.
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - ROCKETMQ -> K8S_SERVICE
+  - VIRTUAL_MQ -> ROCKETMQ
 
 #### UI
 

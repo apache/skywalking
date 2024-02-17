@@ -1,0 +1,391 @@
+[
+  {
+    "id": "RocketMQ-Topic",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 48,
+          "w": 12,
+          "h": 15,
+          "i": "0",
+          "type": "Widget",
+          "id": "0",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
+          },
+          "expressions": [
+            "meter_rocketmq_topic_producer_message_size/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "title": "Producer Message Size(MB)",
+            "tips": "The size of messages produced per second",
+            "name": "producer_message_size"
+          }
+        },
+        {
+          "x": 12,
+          "y": 48,
+          "w": 12,
+          "h": 15,
+          "i": "1",
+          "type": "Widget",
+          "id": "1",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
+          },
+          "expressions": [
+            "meter_rocketmq_topic_consumer_message_size/1024/1024"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "consumer_message_size",
+            "title": "Consumer Message Size(MB)",
+            "tips": "The size of messages consumed per second "
+          }
+        },
+        {
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "2",
+          "type": "Widget",
+          "id": "2",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "moved": false,
+          "expressions": [
+            "latest(meter_rocketmq_topic_max_consumer_message_size)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ],
+          "widget": {
+            "name": "max_consumer_message_size",
+            "title": "Max Consumer Message Size",
+            "tips": "The maximum number of messages consumed"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          }
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "3",
+          "type": "Widget",
+          "id": "3",
+          "metricTypes": [],
+          "metrics": [],
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "latest(meter_rocketmq_topic_max_producer_message_size)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ],
+          "widget": {
+            "name": "max_producer_message_size",
+            "title": "Max Producer Message Size",
+            "tips": "The maximum number of messages produced"
+          },
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          }
+        },
+        {
+          "x": 12,
+          "y": 35,
+          "w": 12,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "id": "5",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_topic_consumer_latency/1000"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "consumer_latency",
+            "title": "Consumer Latency(s)",
+            "tips": "Consumption delay time of a consumer group"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 0,
+          "y": 22,
+          "w": 12,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "id": "6",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_topic_producer_offset"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Producer Offset",
+            "name": "producer_offset",
+            "tips": "The progress of a topic's production message"
+          }
+        },
+        {
+          "x": 12,
+          "y": 22,
+          "w": 12,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "id": "7",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_topic_consumer_group_offset"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "title": "Consumer Group Offset",
+            "name": "consumer_group_offset",
+            "tips": "The progress of a topic's consumption message per consumer group"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "w": 12,
+          "h": 13,
+          "i": "8",
+          "type": "Widget",
+          "id": "8",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_topic_consumer_group_tps"
+          ],
+          "typesOfMQE": [
+            "UNKNOWN"
+          ],
+          "widget": {
+            "title": "Consumer Group Tps",
+            "name": "consumer_group_tps",
+            "tips": "The number of messages consumed per second per consumer group"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 0,
+          "y": 9,
+          "w": 12,
+          "h": 13,
+          "i": "9",
+          "type": "Widget",
+          "id": "9",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "meter_rocketmq_topic_producer_tps"
+          ],
+          "typesOfMQE": [
+            "UNKNOWN"
+          ],
+          "widget": {
+            "title": "Producer Tps",
+            "name": "producer_tps",
+            "tips": "The number of messages produced per second"
+          },
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          }
+        },
+        {
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "10",
+          "type": "Widget",
+          "id": "10",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "expressions": [
+            "latest(meter_rocketmq_topic_consumer_group_count)"
+          ],
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ],
+          "widget": {
+            "name": "consumer group count",
+            "title": "Consumer Group Count",
+            "tips": "The number of consumer groups"
+          }
+        },
+        {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 9,
+          "i": "11",
+          "type": "Widget",
+          "id": "11",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "expressions": [
+            "latest(meter_rocketmq_topic_broker_count)"
+          ],
+          "typesOfMQE": [
+            "UNKNOWN"
+          ],
+          "widget": {
+            "name": "broker count",
+            "title": "Broker Count",
+            "tips": "The number of topics that received messages from the producer"
+          }
+        },
+        {
+          "x": 0,
+          "y": 35,
+          "w": 12,
+          "h": 13,
+          "i": "12",
+          "type": "Widget",
+          "id": "12",
+          "metricTypes": [],
+          "metrics": [],
+          "metricMode": "Expression",
+          "moved": false,
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "expressions": [
+            "meter_rocketmq_topic_producer_offset-meter_rocketmq_topic_consumer_group_offset"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ],
+          "widget": {
+            "name": "backlogged messages",
+            "title": "Backlogged Messages",
+            "tips": "The number of backlogged messages in each group"
+          }
+        }
+      ],
+      "layer": "ROCKETMQ",
+      "entity": "Endpoint",
+      "name": "RocketMQ-Topic",
+      "id": "RocketMQ-Topic"
+    }
+  }
+]
