@@ -12,7 +12,7 @@
           "i": "1",
           "type": "Widget",
           "widget": {
-            "title": "Consume Traffic (calls / min)"
+            "title": "Consumer Traffic (calls / min)"
           },
           "graph": {
             "type": "Line",
@@ -32,7 +32,7 @@
           "metricConfig": [
             {
               "unit": "calls / min",
-              "label": "Consume Traffic"
+              "label": "Consumer Traffic"
             }
           ],
           "associate": [
@@ -64,7 +64,7 @@
           "i": "2",
           "type": "Widget",
           "widget": {
-            "title": "Consume Access Successful Rate (%)",
+            "title": "Consumer Access Successful Rate (%)",
             "name": "Successful_Rate"
           },
           "graph": {
@@ -221,7 +221,7 @@
           "i": "5",
           "type": "Widget",
           "widget": {
-            "title": "Produce Traffic (calls / min)"
+            "title": "Producer Traffic (calls / min)"
           },
           "graph": {
             "type": "Line",
@@ -241,7 +241,7 @@
           "metricConfig": [
             {
               "unit": "calls / min",
-              "label": "Produce Traffic"
+              "label": "Producer Traffic"
             }
           ],
           "associate": [
@@ -273,7 +273,7 @@
           "i": "6",
           "type": "Widget",
           "widget": {
-            "title": "Produce Access Successful Rate (%)",
+            "title": "Producer Access Successful Rate (%)",
             "name": "Successful_Rate"
           },
           "graph": {
@@ -355,19 +355,19 @@
               "label": "Transmission Latency"
             },
             {
-              "label": "Consume Successful Rate",
+              "label": "Consumer Successful Rate",
               "unit": "%"
             },
             {
-              "label": "Consume Traffic",
+              "label": "Consumer Traffic",
               "unit": "calls / min"
             },
             {
-              "label": "Produce Successful Rate",
+              "label": "Producer Successful Rate",
               "unit": "%"
             },
             {
-              "label": "Produce Traffic",
+              "label": "Producer Traffic",
               "unit": "calls / min"
             }
           ]
@@ -389,23 +389,23 @@
       "expressionsConfig": [
         {
           "unit": "ms",
-          "label": "Consume Latency"
+          "label": "Consumer Latency"
         },
         {
           "unit": "%",
-          "label": "Produce Successful Rate"
+          "label": "Producer Successful Rate"
         },
         {
           "unit": "%",
-          "label": "Consume Successful Rate"
+          "label": "Consumer Successful Rate"
         },
         {
           "unit": "calls / min",
-          "label": "Produce Traffic"
+          "label": "Producer Traffic"
         },
         {
           "unit": "calls / min",
-          "label": "Consume Traffic"
+          "label": "Consumer Traffic"
         }
       ]
     }
