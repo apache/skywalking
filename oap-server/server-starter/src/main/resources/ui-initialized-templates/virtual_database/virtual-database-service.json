@@ -209,7 +209,7 @@
         },
         {
           "unit": "%",
-          "label": "Successful Rate"
+          "label": "success_rate"
         },
         {
           "unit": "calls / min",
