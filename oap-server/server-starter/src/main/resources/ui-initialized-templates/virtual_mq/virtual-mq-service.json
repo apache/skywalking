@@ -378,7 +378,36 @@
       "name": "Virtual-MQ-Service",
       "id": "Virtual-MQ-Service",
       "isRoot": false,
-      "isDefault": true
+      "isDefault": true,
+      "expressions": [
+        "avg(mq_service_consume_latency)",
+        "avg(mq_endpoint_produce_sla)/100",
+        "avg(mq_endpoint_consume_sla)/100",
+        "avg(mq_service_produce_cpm)",
+        "avg(mq_service_consume_cpm)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "ms",
+          "label": "Consume Latency"
+        },
+        {
+          "unit": "%",
+          "label": "Produce Successful Rate"
+        },
+        {
+          "unit": "%",
+          "label": "Consume Successful Rate"
+        },
+        {
+          "unit": "calls / min",
+          "label": "Produce Traffic"
+        },
+        {
+          "unit": "calls / min",
+          "label": "Consume Traffic"
+        }
+      ]
     }
   }
 ]
