@@ -539,7 +539,31 @@
       "name": "RocketMQ-Cluster",
       "id": "RocketMQ-Cluster",
       "isRoot": false,
-      "isDefault": true
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_rocketmq_cluster_total_producer_tps)",
+        "avg(meter_rocketmq_cluster_total_consumer_tps)",
+        "avg(meter_rocketmq_cluster_consumer_message_size)/1024/1024",
+        "avg(meter_rocketmq_cluster_producer_message_size)/1024/1024"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "messages / s",
+          "label": "Producer Tps"
+        },
+        {
+          "unit": "messages / s",
+          "label": "Consumer Tps"
+        },
+        {
+          "unit": "MB / s",
+          "label": "Producer Message Size"
+        },
+        {
+          "unit": "MB / s",
+          "label": "Consumer Message Size"
+        }
+      ]
     }
   }
 ]
