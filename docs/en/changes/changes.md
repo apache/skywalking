@@ -50,6 +50,7 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - ROCKETMQ -> K8S_SERVICE
   - VIRTUAL_MQ -> ROCKETMQ
+* Fix ServiceInstance `in` query.
 
 #### UI
 
