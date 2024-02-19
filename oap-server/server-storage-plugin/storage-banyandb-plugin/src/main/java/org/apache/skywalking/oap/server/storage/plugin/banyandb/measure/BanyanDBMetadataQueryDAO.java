@@ -162,7 +162,9 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                         List<AbstractCriteria> instanceRelationsQueryConditions = new ArrayList<>(instanceIds.size());
                         for (final String instanceId : instanceIds) {
                             final IDManager.ServiceInstanceID.InstanceIDDefinition def = IDManager.ServiceInstanceID.analysisId(instanceId);
-                            and(Lists.newArrayList(eq(InstanceTraffic.SERVICE_ID, def.getServiceId()), eq(InstanceTraffic.NAME, def.getName())));
+                            instanceRelationsQueryConditions.add(
+                                and(Lists.newArrayList(eq(InstanceTraffic.SERVICE_ID, def.getServiceId()), eq(InstanceTraffic.NAME, def.getName())))
+                            );
                         }
                         query.criteria(or(instanceRelationsQueryConditions));
                     }

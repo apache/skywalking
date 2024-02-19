@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.linecorp.armeria.common.annotation.Nullable;
+import java.util.stream.Collectors;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -186,10 +187,11 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table).append(" where ")
                 .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(InstanceTraffic.INDEX_NAME);
-            for (String instanceId : instanceIds) {
-                sql.append(" and ").append(JDBCTableInstaller.ID_COLUMN).append(" = ?");
-                condition.add(instanceId);
-            }
+            sql.append(" and ").append(JDBCTableInstaller.ID_COLUMN).append(" in ")
+               .append(
+                   instanceIds.stream().map(instanceId -> "?").collect(Collectors.joining(",", "(", ")"))
+               );
+            condition.addAll(instanceIds);
             sql.append(" limit ").append(instanceIds.size());
 
             final var result = jdbcClient.executeQuery(sql.toString(), resultSet -> buildInstances(resultSet), condition.toArray(new Object[0]));
