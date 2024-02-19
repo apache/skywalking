@@ -1,6 +1,6 @@
 # Welcome
 
-**This is the official documentation of SkyWalking 9. Welcome to the SkyWalking community!**
+**This is the official documentation of SkyWalking 10. Welcome to the SkyWalking community!**
 
 Here you can learn all you need to know about **SkyWalking**'s architecture, understand how to deploy and use SkyWalking, and contribute to the project based on SkyWalking's contributing guidelines.
 

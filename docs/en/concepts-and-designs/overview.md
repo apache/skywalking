@@ -45,7 +45,7 @@ Instance and Endpoint are used everywhere today, so it is worth defining their s
 SkyWalking allows users to understand the topology relationship between Services and Endpoints, also detect API dependencies
 in the distributed environment if you use our native agents.,
 
-Besides topology map, SkyWalking provides **Service Hierarchy Relationship**, which defines the relationships of existing 
+Besides topology map, SkyWalking provides [**Service Hierarchy Relationship**](service-hierarchy.md) , which defines the relationships of existing 
 logically same services in various layers. For example, a service could be deployed in a Kubernetes cluster with Istio mesh, 
 services are detected by k8s monitoring and Istio mesh, this hierarchy relationship could connect the services in k8s layer and mesh layer.
 
