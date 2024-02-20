@@ -49,6 +49,7 @@ import org.apache.skywalking.oap.query.promql.entity.MetricInstantData;
 import org.apache.skywalking.oap.query.promql.entity.MetricMetadata;
 import org.apache.skywalking.oap.query.promql.entity.MetricRangeData;
 import org.apache.skywalking.oap.query.promql.entity.TimeValuePair;
+import org.apache.skywalking.oap.query.promql.entity.response.BuildInfoRsp;
 import org.apache.skywalking.oap.query.promql.entity.response.ExprQueryRsp;
 import org.apache.skywalking.oap.query.promql.entity.MetricInfo;
 import org.apache.skywalking.oap.query.promql.entity.response.LabelValuesQueryRsp;
@@ -392,6 +393,15 @@ public class PromQLApiHandler {
             response.setError(parseResult.getErrorInfo());
         }
         return jsonResponse(response);
+    }
+
+    @Get
+    @Post
+    @Path("/api/v1/status/buildinfo")
+    public HttpResponse buildInfo() throws IOException {
+        BuildInfoRsp buildInfoRsp = new BuildInfoRsp();
+        buildInfoRsp.setStatus(ResultStatus.SUCCESS);
+        return jsonResponse(buildInfoRsp);
     }
 
     private HttpResponse jsonResponse(QueryResponse response) throws JsonProcessingException {
