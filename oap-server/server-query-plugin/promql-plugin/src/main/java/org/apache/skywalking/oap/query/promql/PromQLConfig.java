@@ -31,4 +31,12 @@ public class PromQLConfig extends ModuleConfig {
     private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+
+    // The following configs are used to build `/api/v1/status/buildinfo` API response.
+    private String buildInfoVersion = "2.45.0"; // Declare compatibility with 2.45 LTS version APIs.
+    private String buildInfoRevision = "";
+    private String buildInfoBranch = "";
+    private String buildInfoBuildUser = "";
+    private String buildInfoBuildDate = "";
+    private String buildInfoGoVersion = "";
 }
