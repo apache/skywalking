@@ -42,6 +42,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.skywalking.oap.query.graphql.resolver.MetadataQueryV2;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
+import org.apache.skywalking.oap.query.promql.PromQLConfig;
 import org.apache.skywalking.oap.query.promql.entity.ErrorType;
 import org.apache.skywalking.oap.query.promql.entity.LabelName;
 import org.apache.skywalking.oap.query.promql.entity.LabelValuePair;
@@ -95,12 +96,14 @@ public class PromQLApiHandler {
     private final MetadataQueryV2 metadataQuery;
     private final MetricsQuery metricsQuery;
     private final RecordsQuery recordsQuery;
+    private final PromQLConfig config;
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public PromQLApiHandler(ModuleManager moduleManager) {
+    public PromQLApiHandler(ModuleManager moduleManager, PromQLConfig config) {
         this.metadataQuery = new MetadataQueryV2(moduleManager);
         this.metricsQuery = new MetricsQuery(moduleManager);
         this.recordsQuery = new RecordsQuery(moduleManager);
+        this.config = config;
     }
 
     @Get
@@ -401,6 +404,12 @@ public class PromQLApiHandler {
     public HttpResponse buildInfo() throws IOException {
         BuildInfoRsp buildInfoRsp = new BuildInfoRsp();
         buildInfoRsp.setStatus(ResultStatus.SUCCESS);
+        buildInfoRsp.getData().setVersion(config.getBuildInfoVersion());
+        buildInfoRsp.getData().setRevision(config.getBuildInfoRevision());
+        buildInfoRsp.getData().setBranch(config.getBuildInfoBranch());
+        buildInfoRsp.getData().setBuildUser(config.getBuildInfoBuildUser());
+        buildInfoRsp.getData().setBuildDate(config.getBuildInfoBuildDate());
+        buildInfoRsp.getData().setGoVersion(config.getBuildInfoGoVersion());
         return jsonResponse(buildInfoRsp);
     }
 

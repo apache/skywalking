@@ -22,14 +22,14 @@ import lombok.Data;
 
 /**
  * Mock build info for PromQL API, sometimes the client(such as Grafana) use it to detect the version of the data-source server
- * for different API support. SkyWalking supported basic metrics query API in Prometheus 2.45, and it is a LTS version, the API should stable.
+ * for different API support.
  */
 @Data
 public class BuildInfo {
-    private String version = "2.45.0";
-    private String revision = "";
-    private String branch = "";
-    private String buildUser = "";
-    private String buildDate = "";
-    private String goVersion = "";
+    private String version;
+    private String revision;
+    private String branch;
+    private String buildUser;
+    private String buildDate;
+    private String goVersion;
 }
