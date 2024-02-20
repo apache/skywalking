@@ -52,6 +52,7 @@
   - VIRTUAL_MQ -> ROCKETMQ
 * Fix ServiceInstance `in` query.
 * Mock `/api/v1/status/buildinfo` for PromQL API.
+* Fix table exists check in the JDBC Storage Plugin.
 
 #### UI
 

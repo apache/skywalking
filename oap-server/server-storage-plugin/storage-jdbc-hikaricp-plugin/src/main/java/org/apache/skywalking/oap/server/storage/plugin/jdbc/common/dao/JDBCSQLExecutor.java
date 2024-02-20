@@ -257,7 +257,7 @@ public class JDBCSQLExecutor {
         final var tableNamePattern = TableHelper.getTableName(model) + "%";
         final var tables = new ArrayList<String>();
         try (final var connection = h2Client.getConnection();
-             final var resultSet = connection.getMetaData().getTables(connection.getCatalog(), null, tableNamePattern, new String[]{"TABLE"})) {
+             final var resultSet = connection.getMetaData().getTables(connection.getCatalog(), connection.getSchema(), tableNamePattern, new String[]{"TABLE"})) {
             while (resultSet.next()) {
                 tables.add(resultSet.getString("TABLE_NAME"));
             }
