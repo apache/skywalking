@@ -38,16 +38,12 @@ public class AgentConfigurationsReader {
     private Map yamlData;
 
     public AgentConfigurationsReader(InputStream inputStream) {
-        LoaderOptions loaderOptions = new LoaderOptions();
-        loaderOptions.setCodePointLimit(Integer.MAX_VALUE);
-        Yaml yaml = new Yaml(new SafeConstructor(loaderOptions));
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         yamlData = yaml.load(inputStream);
     }
 
     public AgentConfigurationsReader(Reader io) {
-        LoaderOptions loaderOptions = new LoaderOptions();
-        loaderOptions.setCodePointLimit(Integer.MAX_VALUE);
-        Yaml yaml = new Yaml(new SafeConstructor(loaderOptions));
+        Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         yamlData = yaml.load(io);
     }
 
