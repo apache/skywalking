@@ -68,12 +68,12 @@ public class CoreModuleConfig extends ModuleConfig {
      * The time to live of all metrics data. Unit is day.
      */
 
-    private int metricsDataTTL = 3;
+    private int metricsDataTTL = 7;
     /**
      * The time to live of all record data, including tracing. Unit is Day.
      */
 
-    private int recordDataTTL = 7;
+    private int recordDataTTL = 3;
 
     private int gRPCThreadPoolSize;
 

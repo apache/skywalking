@@ -53,6 +53,7 @@
 * Fix ServiceInstance `in` query.
 * Mock `/api/v1/status/buildinfo` for PromQL API.
 * Fix table exists check in the JDBC Storage Plugin.
+* Fix day-based table rolling time range strategy in JDBC storage.
 
 #### UI
 
