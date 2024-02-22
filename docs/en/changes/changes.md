@@ -51,6 +51,8 @@
   - ROCKETMQ -> K8S_SERVICE
   - VIRTUAL_MQ -> ROCKETMQ
 * Fix ServiceInstance `in` query.
+* Mock `/api/v1/status/buildinfo` for PromQL API.
+* Fix table exists check in the JDBC Storage Plugin.
 
 #### UI
 
@@ -88,5 +90,6 @@
 * Fix incorrect words for `backend-bookkeeper-monitoring.md` and `backend-pulsar-monitoring.md`
 * Document a new way to load balance OAP.
 * Add `SWIP-3 Support RocketMQ monitoring`.
+* Add `OpenTelemetry SkyWalking Exporter` deprecated warning doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)

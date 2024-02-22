@@ -443,6 +443,13 @@ promql:
     restMaxThreads: ${SW_PROMQL_REST_MAX_THREADS:200}
     restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
+    # The below config is for the API buildInfo, set the value to mock the build info.
+    buildInfoVersion: ${SW_PROMQL_BUILD_INFO_VERSION:"2.45.0"}
+    buildInfoRevision: ${SW_PROMQL_BUILD_INFO_REVISION:""}
+    buildInfoBranch: ${SW_PROMQL_BUILD_INFO_BRANCH:""}
+    buildInfoBuildUser: ${SW_PROMQL_BUILD_INFO_BUILD_USER:""}
+    buildInfoBuildDate: ${SW_PROMQL_BUILD_INFO_BUILD_DATE:""}
+    buildInfoGoVersion: ${SW_PROMQL_BUILD_INFO_GO_VERSION:""}
 
 #This module is for LogQL API.
 logql:
