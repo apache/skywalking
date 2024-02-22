@@ -107,18 +107,21 @@ The following settings are provided to set the host and port manually, based on 
 - internalComPort: the exposed port for other OAP nodes in the cluster internal communication.
 
 ```yaml
-zookeeper:
-  namespace: ${SW_NAMESPACE:""}
-  hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
-  #Retry Policy
-  baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
-  maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
-  internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:172.10.4.10}
-  internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:11800}
-  # Enable ACL
-  enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
-  schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
-  expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
+cluster:
+  selector: ${SW_CLUSTER:zookeeper}
+  ...
+  zookeeper:
+    namespace: ${SW_NAMESPACE:""}
+    hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
+    #Retry Policy
+    baseSleepTimeMs: ${SW_CLUSTER_ZK_SLEEP_TIME:1000} # initial amount of time to wait between retries
+    maxRetries: ${SW_CLUSTER_ZK_MAX_RETRIES:3} # max number of times to retry
+    internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:172.10.4.10}
+    internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:11800}
+    # Enable ACL
+    enableACL: ${SW_ZK_ENABLE_ACL:false} # disable ACL in default
+    schema: ${SW_ZK_SCHEMA:digest} # only support digest schema
+    expression: ${SW_ZK_EXPRESSION:skywalking:skywalking}
 ```
 
 ## Consul
@@ -129,7 +132,14 @@ their service discovery solution. Set the **cluster/selector** to **consul** in 
 ```yaml
 cluster:
   selector: ${SW_CLUSTER:consul}
-  # other configurations
+  ...
+  consul:
+  serviceName: ${SW_SERVICE_NAME:"SkyWalking_OAP_Cluster"}
+  # Consul cluster nodes, example: 10.0.0.1:8500,10.0.0.2:8500,10.0.0.3:8500
+  hostPort: ${SW_CLUSTER_CONSUL_HOST_PORT:localhost:8500}
+  aclToken: ${SW_CLUSTER_CONSUL_ACLTOKEN:""}
+  internalComHost: ${SW_CLUSTER_INTERNAL_COM_HOST:""}
+  internalComPort: ${SW_CLUSTER_INTERNAL_COM_PORT:-1}
 ```
 
 Same as the Zookeeper coordinator,
