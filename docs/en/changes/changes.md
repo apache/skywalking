@@ -12,6 +12,7 @@
 * Add `is_present` function in MQE for check if the list metrics has a value or not.
 * Remove unreasonable default configurations for gRPC thread executor.
 * Remove `gRPCThreadPoolQueueSize (SW_RECEIVER_GRPC_POOL_QUEUE_SIZE)` configuration.
+* Add `maxInboundMessageSize (SW_CONFIG_GRPC_MAX_INBOUND_MESSAGE_SIZE)` configuration to change the max inbound message size of gRPC.
 * Allow excluding ServiceEntries in some namespaces when looking up ServiceEntries as a final resolution method of
   service metadata.
 * Set up the length of source and dest IDs in relation entities of service, instance, endpoint, and process to 250(was
