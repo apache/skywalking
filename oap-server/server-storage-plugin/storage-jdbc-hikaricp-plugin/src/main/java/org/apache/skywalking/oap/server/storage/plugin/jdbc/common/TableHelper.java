@@ -202,7 +202,7 @@ public class TableHelper {
             getConfigService().getRecordDataTTL() :
             getConfigService().getMetricsDataTTL();
         return LongStream
-            .rangeClosed(0, ttl)
+            .range(0, ttl)
             .mapToObj(it -> TimeBucket.getTimeBucket(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(it), DownSampling.Day))
             .distinct()
             .collect(toList());
