@@ -53,6 +53,7 @@
 * Fix ServiceInstance `in` query.
 * Mock `/api/v1/status/buildinfo` for PromQL API.
 * Fix table exists check in the JDBC Storage Plugin.
+* Fix day-based table rolling time range strategy in JDBC storage.
 * Add `maxInboundMessageSize (SW_DCS_MAX_INBOUND_MESSAGE_SIZE)` configuration to change the max inbound message size of DCS.
 
 #### UI
