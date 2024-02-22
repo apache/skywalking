@@ -15,13 +15,17 @@ graph LR
     D -- exporter --> E
 ```
 
-where the `exporter` can be one of the following:
+Recommend to use [OpenTelemetry OTLP Exporter](#opentelemetry-otlp-exporter) to forward collected logs to OAP server in OTLP
+format, and SkyWalking OAP is responsible for transforming the data format into native log format with analysis support
+powered by [LAL script](../../concepts-and-designs/lal.md).
 
-- [OpenTelemetry SkyWalking Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/5133f4ccd69fa40d016c5b7f2198fb6ac61007b4/exporter/skywalkingexporter).
-  An exporter that transforms the logs to SkyWalking format before sending them to SkyWalking OAP. Read the doc in the
-  aforementioned link for a detailed guide.
-- [OpenTelemetry OTLP Exporter](#opentelemetry-otlp-exporter). An exporter that sends the logs to SkyWalking OAP in OTLP
-  format, and SkyWalking OAP is responsible for transforming the data format.
+___
+Deprecated: unmaintained and not recommended to use, will be removed.
+
+[OpenTelemetry SkyWalking Exporter](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/5133f4ccd69fa40d016c5b7f2198fb6ac61007b4/exporter/skywalkingexporter) was first added into `open-telemetry/opentelemetry-collector-contrib` before 
+OAP OTLP support. It transforms the logs to SkyWalking format before sending them to SkyWalking OAP. Currently, from OTLP
+community, it is not well maintained, and already being marked as `unmaintained`, and may be removed in 2024.
+___
 
 ## OpenTelemetry OTLP Exporter
 
