@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -216,6 +217,8 @@ class ServiceTopologyBuilder {
         Service service = getMetadataQueryService().getService(sourceId);
         if (service != null) {
             serviceNode.getLayers().addAll(service.getLayers());
+        } else {
+            serviceNode.getLayers().add(Layer.UNDEFINED.name());
         }
         return serviceNode;
     }

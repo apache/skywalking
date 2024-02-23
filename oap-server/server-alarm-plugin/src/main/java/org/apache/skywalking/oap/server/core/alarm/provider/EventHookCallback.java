@@ -28,7 +28,9 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -69,7 +71,12 @@ public class EventHookCallback implements AlarmCallback {
     }
 
     private String getLayer(String serviceId) throws IOException {
-        return getMetadataQueryService().getService(serviceId).getLayers().iterator().next();
+        Service service = getMetadataQueryService().getService(serviceId);
+        if (service != null) {
+            return service.getLayers().iterator().next();
+        } else {
+            return Layer.UNDEFINED.name();
+        }
     }
 
     private List<Event> constructCurrentEvent(AlarmMessage msg) throws IOException {
@@ -100,6 +107,7 @@ public class EventHookCallback implements AlarmCallback {
                             .setService(sourceServiceIdDef.getName())
                             .build()
                 );
+                builder.setLayer(getLayer(msg.getId0()));
                 events.add(builder.build());
                 IDManager.ServiceID.ServiceIDDefinition destServiceIdDef = IDManager.ServiceID.analysisId(msg.getId1());
                 builder.setSource(
@@ -107,7 +115,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setService(destServiceIdDef.getName())
                                 .build()
                 ).setUuid(UUID.randomUUID().toString());
-                builder.setLayer(getLayer(sourceServiceIdDef.isReal() ? msg.getId0() : msg.getId1()));
+                builder.setLayer(getLayer(msg.getId1()));
                 events.add(builder.build());
                 break;
             case DefaultScopeDefine.SERVICE_INSTANCE :
@@ -129,6 +137,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setService(IDManager.ServiceID.analysisId(sourceInstanceIdDef.getServiceId()).getName())
                                 .build()
                 );
+                builder.setLayer(getLayer(sourceInstanceIdDef.getServiceId()));
                 events.add(builder.build());
                 IDManager.ServiceInstanceID.InstanceIDDefinition destInstanceIdDef = IDManager.ServiceInstanceID.analysisId(msg.getId1());
                 builder.setSource(
@@ -137,8 +146,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setService(IDManager.ServiceID.analysisId(destInstanceIdDef.getServiceId()).getName())
                                 .build()
                 ).setUuid(UUID.randomUUID().toString());
-                IDManager.ServiceID.ServiceIDDefinition srcInstanceServiceIdDef = IDManager.ServiceID.analysisId(sourceInstanceIdDef.getServiceId());
-                builder.setLayer(getLayer(srcInstanceServiceIdDef.isReal() ? sourceInstanceIdDef.getServiceId() : destInstanceIdDef.getServiceId()));
+                builder.setLayer(getLayer(destInstanceIdDef.getServiceId()));
                 events.add(builder.build());
                 break;
             case DefaultScopeDefine.ENDPOINT :
@@ -160,6 +168,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setService(IDManager.ServiceID.analysisId(sourceEndpointIDDef.getServiceId()).getName())
                                 .build()
                 );
+                builder.setLayer(getLayer(sourceEndpointIDDef.getServiceId()));
                 events.add(builder.build());
                 IDManager.EndpointID.EndpointIDDefinition destEndpointIDDef = IDManager.EndpointID.analysisId(msg.getId1());
                 builder.setSource(
@@ -168,8 +177,7 @@ public class EventHookCallback implements AlarmCallback {
                                 .setService(IDManager.ServiceID.analysisId(destEndpointIDDef.getServiceId()).getName())
                                 .build()
                 ).setUuid(UUID.randomUUID().toString());
-                IDManager.ServiceID.ServiceIDDefinition srcEndpointServiceIdDef = IDManager.ServiceID.analysisId(sourceEndpointIDDef.getServiceId());
-                builder.setLayer(getLayer(srcEndpointServiceIdDef.isReal() ? sourceEndpointIDDef.getServiceId() : destEndpointIDDef.getServiceId()));
+                builder.setLayer(getLayer(destEndpointIDDef.getServiceId()));
                 events.add(builder.build());
                 break;
         }
