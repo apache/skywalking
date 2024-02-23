@@ -44,6 +44,7 @@ public class GRPCConfigWatcherRegister extends FetchingConfigWatcherRegister {
         stub = ConfigurationServiceGrpc.newBlockingStub(
             NettyChannelBuilder.forAddress(settings.getHost(), settings.getPort())
                                .usePlaintext()
+                               .maxInboundMessageSize(settings.getMaxInboundMessageSize())
                                .build());
     }
 
