@@ -219,6 +219,23 @@
 		"entity": "Service",
 		"name": "Kafka-Cluster",
 		"id": "Kafka-Cluster",
-		"isRoot": false
+		"isRoot": false,
+		"isDefault": true,
+		"expressions": [
+			"sum(meter_kafka_partition_count)",
+			"sum(meter_kafka_leader_count)",
+			"sum(meter_kafka_max_lag)"
+		],
+		"expressionsConfig": [
+			{
+				"label": "Leader Count"
+			},
+			{
+				"label": "Partition Count"
+			},
+			{
+				"label": "Max Lag"
+			}
+		]
 	}
 }]

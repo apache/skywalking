@@ -26,7 +26,9 @@ If you want to customize it according to your own needs, please refer to [Servic
 | NGINX            | K8S_SERVICE | [NGINX On K8S_SERVICE](#nginx-on-k8s_service)                     |
 | APISIX           | K8S_SERVICE | [APISIX On K8S_SERVICE](#apisix-on-k8s_service)                   |
 | ROCKETMQ         | K8S_SERVICE | [ROCKETMQ On K8S_SERVICE](#rocketmq-on-k8s_service)               |
-| VIRTUAL_MQ       | ROCKETMQ    | [VIRTUAL_MQ On K8S_SERVICE](#virtual_mq-on-rocketmq)                     |
+| VIRTUAL_MQ       | ROCKETMQ    | [VIRTUAL_MQ On K8S_SERVICE](#virtual_mq-on-rocketmq)              |
+| KAFKA            | K8S_SERVICE | [ROCKETMQ On K8S_SERVICE](#rocketmq-on-k8s_service)               |
+| VIRTUAL_MQ       | KAFKA       | [VIRTUAL_MQ On K8S_SERVICE](#virtual_mq-on-rocketmq)              |
 
 - The following sections will describe the **default matching rules** in detail and use the `upper-layer On lower-layer` format. 
 - The example service name are based on SkyWalking [Showcase](https://github.com/apache/skywalking-showcase) default deployment.
@@ -143,6 +145,22 @@ If you want to customize it according to your own needs, please refer to [Servic
 - Matched Example:
   - VIRTUAL_MQ.service.name: `rocketmq.skywalking-showcase.svc.cluster.local:9876`
   - ROCKETMQ.service.name: `rocketmq::rocketmq.skywalking-showcase`
+
+#### KAFKA On K8S_SERVICE
+- Rule name: `short-name`
+- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Description: KAFKA.service.shortName == K8S_SERVICE.service.shortName
+- Matched Example:
+  - ROCKETMQ.service.name: `kafka::kafka.skywalking-showcase`
+  - K8S_SERVICE.service.name: `skywalking-showcase::kafka.skywalking-showcase`
+
+#### VIRTUAL_MQ On KAFKA
+- Rule name: `lower-short-name-with-fqdn`
+- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Description: VIRTUAL_MQ.service.shortName remove port == KAFKA.service.shortName with fqdn suffix
+- Matched Example:
+  - VIRTUAL_MQ.service.name: `kafka.skywalking-showcase.svc.cluster.local:9876`
+  - ROCKETMQ.service.name: `kafka::rocketmq.skywalking-showcase`
 
 ### Build Through Specific Agents
 Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) detect the service hierarchy relations.
