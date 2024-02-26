@@ -57,6 +57,9 @@
 * Fix day-based table rolling time range strategy in JDBC storage.
 * Add `maxInboundMessageSize (SW_DCS_MAX_INBOUND_MESSAGE_SIZE)` configuration to change the max inbound message size of DCS.
 * Fix Service Layer when building Events in the EventHookCallback.
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - RABBITMQ -> K8S_SERVICE
+  - VIRTUAL_MQ -> RABBITMQ
 
 #### UI
 
