@@ -6,6 +6,8 @@
 * Upgrade `OTEL collector` version to `0.92.0` in all e2e tests.
 * Switch CI macOS runner to m1.
 * Upgrade PostgreSQL driver to `42.4.4` to fix CVE-2024-1597.
+* Remove CLI(`swctl`) from the image.
+* Remove CLI_VERSION variable from Makefile build.
 
 #### OAP Server
 
