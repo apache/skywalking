@@ -732,7 +732,32 @@
       "entity": "Service",
       "name": "RabbitMQ-Cluster",
       "id": "RabbitMQ-Cluster",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_rabbitmq_messages_published)",
+        "avg(meter_rabbitmq_messages_unconfirmed)",
+        "avg(meter_rabbitmq_queues)",
+        "avg(meter_rabbitmq_channels)",
+        "avg(meter_rabbitmq_connections)"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "messages published"
+        },
+        {
+          "label": "messages unconfirmed"
+        },
+        {
+          "label": "queues"
+        },
+        {
+          "label": "channels"
+        },
+        {
+          "label": "connections"
+        }
+      ]
     }
   }
 ]
