@@ -735,20 +735,18 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_rabbitmq_messages_published)*100",
-        "avg(meter_rabbitmq_messages_unconfirmed)*100",
+        "avg(meter_rabbitmq_messages_published)",
+        "avg(meter_rabbitmq_messages_unconfirmed)",
         "avg(meter_rabbitmq_queues)",
         "avg(meter_rabbitmq_channels)",
         "avg(meter_rabbitmq_connections)"
       ],
       "expressionsConfig": [
         {
-          "unit": "%",
-          "label": "messages published rate"
+          "label": "messages published"
         },
         {
-          "unit": "%",
-          "label": "messages unconfirmed rate"
+          "label": "messages unconfirmed"
         },
         {
           "label": "queues"
