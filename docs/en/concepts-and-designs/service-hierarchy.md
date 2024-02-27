@@ -27,7 +27,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 | APISIX           | K8S_SERVICE | [APISIX On K8S_SERVICE](#apisix-on-k8s_service)                   |
 | ROCKETMQ         | K8S_SERVICE | [ROCKETMQ On K8S_SERVICE](#rocketmq-on-k8s_service)               |
 | VIRTUAL_MQ       | ROCKETMQ    | [VIRTUAL_MQ On ROCKETMQ](#virtual_mq-on-rocketmq)              |
-| RABBITMQ         | K8S_SERVICE | [RABBITMQ On K8S_SERVICE](#rocketmq-on-k8s_service)               |
+| RABBITMQ         | K8S_SERVICE | [RABBITMQ On K8S_SERVICE](#rabbitmq-on-k8s_service)               |
 | VIRTUAL_MQ       | RABBITMQ    | [VIRTUAL_MQ On RABBITMQ](#virtual_mq-on-rabbitmq)              |
 
 - The following sections will describe the **default matching rules** in detail and use the `upper-layer On lower-layer` format. 
@@ -152,7 +152,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 - Description: RABBITMQ.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
   - RABBITMQ.service.name: `rabbitmq::rabbitmq.skywalking-showcase`
-  - K8S_SERVICE.service.name: `skywalking-showcase::demo-rabbitmq.skywalking-showcase`
+  - K8S_SERVICE.service.name: `skywalking-showcase::rabbitmq.skywalking-showcase`
 
 #### VIRTUAL_MQ On RABBITMQ
 - Rule name: `lower-short-name-with-fqdn`
