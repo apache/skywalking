@@ -26,9 +26,10 @@ service MetricExportService {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}` and config the target gRPC server address.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}`, configure the target gRPC server addresses.
 ```yaml
 exporter:
+ selector:${SW_EXPORTER:default}
   default:
     # gRPC exporter
     enableGRPCMetrics: ${SW_EXPORTER_ENABLE_GRPC_METRICS:true}
@@ -72,7 +73,7 @@ message SegmentObject {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}`, configure the Kafka server address.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}`, configure the Kafka server addresses.
 ```yaml
 exporter:
   selector:${SW_EXPORTER:default}
@@ -112,7 +113,7 @@ message LogData {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}`, configure the Kafka server address.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}`, configure the Kafka server addresses.
 ```yaml
 exporter:
   selector:${SW_EXPORTER:default}
