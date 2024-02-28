@@ -72,9 +72,10 @@ message SegmentObject {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}` and config the Kafka server.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}`, configure the Kafka server address.
 ```yaml
 exporter:
+  selector:${SW_EXPORTER:default}
   default:
     # Kafka exporter
     enableKafkaTrace: ${SW_EXPORTER_ENABLE_KAFKA_TRACE:true}
@@ -111,9 +112,10 @@ message LogData {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}` and config the Kafka server.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_KAFKA_LOG:true}`, configure the Kafka server address.
 ```yaml
 exporter:
+  selector:${SW_EXPORTER:default}
   default:
     # Kafka exporter
     enableKafkaLog: ${SW_EXPORTER_ENABLE_KAFKA_LOG:true}
