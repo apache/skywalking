@@ -26,7 +26,7 @@ service MetricExportService {
 }
 ```
 
-To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}`, configure the target gRPC server addresses.
+To activate the exporter, you should set `${SW_EXPORTER:default}` and `${SW_EXPORTER_ENABLE_GRPC_METRICS:true}`, configure the target gRPC server address.
 ```yaml
 exporter:
  selector:${SW_EXPORTER:default}
