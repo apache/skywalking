@@ -50,7 +50,7 @@ this method will be called concurrently. For metrics value, you need to follow `
 
 ## Kafka Exporter
 ### Trace Kafka Exporter
-Trace kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-trace` to export the trace. Here is the message:
+Trace kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-export-trace` to export the trace. Here is the message:
 ```
 ProducerRecord<String, Bytes>
 Key: TraceSegmentId
@@ -80,12 +80,12 @@ exporter:
     kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
     # Kafka producer config, JSON format as Properties.
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
-    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-trace}
+    kafkaTopicTrace: ${SW_EXPORTER_KAFKA_TOPIC_TRACE:skywalking-export-trace}
     ...
 ```
 
 ### Log Kafka Exporter
-Log kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-log` to export the log. Here is the message:
+Log kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-export-log` to export the log. Here is the message:
 ```
 ProducerRecord<String, Bytes>
 Key: LogRecordId
@@ -116,6 +116,6 @@ exporter:
     kafkaBootstrapServers: ${SW_EXPORTER_KAFKA_SERVERS:localhost:9092}
     # Kafka producer config, JSON format as Properties.
     kafkaProducerConfig: ${SW_EXPORTER_KAFKA_PRODUCER_CONFIG:""}
-    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-log}
+    kafkaTopicLog: ${SW_EXPORTER_KAFKA_TOPIC_LOG:skywalking-export-log}
     ...
 ```
