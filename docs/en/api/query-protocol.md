@@ -9,28 +9,33 @@ All deprecated APIs are moved [here](./query-protocol-deprecated.md).
 ### Metadata  
 Metadata contains concise information on all services and their instances, endpoints, etc. under monitoring.
 You may query the metadata in different ways.
+#### V2 APIs
+Provide Metadata V2 query APIs since 9.0.0, including Layer concept.
 ```graphql
 extend type Query {
-    # Normal service related meta info 
-    getAllServices(duration: Duration!, group: String): [Service!]!
-    searchServices(duration: Duration!, keyword: String!): [Service!]!
-    searchService(serviceCode: String!): Service
+    # Read all available layers
+    # UI could use this list to determine available dashboards/panels
+    # The available layers would change with time in the runtime, because new service could be detected in any time.
+    # This list should be loaded periodically.
+    listLayers: [String!]!
 
-    # Fetch all services of Browser type
-    getAllBrowserServices(duration: Duration!): [Service!]!
-    searchBrowserServices(duration: Duration!, keyword: String!): [Service!]!
-    searchBrowserService(serviceCode: String!): Service
+    # Read the service list according to layer.
+    listServices(layer: String): [Service!]!
+    # Find service according to given ID. Return null if not existing.
+    getService(serviceId: String!): Service
+    # Search and find service according to given name. Return null if not existing.
+    findService(serviceName: String!): Service
 
-    # Service instance query
-    getServiceInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
+    # Read service instance list.
+    listInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
+    # Search and find service instance according to given ID. Return null if not existing.
+    getInstance(instanceId: String!): ServiceInstance
 
-    # Endpoint query
-    # Consider there are huge numbers of endpoint,
-    # must use endpoint owner's service id, keyword and limit filter to do query.
-    searchEndpoint(keyword: String!, serviceId: ID!, limit: Int!): [Endpoint!]!
+    # Search and find matched endpoints according to given service and keyword(optional)
+    # If no keyword, randomly choose endpoint based on `limit` value.
+    findEndpoint(keyword: String, serviceId: ID!, limit: Int!): [Endpoint!]!
     getEndpointInfo(endpointId: ID!): EndpointInfo
 
-    # Process query
     # Read process list.
     listProcesses(duration: Duration!, instanceId: ID!): [Process!]!
     # Find process according to given ID. Return null if not existing.
@@ -42,8 +47,6 @@ extend type Query {
     # The return number just gives an abstract of the scale of profiling that would be applied.
     estimateProcessScale(serviceId: ID!, labels: [String!]!): Long!
 
-    # Database related meta info.
-    getAllDatabases(duration: Duration!): [Database!]!
     getTimeInfo: TimeInfo
 }
 ```
@@ -54,7 +57,8 @@ The topology and dependency graphs among services, instances and endpoints. Incl
 ```graphql
 extend type Query {
     # Query the global topology
-    getGlobalTopology(duration: Duration!): Topology
+    # When layer is specified, the topology of this layer would be queried
+    getGlobalTopology(duration: Duration!, layer: String): Topology
     # Query the topology, based on the given service
     getServiceTopology(serviceId: ID!, duration: Duration!): Topology
     # Query the topology, based on the given services.
@@ -66,6 +70,8 @@ extend type Query {
     getEndpointTopology(endpointId: ID!, duration: Duration!): Topology
     # v2 of getEndpointTopology
     getEndpointDependencies(endpointId: ID!, duration: Duration!): EndpointTopology
+    # Query the topology, based on the given instance
+    getProcessTopology(serviceInstanceId: ID!, duration: Duration!): ProcessTopology
 }
 ```
 
@@ -123,9 +129,12 @@ extend type Query {
     # Return true if the current storage implementation supports fuzzy query for logs.
     supportQueryLogsByKeywords: Boolean!
     queryLogs(condition: LogQueryCondition): Logs
-
     # Test the logs and get the results of the LAL output.
     test(requests: LogTestRequest!): LogTestResponse!
+    # Read the list of searchable keys
+    queryLogTagAutocompleteKeys(duration: Duration!):[String!]
+    # Search the available value options of the given key.
+    queryLogTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
 }
 ```
 
@@ -137,8 +146,14 @@ full log text fuzzy queries, while others do not due to considerations related t
 ### Trace
 ```graphql
 extend type Query {
+    # Search segment list with given conditions
     queryBasicTraces(condition: TraceQueryCondition): TraceBrief
+    # Read the specific trace ID with given trace ID
     queryTrace(traceId: ID!): Trace
+    # Read the list of searchable keys
+    queryTraceTagAutocompleteKeys(duration: Duration!):[String!]
+    # Search the available value options of the given key.
+    queryTraceTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
 }
 ```
 
@@ -179,11 +194,9 @@ extend type Query {
     # query all task logs
     getProfileTaskLogs(taskID: String): [ProfileTaskLog!]!
     # query all task profiled segment list
-    getProfileTaskSegmentList(taskID: String): [BasicTrace!]!
-    # query profiled segment
-    getProfiledSegment(segmentId: String): ProfiledSegment
-    # analyze profiled segment, start and end time use timestamp(millisecond)
-    getProfileAnalyze(segmentId: String!, timeRanges: [ProfileAnalyzeTimeRange!]!): ProfileAnalyzation!
+    getProfileTaskSegments(taskID: ID!): [ProfiledTraceSegments!]!
+    # analyze multiple profiled segments, start and end time use timestamp(millisecond)
+    getSegmentsProfileAnalyze(queries: [SegmentProfileAnalyzeQuery!]!): ProfileAnalyzation!
 }
 ```
 
@@ -203,12 +216,35 @@ extend type Query {
     # query eBPF profiling data for prepare create task
     queryPrepareCreateEBPFProfilingTaskData(serviceId: ID!): EBPFProfilingTaskPrepare!
     # query eBPF profiling task list
-    queryEBPFProfilingTasks(serviceId: ID, serviceInstanceId: ID, targets: [EBPFProfilingTargetType!]): [EBPFProfilingTask!]!
+    # query `triggerType == FIXED_TIME` when triggerType is absent
+    queryEBPFProfilingTasks(serviceId: ID, serviceInstanceId: ID, targets: [EBPFProfilingTargetType!], triggerType: EBPFProfilingTriggerType, duration: Duration): [EBPFProfilingTask!]!
     # query schedules from profiling task
     queryEBPFProfilingSchedules(taskId: ID!): [EBPFProfilingSchedule!]!
     # analyze the profiling schedule
     # aggregateType is "EBPFProfilingAnalyzeAggregateType#COUNT" as default. 
     analysisEBPFProfilingResult(scheduleIdList: [ID!]!, timeRanges: [EBPFProfilingAnalyzeTimeRange!]!, aggregateType: EBPFProfilingAnalyzeAggregateType): EBPFProfilingAnalyzation!
+}
+```
+
+### On-Demand Pod Logs
+Provide APIs to query [on-demand pod logs](../setup/backend/on-demand-pod-log.md) since 9.1.0.
+```graphql
+extend type Query {
+    listContainers(condition: OndemandContainergQueryCondition): PodContainers
+    ondemandPodLogs(condition: OndemandLogQueryCondition): Logs
+}
+```
+
+### Hierarchy
+Provide [Hierarchy](../concepts-and-designs/service-hierarchy.md) query APIs since 10.0.0, including service and instance hierarchy.
+```graphql
+extend type Query {
+    # Query the service hierarchy, based on the given service. Will recursively return all related layers services in the hierarchy.
+    getServiceHierarchy(serviceId: ID!, layer: String!): ServiceHierarchy!
+    # Query the instance hierarchy, based on the given instance. Will return all direct related layers instances in the hierarchy, no recursive.
+    getInstanceHierarchy(instanceId: ID!, layer: String!): InstanceHierarchy!
+    # List layer hierarchy levels. The layer levels are defined in the `hierarchy-definition.yml`.
+    listLayerLevels: [LayerLevel!]!
 }
 ```
 
