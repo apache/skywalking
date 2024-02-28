@@ -107,5 +107,6 @@
 * Update nanoid version to 3.3.7.
 * Update postcss version to 8.4.33.
 * Fix kafka topic name in exporter doc.
+* Fix query-protocol.md, make it consistent with the GraphQL query protocol.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
