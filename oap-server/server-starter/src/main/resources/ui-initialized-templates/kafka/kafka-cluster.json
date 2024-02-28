@@ -222,19 +222,23 @@
 		"isRoot": false,
 		"isDefault": true,
 		"expressions": [
-			"sum(meter_kafka_partition_count)",
-			"sum(meter_kafka_leader_count)",
-			"sum(meter_kafka_max_lag)"
+			"avg(meter_kafka_partition_count)",
+			"avg(meter_kafka_offline_partitions_count)",
+			"avg(meter_kafka_leader_count)",
+			"avg(meter_kafka_max_lag)"
 		],
 		"expressionsConfig": [
 			{
-				"label": "Leader Count"
+				"label": "partition count"
 			},
 			{
-				"label": "Partition Count"
+				"label": "offline partition count"
 			},
 			{
-				"label": "Max Lag"
+				"label": "leader count"
+			},
+			{
+				"label": "max lag"
 			}
 		]
 	}
