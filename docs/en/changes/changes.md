@@ -106,5 +106,6 @@
 * Fix: end loading without query results.
 * Update nanoid version to 3.3.7.
 * Update postcss version to 8.4.33.
+* Fix kafka topic name in exporter doc.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
