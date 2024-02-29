@@ -26,11 +26,10 @@ If you want to customize it according to your own needs, please refer to [Servic
 | NGINX            | K8S_SERVICE | [NGINX On K8S_SERVICE](#nginx-on-k8s_service)                     |
 | APISIX           | K8S_SERVICE | [APISIX On K8S_SERVICE](#apisix-on-k8s_service)                   |
 | ROCKETMQ         | K8S_SERVICE | [ROCKETMQ On K8S_SERVICE](#rocketmq-on-k8s_service)               |
-| VIRTUAL_MQ       | ROCKETMQ    | [VIRTUAL_MQ On ROCKETMQ](#virtual_mq-on-rocketmq)                 |
 | RABBITMQ         | K8S_SERVICE | [RABBITMQ On K8S_SERVICE](#rabbitmq-on-k8s_service)               |
+| KAFKA            | K8S_SERVICE | [KAFKA On K8S_SERVICE](#kafka-on-k8s_service)                     |
 | VIRTUAL_MQ       | RABBITMQ    | [VIRTUAL_MQ On RABBITMQ](#virtual_mq-on-rabbitmq)                 |
 | VIRTUAL_MQ       | ROCKETMQ    | [VIRTUAL_MQ On K8S_SERVICE](#virtual_mq-on-rocketmq)              |
-| KAFKA            | K8S_SERVICE | [KAFKA On K8S_SERVICE](#kafka-on-k8s_service)                     |
 | VIRTUAL_MQ       | KAFKA       | [VIRTUAL_MQ On KAFKA](#virtual_mq-on-kafka)                 |
 
 - The following sections will describe the **default matching rules** in detail and use the `upper-layer On lower-layer` format. 
