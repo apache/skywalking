@@ -48,6 +48,9 @@ hierarchy:
   ROCKETMQ:
     K8S_SERVICE: short-name
 
+  RABBITMQ:
+    K8S_SERVICE: short-name
+
   KAFKA:
     K8S_SERVICE: short-name
 
@@ -57,6 +60,7 @@ hierarchy:
 
   VIRTUAL_MQ:
     ROCKETMQ: lower-short-name-with-fqdn
+    RABBITMQ: lower-short-name-with-fqdn
     KAFKA: lower-short-name-with-fqdn
 
 # Use Groovy script to define the matching rules, the input parameters are the upper service(u) and the lower service(l) and the return value is a boolean,
@@ -87,6 +91,7 @@ layer-levels:
   APISIX: 2
   NGINX: 2
   ROCKETMQ: 2
+  RABBITMQ: 2
   KAFKA: 2
 
   MESH_DP: 1

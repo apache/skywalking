@@ -40,11 +40,6 @@ apache-skywalking-apm-bin.tar.gz
 
 The distribution tar ball name, for example, `apache-skywalking-apm-bin.tar.gz`.
 
-### `CLI_VERSION`
-
-The [SkyWalking CLI](http://github.com/apache/skywalking-cli) version to be included in the OAP image, it must be an
-official Apache release version.
-
 ### `HUB`
 
 The hub of docker image. The default value is `skywalking`.

@@ -16,10 +16,6 @@
 
 ARG BASE_IMAGE='eclipse-temurin:11-jre'
 
-ARG SKYWALKING_CLI_VERSION
-
-FROM apache/skywalking-cli:$SKYWALKING_CLI_VERSION as cli
-
 FROM $BASE_IMAGE
 
 ENV SKYWALKING_HOME=/skywalking
@@ -42,8 +38,6 @@ RUN set -ex; \
     rm -rf "webapp"; \
     rm -rf "agent"; \
     mkdir "bin";
-
-COPY --from=cli /swctl ./bin
 
 COPY log4j2.xml config/
 COPY docker-entrypoint.sh .

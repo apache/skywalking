@@ -3,6 +3,37 @@ The following query services are deprecated since 9.5.0. All these queries are s
 
 Query protocol official repository, https://github.com/apache/skywalking-query-protocol.
 
+### Metadata
+Metadata contains concise information on all services and their instances, endpoints, etc. under monitoring.
+You may query the metadata in different ways.
+#### V1 APIs
+V1 APIs were introduced since 6.x. Now they are a shell to V2 APIs since 9.0.0.
+```graphql
+extend type Query {
+    # Normal service related meta info 
+    getAllServices(duration: Duration!, group: String): [Service!]!
+    searchServices(duration: Duration!, keyword: String!): [Service!]!
+    searchService(serviceCode: String!): Service
+    
+    # Fetch all services of Browser type
+    getAllBrowserServices(duration: Duration!): [Service!]!
+    searchBrowserServices(duration: Duration!, keyword: String!): [Service!]!
+    searchBrowserService(serviceCode: String!): Service
+
+    # Service instance query
+    getServiceInstances(duration: Duration!, serviceId: ID!): [ServiceInstance!]!
+
+    # Endpoint query
+    # Consider there are huge numbers of endpoint,
+    # must use endpoint owner's service id, keyword and limit filter to do query.
+    searchEndpoint(keyword: String!, serviceId: ID!, limit: Int!): [Endpoint!]!
+
+    # Database related meta info.
+    getAllDatabases(duration: Duration!): [Database!]!
+}
+```
+
+
 ### Metrics
 Metrics query targets all objects defined in [OAL script](../concepts-and-designs/oal.md) and [MAL](../concepts-and-designs/mal.md). 
 You may obtain the metrics data in linear or thermodynamic matrix formats based on the aggregation functions in script.

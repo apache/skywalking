@@ -6,6 +6,8 @@
 * Upgrade `OTEL collector` version to `0.92.0` in all e2e tests.
 * Switch CI macOS runner to m1.
 * Upgrade PostgreSQL driver to `42.4.4` to fix CVE-2024-1597.
+* Remove CLI(`swctl`) from the image.
+* Remove CLI_VERSION variable from Makefile build.
 
 #### OAP Server
 
@@ -57,6 +59,10 @@
 * Fix day-based table rolling time range strategy in JDBC storage.
 * Add `maxInboundMessageSize (SW_DCS_MAX_INBOUND_MESSAGE_SIZE)` configuration to change the max inbound message size of DCS.
 * Fix Service Layer when building Events in the EventHookCallback.
+* Add Golang as a supported language for Pulsar.
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - RABBITMQ -> K8S_SERVICE
+  - VIRTUAL_MQ -> RABBITMQ
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - KAFKA -> K8S_SERVICE
   - VIRTUAL_MQ -> KAFKA
@@ -98,5 +104,12 @@
 * Document a new way to load balance OAP.
 * Add `SWIP-3 Support RocketMQ monitoring`.
 * Add `OpenTelemetry SkyWalking Exporter` deprecated warning doc.
+* Update i18n for rocketmq monitoring.
+* Fix: remove click event after unmounted.
+* Fix: end loading without query results.
+* Update nanoid version to 3.3.7.
+* Update postcss version to 8.4.33.
+* Fix kafka topic name in exporter doc.
+* Fix query-protocol.md, make it consistent with the GraphQL query protocol.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
