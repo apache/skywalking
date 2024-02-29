@@ -169,7 +169,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 - Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
 - Description: KAFKA.service.shortName == K8S_SERVICE.service.shortName
 - Matched Example:
-  - ROCKETMQ.service.name: `kafka::kafka.skywalking-showcase`
+  - KAFKA.service.name: `kafka::kafka.skywalking-showcase`
   - K8S_SERVICE.service.name: `skywalking-showcase::kafka.skywalking-showcase`
 
 #### VIRTUAL_MQ On KAFKA
@@ -178,7 +178,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 - Description: VIRTUAL_MQ.service.shortName remove port == KAFKA.service.shortName with fqdn suffix
 - Matched Example:
   - VIRTUAL_MQ.service.name: `kafka.skywalking-showcase.svc.cluster.local:9092`
-  - ROCKETMQ.service.name: `kafka::rocketmq.skywalking-showcase`
+  - KAFKA.service.name: `kafka::rocketmq.skywalking-showcase`
 
 ### Build Through Specific Agents
 Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) detect the service hierarchy relations.
