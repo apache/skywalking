@@ -192,7 +192,7 @@
                   "TIME_SERIES_VALUES"
                 ],
                 "graph": {
-                  "type": "Line",
+                  "type": "Area",
                   "step": false,
                   "smooth": false,
                   "showSymbol": true,

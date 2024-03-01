@@ -851,7 +851,7 @@
         "widget": {
           "name": "InstanceVersion",
           "title": "Instance Version",
-          "tips": "The version of the ClickHouse instance."
+          "tips": "The version of the ClickHouse instance(format in base-1000, 11022033 means version 11.22.33)."
         }
       }
     ],

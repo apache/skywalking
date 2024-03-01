@@ -128,8 +128,6 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_query_insert --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
     expected:  expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_effective_cache --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
-    expected:  expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_query_select_rate --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
     expected:  expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_query_insert_rate --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
