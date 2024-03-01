@@ -89,9 +89,6 @@ metricsRules:
   - name: query_slow
     exp: ClickHouseProfileEvents_SlowRead.sum(['host_name']).rate('PT1M')
   # Insertion
-  # Same as Query, but only for INSERT queries.
-#  - name: insert_query
-#    exp: ClickHouseProfileEvents_InsertQuery.sum(['host_name']).rate('PT1M')
   # Number of rows INSERTed to all tables.
   - name: inserted_rows
     exp: ClickHouseProfileEvents_InsertedRows.sum(['host_name']).rate('PT1M')
