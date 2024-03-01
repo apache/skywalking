@@ -51,9 +51,13 @@ hierarchy:
   RABBITMQ:
     K8S_SERVICE: short-name
 
+  CLICKHOUSE:
+    K8S_SERVICE: short-name
+
   VIRTUAL_DATABASE:
     MYSQL: lower-short-name-with-fqdn
     POSTGRESQL: lower-short-name-with-fqdn
+    CLICKHOUSE: lower-short-name-with-fqdn
 
   VIRTUAL_MQ:
     ROCKETMQ: lower-short-name-with-fqdn
@@ -87,6 +91,7 @@ layer-levels:
   APISIX: 2
   NGINX: 2
   ROCKETMQ: 2
+  CLICKHOUSE: 2
   RABBITMQ: 2
 
   MESH_DP: 1

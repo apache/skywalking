@@ -63,6 +63,9 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - RABBITMQ -> K8S_SERVICE
   - VIRTUAL_MQ -> RABBITMQ
+  - VIRTUAL_DATABASE -> K8S_SERVICE
+  - CLICKHOUSE -> K8S_SERVICE
+* Support ClickHouse server monitoring.
 
 #### UI
 

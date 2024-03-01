@@ -73,6 +73,7 @@ public class UITemplateInitializer {
         Layer.BOOKKEEPER.name(),
         Layer.NGINX.name(),
         Layer.ROCKETMQ.name(),
+        Layer.CLICKHOUSE.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

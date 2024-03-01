@@ -1,0 +1,864 @@
+[{
+  "id": "clickhouse-instance",
+  "configuration": {
+    "children": [
+      {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 9,
+        "i": "0",
+        "type": "Widget",
+        "graph": {
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "widget": {
+          "title": "Instance Uptime(day)",
+          "name": "InstanceUptime",
+          "tips": "The server uptime in days"
+        },
+        "metricMode": "Expression",
+        "expressions": [
+          "latest(meter_clickhouse_instance_uptime)/3600/24"
+        ],
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "metricConfig": [
+          {
+            "unit": "day",
+            "label": "Uptime(day)"
+          }
+        ],
+        "id": "0",
+        "moved": false
+      },
+      {
+        "x": 6,
+        "y": 0,
+        "w": 6,
+        "h": 9,
+        "i": "1",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "latest(meter_clickhouse_instance_file_open)"
+        ],
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "graph": {
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "widget": {
+          "title": "Files Opened",
+          "name": "FilesOpened",
+          "tips": "Number of files opened"
+        },
+        "metricConfig": [
+          {
+            "label": "Files Opened"
+          }
+        ],
+        "id": "1",
+        "moved": false
+      },
+      {
+        "x": 12,
+        "y": 0,
+        "w": 6,
+        "h": 9,
+        "i": "2",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_cpu_usage/1000000"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "CPU usage(cores)",
+          "name": "CPU",
+          "tips": "CPU time spent seen by OS"
+        },
+        "metricConfig": [
+          {
+            "label": "CPU usage"
+          }
+        ],
+        "id": "2",
+        "moved": false
+      },
+      {
+        "x": 18,
+        "y": 0,
+        "w": 6,
+        "h": 9,
+        "i": "3",
+        "type": "Widget",
+        "graph": {
+          "type": "Area",
+          "opacity": 0.4,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Memory(%)",
+          "name": "Memory",
+          "tips": "The percentage of memory (bytes) allocated/available by the server"
+        },
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_memory_usage",
+          "meter_clickhouse_instance_memory_available"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "metricConfig": [
+          {
+            "unit": "%",
+            "label": "Memory Usage(%)"
+          },
+          {
+            "unit": "%",
+            "label": "Memory Available(%)"
+          }
+        ],
+        "id": "3",
+        "moved": false,
+        "metrics": [],
+        "metricTypes": []
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "w": 6,
+        "h": 9,
+        "i": "4",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_connections_alive"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Alive Connections",
+          "name": "AliveConnections",
+          "tips": "Number of alive connections"
+        },
+        "metricConfig": [
+          {
+            "label": "Alive Connections"
+          }
+        ],
+        "id": "4",
+        "moved": false
+      },
+      {
+        "x": 6,
+        "y": 9,
+        "w": 6,
+        "h": 9,
+        "i": "5",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_tcp_connections",
+          "meter_clickhouse_instance_http_connections"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "HTTP/TCP Connections",
+          "name": "HTTPTCPConnections",
+          "tips": "Number of connections to HTTP/TCP server"
+        },
+        "metricConfig": [
+          {
+            "label": "TCP Connections"
+          },
+          {
+            "label": "HTTP Connections"
+          }
+        ],
+        "id": "5",
+        "moved": false
+      },
+      {
+        "x": 18,
+        "y": 9,
+        "w": 6,
+        "h": 9,
+        "i": "6",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_network_receive_bytes",
+          "meter_clickhouse_instance_network_send_bytes"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Network I/O(B)",
+          "name": "Network",
+          "tips": "Total number of bytes received from network or send to network"
+        },
+        "metricConfig": [
+          {
+            "unit": "Bytes",
+            "label": "Receive Bytes"
+          },
+          {
+            "unit": "Bytes",
+            "label": "Send Bytes"
+          }
+        ],
+        "id": "6",
+        "moved": false
+      },
+      {
+        "x": 0,
+        "y": 18,
+        "w": 6,
+        "h": 9,
+        "i": "7",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_query",
+          "meter_clickhouse_instance_query_select",
+          "meter_clickhouse_instance_query_insert"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Area",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Query",
+          "name": "Query",
+          "tips": "Number of executing queries"
+        },
+        "metricConfig": [
+          {
+            "label": "Query"
+          },
+          {
+            "label": "Select Query"
+          },
+          {
+            "label": "Insert Query"
+          }
+        ],
+        "id": "7",
+        "moved": false
+      },
+      {
+        "x": 6,
+        "y": 18,
+        "w": 6,
+        "h": 9,
+        "i": "8",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_query_select_rate",
+          "meter_clickhouse_instance_query_insert_rate"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "QPS",
+          "name": "QPS",
+          "tips": "Queries per seconds"
+        },
+        "metricConfig": [
+          {
+            "label": "QPS(select)"
+          },
+          {
+            "label": "QPS(insert)"
+          }
+        ],
+        "id": "8",
+        "moved": false
+      },
+      {
+        "x": 12,
+        "y": 18,
+        "w": 6,
+        "h": 9,
+        "i": "9",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_querytime_microseconds/meter_clickhouse_instance_query/1000",
+          "meter_clickhouse_instance_querytime_select_microseconds/meter_clickhouse_instance_query_select/1000",
+          "meter_clickhouse_instance_querytime_insert_microseconds/meter_clickhouse_instance_query_insert/1000"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Area",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "QueryTime(ms)",
+          "name": "QueryTime",
+          "tips": "The avg query time of each query in milliseconds"
+        },
+        "metricConfig": [
+          {
+            "unit": "ms",
+            "label": "QueryTime(all)"
+          },
+          {
+            "unit": "ms",
+            "label": "QueryTime(select)"
+          },
+          {
+            "unit": "ms",
+            "label": "QueryTime(insert)"
+          }
+        ],
+        "id": "9",
+        "moved": false
+      },
+      {
+        "x": 18,
+        "y": 18,
+        "w": 6,
+        "h": 9,
+        "i": "10",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_query_slow"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "File SlowRead",
+          "name": "FileSlowRead",
+          "tips": "Number of reads from a file that were slow"
+        },
+        "metricConfig": [
+          {
+            "label": "File SlowRead"
+          }
+        ],
+        "id": "10",
+        "moved": false
+      },
+      {
+        "x": 0,
+        "y": 27,
+        "w": 12,
+        "h": 9,
+        "i": "11",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_background_merge"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Merge",
+          "name": "Merge",
+          "tips": "Number of executing background merges"
+        },
+        "metricConfig": [
+          {
+            "label": "Merge"
+          }
+        ],
+        "id": "11",
+        "moved": false
+      },
+      {
+        "x": 12,
+        "y": 27,
+        "w": 12,
+        "h": 9,
+        "i": "12",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_mutations"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Mutations",
+          "name": "Mutations",
+          "tips": "Number of mutations (ALTER DELETE/UPDATE)"
+        },
+        "metricConfig": [
+          {
+            "label": "Mutations"
+          }
+        ],
+        "id": "12",
+        "moved": false
+      },
+      {
+        "x": 0,
+        "y": 36,
+        "w": 8,
+        "h": 9,
+        "i": "14",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_inserted_bytes"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Inserted bytes(b/s)",
+          "name": "InsertedBytes",
+          "tips": "Number of bytes inserted to all tables per second"
+        },
+        "metricConfig": [
+          {
+            "label": "Inserted bytes"
+          }
+        ],
+        "id": "14",
+        "moved": false
+      },
+      {
+        "x": 8,
+        "y": 36,
+        "w": 8,
+        "h": 9,
+        "i": "15",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_inserted_rows"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "widget": {
+          "title": "Inserted rows",
+          "name": "InsertedRows",
+          "tips": "Number of rows inserted to all tables per second"
+        },
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "metricConfig": [
+          {
+            "label": "Inserted rows(s)"
+          }
+        ],
+        "id": "15",
+        "moved": false
+      },
+      {
+        "x": 16,
+        "y": 36,
+        "w": 8,
+        "h": 9,
+        "i": "16",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_delayed_inserts"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "widget": {
+          "title": "Delayed Inserts(s)",
+          "name": "DelayedInserts",
+          "tips": "Number of times the insert of a block to a MergeTree table was throttled due to high number of active data parts for partition"
+        },
+        "metricConfig": [
+          {
+            "label": "Delayed Inserts(s)"
+          }
+        ],
+        "id": "16",
+        "moved": false
+      },
+      {
+        "x": 0,
+        "y": 45,
+        "w": 8,
+        "h": 9,
+        "i": "17",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_replicated_checks"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Data Parts Consistency",
+          "name": "DataPartsConsistency",
+          "tips": "Number of data parts checking for consistency"
+        },
+        "metricConfig": [
+          {
+            "label": "Data Parts Consistency"
+          }
+        ],
+        "id": "17",
+        "moved": false
+      },
+      {
+        "x": 8,
+        "y": 45,
+        "w": 8,
+        "h": 9,
+        "i": "18",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_replicated_fetch",
+          "meter_clickhouse_instance_replicated_send"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "ReplicatedFetch & Send",
+          "name": "ReplicatedFetchSend",
+          "tips": "Number of data parts being fetched from replica, and number of data parts being sent to replicas"
+        },
+        "metricConfig": [
+          {
+            "label": "Replicated Fetch"
+          },
+          {
+            "label": "Replicated Send"
+          }
+        ],
+        "id": "18",
+        "moved": false
+      },
+      {
+        "x": 16,
+        "y": 45,
+        "w": 8,
+        "h": 9,
+        "i": "19",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_parts_active"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "widget": {
+          "title": "Data Parts Active",
+          "name": "DataPartsActive",
+          "tips": "Active data part, used by current and upcoming SELECTs"
+        },
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "metricConfig": [
+          {
+            "label": "Data Parts Active"
+          }
+        ],
+        "id": "19",
+        "moved": false
+      },
+      {
+        "x": 0,
+        "y": 54,
+        "w": 6,
+        "h": 9,
+        "i": "24",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "latest(meter_clickhouse_instance_zookeeper_session)"
+        ],
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "graph": {
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "widget": {
+          "title": "Zookeeper Sessions",
+          "name": "ZookeeperSessions",
+          "tips": "Number of sessions (connections) to ZooKeeper"
+        },
+        "metricConfig": [
+          {
+            "label": "Zookeeper Sessions"
+          }
+        ],
+        "id": "24",
+        "moved": false
+      },
+      {
+        "x": 6,
+        "y": 54,
+        "w": 6,
+        "h": 9,
+        "i": "25",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "latest(meter_clickhouse_instance_zookeeper_watch)"
+        ],
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "graph": {
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "widget": {
+          "title": "Zookeeper Watches",
+          "name": "ZookeeperWatches",
+          "tips": "Number of watches (event subscriptions) in ZooKeeper"
+        },
+        "metricConfig": [
+          {
+            "label": "Zookeeper Watches"
+          }
+        ],
+        "id": "25",
+        "moved": false
+      },
+      {
+        "x": 12,
+        "y": 54,
+        "w": 12,
+        "h": 9,
+        "i": "26",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_zookeeper_bytes_sent",
+          "meter_clickhouse_instance_zookeeper_bytes_received"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "Zookeeper Bytes Received & Send(b/s)",
+          "name": "ZookeeperBytesReceivedSend",
+          "tips": "Number of bytes received and send over network while communicating with ZooKeeper"
+        },
+        "metricConfig": [
+          {
+            "unit": "Bytes",
+            "label": "Sent Bytes"
+          },
+          {
+            "unit": "Bytes",
+            "label": "Receive Bytes"
+          }
+        ],
+        "id": "26",
+        "moved": false
+      },
+      {
+        "x": 0,
+        "y": 9,
+        "w": 6,
+        "h": 9,
+        "i": "27",
+        "type": "Widget",
+        "id": "27",
+        "metricTypes": [],
+        "metrics": [],
+        "metricMode": "Expression",
+        "moved": false,
+        "expressions": [
+          "latest(meter_clickhouse_instance_version)"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "widget": {
+          "name": "InstanceVersion",
+          "title": "Instance Version",
+          "tips": "The version of the ClickHouse instance."
+        }
+      }
+    ],
+    "layer": "CLICKHOUSE",
+    "entity": "ServiceInstance",
+    "name": "ClickHouse-Instance",
+    "id": "clickhouse-instance",
+    "isRoot": false
+  }
+}]
