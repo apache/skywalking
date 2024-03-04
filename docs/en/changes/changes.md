@@ -65,6 +65,9 @@
   - VIRTUAL_MQ -> RABBITMQ
 * Remove Column#function mechanism in the kernel.
 * Make query `readMetricValue` always return the average value of the duration.
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - KAFKA -> K8S_SERVICE
+  - VIRTUAL_MQ -> KAFKA
 
 #### UI
 
