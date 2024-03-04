@@ -22,85 +22,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
-import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.Aggregation;
-import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHits;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 
 public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
 
     public MetricsQueryEsDAO(ElasticSearchClient client) {
         super(client);
-    }
-
-    @Override
-    public NullableValue readMetricsValue(final MetricsCondition condition,
-                                          final String valueColumnName,
-                                          final Duration duration) {
-        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
-        final SearchBuilder sourceBuilder = buildQuery(condition, duration);
-        int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-        Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
-        if (function == Function.Latest) {
-            return readMetricsValues(condition, realValueColumn, duration)
-                .getValues().latestValue(defaultValue);
-        }
-
-        final TermsAggregationBuilder entityIdAggregation =
-            Aggregation.terms(Metrics.ENTITY_ID)
-                       .field(Metrics.ENTITY_ID)
-                       .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
-                       .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
-                       .size(1);
-        functionAggregation(function, entityIdAggregation, realValueColumn);
-
-        sourceBuilder.aggregation(entityIdAggregation);
-
-        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
-            duration.getStartTimeBucketInSec(),
-            duration.getEndTimeBucketInSec()), sourceBuilder.build());
-
-        if (Objects.nonNull(response.getAggregations())) {
-            final Map<String, Object> idTerms =
-                (Map<String, Object>) response.getAggregations().get(Metrics.ENTITY_ID);
-            final List<Map<String, Object>> buckets =
-                (List<Map<String, Object>>) idTerms.get("buckets");
-
-            for (Map<String, Object> idBucket : buckets) {
-                final Map<String, Object> agg = (Map<String, Object>) idBucket.get(realValueColumn);
-                return new NullableValue(((Number) agg.get("value")).longValue(), false);
-            }
-        }
-        return new NullableValue(defaultValue, true);
     }
 
     @Override
@@ -241,22 +192,6 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         heatMap.fixMissingColumns(ids, defaultValue);
 
         return heatMap;
-    }
-
-    protected void functionAggregation(Function function,
-                                       TermsAggregationBuilder parentAggBuilder,
-                                       String valueCName) {
-        switch (function) {
-            case Avg:
-                parentAggBuilder.subAggregation(Aggregation.avg(valueCName).field(valueCName));
-                break;
-            case Sum:
-                parentAggBuilder.subAggregation(Aggregation.sum(valueCName).field(valueCName));
-                break;
-            default:
-                parentAggBuilder.subAggregation(Aggregation.avg(valueCName).field(valueCName));
-                break;
-        }
     }
 
     protected final SearchBuilder buildQuery(MetricsCondition condition, Duration duration) {

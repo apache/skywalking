@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,7 +95,7 @@ public class MetricsQueryUtilTest {
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            MODULE_NAME, "value", LABELED_VALUE, Function.None, DEFAULT_VALUE, SERVICE
+            MODULE_NAME, "value", LABELED_VALUE, DEFAULT_VALUE, SERVICE
         );
     }
 

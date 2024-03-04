@@ -63,6 +63,8 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - RABBITMQ -> K8S_SERVICE
   - VIRTUAL_MQ -> RABBITMQ
+* Remove Column#function mechanism in the kernel.
+* Make query `readMetricValue` always return the average value of the duration.
 
 #### UI
 

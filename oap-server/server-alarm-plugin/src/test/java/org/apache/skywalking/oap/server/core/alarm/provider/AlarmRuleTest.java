@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -34,19 +33,19 @@ public class AlarmRuleTest {
     @BeforeEach
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0,
+            "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0,
             Scope.Service.getScopeId()
         );
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0,
+            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0,
             Scope.Endpoint.getScopeId()
         );
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "meter_status_code", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0,
+            "meter_status_code", "testColumn", Column.ValueDataType.LABELED_VALUE, 0,
             Scope.Service.getScopeId()
         );
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "record", "testColumn", Column.ValueDataType.SAMPLED_RECORD, Function.Avg, 0,
+            "record", "testColumn", Column.ValueDataType.SAMPLED_RECORD, 0,
             Scope.Endpoint.getScopeId()
         );
         Field serviceField = DefaultScopeDefine.class.getDeclaredField("SERVICE_CATALOG");
