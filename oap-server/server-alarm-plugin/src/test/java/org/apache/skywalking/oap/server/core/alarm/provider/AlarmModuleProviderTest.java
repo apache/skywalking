@@ -24,7 +24,6 @@ import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -54,9 +53,9 @@ public class AlarmModuleProviderTest {
 
         moduleProvider.prepare();
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Service.getScopeId());
+            "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Service.getScopeId());
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
     }
 
     @Test
