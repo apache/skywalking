@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -61,11 +60,11 @@ public class RunningRuleTest {
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+            "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_multiple_values", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+            "endpoint_multiple_values", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_cpm", "testColumn", Column.ValueDataType.COMMON_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+            "endpoint_cpm", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
     }
 
     @Test
@@ -193,7 +192,7 @@ public class RunningRuleTest {
     @Test
     public void testLabeledAlarm() throws IllegalExpressionException {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
-            "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, Function.Avg, 0, Scope.Endpoint.getScopeId());
+            "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
         AlarmRule alarmRule = new AlarmRule();
         alarmRule.setExpression("sum(endpoint_labeled{_='95,99'} > 10) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_labeled");

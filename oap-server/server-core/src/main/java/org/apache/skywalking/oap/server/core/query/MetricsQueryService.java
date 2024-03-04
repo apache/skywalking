@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.OptionalDouble;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
+import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -49,11 +51,20 @@ public class MetricsQueryService implements Service {
     }
 
     /**
-     * Read metrics single value in the duration of required metrics
+     * Read metrics average value in the duration of required metrics
      */
     public NullableValue readMetricsValue(MetricsCondition condition, Duration duration) throws IOException {
-        return getMetricQueryDAO().readMetricsValue(
-            condition, ValueColumnMetadata.INSTANCE.getValueCName(condition.getName()), duration);
+        MetricsValues metricsValues = readMetricsValues(condition, duration);
+        long defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        if (!metricsValues.getValues().getValues().isEmpty()) {
+           OptionalDouble avgValue = metricsValues.getValues().getValues().stream().filter(v -> !v.isEmptyValue()).mapToLong(
+               KVInt::getValue).average();
+           if (avgValue.isPresent()) {
+               return new NullableValue((long) avgValue.getAsDouble(), false);
+           }
+        }
+
+        return new NullableValue(defaultValue, true);
     }
 
     /**
