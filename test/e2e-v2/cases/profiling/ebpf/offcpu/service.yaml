@@ -13,46 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  banyandb:
-    extends:
-      file: ../docker-compose.yml
-      service: banyandb
-    networks:
-      - e2e
-
-  oap:
-    extends:
-      file: ../docker-compose.yml
-      service: oap
-    networks:
-      - e2e
-    environment:
-      SW_STORAGE: banyandb
-    depends_on:
-      banyandb:
-        condition: service_healthy
-    ports:
-    - 12800
-
-  sqrt:
-    extends:
-      file: ../docker-compose.yml
-      service: sqrt
-    networks:
-      - e2e
-
-  rover:
-    extends:
-      file: ../docker-compose.yml
-      service: rover
-    networks:
-      - e2e
-    depends_on:
-      oap:
-        condition: service_healthy
-
-networks:
-  e2e:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: file
+  template:
+    metadata:
+      labels:
+        app: file
+    spec:
+      containers:
+        - name: file
+          image: ${IMAGE_NAME}

@@ -13,46 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
-services:
-  banyandb:
-    extends:
-      file: ../docker-compose.yml
-      service: banyandb
-    networks:
-      - e2e
-
-  oap:
-    extends:
-      file: ../docker-compose.yml
-      service: oap
-    networks:
-      - e2e
-    environment:
-      SW_STORAGE: banyandb
-    depends_on:
-      banyandb:
-        condition: service_healthy
-    ports:
-    - 12800
-
-  sqrt:
-    extends:
-      file: ../docker-compose.yml
-      service: sqrt
-    networks:
-      - e2e
-
-  rover:
-    extends:
-      file: ../docker-compose.yml
-      service: rover
-    networks:
-      - e2e
-    depends_on:
-      oap:
-        condition: service_healthy
-
-networks:
-  e2e:
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.25.11@sha256:227fa11ce74ea76a0474eeefb84cb75d8dad1b08638371ecf0e86259b35be0c8
+    extraMounts:
+      - hostPath: /
+        containerPath: /host

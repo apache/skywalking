@@ -16,10 +16,18 @@
 # This file is used to show how to write configuration files and can be used to test.
 
 setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
+  env: kind
+  file: ../../kind.yaml
   init-system-environment: ../../../../../script/env
+  kind:
+    import-images:
+      - skywalking/ui:latest
+      - skywalking/oap:latest
+      - test/continuous:test
+    expose-ports:
+      - namespace: istio-system
+        resource: service/skywalking-ui
+        port: 80
   steps:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
@@ -27,6 +35,44 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install kubectl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
+    - name: Install helm
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
+    - name: Install kubectl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
+    - name: Install SkyWalking
+      command: |
+        kubectl create namespace istio-system
+        helm -n istio-system install skywalking \
+          oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
+          --set fullnameOverride=skywalking \
+          --set elasticsearch.enabled=false \
+          --set banyandb.enabled=true \
+          --set oap.replicas=1 \
+          --set ui.image.repository=skywalking/ui \
+          --set ui.image.tag=latest \
+          --set oap.image.tag=latest \
+          --set oap.image.repository=skywalking/oap \
+          --set oap.storageType=banyandb \
+          -f test/e2e-v2/cases/profiling/ebpf/kubernetes-values.yaml
+      wait:
+        - namespace: istio-system
+          resource: deployments/skywalking-oap
+          for: condition=available
+    - name: Deploy services
+      command: |
+        export IMAGE_NAME=test/continuous:test
+        export HAS_SERVICE_EXP=".Pod.HasContainer \\\"test-continuous\\\""
+        export SERVICE_NAME_EXP="sqrt"
+        envsubst < test/e2e-v2/cases/profiling/ebpf/continuous/service.yaml | kubectl apply -f -
+        envsubst < test/e2e-v2/cases/profiling/ebpf/rover.yaml | kubectl apply -f -
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+  timeout: 25m
 
 verify:
   retry:
