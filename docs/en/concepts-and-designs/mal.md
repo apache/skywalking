@@ -176,7 +176,7 @@ instance_trace_count{az="az-3"} 20
 ```
 
 ___
-**Note, aggregation operations affect the samples for one bulk only. If the metrics are reported parallel from multiple instances/nodes
+**Note, aggregation operations affect the samples from one bulk only. If the metrics are reported parallel from multiple instances/nodes
 through different SampleFamily, this aggregation would NOT work.**
 
 In the best practice for this scenario, build the metric with labels that represent each instance/node. Then use the 
