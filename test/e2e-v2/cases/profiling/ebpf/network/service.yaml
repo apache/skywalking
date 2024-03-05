@@ -32,7 +32,7 @@ spec:
           image: ${IMAGE_NAME}
           env:
             - name: OAP_BACKEND_ADDR
-              value: "skywalking-aop.istio-system:11800"
+              value: "skywalking-oap.istio-system:11800"
 
 ---
 

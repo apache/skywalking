@@ -68,7 +68,7 @@ setup:
     - name: Deploy services
       command: |
         export IMAGE_NAME=test/network:test
-        export HAS_SERVICE_EXP='or (.Pod.HasContainer "service") (.Pod.HasContainer "nginx")'
+        export HAS_SERVICE_EXP='or (.Pod.HasContainer \\\"service") (.Pod.HasContainer \\\"nginx")'
         export SERVICE_NAME_EXP='{{.Container.Name}}'
         envsubst < test/e2e-v2/cases/profiling/ebpf/network/service.yaml | kubectl apply -f -
         envsubst < test/e2e-v2/cases/profiling/ebpf/rover.yaml | kubectl apply -f -
