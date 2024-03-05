@@ -175,6 +175,14 @@ instance_trace_count{az="az-1"} 133 // 100 + 33
 instance_trace_count{az="az-3"} 20
 ```
 
+___
+**Note, aggregation operations affect the samples for one bulk only. If the metrics are reported parallel from multiple instances/nodes
+through different SampleFamily, this aggregation would NOT work.**
+
+In the best practice for this scenario, build the metric with labels that represent each instance/node. Then use the 
+[AggregateLabels Operation in MQE](../api/metrics-query-expression.md#aggregatelabels-operation) to aggregate the metrics.
+___
+
 ### Function
 
 `Duration` is a textual representation of a time range. The formats accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
