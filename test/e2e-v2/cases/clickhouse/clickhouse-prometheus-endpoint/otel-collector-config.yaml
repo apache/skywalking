@@ -23,6 +23,7 @@ receivers:
             - targets: ['clickhouse1:9363','clickhouse2:9363']
               labels:
                 host_name: clickhouse:8123
+
 processors:
   batch:
 

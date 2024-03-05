@@ -47,9 +47,9 @@ metricsRules:
   # The server uptime in seconds. It includes the time spent for server initialization before accepting connections.
   - name: instance_uptime
     exp: ClickHouseAsyncMetrics_Uptime
-  # Number of files opened.
+  # Number of files opened per minute.
   - name: instance_file_open
-    exp: ClickHouseProfileEvents_FileOpen
+    exp: ClickHouseProfileEvents_FileOpen.increase('PT1M')
   # Network
   # Number of alive connections.
   - name: instance_connections_alive

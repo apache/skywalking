@@ -63,7 +63,8 @@
         },
         "metricConfig": [
           {
-            "label": "Files Opened"
+            "label": "Files Opened",
+            "unit": "/min"
           }
         ],
         "id": "1",

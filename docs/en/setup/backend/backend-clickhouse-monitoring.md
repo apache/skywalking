@@ -8,8 +8,8 @@ the metrics to
 
 ### Data flow
 
-1. Configure ClickHouse to expose metrics for Prometheus Receiver.
-2. OpenTelemetry Collector fetches metrics from Prometheus Receiver and pushes metrics to SkyWalking OAP Server via
+1. Configure ClickHouse to expose metrics data for scraping from Prometheus.
+2. OpenTelemetry Collector fetches metrics from ClickeHouse server through Prometheus endpoint, and pushes metrics to SkyWalking OAP Server via
    OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to
    filter/calculate/aggregate and store the results.
@@ -17,7 +17,7 @@ the metrics to
 ### Set up
 
 1. Set
-   up [built-in prometheus endpoint](https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#server_configuration_parameters-prometheus)
+   up [built-in prometheus endpoint](https://clickhouse.com/docs/en/operations/server-configuration-parameters/settings#prometheus)
    .
 2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on
    Prometheus Receiver in OpenTelemetry Collector, refer

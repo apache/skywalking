@@ -14,26 +14,23 @@
             "name": "Inspections",
             "children": [
               {
-                "x": 12,
+                "x": 6,
                 "y": 0,
-                "w": 12,
+                "w": 6,
                 "h": 9,
                 "i": "0",
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_connections_alive"
+                  "latest(aggregate_labels(meter_clickhouse_connections_alive,sum))"
                 ],
                 "typesOfMQE": [
-                  "TIME_SERIES_VALUES"
+                  "SINGLE_VALUE"
                 ],
                 "graph": {
-                  "type": "Line",
-                  "step": false,
-                  "smooth": false,
-                  "showSymbol": true,
-                  "showXAxis": true,
-                  "showYAxis": true
+                  "type": "Card",
+                  "fontSize": 24,
+                  "textAlign": "center"
                 },
                 "widget": {
                   "title": "Alive Connections",
@@ -49,7 +46,7 @@
                 "moved": false
               },
               {
-                "x": 0,
+                "x": 12,
                 "y": 0,
                 "w": 12,
                 "h": 9,
@@ -57,8 +54,8 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_tcp_connections",
-                  "meter_clickhouse_http_connections"
+                  "aggregate_labels(meter_clickhouse_tcp_connections,sum)",
+                  "aggregate_labels(meter_clickhouse_http_connections,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES",
@@ -97,9 +94,9 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_query",
-                  "meter_clickhouse_query_select",
-                  "meter_clickhouse_query_insert"
+                  "aggregate_labels(meter_clickhouse_query,sum)",
+                  "aggregate_labels(meter_clickhouse_query_select,sum)",
+                  "aggregate_labels(meter_clickhouse_query_insert,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES",
@@ -142,8 +139,8 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_query_select_rate",
-                  "meter_clickhouse_query_insert_rate"
+                  "aggregate_labels(meter_clickhouse_query_select_rate,sum)",
+                  "aggregate_labels(meter_clickhouse_query_insert_rate,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES",
@@ -182,9 +179,9 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_querytime_microseconds/meter_clickhouse_query/1000",
-                  "meter_clickhouse_querytime_select_microseconds/meter_clickhouse_query_select/1000",
-                  "meter_clickhouse_querytime_insert_microseconds/meter_clickhouse_query_insert/1000"
+                  "aggregate_labels(meter_clickhouse_querytime_microseconds,sum)/aggregate_labels(meter_clickhouse_query,sum)/1000",
+                  "aggregate_labels(meter_clickhouse_querytime_select_microseconds,sum)/aggregate_labels(meter_clickhouse_query_select,sum)/1000",
+                  "aggregate_labels(meter_clickhouse_querytime_insert_microseconds,sum)/aggregate_labels(meter_clickhouse_query_insert,sum)/1000"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES",
@@ -230,7 +227,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_query_slow"
+                  "aggregate_labels(meter_clickhouse_query_slow,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -265,7 +262,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_background_merge"
+                  "aggregate_labels(meter_clickhouse_background_merge,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -300,7 +297,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_mutations"
+                  "aggregate_labels(meter_clickhouse_mutations,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -335,7 +332,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_query_insert"
+                  "aggregate_labels(meter_clickhouse_query_insert,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -370,7 +367,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_inserted_bytes"
+                  "aggregate_labels(meter_clickhouse_inserted_bytes,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -405,7 +402,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_inserted_rows"
+                  "aggregate_labels(meter_clickhouse_inserted_rows,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -440,7 +437,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_delayed_inserts"
+                  "aggregate_labels(meter_clickhouse_delayed_inserts,sum)"
                 ],
                 "graph": {
                   "type": "Line",
@@ -475,7 +472,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_replicated_checks"
+                  "aggregate_labels(meter_clickhouse_replicated_checks,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -510,8 +507,8 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_replicated_fetch",
-                  "meter_clickhouse_replicated_send"
+                  "aggregate_labels(meter_clickhouse_replicated_fetch,sum)",
+                  "aggregate_labels(meter_clickhouse_replicated_send,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES",
@@ -550,7 +547,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_parts_active"
+                  "aggregate_labels(meter_clickhouse_parts_active,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES"
@@ -585,7 +582,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "latest(meter_clickhouse_zookeeper_session)"
+                  "latest(aggregate_labels(meter_clickhouse_zookeeper_session,sum))"
                 ],
                 "typesOfMQE": [
                   "SINGLE_VALUE"
@@ -620,7 +617,7 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "latest(meter_clickhouse_zookeeper_watch)"
+                  "latest(aggregate_labels(meter_clickhouse_zookeeper_watch,sum))"
                 ],
                 "typesOfMQE": [
                   "SINGLE_VALUE"
@@ -650,8 +647,8 @@
                 "type": "Widget",
                 "metricMode": "Expression",
                 "expressions": [
-                  "meter_clickhouse_zookeeper_bytes_sent",
-                  "meter_clickhouse_zookeeper_bytes_received"
+                  "aggregate_labels(meter_clickhouse_zookeeper_bytes_sent,sum)",
+                  "aggregate_labels(meter_clickhouse_zookeeper_bytes_received,sum)"
                 ],
                 "typesOfMQE": [
                   "TIME_SERIES_VALUES",
@@ -684,6 +681,40 @@
                 "moved": false,
                 "metrics": [],
                 "metricTypes": []
+              },
+              {
+                "x": 0,
+                "y": 0,
+                "w": 6,
+                "h": 9,
+                "i": "18",
+                "type": "Widget",
+                "metricMode": "Expression",
+                "expressions": [
+                  "latest(aggregate_labels(meter_clickhouse_file_open,sum))"
+                ],
+                "typesOfMQE": [
+                  "SINGLE_VALUE"
+                ],
+                "graph": {
+                  "type": "Card",
+                  "fontSize": 24,
+                  "textAlign": "center",
+                  "showUnit": true
+                },
+                "metricConfig": [
+                  {
+                    "label": "File Open",
+                    "unit": "/min"
+                  }
+                ],
+                "widget": {
+                  "title": "File Open",
+                  "name": "FileOpen",
+                  "tips": "File Open per minute"
+                },
+                "id": "0-0-18",
+                "moved": false
               }
             ]
           },
@@ -727,8 +758,8 @@
     "isRoot": false,
     "isDefault": true,
     "expressions": [
-      "avg(meter_clickhouse_query_select_rate)",
-      "avg(meter_clickhouse_query_insert_rate)"
+      "aggregate_labels(meter_clickhouse_query_select_rate,sum)",
+      "aggregate_labels(meter_clickhouse_query_insert_rate,sum)"
     ],
     "expressionsConfig": [
       {
