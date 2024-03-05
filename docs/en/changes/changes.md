@@ -63,6 +63,11 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - RABBITMQ -> K8S_SERVICE
   - VIRTUAL_MQ -> RABBITMQ
+* Remove Column#function mechanism in the kernel.
+* Make query `readMetricValue` always return the average value of the duration.
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - KAFKA -> K8S_SERVICE
+  - VIRTUAL_MQ -> KAFKA
 * Support ClickHouse server monitoring.
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - CLICKHOUSE -> K8S_SERVICE

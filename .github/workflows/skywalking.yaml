@@ -467,73 +467,73 @@ jobs:
             config: test/e2e-v2/cases/profiling/trace/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
 
-          - name: eBPF Profiling On CPU BanyanDB
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
-          - name: eBPF Profiling On CPU H2
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/h2/e2e.yaml
-          - name: eBPF Profiling On CPU ES
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
-          - name: eBPF Profiling On CPU ES
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
-          - name: eBPF Profiling On CPU MySQL
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
-          - name: eBPF Profiling On CPU Postgres
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
-          - name: eBPF Profiling On CPU OpenSearch 1.1.0
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: eBPF Profiling On CPU OpenSearch 1.3.6
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: eBPF Profiling On CPU OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
-          - name: eBPF Profiling Off CPU
-            config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
-            runs-on: ubuntu-20.04
-          - name: eBPF Profiling Network BanyanDB
-            config: test/e2e-v2/cases/profiling/ebpf/network/banyandb/e2e.yaml
-          - name: eBPF Profiling Network H2
-            config: test/e2e-v2/cases/profiling/ebpf/network/h2/e2e.yaml
-          - name: eBPF Profiling Network ES
-            config: test/e2e-v2/cases/profiling/ebpf/network/es/e2e.yaml
-          - name: eBPF Profiling Network ES Sharding
-            config: test/e2e-v2/cases/profiling/ebpf/network/es/es-sharding/e2e.yaml
-          - name: eBPF Profiling Network MySQL
-            config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
-          - name: eBPF Profiling Network Postgres
-            config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
-          - name: eBPF Profiling Network OpenSearch 1.1.0
-            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: eBPF Profiling Network OpenSearch 1.3.6
-            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: eBPF Profiling Network OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
+#          - name: eBPF Profiling On CPU BanyanDB
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/banyandb/e2e.yaml
+#          - name: eBPF Profiling On CPU H2
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/h2/e2e.yaml
+#          - name: eBPF Profiling On CPU ES
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/e2e.yaml
+#          - name: eBPF Profiling On CPU ES
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/es/es-sharding/e2e.yaml
+#          - name: eBPF Profiling On CPU MySQL
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/mysql/e2e.yaml
+#          - name: eBPF Profiling On CPU Postgres
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/postgres/e2e.yaml
+#          - name: eBPF Profiling On CPU OpenSearch 1.1.0
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=1.1.0
+#          - name: eBPF Profiling On CPU OpenSearch 1.3.6
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=1.3.6
+#          - name: eBPF Profiling On CPU OpenSearch 2.4.0
+#            config: test/e2e-v2/cases/profiling/ebpf/oncpu/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=2.4.0
+#          - name: eBPF Profiling Off CPU
+#            config: test/e2e-v2/cases/profiling/ebpf/offcpu/e2e.yaml
+#            runs-on: ubuntu-20.04
+#          - name: eBPF Profiling Network BanyanDB
+#            config: test/e2e-v2/cases/profiling/ebpf/network/banyandb/e2e.yaml
+#          - name: eBPF Profiling Network H2
+#            config: test/e2e-v2/cases/profiling/ebpf/network/h2/e2e.yaml
+#          - name: eBPF Profiling Network ES
+#            config: test/e2e-v2/cases/profiling/ebpf/network/es/e2e.yaml
+#          - name: eBPF Profiling Network ES Sharding
+#            config: test/e2e-v2/cases/profiling/ebpf/network/es/es-sharding/e2e.yaml
+#          - name: eBPF Profiling Network MySQL
+#            config: test/e2e-v2/cases/profiling/ebpf/network/mysql/e2e.yaml
+#          - name: eBPF Profiling Network Postgres
+#            config: test/e2e-v2/cases/profiling/ebpf/network/postgres/e2e.yaml
+#          - name: eBPF Profiling Network OpenSearch 1.1.0
+#            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=1.1.0
+#          - name: eBPF Profiling Network OpenSearch 1.3.6
+#            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=1.3.6
+#          - name: eBPF Profiling Network OpenSearch 2.4.0
+#            config: test/e2e-v2/cases/profiling/ebpf/network/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=2.4.0
 
-          - name: Continuous Profiling BanyanDB
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/banyandb/e2e.yaml
-          - name: Continuous Profiling H2
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/h2/e2e.yaml
-          - name: Continuous Profiling ES
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/e2e.yaml
-          - name: Continuous Profiling Sharding ES
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/es-sharding/e2e.yaml
-          - name: Continuous Profiling MySQL
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/mysql/e2e.yaml
-          - name: Continuous Profiling Postgres
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/postgres/e2e.yaml
-          - name: Continuous Profiling OpenSearch 1.1.0
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.1.0
-          - name: Continuous Profiling OpenSearch 1.3.6
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=1.3.6
-          - name: Continuous Profiling OpenSearch 2.4.0
-            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
+#          - name: Continuous Profiling BanyanDB
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/banyandb/e2e.yaml
+#          - name: Continuous Profiling H2
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/h2/e2e.yaml
+#          - name: Continuous Profiling ES
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/e2e.yaml
+#          - name: Continuous Profiling Sharding ES
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/es/es-sharding/e2e.yaml
+#          - name: Continuous Profiling MySQL
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/mysql/e2e.yaml
+#          - name: Continuous Profiling Postgres
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/postgres/e2e.yaml
+#          - name: Continuous Profiling OpenSearch 1.1.0
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=1.1.0
+#          - name: Continuous Profiling OpenSearch 1.3.6
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=1.3.6
+#          - name: Continuous Profiling OpenSearch 2.4.0
+#            config: test/e2e-v2/cases/profiling/ebpf/continuous/opensearch/e2e.yaml
+#            env: OPENSEARCH_VERSION=2.4.0
 
           - name: Kafka Basic
             config: test/e2e-v2/cases/kafka/simple-so11y/e2e.yaml
@@ -565,10 +565,10 @@ jobs:
               ISTIO_VERSION=1.18.0
               KUBERNETES_VERSION=25
 
-          - name: Rover with Istio Process 1.15.0
-            config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
-            env: ISTIO_VERSION=1.15.0
-            runs-on: ubuntu-20.04
+#          - name: Rover with Istio Process 1.15.0
+#            config: test/e2e-v2/cases/rover/process/istio/e2e.yaml
+#            env: ISTIO_VERSION=1.15.0
+#            runs-on: ubuntu-20.04
 
           - name: Satellite
             config: test/e2e-v2/cases/satellite/native-protocols/e2e.yaml

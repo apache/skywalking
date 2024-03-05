@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.storage.annotation;
 
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -41,11 +40,6 @@ public @interface Column {
      * Also check {@code legacyName()}.
      */
     String name();
-
-    /**
-     * The function is used in aggregation query.
-     */
-    Function function() default Function.None;
 
     /**
      * The default value of this column, when its {@link #dataType()} != {@link ValueDataType#NOT_VALUE}.
