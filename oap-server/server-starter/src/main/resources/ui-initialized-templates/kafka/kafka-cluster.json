@@ -219,6 +219,27 @@
 		"entity": "Service",
 		"name": "Kafka-Cluster",
 		"id": "Kafka-Cluster",
-		"isRoot": false
+		"isRoot": false,
+		"isDefault": true,
+		"expressions": [
+			"avg(meter_kafka_partition_count)",
+			"avg(meter_kafka_offline_partitions_count)",
+			"avg(meter_kafka_leader_count)",
+			"avg(meter_kafka_max_lag)"
+		],
+		"expressionsConfig": [
+			{
+				"label": "partition count"
+			},
+			{
+				"label": "offline partition count"
+			},
+			{
+				"label": "leader count"
+			},
+			{
+				"label": "max lag"
+			}
+		]
 	}
 }]

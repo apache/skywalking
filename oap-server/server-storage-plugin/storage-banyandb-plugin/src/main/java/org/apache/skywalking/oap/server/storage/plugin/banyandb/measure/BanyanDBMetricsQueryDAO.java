@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,12 +38,10 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -56,54 +53,6 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMetricsQueryDAO {
     public BanyanDBMetricsQueryDAO(BanyanDBStorageClient client) {
         super(client);
-    }
-
-    @Override
-    public NullableValue readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
-        String modelName = condition.getName();
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(modelName, duration.getStep());
-        if (schema == null) {
-            throw new IOException("schema is not registered");
-        }
-
-        int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-        Function function = ValueColumnMetadata.INSTANCE.getValueFunction(condition.getName());
-        if (function == Function.Latest) {
-            return readMetricsValues(condition, valueColumnName, duration)
-                    .getValues().latestValue(defaultValue);
-        }
-
-        TimestampRange timestampRange = new TimestampRange(duration.getStartTimestamp(), duration.getEndTimestamp());
-        final MeasureQueryResponse resp = query(schema,
-                ImmutableSet.of(Metrics.ENTITY_ID),
-                ImmutableSet.of(valueColumnName),
-                timestampRange,
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        buildAggregationQuery(query, valueColumnName, function);
-                        if (condition.getEntity().buildId() != null) {
-                            query.and(eq(Metrics.ENTITY_ID, condition.getEntity().buildId()));
-                        }
-                    }
-                });
-
-        for (DataPoint dataPoint : resp.getDataPoints()) {
-            return new NullableValue(((Number) dataPoint.getFieldValue(valueColumnName)).longValue(), false);
-        }
-        return new NullableValue(defaultValue, true);
-    }
-
-    private void buildAggregationQuery(MeasureQuery query, String valueColumnName, Function function) {
-        switch (function) {
-            case Sum:
-                query.sumBy(valueColumnName, Collections.singleton(Metrics.ENTITY_ID));
-                break;
-            case Avg:
-            default:
-                query.meanBy(valueColumnName, Collections.singleton(Metrics.ENTITY_ID));
-                break;
-        }
     }
 
     @Override

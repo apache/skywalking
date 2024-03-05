@@ -39,7 +39,6 @@ import org.apache.skywalking.oap.server.core.query.PointOfTime;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
-import org.apache.skywalking.oap.server.core.query.sql.Function;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -124,7 +123,7 @@ public class PromQLExprQueryVisitorTest {
     @BeforeEach
     public void setup() {
         ValueColumnMetadata.INSTANCE.putIfAbsent("service_cpm", "value", Column.ValueDataType.COMMON_VALUE,
-                                                 Function.Avg, 0,
+                                                 0,
                                                  DefaultScopeDefine.SERVICE
         );
         metricsQuery = mock(MetricsQuery.class);

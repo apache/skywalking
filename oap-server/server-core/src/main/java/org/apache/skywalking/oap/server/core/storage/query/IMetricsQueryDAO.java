@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
-import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 
@@ -45,7 +44,6 @@ import static java.util.stream.Collectors.toList;
  * @since 8.0.0
  */
 public interface IMetricsQueryDAO extends DAO {
-    NullableValue readMetricsValue(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
 
     MetricsValues readMetricsValues(MetricsCondition condition,
                                     String valueColumnName,
