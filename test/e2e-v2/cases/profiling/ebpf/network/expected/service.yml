@@ -26,6 +26,9 @@
   group: ""
   shortname: service
   layers:
+    {{- contains .layers }}
     - K8S_SERVICE
+    - GENERAL
+    {{- end }}
   normal: true
 {{- end }}
