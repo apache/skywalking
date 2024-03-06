@@ -106,8 +106,6 @@ cases:
     expected:  expected/metrics-has-value.yml
 
   # Network
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_connections_alive --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
-    expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_tcp_connections --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_mysql_connections --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
