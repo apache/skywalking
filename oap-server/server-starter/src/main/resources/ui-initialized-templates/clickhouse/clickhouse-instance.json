@@ -59,7 +59,7 @@
         "widget": {
           "title": "Files Opened",
           "name": "FilesOpened",
-          "tips": "Number of files opened"
+          "tips": "Number of files opened in a minute"
         },
         "metricConfig": [
           {
@@ -148,39 +148,34 @@
         "metricTypes": []
       },
       {
-        "x": 12,
+        "x": 0,
         "y": 9,
         "w": 6,
         "h": 9,
         "i": "4",
         "type": "Widget",
+        "id": "4",
+        "metricTypes": [],
+        "metrics": [],
         "metricMode": "Expression",
+        "moved": false,
         "expressions": [
-          "meter_clickhouse_instance_connections_alive"
+          "latest(meter_clickhouse_instance_version)"
         ],
         "typesOfMQE": [
           "TIME_SERIES_VALUES"
         ],
         "graph": {
-          "type": "Line",
-          "step": false,
-          "smooth": false,
-          "showSymbol": true,
-          "showXAxis": true,
-          "showYAxis": true
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
         },
         "widget": {
-          "title": "Alive Connections",
-          "name": "AliveConnections",
-          "tips": "Number of alive connections"
-        },
-        "metricConfig": [
-          {
-            "label": "Alive Connections"
-          }
-        ],
-        "id": "4",
-        "moved": false
+          "name": "InstanceVersion",
+          "title": "Instance Version",
+          "tips": "The version of the ClickHouse instance(format in base-1000, 11022033 means version 11.22.33)."
+        }
       },
       {
         "x": 6,
@@ -188,46 +183,6 @@
         "w": 6,
         "h": 9,
         "i": "5",
-        "type": "Widget",
-        "metricMode": "Expression",
-        "expressions": [
-          "meter_clickhouse_instance_tcp_connections",
-          "meter_clickhouse_instance_http_connections"
-        ],
-        "typesOfMQE": [
-          "TIME_SERIES_VALUES",
-          "TIME_SERIES_VALUES"
-        ],
-        "graph": {
-          "type": "Line",
-          "step": false,
-          "smooth": false,
-          "showSymbol": true,
-          "showXAxis": true,
-          "showYAxis": true
-        },
-        "widget": {
-          "title": "HTTP/TCP Connections",
-          "name": "HTTPTCPConnections",
-          "tips": "Number of connections to HTTP/TCP server"
-        },
-        "metricConfig": [
-          {
-            "label": "TCP Connections"
-          },
-          {
-            "label": "HTTP Connections"
-          }
-        ],
-        "id": "5",
-        "moved": false
-      },
-      {
-        "x": 18,
-        "y": 9,
-        "w": 6,
-        "h": 9,
-        "i": "6",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -261,9 +216,50 @@
             "label": "Send Bytes"
           }
         ],
+        "id": "5",
+        "moved": false
+      },
+      {
+        "x": 12,
+        "y": 9,
+        "w": 12,
+        "h": 9,
+        "i": "6",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "meter_clickhouse_instance_tcp_connections",
+          "meter_clickhouse_instance_http_connections"
+        ],
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "widget": {
+          "title": "HTTP/TCP Connections",
+          "name": "HTTPTCPConnections",
+          "tips": "Number of connections to HTTP/TCP server"
+        },
+        "metricConfig": [
+          {
+            "label": "TCP Connections"
+          },
+          {
+            "label": "HTTP Connections"
+          }
+        ],
         "id": "6",
         "moved": false
       },
+
       {
         "x": 0,
         "y": 18,
@@ -507,7 +503,7 @@
         "y": 36,
         "w": 8,
         "h": 9,
-        "i": "14",
+        "i": "13",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -534,7 +530,7 @@
             "label": "Inserted bytes"
           }
         ],
-        "id": "14",
+        "id": "13",
         "moved": false
       },
       {
@@ -542,7 +538,7 @@
         "y": 36,
         "w": 8,
         "h": 9,
-        "i": "15",
+        "i": "14",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -569,7 +565,7 @@
             "label": "Inserted rows(s)"
           }
         ],
-        "id": "15",
+        "id": "14",
         "moved": false
       },
       {
@@ -577,7 +573,7 @@
         "y": 36,
         "w": 8,
         "h": 9,
-        "i": "16",
+        "i": "15",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -604,7 +600,7 @@
             "label": "Delayed Inserts(s)"
           }
         ],
-        "id": "16",
+        "id": "15",
         "moved": false
       },
       {
@@ -612,7 +608,7 @@
         "y": 45,
         "w": 8,
         "h": 9,
-        "i": "17",
+        "i": "16",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -639,7 +635,7 @@
             "label": "Data Parts Consistency"
           }
         ],
-        "id": "17",
+        "id": "16",
         "moved": false
       },
       {
@@ -647,7 +643,7 @@
         "y": 45,
         "w": 8,
         "h": 9,
-        "i": "18",
+        "i": "17",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -679,7 +675,7 @@
             "label": "Replicated Send"
           }
         ],
-        "id": "18",
+        "id": "17",
         "moved": false
       },
       {
@@ -687,7 +683,7 @@
         "y": 45,
         "w": 8,
         "h": 9,
-        "i": "19",
+        "i": "18",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -714,15 +710,15 @@
             "label": "Data Parts Active"
           }
         ],
-        "id": "19",
+        "id": "18",
         "moved": false
       },
       {
         "x": 0,
         "y": 54,
-        "w": 6,
+        "w": 3,
         "h": 9,
-        "i": "24",
+        "i": "19",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -747,15 +743,15 @@
             "label": "Zookeeper Sessions"
           }
         ],
-        "id": "24",
+        "id": "19",
         "moved": false
       },
       {
-        "x": 6,
+        "x": 3,
         "y": 54,
-        "w": 6,
+        "w": 3,
         "h": 9,
-        "i": "25",
+        "i": "20",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -780,15 +776,15 @@
             "label": "Zookeeper Watches"
           }
         ],
-        "id": "25",
+        "id": "20",
         "moved": false
       },
       {
-        "x": 12,
+        "x": 6,
         "y": 54,
-        "w": 12,
+        "w": 6,
         "h": 9,
-        "i": "26",
+        "i": "21",
         "type": "Widget",
         "metricMode": "Expression",
         "expressions": [
@@ -822,26 +818,22 @@
             "label": "Receive Bytes"
           }
         ],
-        "id": "26",
+        "id": "21",
         "moved": false
       },
       {
-        "x": 0,
-        "y": 9,
+        "x": 12,
+        "y": 54,
         "w": 6,
         "h": 9,
-        "i": "27",
+        "i": "22",
         "type": "Widget",
-        "id": "27",
-        "metricTypes": [],
-        "metrics": [],
         "metricMode": "Expression",
-        "moved": false,
         "expressions": [
-          "latest(meter_clickhouse_instance_version)"
+          "latest(meter_clickhouse_instance_keeper_connections_alive)"
         ],
         "typesOfMQE": [
-          "TIME_SERIES_VALUES"
+          "SINGLE_VALUE"
         ],
         "graph": {
           "type": "Card",
@@ -850,10 +842,50 @@
           "showUnit": true
         },
         "widget": {
-          "name": "InstanceVersion",
-          "title": "Instance Version",
-          "tips": "The version of the ClickHouse instance(format in base-1000, 11022033 means version 11.22.33)."
-        }
+          "title": "Keeper Alive Connections",
+          "name": "KeeperAliveConnections",
+          "tips": "Number of alive connections for embedded ClickHouse Keeper"
+        },
+        "metricConfig": [
+          {
+            "label": "Keeper Alive Connections"
+          }
+        ],
+        "id": "22",
+        "moved": false
+      },
+      {
+        "x": 18,
+        "y": 54,
+        "w": 6,
+        "h": 9,
+        "i": "23",
+        "type": "Widget",
+        "metricMode": "Expression",
+        "expressions": [
+          "latest(meter_clickhouse_instance_keeper_outstanding_requests)"
+        ],
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "graph": {
+          "type": "Card",
+          "fontSize": 24,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "widget": {
+          "title": "Keeper Outstanding Requests",
+          "name": "KeeperOutstandingRequests",
+          "tips": "Number of outstanding requests for embedded ClickHouse Keeper"
+        },
+        "metricConfig": [
+          {
+            "label": "Keeper Outstanding Requests"
+          }
+        ],
+        "id": "23",
+        "moved": false
       }
     ],
     "layer": "CLICKHOUSE",

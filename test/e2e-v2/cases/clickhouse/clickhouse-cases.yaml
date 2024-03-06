@@ -20,8 +20,6 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected:  expected/service.yml
   # service metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_connections_alive --service-name=clickhouse::clickhouse:8123
-    expected: expected/metrics-has-value-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_tcp_connections --service-name=clickhouse::clickhouse:8123
     expected: expected/metrics-has-value-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_mysql_connections --service-name=clickhouse::clickhouse:8123
@@ -87,6 +85,10 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_zookeeper_bytes_sent --service-name=clickhouse::clickhouse:8123
     expected: expected/metrics-has-value-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_zookeeper_bytes_received --service-name=clickhouse::clickhouse:8123
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_keeper_connections_alive --service-name=clickhouse::clickhouse:8123
+    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_keeper_outstanding_requests --service-name=clickhouse::clickhouse:8123
     expected: expected/metrics-has-value-label.yml
 
   # instance metrics
@@ -190,5 +192,11 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_zookeeper_bytes_sent --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_zookeeper_bytes_received  --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_zookeeper_bytes_received --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
+    expected: expected/metrics-has-value.yml
+
+  # ClickHouse Keeper
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_keeper_connections_alive --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_clickhouse_instance_keeper_outstanding_requests --service-name=clickhouse::clickhouse:8123 --instance-name=clickhouse1:9363
     expected: expected/metrics-has-value.yml

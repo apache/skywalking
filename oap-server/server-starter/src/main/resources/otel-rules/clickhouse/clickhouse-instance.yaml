@@ -29,7 +29,7 @@
 #    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
 # </pre>
 filter: "{ tags -> tags.job_name == 'clickhouse-monitoring' }" # The OpenTelemetry job name
-expSuffix:  tag({tags -> tags.host_name = 'clickhouse::' + tags.host_name}).service(['host_name'] , Layer.CLICKHOUSE).instance(['host_name'], ['service_instance_id'], Layer.CLICKHOUSE)
+expSuffix:  tag({tags -> tags.host_name = 'clickhouse::' + tags.host_name}).instance(['host_name'], ['service_instance_id'], Layer.CLICKHOUSE)
 metricPrefix: meter_clickhouse
 metricsRules:
   # Version of the server in a single integer number in base-1000.
@@ -51,9 +51,6 @@ metricsRules:
   - name: instance_file_open
     exp: ClickHouseProfileEvents_FileOpen.increase('PT1M')
   # Network
-  # Number of alive connections.
-  - name: instance_connections_alive
-    exp: ClickHouseMetrics_KeeperAliveConnections
   # Number of connections to TCP server.
   - name: instance_tcp_connections
     exp: ClickHouseMetrics_TCPConnection
@@ -171,3 +168,11 @@ metricsRules:
   #  Number of bytes received over network while communicating with ZooKeeper.
   - name: instance_zookeeper_bytes_received
     exp: ClickHouseProfileEvents_ZooKeeperBytesReceived.rate('PT1M')
+  # ClickHouse Keeper
+  # Number of alive connections for embedded ClickHouse Keeper.
+  - name: instance_keeper_connections_alive
+    exp: ClickHouseMetrics_KeeperAliveConnections
+  # Number of outstanding requests for embedded ClickHouse Keeper.
+  - name: instance_keeper_outstanding_requests
+    exp: ClickHouseMetrics_KeeperOutstandingRequets
+

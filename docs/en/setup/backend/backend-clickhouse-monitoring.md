@@ -43,16 +43,15 @@ an `Instance` in OAP.
 
 #### ClickHouse Network Supported Metrics
 
-| Monitoring Panel       | Unit  | Metric Name                                                                                      | Description                                               | Data Source |
-| ---------------------- | ----- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ----------- |
-| AliveConnections       | count | meter_clickhouse_instance_connections_alive<br/>meter_clickhouse_connections_alive               | Number of alive connections.                              | ClickHouse  |
-| TcpConnections         | count | meter_clickhouse_instance_tcp_connections<br/>meter_clickhouse_tcp_connections                   | Number of connections to TCP server.                      | ClickHouse  |
-| MysqlConnections       | count | meter_clickhouse_instance_mysql_connections<br/>meter_clickhouse_mysql_connections               | Number of client connections using MySQL protocol.        | ClickHouse  |
-| HttpConnections        | count | meter_clickhouse_instance_http_connections<br/>meter_clickhouse_mysql_connections                | Number of connections to HTTP server.                     | ClickHouse  |
-| InterserverConnections | count | meter_clickhouse_instance_interserver_connections<br/>meter_clickhouse_interserver_connections   | Number of connections from other replicas to fetch parts. | ClickHouse  |
-| PostgresqlConnections  | count | meter_clickhouse_instance_postgresql_connections<br/>meter_clickhouse_postgresql_connections     | Number of client connections using PostgreSQL protocol.   | ClickHouse  |
-| ReceiveBytes           | bytes | meter_clickhouse_instance_network_receive_bytes<br/>meter_clickhouse_network_receive_bytes       | Total number of bytes received from network.              | ClickHouse  |
-| SendBytes              | bytes | meter_clickhouse_instance_network_send_bytes<br/>meter_clickhouse_network_send_bytes             | Total number of bytes send to network.                    | ClickHouse  |
+| Monitoring Panel       | Unit  | Metric Name                                                                                      | Description                                                | Data Source |
+| ---------------------- | ----- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- | ----------- |
+| TcpConnections         | count | meter_clickhouse_instance_tcp_connections<br/>meter_clickhouse_tcp_connections                   | Number of connections to TCP server.                       | ClickHouse  |
+| MysqlConnections       | count | meter_clickhouse_instance_mysql_connections<br/>meter_clickhouse_mysql_connections               | Number of client connections using MySQL protocol.         | ClickHouse  |
+| HttpConnections        | count | meter_clickhouse_instance_http_connections<br/>meter_clickhouse_mysql_connections                | Number of connections to HTTP server.                      | ClickHouse  |
+| InterserverConnections | count | meter_clickhouse_instance_interserver_connections<br/>meter_clickhouse_interserver_connections   | Number of connections from other replicas to fetch parts.  | ClickHouse  |
+| PostgresqlConnections  | count | meter_clickhouse_instance_postgresql_connections<br/>meter_clickhouse_postgresql_connections     | Number of client connections using PostgreSQL protocol.    | ClickHouse  |
+| ReceiveBytes           | bytes | meter_clickhouse_instance_network_receive_bytes<br/>meter_clickhouse_network_receive_bytes       | Total number of bytes received from network.               | ClickHouse  |
+| SendBytes              | bytes | meter_clickhouse_instance_network_send_bytes<br/>meter_clickhouse_network_send_bytes             | Total number of bytes send to network.                     | ClickHouse  |
 
 #### ClickHouse Query Supported Metrics
 
@@ -126,6 +125,13 @@ used, this section of parameters can be omitted.
 | ZookeeperWatch        | count | meter_clickhouse_instance_zookeeper_watch<br/>meter_clickhouse_zookeeper_watch                    | Number of watches (event subscriptions) in ZooKeeper.                 | ClickHouse  |
 | ZookeeperBytesSent    | bytes | meter_clickhouse_instance_zookeeper_bytes_sent<br/>meter_clickhouse_zookeeper_bytes_sent          | Number of bytes send over network while communicating with ZooKeeper. | ClickHouse  |
 | ZookeeperBytesReceive | bytes | meter_clickhouse_instance_zookeeper_bytes_received<br/>meter_clickhouse_zookeeper_bytes_received  | Number of bytes send over network while communicating with ZooKeeper. | ClickHouse  |
+
+### ClickHouse Keeper Supported Metrics
+
+| Monitoring Panel         | Unit  | Metric Name                                                                                           | Description                                                              | Data Source |
+| ------------------------ | ----- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------- |
+| KeeperAliveConnections   | count | meter_clickhouse_instance_keeper_connections_alive<br/>meter_clickhouse_keeper_connections_alive      | Number of alive connections for embedded ClickHouse Keeper.              | ClickHouse  |
+| KeeperOutstandingRequets | count | meter_clickhouse_instance_keeper_outstanding_requests<br/>meter_clickhouse_keeper_outstanding_requests| Number of outstanding requests for embedded ClickHouse Keeper.           | ClickHouse  |
 
 ### Customizations
 
