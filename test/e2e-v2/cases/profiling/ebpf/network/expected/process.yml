@@ -18,10 +18,10 @@
   name: service
   serviceid: {{ b64enc "service" }}.1
   servicename: service
-  instanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
-  instancename: test
+  instanceid: {{ b64enc "service" }}.1_{{ b64enc "test-instance" }}
+  instancename: test-instance
   agentid: {{ notEmpty .agentid }}
-  detecttype: VM
+  detecttype: KUBERNETES
   attributes:
     {{- contains .attributes }}
     - name: host_ip
@@ -31,5 +31,6 @@
     - name: command_line
       value: /service/service
     {{- end }}
-  labels: []
+  labels:
+    - k8s-service
 {{- end }}

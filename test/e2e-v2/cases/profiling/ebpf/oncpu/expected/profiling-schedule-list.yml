@@ -24,7 +24,7 @@
     instanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
     instancename: test-instance
     agentid: {{ notEmpty .process.agentid }}
-    detecttype: VM
+    detecttype: KUBERNETES
     attributes:
       {{- contains .process.attributes }}
       - name: host_ip
@@ -35,10 +35,7 @@
         value: /sqrt
       {{- end }}
     labels:
-      {{- contains .process.labels }}
-      - e2e-label1
-      - e2e-label2
-      {{- end }}
+      - k8s-service
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
 {{- end }}

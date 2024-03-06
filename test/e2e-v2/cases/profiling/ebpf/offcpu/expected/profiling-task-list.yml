@@ -22,10 +22,7 @@
   processid: null
   processname: null
   processlabels:
-    {{- contains .processlabels }}
-    - e2e-label1
-    - e2e-label2
-    {{- end }}
+    - k8s-service
   taskstarttime: {{ gt .taskstarttime 0 }}
   triggertype: FIXED_TIME
   fixedtriggerduration: 60

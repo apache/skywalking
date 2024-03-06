@@ -13,32 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is used to show how to write configuration files and can be used to test.
-
-setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 20m
-  init-system-environment: ../../../../../script/env
-  steps:
-    - name: set PATH
-      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
-    - name: install yq
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-
-trigger:
-  action: http
-  interval: 3s
-  times: 10
-  url: http://${service_host}:${service_80}/consumer
-  method: GET
-
-verify:
-  retry:
-    count: 20
-    interval: 10s
-  cases:
-    - includes:
-        - ../network-cases.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: continuous-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: continuous
+  template:
+    metadata:
+      labels:
+        app: continuous
+    spec:
+      containers:
+        - name: test-continuous
+          image: ${IMAGE_NAME}

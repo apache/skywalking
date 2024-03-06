@@ -16,8 +16,8 @@
 {{- contains . }}
 - id: {{ notEmpty .id }}
   name: python
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
+  serviceid: {{ b64enc "productpage.default" }}.1
+  servicename: productpage.default
   instanceid: {{ notEmpty .instanceid }}
   instancename: {{ notEmpty .instancename }}
   agentid: {{ notEmpty .agentid }}
@@ -39,8 +39,8 @@
     - mesh-application
 - id: {{ notEmpty .id }}
   name: envoy
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
+  serviceid: {{ b64enc "productpage.default" }}.1
+  servicename: productpage.default
   instanceid: {{ notEmpty .instanceid }}
   instancename: {{ notEmpty .instancename }}
   agentid: {{ notEmpty .agentid }}
@@ -62,8 +62,8 @@
     - mesh-envoy
 - id: {{ notEmpty .id }}
   name: pilot-agent
-  serviceid: {{ b64enc "default::productpage" }}.1
-  servicename: default::productpage
+  serviceid: {{ b64enc "productpage.default" }}.1
+  servicename: productpage.default
   instanceid: {{ notEmpty .instanceid }}
   instancename: {{ notEmpty .instancename }}
   agentid: {{ notEmpty .agentid }}
