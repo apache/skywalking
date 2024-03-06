@@ -22,8 +22,9 @@
   processes:
     - id: {{ notEmpty (index .processes 0).id }}
       name: sqrt
-      detecttype: VM
-      labels: []
+      detecttype: KUBERNETES
+      labels:
+        - k8s-service
       triggeredcount: {{ ge (index .processes 0).triggeredcount 1 }}
       lasttriggertimestamp: {{ (index .processes 0).lasttriggertimestamp }}
 {{- end }}

@@ -14,57 +14,57 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "default::details" }}.1
-  name: default::details
-  group: default
-  shortname: details
+- id: {{ b64enc "details.default" }}.1
+  name: details.default
+  group: ""
+  shortname: details.default
   layers:
     {{- contains .layers }}
     - MESH_DP
     - MESH
     {{- end }}
   normal: true
-- id: {{ b64enc "istio-system::istio-ingressgateway" }}.1
-  name: istio-system::istio-ingressgateway
-  group: istio-system
-  shortname: istio-ingressgateway
+- id: {{ b64enc "istio-ingressgateway.istio-system" }}.1
+  name: istio-ingressgateway.istio-system
+  group: ""
+  shortname: istio-ingressgateway.istio-system
   layers:
     - MESH_DP
   normal: true
-- id: {{ b64enc "default::productpage" }}.1
-  name: default::productpage
-  group: default
-  shortname: productpage
-  layers:
-    {{- contains .layers }}
-    - MESH_DP
-    - MESH
-    {{- end }}
-  normal: true
-- id: {{ b64enc "default::ratings" }}.1
-  name: default::ratings
-  group: default
-  shortname: ratings
+- id: {{ b64enc "productpage.default" }}.1
+  name: productpage.default
+  group: ""
+  shortname: productpage.default
   layers:
     {{- contains .layers }}
     - MESH_DP
     - MESH
     {{- end }}
   normal: true
-- id: {{ b64enc "default::reviews" }}.1
-  name: default::reviews
-  group: default
-  shortname: reviews
+- id: {{ b64enc "ratings.default" }}.1
+  name: ratings.default
+  group: ""
+  shortname: ratings.default
   layers:
     {{- contains .layers }}
     - MESH_DP
     - MESH
     {{- end }}
   normal: true
-- id: {{ b64enc "istio-system::istio-egressgateway" }}.1
-  name: istio-system::istio-egressgateway
-  group: istio-system
-  shortname: istio-egressgateway
+- id: {{ b64enc "ratings.default" }}.1
+  name: ratings.default
+  group: ""
+  shortname: ratings.default
+  layers:
+    {{- contains .layers }}
+    - MESH_DP
+    - MESH
+    {{- end }}
+  normal: true
+- id: {{ b64enc "istio-egressgateway.istio-system" }}.1
+  name: istio-egressgateway.istio-system
+  group: ""
+  shortname: istio-egressgateway.istio-system
   layers:
     - MESH_DP
   normal: true

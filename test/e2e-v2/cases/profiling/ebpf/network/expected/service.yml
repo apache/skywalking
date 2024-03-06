@@ -19,16 +19,16 @@
   group: ""
   shortname: nginx
   layers:
-    - OS_LINUX
+    - K8S_SERVICE
   normal: true
 - id: {{ b64enc "service" }}.1
   name: service
   group: ""
   shortname: service
   layers:
-  {{- contains .layers }}
-    - OS_LINUX
+    {{- contains .layers }}
+    - K8S_SERVICE
     - GENERAL
-  {{- end }}
+    {{- end }}
   normal: true
 {{- end }}

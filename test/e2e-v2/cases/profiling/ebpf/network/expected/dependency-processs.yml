@@ -16,7 +16,7 @@
 {{- define "genProcessId" }}
 {{- with $processName := . }}
 {{- with $serviceId := "service" | b64enc | printf "%s.1" }}
-{{- with $instanceId := "test" | b64enc | printf "%s_%s" $serviceId }}
+{{- with $instanceId := "test-instance" | b64enc | printf "%s_%s" $serviceId }}
 {{- printf "%s" (sha256enc (printf "%s_%s" $processName $instanceId)) }}
 {{- end }}
 {{- end }}
@@ -29,15 +29,15 @@ nodes:
   name: service
   serviceid: {{ b64enc "service" }}.1
   servicename: service
-  serviceinstanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
-  serviceinstancename: test
+  serviceinstanceid: {{ b64enc "service" }}.1_{{ b64enc "test-instance" }}
+  serviceinstancename: test-instance
   isreal: true
 - id: {{template "genProcessId" "UNKNOWN_REMOTE"}}
   name: UNKNOWN_REMOTE
   serviceid: {{ b64enc "service" }}.1
   servicename: service
-  serviceinstanceid: {{ b64enc "service" }}.1_{{ b64enc "test" }}
-  serviceinstancename: test
+  serviceinstanceid: {{ b64enc "service" }}.1_{{ b64enc "test-instance" }}
+  serviceinstancename: test-instance
   isreal: false
 {{- end }}
 calls:

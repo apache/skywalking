@@ -16,30 +16,30 @@
 # This file is used to show how to write configuration files and can be used to test.
 
 cases:
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml service ls
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml service ls
     expected: expected/service.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml instance ls --service-name sqrt
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml instance ls --service-name sqrt
     expected: expected/instance.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process ls --service-name sqrt --instance-name test-instance
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml process ls --service-name sqrt --instance-name test-instance
     expected: expected/process.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create prepare --service-name sqrt
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf create prepare --service-name sqrt
     expected: expected/profiling-create-prepare.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml process estimate scale --service-name sqrt --labels e2e-label1,e2e-label2
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml process estimate scale --service-name sqrt --labels k8s-service
     expected: expected/process-estimate-scale.yml
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf create fixed --service-name sqrt --labels e2e-label1,e2e-label2 --duration 1m
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf create fixed --service-name sqrt --labels k8s-service --duration 1m
     expected: expected/profiling-create.yml
-  - query: swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt
+  - query: swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf list --service-name sqrt
     expected: expected/profiling-task-list.yml
   - query: |
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$( \
-        swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$( \
+        swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -
       )
     expected: expected/profiling-schedule-list.yml
   - query: |
-      taskid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -)
-      scheduleid=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
-      start=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
-      end=$(swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
-      swctl --base-url=http://${oap_host}:${oap_12800}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
+      taskid=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf list --service-name sqrt |yq e '.[0].taskid' -)
+      scheduleid=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$taskid |yq e '.[0].scheduleid' -);
+      start=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].starttime' -)
+      end=$(swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf schedules --task-id=$taskid | yq e '.[0].endtime' -)
+      swctl --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql --display yaml profiling ebpf analysis --schedule-id=$scheduleid --time-ranges=$start-$end
     expected: expected/profiling-analysis.yml

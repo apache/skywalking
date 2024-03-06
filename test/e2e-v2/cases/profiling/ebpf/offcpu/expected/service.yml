@@ -19,6 +19,6 @@
   group: ""
   shortname: file
   layers:
-    - OS_LINUX
+    - K8S_SERVICE
   normal: true
 {{- end }}

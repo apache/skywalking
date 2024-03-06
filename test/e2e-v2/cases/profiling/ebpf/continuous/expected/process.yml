@@ -21,7 +21,7 @@
   instanceid: {{ b64enc "sqrt" }}.1_{{ b64enc "test-instance" }}
   instancename: test-instance
   agentid: {{ notEmpty .agentid }}
-  detecttype: VM
+  detecttype: KUBERNETES
   attributes:
     {{- contains .attributes }}
     - name: host_ip
@@ -33,5 +33,6 @@
     - name: support_ebpf_profiling
       value: "true"
     {{- end }}
-  labels: []
+  labels:
+    - k8s-service
 {{- end }}
