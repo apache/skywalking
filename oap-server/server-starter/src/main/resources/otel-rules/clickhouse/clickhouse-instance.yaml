@@ -1,0 +1,178 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'clickhouse-monitoring' }" # The OpenTelemetry job name
+expSuffix:  tag({tags -> tags.host_name = 'clickhouse::' + tags.host_name}).instance(['host_name'], ['service_instance_id'], Layer.CLICKHOUSE)
+metricPrefix: meter_clickhouse
+metricsRules:
+  # Version of the server in a single integer number in base-1000.
+  - name: instance_version
+    exp: ClickHouseMetrics_VersionInteger
+  # CPU time spent seen by OS.
+  - name: instance_cpu_usage
+    exp: ClickHouseProfileEvents_OSCPUVirtualTimeMicroseconds.increase('PT1M')/60
+  # The percentage of memory (bytes) allocated by the server.
+  - name: instance_memory_usage
+    exp: ClickHouseMetrics_MemoryTracking / ClickHouseAsyncMetrics_OSMemoryTotal * 100
+  # The percentage of memory available to be used by programs.
+  - name: instance_memory_available
+    exp: ClickHouseAsyncMetrics_OSMemoryAvailable / ClickHouseAsyncMetrics_OSMemoryTotal * 100
+  # The server uptime in seconds. It includes the time spent for server initialization before accepting connections.
+  - name: instance_uptime
+    exp: ClickHouseAsyncMetrics_Uptime
+  # Number of files opened per minute.
+  - name: instance_file_open
+    exp: ClickHouseProfileEvents_FileOpen.increase('PT1M')
+  # Network
+  # Number of connections to TCP server.
+  - name: instance_tcp_connections
+    exp: ClickHouseMetrics_TCPConnection
+  # Number of client connections using MySQL protocol.
+  - name: instance_mysql_connections
+    exp: ClickHouseMetrics_MySQLConnection
+  # Number of connections to HTTP server.
+  - name: instance_http_connections
+    exp: ClickHouseMetrics_HTTPConnection
+  # Number of connections from other replicas to fetch parts.
+  - name: instance_interserver_connections
+    exp: ClickHouseMetrics_InterserverConnection
+  # Number of client connections using PostgreSQL protocol.
+  - name: instance_postgresql_connections
+    exp: ClickHouseMetrics_PostgreSQLConnection
+  # Total number of bytes received from network.
+  - name: instance_network_receive_bytes
+    exp: ClickHouseProfileEvents_NetworkReceiveBytes.increase('PT1M')
+  # Total number of bytes send to network.
+  - name: instance_network_send_bytes
+    exp: ClickHouseProfileEvents_NetworkSendBytes.increase('PT1M')
+  # Query
+  # Number of executing queries
+  - name: instance_query
+    exp: ClickHouseProfileEvents_Query.increase('PT1M')
+  # Number of executing queries, but only for SELECT queries.
+  - name: instance_query_select
+    exp: ClickHouseProfileEvents_SelectQuery.increase('PT1M')
+  # Number of executing queries, but only for INSERT queries.
+  - name: instance_query_insert
+    exp: ClickHouseProfileEvents_InsertQuery.increase('PT1M')
+  # Number of SELECT queries per second.
+  - name: instance_query_select_rate
+    exp: ClickHouseProfileEvents_SelectQuery.rate('PT1M')
+  # Number of INSERT queries per second.
+  - name: instance_query_insert_rate
+    exp: ClickHouseProfileEvents_InsertQuery.rate('PT1M')
+  # Total time of all queries
+  - name: instance_querytime_microseconds
+    exp: ClickHouseProfileEvents_QueryTimeMicroseconds.increase('PT1M')
+  # Total time of SELECT queries.
+  - name: instance_querytime_select_microseconds
+    exp: ClickHouseProfileEvents_SelectQueryTimeMicroseconds.increase('PT1M')
+  # Total time of INSERT queries.
+  - name: instance_querytime_insert_microseconds
+    exp: ClickHouseProfileEvents_InsertQueryTimeMicroseconds.increase('PT1M')
+  # Total time of queries that are not SELECT or INSERT.
+  - name: instance_querytime_other_microseconds
+    exp: ClickHouseProfileEvents_OtherQueryTimeMicroseconds.increase('PT1M')
+  # Number of reads from a file that were slow.
+  - name: instance_query_slow
+    exp: ClickHouseProfileEvents_SlowRead.rate('PT1M')
+  # Insertion
+  # Number of rows INSERTed to all tables.
+  - name: instance_inserted_rows
+    exp: ClickHouseProfileEvents_InsertedRows.rate('PT1M')
+  # Number of bytes INSERTed to all tables.
+  - name: instance_inserted_bytes
+    exp: ClickHouseProfileEvents_InsertedBytes.rate('PT1M')
+  # Number of times the INSERT of a block to a MergeTree table was throttled due to high number of active data parts for partition.
+  - name: instance_delayed_inserts
+    exp: ClickHouseProfileEvents_DelayedInserts.rate('PT1M')
+  # Replicas
+  # Number of data parts checking for consistency.
+  - name: instance_replicated_checks
+    exp: ClickHouseMetrics_ReplicatedChecks
+  # Number of data parts being fetched from replica.
+  - name: instance_replicated_fetch
+    exp: ClickHouseMetrics_ReplicatedFetch
+  # Number of data parts being sent to replicas.
+  - name: instance_replicated_send
+    exp: ClickHouseMetrics_ReplicatedSend
+  # MergeTree
+  # Number of executing background merges.
+  - name: instance_background_merge
+    exp: ClickHouseMetrics_Merge
+  # Rows read for background merges. This is the number of rows before merge.
+  - name: instance_merge_rows
+    exp: ClickHouseProfileEvents_MergedRows.increase('PT1M')
+  # Uncompressed bytes (for columns as they stored in memory) that was read for background merges. This is the number before merge.
+  - name : instance_merge_uncompressed_bytes
+    exp: ClickHouseProfileEvents_MergedUncompressedBytes.increase('PT1M')
+  # Number of currently executing moves.
+  - name: instance_move
+    exp: ClickHouseMetrics_Move
+  # Active data part, used by current and upcoming SELECTs.
+  - name: instance_parts_active
+    exp: ClickHouseMetrics_PartsActive
+  # Number of mutations (ALTER DELETE/UPDATE).
+  - name: instance_mutations
+    exp: ClickHouseMetrics_PartMutation
+  # Kafka Table Engine
+  # Number of Kafka messages already processed by ClickHouse.
+  - name: instance_kafka_messages_read
+    exp: ClickHouseProfileEvents_KafkaMessagesRead.rate('PT1M')
+  # Number of writes (inserts) to Kafka tables.
+  - name: instance_kafka_writes
+    exp: ClickHouseProfileEvents_KafkaWrites.rate('PT1M')
+  # Number of active Kafka consumers.
+  - name: instance_kafka_consumers
+    exp: ClickHouseMetrics_KafkaConsumers
+  # Number of active Kafka producer created.
+  - name: instance_kafka_producers
+    exp: ClickHouseMetrics_KafkaProducers
+  # Zookeeper
+  # Number of sessions (connections) to ZooKeeper. Should be no more than one, because using more than one connection to ZooKeeper may lead to bugs due to lack of linearizability (stale reads) that ZooKeeper consistency model allows.
+  - name: instance_zookeeper_session
+    exp: ClickHouseMetrics_ZooKeeperSession
+  # Number of watches (event subscriptions) in ZooKeeper.
+  - name: instance_zookeeper_watch
+    exp: ClickHouseMetrics_ZooKeeperWatch
+  # Number of bytes send over network while communicating with ZooKeeper.
+  - name: instance_zookeeper_bytes_sent
+    exp: ClickHouseProfileEvents_ZooKeeperBytesSent.rate('PT1M')
+  #  Number of bytes received over network while communicating with ZooKeeper.
+  - name: instance_zookeeper_bytes_received
+    exp: ClickHouseProfileEvents_ZooKeeperBytesReceived.rate('PT1M')
+  # ClickHouse Keeper
+  # Number of alive connections for embedded ClickHouse Keeper.
+  - name: instance_keeper_connections_alive
+    exp: ClickHouseMetrics_KeeperAliveConnections
+  # Number of outstanding requests for embedded ClickHouse Keeper.
+  - name: instance_keeper_outstanding_requests
+    exp: ClickHouseMetrics_KeeperOutstandingRequets
+

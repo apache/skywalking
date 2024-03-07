@@ -68,6 +68,10 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - KAFKA -> K8S_SERVICE
   - VIRTUAL_MQ -> KAFKA
+* Support ClickHouse server monitoring.
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - CLICKHOUSE -> K8S_SERVICE
+  - VIRTUAL_DATABASE -> CLICKHOUSE
 
 #### UI
 
