@@ -252,6 +252,8 @@ catalog:
                 path: "/en/setup/backend/backend-mongodb-monitoring"
               - name: "BookKeeper"
                 path: "/en/setup/backend/backend-bookkeeper-monitoring"
+              - name: "ClickHouse"
+                path: "/en/setup/backend/backend-clickhouse-monitoring"
           - name: "MQ Monitoring"
             catalog:
               - name: "RabbitMQ"
