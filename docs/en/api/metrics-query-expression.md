@@ -270,7 +270,7 @@ For example:
 If we want to query all Redis command total rates, we can use the following expression(`total_commands_rate` is a metric which recorded every command rate in labeled value):
 
 ```text
-aggregate_labels(total_commands_rate, SUM)
+aggregate_labels(total_commands_rate, sum)
 ```
 
 ### Result Type
