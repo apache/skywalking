@@ -72,6 +72,9 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - CLICKHOUSE -> K8S_SERVICE
   - VIRTUAL_DATABASE -> CLICKHOUSE
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - PULSAR -> K8S_SERVICE
+  - VIRTUAL_MQ -> PULSAR
 
 #### UI
 

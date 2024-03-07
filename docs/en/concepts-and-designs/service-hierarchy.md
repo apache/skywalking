@@ -30,10 +30,12 @@ If you want to customize it according to your own needs, please refer to [Servic
 | KAFKA            | K8S_SERVICE | [KAFKA On K8S_SERVICE](#kafka-on-k8s_service)                     |
 | VIRTUAL_MQ       | RABBITMQ    | [VIRTUAL_MQ On RABBITMQ](#virtual_mq-on-rabbitmq)                 |
 | VIRTUAL_MQ       | ROCKETMQ    | [VIRTUAL_MQ On K8S_SERVICE](#virtual_mq-on-rocketmq)              |
-| VIRTUAL_MQ       | KAFKA       | [VIRTUAL_MQ On KAFKA](#virtual_mq-on-kafka)                 |
-| VIRTUAL_MQ       | RABBITMQ    | [VIRTUAL_MQ On RABBITMQ](#virtual_mq-on-rabbitmq)              |
+| VIRTUAL_MQ       | KAFKA       | [VIRTUAL_MQ On KAFKA](#virtual_mq-on-kafka)                       |
+| VIRTUAL_MQ       | RABBITMQ    | [VIRTUAL_MQ On RABBITMQ](#virtual_mq-on-rabbitmq)                 |
 | CLICKHOUSE       | K8S_SERVICE | [CLICKHOUSE On K8S_SERVICE](#clickhouse-on-k8s_service)           |
 | VIRTUAL_DATABASE | CLICKHOUSE  | [VIRTUAL_DATABASE On CLICKHOUSE](#virtual_database-on-clickhouse) | 
+| PULSAR           | K8S_SERVICE | [PULSAR On K8S_SERVICE](#pulsar-on-k8s_service)                   |
+| VIRTUAL_MQ       | PULSAR      | [VIRTUAL_MQ On PULSAR](#virtual_mq-on-pulsar)                     |
 
 - The following sections will describe the **default matching rules** in detail and use the `upper-layer On lower-layer` format. 
 - The example service name are based on SkyWalking [Showcase](https://github.com/apache/skywalking-showcase) default deployment.
@@ -198,6 +200,22 @@ If you want to customize it according to your own needs, please refer to [Servic
 - Matched Example:
   - VIRTUAL_DATABASE.service.name: `clickhouse.skywalking-showcase.svc.cluster.local:8123`
   - CLICKHOUSE.service.name: `clickhouse::clickhouse.skywalking-showcase`
+
+#### PULSAR On K8S_SERVICE
+- Rule name: `short-name`
+- Groovy script: `{ (u, l) -> u.shortName == l.shortName }`
+- Description: PULSAR.service.shortName == K8S_SERVICE.service.shortName
+- Matched Example:
+  - PULSAR.service.name: `pulsar::pulsar.skywalking-showcase`
+  - K8S_SERVICE.service.name: `skywalking-showcase::pulsar.skywalking-showcase`
+
+#### VIRTUAL_MQ On PULSAR
+- Rule name: `lower-short-name-with-fqdn`
+- Groovy script: `{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }`
+- Description: VIRTUAL_MQ.service.shortName remove port == PULSAR.service.shortName with fqdn suffix
+- Matched Example:
+  - VIRTUAL_MQ.service.name: `pulsar.skywalking-showcase.svc.cluster.local:6650`
+  - PULSAR.service.name: `pulsar::pulsar.skywalking-showcase`
 
 ### Build Through Specific Agents
 Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) detect the service hierarchy relations.

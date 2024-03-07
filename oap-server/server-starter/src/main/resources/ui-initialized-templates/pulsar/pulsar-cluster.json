@@ -429,7 +429,32 @@
       "entity": "Service",
       "name": "Pulsar-Cluster",
       "id": "Pulsar-Cluster",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_pulsar_total_topics)",
+        "avg(meter_pulsar_total_subscriptions)",
+        "avg(meter_pulsar_message_rate_in)",
+        "avg(meter_pulsar_message_rate_out)",
+        "avg(meter_pulsar_storage_size)"
+      ],
+      "expressionsConfig": [
+        {
+          "label": "total topics"
+        },
+        {
+          "label": "total subscriptions"
+        },
+        {
+          "label": "message rate in"
+        },
+        {
+          "label": "message rate out"
+        },
+        {
+          "label": "storage size"
+        }
+      ]
     }
   }
 ]
