@@ -54,4 +54,5 @@ for identification of the metric data.
 | Metrics of MongoDB                      | otel-rules/mongodb/mongodb-node.yaml                | percona/mongodb_exporter -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                        |
 | Metrics of Kafka                        | otel-rules/kafka/kafka-clusteryaml                  | prometheus/jmx_exporter/jmx_prometheus_javaagent -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server |
 | Metrics of Kafka                        | otel-rules/kafka/kafka-broker.yaml                  | prometheus/jmx_exporter/jmx_prometheus_javaagent -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server |
-**Note**: You can also use OpenTelemetry exporter to transport the metrics to SkyWalking OAP directly. See [OpenTelemetry Exporter](./backend-meter.md#opentelemetry-exporter).
+| Metrics of ClickHouse                   | otel-rules/clickhouse/clickhouse-instance.yaml      | ClickHouse(embedded prometheus endpoint) -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server        |
+| Metrics of ClickHouse                   | otel-rules/clickhouse/clickhouse-service.yaml       | ClickHouse(embedded prometheus endpoint) -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server        |
