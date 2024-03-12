@@ -12,6 +12,8 @@ You can use `Makefile` located at the root folder to build a docker image with t
 
 ```shell
 make docker
+# OR skip the tests
+make docker SKIP_TEST=true
 ```
 
 It not only contains the process of building a docker image but also includes all the required steps, for instance, init
@@ -50,10 +52,25 @@ The tag of docker image. The default value is `latest`.
 
 ## Running containers with docker-compose
 
-We can start up backend cluster by docker-compose
+We can start up backend cluster by docker-compose. There are two profiles with
+different storage options that you can choose, `elasticsearch` and `banyandb`.
+
+To start up the backend cluster with `elasticsearch` as the storage, run the
+following command:
 
 ```shell
-docker compose up
+docker compose --profile elasticsearch up
 ```
 
-[docker/.env](./.env) file contains the default elasticsearch tag (`ES_TAG`).
+To start up the backend cluster with `banyandb` as the storage, run the
+following command:
+
+```shell
+docker compose --profile banyandb up
+```
+
+[docker/.env](./.env) file contains some configurations that you can customize,
+such as the Docker image registry and tags.
+
+After the services are up and running, you can send telemetry data to
+localhost:11800 and access the UI at http://localhost:8080.

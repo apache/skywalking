@@ -17,10 +17,14 @@
 version: '3.8'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:${ES_VERSION}
+    profiles:
+      - "elasticsearch"
+    image: ${ELASTICSEARCH_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch-oss:7.4.2}
     container_name: elasticsearch
     ports:
       - "9200:9200"
+    networks:
+      - demo
     healthcheck:
       test: [ "CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1" ]
       interval: 30s
@@ -36,40 +40,74 @@ services:
         soft: -1
         hard: -1
 
-  oap:
-    image: ${OAP_IMAGE}
-    container_name: oap
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    links:
-      - elasticsearch
+  banyandb:
+    profiles:
+      - "banyandb"
+    image: ${BANYANDB_IMAGE:-ghcr.io/apache/skywalking-banyandb:84f32b3969cdcc676aaee428383b34b3b67dbdf5}
+    container_name: banyandb
+    networks:
+      - demo
+    expose:
+      - 17912
+    command: standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data
+    healthcheck:
+      test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 17912" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap-base: &oap-base
+    profiles: [ "none" ]
+    image: ${OAP_IMAGE:-ghcr.io/apache/skywalking/oap:latest}
     ports:
       - "11800:11800"
       - "12800:12800"
+    networks:
+      - demo
     healthcheck:
-      test: [ "CMD-SHELL", "/skywalking/bin/swctl ch" ]
+      test: [ "CMD-SHELL", "curl http://localhost:12800/internal/l7check" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
-    environment:
-      SW_STORAGE: elasticsearch
-      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+    environment: &oap-env
       SW_HEALTH_CHECKER: default
       SW_TELEMETRY: prometheus
       JAVA_OPTS: "-Xms2048m -Xmx2048m"
 
-  ui:
-    image: ${UI_IMAGE}
-    container_name: ui
+  oap-es:
+    <<: *oap-base
+    profiles: 
+      - "elasticsearch"
+    container_name: oap
     depends_on:
-      oap:
+      elasticsearch:
         condition: service_healthy
-    links:
-      - oap
+    environment:
+      <<: *oap-env
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: elasticsearch:9200
+
+  oap-bdb:
+    <<: *oap-base
+    profiles:
+      - "banyandb"
+    container_name: oap
+    environment:
+      <<: *oap-env
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
+
+  ui:
+    image: ${UI_IMAGE:-ghcr.io/apache/skywalking/ui:latest}
+    container_name: ui
     ports:
       - "8080:8080"
+    networks:
+      - demo
     environment:
       SW_OAP_ADDRESS: http://oap:12800
       SW_ZIPKIN_ADDRESS: http://oap:9412
+
+networks:
+  demo:

@@ -8,6 +8,7 @@
 * Upgrade PostgreSQL driver to `42.4.4` to fix CVE-2024-1597.
 * Remove CLI(`swctl`) from the image.
 * Remove CLI_VERSION variable from Makefile build.
+* Add BanyanDB to docker-compose quickstart.
 
 #### OAP Server
 
