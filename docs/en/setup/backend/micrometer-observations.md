@@ -1,7 +1,7 @@
 # MicroMeter Observations setup
 
 Micrometer Observation is part of the Micrometer project and contains the Observation API.
-SkyWalking integrates its MicroMeter 1.10 APIs so that it can send metrics to the Skywalking [Meter System](./../../concepts-and-designs/meter.md).
+SkyWalking integrates its MicroMeter 1.10 APIs so that it can send metrics to the SkyWalking [Meter System](./../../concepts-and-designs/meter.md).
 
 Follow Java agent [Observations docs](https://skywalking.apache.org/docs/skywalking-java/next/en/setup/service-agent/java-agent/application-toolkit-micrometer-1.10/) to set up agent in the Spring first. 
 
@@ -15,7 +15,7 @@ receiver-meter:
 ```
 
 2. Configure the meter config file. It already has the [spring sleuth meter config](../../../../oap-server/server-starter/src/main/resources/meter-analyzer-config/spring-micrometer.yaml).
-   If you have a customized meter at the agent side, please configure the meter using the steps set out in the [meter document](backend-meter.md#meters-configure).
+   If you have a customized meter at the agent side, please configure the meter using the steps set out in the [meter document](backend-meter.md#manual-meter-api).
 
 3. Enable Spring sleuth config in `application.yml`.
 ```yaml
