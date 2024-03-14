@@ -49,6 +49,8 @@ services:
       - demo
     expose:
       - 17912
+    ports:
+      - 17913:17913
     command: standalone --stream-root-path /tmp/stream-data --measure-root-path /tmp/measure-data
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 17912" ]
@@ -93,6 +95,9 @@ services:
     profiles:
       - "banyandb"
     container_name: oap
+    depends_on:
+      banyandb:
+        condition: service_healthy
     environment:
       <<: *oap-env
       SW_STORAGE: banyandb
