@@ -1,5 +1,24 @@
 # How to use the Docker images
 
+## Start the storage, OAP and UI with docker-compose
+
+As a quick start, you can use our one-line script to start ElasticSearch or
+BanyanDB as the storage, OAP server and UI, please make sure you have installed
+Docker.
+
+```shell
+bash <(curl -sSL https://skywalking.apache.org/quickstart-docker.sh) 
+```
+
+You will be prompted to choose the storage type, and then the script will start
+the backend cluster with the selected storage.
+
+To tear down the cluster, run the following command:
+
+```shell
+docker compose --project-name=skywalking-quickstart down
+```
+
 ## Start a `standalone` container with `H2` storage
 
 ```shell
