@@ -49,12 +49,16 @@
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"
                   ],
                   "expressions": [
                     "latest(k8s_service_pod_total)",
                     "latest(k8s_service_cpu_cores_requests)",
-                    "latest(k8s_service_cpu_cores_limits)"
+                    "latest(k8s_service_cpu_cores_limits)",
+                    "latest(kubernetes_service_http_call_cpm)",
+                    "latest(kubernetes_service_http_call_success_count/kubernetes_service_http_call_cpm*100)"
                   ],
                   "graph": {
                     "type": "ServiceList",
@@ -75,6 +79,14 @@
                     {
                       "label": "CPU Limits",
                       "unit": "m"
+                    },
+                    {
+                      "label": "HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "HTTP Success Rate",
+                      "unit": "%"
                     }
                   ]
                 }

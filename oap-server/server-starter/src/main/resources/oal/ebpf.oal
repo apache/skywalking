@@ -115,6 +115,7 @@ kubernetes_service_instance_read_netfilter_duration = from(K8SServiceInstance.re
 
 kubernetes_service_instance_http_call_cpm = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").cpm();
 kubernetes_service_instance_http_call_duration = from(K8SServiceInstance.protocol.http.latency).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
+kubernetes_service_instance_http_call_success_count = from(K8SServiceInstance.*).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").filter(protocol.success == true).cpm();
 kubernetes_service_instance_http_req_header_size = from(K8SServiceInstance.protocol.http.sizeOfRequestHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_instance_http_req_body_size = from(K8SServiceInstance.protocol.http.sizeOfRequestBody).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
 kubernetes_service_instance_http_resp_header_size = from(K8SServiceInstance.protocol.http.sizeOfResponseHeader).filter(detectPoint == DetectPoint.SERVER).filter(type == "protocol").filter(protocol.type == "http").sum();
