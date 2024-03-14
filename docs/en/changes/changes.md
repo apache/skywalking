@@ -123,5 +123,6 @@
 * Fix query-protocol.md, make it consistent with the GraphQL query protocol.
 * Add `SWIP-5 Support ClickHouse Monitoring`.
 * Remove `OpenTelemetry Exporter` support from meter doc, as this has been flagged as unmaintained on OTEL upstream.
+* Add doc of one-line quick start script for different storage types.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
