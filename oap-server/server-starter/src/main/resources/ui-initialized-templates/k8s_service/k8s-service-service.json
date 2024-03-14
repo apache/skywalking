@@ -236,106 +236,118 @@
               ]
             },
             {
-              "name": "eBPF Profiling",
+              "name": "Topology",
               "children": [
                 {
                   "x": 0,
-                  "y": 2,
+                  "y": 0,
                   "w": 24,
-                  "h": 47,
+                  "h": 41,
                   "i": "0",
-                  "type": "Ebpf"
-                },
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 24,
-                  "h": 2,
-                  "i": "2",
-                  "type": "Text",
+                  "type": "Topology",
                   "graph": {
-                    "fontColor": "theme",
-                    "backgroundColor": "theme",
-                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "Pods",
-              "children": [
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 24,
-                  "h": 31,
-                  "i": "1",
-                  "type": "Widget",
-                  "graph": {
-                    "type": "InstanceList",
-                    "dashboardName": "K8S-Service-Pods",
-                    "fontSize": 12
-                  }
-                }
-              ]
-            },
-            {
-              "name": "Endpoint",
-              "children": [
-                {
-                  "x": 0,
-                  "y": 0,
-                  "w": 24,
-                  "h": 49,
-                  "i": "0",
-                  "type": "Widget",
-                  "graph": {
-                    "type": "EndpointList",
-                    "dashboardName": "K8S-Endpoint",
-                    "fontSize": 12,
-                    "showXAxis": false,
-                    "showYAxis": false
+                    "showDepth": true
                   },
-                  "metricConfig": [
+                  "metricMode": "Expression",
+                  "linkDashboard": "K8S-Service-Relation",
+                  "nodeDashboard": [
+
+                  ],
+                  "linkServerMetrics": [
+
+                  ],
+                  "linkClientMetrics": [
+
+                  ],
+                  "nodeMetrics": [
+
+                  ],
+                  "linkServerExpressions": [
+                    "avg(kubernetes_service_relation_server_write_package_size)/60",
+                    "avg(kubernetes_service_relation_server_read_package_size)/60",
+                    "avg(kubernetes_service_relation_server_http_call_cpm)/60",
+                    "avg(kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_client_http_call_cpm)/1000000"
+                  ],
+                  "linkClientExpressions": [
+                    "avg(kubernetes_service_relation_client_write_package_size)/60",
+                    "avg(kubernetes_service_relation_client_read_package_size)/60",
+                    "avg(kubernetes_service_relation_client_http_call_cpm)/60",
+                    "avg(kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_server_http_call_cpm)/1000000"
+                  ],
+                  "nodeExpressions": [
+                    "avg(kubernetes_service_write_package_size)/60",
+                    "avg(kubernetes_service_read_package_size)/60",
+                    "avg(kubernetes_service_http_call_cpm)",
+                    "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)/1000000",
+                    "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
+                  ],
+                  "legend": [
+
+                  ],
+                  "legendMQE": {
+                    "expression": "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95 and avg(kubernetes_service_http_call_cpm) > 1"
+                  },
+                  "description": {
+                    "healthy": "Healthy",
+                    "unhealthy": "HTTP Success Rate < 95% and HTTP Traffic > 1 calls / min"
+                  },
+                  "linkServerMetricConfig": [
                     {
-                      "label": "Load",
-                      "detailLabel": "load",
+                      "label": "Server Write",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "label": "Server Read",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "label": "Server HTTP Load",
                       "unit": "calls / min"
                     },
                     {
-                      "label": "Success Rate",
-                      "detailLabel": "success_rate",
-                      "unit": "%"
-                    },
-                    {
-                      "label": "Latency",
-                      "detailLabel": "latency",
+                      "label": "Server HTTP Latency",
                       "unit": "ms"
                     }
                   ],
-                  "metricMode": "Expression",
-                  "expressions": [
-                    "avg(kubernetes_service_endpoint_call_cpm)",
-                    "avg(kubernetes_service_endpoint_call_success_cpm/kubernetes_service_endpoint_call_cpm*100)",
-                    "avg(kubernetes_service_endpoint_call_duration/kubernetes_service_endpoint_call_cpm/1000000)"
+                  "linkClientMetricConfig": [
+                    {
+                      "label": "Client Write",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "label": "Client Read",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "label": "Client HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "Client HTTP Latency",
+                      "unit": "ms"
+                    }
                   ],
-                  "subExpressions": [
-                    "kubernetes_service_endpoint_call_cpm",
-                    "kubernetes_service_endpoint_call_success_cpm/kubernetes_service_endpoint_call_cpm*100",
-                    "kubernetes_service_endpoint_call_duration/kubernetes_service_endpoint_call_cpm/1000000"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
-                  ],
-                  "typesOfMQE": [
-                    "",
-                    "",
-                    ""
+                  "nodeMetricConfig": [
+                    {
+                      "label": "Write",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "label": "Read",
+                      "unit": "bytes / s"
+                    },
+                    {
+                      "label": "HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "HTTP Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "HTTP Success Rate",
+                      "unit": "%"
+                    }
                   ]
                 }
               ]
@@ -1930,6 +1942,131 @@
                   ]
                 }
               ]
+            },
+            {
+              "name": "Pods",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 31,
+                  "i": "1",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "K8S-Service-Pods",
+                    "fontSize": 12
+                  },
+                  "metricMode": "Expression",
+                  "metricConfig": [
+                    {
+                      "label": "HTTP Load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "HTTP Latency",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "HTTP Success Rate",
+                      "unit": "%"
+                    }
+                  ],
+                  "expressions": [
+                    "latest(kubernetes_service_instance_http_call_cpm)",
+                    "latest(kubernetes_service_instance_http_call_duration/kubernetes_service_instance_http_call_cpm)/1000000",
+                    "latest(kubernetes_service_instance_http_call_success_count/kubernetes_service_instance_http_call_cpm*100)"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Endpoint",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 49,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "K8S-Endpoint",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Load",
+                      "detailLabel": "load",
+                      "unit": "calls / min"
+                    },
+                    {
+                      "label": "Success Rate",
+                      "detailLabel": "success_rate",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "Latency",
+                      "detailLabel": "latency",
+                      "unit": "ms"
+                    }
+                  ],
+                  "metricMode": "Expression",
+                  "expressions": [
+                    "avg(kubernetes_service_endpoint_call_cpm)",
+                    "avg(kubernetes_service_endpoint_call_success_cpm/kubernetes_service_endpoint_call_cpm*100)",
+                    "avg(kubernetes_service_endpoint_call_duration/kubernetes_service_endpoint_call_cpm/1000000)"
+                  ],
+                  "subExpressions": [
+                    "kubernetes_service_endpoint_call_cpm",
+                    "kubernetes_service_endpoint_call_success_cpm/kubernetes_service_endpoint_call_cpm*100",
+                    "kubernetes_service_endpoint_call_duration/kubernetes_service_endpoint_call_cpm/1000000"
+                  ],
+                  "subTypesOfMQE": [
+                    "",
+                    "",
+                    ""
+                  ],
+                  "typesOfMQE": [
+                    "",
+                    "",
+                    ""
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "eBPF Profiling",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 2,
+                  "w": 24,
+                  "h": 47,
+                  "i": "0",
+                  "type": "Ebpf"
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 2,
+                  "i": "2",
+                  "type": "Text",
+                  "graph": {
+                    "fontColor": "theme",
+                    "backgroundColor": "theme",
+                    "content": "eBPF Profiling support services written in C, C++, Golang, and Rust. SkyWalking Rover provides this profiling capability. ",
+                    "fontSize": 14,
+                    "textAlign": "left",
+                    "url": "https://skywalking.apache.org/docs/skywalking-rover/next/readme/"
+                  }
+                }
+              ]
             }
           ]
         }
@@ -1937,50 +2074,7 @@
       "layer": "K8S_SERVICE",
       "entity": "Service",
       "name": "K8S-Service-Service",
-      "isDefault": true,
-      "expressions": [
-        "latest(k8s_service_pod_total)",
-        "latest(k8s_service_cpu_cores_requests)",
-        "latest(k8s_service_cpu_cores_limits)",
-        "avg(kubernetes_service_write_package_size)/60",
-        "avg(kubernetes_service_read_package_size)/60",
-        "avg(kubernetes_service_http_call_cpm)",
-        "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm/1000000)",
-        "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
-      ],
-      "expressionsConfig": [
-        {
-          "label": "Pod Total"
-        },
-        {
-          "unit": "m",
-          "label": "CPU Requests"
-        },
-        {
-          "unit": "m",
-          "label": "CPU Limits"
-        },
-        {
-          "unit": "bytes / s",
-          "label": "Write"
-        },
-        {
-          "unit": "bytes / s",
-          "label": "Read"
-        },
-        {
-          "label": "HTTP Load",
-          "unit": "calls / min"
-        },
-        {
-          "label": "HTTP Latency",
-          "unit": "ms"
-        },
-        {
-          "label": "HTTP Success Rate",
-          "unit": "%"
-        }
-      ]
+      "id": "K8S-Service-Service"
     }
   }
 ]
