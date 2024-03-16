@@ -125,7 +125,7 @@ httpasyncclient:
   languages: Java
 Kafka:
   id: 27
-  languages: Java
+  languages: Java,Golang
 ServiceComb:
   id: 28
   languages: Java
@@ -164,10 +164,10 @@ rocketMQ-consumer:
   languages: Java,Golang
 kafka-producer:
   id: 40
-  languages: Java,Python
+  languages: Java,Python,Golang
 kafka-consumer:
   id: 41
-  languages: Java,Python
+  languages: Java,Python,Golang
 mongodb-driver:
   id: 42
   languages: Java
