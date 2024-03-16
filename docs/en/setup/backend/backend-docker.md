@@ -25,13 +25,19 @@ docker compose --project-name=skywalking-quickstart down
 ## Start a `standalone` container with `H2` storage
 
 ```shell
-docker run --name oap --restart always -d apache/skywalking-oap-server:9.0.0
+docker run --name oap --restart always -d apache/skywalking-oap-server:9.7.0
 ```
 
-## Start a `standalone` container with ElasticSearch 7 as storage whose address is `elasticsearch:9200`
+## Start a `standalone` container with BanyanDB as storage, whose address is `banyandb:17912`
 
 ```shell
-docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200 apache/skywalking-oap-server:9.0.0
+docker run --name oap --restart always -d -e SW_STORAGE=banyandb -e SW_STORAGE_BANYANDB_TARGETS=banyandb:17912 apache/skywalking-oap-server:9.7.0
+```
+
+## Start a `standalone` container with ElasticSearch 7 as storage, whose address is `elasticsearch:9200`
+
+```shell
+docker run --name oap --restart always -d -e SW_STORAGE=elasticsearch -e SW_STORAGE_ES_CLUSTER_NODES=elasticsearch:9200 apache/skywalking-oap-server:9.7.0
 ```
 
 # Configuration
