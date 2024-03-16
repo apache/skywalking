@@ -2,8 +2,7 @@
 
 ## Start the storage, OAP and Booster UI with docker-compose
 
-As a quick start, you can use our one-liner script to start ElasticSearch or
-BanyanDB as the storage, OAP server and Booster UI, please make sure you have installed Docker.
+As a quick start, you can use our one-liner script to start ElasticSearch or [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/) as the storage, OAP server and Booster UI, please make sure you have installed Docker.
 
 **Linux, macOS, Windows (WSL)**
 ```shell
