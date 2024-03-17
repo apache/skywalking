@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.webapp;
 import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_FORMAT;
 import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_TAG;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
@@ -32,8 +35,10 @@ import com.linecorp.armeria.server.file.FileService;
 import com.linecorp.armeria.server.file.HttpFile;
 import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 
+@Slf4j
 public class ApplicationStartUp {
     public static void main(String[] args) throws Exception {
+        final Marker startedMarker = MarkerFactory.getMarker("Console");
         final Yaml yaml = new Yaml(
             new EnvScalarConstructor(
                 new TypeDescription(Configuration.class),
@@ -79,5 +84,9 @@ public class ApplicationStartUp {
             .build()
             .start()
             .join();
+
+        log.info(startedMarker, "SkyWalking Booster UI is now running. " +
+            "OAP service at {} and Booster UI at http://localhost:{}",
+            String.join(", ", oapServices), port);
     }
 }

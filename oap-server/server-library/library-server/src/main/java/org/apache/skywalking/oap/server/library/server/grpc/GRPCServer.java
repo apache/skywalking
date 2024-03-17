@@ -32,6 +32,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.apache.skywalking.oap.server.library.server.Server;
 import org.apache.skywalking.oap.server.library.server.ServerException;
 import org.apache.skywalking.oap.server.library.server.grpc.ssl.DynamicSslContext;
@@ -51,6 +53,7 @@ public class GRPCServer implements Server {
     private String trustedCAsFile;
     private DynamicSslContext sslContext;
     private int threadPoolSize;
+    private static final Marker SERVER_START_MARKER = MarkerFactory.getMarker("Console");
 
     public GRPCServer(String host, int port) {
         this.host = host;
@@ -105,7 +108,7 @@ public class GRPCServer implements Server {
             sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile, trustedCAsFile);
             nettyServerBuilder.sslContext(sslContext);
         }
-        log.info("Server started, host {} listening on {}", host, port);
+        log.info(SERVER_START_MARKER, "Server started, host {} listening on {}", host, port);
     }
 
     static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
