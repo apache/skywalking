@@ -139,13 +139,13 @@ jobs:
             component-libraries.yml
       - name: Filter POM
         id: filter-pom
-        uses: tj-actions/changed-files@v35.9.2
+        uses: tj-actions/changed-files@v43.0.0
         with:
           files: |
             **/pom.xml
       - name: Filter UI
         id: filter-ui
-        uses: tj-actions/changed-files@v35.9.2
+        uses: tj-actions/changed-files@v43.0.0
         with:
           files: |
             skywalking-ui
