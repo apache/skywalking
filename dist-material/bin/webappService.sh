@@ -34,5 +34,5 @@ _RUNJAVA=${JAVA_HOME}/bin/java
 
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -cp ${JAR_PATH}/skywalking-webapp.jar:$JAR_PATH \
          org.apache.skywalking.oap.server.webapp.ApplicationStartUp \
-        2>${WEBAPP_LOG_DIR}/webapp-console.log 1> /dev/null"
+        2>${WEBAPP_LOG_DIR}/webapp-console.log"
 
