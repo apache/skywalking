@@ -32,12 +32,22 @@
             </Policies>
             <DefaultRolloverStrategy max="30"/>
         </RollingFile>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>%m%n</pattern>
+            </PatternLayout>
+            <MarkerFilter marker="Console" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
     </Appenders>
     <Loggers>
         <logger name="org.apache.zookeeper" level="INFO"/>
         <logger name="io.grpc.netty" level="INFO"/>
+        <Logger name="org.apache.skywalking.oap.server.library.server.grpc.GRPCServer" level="INFO" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
         <Root level="info">
             <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
 </Configuration>
