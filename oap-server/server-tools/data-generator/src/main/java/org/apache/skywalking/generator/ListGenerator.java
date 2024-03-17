@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 @JsonDeserialize(builder = ListGenerator.Builder.class)
-public final class ListGenerator<T> implements Generator<List<T>> {
+public final class ListGenerator<T> implements Generator<Object, List<T>> {
     private final T item;
     private final int size;
 
@@ -36,7 +36,7 @@ public final class ListGenerator<T> implements Generator<List<T>> {
     }
 
     @Override
-    public List<T> next() {
+    public List<T> next(Object ignored) {
         return IntStream
             .range(0, size)
             .mapToObj($ -> item)
@@ -45,7 +45,7 @@ public final class ListGenerator<T> implements Generator<List<T>> {
 
     @Override
     public void reset() {
-        ((Generator<?>) item).reset();
+        ((Generator<?, ?>) item).reset();
     }
 
     @Data

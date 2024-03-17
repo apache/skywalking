@@ -19,27 +19,28 @@
 
 package org.apache.skywalking.restapi;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.skywalking.generator.Generator;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-@Getter
-@Setter
-@JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-public final class TagGenerator implements Generator<Object, Tag> {
-    private Generator<String, String> key;
-    private Generator<String, String> value;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.List;
 
-    @Override
-    public Tag next(Object ignored) {
-        return new Tag(key.next(null), value.next(null));
-    }
+import static graphql.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-    @Override
-    public void reset() {
-        key.reset();
-        value.reset();
+class SegmentGeneratorTest {
+
+    @Test
+    void next() throws URISyntaxException, IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        URL url = getClass().getClassLoader().getResource("segment.tpl.json");
+        assertNotNull(url);
+        File jsonFile = new File(url.toURI());
+        SegmentRequest sr = objectMapper.readValue(jsonFile, SegmentRequest.class);
+        List<SegmentGenerator.SegmentResult> ss = sr.next(null);
+        assertFalse(ss.isEmpty());
     }
 }

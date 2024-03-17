@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 @JsonDeserialize(builder = BoolGenerator.Builder.class)
-public final class BoolGenerator implements Generator<Boolean> {
+public final class BoolGenerator implements Generator<Object, Boolean> {
     private final Random random = ThreadLocalRandom.current();
     private final double possibility;
 
@@ -34,13 +34,13 @@ public final class BoolGenerator implements Generator<Boolean> {
     }
 
     @Override
-    public Boolean next() {
+    public Boolean next(Object ignored) {
         return random.nextDouble() < possibility;
     }
 
     @Override
     public String toString() {
-        return String.valueOf(next());
+        return String.valueOf(next(null));
     }
 
     @Data
