@@ -53,7 +53,7 @@ public class GRPCServer implements Server {
     private String trustedCAsFile;
     private DynamicSslContext sslContext;
     private int threadPoolSize;
-    private static final Marker SERVER_START_MARKER = MarkerFactory.getMarker("Server started");
+    private static final Marker SERVER_START_MARKER = MarkerFactory.getMarker("Console");
 
     public GRPCServer(String host, int port) {
         this.host = host;

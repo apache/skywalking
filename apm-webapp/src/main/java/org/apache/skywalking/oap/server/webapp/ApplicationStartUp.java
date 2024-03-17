@@ -38,7 +38,7 @@ import com.linecorp.armeria.server.healthcheck.HealthCheckService;
 @Slf4j
 public class ApplicationStartUp {
     public static void main(String[] args) throws Exception {
-        final Marker startedMarker = MarkerFactory.getMarker("SkyWalking booster UI is running");
+        final Marker startedMarker = MarkerFactory.getMarker("Console");
         final Yaml yaml = new Yaml(
             new EnvScalarConstructor(
                 new TypeDescription(Configuration.class),
@@ -85,8 +85,8 @@ public class ApplicationStartUp {
             .start()
             .join();
 
-        log.info(startedMarker, "SkyWalking booster UI is now running. " +
-            "OAP services at {} and booster UI at http://localhost:{}",
+        log.info(startedMarker, "SkyWalking Booster UI is now running. " +
+            "OAP service at {} and Booster UI at http://localhost:{}",
             String.join(", ", oapServices), port);
     }
 }

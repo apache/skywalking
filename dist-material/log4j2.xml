@@ -36,7 +36,7 @@
             <PatternLayout>
                 <pattern>%m%n</pattern>
             </PatternLayout>
-            <MarkerFilter marker="Server started" onMatch="ACCEPT" onMismatch="DENY"/>
+            <MarkerFilter marker="Console" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
     </Appenders>
     <Loggers>

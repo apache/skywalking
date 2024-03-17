@@ -36,7 +36,7 @@
             <PatternLayout>
                 <pattern>%m%n</pattern>
             </PatternLayout>
-            <MarkerFilter marker="SkyWalking booster UI is running" onMatch="ACCEPT" onMismatch="DENY"/>
+            <MarkerFilter marker="Console" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
     </Appenders>
     <Loggers>
