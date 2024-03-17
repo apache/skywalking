@@ -78,6 +78,7 @@
   - VIRTUAL_MQ -> PULSAR
 * Add Golang as a supported language for Kafka.
 * Support displaying the port services listen to from OAP and UI during server start.
+* Refactor data-generator to support generating metrics.
 
 #### UI
 

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 @JsonDeserialize(builder = UUIDGenerator.Builder.class)
-public final class UUIDGenerator implements Generator<String> {
+public final class UUIDGenerator implements Generator<Object, String> {
     private final int changingFrequency;
     private final AtomicInteger counter;
     private final AtomicReference<String> last =
@@ -41,7 +41,7 @@ public final class UUIDGenerator implements Generator<String> {
     }
 
     @Override
-    public String next() {
+    public String next(Object ignored) {
         if (counter.incrementAndGet() < changingFrequency) {
             return last.get();
         }
@@ -51,7 +51,7 @@ public final class UUIDGenerator implements Generator<String> {
 
     @Override
     public String toString() {
-        return String.valueOf(next());
+        return String.valueOf(next(null));
     }
 
     @Override
