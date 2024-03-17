@@ -25,7 +25,6 @@ import org.apache.skywalking.generator.Generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
