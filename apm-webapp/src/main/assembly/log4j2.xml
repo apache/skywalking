@@ -32,7 +32,7 @@
             </Policies>
             <DefaultRolloverStrategy max="30"/>
         </RollingFile>
-         <Console name="Console" target="SYSTEM_OUT">
+        <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
                 <pattern>%m%n</pattern>
             </PatternLayout>
