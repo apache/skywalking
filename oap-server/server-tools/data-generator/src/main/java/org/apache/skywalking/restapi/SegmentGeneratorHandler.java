@@ -35,8 +35,6 @@ import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 import java.util.List;
@@ -51,13 +49,11 @@ import java.util.stream.IntStream;
 
 @Slf4j
 public class SegmentGeneratorHandler {
-    private final SourceReceiver sourceReceiver;
     private final Map<String, Future<?>> futures = new ConcurrentHashMap<>();
     private final EventLoopGroup eventLoopGroup = EventLoopGroups.newEventLoopGroup(10);
     private final ISegmentParserService segmentParserService;
 
     public SegmentGeneratorHandler(ModuleManager manager) {
-        sourceReceiver = manager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
         segmentParserService = manager.find(AnalyzerModule.NAME).provider().getService(ISegmentParserService.class);
     }
 
@@ -79,7 +75,6 @@ public class SegmentGeneratorHandler {
             final List<SegmentGenerator.SegmentResult> segments = request.next(null);
             log.debug("Generating segment: {}", (Object) segments);
             segments.forEach(s -> {
-                sourceReceiver.receive(s.segment);
                 segmentParserService.send(s.segmentObject);
             });
         };
