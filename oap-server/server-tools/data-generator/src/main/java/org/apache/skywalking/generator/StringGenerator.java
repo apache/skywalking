@@ -29,7 +29,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import lombok.Data;
 
 @JsonDeserialize(builder = StringGenerator.Builder.class)
-public final class StringGenerator implements Generator<String> {
+public final class StringGenerator implements Generator<String, String> {
     private final int length;
     private final String prefix;
     private final boolean letters;
@@ -58,12 +58,17 @@ public final class StringGenerator implements Generator<String> {
     }
 
     @Override
-    public String next() {
+    public String next(String parent) {
+        if (Strings.isNullOrEmpty(parent)) {
+            parent = "";
+        } else {
+            parent += "-";
+        }
         if (!limitedDomain) {
-            return Strings.nullToEmpty(prefix)
+            return parent + Strings.nullToEmpty(prefix)
                 + RandomStringUtils.random(length, letters, numbers);
         }
-        return domain
+        return parent + domain
             .stream()
             .skip(random.nextInt(domain.size()))
             .findFirst()
@@ -72,7 +77,7 @@ public final class StringGenerator implements Generator<String> {
 
     @Override
     public String toString() {
-        return String.valueOf(next());
+        return String.valueOf(next(null));
     }
 
     @Data

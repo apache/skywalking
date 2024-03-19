@@ -30,7 +30,7 @@ public class IntGeneratorTest {
         builder.setMax(1L);
         final IntGenerator generator = builder.build();
         for (int i = 0; i < 100; i++) {
-            assertEquals(1, generator.next().intValue());
+            assertEquals(1, generator.next(null).intValue());
         }
     }
 }

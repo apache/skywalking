@@ -70,7 +70,7 @@ public class LogGeneratorHandler {
         log.info("Generate {} mock logs, qps: {}, template: {}", size, qps, request);
 
         final IntConsumer generator = unused -> {
-            final Log l = request.next();
+            final Log l = request.next(null);
             log.debug("Generating log: {}", l);
             sourceReceiver.receive(l);
         };

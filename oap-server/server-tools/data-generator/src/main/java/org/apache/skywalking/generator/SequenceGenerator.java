@@ -29,7 +29,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 @JsonDeserialize(builder = SequenceGenerator.Builder.class)
-public final class SequenceGenerator implements Generator<Long> {
+public final class SequenceGenerator implements Generator<Object, Long> {
     private final boolean limitedDomain;
     private final long min;
     private final long max;
@@ -52,7 +52,7 @@ public final class SequenceGenerator implements Generator<Long> {
     }
 
     @Override
-    public Long next() {
+    public Long next(Object ignored) {
         if (!limitedDomain) {
             return next0();
         }
@@ -94,7 +94,7 @@ public final class SequenceGenerator implements Generator<Long> {
 
     @Override
     public String toString() {
-        return String.valueOf(next());
+        return String.valueOf(next(null));
     }
 
     @Data

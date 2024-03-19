@@ -38,51 +38,55 @@ import lombok.SneakyThrows;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-public final class LogRequest implements Generator<Log> {
+public final class LogRequest implements Generator<Object, Log> {
     @JsonIgnore
     private final ObjectMapper om = new ObjectMapper();
 
-    private Generator<Long> timestamp;
-    private Generator<String> serviceName;
-    private Generator<String> serviceInstanceName;
-    private Generator<String> endpointName;
-    private Generator<String> traceId;
-    private Generator<String> traceSegmentId;
-    private Generator<Long> spanId;
-    private Generator<Long> contentType;
-    private Generator<String> content;
-    private Generator<List<TagGenerator>> tags;
-    private Generator<Boolean> error;
+    private Generator<Object, Long> timestamp;
+    private Generator<Object, String> serviceName;
+    private Generator<Object, String> serviceInstanceName;
+    private Generator<Object, String> endpointName;
+    private Generator<Object, String> traceId;
+    private Generator<Object, String> traceSegmentId;
+    private Generator<Object, Long> spanId;
+    private Generator<Object, Long> contentType;
+    private Generator<Object, String> content;
+    private Generator<Object, List<TagGenerator>> tags;
+    private Generator<Object, Boolean> error;
 
     @SneakyThrows
     @Override
-    public Log next() {
+    public Log next(Object ignored) {
         final Log log = new Log();
-        log.setTimestamp(getTimestamp().next());
+        if (timestamp == null) {
+            log.setTimestamp(System.currentTimeMillis());
+        } else {
+            log.setTimestamp(getTimestamp().next(null));
+        }
         log.setServiceId(
             IDManager.ServiceID.buildId(
-                getServiceName().next(),
+                getServiceName().next(null),
                 true));
         log.setServiceInstanceId(
             IDManager.ServiceInstanceID.buildId(
                 log.getServiceId(),
-                getServiceInstanceName().next()));
+                getServiceInstanceName().next(null)));
         log.setEndpointId(
             IDManager.EndpointID.buildId(
                 log.getServiceId(),
-                getEndpointName().next()));
-        log.setTraceId(getTraceId().next());
-        log.setTraceSegmentId(getTraceSegmentId().next());
-        log.setSpanId(getSpanId().next().intValue());
-        log.setContentType(ContentType.instanceOf(getContentType().next().intValue()));
-        log.setContent(getContent().next());
-        log.setError(getError().next());
+                getEndpointName().next(null)));
+        log.setTraceId(getTraceId().next(null));
+        log.setTraceSegmentId(getTraceSegmentId().next(null));
+        log.setSpanId(getSpanId().next(null).intValue());
+        log.setContentType(ContentType.instanceOf(getContentType().next(null).intValue()));
+        log.setContent(getContent().next(null));
+        log.setError(getError().next(null));
         log.setTimeBucket(TimeBucket.getRecordTimeBucket(log.getTimestamp()));
         log.setTags(
             getTags()
-                .next()
+                .next(null)
                 .stream()
-                .map(TagGenerator::next)
+                .map(tg -> tg.next(null))
                 .collect(Collectors.<Tag>toList()));
         log.setTagsRawData(
             LogTags

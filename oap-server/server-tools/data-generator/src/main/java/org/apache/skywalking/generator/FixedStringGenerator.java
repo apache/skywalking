@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Data;
 
 @JsonDeserialize(builder = FixedStringGenerator.Builder.class)
-public final class FixedStringGenerator implements Generator<String> {
+public final class FixedStringGenerator implements Generator<Object, String> {
     private final String value;
 
     public FixedStringGenerator(Builder builder) {
@@ -31,7 +31,7 @@ public final class FixedStringGenerator implements Generator<String> {
     }
 
     @Override
-    public String next() {
+    public String next(Object ignored) {
         return value;
     }
 
@@ -46,6 +46,6 @@ public final class FixedStringGenerator implements Generator<String> {
 
     @Override
     public String toString() {
-        return String.valueOf(next());
+        return String.valueOf(next(null));
     }
 }

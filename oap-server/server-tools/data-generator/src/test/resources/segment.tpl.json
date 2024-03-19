@@ -1,0 +1,122 @@
+{
+  "traceId": {
+    "type": "uuid",
+    "changingFrequency": "1"
+  },
+  "segments": {
+    "type": "randomList",
+    "size": 5,
+    "item": {
+      "serviceInstanceName": {
+        "type": "randomString",
+        "length": "10",
+        "letters": true,
+        "numbers": true,
+        "domainSize": 10
+      },
+      "serviceName": {
+        "type": "randomString",
+        "prefix": "service_",
+        "length": "1",
+        "letters": false,
+        "numbers": true,
+        "domainSize": 10
+      },
+      "endpointName": {
+        "type": "randomString",
+        "length": "10",
+        "prefix": "test_",
+        "letters": true,
+        "numbers": true,
+        "domainSize": 10
+      },
+      "error": {
+        "type": "randomInt",
+        "min": 1,
+        "max": 1
+      },
+      "tags": {
+        "type": "randomList",
+        "size": 5,
+        "item": {
+          "key": {
+            "type": "randomString",
+            "length": "10",
+            "prefix": "test_tag_",
+            "letters": true,
+            "numbers": true,
+            "domainSize": 5
+          },
+          "value": {
+            "type": "randomString",
+            "length": "10",
+            "prefix": "test_value_",
+            "letters": true,
+            "numbers": true,
+            "domainSize": 10
+          }
+        }
+      },
+      "spans": {
+        "type": "randomList",
+        "size": 5,
+        "item": {
+          "latency": {
+            "type": "randomInt",
+            "min": 100,
+            "max": 1000
+          },
+          "operationName": {
+            "type": "randomString",
+            "length": "10",
+            "prefix": "test_endpoint_",
+            "letters": true,
+            "numbers": true
+          },
+          "peer": {
+            "type": "randomString",
+            "length": "10",
+            "prefix": "test_peer_",
+            "letters": true,
+            "numbers": true
+          },
+          "spanLayer": {
+            "type": "randomInt",
+            "min": "0",
+            "max": "4"
+          },
+          "componentId": {
+            "type": "randomInt",
+            "min": "0",
+            "max": "4"
+          },
+          "error": {
+            "type": "randomBool",
+            "possibility": "0.2"
+          },
+          "tags": {
+            "type": "randomList",
+            "size": 5,
+            "item": {
+              "key": {
+                "type": "randomString",
+                "length": "10",
+                "prefix": "test_tag_key_",
+                "letters": true,
+                "numbers": true,
+                "domainSize": 10
+              },
+              "value": {
+                "type": "randomString",
+                "length": "10",
+                "prefix": "test_tag_val_",
+                "letters": true,
+                "numbers": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

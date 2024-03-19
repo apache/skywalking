@@ -81,7 +81,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @ElasticSearch.Column(legacyName = "name")
+    @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable percentileValues = new DataTable(10);
     @Getter
