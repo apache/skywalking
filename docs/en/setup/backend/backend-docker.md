@@ -11,7 +11,7 @@ bash <(curl -sSL https://skywalking.apache.org/quickstart-docker.sh)
 
 **Windows (Powershell)**
 ```powershell
-(Invoke-WebRequest -Uri https://skywalking.apache.org/quickstart-docker.ps1 -UseBasicParsing).Content | Invoke-Expression
+Invoke-Expression ([System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -Uri https://skywalking.apache.org/quickstart-docker.ps1 -UseBasicParsing).Content))
 ```
 
 You will be prompted to choose the storage type, and then the script will start the backend cluster with the selected storage. 
