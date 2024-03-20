@@ -61,6 +61,8 @@ public class SegmentGeneratorHandler {
     public HttpResponse generateMockSegments(
         @Default("0") @Param("size") int size,
         @Default("0") @Param("qps") int qps,
+        @Default("0") @Param("duration") int duration,
+        @Default("") @Param("group") String group,
         @RequestObject SegmentRequest request) {
 
         if (size > 0 && qps > 0) {
@@ -71,8 +73,9 @@ public class SegmentGeneratorHandler {
         }
         log.info("Generate {} mock segments, qps: {}, template: {}", size, qps, request);
 
+        request.init();
         final IntConsumer generator = unused -> {
-            final List<SegmentGenerator.SegmentResult> segments = request.next(null);
+            final List<SegmentGenerator.SegmentResult> segments = request.next(group);
             log.debug("Generating segment: {}", (Object) segments);
             segments.forEach(s -> {
                 segmentParserService.send(s.segmentObject);
@@ -100,6 +103,16 @@ public class SegmentGeneratorHandler {
             }
             if (f.cause() != null && !(f.cause() instanceof CancellationException)) {
                 log.error("Exception in future: ", f.cause());
+            }
+        });
+        final int durationSeconds = duration > 0 ? duration : Integer.MAX_VALUE;
+        future.addListener(f -> {
+            try {
+                Thread.sleep(durationSeconds * 1000L);
+                future.cancel(true);
+                log.info("Generate mock segments is canceled: requestId: {}", requestId);
+            } catch (InterruptedException e) {
+                log.error("Interrupted", e);
             }
         });
 

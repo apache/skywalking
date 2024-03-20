@@ -3,25 +3,25 @@
         "type": "uuid",
         "changingFrequency": "1"
     },
+    "serviceInstanceName": {
+        "type": "randomString",
+        "length": "10",
+        "letters": true,
+        "numbers": true,
+        "domainSize": 10
+    },
+    "serviceName": {
+        "type": "randomString",
+        "prefix": "service_",
+        "length": "1",
+        "letters": false,
+        "numbers": true,
+        "domainSize": 10
+    },
     "segments": {
         "type": "randomList",
         "size": 5,
         "item": {
-            "serviceInstanceName": {
-                "type": "randomString",
-                "length": "10",
-                "letters": true,
-                "numbers": true,
-                "domainSize": 10
-            },
-            "serviceName": {
-                "type": "randomString",
-                "prefix": "service_",
-                "length": "1",
-                "letters": false,
-                "numbers": true,
-                "domainSize": 10
-            },
             "endpointName": {
                 "type": "randomString",
                 "length": "10",
@@ -72,18 +72,6 @@
                         "prefix": "test_endpoint_",
                         "letters": true,
                         "numbers": true
-                    },
-                    "peer": {
-                        "type": "randomString",
-                        "length": "10",
-                        "prefix": "test_peer_",
-                        "letters": true,
-                        "numbers": true
-                    },
-                    "spanLayer": {
-                        "type": "randomInt",
-                        "min": "0",
-                        "max": "4"
                     },
                     "componentId": {
                         "type": "randomInt",

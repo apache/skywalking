@@ -30,21 +30,28 @@ import java.util.stream.IntStream;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-public final class SegmentRequest implements Generator<Object, List<SegmentGenerator.SegmentResult>> {
+public final class SegmentRequest implements Generator<String, List<SegmentGenerator.SegmentResult>> {
     private Generator<String, String> traceId;
     private Generator<String, String> serviceName;
     private Generator<String, String> serviceInstanceName;
     private Generator<Object, List<SegmentGenerator>> segments;
 
+    private List<String> serviceList;
+
+    void init() {
+        String prefix = getServiceName().next("");
+        final List<SegmentGenerator> segments = getSegments().next("");
+        serviceList = IntStream.range(0, segments.size()).mapToObj(i -> prefix + i).collect(Collectors.toList());
+    }
+
     @Override
-    public List<SegmentGenerator.SegmentResult> next(Object ignored) {
+    public List<SegmentGenerator.SegmentResult> next(String group) {
         final String traceId = getTraceId().next(null);
         final List<SegmentGenerator> segments = getSegments().next(traceId);
         SegmentGenerator.SegmentResult last = null;
-        List<SegmentGenerator.SegmentContext> context = IntStream.range(0, segments.size()).mapToObj(i -> {
-            String serviceName = getServiceName().next(null);
-            return new SegmentGenerator.SegmentContext(traceId, serviceName, getServiceInstanceName().next(serviceName));
-        }).collect(Collectors.toList());
+        List<SegmentGenerator.SegmentContext> context = IntStream.range(0, segments.size()).mapToObj(i ->
+            new SegmentGenerator.SegmentContext(traceId, serviceList.get(i), getServiceInstanceName().next(serviceList.get(i)))
+        ).collect(Collectors.toList());
         List<SegmentGenerator.SegmentResult> result = new ArrayList<>(segments.size());
         for (int i = 0; i < segments.size(); i++) {
             SegmentGenerator.SegmentContext ctx = context.get(i);
