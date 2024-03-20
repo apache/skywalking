@@ -45,8 +45,6 @@ import java.util.stream.IntStream;
 public class SegmentGenerator implements Generator<SegmentGenerator.SegmentContext, SegmentGenerator.SegmentResult> {
 
     private Generator<String, String> segmentId;
-    private Generator<String, String> serviceName;
-    private Generator<String, String> serviceInstanceName;
     private Generator<String, String> endpointName;
     private Generator<Object, Long> error;
     private Generator<Object, List<TagGenerator>> tags;
@@ -55,8 +53,8 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
     @Override
     public SegmentResult next(SegmentContext ctx) {
         long now = System.currentTimeMillis();
-        final String serviceName = getServiceName().next(null);
-        final String serviceInstanceName = getServiceInstanceName().next(serviceName);
+        final String serviceName = ctx.serviceName;
+        final String serviceInstanceName = ctx.serviceInstanceName;
         final String endpointName = getEndpointName().next(null);
         if (segmentId == null) {
             StringGenerator.Builder segmentIdBuilder = new StringGenerator.Builder();
@@ -75,7 +73,8 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
                                 .setParentService(parentSegment.segmentObject.getService())
                                 .setParentSpanId(span.getSpanId())
                                 .setParentTraceSegmentId(parentSegment.segment.getSegmentId())
-                                .setNetworkAddressUsedAtPeer(span.getPeer())
+                                .setParentEndpoint(IDManager.EndpointID.analysisId(parentSegment.segment.getEndpointId()).getEndpointName())
+                                .setNetworkAddressUsedAtPeer(serviceInstanceName)
                                 .build()))
                 .orElse(null);
         final String segmentId = getSegmentId().next(null);
@@ -90,7 +89,7 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
                         IntStream.range(0, size)
                                 .mapToObj(i -> {
                                     SpanGenerator sg = spanGenerators.get(i);
-                                    return sg.next(new SpanGenerator.SpanGeneratorContext(i, size, sr));
+                                    return sg.next(new SpanGenerator.SpanGeneratorContext(i, size, sr, ctx.peer));
                                 })
                                 .collect(Collectors.<SpanObject>toList()))
                 .setService(serviceName)
@@ -126,14 +125,16 @@ public class SegmentGenerator implements Generator<SegmentGenerator.SegmentConte
                         .map(tg -> tg.next(null))
                         .collect(Collectors.<Tag>toList()));
 
-        segment.setDataBinary(segmentObj.toByteArray());
         return new SegmentResult(segment, segmentObj);
     }
 
     @RequiredArgsConstructor
     public static class SegmentContext {
         final String traceId;
-        final SegmentResult parentSegment;
+        final String serviceName;
+        final String serviceInstanceName;
+        String peer;
+        SegmentResult parentSegment;
     }
 
     @RequiredArgsConstructor

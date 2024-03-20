@@ -39,8 +39,6 @@ public final class SpanGenerator implements Generator<SpanGenerator.SpanGenerato
     private Generator<Object, Long> endTime;
     private Generator<Object, Long> latency;
     private Generator<String, String> operationName;
-    private Generator<String, String> peer;
-    private Generator<Object, Long> spanLayer;
     private Generator<Object, Long> componentId;
     private Generator<Object, Boolean> error;
     private Generator<Object, List<TagGenerator>> tags;
@@ -71,16 +69,20 @@ public final class SpanGenerator implements Generator<SpanGenerator.SpanGenerato
                         .setValue(it.getValue()).build())
                     .collect(Collectors.toList()));
         if (ctx.index == 0) {
-            sob.setSpanLayer(SpanLayer.forNumber(getSpanLayer().next(null).intValue()))
+            sob.setSpanLayer(SpanLayer.Http)
                     .setSpanType(SpanType.Entry);
             if (ctx.ref != null) {
                 sob.addRefs(ctx.ref);
             }
         } else if (ctx.length > 1 && ctx.index == ctx.length - 1) {
-            sob.setSpanType(SpanType.Exit).setPeer(getPeer().next(null)).setSpanLayer(SpanLayer.Database);
+            sob.setSpanType(SpanType.Exit);
+            if (ctx.peer != null) {
+                sob.setPeer(ctx.peer).setSpanLayer(SpanLayer.Http);
+            } else {
+                sob.setPeer("peer-database").setSpanLayer(SpanLayer.Database);
+            }
         } else {
-            sob.setSpanLayer(SpanLayer.forNumber(getSpanLayer().next(null).intValue()))
-                    .setSpanType(SpanType.Local);
+            sob.setSpanType(SpanType.Local);
         }
         return sob.build();
     }
@@ -88,8 +90,6 @@ public final class SpanGenerator implements Generator<SpanGenerator.SpanGenerato
     @Override
     public void reset() {
         operationName.reset();
-        peer.reset();
-        spanLayer.reset();
         componentId.reset();
         error.reset();
         tags.reset();
@@ -100,5 +100,6 @@ public final class SpanGenerator implements Generator<SpanGenerator.SpanGenerato
         final int index;
         final int length;
         final SegmentReference ref;
+        final String peer;
     }
 }
