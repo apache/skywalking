@@ -7,7 +7,7 @@ SkyWalking uses the SkyWalking Rover system to collect access logs from Kubernet
 2. The SkyWalking OAP Server receive access log from Rover through gRPC, analysis the generate entity, and using [OAL](../../concepts-and-designs/oal.md) to generating metrics.
 
 ## Setup
-1. Setup [Rover in the Kubernetes](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/examples/deploy/kubernetes/readme/) and enable [access log service](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/configuration/accesslog/).
+1. Setup [Rover in the Kubernetes](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/deployment/kubernetes/readme/) and enable [access log service](https://skywalking.apache.org/docs/skywalking-rover/next/en/setup/configuration/traffic/).
 2. Setup eBPF receiver module by the following configuration.
 ```yaml
 receiver-ebpf:
