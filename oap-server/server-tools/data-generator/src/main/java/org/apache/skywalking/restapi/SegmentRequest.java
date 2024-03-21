@@ -20,6 +20,7 @@
 package org.apache.skywalking.restapi;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.base.Strings;
 import lombok.Data;
 import org.apache.skywalking.generator.Generator;
 
@@ -30,7 +31,7 @@ import java.util.stream.IntStream;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-public final class SegmentRequest implements Generator<String, List<SegmentGenerator.SegmentResult>> {
+public final class SegmentRequest implements Generator<Object, List<SegmentGenerator.SegmentResult>> {
     private Generator<String, String> traceId;
     private Generator<String, String> serviceName;
     private Generator<String, String> serviceInstanceName;
@@ -38,14 +39,19 @@ public final class SegmentRequest implements Generator<String, List<SegmentGener
 
     private List<String> serviceList;
 
-    void init() {
+    void init(String group) {
         String prefix = getServiceName().next("");
         final List<SegmentGenerator> segments = getSegments().next("");
-        serviceList = IntStream.range(0, segments.size()).mapToObj(i -> prefix + i).collect(Collectors.toList());
+        serviceList = IntStream.range(0, segments.size()).mapToObj(i -> {
+            if (Strings.isNullOrEmpty(group)) {
+                return prefix + i;
+            }
+            return group + "::" + prefix + i;
+        }).collect(Collectors.toList());
     }
 
     @Override
-    public List<SegmentGenerator.SegmentResult> next(String group) {
+    public List<SegmentGenerator.SegmentResult> next(Object ignored) {
         final String traceId = getTraceId().next(null);
         final List<SegmentGenerator> segments = getSegments().next(traceId);
         SegmentGenerator.SegmentResult last = null;

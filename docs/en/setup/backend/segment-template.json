@@ -11,12 +11,8 @@
         "domainSize": 10
     },
     "serviceName": {
-        "type": "randomString",
-        "prefix": "service_",
-        "length": "1",
-        "letters": false,
-        "numbers": true,
-        "domainSize": 10
+        "type": "fixedString",
+        "value": "service_"
     },
     "segments": {
         "type": "randomList",

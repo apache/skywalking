@@ -73,7 +73,7 @@ public class SegmentGeneratorHandler {
         }
         log.info("Generate {} mock segments, qps: {}, template: {}", size, qps, request);
 
-        request.init();
+        request.init(group);
         final IntConsumer generator = unused -> {
             final List<SegmentGenerator.SegmentResult> segments = request.next(group);
             log.debug("Generating segment: {}", (Object) segments);
