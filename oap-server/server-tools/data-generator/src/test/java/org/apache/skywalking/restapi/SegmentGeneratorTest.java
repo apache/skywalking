@@ -43,7 +43,7 @@ class SegmentGeneratorTest {
         assertNotNull(url);
         File jsonFile = new File(url.toURI());
         SegmentRequest sr = objectMapper.readValue(jsonFile, SegmentRequest.class);
-        sr.init();
+        sr.init("");
         Set<String> serviceSet = new HashSet<>();
         Set<String> serviceInstanceSet = new HashSet<>();
         Set<String> endpointSet = new HashSet<>();
