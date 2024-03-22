@@ -26,9 +26,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static graphql.Assert.assertFalse;
+import static graphql.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SegmentGeneratorTest {
@@ -40,7 +43,24 @@ class SegmentGeneratorTest {
         assertNotNull(url);
         File jsonFile = new File(url.toURI());
         SegmentRequest sr = objectMapper.readValue(jsonFile, SegmentRequest.class);
-        List<SegmentGenerator.SegmentResult> ss = sr.next(null);
-        assertFalse(ss.isEmpty());
+        sr.init("");
+        Set<String> serviceSet = new HashSet<>();
+        Set<String> serviceInstanceSet = new HashSet<>();
+        Set<String> endpointSet = new HashSet<>();
+        for (int i = 0; i < 1000; i++) {
+            List<SegmentGenerator.SegmentResult> ss = sr.next(null);
+            assertFalse(ss.isEmpty());
+            for (SegmentGenerator.SegmentResult s : ss) {
+                serviceSet.add(s.segmentObject.getService());
+                serviceInstanceSet.add(s.segmentObject.getServiceInstance());
+                endpointSet.add(s.segment.getEndpointId());
+            }
+        }
+        assertTrue(serviceSet.size() > 1);
+        assertTrue(serviceSet.size() <= 10);
+        assertTrue(serviceInstanceSet.size() > 1);
+        assertTrue(serviceInstanceSet.size() <= 100);
+        assertTrue(endpointSet.size() > 1);
+        assertTrue(endpointSet.size() <= 100);
     }
 }

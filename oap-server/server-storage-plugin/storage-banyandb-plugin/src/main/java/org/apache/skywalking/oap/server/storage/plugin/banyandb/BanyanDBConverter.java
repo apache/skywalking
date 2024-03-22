@@ -29,6 +29,7 @@ import org.apache.skywalking.banyandb.v1.client.StreamWrite;
 import org.apache.skywalking.banyandb.v1.client.TagAndValue;
 import org.apache.skywalking.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.banyandb.v1.client.metadata.Serializable;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -210,8 +211,8 @@ public class BanyanDBConverter {
             return TagAndValue.binaryTagValue(ByteUtil.double2Bytes((double) value));
         } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
             return TagAndValue.stringTagValue(((StorageDataComplexObject<?>) value).toStorageData());
-        } else if (clazz.isEnum()) {
-            return TagAndValue.longTagValue((int) value);
+        } else if (Layer.class.equals(clazz)) {
+            return TagAndValue.longTagValue(((Integer) value).longValue());
         } else if (JsonObject.class.equals(clazz)) {
             return TagAndValue.stringTagValue((String) value);
         } else if (byte[].class.equals(clazz)) {
@@ -250,15 +251,24 @@ public class BanyanDBConverter {
                 return TimeBucket.getTimeBucket(dataPoint.getTimestamp(), schema.getMetadata().getDownSampling());
             }
             MetadataRegistry.ColumnSpec spec = schema.getSpec(fieldName);
+            Class<?> clazz = spec.getColumnClass();
             switch (spec.getColumnType()) {
                 case TAG:
-                    if (double.class.equals(spec.getColumnClass())) {
+                    Object tv = dataPoint.getTagValue(fieldName);
+                    if (tv == null) {
+                       return defaultValue(clazz);
+                    }
+                    if (double.class.equals(clazz)) {
                         return ByteUtil.bytes2Double(dataPoint.getTagValue(fieldName));
                     } else {
                         return dataPoint.getTagValue(fieldName);
                     }
                 case FIELD:
                 default:
+                    Object fv = dataPoint.getFieldValue(fieldName);
+                    if (fv == null) {
+                        return defaultValue(clazz);
+                    }
                     if (double.class.equals(spec.getColumnClass())) {
                         return ByteUtil.bytes2Double(dataPoint.getFieldValue(fieldName));
                     } else {
@@ -271,6 +281,25 @@ public class BanyanDBConverter {
         public byte[] getBytes(String fieldName) {
             // TODO: double may be a field?
             return dataPoint.getFieldValue(fieldName);
+        }
+
+        private Object defaultValue(Class<?> clazz) {
+            if (int.class.equals(clazz) || Integer.class.equals(clazz)) {
+                return 0;
+            } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
+                return 0L;
+            } else if (String.class.equals(clazz)) {
+                return "";
+            } else if (Double.class.equals(clazz) || double.class.equals(clazz)) {
+                return 0D;
+            } else if (StorageDataComplexObject.class.isAssignableFrom(clazz)) {
+                return "";
+            } else if (JsonObject.class.equals(clazz)) {
+                return "";
+            } else if (byte[].class.equals(clazz)) {
+                return new byte[]{};
+            }
+            throw new IllegalStateException(clazz.getSimpleName() + " is not supported");
         }
     }
 }
