@@ -47,6 +47,9 @@ experimental, it's your responsibility to make sure the reported log data contai
 SkyWalking is not able to consume them:
 
 - `service.name`: the name of the service that generates the log data.
-- `service.layer`: the layer of the service that generates the logs.
+
+And several attributes are optional as add-on information for the logs before analyzing.
+- `service.layer`: the layer of the service that generates the logs. The default value is `GENERAL` layer, which is 100% sampled defined by [LAL general rule](https://github.com/apache/skywalking/blob/master/oap-server/server-starter/src/main/resources/lal/default.yaml)
+- `service.instance`: the instance name that generates the logs. The default value is empty.
 
 Note, that these attributes should be set manually through OpenTelemetry SDK or through [attribute#insert in OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/attributesprocessor/README.md).
