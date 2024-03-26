@@ -46,5 +46,10 @@ Also, because most of the language SDKs of OpenTelemetry do not support logging 
 experimental, it's your responsibility to make sure the reported log data contains the following attributes, otherwise
 SkyWalking is not able to consume them:
 
-- `service.name`: the name of the service that generates the log data, OpenTelemetry Java SDK (experimental) has this
-  attribute set, if you're using other SDK or agent, please check the corresponding doc.
+- `service.name`: the name of the service that generates the log data.
+
+And several attributes are optional as add-on information for the logs before analyzing.
+- `service.layer`: the layer of the service that generates the logs. The default value is `GENERAL` layer, which is 100% sampled defined by [LAL general rule](https://github.com/apache/skywalking/blob/master/oap-server/server-starter/src/main/resources/lal/default.yaml)
+- `service.instance`: the instance name that generates the logs. The default value is empty.
+
+Note, that these attributes should be set manually through OpenTelemetry SDK or through [attribute#insert in OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/attributesprocessor/README.md).
