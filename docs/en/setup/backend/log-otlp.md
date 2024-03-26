@@ -46,5 +46,7 @@ Also, because most of the language SDKs of OpenTelemetry do not support logging 
 experimental, it's your responsibility to make sure the reported log data contains the following attributes, otherwise
 SkyWalking is not able to consume them:
 
-- `service.name`: the name of the service that generates the log data, OpenTelemetry Java SDK (experimental) has this
-  attribute set, if you're using other SDK or agent, please check the corresponding doc.
+- `service.name`: the name of the service that generates the log data.
+- `service.layer`: the layer of the service that generates the logs.
+
+Note, that these attributes should be set manually through OpenTelemetry SDK or through [attribute#insert in OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/attributesprocessor/README.md).
