@@ -1,4 +1,4 @@
-# Why doesn't SkyWalking involve MQ in its architecture?
+# Why does SkyWalking use RPC(gRPC and RESTful) rather than MQ as transport layer by default?
 This is often asked by those who are first introduced to SkyWalking. Many believe that MQ should have better performance and should be able to support higher throughput, like the following:
 
 <img src="MQ-involved-architecture.png"/>
