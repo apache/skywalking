@@ -23,4 +23,4 @@ Even though MQ transport is not recommended from the production perspective, Sky
 `kafka-reporter` and `kafka-fetcher` for this feature since 8.1.0. 
 
 ### How about MQ metrics data exporter?
-The answer is that the MQ metrics data exporter is already readily available. The exporter module with gRPC default mechanism is there, and you can easily provide a new implementor of this module.
+Log and trace exporters are using MQ as transport channel. And metrics exporter uses gRPC, as considering the scale.
