@@ -61,6 +61,7 @@ body:
         - "NodeJS Client Side Agent (apache/skywalking-client-js)"
         - "Nginx Lua Agent (apache/skywalking-nginx-lua)"
         - "Kong Agent (apache/skywalking-kong)"
+        - "Go Agent (apache/skywalking-go)"
         - "PHP (apache/skywalking-php)"
         - "Rust (apache/skywalking-rust)"
         - "Satellite (apache/skywalking-satellite)"
