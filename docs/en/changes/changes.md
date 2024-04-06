@@ -104,7 +104,7 @@
 * Add the layers filed and associate layers dashboards for the service topology nodes.
 * Fix `Nginx-Instance` metrics to instance level.
 * Update tabs of the Kubernetes service page. 
-* Add Airflow monitor.
+* Add Airflow menu i18n.
 * Add Support for dragging in the trace panel.
 * Add workflow icon.
 
