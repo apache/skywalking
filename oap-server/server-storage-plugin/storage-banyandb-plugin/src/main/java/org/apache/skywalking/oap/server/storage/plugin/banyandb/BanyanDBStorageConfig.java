@@ -63,26 +63,12 @@ public class BanyanDBStorageConfig extends ModuleConfig {
      */
     private int superDatasetShardsFactor;
     /**
-     * Default global block interval for non-super-dataset models.
-     * Unit is hour.
-     *
-     * @since 9.4.0
-     */
-    private int blockIntervalHours;
-    /**
      * Default global segment interval for non-super-dataset models.
      * Unit is day.
      *
      * @since 9.4.0
      */
     private int segmentIntervalDays;
-    /**
-     * Default global block interval for super-dataset models.
-     * Unit is hour.
-     *
-     * @since 9.4.0
-     */
-    private int superDatasetBlockIntervalHours;
     /**
      * Default global segment interval for super-dataset models.
      * Unit is day.

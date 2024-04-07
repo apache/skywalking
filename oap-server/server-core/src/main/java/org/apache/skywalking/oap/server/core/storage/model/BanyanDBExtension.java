@@ -40,14 +40,6 @@ public class BanyanDBExtension {
     private final int shardingKeyIdx;
 
     /**
-     * Global index column.
-     *
-     * @since 9.1.0
-     */
-    @Getter
-    private final boolean isGlobalIndexing;
-
-    /**
      * {@link BanyanDB.NoIndexing} exists to override {@link ModelColumn#shouldIndex()}, or be the same as {@link
      * ModelColumn#shouldIndex()}.
      *
