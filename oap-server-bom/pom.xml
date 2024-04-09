@@ -50,8 +50,8 @@
         <kubernetes.version>6.7.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.24.1</zipkin.version>
-        <jackson.version>2.15.2</jackson.version>
-        <jackson-databind.version>2.15.2</jackson-databind.version>
+        <jackson.version>2.16.0</jackson.version>
+        <jackson-databind.version>2.16.0</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
         <nacos.version>1.4.2</nacos.version>
@@ -66,9 +66,9 @@
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
         <postgresql.version>42.4.4</postgresql.version>
-        <jetcd.version>0.5.3</jetcd.version>
+        <jetcd.version>0.6.1</jetcd.version>
         <testcontainers.version>1.17.6</testcontainers.version>
-        <armeria.version>1.25.0</armeria.version>
+        <armeria.version>1.27.3</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.13</httpcore.version>
         <commons-compress.version>1.21</commons-compress.version>
@@ -403,6 +403,10 @@
                     <exclusion>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-annotations</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
