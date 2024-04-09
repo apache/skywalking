@@ -226,7 +226,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.16.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos/2.9.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.google.api.grpc/proto-google-common-protos/2.29.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.google.auto.service/auto-service-annotations/1.0.1 Apache-2.0
     https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305/3.0.2 Apache-2.0
     https://mvnrepository.com/artifact/com.google.code.gson/gson/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.errorprone/error_prone_annotations/2.11.0 Apache-2.0
@@ -255,9 +256,10 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/commons-validator/commons-validator/1.7 Apache-2.0
     https://npmjs.com/package/d3-flame-graph/v/4.1.3 4.1.3 Apache-2.0
     https://npmjs.com/package/echarts/v/5.4.1 5.4.1 Apache-2.0
-    https://mvnrepository.com/artifact/io.etcd/jetcd-common/0.5.3 Apache-2.0
-    https://mvnrepository.com/artifact/io.etcd/jetcd-core/0.5.3 Apache-2.0
-    https://mvnrepository.com/artifact/io.etcd/jetcd-resolver/0.5.3 Apache-2.0
+    https://mvnrepository.com/artifact/io.etcd/jetcd-api/0.6.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.etcd/jetcd-common/0.6.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.etcd/jetcd-core/0.6.1 Apache-2.0
+    https://mvnrepository.com/artifact/io.etcd/jetcd-grpc/0.6.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/istio-client/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/istio-model-v1alpha3/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/istio-model-v1beta1/6.7.1 Apache-2.0
@@ -287,14 +289,15 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-scheduling/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/kubernetes-model-storageclass/6.7.1 Apache-2.0
     https://mvnrepository.com/artifact/io.fabric8/zjsonpatch/0.3.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-api/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-context/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-core/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-grpclb/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-netty/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf-lite/1.53.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.53.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-api/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-context/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-core/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-grpclb/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-netty/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-protobuf-lite/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.62.2 Apache-2.0
+    https://mvnrepository.com/artifact/io.grpc/grpc-util/1.62.2 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.12.2 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.12.2 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.12.2 Apache-2.0
@@ -321,9 +324,9 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.45.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.1.106.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.1.106.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.79.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.100.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.1.106.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.25.0 Apache-2.0
+    https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.26.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_hotspot/0.6.0 Apache-2.0
@@ -333,7 +336,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.zipkin/zipkin-lens/2.24.1 Apache-2.0
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
-    https://mvnrepository.com/artifact/net.jodah/failsafe/2.3.4 Apache-2.0
+    https://mvnrepository.com/artifact/net.jodah/failsafe/2.4.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.11 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-text/1.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-client/4.3.0 Apache-2.0
@@ -543,7 +546,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://npmjs.com/package/monaco-editor/v/0.34.1 0.34.1 MIT
     https://npmjs.com/package/nanoid/v/3.3.7 3.3.7 MIT
     https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
-    https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.21 MIT
+    https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.23 MIT
     https://npmjs.com/package/pinia/v/2.0.28 2.0.28 MIT
     https://npmjs.com/package/pinia/node_modules/vue-demi/v/0.13.11 0.13.11 MIT
     https://npmjs.com/package/postcss/v/8.4.33 8.4.33 MIT

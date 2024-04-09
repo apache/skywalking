@@ -9,7 +9,7 @@
 * Remove CLI(`swctl`) from the image.
 * Remove CLI_VERSION variable from Makefile build.
 * Add BanyanDB to docker-compose quickstart.
-* Bump up Armeria, jackson, netty to fix CVEs.
+* Bump up Armeria, jackson, netty, jetcd and grpc to fix CVEs.
 
 #### OAP Server
 
