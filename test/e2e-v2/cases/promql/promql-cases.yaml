@@ -34,7 +34,9 @@ cases:
   # labels query
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_cpm'
     expected: expected/service-metric-label.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_percentile'
+  - query: |
+      sleep 30;
+      curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_percentile'
     expected: expected/service-labeled-metric-label-p.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_percentile_old'
     expected: expected/service-labeled-metric-label-old.yml

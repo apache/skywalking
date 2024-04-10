@@ -91,6 +91,8 @@
     - Support querying by multiple labels(name and value) instead using `lables` as the anonymous label name.
     - Remove general labels `labels/relabels/label` function.
     - API `/api/v1/labels` and `/api/v1/label/<label_name>/values` support return matched metrics labels.
+  - OAL:
+    - Deprecate `percentile` function and introduce `percentile2` function instead.
 
 #### UI
 

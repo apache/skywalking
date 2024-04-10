@@ -19,7 +19,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: p
           value: "50"
     values:
       {{- contains .values }}
@@ -32,7 +32,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: p
           value: "70"
     values:
       {{- contains .values }}
@@ -45,7 +45,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: p
           value: "90"
     values:
       {{- contains .values }}
@@ -58,7 +58,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: p
           value: "99"
     values:
       {{- contains .values }}

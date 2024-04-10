@@ -105,7 +105,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
                 roofs[i] = Math.round(total * RANKS[i] * 1.0f / 100);
             }
 
-            int count = 0;
+            long count = 0;
             final List<String> sortedKeys = dataset.sortedKeys(Comparator.comparingInt(Integer::parseInt));
 
             int loopIndex = 0;

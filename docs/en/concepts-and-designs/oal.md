@@ -94,9 +94,10 @@ Parameter (1) is the service name, which reflects the Apdex threshold value load
 Parameter (2) is the status of this request. The status(success/failure) reflects the Apdex calculation.
 
 - `p99`, `p95`, `p90`, `p75`, `p50`. See [percentile in WIKI](https://en.wikipedia.org/wiki/Percentile).
-> service_percentile = from(Service.latency).percentile(10);
+> service_percentile = from(Service.latency).percentile2(10);
 
-**percentile** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
+**percentile (deprecated since 10.0.0)** is the first multiple-value metric, which has been introduced since 7.0.0. As a metric with multiple values, it could be queried through the `getMultipleLinearIntValues` GraphQL query.
+**percentile2** Since 10.0.0, the `percentile` function has been instead by `percentile2`. The `percentile2` function is a labeled-value metric with default label name `p` and label values `50`,`75`,`90`,`95`,`99`.
 In this case, see `p99`, `p95`, `p90`, `p75`, and `p50` of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
 
 In this case, the p99 value of all incoming requests. The parameter is precise to a latency at p99, such as in the above case, and 120ms and 124ms are considered to produce the same response time.
@@ -146,7 +147,7 @@ serv_Endpoint_p99 = from(Endpoint.latency).filter(name like "serv%").summary(0.9
 endpoint_resp_time = from(Endpoint.latency).avg()
 
 // Calculate the p50, p75, p90, p95 and p99 of each Endpoint by 50 ms steps.
-endpoint_percentile = from(Endpoint.latency).percentile(10)
+endpoint_percentile = from(Endpoint.latency).percentile2(10)
 
 // Calculate the percent of response status is true, for each service.
 endpoint_success = from(Endpoint.*).filter(status == true).percent()
