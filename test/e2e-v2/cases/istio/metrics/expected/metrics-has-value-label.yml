@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: cluster_name
           value: e2e::details
     values:
       {{- contains .values }}

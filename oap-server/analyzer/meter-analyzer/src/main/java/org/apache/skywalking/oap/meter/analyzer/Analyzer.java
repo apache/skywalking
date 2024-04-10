@@ -58,6 +58,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 
@@ -147,8 +148,11 @@ public class Analyzer {
                 case labeled:
                     AcceptableValue<DataTable> lv = meterSystem.buildMetrics(metricName, DataTable.class);
                     DataTable dt = new DataTable();
+                    // put all labels into the data table.
                     for (Sample each : ss) {
-                        dt.put(composeGroup(each.getLabels()), getValue(each));
+                        DataLabel dataLabel = new DataLabel();
+                        dataLabel.putAll(each.getLabels());
+                        dt.put(dataLabel, getValue(each));
                     }
                     lv.accept(meterEntity, dt);
                     send(lv, ss[0].getTimestamp());
@@ -201,10 +205,6 @@ public class Analyzer {
             return 1L;
         }
         return Math.round(sample.getValue());
-    }
-
-    private String composeGroup(ImmutableMap<String, String> labels) {
-        return composeGroup(labels, k -> true);
     }
 
     private String composeGroup(ImmutableMap<String, String> labels, Predicate<String> filter) {

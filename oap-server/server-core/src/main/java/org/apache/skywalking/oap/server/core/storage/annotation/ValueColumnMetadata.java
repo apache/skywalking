@@ -43,7 +43,16 @@ public enum ValueColumnMetadata {
                             Column.ValueDataType dataType,
                             int defaultValue,
                             int scopeId) {
-        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, dataType, defaultValue, scopeId));
+        this.putIfAbsent(modelName, valueCName, dataType, defaultValue, scopeId, false);
+    }
+
+    public void putIfAbsent(String modelName,
+                            String valueCName,
+                            Column.ValueDataType dataType,
+                            int defaultValue,
+                            int scopeId,
+                            boolean multiIntValues) {
+        mapping.putIfAbsent(modelName, new ValueColumn(valueCName, dataType, defaultValue, scopeId, multiIntValues));
     }
 
     public void overrideColumnName(String oldName, String newName) {
@@ -95,5 +104,8 @@ public enum ValueColumnMetadata {
         private final Column.ValueDataType dataType;
         private final int defaultValue;
         private final int scopeId;
+        // Will remove this field when `MultiIntValuesHolder` is removed in the future.
+        @Deprecated
+        private final boolean multiIntValues;
     }
 }

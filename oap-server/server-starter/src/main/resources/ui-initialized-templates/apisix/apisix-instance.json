@@ -531,11 +531,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_apisix_instance_http_status_matched{_='200'})",
-        "avg(meter_apisix_instance_http_status_matched{_='304'})",
-        "avg(meter_apisix_instance_http_status_matched{_='404'})",
-        "avg(meter_apisix_instance_http_status_matched{_='499'})",
-        "avg(meter_apisix_instance_http_status_matched{_='503'})"
+        "avg(meter_apisix_instance_http_status_matched{code='200'})",
+        "avg(meter_apisix_instance_http_status_matched{code='304'})",
+        "avg(meter_apisix_instance_http_status_matched{code='404'})",
+        "avg(meter_apisix_instance_http_status_matched{code='499'})",
+        "avg(meter_apisix_instance_http_status_matched{code='503'})"
       ],
       "expressionsConfig": [
         {

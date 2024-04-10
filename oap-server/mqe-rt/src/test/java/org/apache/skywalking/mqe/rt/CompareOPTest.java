@@ -77,14 +77,16 @@ public class CompareOPTest {
                                                     mockData.newSeriesNoLabeledResult(100, 200), MQEParser.GT
         );
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(0).getValues().get(0).getId());
         assertEquals(0, gt.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(0).getValues().get(1).getId());
         assertEquals(1, gt.getResults().get(0).getValues().get(1).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(1).getValues().get(0).getId());
         assertEquals(1, gt.getResults().get(1).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(1).getValues().get(1).getId());
@@ -95,14 +97,16 @@ public class CompareOPTest {
                                    mockData.newSeriesLabeledResult(100, 300, 101, 200), MQEParser.GT
         );
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(0).getValues().get(0).getId());
         assertEquals(1, gt.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(0).getValues().get(1).getId());
         assertEquals(0, gt.getResults().get(0).getValues().get(1).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(1).getValues().get(0).getId());
         assertEquals(0, gt.getResults().get(1).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(1).getValues().get(1).getId());
@@ -113,14 +117,16 @@ public class CompareOPTest {
                                    mockData.newSeriesLabeledResult(100, 300, 101, 201), MQEParser.GT
         );
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(0).getValues().get(0).getId());
         assertEquals(1, gt.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(0).getValues().get(1).getId());
         assertEquals(0, gt.getResults().get(0).getValues().get(1).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(1).getValues().get(0).getId());
         assertEquals(0, gt.getResults().get(1).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(1).getValues().get(1).getId());
@@ -152,14 +158,16 @@ public class CompareOPTest {
                                    mockData.newSingleResult(101), MQEParser.GT
         );
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(0).getValues().get(0).getId());
         assertEquals(0, gt.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(0).getValues().get(1).getId());
         assertEquals(1, gt.getResults().get(0).getValues().get(1).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(1).getValues().get(0).getId());
         assertEquals(0, gt.getResults().get(1).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(1).getValues().get(1).getId());
@@ -190,14 +198,16 @@ public class CompareOPTest {
         gt = CompareOp.doCompareOP(mockData.newSingleResult(101),
                                    mockData.newSeriesLabeledResult(100, 200, 200, 100), MQEParser.GT);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(0).getValues().get(0).getId());
         assertEquals(1, gt.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(0).getValues().get(1).getId());
         assertEquals(0, gt.getResults().get(0).getValues().get(1).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", gt.getResults().get(1).getValues().get(0).getId());
         assertEquals(0, gt.getResults().get(1).getValues().get(0).getDoubleValue());
         assertEquals("300", gt.getResults().get(1).getValues().get(1).getId());
@@ -216,33 +226,39 @@ public class CompareOPTest {
         gt = CompareOp.doCompareOP(
             mockData.newSingleLabeledResult(100, 200), mockData.newSingleResult(100), MQEParser.GT);
         assertEquals(ExpressionResultType.SINGLE_VALUE, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals(0, gt.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
         assertEquals(1, gt.getResults().get(1).getValues().get(0).getDoubleValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
 
         //nolabeled > labeled
         gt = CompareOp.doCompareOP(
             mockData.newSingleResult(101), mockData.newSingleLabeledResult(100, 200), MQEParser.GT);
         assertEquals(ExpressionResultType.SINGLE_VALUE, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals(1, gt.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals(0, gt.getResults().get(1).getValues().get(0).getDoubleValue());
 
         //labeled > labeled
         gt = CompareOp.doCompareOP(
             mockData.newSingleLabeledResult(100, 202), mockData.newSingleLabeledResult(100, 200), MQEParser.GT);
         assertEquals(ExpressionResultType.SINGLE_VALUE, gt.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", gt.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals(0, gt.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", gt.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", gt.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals(1, gt.getResults().get(1).getValues().get(0).getDoubleValue());
     }
 }

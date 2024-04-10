@@ -51,12 +51,12 @@ browser_app_page_ttl_avg = from(BrowserAppPagePerf.ttlTime).longAvg();
 browser_app_page_first_pack_avg = from(BrowserAppPagePerf.firstPackTime).longAvg();
 browser_app_page_fmp_avg = from(BrowserAppPagePerf.fmpTime).longAvg();
 
-browser_app_page_fpt_percentile = from(BrowserAppPagePerf.fptTime).percentile(10);
-browser_app_page_ttl_percentile = from(BrowserAppPagePerf.ttlTime).percentile(10);
-browser_app_page_dom_ready_percentile = from(BrowserAppPagePerf.domReadyTime).percentile(10);
-browser_app_page_load_page_percentile = from(BrowserAppPagePerf.loadPageTime).percentile(10);
-browser_app_page_first_pack_percentile = from(BrowserAppPagePerf.firstPackTime).percentile(10);
-browser_app_page_fmp_percentile = from(BrowserAppPagePerf.fmpTime).percentile(10);
+browser_app_page_fpt_percentile = from(BrowserAppPagePerf.fptTime).percentile2(10);
+browser_app_page_ttl_percentile = from(BrowserAppPagePerf.ttlTime).percentile2(10);
+browser_app_page_dom_ready_percentile = from(BrowserAppPagePerf.domReadyTime).percentile2(10);
+browser_app_page_load_page_percentile = from(BrowserAppPagePerf.loadPageTime).percentile2(10);
+browser_app_page_first_pack_percentile = from(BrowserAppPagePerf.firstPackTime).percentile2(10);
+browser_app_page_fmp_percentile = from(BrowserAppPagePerf.fmpTime).percentile2(10);
 
 // Disable unnecessary hard core stream, targeting @Stream#name
 /////////

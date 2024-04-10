@@ -290,9 +290,9 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_nginx_service_http_status{_='200'})",
-        "avg(meter_nginx_service_http_status{_='404'})",
-        "avg(meter_nginx_service_http_status{_='500'})"
+        "avg(meter_nginx_service_http_status{status='200'})",
+        "avg(meter_nginx_service_http_status{status='404'})",
+        "avg(meter_nginx_service_http_status{status='500'})"
       ],
       "expressionsConfig": [
         {

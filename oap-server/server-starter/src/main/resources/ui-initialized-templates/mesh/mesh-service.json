@@ -211,7 +211,7 @@
                   ],
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(service_percentile{_=\"0,1,2,3,4\"},_=\"P50,P75,P90,P95,P99\")"
+                    "relabels(service_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"

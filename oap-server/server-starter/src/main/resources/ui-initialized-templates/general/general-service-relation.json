@@ -177,7 +177,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(service_relation_server_percentile,_='P50,P75,P90,P95,P99')"
+                    "relabels(service_relation_server_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ]
                 },
                 {
@@ -346,7 +346,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(service_relation_client_percentile,_='P50,P75,P90,P95,P99')"
+                    "relabels(service_relation_client_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"

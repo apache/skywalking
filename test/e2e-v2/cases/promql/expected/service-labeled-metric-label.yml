@@ -19,8 +19,6 @@
     "layer",
     "service",
     "top_n",
-    "order",
-    "labels",
-    "relabels"
+    "order"
   ]
 }

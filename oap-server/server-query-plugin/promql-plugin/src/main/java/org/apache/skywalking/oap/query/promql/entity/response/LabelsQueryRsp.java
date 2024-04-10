@@ -22,10 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.skywalking.oap.query.promql.entity.LabelName;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class LabelsQueryRsp extends QueryResponse {
-    private final List<LabelName> data = new ArrayList<>();
+    private final List<String> data = new ArrayList<>();
 }

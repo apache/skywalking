@@ -68,6 +68,10 @@ public enum LabelName {
         return labelName;
     }
 
+    public static boolean isLabelName(String label) {
+        return DICTIONARY.containsKey(label);
+    }
+
     @JsonValue
     public String getLabel() {
         return this.label;

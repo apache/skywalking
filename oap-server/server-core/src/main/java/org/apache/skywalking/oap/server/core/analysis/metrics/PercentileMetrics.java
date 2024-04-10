@@ -36,7 +36,9 @@ import lombok.Setter;
  * This could calculate the multiple P50/75/90/95/99 values once for all.
  *
  * @since 7.0.0
+ * Deprecated since 10.0.0, use {@link PercentileMetrics2} instead.
  */
+@Deprecated
 @MetricsFunction(functionName = "percentile")
 public abstract class PercentileMetrics extends Metrics implements MultiIntValuesHolder {
     protected static final String DATASET = "dataset";
@@ -53,7 +55,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
 
     @Getter
     @Setter
-    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
+    @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true, multiIntValues = true)
     @ElasticSearch.Column(legacyName = "value")
     @BanyanDB.MeasureField
     private DataTable percentileValues;
@@ -103,7 +105,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
                 roofs[i] = Math.round(total * RANKS[i] * 1.0f / 100);
             }
 
-            int count = 0;
+            long count = 0;
             final List<String> sortedKeys = dataset.sortedKeys(Comparator.comparingInt(Integer::parseInt));
 
             int loopIndex = 0;

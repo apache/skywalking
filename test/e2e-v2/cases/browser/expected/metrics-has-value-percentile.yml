@@ -16,70 +16,57 @@
 type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
-  - metric:
-      labels:
-        - key: _
-          value: "P50"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  - metric:
-      labels:
-        - key: _
-          value: "P75"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  - metric:
-      labels:
-        - key: _
-          value: "P90"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
-  - metric:
-        labels:
-          - key: _
-            value: "P95"
-      values:
-        {{- contains .values }}
-        - id: {{ notEmpty .id }}
-          value: {{ .value }}
-          traceid: null
-        - id: {{ notEmpty .id }}
-          value: null
-          traceid: null
-        {{- end}}
-  - metric:
-      labels:
-        - key: _
-          value: "P99"
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ .value }}
-        traceid: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-      {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "50"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "75"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: p
+        value: "99"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
   {{- end}}
 error: null

@@ -35,13 +35,11 @@ import org.apache.skywalking.mqe.rt.grammar.MQELexer;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 
 public class MetricsExpressionQuery implements GraphQLQueryResolver {
-    private final MetricsQuery metricsQuery;
-    private final RecordsQuery recordsQuery;
+    private final ModuleManager moduleManager;
     private final DecimalFormat valueFormat = new DecimalFormat();
 
     public MetricsExpressionQuery(ModuleManager moduleManager) {
-        this.metricsQuery = new MetricsQuery(moduleManager);
-        this.recordsQuery = new RecordsQuery(moduleManager);
+        this.moduleManager = moduleManager;
         this.valueFormat.setGroupingUsed(false);
     }
 
@@ -60,7 +58,7 @@ public class MetricsExpressionQuery implements GraphQLQueryResolver {
             errorResult.setError(e.getMessage());
             return errorResult;
         }
-        MQEVisitor visitor = new MQEVisitor(metricsQuery, recordsQuery, entity, duration);
+        MQEVisitor visitor = new MQEVisitor(moduleManager, entity, duration);
         ExpressionResult parseResult = visitor.visit(tree);
 
         parseResult.getResults().forEach(mqeValues -> {
