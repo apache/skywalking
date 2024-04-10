@@ -74,6 +74,10 @@ public class IstioServiceEntryRegistry {
                     .filter(se -> !ignoredNamespaces.contains(se.getMetadata().getNamespace()))
                     .filter(se -> {
                         final var spec = se.getSpec();
+                        if (spec.getResolution() == null) {
+                            log.debug("Unsupported service entry resolution: {}", spec.getResolution());
+                            return false;
+                        }
                         switch (spec.getResolution()) {
                             case STATIC:
                                 return spec
