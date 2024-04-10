@@ -24,10 +24,11 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -47,7 +48,8 @@ import java.util.Set;
 import java.util.stream.Collector;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
-import java.util.stream.IntStream;
+import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.PERCENTILE_LABEL_NAME;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -65,7 +67,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
-public abstract class AvgHistogramPercentileFunction extends Meter implements AcceptableValue<PercentileArgument>, MultiIntValuesHolder {
+public abstract class AvgHistogramPercentileFunction extends Meter implements AcceptableValue<PercentileArgument>, LabeledValueHolder {
     private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
@@ -248,10 +250,13 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                             int roof = roofs[rankIdx];
 
                             if (count >= roof) {
+                                DataLabel label = new DataLabel();
                                 if (group.equals(DEFAULT_GROUP)) {
-                                    percentileValues.put(String.valueOf(ranks.get(rankIdx)), Long.parseLong(key));
+                                    label.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
+                                    percentileValues.put(label, Long.parseLong(key));
                                 } else {
-                                    percentileValues.put(String.format("%s:%s", group, ranks.get(rankIdx)), Long.parseLong(key));
+                                    label.put(PERCENTILE_LABEL_NAME, String.format("%s:%s", group, ranks.get(rankIdx)));
+                                    percentileValues.put(label, Long.parseLong(key));
                                 }
                                 loopIndex++;
                             } else {
@@ -288,11 +293,8 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
     }
 
     @Override
-    public int[] getValues() {
-        return percentileValues.sortedValues(Comparator.comparingInt(Integer::parseInt))
-                               .stream()
-                               .flatMapToInt(l -> IntStream.of(l.intValue()))
-                               .toArray();
+    public DataTable getValue() {
+        return percentileValues;
     }
 
     @Override

@@ -19,7 +19,7 @@ results:
   - metric:
       labels:
         {{- contains .metric.labels }}
-        - key: _
+        - key: p
           value: {{ .value }}
         {{- end}}
     values:

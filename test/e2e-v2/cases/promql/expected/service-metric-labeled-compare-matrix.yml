@@ -20,7 +20,7 @@ data:
     {{- contains .data.result }}
     - metric:
         __name__: service_percentile
-        label: p_value
+        p: 99
         layer: GENERAL
         scope: Service
         service: e2e-service-consumer

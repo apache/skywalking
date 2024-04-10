@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
@@ -48,6 +50,8 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
+
+import static java.util.Objects.nonNull;
 
 @Slf4j
 public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMetricsQueryDAO {
@@ -101,7 +105,7 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     }
 
     @Override
-    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<String> labels, Duration duration) throws IOException {
+    public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<KeyValue> labels, Duration duration) throws IOException {
         Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
 
         List<PointOfTime> tsPoints = duration.assembleDurationPoints();
@@ -121,9 +125,56 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         return Util.sortValues(
-                Util.composeLabelValue(condition, labels, ids, dataTableMap),
+                Util.composeLabelValue(condition.getName(), labels, ids, dataTableMap),
                 ids,
                 ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
+    }
+
+    public List<MetricsValues> readLabeledMetricsValuesWithoutEntity(final String metricsName,
+                                                    final String valueColumnName,
+                                                    final List<KeyValue> labels,
+                                                    final Duration duration) throws IOException {
+        long startTB = 0;
+        long endTB = 0;
+        if (nonNull(duration)) {
+            startTB = duration.getStartTimeBucketInSec();
+            endTB = duration.getEndTimeBucketInSec();
+        }
+        TimestampRange timestampRange = null;
+        if (startTB > 0 && endTB > 0) {
+            timestampRange = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
+        }
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(metricsName, duration.getStep());
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+        MeasureQueryResponse resp = query(
+            schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), timestampRange,
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(MeasureQuery query) {
+                    query.limit(METRICS_VALUES_WITHOUT_ENTITY_LIMIT);
+                }
+            }
+        );
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<String> ids = new ArrayList<>(resp.size());
+        Map<String, DataTable> dataTableMap = new HashMap<>();
+        for (final DataPoint dp : resp.getDataPoints()) {
+            long timeBucket = TimeBucket.getTimeBucket(dp.getTimestamp(), schema.getMetadata().getDownSampling());
+            String entityID = dp.getTagValue(Metrics.ENTITY_ID);
+            PointOfTime pt = new PointOfTime(timeBucket);
+            String id = pt.id(entityID);
+            ids.add(id);
+            dataTableMap.put(id, new DataTable(dp.getFieldValue(valueColumnName)));
+        }
+        return Util.sortValues(
+            Util.composeLabelValue(metricsName, labels, ids, dataTableMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(metricsName)
         );
     }
 

@@ -19,8 +19,10 @@
 package org.apache.skywalking.mqe.rt.operation;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
@@ -256,20 +258,19 @@ public interface LROp {
     private static ExpressionResult seriesLabeledWithLabeled(ExpressionResult seriesLeft,
                                                              ExpressionResult seriesRight,
                                                              int opType, LROp calculate) throws IllegalExpressionException {
-        Map<KeyValue, List<MQEValue>> labelMapR = new HashMap<>();
+        Map<Set<KeyValue>, List<MQEValue>> labelMapR = new HashMap<>();
         if (seriesLeft.getResults().size() != seriesRight.getResults().size()) {
             throw new IllegalExpressionException(
                 "Operation between labeled metrics should have the same label.");
         }
         seriesRight.getResults().forEach(mqeValuesR -> {
-            // For now, we only have a single anonymous label named `_`
-            labelMapR.put(mqeValuesR.getMetric().getLabels().get(0), mqeValuesR.getValues());
+            labelMapR.put(new HashSet<>(mqeValuesR.getMetric().getLabels()), mqeValuesR.getValues());
         });
         for (MQEValues mqeValuesL : seriesLeft.getResults()) {
             for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
                 //reserve left metric info
                 MQEValue valueL = mqeValuesL.getValues().get(i);
-                List<MQEValue> mqeValuesR = labelMapR.get(mqeValuesL.getMetric().getLabels().get(0));
+                List<MQEValue> mqeValuesR = labelMapR.get(new HashSet<>(mqeValuesL.getMetric().getLabels()));
                 if (mqeValuesR == null) {
                     throw new IllegalExpressionException(
                         "Operation between labeled metrics should have the same label.");

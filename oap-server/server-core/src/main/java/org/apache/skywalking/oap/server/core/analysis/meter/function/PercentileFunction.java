@@ -21,10 +21,11 @@ package org.apache.skywalking.oap.server.core.analysis.meter.function;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.PercentileMetrics;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -38,11 +39,12 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.PERCENTILE_LABEL_NAME;
 
 /**
  * PercentileFunction is the implementation of {@link PercentileMetrics} in the meter system. The major difference is
@@ -50,7 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @MeterFunction(functionName = "percentile")
 @Slf4j
-public abstract class PercentileFunction extends Meter implements AcceptableValue<PercentileFunction.PercentileArgument>, MultiIntValuesHolder {
+public abstract class PercentileFunction extends Meter implements AcceptableValue<PercentileFunction.PercentileArgument>, LabeledValueHolder {
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
     public static final String VALUE = "datatable_value";
@@ -183,7 +185,9 @@ public abstract class PercentileFunction extends Meter implements AcceptableValu
                     int roof = roofs[rankIdx];
 
                     if (count >= roof) {
-                        percentileValues.put(String.valueOf(ranks.get(rankIdx)), Long.parseLong(key));
+                        DataLabel label = new DataLabel();
+                        label.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
+                        percentileValues.put(label, Long.parseLong(key));
                         loopIndex++;
                     } else {
                         break;
@@ -216,11 +220,8 @@ public abstract class PercentileFunction extends Meter implements AcceptableValu
     }
 
     @Override
-    public int[] getValues() {
-        return percentileValues.sortedValues(Comparator.comparingInt(Integer::parseInt))
-                               .stream()
-                               .flatMapToInt(l -> IntStream.of(l.intValue()))
-                               .toArray();
+    public DataTable getValue() {
+        return percentileValues;
     }
 
     @Override

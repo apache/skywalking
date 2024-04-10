@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.MetricDefinition;
@@ -41,6 +43,7 @@ import org.apache.skywalking.oap.server.core.query.input.RecordCondition;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.query.type.NullableValue;
 import org.apache.skywalking.oap.server.core.query.type.Record;
@@ -199,7 +202,10 @@ public class MetricsQuery implements GraphQLQueryResolver {
             }
             return labeledValues;
         }
-        return getMetricsQueryService().readLabeledMetricsValues(condition, labels, duration);
+        List<KeyValue> labelList = new ArrayList<>();
+        String labelValue = labels.stream().reduce((a, b) -> a + Const.COMMA + b).orElse("");
+        labelList.add(new KeyValue(DataLabel.GENERAL_LABEL_NAME, labelValue));
+        return getMetricsQueryService().readLabeledMetricsValues(condition, labelList, duration);
     }
 
     /**

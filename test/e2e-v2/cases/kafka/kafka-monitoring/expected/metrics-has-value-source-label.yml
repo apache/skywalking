@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: request
           value: "Produce"
     values:
       {{- contains .values }}
@@ -31,7 +31,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: request
           value: "FetchFollower"
     values:
       {{- contains .values }}
@@ -44,7 +44,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: request
           value: "FetchConsumer"
     values:
       {{- contains .values }}

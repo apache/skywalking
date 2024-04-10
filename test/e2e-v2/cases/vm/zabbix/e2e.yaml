@@ -37,3 +37,6 @@ verify:
         - ../vm-cases.yaml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_vfs_fs_size --service-name=vm-service
       expected:  ../expected/metrics-has-vfs-value-label.yml
+    # multiple-linear metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_cpu_average_used --service-name=vm-service
+      expected:  ../expected/metrics-has-average-value-label-zabbix.yml

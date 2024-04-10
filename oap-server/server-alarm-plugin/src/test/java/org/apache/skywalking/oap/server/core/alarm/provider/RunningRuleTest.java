@@ -31,7 +31,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
@@ -158,49 +157,17 @@ public class RunningRuleTest {
     }
 
     @Test
-    public void testMultipleValuesAlarm() throws IllegalExpressionException {
-        AlarmRule alarmRule = new AlarmRule();
-        alarmRule.setAlarmRuleName("endpoint_multiple_values_rule");
-        alarmRule.setExpression("sum(endpoint_multiple_values > 50) >= 3");
-        alarmRule.getIncludeMetrics().add("endpoint_multiple_values");
-        alarmRule.setPeriod(15);
-        alarmRule.setMessage("response percentile of endpoint {name} is lower than expected values");
-        alarmRule.setTags(new HashMap<String, String>() {{
-            put("key", "value");
-        }});
-        RunningRule runningRule = new RunningRule(alarmRule);
-
-        DateTime startTime = DateTime.now();
-        long timeInPeriod1 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis());
-        long timeInPeriod2 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis());
-        long timeInPeriod3 = TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis());
-
-        runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod1, 70, 60, 40, 40, 40));
-        runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod2, 60, 60, 40, 40, 40));
-
-        // check at startTime - 4
-        List<AlarmMessage> alarmMessages = runningRule.check();
-        Assertions.assertEquals(0, alarmMessages.size());
-
-        // check at now
-        runningRule.moveTo(startTime.toLocalDateTime());
-        runningRule.in(getMetaInAlarm(123, "endpoint_multiple_values"), getMultipleValueMetrics(timeInPeriod3, 74, 60, 40, 40, 40));
-        alarmMessages = runningRule.check();
-        Assertions.assertEquals(1, alarmMessages.size());
-    }
-
-    @Test
     public void testLabeledAlarm() throws IllegalExpressionException {
         ValueColumnMetadata.INSTANCE.putIfAbsent(
             "endpoint_labeled", "testColumn", Column.ValueDataType.LABELED_VALUE, 0, Scope.Endpoint.getScopeId());
         AlarmRule alarmRule = new AlarmRule();
-        alarmRule.setExpression("sum(endpoint_labeled{_='95,99'} > 10) >= 3");
+        alarmRule.setExpression("sum(endpoint_labeled{p='95,99'} > 10) >= 3");
         alarmRule.getIncludeMetrics().add("endpoint_labeled");
-        assertLabeled(alarmRule, "50,17|99,11", "75,15|95,12|99,12", "90,1|99,20", 1);
+        assertLabeled(alarmRule, "{p=50},17|{p=99},11", "{p=75},15|{p=95},12|{p=99},12", "{p=90},1|{p=99},20", 1);
         alarmRule.setExpression("sum(endpoint_labeled > 10) >= 3");
-        assertLabeled(alarmRule, "50,17|99,11", "75,15|95,12|99,12", "90,1|99,20", 1);
+        assertLabeled(alarmRule, "{p=50},17|{p=99},11", "{p=75},15|{p=95},12|{p=99},12", "{p=90},1|{p=99},20", 1);
         alarmRule.setExpression("sum(endpoint_labeled{_='50'} > 10) >= 3");
-        assertLabeled(alarmRule, "50,17|99,11", "75,15|95,12|99,12", "90,1|99,20", 0);
+        assertLabeled(alarmRule, "{p=50},17|{p=99},11", "{p=75},15|{p=95},12|{p=99},12", "{p=90},1|{p=99},20", 0);
     }
 
     @Test
@@ -495,14 +462,6 @@ public class RunningRuleTest {
         return mockMetrics;
     }
 
-    private Metrics getMultipleValueMetrics(long timeBucket, int... values) {
-        MockMultipleValueMetrics mockMultipleValueMetrics = new MockMultipleValueMetrics();
-        mockMultipleValueMetrics.setValues(values);
-        mockMultipleValueMetrics.setTimeBucket(timeBucket);
-        return mockMultipleValueMetrics;
-
-    }
-
     private Metrics getLabeledValueMetrics(long timeBucket, String values) {
         MockLabeledValueMetrics mockLabeledValueMetrics = new MockLabeledValueMetrics();
         mockLabeledValueMetrics.setValue(new DataTable(values));
@@ -567,59 +526,6 @@ public class RunningRuleTest {
         @Override
         public int remoteHashCode() {
             return 0;
-        }
-    }
-
-    private class MockMultipleValueMetrics extends Metrics implements MultiIntValuesHolder {
-        private int[] values;
-
-        public void setValues(int[] values) {
-            this.values = values;
-        }
-
-        @Override
-        protected StorageID id0() {
-            return null;
-        }
-
-        @Override
-        public boolean combine(Metrics metrics) {
-            return true;
-        }
-
-        @Override
-        public void calculate() {
-
-        }
-
-        @Override
-        public Metrics toHour() {
-            return null;
-        }
-
-        @Override
-        public Metrics toDay() {
-            return null;
-        }
-
-        @Override
-        public int[] getValues() {
-            return values;
-        }
-
-        @Override
-        public int remoteHashCode() {
-            return 0;
-        }
-
-        @Override
-        public void deserialize(RemoteData remoteData) {
-
-        }
-
-        @Override
-        public RemoteData.Builder serialize() {
-            return null;
         }
     }
 

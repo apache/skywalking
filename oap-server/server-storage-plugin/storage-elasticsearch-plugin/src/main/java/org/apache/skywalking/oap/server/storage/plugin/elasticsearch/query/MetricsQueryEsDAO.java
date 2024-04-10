@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -32,6 +33,7 @@ import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHits;
+import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
@@ -40,12 +42,14 @@ import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 
 public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
@@ -108,7 +112,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     @Override
     public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
-                                                        final List<String> labels,
+                                                        final List<KeyValue> labels,
                                                         final Duration duration) {
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
@@ -143,9 +147,48 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             }
         }
         return Util.sortValues(
-            Util.composeLabelValue(condition, labels, ids, idMap),
+            Util.composeLabelValue(condition.getName(), labels, ids, idMap),
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName())
+        );
+    }
+
+    public List<MetricsValues> readLabeledMetricsValuesWithoutEntity(final String metricName,
+                                                    final String valueColumnName,
+                                                    final List<KeyValue> labels,
+                                                    final Duration duration) {
+        final SearchBuilder search = Search.builder().size(METRICS_VALUES_WITHOUT_ENTITY_LIMIT);
+        final BoolQueryBuilder query = Query.bool().must(Query.range(Metrics.TIME_BUCKET)
+                                                              .lte(duration.getEndTimeBucket())
+                                                              .gte(duration.getStartTimeBucket()));
+        if (IndexController.LogicIndicesRegister.isMergedTable(metricName)) {
+                query.must(Query.term(
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                metricName
+            ));
+            search.query(query);
+        }
+        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(metricName),
+            duration.getStartTimeBucketInSec(),
+            duration.getEndTimeBucketInSec()), search.build());
+        final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(metricName, valueColumnName);
+        final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
+        Map<String, DataTable> idMap = new HashMap<>();
+        List<String> ids = new ArrayList<>(pointOfTimes.size());
+        for (SearchHit searchHit : response.getHits()) {
+            if (searchHit.getSource().get(realValueColumn) != null) {
+                idMap.put(
+                    searchHit.getId(),
+                    new DataTable((String) searchHit.getSource().get(realValueColumn))
+                );
+                ids.add(searchHit.getId());
+            }
+        }
+        return Util.sortValues(
+            Util.composeLabelValue(metricName, labels, ids, idMap),
+            ids,
+            ValueColumnMetadata.INSTANCE.getDefaultValue(metricName)
         );
     }
 

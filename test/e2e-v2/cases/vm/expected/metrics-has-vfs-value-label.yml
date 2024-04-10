@@ -18,8 +18,10 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
-          value: "/-total"
+        - key: 1
+          value: "/"
+        - key: 2
+          value: "total"
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}

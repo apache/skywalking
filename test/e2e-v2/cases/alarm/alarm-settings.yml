@@ -27,7 +27,7 @@ rules:
       - webhook.custom
   # service_percentile > 10ms
   service_percentile_rule:
-    expression: sum(service_percentile{_='0,1,2,3,4'} > 10) >= 3
+    expression: sum(service_percentile{p='50,75,90,95,99'} > 10) >= 3
     period: 10
     silence-period: 1
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 10, p75 > 10, p90 > 10, p95 > 10, p99 > 10.

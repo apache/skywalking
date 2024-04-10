@@ -20,9 +20,8 @@ package org.apache.skywalking.oap.query.graphql.mqe.rt;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
@@ -30,11 +29,13 @@ import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.mqe.rt.type.Metadata;
-import org.apache.skywalking.oap.query.graphql.resolver.MetricsQuery;
-import org.apache.skywalking.oap.query.graphql.resolver.RecordsQuery;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
+import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
+import org.apache.skywalking.oap.server.core.query.MetricsQueryService;
 import org.apache.skywalking.oap.server.core.query.PointOfTime;
+import org.apache.skywalking.oap.server.core.query.RecordQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.Entity;
@@ -48,7 +49,7 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.mqe.rt.MQEVisitorBase;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
@@ -56,20 +57,47 @@ import org.joda.time.DateTime;
 
 @Slf4j
 public class MQEVisitor extends MQEVisitorBase {
-    private final MetricsQuery metricsQuery;
-    private final RecordsQuery recordsQuery;
     private final Entity entity;
     private final Duration duration;
+    private final ModuleManager moduleManager;
+    private MetricsQueryService metricsQueryService;
+    private AggregationQueryService aggregationQueryService;
+    private RecordQueryService recordQueryService;
 
-    public MQEVisitor(final MetricsQuery metricsQuery,
-                      final RecordsQuery recordsQuery,
+    public MQEVisitor(final ModuleManager moduleManager,
                       final Entity entity,
                       final Duration duration) {
         super(duration.getStep());
-        this.metricsQuery = metricsQuery;
-        this.recordsQuery = recordsQuery;
+        this.moduleManager = moduleManager;
         this.entity = entity;
         this.duration = duration;
+    }
+
+    private MetricsQueryService getMetricsQueryService() {
+        if (metricsQueryService == null) {
+            this.metricsQueryService = moduleManager.find(CoreModule.NAME)
+                                                    .provider()
+                                                    .getService(MetricsQueryService.class);
+        }
+        return metricsQueryService;
+    }
+
+    private AggregationQueryService getAggregationQueryService() {
+        if (aggregationQueryService == null) {
+            this.aggregationQueryService = moduleManager.find(CoreModule.NAME)
+                                                        .provider()
+                                                        .getService(AggregationQueryService.class);
+        }
+        return aggregationQueryService;
+    }
+
+    private RecordQueryService getRecordQueryService() {
+        if (recordQueryService == null) {
+            this.recordQueryService = moduleManager.find(CoreModule.NAME)
+                                                  .provider()
+                                                  .getService(RecordQueryService.class);
+        }
+        return recordQueryService;
     }
 
     @Override
@@ -105,24 +133,19 @@ public class MQEVisitor extends MQEVisitorBase {
                     queryMetrics(metricName, this.duration, result);
                 }
             } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
-                List<String> queryLabelList = Collections.emptyList();
+
+               // DataLabel dataLabel = new DataLabel();
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
                     throw new IllegalExpressionException(
                         "Metric: [" + metricName + "] is labeled value, dose not support top_n query.");
                 }
-                if (ctx.label() != null) {
-                    String labelValue = ctx.label().labelValue().getText();
-                    String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
-                    if (StringUtil.isNotBlank(labelValueTrim)) {
-                        queryLabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
-                    }
-                }
+                List<KeyValue> queryLabels = super.buildLabels(ctx.labelList());
                 if (ctx.parent instanceof MQEParser.TrendOPContext) {
                     MQEParser.TrendOPContext parent = (MQEParser.TrendOPContext) ctx.parent;
                     int trendRange = Integer.parseInt(parent.INTEGER().getText());
-                    queryLabeledMetrics(metricName, queryLabelList, getTrendQueryDuration(trendRange), result);
+                    queryLabeledMetrics(metricName, queryLabels, getTrendQueryDuration(trendRange), result);
                 } else {
-                    queryLabeledMetrics(metricName, queryLabelList, this.duration, result);
+                    queryLabeledMetrics(metricName, queryLabels, this.duration, result);
                 }
             } else if (Column.ValueDataType.SAMPLED_RECORD == dataType) {
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
@@ -164,7 +187,7 @@ public class MQEVisitor extends MQEVisitorBase {
         topNCondition.setParentService(entity.getServiceName());
         topNCondition.setOrder(order);
         topNCondition.setNormal(entity.getNormal());
-        List<SelectedRecord> selectedRecords = metricsQuery.sortMetrics(topNCondition, duration);
+        List<SelectedRecord> selectedRecords = getAggregationQueryService().sortMetrics(topNCondition, duration);
 
         List<MQEValue> mqeValueList = new ArrayList<>(selectedRecords.size());
         selectedRecords.forEach(selectedRecord -> {
@@ -188,7 +211,7 @@ public class MQEVisitor extends MQEVisitorBase {
         recordCondition.setTopN(topN);
         recordCondition.setParentEntity(entity);
         recordCondition.setOrder(order);
-        List<Record> records = recordsQuery.readRecords(recordCondition, duration);
+        List<Record> records = getRecordQueryService().readRecords(recordCondition, duration);
 
         List<MQEValue> mqeValueList = new ArrayList<>(records.size());
         records.forEach(record -> {
@@ -211,8 +234,13 @@ public class MQEVisitor extends MQEVisitorBase {
         MetricsCondition metricsCondition = new MetricsCondition();
         metricsCondition.setName(metricName);
         metricsCondition.setEntity(entity);
-        MetricsValues metricsValues = metricsQuery.readMetricsValues(metricsCondition, queryDuration);
+        MetricsValues metricsValues = getMetricsQueryService().readMetricsValues(metricsCondition, queryDuration);
         List<PointOfTime> times = queryDuration.assembleDurationPoints();
+        if (metricsValues.getValues().getValues().size() != times.size()) {
+            log.warn("Metric: {} values size is not equal to duration points size, metrics values size: {}, duration points size: {}",
+                     metricName, metricsValues.getValues().getValues().size(), times.size());
+            return;
+        }
         List<MQEValue> mqeValueList = new ArrayList<>(times.size());
         for (int i = 0; i < times.size(); i++) {
             long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(queryDuration.getStep(), times.get(i).getPoint())
@@ -233,16 +261,21 @@ public class MQEVisitor extends MQEVisitorBase {
     }
 
     private void queryLabeledMetrics(String metricName,
-                                     List<String> queryLabelList,
+                                     List<KeyValue> queryLabels,
                                      Duration queryDuration,
                                      ExpressionResult result) throws IOException {
         MetricsCondition metricsCondition = new MetricsCondition();
         metricsCondition.setName(metricName);
         metricsCondition.setEntity(entity);
-        List<MetricsValues> metricsValuesList = metricsQuery.readLabeledMetricsValues(
-            metricsCondition, queryLabelList, queryDuration);
+        List<MetricsValues> metricsValuesList = getMetricsQueryService().readLabeledMetricsValues(
+            metricsCondition, queryLabels, queryDuration);
         List<PointOfTime> times = queryDuration.assembleDurationPoints();
         metricsValuesList.forEach(metricsValues -> {
+            if (metricsValues.getValues().getValues().size() != times.size()) {
+                log.warn("Metric: {} values size is not equal to duration points size, metrics values size: {}, duration points size: {}",
+                         metricName, metricsValues.getValues().getValues().size(), times.size());
+                return;
+            }
             List<MQEValue> mqeValueList = new ArrayList<>(times.size());
             for (int i = 0; i < times.size(); i++) {
                 long retTimestamp = DurationUtils.INSTANCE.parseToDateTime(queryDuration.getStep(), times.get(i).getPoint())
@@ -258,8 +291,11 @@ public class MQEVisitor extends MQEVisitorBase {
             }
 
             Metadata metadata = new Metadata();
-            KeyValue labelValue = new KeyValue(GENERAL_LABEL_NAME, metricsValues.getLabel());
-            metadata.getLabels().add(labelValue);
+            DataLabel dataLabel = new DataLabel();
+            dataLabel.put(metricsValues.getLabel());
+            for (Map.Entry<String, String> label : dataLabel.entrySet()) {
+                metadata.getLabels().add(new KeyValue(label.getKey(), label.getValue()));
+            }
             MQEValues mqeValues = new MQEValues();
             mqeValues.setValues(mqeValueList);
             mqeValues.setMetric(metadata);

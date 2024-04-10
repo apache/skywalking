@@ -81,6 +81,18 @@
 * Support displaying the port services listen to from OAP and UI during server start.
 * Refactor data-generator to support generating metrics.
 * Fix `AvgHistogramPercentileFunction` legacy name.
+* [Break Change] Labeled Metrics support multiple labels.
+  - Storage: store all label names and values instead of only the values.
+  - MQE: 
+    - Support querying by multiple labels(name and value) instead using `_` as the anonymous label name.
+    - `aggregate_labels` function support aggregate by specific labels.
+    - `relabels` function require target label and rename label name and value.
+  - PromQL:
+    - Support querying by multiple labels(name and value) instead using `lables` as the anonymous label name.
+    - Remove general labels `labels/relabels/label` function.
+    - API `/api/v1/labels` and `/api/v1/label/<label_name>/values` support return matched metrics labels.
+  - OAL:
+    - Deprecate `percentile` function and introduce `percentile2` function instead.
 
 #### UI
 

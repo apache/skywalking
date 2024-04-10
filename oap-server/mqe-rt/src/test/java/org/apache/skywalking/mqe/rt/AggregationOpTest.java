@@ -67,55 +67,79 @@ public class AggregationOpTest {
     public void seriesLabeledTest() throws Exception {
         ExpressionResult avg = AggregationOp.doAggregationOp(mockData.newSeriesLabeledResult(), MQEParser.AVG);
         assertEquals(ExpressionResultType.SINGLE_VALUE, avg.getType());
-        //label=1
+        //label=1, label2=21
         assertNull(avg.getResults().get(0).getValues().get(0).getId());
+        assertEquals("1", avg.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", avg.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals(200, avg.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertNull(avg.getResults().get(1).getValues().get(0).getId());
+        assertEquals("2", avg.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", avg.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals(201, avg.getResults().get(1).getValues().get(0).getDoubleValue());
 
         ExpressionResult count = AggregationOp.doAggregationOp(mockData.newSeriesLabeledResult(), MQEParser.COUNT);
         assertEquals(ExpressionResultType.SINGLE_VALUE, avg.getType());
-        //label=1
+        //label=1, label2=21
         assertNull(count.getResults().get(0).getValues().get(0).getId());
+        assertEquals("1", count.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", count.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals(2, count.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertNull(count.getResults().get(1).getValues().get(0).getId());
+        assertEquals("2", count.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", count.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals(2, count.getResults().get(1).getValues().get(0).getDoubleValue());
 
         ExpressionResult sum = AggregationOp.doAggregationOp(mockData.newSeriesLabeledResult(), MQEParser.SUM);
         assertEquals(ExpressionResultType.SINGLE_VALUE, avg.getType());
-        //label=1
+        //label=1, label2=21
         assertNull(sum.getResults().get(0).getValues().get(0).getId());
+        assertEquals("1", sum.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", sum.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals(400, sum.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertNull(sum.getResults().get(1).getValues().get(0).getId());
+        assertEquals("2", sum.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", sum.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals(402, sum.getResults().get(1).getValues().get(0).getDoubleValue());
 
         ExpressionResult latest = AggregationOp.doAggregationOp(mockData.newSeriesLabeledResult(), MQEParser.LATEST);
         assertEquals(ExpressionResultType.SINGLE_VALUE, avg.getType());
-        //label=1
+        //label=1, label2=21
+        assertEquals("1", latest.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", latest.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("300", latest.getResults().get(0).getValues().get(0).getId());
         assertEquals(300, latest.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
+        assertEquals("2", latest.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", latest.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("300", latest.getResults().get(1).getValues().get(0).getId());
         assertEquals(301, latest.getResults().get(1).getValues().get(0).getDoubleValue());
 
         ExpressionResult max = AggregationOp.doAggregationOp(mockData.newSeriesLabeledResult(), MQEParser.MAX);
         assertEquals(ExpressionResultType.SINGLE_VALUE, avg.getType());
-        //label=1
+        //label=1, label2=21
+        assertEquals("1", max.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", max.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("300", max.getResults().get(0).getValues().get(0).getId());
         assertEquals(300, max.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
+        assertEquals("2", max.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", max.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("300", max.getResults().get(1).getValues().get(0).getId());
         assertEquals(301, max.getResults().get(1).getValues().get(0).getDoubleValue());
 
         ExpressionResult min = AggregationOp.doAggregationOp(mockData.newSeriesLabeledResult(), MQEParser.MIN);
         assertEquals(ExpressionResultType.SINGLE_VALUE, avg.getType());
-        //label=1
+        //label=1, label2=21
+        assertEquals("1", min.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", min.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", min.getResults().get(0).getValues().get(0).getId());
         assertEquals(100, min.getResults().get(0).getValues().get(0).getDoubleValue());
-        //label=2
+        //label=2, label2=21
+        assertEquals("2", min.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", min.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", min.getResults().get(1).getValues().get(0).getId());
         assertEquals(101, min.getResults().get(1).getValues().get(0).getDoubleValue());
     }
