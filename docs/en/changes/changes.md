@@ -94,6 +94,7 @@
   - OAL:
     - Deprecate `percentile` function and introduce `percentile2` function instead.
 * Bump up Kafka to fix CVE.
+* Fix `NullPointerException` in Istio ServiceEntry registry.
 
 #### UI
 
