@@ -76,7 +76,7 @@
                   ],
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(service_relation_server_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(service_relation_server_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -222,7 +222,7 @@
                   ],
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(service_relation_client_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(service_relation_client_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"

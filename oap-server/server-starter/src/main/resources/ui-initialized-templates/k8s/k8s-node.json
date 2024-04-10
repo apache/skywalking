@@ -83,11 +83,11 @@
             "tableHeaderCol2": ""
           },
           "expressions": [
-            "k8s_node_node_status"
+            "latest(k8s_node_node_status)"
           ],
           "metricMode": "Expression",
           "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "SINGLE_VALUE"
           ]
         },
         {

@@ -118,10 +118,10 @@
                   "type": "Widget",
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ],
                   "expressions": [
-                    "k8s_service_pod_status"
+                    "latest(k8s_service_pod_status)"
                   ],
                   "widget": {
                     "title": "Service Pod Status"
@@ -194,10 +194,10 @@
                   "type": "Widget",
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ],
                   "expressions": [
-                    "k8s_service_pod_status_waiting"
+                    "latest(k8s_service_pod_status_waiting)"
                   ],
                   "widget": {
                     "title": "Pod Waiting"
@@ -218,10 +218,10 @@
                   "type": "Widget",
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ],
                   "expressions": [
-                    "k8s_service_pod_status_restarts_total"
+                    "latest(k8s_service_pod_status_restarts_total)"
                   ],
                   "widget": {
                     "title": "Pod Restarts"
