@@ -121,6 +121,7 @@
 * Add Airflow menu i18n.
 * Add Support for dragging in the trace panel.
 * Add workflow icon.
+* Metrics support multiple labels.
 
 #### Documentation
 
