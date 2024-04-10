@@ -52,10 +52,12 @@ public class MockData {
         seriesLabeled.setType(ExpressionResultType.TIME_SERIES_VALUES);
         MQEValues mqeValues1 = new MQEValues();
         mqeValues1.setMetric(newMetadata("label", "1"));
+        mqeValues1.getMetric().getLabels().add(new KeyValue("label2", "21"));
         mqeValues1.getValues().add(newMQEValue("100", 100));
         mqeValues1.getValues().add(newMQEValue("300", 300));
         MQEValues mqeValues2 = new MQEValues();
         mqeValues2.setMetric(newMetadata("label", "2"));
+        mqeValues2.getMetric().getLabels().add(new KeyValue("label2", "21"));
         mqeValues2.getValues().add(newMQEValue("100", 101));
         mqeValues2.getValues().add(newMQEValue("300", 301));
         seriesLabeled.getResults().add(mqeValues1);
@@ -69,10 +71,12 @@ public class MockData {
         seriesLabeled.setType(ExpressionResultType.TIME_SERIES_VALUES);
         MQEValues mqeValues1 = new MQEValues();
         mqeValues1.setMetric(newMetadata("label", "1"));
+        mqeValues1.getMetric().getLabels().add(new KeyValue("label2", "21"));
         mqeValues1.getValues().add(newMQEValue("100", id1001));
         mqeValues1.getValues().add(newMQEValue("300", id3001));
         MQEValues mqeValues2 = new MQEValues();
         mqeValues2.setMetric(newMetadata("label", "2"));
+        mqeValues2.getMetric().getLabels().add(new KeyValue("label2", "21"));
         mqeValues2.getValues().add(newMQEValue("100", id1002));
         mqeValues2.getValues().add(newMQEValue("300", id3002));
         seriesLabeled.getResults().add(mqeValues1);
@@ -115,9 +119,11 @@ public class MockData {
         result.setType(ExpressionResultType.SINGLE_VALUE);
         MQEValues mqeValues1 = new MQEValues();
         mqeValues1.setMetric(newMetadata("label", "1"));
+        mqeValues1.getMetric().getLabels().add(new KeyValue("label2", "21"));
         mqeValues1.getValues().add(newMQEValue("100", id1001));
         MQEValues mqeValues2 = new MQEValues();
         mqeValues2.setMetric(newMetadata("label", "2"));
+        mqeValues2.getMetric().getLabels().add(new KeyValue("label2", "21"));
         mqeValues2.getValues().add(newMQEValue("100", id1002));
         result.getResults().add(mqeValues1);
         result.getResults().add(mqeValues2);

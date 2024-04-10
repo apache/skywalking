@@ -78,6 +78,14 @@ public @interface Column {
     ValueDataType dataType() default ValueDataType.NOT_VALUE;
 
     /**
+     * Since 10.0.0, multi-value column is deprecated. Use {@link ValueDataType#LABELED_VALUE} instead.
+     * This annotation is used to mark the column is a multi-value column for compatibility.
+     * @return if this column is a multi-value column.
+     */
+    @Deprecated
+    boolean multiIntValues() default false;
+
+    /**
      * ValueDataType represents the data structure of value column. The persistent way of the value column determine the
      * available ways to query the data.
      */

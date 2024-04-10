@@ -19,8 +19,12 @@ results:
   - metric:
       labels:
         {{- contains .metric.labels }}
-        - key: _
-          value: {{ .value }}
+        - key: topic
+          value: TopicTest
+        - key: broker
+          value: rocketmq-broker-1
+        - key: group
+          value: please_rename_unique_group_name_4
         {{- end}}
     values:
       {{- contains .values }}

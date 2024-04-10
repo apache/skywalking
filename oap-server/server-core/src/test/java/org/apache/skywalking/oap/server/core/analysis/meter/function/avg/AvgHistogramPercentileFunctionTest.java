@@ -99,7 +99,7 @@ public class AvgHistogramPercentileFunctionTest {
         );
 
         inst.calculate();
-        final int[] values = inst.getValues();
+        final DataTable values = inst.getValue();
         /**
          * Expected percentile dataset
          * <pre>
@@ -109,10 +109,7 @@ public class AvgHistogramPercentileFunctionTest {
          *     250, 40 <- P90
          * </pre>
          */
-        Assertions.assertArrayEquals(new int[] {
-            100,
-            250
-        }, values);
+        Assertions.assertEquals(new DataTable("{p=50},100|{p=90},250"), values);
     }
 
     @Test
@@ -211,7 +208,7 @@ public class AvgHistogramPercentileFunctionTest {
                 40
             }
         );
-        valuesA.setGroup("localhost:3306/swtest");
+        valuesA.setGroup("localhost:3306/swtestA");
 
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
@@ -224,13 +221,13 @@ public class AvgHistogramPercentileFunctionTest {
         BucketedValues valuesB = new BucketedValues(
             BUCKETS,
             new long[] {
-                10,
-                20,
                 30,
-                40
+                40,
+                20,
+                10
             }
         );
-        valuesA.setGroup("localhost:3306/swtest");
+        valuesB.setGroup("localhost:3306/swtestB");
 
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
@@ -251,8 +248,11 @@ public class AvgHistogramPercentileFunctionTest {
          *     250, 40 <- P90
          * </pre>
          */
-        assertEquals(new Long(100), values.get("localhost:3306/swtest:50"));
-        assertEquals(new Long(250), values.get("localhost:3306/swtest:90"));
+        assertEquals(
+            new DataTable(
+                "{p=localhost:3306/swtestB:50},50|{p=localhost:3306/swtestA:50},100|{p=localhost:3306/swtestB:90},100|{p=localhost:3306/swtestA:90},250"),
+            values
+        );
     }
 
     private static class PercentileFunctionInst extends AvgHistogramPercentileFunction {

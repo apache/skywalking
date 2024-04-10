@@ -17,19 +17,15 @@ type: TIME_SERIES_VALUES
 results:
   {{- contains .results }}
   - metric:
-      labels:
-        {{- contains .metric.labels }}
-        - key: _
-          value: ""
-        {{- end}}
-      values:
-        { { - contains .values } }
-        - id: { { notEmpty .id } }
-          value: null
-          traceid: null
-        - id: { { notEmpty .id } }
-          value: { { .value } }
-          traceid: null
-        { { - end } }
+      labels: []
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      {{- end }}
   {{- end}}
 error: null

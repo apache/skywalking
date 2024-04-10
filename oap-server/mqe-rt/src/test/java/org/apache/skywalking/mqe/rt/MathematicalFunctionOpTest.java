@@ -56,7 +56,6 @@ public class MathematicalFunctionOpTest {
         assertEquals("300", floor.getResults().get(0).getValues().get(1).getId());
         assertEquals(300, floor.getResults().get(0).getValues().get(1).getDoubleValue());
 
-        MQEParser.ParameterContext parameterContext = new MQEParser.ParameterContext(null, 0);
         ExpressionResult round = MathematicalFunctionOp.doFunction1Op(
             mockData.newSeriesNoLabeledResult(100.111, 300.222), MQEParser.ROUND, 2);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, ceil.getType());
@@ -71,14 +70,16 @@ public class MathematicalFunctionOpTest {
         ExpressionResult abs = MathematicalFunctionOp.doFunction0Op(
             mockData.newSeriesLabeledResult(-100.111, -300, -101.333, -301.666), MQEParser.ABS);
         assertEquals(ExpressionResultType.TIME_SERIES_VALUES, abs.getType());
-        //label=1
+        //label=1, label2=21
         assertEquals("1", abs.getResults().get(0).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", abs.getResults().get(0).getMetric().getLabels().get(1).getValue());
         assertEquals("100", abs.getResults().get(0).getValues().get(0).getId());
         assertEquals(100.111, abs.getResults().get(0).getValues().get(0).getDoubleValue());
         assertEquals("300", abs.getResults().get(0).getValues().get(1).getId());
         assertEquals(300, abs.getResults().get(0).getValues().get(1).getDoubleValue());
-        //label=2
+        //label=2, label2=21
         assertEquals("2", abs.getResults().get(1).getMetric().getLabels().get(0).getValue());
+        assertEquals("21", abs.getResults().get(1).getMetric().getLabels().get(1).getValue());
         assertEquals("100", abs.getResults().get(1).getValues().get(0).getId());
         assertEquals(101.333, abs.getResults().get(1).getValues().get(0).getDoubleValue());
         assertEquals("300", abs.getResults().get(1).getValues().get(1).getId());

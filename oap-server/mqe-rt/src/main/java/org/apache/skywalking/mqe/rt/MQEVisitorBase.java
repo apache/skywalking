@@ -18,9 +18,10 @@
 
 package org.apache.skywalking.mqe.rt;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.grammar.MQEParserBaseVisitor;
@@ -38,11 +39,11 @@ import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResult> {
-    public final static String GENERAL_LABEL_NAME = "_";
     public final Step queryStep;
 
     protected MQEVisitorBase(final Step queryStep) {
@@ -141,7 +142,28 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
         }
 
         try {
-            return AggregateLabelsOp.doAggregateLabelsOp(expResult, funcType);
+            if (expResult.getResults().isEmpty()) {
+                return expResult;
+            }
+            List<String> labelNames = new ArrayList<>();
+            MQEParser.LabelNameListContext labelNameListContext = ctx.aggregateLabelsFunc().labelNameList();
+            if (null != labelNameListContext) {
+                for (MQEParser.LabelNameContext labelNameContext : labelNameListContext.labelName()) {
+                    if (expResult.getResults()
+                                 .get(0)
+                                 .getMetric()
+                                 .getLabels()
+                                 .stream()
+                                 .anyMatch(label -> label.getKey().equals(labelNameContext.getText()))) {
+                        labelNames.add(labelNameContext.getText());
+                    } else {
+                        expResult.setError(
+                            "The label [" + labelNameContext.getText() + "] does not exist in the result.");
+                        return expResult;
+                    }
+                }
+            }
+            return AggregateLabelsOp.doAggregateLabelsOp(expResult, funcType, labelNames);
         } catch (IllegalExpressionException e) {
             ExpressionResult result = new ExpressionResult();
             result.setType(ExpressionResultType.UNKNOWN);
@@ -197,25 +219,37 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             result.setError("The result of expression [" + ctx.expression().getText() + "] is not a labeled result.");
             return result;
         }
+        KeyValue targetLabel = buildLabel(ctx.label());
+        KeyValue replaceLabel = buildLabel(ctx.replaceLabel().label());
 
-        List<String> relabelList = Collections.emptyList();
-        String newLabelValue = ctx.label().labelValue().getText();
-        String labelValueTrim = newLabelValue.substring(1, newLabelValue.length() - 1);
-        if (StringUtil.isNotBlank(labelValueTrim)) {
-            relabelList = Arrays.asList(labelValueTrim.split(Const.COMMA));
-        }
-        List<MQEValues> mqeValuesList = result.getResults();
+//        if (!targetLabel.getKey().equals(replaceLabel.getKey())) {
+//            result.setError("The target label name and replace label name must be the same.");
+//            return result;
+//        }
+        List<KeyValue> targetLabels = parseLabelValue(targetLabel, Const.COMMA);
+        List<KeyValue> replaceLabels = parseLabelValue(replaceLabel, Const.COMMA);
 
-        if (mqeValuesList.size() != relabelList.size()) {
-            // Reserve the original result type
-            result.setError("The number of relabels is not equal to the number of labels.");
+        Map<KeyValue, KeyValue> relabelMap = new HashMap<>();
+        if (targetLabels.isEmpty() || replaceLabels.isEmpty()) {
             return result;
         }
-        // For now, we only have a single label named `label`
-        for (int i = 0; i < mqeValuesList.size(); i++) {
-            mqeValuesList.get(i).getMetric().getLabels().get(0).setValue(relabelList.get(i));
+        if (targetLabels.size() != replaceLabels.size()) {
+            result.setError(
+                "Targrt label [" + targetLabel.getKey() + "]: the number of relabel values is not equal to the number of replace label.");
+            return result;
         }
-
+        for (int i = 0; i < targetLabels.size(); i++) {
+            relabelMap.put(targetLabels.get(i), replaceLabels.get(i));
+        }
+        for (MQEValues mqeValues : result.getResults()) {
+            for (KeyValue label : mqeValues.getMetric().getLabels()) {
+                if (relabelMap.containsKey(label)) {
+                    KeyValue replaceLabelValue = relabelMap.get(label);
+                    label.setKey(replaceLabelValue.getKey());
+                    label.setValue(replaceLabelValue.getValue());
+                }
+            }
+        }
         return result;
     }
 
@@ -287,4 +321,38 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
 
     @Override
     public abstract ExpressionResult visitMetric(MQEParser.MetricContext ctx);
+
+    protected KeyValue buildLabel(MQEParser.LabelContext ctx) {
+        String labelName = ctx.labelName().getText();
+        String labelValue = ctx.labelValue().getText();
+        String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
+        return new KeyValue(labelName, labelValueTrim);
+    }
+
+    protected List<KeyValue> buildLabels(MQEParser.LabelListContext ctx) {
+        List<KeyValue> labels = new ArrayList<>();
+        if (ctx != null) {
+            for (MQEParser.LabelContext labelContext : ctx.label()) {
+                labels.add(buildLabel(labelContext));
+            }
+        }
+        return labels;
+    }
+
+    protected List<KeyValue> parseLabelValue(KeyValue keyValue, String separator) {
+        List<KeyValue> labels = new ArrayList<>();
+        if (keyValue != null) {
+            if (StringUtil.isNotBlank(keyValue.getValue())) {
+                if (keyValue.getValue().indexOf(separator) > 0) {
+                    String[] subValues = keyValue.getValue().split(separator);
+                    for (String subValue : subValues) {
+                        labels.add(new KeyValue(keyValue.getKey(), subValue));
+                    }
+                } else {
+                    labels.add(keyValue);
+                }
+            }
+        }
+        return labels;
+    }
 }

@@ -26,6 +26,3 @@
       expected:  expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_memory_available --service-name=vm-service
       expected:  expected/metrics-has-value.yml
-    # multiple-linear metrics
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_vm_cpu_average_used --service-name=vm-service
-      expected:  expected/metrics-has-average-value-label.yml

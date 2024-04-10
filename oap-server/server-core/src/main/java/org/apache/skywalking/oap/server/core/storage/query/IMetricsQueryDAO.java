@@ -21,20 +21,29 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import com.google.common.base.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.MetricsCondition;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
+import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
 import org.apache.skywalking.oap.server.core.storage.DAO;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.stream.Collectors.toList;
 
@@ -44,15 +53,23 @@ import static java.util.stream.Collectors.toList;
  * @since 8.0.0
  */
 public interface IMetricsQueryDAO extends DAO {
-
+    int METRICS_VALUES_WITHOUT_ENTITY_LIMIT = 10;
     MetricsValues readMetricsValues(MetricsCondition condition,
                                     String valueColumnName,
                                     Duration duration) throws IOException;
 
     List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition,
                                                  String valueColumnName,
-                                                 List<String> labels,
+                                                 List<KeyValue> labels,
                                                  Duration duration) throws IOException;
+
+    /**
+     * Read metrics values without entity. Used for get the labels' metadata.
+     */
+    List<MetricsValues> readLabeledMetricsValuesWithoutEntity(String metricName,
+                                                              String valueColumnName,
+                                                              List<KeyValue> labels,
+                                                              Duration duration) throws IOException;
 
     HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
 
@@ -86,47 +103,137 @@ public interface IMetricsQueryDAO extends DAO {
         /**
          * Compose the multiple metric result based on conditions.
          */
-        public static List<MetricsValues> composeLabelValue(final MetricsCondition condition,
+        public static List<MetricsValues> composeLabelValue(final String metricName,
+                                                            final List<KeyValue> queryLabels,
+                                                            final List<String> ids,
+                                                            final Map<String, DataTable> idMap) {
+            final Optional<ValueColumnMetadata.ValueColumn> valueColumn
+                = ValueColumnMetadata.INSTANCE.readValueColumnDefinition(metricName);
+            if (valueColumn.isEmpty()) {
+                return Collections.emptyList();
+            }
+            //compatible with old version query
+            if (valueColumn.get().isMultiIntValues()) {
+                List<String> labelValues = buildLabelIndex(queryLabels, Const.COMMA).values()
+                                                                                    .stream()
+                                                                                    .flatMap(List::stream)
+                                                                                    .collect(Collectors.toList());
+                return composeLabelValueForMultiIntValues(metricName, labelValues, ids, idMap);
+            }
+            return composeLabelValueForMultipleLabels(metricName, queryLabels, ids, idMap);
+        }
+
+        public static List<String> composeLabelConditions(final List<KeyValue> queryLabels,
+                                                          final Collection<DataTable> metricValues) {
+            LinkedHashMap<String, List<String>> queryLabelIndex = buildLabelIndex(queryLabels, Const.COMMA);
+            List<String> labelConditions = new ArrayList<>();
+            if (queryLabelIndex.isEmpty()) {
+                labelConditions = metricValues.stream()
+                                      .flatMap(dataTable -> dataTable.keys().stream())
+                                      .distinct()
+                                      .filter(k -> k.startsWith(Const.LEFT_BRACE))
+                                      .collect(Collectors.toList());
+            } else {
+                List<Set<String>> keySets = new ArrayList<>();
+                for (Map.Entry<String, List<String>> queryLabel : queryLabelIndex.entrySet()) {
+                    Set<String> keySet = new HashSet<>();
+                    metricValues.forEach(dataTable -> {
+                        var metricLabelIndex = dataTable.buildLabelIndex();
+                        for (String labelValue : queryLabel.getValue()) {
+                            //union labels
+                            keySet.addAll(metricLabelIndex.getOrDefault(
+                                queryLabel.getKey() + Const.EQUAL + labelValue,
+                                new HashSet<>()
+                            ));
+                        }
+                    });
+                    if (!keySet.isEmpty()) {
+                        keySets.add(keySet);
+                    }
+                }
+                //intersection labels
+                keySets.stream().reduce((a, b) -> {
+                    a.retainAll(b);
+                    return a;
+                }).ifPresent(labelConditions::addAll);
+            }
+            return labelConditions;
+        }
+
+        private static List<MetricsValues> composeLabelValueForMultiIntValues(final String metricName,
             final List<String> labels,
             final List<String> ids,
             final Map<String, DataTable> idMap) {
             List<String> allLabels;
-            if (Objects.isNull(labels) || labels.size() < 1 || labels.stream().allMatch(Strings::isNullOrEmpty)) {
+            if (Objects.isNull(labels) || labels.isEmpty() || labels.stream().allMatch(Strings::isNullOrEmpty)) {
                 allLabels = idMap.values().stream()
                     .flatMap(dataTable -> dataTable.keys().stream())
-                    .distinct().collect(Collectors.toList());
+                    .distinct().filter(k -> !k.startsWith(Const.LEFT_BRACE)).collect(Collectors.toList());
             } else {
                 allLabels = labels;
             }
-            final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-            final var labeledValues = new TreeSet<>(allLabels).stream()
-                                                              .flatMap(label -> ids.stream().map(id -> {
-                                                                  final var value = idMap.getOrDefault(id, new DataTable());
-                                                                  return Objects.nonNull(value.get(label)) ?
-                                                                      new LabeledValue(
-                                                                          label,
-                                                                          id,
-                                                                          value.get(label), false) :
-                                                                      new LabeledValue(
-                                                                          label,
-                                                                          id,
-                                                                          defaultValue, true);
-                                                              }))
-                                                              .collect(toList());
-            MetricsValues current = new MetricsValues();
-            List<MetricsValues> result = new ArrayList<>();
-            for (LabeledValue each : labeledValues) {
-                if (Objects.equals(current.getLabel(), each.label)) {
-                    current.getValues().addKVInt(each.kv);
-                } else {
-                    current = new MetricsValues();
-                    current.setLabel(each.label);
-                    current.getValues().addKVInt(each.kv);
-                    result.add(current);
+            return buildMetricsValues(metricName, ids, idMap, allLabels);
+        }
+
+        private static List<MetricsValues> composeLabelValueForMultipleLabels(final String metricName,
+                                                                              final List<KeyValue> queryLabels,
+                                                                              final List<String> ids,
+                                                                              final Map<String, DataTable> idMap) {
+            List<String> labelConditions = composeLabelConditions(queryLabels, idMap.values());
+            return buildMetricsValues(metricName, ids, idMap, labelConditions);
+        }
+    }
+
+    private static List<MetricsValues> buildMetricsValues(final String metricName,
+                                                          final List<String> ids,
+                                                          final Map<String, DataTable> idMap,
+                                                          final List<String> allLabels) {
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(metricName);
+        final var labeledValues = new TreeSet<>(allLabels).stream()
+                                                          .flatMap(label -> ids.stream().map(id -> {
+                                                              final var value = idMap.getOrDefault(id, new DataTable());
+
+                                                              return Objects.nonNull(value.get(label)) ?
+                                                                  new LabeledValue(
+                                                                      label,
+                                                                      id,
+                                                                      value.get(label), false) :
+                                                                  new LabeledValue(
+                                                                      label,
+                                                                      id,
+                                                                      defaultValue, true);
+                                                          }))
+                                                          .collect(toList());
+        MetricsValues current = new MetricsValues();
+        List<MetricsValues> result = new ArrayList<>();
+        for (LabeledValue each : labeledValues) {
+            if (Objects.equals(current.getLabel(), each.label)) {
+                current.getValues().addKVInt(each.kv);
+            } else {
+                current = new MetricsValues();
+                current.setLabel(each.label);
+                current.getValues().addKVInt(each.kv);
+                result.add(current);
+            }
+        }
+        return result;
+    }
+
+    private static LinkedHashMap<String, List<String>> buildLabelIndex(List<KeyValue> queryLabels, String separator) {
+        LinkedHashMap<String, List<String>> labelIndex = new LinkedHashMap<>();
+        if (null != queryLabels) {
+            for (KeyValue keyValue : queryLabels) {
+                String labelName = keyValue.getKey();
+                String labelValue = keyValue.getValue();
+                if (StringUtil.isNotBlank(labelValue)) {
+                    String[] subValues = labelValue.split(separator);
+                    for (String subValue : subValues) {
+                        labelIndex.computeIfAbsent(labelName, key -> new ArrayList<>()).add(subValue);
+                    }
                 }
             }
-            return result;
         }
+        return labelIndex;
     }
 
     class LabeledValue {

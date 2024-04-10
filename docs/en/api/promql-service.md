@@ -269,11 +269,11 @@ Result:
 GET|POST /api/v1/labels
 ```
 
-| Parameter | Definition      | Support | Optional |
-|-----------|-----------------|---------|----------|
-| match[]   | series selector | yes     | yes      |
-| start     | start timestamp | **no**  | yes      |
-| end       | end timestamp   | **no**  | yes      |
+| Parameter | Definition                                                                      | Support | Optional |
+|-----------|---------------------------------------------------------------------------------|---------|----------|
+| match[]   | series selector                                                                 | yes     | yes      |
+| start     | start timestamp                                                                 | **no**  | yes      |
+| end       | end timestamp, if end time is not present, use current time as default end time | yes     | yes      |
 
 For example:
 ```text
@@ -300,11 +300,11 @@ Result:
 GET /api/v1/label/<label_name>/values
 ```
 
-| Parameter | Definition      | Support | Optional |
-|-----------|-----------------|---------|----------|
-| match[]   | series selector | yes     | no       |
-| start     | start timestamp | **no**  | yes      |
-| end       | end timestamp   | **no**  | yes      |
+| Parameter | Definition                                                                      | Support | Optional |
+|-----------|---------------------------------------------------------------------------------|---------|----------|
+| match[]   | series selector                                                                 | yes     | yes      |
+| start     | start timestamp                                                                 | **no**  | yes      |
+| end       | end timestamp, if end time is not present, use current time as default end time | yes     | yes      |
 
 For example:
 ```text
@@ -446,14 +446,12 @@ service_cpm{service='agent::songs', layer='GENERAL'}
 - Query Labels:
 ```text
 --{General labels}
---labels: Used to filter the value labels to be returned
---relabels: Used to rename the returned value labels
-note: The number and order of labels must match the number and order of relabels.
+--metric labels: Used to filter the value labels to be returned
 ```
 
 - Expression Example:
 ```text
-service_percentile{service='agent::songs', layer='GENERAL', labels='0,1,2', relabels='P50,P75,P90'}
+service_percentile{service='agent::songs', layer='GENERAL', p='50,75,90'}
 ```
 
 - Result (Instant Query):
@@ -466,7 +464,7 @@ service_percentile{service='agent::songs', layer='GENERAL', labels='0,1,2', rela
       {
         "metric": {
           "__name__": "service_percentile",
-          "label": "P50",
+          "p": "50",
           "layer": "GENERAL",
           "scope": "Service",
           "service": "agent::songs"
@@ -479,7 +477,7 @@ service_percentile{service='agent::songs', layer='GENERAL', labels='0,1,2', rela
       {
         "metric": {
           "__name__": "service_percentile",
-          "label": "P75",
+          "p": "75",
           "layer": "GENERAL",
           "scope": "Service",
           "service": "agent::songs"
@@ -492,7 +490,7 @@ service_percentile{service='agent::songs', layer='GENERAL', labels='0,1,2', rela
       {
         "metric": {
           "__name__": "service_percentile",
-          "label": "P90",
+          "p": "90",
           "layer": "GENERAL",
           "scope": "Service",
           "service": "agent::songs"

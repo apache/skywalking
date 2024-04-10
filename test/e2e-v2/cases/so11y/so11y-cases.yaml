@@ -30,7 +30,7 @@
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_trace_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_metrics_aggregation{_='L1 aggregation'}" --instance-name=http://localhost:1234 --service-name=oap-server
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_metrics_aggregation{level='L1 aggregation'}" --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value-label.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_persistence_prepare_count --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value.yml

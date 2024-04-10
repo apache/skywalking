@@ -102,7 +102,7 @@ public class PercentileFunctionTest {
         );
 
         inst.calculate();
-        final int[] values = inst.getValues();
+        final DataTable values = inst.getValue();
         /**
          * Expected percentile dataset
          * <pre>
@@ -112,10 +112,7 @@ public class PercentileFunctionTest {
          *     250, 80 <- P90
          * </pre>
          */
-        Assertions.assertArrayEquals(new int[] {
-            100,
-            250
-        }, values);
+        Assertions.assertEquals(new DataTable("{p=50},100|{p=90},250"), values);
     }
 
     @Test

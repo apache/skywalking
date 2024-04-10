@@ -26,6 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class LabelValuePair {
-    private final LabelName labelName;
+    private final String labelName;
     private final String labelValue;
 }

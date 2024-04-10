@@ -15,13 +15,11 @@
 
 type: TIME_SERIES_VALUES
 results:
-  {{- contains .results }}
+{{- contains .results }}
   - metric:
       labels:
-        {{- contains .metric.labels }}
         - key: _
-          value: {{ .value }}
-        {{- end}}
+          value: "0"
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
@@ -31,5 +29,31 @@ results:
         value: null
         traceid: null
       {{- end}}
-  {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "1"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  - metric:
+      labels:
+        - key: _
+          value: "2"
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+{{- end}}
 error: null

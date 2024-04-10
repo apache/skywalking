@@ -18,16 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.expr.rt;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.ExpressionResult;
@@ -35,7 +31,7 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
 import org.apache.skywalking.mqe.rt.type.Metadata;
-import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
@@ -43,14 +39,15 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.mqe.rt.MQEVisitorBase;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.joda.time.LocalDateTime;
+
+import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.GENERAL_LABEL_NAME;
+import static org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO.Util.composeLabelConditions;
 
 @Slf4j
 public class AlarmMQEVisitor extends MQEVisitorBase {
@@ -99,19 +96,12 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
                 mqeValuesList = buildMqeValuesList(timeValues);
             }
         } else if (dataType == Column.ValueDataType.LABELED_VALUE) {
-            List<String> labelValues = Collections.emptyList();
-            if (ctx.label() != null) {
-                String labelValue = ctx.label().labelValue().getText();
-                String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
-                if (StringUtil.isNotBlank(labelValueTrim)) {
-                    labelValues = Arrays.asList(labelValueTrim.split(Const.COMMA));
-                }
-            }
+            List<KeyValue> queryLabels = buildLabels(ctx.labelList());
             Map<String, DataTable> timeValues = labeledValuesMap.get(metricName);
             if (CollectionUtils.isEmpty(timeValues)) {
-                mqeValuesList = buildEmptyLabeledMQEValuesList(labelValues);
+                mqeValuesList = buildEmptyLabeledMQEValuesList(queryLabels);
             } else {
-                mqeValuesList = buildLabledMqeValuesList(timeValues, labelValues);
+                mqeValuesList = buildLabledMqeValuesList(timeValues, queryLabels);
             }
             result.setLabeledResult(true);
         } else {
@@ -173,13 +163,6 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
                     initCommonMetricValues(metricName, ((IntValueHolder) metrics).getValue(), metrics.getTimeBucket());
                 } else if (metrics instanceof DoubleValueHolder) {
                     initCommonMetricValues(metricName, ((DoubleValueHolder) metrics).getValue(), metrics.getTimeBucket());
-                } else if (metrics instanceof MultiIntValuesHolder) {
-                    int[] ivalueArray = ((MultiIntValuesHolder) metrics).getValues();
-                    DataTable values = new DataTable();
-                    for (int i = 0; i < ivalueArray.length; i++) {
-                        values.put(String.valueOf(i), (long) ivalueArray[i]);
-                    }
-                    initLabeledMetricValues(metricName, values, metrics.getTimeBucket());
                 } else if (metrics instanceof LabeledValueHolder) {
                     DataTable values = ((LabeledValueHolder) metrics).getValue();
                     initLabeledMetricValues(metricName, values, metrics.getTimeBucket());
@@ -226,22 +209,15 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
         return mqeValuesList;
     }
 
-    private List<MQEValues> buildLabledMqeValuesList(Map<String, DataTable> timeValues, List<String> labelValues) {
+    private List<MQEValues> buildLabledMqeValuesList(Map<String, DataTable> timeValues, List<KeyValue> queryLabels) {
         List<MQEValues> mqeValuesList = new ArrayList<>();
-        List<String> allLabelValues;
-        if (CollectionUtils.isEmpty(labelValues) || labelValues.stream().allMatch(Strings::isNullOrEmpty)) {
-            allLabelValues = timeValues.values().stream()
-                             .flatMap(dataTable -> dataTable.keys().stream())
-                             .distinct().collect(Collectors.toList());
-        } else {
-            allLabelValues = labelValues;
-        }
-        for (String label : allLabelValues) {
+        List<String> labelConditions = composeLabelConditions(queryLabels, timeValues.values());
+        for (String labelCondition : labelConditions) {
             MQEValues mqeValues = new MQEValues();
             for (String time : windowTimes) {
                 Metadata metadata = new Metadata();
                 DataTable dataTable = timeValues.getOrDefault(time, new DataTable());
-                Long metricValue = dataTable.get(label);
+                Long metricValue = dataTable.get(labelCondition);
                 MQEValue mqeValue = new MQEValue();
                 //use timeBucket as id here
                 mqeValue.setId(time);
@@ -250,8 +226,11 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
                 } else {
                     mqeValue.setEmptyValue(true);
                 }
-                KeyValue labelValue = new KeyValue(GENERAL_LABEL_NAME, label);
-                metadata.getLabels().add(labelValue);
+                DataLabel dataLabel = new DataLabel();
+                dataLabel.put(labelCondition);
+                for (Map.Entry<String, String> label : dataLabel.entrySet()) {
+                    metadata.getLabels().add(new KeyValue(label.getKey(), label.getValue()));
+                }
                 mqeValues.setMetric(metadata);
                 mqeValues.getValues().add(mqeValue);
             }
@@ -278,9 +257,9 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
         return mqeValuesList;
     }
 
-    private ArrayList<MQEValues> buildEmptyLabeledMQEValuesList(List<String> labelValues) {
+    private ArrayList<MQEValues> buildEmptyLabeledMQEValuesList(List<KeyValue> queryLabels) {
         ArrayList<MQEValues> mqeValuesList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(labelValues)) {
+        if (CollectionUtils.isEmpty(queryLabels)) {
             MQEValues mqeValues = initMQEValues();
             KeyValue label = new KeyValue(GENERAL_LABEL_NAME, GENERAL_LABEL_NAME);
             Metadata metadata = new Metadata();
@@ -288,10 +267,9 @@ public class AlarmMQEVisitor extends MQEVisitorBase {
             mqeValues.setMetric(metadata);
             mqeValuesList.add(mqeValues);
         } else {
-            for (String labelValue : labelValues) {
+            for (KeyValue label : queryLabels) {
                 MQEValues mqeValues = initMQEValues();
                 Metadata metadata = new Metadata();
-                KeyValue label = new KeyValue(GENERAL_LABEL_NAME, labelValue);
                 metadata.getLabels().add(label);
                 mqeValues.setMetric(metadata);
                 mqeValuesList.add(mqeValues);

@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
 - metric:
     labels:
-      - key: _
+      - key: code
         value: "200"
   values:
     {{- contains .values }}

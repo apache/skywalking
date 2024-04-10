@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
 - metric:
     labels:
-      - key: _
+      - key: state
         value: "reading"
   values:
     {{- contains .values }}
@@ -31,7 +31,7 @@ results:
     {{- end}}
 - metric:
     labels:
-      - key: _
+      - key: state
         value: "waiting"
   values:
     {{- contains .values }}

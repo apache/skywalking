@@ -34,13 +34,12 @@ expression
     | trend L_PAREN metric COMMA INTEGER R_PAREN #trendOP
     | logical_operator L_PAREN expressionList R_PAREN #logicalOperatorOP
     | topN L_PAREN metric COMMA INTEGER COMMA order R_PAREN  #topNOP
-    | relabels L_PAREN expression COMMA label R_PAREN #relablesOP
+    | relabels L_PAREN expression COMMA label COMMA replaceLabel R_PAREN #relablesOP
     | aggregateLabels L_PAREN expression COMMA aggregateLabelsFunc R_PAREN #aggregateLabelsOp
     ;
 
 expressionList
-    : expression (COMMA expression)*
-    ;
+    : expression (COMMA expression)*;
 
 expressionNode:  metric| scalar;
 
@@ -49,14 +48,15 @@ mulDivMod:       MUL | DIV | MOD;
 compare:        (DEQ | NEQ | LTE | LT | GTE | GT) BOOL?;
 
 metricName:      NAME_STRING;
-metric:   metricName | metricName L_BRACE label? R_BRACE;
+metric:   metricName | metricName L_BRACE labelList? R_BRACE;
 
-//For now, we only have a single anonymous label with multi label values in a labeled metric.
-//To be able to use it in expressions, define `_` as the anonymous label name (key).
-labelName:       GENERAL_LABEL_NAME;
+labelName:       NAME_STRING | GENERAL_LABEL_NAME;
+labelNameList:   labelName (COMMA labelName)*;
 labelValue:      VALUE_STRING;
 label:           labelName EQ labelValue;
+labelList:       label (COMMA label)*;
 
+replaceLabel:    label;
 
 scalar:   INTEGER | DECIMAL;
 
@@ -87,5 +87,7 @@ order: ASC | DES;
 aggregateLabels:
     AGGREGATE_LABELS;
 
-aggregateLabelsFunc:
+aggregateLabelsFunc: aggregateLabelsFuncName (L_PAREN labelNameList R_PAREN)?;
+
+aggregateLabelsFuncName:
     AVG | SUM | MAX | MIN;

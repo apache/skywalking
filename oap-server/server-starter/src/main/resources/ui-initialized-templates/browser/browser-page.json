@@ -35,7 +35,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "relabels(browser_app_page_fmp_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
+                    "relabels(browser_app_page_fmp_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -91,7 +91,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "relabels(browser_app_page_first_pack_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
+                    "relabels(browser_app_page_first_pack_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -147,7 +147,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "relabels(browser_app_page_fpt_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
+                    "relabels(browser_app_page_fpt_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -203,7 +203,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "relabels(browser_app_page_dom_ready_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
+                    "relabels(browser_app_page_dom_ready_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -259,7 +259,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "relabels(browser_app_page_ttl_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
+                    "relabels(browser_app_page_ttl_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -315,7 +315,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "relabels(browser_app_page_load_page_percentile{_='0,1,2,3,4'},_='P50,P75,P90,P95,P99')"
+                    "relabels(browser_app_page_load_page_percentile{p='0,1,2,3,4'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [

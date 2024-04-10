@@ -20,6 +20,8 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: oap
+    volumes:
+      - ./oal/core.oal:/skywalking/config/oal/core.oal
     ports:
       - 12800
     networks:

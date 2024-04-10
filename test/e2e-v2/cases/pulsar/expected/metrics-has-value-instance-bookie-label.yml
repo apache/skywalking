@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: node
           value: bookie:8000
     values:
       {{- contains .values }}

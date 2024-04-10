@@ -37,7 +37,7 @@ rules:
     silence-period: 3
     message: Successful rate of service {name} is lower than 80% in 2 minutes of last 10 minutes
   service_resp_time_percentile_rule:
-    expression: sum(service_percentile{_='0,1,2,3,4'} > 1000) >= 3
+    expression: sum(service_percentile{p='50,75,90,95,99'} > 1000) >= 3
     period: 10
     silence-period: 5
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000

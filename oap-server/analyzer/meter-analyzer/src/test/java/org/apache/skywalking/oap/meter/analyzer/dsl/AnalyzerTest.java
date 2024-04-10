@@ -163,18 +163,18 @@ public class AnalyzerTest {
         AvgLabeledFunction t3Cn = actValues.get(IDManager.ServiceInstanceID.buildId(
             IDManager.ServiceID.buildId("t3", true), "cn"));
 
-        assertEquals(50L, t1.getSummation().get(""), 0.0);
-        assertEquals(1L, t1.getCount().get(""), 0.0);
+        assertEquals(50L, t1.getSummation().get("{instance=}"), 0.0);
+        assertEquals(1L, t1.getCount().get("{instance=}"), 0.0);
 
-        assertEquals(50L, t1Us.getSummation().get(""), 0.0);
-        assertEquals(100L, t1Us.getSummation().get("10.0.0.1"), 0.0);
-        assertEquals(1L, t1Us.getCount().get(""), 0.0);
-        assertEquals(1L, t1Us.getCount().get("10.0.0.1"), 0.0);
+        assertEquals(50L, t1Us.getSummation().get("{instance=}"), 0.0);
+        assertEquals(100L, t1Us.getSummation().get("{instance=10.0.0.1}"), 0.0);
+        assertEquals(1L, t1Us.getCount().get("{instance=}"), 0.0);
+        assertEquals(1L, t1Us.getCount().get("{instance=10.0.0.1}"), 0.0);
 
-        assertEquals(51L, t3Cn.getSummation().get(""), 0.0);
-        assertEquals(3L, t3Cn.getSummation().get("10.0.0.1"), 0.0);
-        assertEquals(1L, t3Cn.getCount().get(""), 0.0);
-        assertEquals(1L, t3Cn.getCount().get("10.0.0.1"), 0.0);
+        assertEquals(51L, t3Cn.getSummation().get("{instance=}"), 0.0);
+        assertEquals(3L, t3Cn.getSummation().get("{instance=10.0.0.1}"), 0.0);
+        assertEquals(1L, t3Cn.getCount().get("{instance=}"), 0.0);
+        assertEquals(1L, t3Cn.getCount().get("{instance=10.0.0.1}"), 0.0);
     }
 
     @Test

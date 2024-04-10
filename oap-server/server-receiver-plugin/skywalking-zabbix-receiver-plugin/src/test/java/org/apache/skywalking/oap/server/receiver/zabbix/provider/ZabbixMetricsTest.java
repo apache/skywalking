@@ -146,11 +146,11 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         String serviceId = IDManager.ServiceID.buildId("zabbix::test-01-hostname", true);
         Assertions.assertEquals(serviceId, avgLabeledFunction.getEntityId());
         Assertions.assertEquals(serviceId, avgLabeledFunction.getServiceId());
-        Assertions.assertEquals(1, avgLabeledFunction.getSummation().get("avg1"), 0.0);
-        Assertions.assertEquals(2, avgLabeledFunction.getSummation().get("avg5"), 0.0);
-        Assertions.assertEquals(3, avgLabeledFunction.getSummation().get("avg15"), 0.0);
-        Assertions.assertEquals(1, avgLabeledFunction.getCount().get("avg1"), 0.0);
-        Assertions.assertEquals(1, avgLabeledFunction.getCount().get("avg5"), 0.0);
-        Assertions.assertEquals(1, avgLabeledFunction.getCount().get("avg15"), 0.0);
+        Assertions.assertEquals(1, avgLabeledFunction.getSummation().get("{2=avg1}"), 0.0);
+        Assertions.assertEquals(2, avgLabeledFunction.getSummation().get("{2=avg5}"), 0.0);
+        Assertions.assertEquals(3, avgLabeledFunction.getSummation().get("{2=avg15}"), 0.0);
+        Assertions.assertEquals(1, avgLabeledFunction.getCount().get("{2=avg1}"), 0.0);
+        Assertions.assertEquals(1, avgLabeledFunction.getCount().get("{2=avg5}"), 0.0);
+        Assertions.assertEquals(1, avgLabeledFunction.getCount().get("{2=avg15}"), 0.0);
     }
 }
