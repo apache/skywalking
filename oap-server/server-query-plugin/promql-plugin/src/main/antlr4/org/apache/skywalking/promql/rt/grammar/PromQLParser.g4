@@ -20,7 +20,7 @@ parser grammar PromQLParser;
 
 options { tokenVocab = PromQLLexer; }
 
-root: expression;
+root: expression EOF;
 
 expression
     : expressionNode                   # exprNode
