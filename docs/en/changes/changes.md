@@ -95,7 +95,7 @@
     - Deprecate `percentile` function and introduce `percentile2` function instead.
 * Bump up Kafka to fix CVE.
 * Fix `NullPointerException` in Istio ServiceEntry registry.
-* Remove unnecessary `componentIds` in the `ServiceRelationClientSideMetrics` and `ServiceRelationServerSideMetrics` entities.
+* Remove unnecessary `componentIds` as series ID in the `ServiceRelationClientSideMetrics` and `ServiceRelationServerSideMetrics` entities.
 
 #### UI
 
