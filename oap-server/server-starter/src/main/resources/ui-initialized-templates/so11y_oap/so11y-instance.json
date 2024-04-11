@@ -193,7 +193,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(meter_oap_instance_persistence_prepare_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(meter_oap_instance_persistence_prepare_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -219,7 +219,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(meter_oap_instance_persistence_execute_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(meter_oap_instance_persistence_execute_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -430,7 +430,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(meter_oap_instance_trace_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(meter_oap_instance_trace_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -488,7 +488,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(meter_oap_instance_mesh_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(meter_oap_instance_mesh_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -546,7 +546,7 @@
                   },
                   "metricMode": "Expression",
                   "expressions": [
-                    "relabels(meter_oap_instance_k8s_als_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
+                    "relabels(meter_oap_instance_k8s_als_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"

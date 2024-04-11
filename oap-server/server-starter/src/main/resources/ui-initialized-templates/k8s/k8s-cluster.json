@@ -154,11 +154,11 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "k8s_cluster_pod_status_waiting"
+                    "latest(k8s_cluster_pod_status_waiting)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -178,11 +178,11 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "k8s_cluster_service_pod_status"
+                    "latest(k8s_cluster_service_pod_status)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -202,11 +202,11 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "k8s_cluster_pod_status_not_running"
+                    "latest(k8s_cluster_pod_status_not_running)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -226,11 +226,11 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "k8s_cluster_node_status"
+                    "latest(k8s_cluster_node_status)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -250,11 +250,11 @@
                     "tableHeaderCol2": "Replicas"
                   },
                   "expressions": [
-                    "k8s_cluster_deployment_spec_replicas"
+                    "latest(k8s_cluster_deployment_spec_replicas)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -274,11 +274,11 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "k8s_cluster_deployment_status"
+                    "latest(k8s_cluster_deployment_status)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "SINGLE_VALUE"
                   ]
                 },
                 {
