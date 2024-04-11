@@ -96,6 +96,7 @@
 * Bump up Kafka to fix CVE.
 * Fix `NullPointerException` in Istio ServiceEntry registry.
 * Remove unnecessary `componentIds` as series ID in the `ServiceRelationClientSideMetrics` and `ServiceRelationServerSideMetrics` entities.
+* Fix not throw error when part of expression not matched any expression node in the `MQE` and `PromQL.
 
 #### UI
 

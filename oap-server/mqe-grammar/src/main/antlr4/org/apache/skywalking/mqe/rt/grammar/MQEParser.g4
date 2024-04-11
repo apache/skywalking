@@ -20,7 +20,7 @@ parser grammar MQEParser;
 
 options { tokenVocab = MQELexer; }
 
-root: expression;
+root: expression EOF;
 
 expression
     : expressionNode                   # exprNode
