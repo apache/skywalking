@@ -97,6 +97,7 @@
 * Fix `NullPointerException` in Istio ServiceEntry registry.
 * Remove unnecessary `componentIds` as series ID in the `ServiceRelationClientSideMetrics` and `ServiceRelationServerSideMetrics` entities.
 * Fix not throw error when part of expression not matched any expression node in the `MQE` and `PromQL.
+* Remove `kafka-fetcher/default/createTopicIfNotExist` as the creation is automatically since [#7326](https://github.com/apache/skywalking/issues/7326) (v8.7.0).
 
 #### UI
 
