@@ -1,5 +1,4 @@
-
- [
+[
   {
     "id": "Linux-Root",
     "configuration": {
@@ -11,9 +10,6 @@
           "h": 51,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "Linux-Service",
@@ -25,7 +21,6 @@
           "expressions": [
             "avg(meter_vm_cpu_total_percentage)"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -35,7 +30,6 @@
           "subTypesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "CPU Usage",
@@ -50,12 +44,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
@@ -63,8 +51,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-vm-monitoring/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "Linux-Root",

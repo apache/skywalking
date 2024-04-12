@@ -1,5 +1,4 @@
-
- [
+[
   {
     "id": "Browser-Version",
     "configuration": {
@@ -33,13 +32,9 @@
                   "expressions": [
                     "browser_app_single_version_error_sum/100"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "metricConfig": [],
-                  "value": "12-0-0",
-                  "label": "12-0-0",
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -47,11 +42,7 @@
                     {
                       "widgetId": "12-0-2"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 15,
-                    "sourceId": "12-0-2"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -75,14 +66,9 @@
                   "expressions": [
                     "browser_app_single_version_error_rate/100"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "metricConfig": [
-                  ],
-                  "value": "12-0-1",
-                  "label": "Error_Rate",
                   "associate": [
                     {
                       "widgetId": "12-0-0"
@@ -90,11 +76,7 @@
                     {
                       "widgetId": "12-0-2"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 15,
-                    "sourceId": "12-0-2"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -118,12 +100,9 @@
                   "expressions": [
                     "browser_app_single_version_pv"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "value": "12-0-2",
-                  "label": "Load_Version",
                   "associate": [
                     {
                       "widgetId": "12-0-1"

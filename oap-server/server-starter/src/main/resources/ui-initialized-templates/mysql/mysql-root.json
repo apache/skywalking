@@ -1,48 +1,46 @@
-
 [
-   {
-      "id":"mysql-root",
-      "configuration":{
-         "children":[
-            {
-               "x":0,
-               "y":3,
-               "w":24,
-               "h":43,
-               "i":"0",
-               "type":"Widget",
-               "graph":{
-                  "type":"ServiceList",
-                  "dashboardName":"MySQL-Service",
-                  "fontSize":12,
-                  "showXAxis":false,
-                  "showYAxis":false,
-                  "showGroup":true
-               },
-               "metricMode":"Expression"
-            },
-            {
-               "x":0,
-               "y":0,
-               "w":24,
-               "h":3,
-               "i":"1",
-               "type":"Text",
-               "graph":{
-                  "fontColor":"theme",
-                  "backgroundColor":"theme",
-                  "content":"Provide MySQL and MariaDB Server monitoring through OpenTelemetry's Prometheus Receiver",
-                  "fontSize":14,
-                  "textAlign":"left",
-                  "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-mysql-monitoring/"
-               }
-            }
-         ],
-         "layer":"MYSQL",
-         "entity":"All",
-         "name":"MySQL-Root",
-         "id":"mysql-root",
-         "isRoot":true
-      }
-   }
+  {
+    "id": "mysql-root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 3,
+          "w": 24,
+          "h": 43,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "MySQL-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          }
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 3,
+          "i": "1",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Provide MySQL and MariaDB Server monitoring through OpenTelemetry's Prometheus Receiver",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-mysql-monitoring/"
+          }
+        }
+      ],
+      "layer": "MYSQL",
+      "entity": "All",
+      "name": "MySQL-Root",
+      "id": "mysql-root",
+      "isRoot": true
+    }
+  }
 ]

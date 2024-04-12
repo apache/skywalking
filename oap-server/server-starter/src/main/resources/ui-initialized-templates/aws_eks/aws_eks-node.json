@@ -1,4 +1,3 @@
-
 [
   {
     "id": "AWS_EKS-node",
@@ -36,7 +35,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_number"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -94,7 +92,6 @@
                   "expressions": [
                     "eks_cluster_node_cpu_utilization"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -152,7 +149,6 @@
                   "expressions": [
                     "eks_cluster_node_memory_utilization"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -188,7 +184,6 @@
                       "widgetId": "10"
                     }
                   ]
-
                 },
                 {
                   "x": 18,
@@ -211,7 +206,6 @@
                   "expressions": [
                     "eks_cluster_node_net_rx_bytes/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -269,7 +263,6 @@
                   "expressions": [
                     "eks_cluster_node_net_rx_error"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -327,7 +320,6 @@
                   "expressions": [
                     "eks_cluster_node_net_tx_bytes/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -385,7 +377,6 @@
                   "expressions": [
                     "eks_cluster_node_net_tx_error"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -443,7 +434,6 @@
                   "expressions": [
                     "eks_cluster_node_disk_io_write"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -501,7 +491,6 @@
                   "expressions": [
                     "eks_cluster_node_disk_io_read"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -559,7 +548,6 @@
                   "expressions": [
                     "eks_cluster_node_fs_utilization"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -622,7 +610,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_cpu_utilization"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -668,7 +655,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_memory_utilization"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -714,7 +700,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_net_rx_bytes/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -760,7 +745,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_net_rx_error"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -806,7 +790,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_net_tx_bytes/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -852,7 +835,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_net_tx_error"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -877,17 +859,11 @@
                     }
                   ]
                 }
-
               ]
-
             }
-
-
           ]
         }
-
       ],
-
       "layer": "AWS_EKS",
       "entity": "ServiceInstance",
       "name": "AWS_EKS-node",

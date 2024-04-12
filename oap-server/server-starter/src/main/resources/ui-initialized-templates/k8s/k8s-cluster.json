@@ -1,4 +1,3 @@
-
 [
   {
     "id": "K8S-Cluster",
@@ -37,7 +36,6 @@
                     "k8s_cluster_cpu_cores_limits",
                     "k8s_cluster_cpu_cores_allocatable"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES",
@@ -81,7 +79,6 @@
                     "k8s_cluster_memory_limits/1024/1024/1024",
                     "k8s_cluster_memory_total/1024/1024/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES",
@@ -123,7 +120,6 @@
                     "k8s_cluster_storage_total/1024/1024/1024",
                     "k8s_cluster_storage_allocatable/1024/1024/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"
@@ -156,7 +152,6 @@
                   "expressions": [
                     "latest(k8s_cluster_pod_status_waiting)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -180,7 +175,6 @@
                   "expressions": [
                     "latest(k8s_cluster_service_pod_status)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -204,7 +198,6 @@
                   "expressions": [
                     "latest(k8s_cluster_pod_status_not_running)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -228,7 +221,6 @@
                   "expressions": [
                     "latest(k8s_cluster_node_status)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -252,7 +244,6 @@
                   "expressions": [
                     "latest(k8s_cluster_deployment_spec_replicas)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -276,7 +267,6 @@
                   "expressions": [
                     "latest(k8s_cluster_deployment_status)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -300,7 +290,6 @@
                   "expressions": [
                     "latest(k8s_cluster_container_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -324,7 +313,6 @@
                   "expressions": [
                     "latest(k8s_cluster_pod_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -348,7 +336,6 @@
                   "expressions": [
                     "latest(k8s_cluster_service_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -372,7 +359,6 @@
                   "expressions": [
                     "latest(k8s_cluster_node_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -396,7 +382,6 @@
                   "expressions": [
                     "latest(k8s_cluster_namespace_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -420,7 +405,6 @@
                   "expressions": [
                     "latest(k8s_cluster_deployment_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -444,7 +428,6 @@
                   "expressions": [
                     "latest(k8s_cluster_statefulset_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -468,7 +451,6 @@
                   "expressions": [
                     "latest(k8s_cluster_daemonset_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ]
@@ -494,7 +476,6 @@
                     "avg(k8s_node_cpu_usage)",
                     "avg(k8s_node_pod_total)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"

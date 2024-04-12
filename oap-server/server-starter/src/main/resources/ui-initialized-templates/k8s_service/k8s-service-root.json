@@ -1,4 +1,3 @@
-
 [
   {
     "id": "K8S-Service-Root",
@@ -11,10 +10,7 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricMode": "Expression",
-          "typesOfMQE": [
-
-          ],
+          "typesOfMQE": [],
           "expressions": [
             ""
           ],
@@ -45,7 +41,6 @@
                   "h": 50,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES",
@@ -105,7 +100,6 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "metricMode": "Expression",
                   "linkDashboard": "K8S-Service-Relation",
                   "nodeDashboard": [
                     {
@@ -113,15 +107,7 @@
                       "dashboard": "K8S-Endpoint"
                     }
                   ],
-                  "linkServerMetrics": [
-
-                  ],
-                  "linkClientMetrics": [
-
-                  ],
-                  "nodeMetrics": [
-
-                  ],
+                  "nodeMetrics": [],
                   "linkServerExpressions": [
                     "avg(kubernetes_service_relation_server_write_package_size)/60",
                     "avg(kubernetes_service_relation_server_read_package_size)/60",
@@ -141,11 +127,8 @@
                     "avg(kubernetes_service_http_call_duration/kubernetes_service_http_call_cpm)/1000000",
                     "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100)"
                   ],
-                  "legend": [
-
-                  ],
                   "legendMQE": {
-                    "expression": "avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95 and avg(kubernetes_service_http_call_cpm) > 1"
+                    "expression": "(avg(kubernetes_service_http_call_success_count / kubernetes_service_http_call_cpm*100) < 95) * (avg(kubernetes_service_http_call_cpm) > 1) == 1"
                   },
                   "description": {
                     "healthy": "Healthy",

@@ -1,4 +1,3 @@
-
 [
   {
     "id": "Self-Observability-OAP-Instance",
@@ -33,7 +32,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_cpu_percentage"
                   ],
@@ -59,7 +57,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_jvm_memory_bytes_used/1024/1024"
                   ],
@@ -81,7 +78,6 @@
                     "type": "Bar",
                     "showBackground": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_jvm_gc_count"
                   ],
@@ -107,7 +103,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_jvm_gc_time"
                   ],
@@ -133,7 +128,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_metrics_aggregation"
                   ],
@@ -163,7 +157,6 @@
                       "label": "execute_count"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_persistence_prepare_count",
                     "meter_oap_instance_persistence_execute_count"
@@ -191,7 +184,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(meter_oap_instance_persistence_prepare_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
@@ -217,7 +209,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(meter_oap_instance_persistence_execute_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
@@ -243,7 +234,6 @@
                   "widget": {
                     "title": "Metrics Persistent Cache Count(Per Minute)"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_metrics_persistent_cache"
                   ],
@@ -280,7 +270,6 @@
                       "label": "daemon"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_jvm_thread_live_count",
                     "meter_oap_jvm_thread_peak_count",
@@ -320,7 +309,6 @@
                       "label": "waiting"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_jvm_thread_runnable_count",
                     "meter_oap_jvm_thread_timed_waiting_count",
@@ -361,7 +349,6 @@
                       "label": "total_loaded"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_jvm_class_loaded_count",
                     "meter_oap_jvm_class_total_unloaded_count",
@@ -400,7 +387,6 @@
                       "label": "error_count"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_trace_count",
                     "meter_oap_instance_trace_analysis_error_count"
@@ -428,7 +414,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(meter_oap_instance_trace_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
@@ -458,7 +443,6 @@
                       "label": "error_count"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_mesh_count",
                     "meter_oap_instance_mesh_analysis_error_count"
@@ -486,7 +470,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(meter_oap_instance_mesh_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
@@ -516,7 +499,6 @@
                       "label": "drop_count"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_oap_instance_k8s_als_count",
                     "meter_oap_instance_k8s_als_drop"
@@ -544,7 +526,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(meter_oap_instance_k8s_als_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],

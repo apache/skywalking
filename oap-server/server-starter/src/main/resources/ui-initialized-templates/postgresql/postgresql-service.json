@@ -1,528 +1,509 @@
-
 [
-   {
-      "id":"PostgreSQL-Service",
-      "configuration":{
-         "children":[
+  {
+    "id": "PostgreSQL-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 37,
+          "i": "0",
+          "type": "Tab",
+          "children": [
             {
-               "x":0,
-               "y":0,
-               "w":24,
-               "h":37,
-               "i":"0",
-               "type":"Tab",
-               "children":[
-                  {
-                     "name":"Inspections",
-                     "children":[
-                        {
-                           "x":0,
-                           "y":0,
-                           "w":6,
-                           "h":8,
-                           "i":"9",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Area",
-                              "opacity":0.4,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Fetched Rows Trend (rows per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_fetched_rows_rate"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":6,
-                           "y":0,
-                           "w":6,
-                           "h":8,
-                           "i":"10",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Area",
-                              "opacity":0.4,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Inserted Rows Trend (rows per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_inserted_rows_rate"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":6,
-                           "y":16,
-                           "w":6,
-                           "h":8,
-                           "i":"11",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Buffers Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "metricConfig":[
-                              {
-                                 "label":"Checkpoint Buffers"
-                              },
-                              {
-                                 "label":"Clean Buffers"
-                              },
-                              {
-                                 "label":"Fsync Buffers"
-                              },
-                              {
-                                 "label":"Alloc Buffers"
-                              },
-                              {
-                                 "label":"Backend Buffers"
-                              }
-                           ],
-                           "expressions":[
-                              "meter_pg_buffers_checkpoint",
-                              "meter_pg_buffers_clean",
-                              "meter_pg_buffers_backend_fsync",
-                              "meter_pg_buffers_alloc",
-                              "meter_pg_buffers_backend"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":12,
-                           "y":0,
-                           "w":6,
-                           "h":8,
-                           "i":"12",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Updated Rows Trend (rows per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_updated_rows_rate"
-                           ]
-                        },
-                        {
-                           "x":18,
-                           "y":0,
-                           "w":6,
-                           "h":8,
-                           "i":"13",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Area",
-                              "opacity":0.4,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Deleted Rows Trend (rows per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_deleted_rows_rate"
-                           ]
-                        },
-                        {
-                           "x":0,
-                           "y":8,
-                           "w":6,
-                           "h":8,
-                           "i":"14",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Area",
-                              "opacity":0.4,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Returned Rows Trend (rows per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_returned_rows_rate"
-                           ]
-                        },
-                        {
-                           "x":6,
-                           "y":24,
-                           "w":6,
-                           "h":8,
-                           "i":"15",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Temporary Files Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_temporary_files_rate"
-                           ]
-                        },
-                        {
-                           "x":12,
-                           "y":8,
-                           "w":6,
-                           "h":8,
-                           "i":"16",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Committed Transactions Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_committed_transactions_rate"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":6,
-                           "y":8,
-                           "w":6,
-                           "h":8,
-                           "i":"17",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Rolled Back Transactions Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_rolled_back_transactions_rate"
-                           ]
-                        },
-                        {
-                           "x":0,
-                           "y":16,
-                           "w":6,
-                           "h":8,
-                           "i":"18",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Cache Hit Rate (%)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_cache_hit_rate"
-                           ]
-                        },
-                        {
-                           "x":12,
-                           "y":24,
-                           "w":6,
-                           "h":8,
-                           "i":"19",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Checkpoint Stat Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "metricConfig":[
-                              {
-                                 "label":"Sync Time Checkpoint"
-                              },
-                              {
-                                 "label":"Timed Checkpoint"
-                              },
-                              {
-                                 "label":"Req Checkpoint"
-                              },
-                              {
-                                 "label":"Write Time Checkpoint"
-                              }
-                           ],
-                           "expressions":[
-                              "meter_pg_checkpoint_sync_time_rate",
-                              "meter_pg_checkpoints_timed_rate",
-                              "meter_pg_checkpoint_req_rate",
-                              "meter_pg_checkpoint_write_time_rate"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES",
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":18,
-                           "y":8,
-                           "w":6,
-                           "h":8,
-                           "i":"20",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Conflicts Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_conflicts_rate"
-                           ]
-                        },
-                        {
-                           "x":0,
-                           "y":24,
-                           "w":6,
-                           "h":8,
-                           "i":"21",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Deadlocks Trend (per second)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_deadlocks_rate"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":12,
-                           "y":16,
-                           "w":6,
-                           "h":8,
-                           "i":"22",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Active Sessions"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_active_sessions"
-                           ]
-                        },
-                        {
-                           "x":18,
-                           "y":24,
-                           "w":6,
-                           "h":8,
-                           "i":"23",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Locks"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_locks_count"
-                           ],
-                           "typesOfMQE":[
-                              "TIME_SERIES_VALUES"
-                           ]
-                        },
-                        {
-                           "x":18,
-                           "y":16,
-                           "w":6,
-                           "h":8,
-                           "i":"24",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"Line",
-                              "step":false,
-                              "smooth":false,
-                              "showSymbol":false,
-                              "showXAxis":true,
-                              "showYAxis":true
-                           },
-                           "widget":{
-                              "title":"Idle Sessions"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "meter_pg_idle_sessions"
-                           ]
-                        }
-                     ]
+              "name": "Inspections",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 6,
+                  "h": 8,
+                  "i": "9",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
                   },
-                  {
-                     "name":"Slow Statements",
-                     "children":[
-                        {
-                           "x":0,
-                           "y":0,
-                           "w":24,
-                           "h":29,
-                           "i":"0",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"TopList",
-                              "color":"purple"
-                           },
-                           "widget":{
-                              "title":"Slow Statements (ms)"
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              "top_n(top_n_database_statement,10,des)"
-                           ],
-                           "typesOfMQE":[
-                              "RECORD_LIST"
-                           ]
-                        }
-                     ]
+                  "widget": {
+                    "title": "Fetched Rows Trend (rows per second)"
                   },
-                  {
-                     "name":"Instances",
-                     "children":[
-                        {
-                           "x":0,
-                           "y":0,
-                           "w":24,
-                           "h":32,
-                           "i":"0",
-                           "type":"Widget",
-                           "graph":{
-                              "type":"InstanceList",
-                              "dashboardName":"PostgreSQL-Instance",
-                              "fontSize":12
-                           },
-                           "metricMode":"Expression",
-                           "expressions":[
-                              ""
-                           ]
-                        }
-                     ]
-                  }
-               ]
+                  "expressions": [
+                    "meter_pg_fetched_rows_rate"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 0,
+                  "w": 6,
+                  "h": 8,
+                  "i": "10",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Inserted Rows Trend (rows per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_inserted_rows_rate"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 16,
+                  "w": 6,
+                  "h": 8,
+                  "i": "11",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Buffers Trend (per second)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Checkpoint Buffers"
+                    },
+                    {
+                      "label": "Clean Buffers"
+                    },
+                    {
+                      "label": "Fsync Buffers"
+                    },
+                    {
+                      "label": "Alloc Buffers"
+                    },
+                    {
+                      "label": "Backend Buffers"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_pg_buffers_checkpoint",
+                    "meter_pg_buffers_clean",
+                    "meter_pg_buffers_backend_fsync",
+                    "meter_pg_buffers_alloc",
+                    "meter_pg_buffers_backend"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 6,
+                  "h": 8,
+                  "i": "12",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Updated Rows Trend (rows per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_updated_rows_rate"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 0,
+                  "w": 6,
+                  "h": 8,
+                  "i": "13",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Deleted Rows Trend (rows per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_deleted_rows_rate"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 8,
+                  "w": 6,
+                  "h": 8,
+                  "i": "14",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Area",
+                    "opacity": 0.4,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Returned Rows Trend (rows per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_returned_rows_rate"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 24,
+                  "w": 6,
+                  "h": 8,
+                  "i": "15",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Temporary Files Trend (per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_temporary_files_rate"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 8,
+                  "w": 6,
+                  "h": 8,
+                  "i": "16",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Committed Transactions Trend (per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_committed_transactions_rate"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 6,
+                  "y": 8,
+                  "w": 6,
+                  "h": 8,
+                  "i": "17",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Rolled Back Transactions Trend (per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_rolled_back_transactions_rate"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 16,
+                  "w": 6,
+                  "h": 8,
+                  "i": "18",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Cache Hit Rate (%)"
+                  },
+                  "expressions": [
+                    "meter_pg_cache_hit_rate"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 24,
+                  "w": 6,
+                  "h": 8,
+                  "i": "19",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Checkpoint Stat Trend (per second)"
+                  },
+                  "metricConfig": [
+                    {
+                      "label": "Sync Time Checkpoint"
+                    },
+                    {
+                      "label": "Timed Checkpoint"
+                    },
+                    {
+                      "label": "Req Checkpoint"
+                    },
+                    {
+                      "label": "Write Time Checkpoint"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_pg_checkpoint_sync_time_rate",
+                    "meter_pg_checkpoints_timed_rate",
+                    "meter_pg_checkpoint_req_rate",
+                    "meter_pg_checkpoint_write_time_rate"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES",
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 8,
+                  "w": 6,
+                  "h": 8,
+                  "i": "20",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Conflicts Trend (per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_conflicts_rate"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 24,
+                  "w": 6,
+                  "h": 8,
+                  "i": "21",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Deadlocks Trend (per second)"
+                  },
+                  "expressions": [
+                    "meter_pg_deadlocks_rate"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 16,
+                  "w": 6,
+                  "h": 8,
+                  "i": "22",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Active Sessions"
+                  },
+                  "expressions": [
+                    "meter_pg_active_sessions"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 24,
+                  "w": 6,
+                  "h": 8,
+                  "i": "23",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Locks"
+                  },
+                  "expressions": [
+                    "meter_pg_locks_count"
+                  ],
+                  "typesOfMQE": [
+                    "TIME_SERIES_VALUES"
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 16,
+                  "w": 6,
+                  "h": 8,
+                  "i": "24",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": false,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "widget": {
+                    "title": "Idle Sessions"
+                  },
+                  "expressions": [
+                    "meter_pg_idle_sessions"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Slow Statements",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 29,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "TopList",
+                    "color": "purple"
+                  },
+                  "widget": {
+                    "title": "Slow Statements (ms)"
+                  },
+                  "expressions": [
+                    "top_n(top_n_database_statement,10,des)"
+                  ],
+                  "typesOfMQE": [
+                    "RECORD_LIST"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Instances",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 32,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "PostgreSQL-Instance",
+                    "fontSize": 12
+                  },
+                  "expressions": [
+                    ""
+                  ]
+                }
+              ]
             }
-         ],
-         "layer":"POSTGRESQL",
-         "entity":"Service",
-         "name":"PostgreSQL-Service",
-         "isDefault": true,
-         "expressions": [
-            "avg(meter_pg_fetched_rows_rate)",
-            "avg(meter_pg_inserted_rows_rate)",
-            "avg(meter_pg_updated_rows_rate)",
-            "avg(meter_pg_deleted_rows_rate)"
-         ],
-         "expressionsConfig": [
-            {
-               "unit": "rows / s",
-               "label": "Fetch"
-            },
-            {
-               "unit": "rows / s",
-               "label": "Insert"
-            },
-            {
-               "unit": "rows / s",
-               "label": "Update"
-            },
-            {
-               "unit": "rows / s",
-               "label": "Delete"
-            }
-         ]
-      }
-   }
+          ]
+        }
+      ],
+      "layer": "POSTGRESQL",
+      "entity": "Service",
+      "name": "PostgreSQL-Service",
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_pg_fetched_rows_rate)",
+        "avg(meter_pg_inserted_rows_rate)",
+        "avg(meter_pg_updated_rows_rate)",
+        "avg(meter_pg_deleted_rows_rate)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Fetch"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Update"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Delete"
+        }
+      ]
+    }
+  }
 ]

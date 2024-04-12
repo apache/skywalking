@@ -1,4 +1,3 @@
-
 [
   {
     "id": "Virtual-Database-Root",
@@ -39,7 +38,6 @@
               "unit": "calls / min"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "avg(database_access_resp_time)",
             "avg(database_access_sla)/100",

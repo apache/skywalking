@@ -1,4 +1,3 @@
-
 [
   {
     "id": "Virtual-Cache-Service",
@@ -26,7 +25,6 @@
           "expressions": [
             "cache_access_resp_time"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -36,10 +34,6 @@
               "label": "Response Time"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
           "associate": [
             {
               "widgetId": "2"
@@ -52,7 +46,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 0,
@@ -75,7 +68,6 @@
           "expressions": [
             "cache_access_sla/100"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -85,10 +77,6 @@
               "label": "Successful Rate"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
           "associate": [
             {
               "widgetId": "1"
@@ -123,7 +111,6 @@
           "expressions": [
             "cache_access_cpm"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -167,7 +154,6 @@
           "expressions": [
             "relabels(cache_access_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "SINGLE_VALUE"
           ],
@@ -187,16 +173,8 @@
             {
               "widgetId": "3"
             }
-          ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          ]
         },
-
-
-
-
         {
           "x": 0,
           "y": 13,
@@ -219,7 +197,6 @@
           "expressions": [
             "cache_read_resp_time"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -229,10 +206,6 @@
               "label": "Response Time"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
           "associate": [
             {
               "widgetId": "6"
@@ -245,7 +218,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 13,
@@ -268,7 +240,6 @@
           "expressions": [
             "cache_read_sla/100"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -288,11 +259,7 @@
             {
               "widgetId": "8"
             }
-          ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          ]
         },
         {
           "x": 12,
@@ -316,7 +283,6 @@
           "expressions": [
             "cache_write_resp_time"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -326,10 +292,6 @@
               "label": "Response Time"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
           "associate": [
             {
               "widgetId": "10"
@@ -342,7 +304,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 13,
@@ -365,7 +326,6 @@
           "expressions": [
             "cache_write_sla/100"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -375,10 +335,6 @@
               "label": "Successful Rate"
             }
           ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          },
           "associate": [
             {
               "widgetId": "9"
@@ -413,7 +369,6 @@
           "expressions": [
             "cache_read_cpm"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -457,7 +412,6 @@
           "expressions": [
             "relabels(cache_read_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "SINGLE_VALUE"
           ],
@@ -477,13 +431,8 @@
             {
               "widgetId": "7"
             }
-          ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          ]
         },
-
         {
           "x": 12,
           "y": 26,
@@ -506,7 +455,6 @@
           "expressions": [
             "cache_write_cpm"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -550,7 +498,6 @@
           "expressions": [
             "relabels(cache_write_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "SINGLE_VALUE"
           ],
@@ -570,11 +517,7 @@
             {
               "widgetId": "11"
             }
-          ],
-          "filters": {
-            "dataIndex": 17,
-            "sourceId": "4"
-          }
+          ]
         },
         {
           "x": 0,
@@ -595,8 +538,7 @@
           ],
           "typesOfMQE": [
             "RECORD_LIST"
-          ],
-          "metricMode": "Expression"
+          ]
         },
         {
           "x": 12,
@@ -617,10 +559,7 @@
           ],
           "typesOfMQE": [
             "RECORD_LIST"
-          ],
-          "metricMode": "Expression",
-          "value": "2",
-          "label": "2"
+          ]
         }
       ],
       "layer": "VIRTUAL_CACHE",

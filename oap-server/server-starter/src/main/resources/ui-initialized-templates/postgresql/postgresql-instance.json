@@ -1,700 +1,674 @@
-
 [
-   {
-      "id":"PostgreSQL-Instance",
-      "configuration":{
-         "children":[
+  {
+    "id": "PostgreSQL-Instance",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 6,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Shared Buffers"
+          },
+          "metricConfig": [
             {
-               "x":0,
-               "y":0,
-               "w":4,
-               "h":6,
-               "i":"0",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Shared Buffers"
-               },
-               "metricConfig": [
-                  {
-                     "unit": "MB"
-                  }
-               ],
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_shared_buffers)/1024/1024"
-               ],
-               "typesOfMQE":[
-                  "SINGLE_VALUE"
-               ]
-            },
-            {
-               "x":4,
-               "y":0,
-               "w":5,
-               "h":6,
-               "i":"1",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Effective Cache"
-               },
-               "metricConfig": [
-                  {
-                     "unit": "GB"
-                  }
-               ],
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_effective_cache)/1024/1024/1024"
-               ],
-               "typesOfMQE":[
-                  "SINGLE_VALUE"
-               ]
-            },
-            {
-               "x":4,
-               "y":6,
-               "w":5,
-               "h":6,
-               "i":"2",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Maintenance Work Mem"
-               },
-               "metricConfig": [
-                  {
-                     "unit": "MB"
-                  }
-               ],
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_maintenance_work_mem)/1024/1024"
-               ],
-               "typesOfMQE":[
-                  "SINGLE_VALUE"
-               ]
-            },
-            {
-               "x":14,
-               "y":6,
-               "w":5,
-               "h":6,
-               "i":"3",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Work Mem"
-               },
-               "metricConfig": [
-                  {
-                     "unit": "MB"
-                  }
-               ],
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_work_mem)/1024/1024"
-               ]
-            },
-            {
-               "x":9,
-               "y":0,
-               "w":5,
-               "h":6,
-               "i":"4",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Seq Page Cost"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_seq_page_cost)"
-               ],
-               "typesOfMQE":[
-                  "UNKNOWN"
-               ]
-            },
-            {
-               "x":14,
-               "y":0,
-               "w":5,
-               "h":6,
-               "i":"5",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Random Page Cost"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_random_page_cost)"
-               ],
-               "typesOfMQE":[
-                  "SINGLE_VALUE"
-               ]
-            },
-            {
-               "x":0,
-               "y":6,
-               "w":4,
-               "h":6,
-               "i":"6",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Max WAL Size"
-               },
-               "metricConfig": [
-                  {
-                     "unit": "GB"
-                  }
-               ],
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_max_wal_size)/1024/1024/1024"
-               ],
-               "typesOfMQE":[
-                  "SINGLE_VALUE"
-               ]
-            },
-            {
-               "x":9,
-               "y":6,
-               "w":5,
-               "h":6,
-               "i":"7",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Max Parallel Workers"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_max_parallel_workers)"
-               ],
-               "typesOfMQE":[
-                  "SINGLE_VALUE"
-               ]
-            },
-            {
-               "x":19,
-               "y":0,
-               "w":5,
-               "h":6,
-               "i":"8",
-               "type":"Widget",
-               "graph":{
-                  "type":"Card",
-                  "fontSize":40,
-                  "textAlign":"center",
-                  "showUnit":true
-               },
-               "widget":{
-                  "title":"Max Worker Processes"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "latest(meter_pg_instance_max_worker_processes)"
-               ]
-            },
-            {
-               "x":0,
-               "y":12,
-               "w":6,
-               "h":10,
-               "i":"9",
-               "type":"Widget",
-               "graph":{
-                  "type":"Area",
-                  "opacity":0.4,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Fetched Rows Trend (rows per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_fetched_rows_rate"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":6,
-               "y":12,
-               "w":6,
-               "h":10,
-               "i":"10",
-               "type":"Widget",
-               "graph":{
-                  "type":"Area",
-                  "opacity":0.4,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Inserted Rows Trend (rows per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_inserted_rows_rate"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":6,
-               "y":32,
-               "w":6,
-               "h":10,
-               "i":"11",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Buffers Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "metricConfig":[
-                  {
-                     "label":"Checkpoint Buffers"
-                  },
-                  {
-                     "label":"Clean Buffers"
-                  },
-                  {
-                     "label":"Fsync Buffers"
-                  },
-                  {
-                     "label":"Alloc Buffers"
-                  },
-                  {
-                     "label":"Backend Buffers"
-                  }
-               ],
-               "expressions":[
-                  "meter_pg_instance_buffers_checkpoint",
-                  "meter_pg_instance_buffers_clean",
-                  "meter_pg_instance_buffers_backend_fsync",
-                  "meter_pg_instance_buffers_alloc",
-                  "meter_pg_instance_buffers_backend"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":12,
-               "y":12,
-               "w":6,
-               "h":10,
-               "i":"12",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Updated Rows Trend (rows per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_updated_rows_rate"
-               ]
-            },
-            {
-               "x":18,
-               "y":12,
-               "w":6,
-               "h":10,
-               "i":"13",
-               "type":"Widget",
-               "graph":{
-                  "type":"Area",
-                  "opacity":0.4,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Deleted Rows Trend (rows per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_deleted_rows_rate"
-               ]
-            },
-            {
-               "x":0,
-               "y":22,
-               "w":6,
-               "h":10,
-               "i":"14",
-               "type":"Widget",
-               "graph":{
-                  "type":"Area",
-                  "opacity":0.4,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Returned Rows Trend (rows per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_returned_rows_rate"
-               ]
-            },
-            {
-               "x":6,
-               "y":42,
-               "w":6,
-               "h":10,
-               "i":"15",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Temporary Files Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_temporary_files_rate"
-               ]
-            },
-            {
-               "x":12,
-               "y":22,
-               "w":6,
-               "h":10,
-               "i":"16",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Committed Transactions Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_committed_transactions_rate"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":6,
-               "y":22,
-               "w":6,
-               "h":10,
-               "i":"17",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Rolled Back Transactions Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_rolled_back_transactions_rate"
-               ]
-            },
-            {
-               "x":0,
-               "y":32,
-               "w":6,
-               "h":10,
-               "i":"18",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Cache Hit Rate (%)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_cache_hit_rate"
-               ]
-            },
-            {
-               "x":12,
-               "y":42,
-               "w":6,
-               "h":10,
-               "i":"19",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Checkpoint Stat Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "metricConfig":[
-                  {
-                     "label":"Sync Time Checkpoint"
-                  },
-                  {
-                     "label":"Timed Checkpoint"
-                  },
-                  {
-                     "label":"Req Checkpoint"
-                  },
-                  {
-                     "label":"Write Time Checkpoint"
-                  }
-               ],
-               "expressions":[
-                  "meter_pg_instance_checkpoint_sync_time_rate",
-                  "meter_pg_instance_checkpoints_timed_rate",
-                  "meter_pg_instance_checkpoint_req_rate",
-                  "meter_pg_instance_checkpoint_write_time_rate"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES",
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":18,
-               "y":22,
-               "w":6,
-               "h":10,
-               "i":"20",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Conflicts Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_conflicts_rate"
-               ]
-            },
-            {
-               "x":0,
-               "y":42,
-               "w":6,
-               "h":10,
-               "i":"21",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Deadlocks Trend (per second)"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_deadlocks_rate"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":12,
-               "y":32,
-               "w":6,
-               "h":10,
-               "i":"22",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Active Sessions"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_active_sessions"
-               ]
-            },
-            {
-               "x":18,
-               "y":42,
-               "w":6,
-               "h":10,
-               "i":"23",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Locks"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_locks_count"
-               ],
-               "typesOfMQE":[
-                  "TIME_SERIES_VALUES"
-               ]
-            },
-            {
-               "x":18,
-               "y":32,
-               "w":6,
-               "h":10,
-               "i":"24",
-               "type":"Widget",
-               "graph":{
-                  "type":"Line",
-                  "step":false,
-                  "smooth":false,
-                  "showSymbol":false,
-                  "showXAxis":true,
-                  "showYAxis":true
-               },
-               "widget":{
-                  "title":"Idle Sessions"
-               },
-               "metricMode":"Expression",
-               "expressions":[
-                  "meter_pg_instance_idle_sessions"
-               ]
+              "unit": "MB"
             }
-         ],
-         "layer":"POSTGRESQL",
-         "entity":"ServiceInstance",
-         "name":"PostgreSQL-Instance",
-         "isRoot": false,
-         "isDefault": true,
-         "expressions": [
-            "avg(aggregate_labels(meter_pg_instance_fetched_rows_rate,sum))",
-            "avg(aggregate_labels(meter_pg_instance_inserted_rows_rate,sum))",
-            "avg(aggregate_labels(meter_pg_instance_updated_rows_rate,sum))",
-            "avg(aggregate_labels(meter_pg_instance_deleted_rows_rate,sum))"
-         ],
-         "expressionsConfig": [
+          ],
+          "expressions": [
+            "latest(meter_pg_instance_shared_buffers)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ]
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "w": 5,
+          "h": 6,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Effective Cache"
+          },
+          "metricConfig": [
             {
-               "unit": "rows / s",
-               "label": "Fetch"
-            },
-            {
-               "unit": "rows / s",
-               "label": "Insert"
-            },
-            {
-               "unit": "rows / s",
-               "label": "Update"
-            },
-            {
-               "unit": "rows / s",
-               "label": "Delete"
+              "unit": "GB"
             }
-         ]
-      }
-   }
+          ],
+          "expressions": [
+            "latest(meter_pg_instance_effective_cache)/1024/1024/1024"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ]
+        },
+        {
+          "x": 4,
+          "y": 6,
+          "w": 5,
+          "h": 6,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Maintenance Work Mem"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_pg_instance_maintenance_work_mem)/1024/1024"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ]
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "w": 5,
+          "h": 6,
+          "i": "3",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Work Mem"
+          },
+          "metricConfig": [
+            {
+              "unit": "MB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_pg_instance_work_mem)/1024/1024"
+          ]
+        },
+        {
+          "x": 9,
+          "y": 0,
+          "w": 5,
+          "h": 6,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Seq Page Cost"
+          },
+          "expressions": [
+            "latest(meter_pg_instance_seq_page_cost)"
+          ],
+          "typesOfMQE": [
+            "UNKNOWN"
+          ]
+        },
+        {
+          "x": 14,
+          "y": 0,
+          "w": 5,
+          "h": 6,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Random Page Cost"
+          },
+          "expressions": [
+            "latest(meter_pg_instance_random_page_cost)"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 6,
+          "w": 4,
+          "h": 6,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Max WAL Size"
+          },
+          "metricConfig": [
+            {
+              "unit": "GB"
+            }
+          ],
+          "expressions": [
+            "latest(meter_pg_instance_max_wal_size)/1024/1024/1024"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ]
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "w": 5,
+          "h": 6,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Max Parallel Workers"
+          },
+          "expressions": [
+            "latest(meter_pg_instance_max_parallel_workers)"
+          ],
+          "typesOfMQE": [
+            "SINGLE_VALUE"
+          ]
+        },
+        {
+          "x": 19,
+          "y": 0,
+          "w": 5,
+          "h": 6,
+          "i": "8",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 40,
+            "textAlign": "center",
+            "showUnit": true
+          },
+          "widget": {
+            "title": "Max Worker Processes"
+          },
+          "expressions": [
+            "latest(meter_pg_instance_max_worker_processes)"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "w": 6,
+          "h": 10,
+          "i": "9",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Fetched Rows Trend (rows per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_fetched_rows_rate"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 12,
+          "w": 6,
+          "h": 10,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Inserted Rows Trend (rows per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_inserted_rows_rate"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 32,
+          "w": 6,
+          "h": 10,
+          "i": "11",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Buffers Trend (per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "Checkpoint Buffers"
+            },
+            {
+              "label": "Clean Buffers"
+            },
+            {
+              "label": "Fsync Buffers"
+            },
+            {
+              "label": "Alloc Buffers"
+            },
+            {
+              "label": "Backend Buffers"
+            }
+          ],
+          "expressions": [
+            "meter_pg_instance_buffers_checkpoint",
+            "meter_pg_instance_buffers_clean",
+            "meter_pg_instance_buffers_backend_fsync",
+            "meter_pg_instance_buffers_alloc",
+            "meter_pg_instance_buffers_backend"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 12,
+          "w": 6,
+          "h": 10,
+          "i": "12",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Updated Rows Trend (rows per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_updated_rows_rate"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "w": 6,
+          "h": 10,
+          "i": "13",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Deleted Rows Trend (rows per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_deleted_rows_rate"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 22,
+          "w": 6,
+          "h": 10,
+          "i": "14",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Returned Rows Trend (rows per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_returned_rows_rate"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 42,
+          "w": 6,
+          "h": 10,
+          "i": "15",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Temporary Files Trend (per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_temporary_files_rate"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 22,
+          "w": 6,
+          "h": 10,
+          "i": "16",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Committed Transactions Trend (per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_committed_transactions_rate"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 6,
+          "y": 22,
+          "w": 6,
+          "h": 10,
+          "i": "17",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Rolled Back Transactions Trend (per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_rolled_back_transactions_rate"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 32,
+          "w": 6,
+          "h": 10,
+          "i": "18",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Cache Hit Rate (%)"
+          },
+          "expressions": [
+            "meter_pg_instance_cache_hit_rate"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 42,
+          "w": 6,
+          "h": 10,
+          "i": "19",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Checkpoint Stat Trend (per second)"
+          },
+          "metricConfig": [
+            {
+              "label": "Sync Time Checkpoint"
+            },
+            {
+              "label": "Timed Checkpoint"
+            },
+            {
+              "label": "Req Checkpoint"
+            },
+            {
+              "label": "Write Time Checkpoint"
+            }
+          ],
+          "expressions": [
+            "meter_pg_instance_checkpoint_sync_time_rate",
+            "meter_pg_instance_checkpoints_timed_rate",
+            "meter_pg_instance_checkpoint_req_rate",
+            "meter_pg_instance_checkpoint_write_time_rate"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES",
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 22,
+          "w": 6,
+          "h": 10,
+          "i": "20",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Conflicts Trend (per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_conflicts_rate"
+          ]
+        },
+        {
+          "x": 0,
+          "y": 42,
+          "w": 6,
+          "h": 10,
+          "i": "21",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Deadlocks Trend (per second)"
+          },
+          "expressions": [
+            "meter_pg_instance_deadlocks_rate"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 12,
+          "y": 32,
+          "w": 6,
+          "h": 10,
+          "i": "22",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Active Sessions"
+          },
+          "expressions": [
+            "meter_pg_instance_active_sessions"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 42,
+          "w": 6,
+          "h": 10,
+          "i": "23",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Locks"
+          },
+          "expressions": [
+            "meter_pg_instance_locks_count"
+          ],
+          "typesOfMQE": [
+            "TIME_SERIES_VALUES"
+          ]
+        },
+        {
+          "x": 18,
+          "y": 32,
+          "w": 6,
+          "h": 10,
+          "i": "24",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Idle Sessions"
+          },
+          "expressions": [
+            "meter_pg_instance_idle_sessions"
+          ]
+        }
+      ],
+      "layer": "POSTGRESQL",
+      "entity": "ServiceInstance",
+      "name": "PostgreSQL-Instance",
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(aggregate_labels(meter_pg_instance_fetched_rows_rate,sum))",
+        "avg(aggregate_labels(meter_pg_instance_inserted_rows_rate,sum))",
+        "avg(aggregate_labels(meter_pg_instance_updated_rows_rate,sum))",
+        "avg(aggregate_labels(meter_pg_instance_deleted_rows_rate,sum))"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Fetch"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Update"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Delete"
+        }
+      ]
+    }
+  }
 ]

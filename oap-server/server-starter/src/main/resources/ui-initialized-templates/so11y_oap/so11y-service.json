@@ -1,4 +1,3 @@
-
 [
   {
     "id": "Self-Observability-OAP-Service",
@@ -28,7 +27,6 @@
               "detailLabel": "persistence_count"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "avg(meter_oap_instance_cpu_percentage)",
             "avg(meter_oap_instance_persistence_execute_count)"

@@ -1,5 +1,4 @@
-
- [
+[
   {
     "id": "Browser-app",
     "configuration": {
@@ -32,13 +31,9 @@
                   "expressions": [
                     "top_n(browser_app_single_version_error_rate,10,des)/100"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SORTED_LIST"
-                  ],
-                  "metricConfig": [],
-                  "value": "12-0-2",
-                  "label": "12-0-2"
+                  ]
                 },
                 {
                   "x": 0,
@@ -57,12 +52,9 @@
                   "expressions": [
                     "top_n(browser_app_single_version_pv,10,des)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SORTED_LIST"
-                  ],
-                  "value": "12-0-3",
-                  "label": "12-0-3"
+                  ]
                 },
                 {
                   "x": 16,
@@ -82,12 +74,9 @@
                   "expressions": [
                     "browser_app_error_sum"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "value": "12-0-5",
-                  "label": "12-0-5",
                   "associate": [
                     {
                       "widgetId": "12-0-7"
@@ -95,11 +84,7 @@
                     {
                       "widgetId": "12-0-11"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 11,
-                    "sourceId": "12-0-11"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -123,12 +108,9 @@
                   "expressions": [
                     "browser_app_pv"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "value": "12-0-7",
-                  "label": "App_Load",
                   "associate": [
                     {
                       "widgetId": "12-0-5"
@@ -136,11 +118,7 @@
                     {
                       "widgetId": "12-0-11"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 11,
-                    "sourceId": "12-0-11"
-                  }
+                  ]
                 },
                 {
                   "x": 8,
@@ -159,12 +137,9 @@
                   "expressions": [
                     "top_n(browser_app_page_error_sum,10,des)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SORTED_LIST"
-                  ],
-                  "value": "12-0-10",
-                  "label": "12-0-10"
+                  ]
                 },
                 {
                   "x": 8,
@@ -188,13 +163,9 @@
                   "expressions": [
                     "browser_app_error_rate/100"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "metricConfig": [],
-                  "value": "12-0-11",
-                  "label": "App_Error_Rate",
                   "associate": [
                     {
                       "widgetId": "12-0-7"
@@ -202,11 +173,7 @@
                     {
                       "widgetId": "12-0-5"
                     }
-                  ],
-                  "filters": {
-                    "dataIndex": 11,
-                    "sourceId": "12-0-7"
-                  }
+                  ]
                 },
                 {
                   "x": 0,
@@ -218,7 +185,6 @@
                   "expressions": [
                     "top_n(browser_app_page_pv,10,des)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SORTED_LIST"
                   ],
@@ -228,9 +194,7 @@
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
-                  },
-                  "value": "12-0-12",
-                  "label": "12-0-12"
+                  }
                 },
                 {
                   "x": 16,
@@ -242,7 +206,6 @@
                   "expressions": [
                     "top_n(browser_app_page_error_rate,10,des)/100"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SORTED_LIST"
                   ],
@@ -252,10 +215,7 @@
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
-                  },
-                  "metricConfig": [],
-                  "value": "12-0-13",
-                  "label": "12-0-13"
+                  }
                 },
                 {
                   "x": 16,
@@ -267,7 +227,6 @@
                   "expressions": [
                     "top_n(browser_app_single_version_error_sum,10,des)"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SORTED_LIST"
                   ],
@@ -277,9 +236,7 @@
                   "graph": {
                     "type": "TopList",
                     "color": "purple"
-                  },
-                  "value": "12-0-14",
-                  "label": "12-0-14"
+                  }
                 }
               ]
             },
@@ -301,11 +258,6 @@
                     "dashboardName": "Browser-Version",
                     "fontSize": 12
                   },
-                  "metrics": [
-                    "avg(browser_app_single_version_pv)",
-                    "avg(browser_app_single_version_error_rage)/100"
-                  ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"
@@ -327,9 +279,7 @@
                       "unit": "%",
                       "label": "Error Rate"
                     }
-                  ],
-                  "value": "12-1-0",
-                  "label": "12-1-0"
+                  ]
                 }
               ]
             },
@@ -357,7 +307,6 @@
                     "avg(browser_app_page_pv)",
                     "avg(browser_app_page_error_rate)/100"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES"
@@ -379,9 +328,7 @@
                       "unit": "%",
                       "label": "Error Rate"
                     }
-                  ],
-                  "value": "12-2-0",
-                  "label": "12-2-0"
+                  ]
                 }
               ]
             },

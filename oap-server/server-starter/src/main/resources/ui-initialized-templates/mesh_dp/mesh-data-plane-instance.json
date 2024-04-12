@@ -32,7 +32,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_rq_active"
                   ],
@@ -58,7 +57,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_total_connections_used",
                     "envoy_parent_connections_used"
@@ -86,7 +84,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_membership_healthy"
                   ],
@@ -112,7 +109,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_cx_incr"
                   ],
@@ -138,7 +134,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_rq_pending_active"
                   ],
@@ -164,7 +159,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_memory_allocated_max",
                     "envoy_heap_memory_used",
@@ -200,7 +194,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_bug_failures"
                   ],
@@ -226,7 +219,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
@@ -254,7 +246,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_cx_active"
                   ],
@@ -280,7 +271,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_rq_incr"
                   ],

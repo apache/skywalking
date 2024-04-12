@@ -1,283 +1,274 @@
-
 [
   {
-    "id":"AWS-DynamoDB-Endpoint",
-    "configuration":{
-      "children":[
+    "id": "AWS-DynamoDB-Endpoint",
+    "configuration": {
+      "children": [
         {
-          "x":6,
-          "y":10,
-          "w":6,
-          "h":11,
-          "i":"0",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 6,
+          "y": 10,
+          "w": 6,
+          "h": 11,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Throttled Requests"
+          "widget": {
+            "title": "Throttled Requests"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Read Throttled Requests"
+              "label": "Read Throttled Requests"
             },
             {
-              "label":"Write Throttled Requests"
+              "label": "Write Throttled Requests"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_read_throttled_requests",
             "aws_dynamodb_endpoint_write_throttled_requests"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":10,
-          "w":6,
-          "h":11,
-          "i":"1",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 10,
+          "w": 6,
+          "h": 11,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Throttle Events"
+          "widget": {
+            "title": "Throttle Events"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Read Throttle Events"
+              "label": "Read Throttle Events"
             },
             {
-              "label":"Write Throttle Events"
+              "label": "Write Throttle Events"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_read_throttle_events",
             "aws_dynamodb_endpoint_write_throttle_events"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":21,
-          "w":6,
-          "h":11,
-          "i":"2",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 21,
+          "w": 6,
+          "h": 11,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"System Errors"
+          "widget": {
+            "title": "System Errors"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Read System Errors"
+              "label": "Read System Errors"
             },
             {
-              "label":"Write System Errors"
+              "label": "Write System Errors"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_read_system_errors",
             "aws_dynamodb_endpoint_write_system_errors"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":21,
-          "w":6,
-          "h":11,
-          "i":"4",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 6,
+          "y": 21,
+          "w": 6,
+          "h": 11,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Conditional Check Failed Requests"
+          "widget": {
+            "title": "Conditional Check Failed Requests"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Conditional Check Failed Requests"
+              "label": "Conditional Check Failed Requests"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_conditional_check_failed_requests"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":21,
-          "w":6,
-          "h":11,
-          "i":"5",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 21,
+          "w": 6,
+          "h": 11,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Transaction Conflict"
+          "widget": {
+            "title": "Transaction Conflict"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Transaction Conflict"
+              "label": "Transaction Conflict"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_transaction_conflict"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":0,
-          "w":6,
-          "h":10,
-          "i":"6",
-          "type":"Widget",
-          "graph":{
-            "type":"Bar",
-            "showBackground":true
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 10,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
           },
-          "widget":{
-            "title":"Read Usage (unit/s)"
+          "widget": {
+            "title": "Read Usage (unit/s)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Provisioned Read Capacity Units"
+              "label": "Provisioned Read Capacity Units"
             },
             {
-              "label":"Consumed Read Capacity Units"
+              "label": "Consumed Read Capacity Units"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_provisioned_read_capacity_units",
             "aws_dynamodb_endpoint_consumed_read_capacity_units"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":0,
-          "w":6,
-          "h":10,
-          "i":"7",
-          "type":"Widget",
-          "graph":{
-            "type":"Bar",
-            "showBackground":true
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 10,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
           },
-          "widget":{
-            "title":"Write Usage (unit/s)"
+          "widget": {
+            "title": "Write Usage (unit/s)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Provisioned Write Capacity Units"
+              "label": "Provisioned Write Capacity Units"
             },
             {
-              "label":"Consumed Write Capacity Units"
+              "label": "Consumed Write Capacity Units"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_provisioned_write_capacity_units",
             "aws_dynamodb_endpoint_consumed_write_capacity_units"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":0,
-          "w":6,
-          "h":10,
-          "i":"8",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 10,
+          "i": "8",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Successful Request Latency (ms)"
+          "widget": {
+            "title": "Successful Request Latency (ms)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Get"
+              "label": "Get"
             },
             {
-              "label":"Put"
+              "label": "Put"
             },
             {
-              "label":"Query"
+              "label": "Query"
             },
             {
-              "label":"Scan"
+              "label": "Scan"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_get_successful_request_latency",
             "aws_dynamodb_endpoint_put_successful_request_latency",
             "aws_dynamodb_endpoint_query_successful_request_latency",
             "aws_dynamodb_endpoint_scan_successful_request_latency"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES",
@@ -285,104 +276,101 @@
           ]
         },
         {
-          "x":18,
-          "y":0,
-          "w":6,
-          "h":10,
-          "i":"9",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 10,
+          "i": "9",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"TTL Deleted Item Count"
+          "widget": {
+            "title": "TTL Deleted Item Count"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"TTL Item Count"
+              "label": "TTL Item Count"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_time_to_live_deleted_item_count"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":10,
-          "w":6,
-          "h":11,
-          "i":"11",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 10,
+          "w": 6,
+          "h": 11,
+          "i": "11",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Scan Operation Returned Item Count"
+          "widget": {
+            "title": "Scan Operation Returned Item Count"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Scan Returned Item Out"
+              "label": "Scan Returned Item Out"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_scan_returned_item_count"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":18,
-          "y":10,
-          "w":6,
-          "h":11,
-          "i":"12",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 10,
+          "w": 6,
+          "h": 11,
+          "i": "12",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Query Operation Returned Item Count"
+          "widget": {
+            "title": "Query Operation Returned Item Count"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Returned Item Count"
+              "label": "Returned Item Count"
             }
           ],
-          "expressions":[
+          "expressions": [
             "aws_dynamodb_endpoint_query_returned_item_count"
           ],
-          "typesOfMQE":[
+          "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ]
         }
       ],
-      "layer":"AWS_DYNAMODB",
-      "entity":"Endpoint",
-      "name":"AWS-DynamoDB-Endpoint",
-      "id":"AWS-DynamoDB-Endpoint",
-      "isRoot":false
+      "layer": "AWS_DYNAMODB",
+      "entity": "Endpoint",
+      "name": "AWS-DynamoDB-Endpoint",
+      "id": "AWS-DynamoDB-Endpoint",
+      "isRoot": false
     }
   }
 ]

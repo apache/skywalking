@@ -46,7 +46,6 @@
                       "label": "Apdex"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "avg(service_cpm)",
                     "avg(service_sla)/100",
@@ -54,10 +53,10 @@
                     "avg(service_apdex)/10000"
                   ],
                   "subExpressions": [
-                    "",
-                    "",
-                    "",
-                    ""
+                    "service_cpm",
+                    "service_sla/100",
+                    "service_resp_time",
+                    "service_apdex/10000"
                   ],
                   "subTypesOfMQE": [
                     "",
@@ -96,18 +95,7 @@
                       "dashboard": "Mesh-Endpoint"
                     }
                   ],
-                  "linkServerMetrics": [
-
-                  ],
-                  "linkClientMetrics": [
-
-                  ],
-                  "nodeMetrics": [
-
-                  ],
-                  "legend": [
-
-                  ],
+                  "nodeMetrics": [],
                   "description": {
                     "healthy": "Healthy",
                     "unhealthy": "Success Rate < 95% and Traffic > 1 calls or packets / min"
@@ -159,9 +147,8 @@
                     "avg(service_sla/100)",
                     "avg(service_resp_time)"
                   ],
-                  "metricMode": "Expression",
                   "legendMQE": {
-                    "expression": "avg(service_sla/100) > 9500 and avg(service_cpm) > 1"
+                    "expression": "(avg(service_sla) < 9500) * (avg(service_cpm) > 1)  == 1"
                   }
                 }
               ]

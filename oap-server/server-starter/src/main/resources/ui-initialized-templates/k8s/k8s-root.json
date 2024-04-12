@@ -10,9 +10,6 @@
           "h": 52,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "K8S-Cluster",
@@ -28,7 +25,6 @@
             "avg(k8s_cluster_service_total)",
             "avg(k8s_cluster_pod_total)"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES",
@@ -50,7 +46,6 @@
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "Node"
@@ -76,12 +71,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
@@ -89,8 +78,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-k8s-monitoring/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "K8S-Root",

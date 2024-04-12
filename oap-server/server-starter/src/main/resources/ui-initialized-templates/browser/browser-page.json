@@ -1,5 +1,4 @@
-
- [
+[
   {
     "id": "Browser-Page",
     "configuration": {
@@ -37,7 +36,6 @@
                   "expressions": [
                     "relabels(browser_app_page_fmp_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
@@ -93,7 +91,6 @@
                   "expressions": [
                     "relabels(browser_app_page_first_pack_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
@@ -149,7 +146,6 @@
                   "expressions": [
                     "relabels(browser_app_page_fpt_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
@@ -205,7 +201,6 @@
                   "expressions": [
                     "relabels(browser_app_page_dom_ready_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
@@ -261,7 +256,6 @@
                   "expressions": [
                     "relabels(browser_app_page_ttl_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
@@ -317,7 +311,6 @@
                   "expressions": [
                     "relabels(browser_app_page_load_page_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "SINGLE_VALUE"
                   ],
@@ -382,7 +375,6 @@
                     "browser_app_page_tcp_avg",
                     "browser_app_page_ttfb_avg"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES",
@@ -472,7 +464,6 @@
                     "browser_app_page_unknown_error_sum",
                     "browser_app_page_ajax_error_sum"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES",
                     "TIME_SERIES_VALUES",

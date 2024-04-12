@@ -1,4 +1,3 @@
-
 [
   {
     "id": "AWS_EKS-cluster",
@@ -25,7 +24,6 @@
           "expressions": [
             "eks_cluster_node_count"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -77,7 +75,6 @@
           "expressions": [
             "eks_cluster_failed_node_count"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -129,7 +126,6 @@
           "expressions": [
             "eks_cluster_namespace_count"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -181,7 +177,6 @@
           "expressions": [
             "eks_cluster_service_count"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -233,7 +228,6 @@
           "expressions": [
             "eks_cluster_net_rx_dropped"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -285,7 +279,6 @@
           "expressions": [
             "eks_cluster_net_rx_error"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -337,7 +330,6 @@
           "expressions": [
             "eks_cluster_net_tx_dropped"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -389,7 +381,6 @@
           "expressions": [
             "eks_cluster_net_tx_error"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -441,7 +432,6 @@
             "avg(eks_cluster_node_network_tx_errors)",
             "avg(eks_cluster_node_network_rx_errors)"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "SINGLE_VALUE",
             "SINGLE_VALUE",
@@ -465,8 +455,7 @@
               "label": "Network RX Errors",
               "unit": "count/s"
             }
-          ],
-          "moved": false
+          ]
         },
         {
           "x": 12,
@@ -492,7 +481,6 @@
             "avg(eks_cluster_service_pod_net_tx_error)",
             "avg(eks_cluster_service_pod_net_rx_error)"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "SINGLE_VALUE",
             "SINGLE_VALUE",

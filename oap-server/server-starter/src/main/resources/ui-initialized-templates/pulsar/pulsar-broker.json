@@ -29,17 +29,12 @@
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
-          "metricMode": "Expression",
-          "id": "9",
-          "moved": false,
           "associate": [],
           "metricConfig": [
             {
               "label": "active_connections"
             }
-          ],
-          "metrics": [],
-          "metricTypes": []
+          ]
         },
         {
           "x": 12,
@@ -67,16 +62,11 @@
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
-          "metricMode": "Expression",
-          "id": "10",
-          "moved": false,
           "metricConfig": [
             {
               "label": "total_connections"
             }
-          ],
-          "metrics": [],
-          "metricTypes": []
+          ]
         },
         {
           "x": 8,
@@ -87,7 +77,6 @@
           "type": "Widget",
           "widget": {
             "title": "Connection Create Fail Count",
-            "tips": "",
             "name": "connection_create_fail_count"
           },
           "graph": {
@@ -104,11 +93,6 @@
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
-          "metricMode": "Expression",
-          "id": "22",
-          "moved": false,
-          "metrics": [],
-          "metricTypes": [],
           "metricConfig": [
             {
               "label": "connection_create_fail"
@@ -145,11 +129,6 @@
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
-          "metricMode": "Expression",
-          "id": "25",
-          "moved": false,
-          "metricTypes": [],
-          "metrics": [],
           "associate": [],
           "metricConfig": [
             {
@@ -183,11 +162,6 @@
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
-          "metricMode": "Expression",
-          "id": "26",
-          "moved": false,
-          "metrics": [],
-          "metricTypes": [],
           "metricConfig": [
             {
               "label": "connection_closed"
@@ -201,11 +175,6 @@
           "h": 11,
           "i": "27",
           "type": "Widget",
-          "id": "27",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_pulsar_broker_jvm_buffer_pool_used_bytes/1024/1024"
           ],
@@ -230,11 +199,6 @@
           "h": 11,
           "i": "28",
           "type": "Widget",
-          "id": "28",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_pulsar_broker_jvm_memory_pool_used/1024/1024"
           ],
@@ -259,11 +223,6 @@
           "h": 11,
           "i": "29",
           "type": "Widget",
-          "id": "29",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_pulsar_broker_jvm_memory_used/1024/1024",
             "meter_pulsar_broker_jvm_memory_committed/1024/1024",
@@ -306,11 +265,6 @@
           "h": 11,
           "i": "30",
           "type": "Widget",
-          "id": "30",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_pulsar_broker_jvm_threads_current",
             "meter_pulsar_broker_jvm_threads_daemon",
@@ -357,11 +311,6 @@
           "h": 11,
           "i": "31",
           "type": "Widget",
-          "id": "31",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_pulsar_broker_jvm_gc_collection_seconds_sum"
           ],
@@ -388,11 +337,6 @@
           "h": 11,
           "i": "32",
           "type": "Widget",
-          "id": "32",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_pulsar_broker_jvm_gc_collection_seconds_count"
           ],

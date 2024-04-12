@@ -10,11 +10,6 @@
           "h": 15,
           "i": "0",
           "type": "Widget",
-          "id": "0",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "graph": {
             "type": "Bar",
             "showBackground": true
@@ -38,11 +33,6 @@
           "h": 15,
           "i": "1",
           "type": "Widget",
-          "id": "1",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "graph": {
             "type": "Bar",
             "showBackground": true
@@ -66,16 +56,11 @@
           "h": 9,
           "i": "2",
           "type": "Widget",
-          "id": "2",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "unit": "MB"
             }
           ],
-          "moved": false,
           "expressions": [
             "latest(meter_rocketmq_topic_max_consumer_message_size)/1024/1024"
           ],
@@ -101,16 +86,11 @@
           "h": 9,
           "i": "3",
           "type": "Widget",
-          "id": "3",
-          "metricTypes": [],
-          "metrics": [],
           "metricConfig": [
             {
               "unit": "MB"
             }
           ],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "latest(meter_rocketmq_topic_max_producer_message_size)/1024/1024"
           ],
@@ -136,11 +116,6 @@
           "h": 13,
           "i": "5",
           "type": "Widget",
-          "id": "5",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_topic_consumer_latency/1000"
           ],
@@ -168,11 +143,6 @@
           "h": 13,
           "i": "6",
           "type": "Widget",
-          "id": "6",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_topic_producer_offset"
           ],
@@ -200,11 +170,6 @@
           "h": 13,
           "i": "7",
           "type": "Widget",
-          "id": "7",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_topic_consumer_group_offset"
           ],
@@ -232,11 +197,6 @@
           "h": 13,
           "i": "8",
           "type": "Widget",
-          "id": "8",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_topic_consumer_group_tps"
           ],
@@ -264,11 +224,6 @@
           "h": 13,
           "i": "9",
           "type": "Widget",
-          "id": "9",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_topic_producer_tps"
           ],
@@ -296,11 +251,6 @@
           "h": 9,
           "i": "10",
           "type": "Widget",
-          "id": "10",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "latest(meter_rocketmq_topic_consumer_group_count)"
           ],
@@ -326,11 +276,6 @@
           "h": 9,
           "i": "11",
           "type": "Widget",
-          "id": "11",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 40,
@@ -356,11 +301,6 @@
           "h": 13,
           "i": "12",
           "type": "Widget",
-          "id": "12",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,

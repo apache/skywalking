@@ -1,4 +1,3 @@
-
 [
   {
     "id": "APISIX-Service",
@@ -25,12 +24,10 @@
           "expressions": [
             "meter_apisix_sv_http_requests"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ]
         },
-
         {
           "x": 6,
           "y": 0,
@@ -52,7 +49,6 @@
           "expressions": [
             "meter_apisix_sv_http_status_matched"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -101,7 +97,6 @@
           "expressions": [
             "meter_apisix_sv_http_latency_matched"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -129,7 +124,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 0,
@@ -151,7 +145,6 @@
           "expressions": [
             "meter_apisix_sv_bandwidth_matched/1024"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -189,7 +182,6 @@
           "expressions": [
             "meter_apisix_sv_http_connections"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -228,7 +220,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 13,
@@ -250,7 +241,6 @@
           "expressions": [
             "meter_apisix_sv_http_status_unmatched"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -299,7 +289,6 @@
           "expressions": [
             "meter_apisix_sv_http_latency_unmatched"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],
@@ -327,7 +316,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 13,
@@ -349,7 +337,6 @@
           "expressions": [
             "meter_apisix_sv_bandwidth_unmatched/1024"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES"
           ],

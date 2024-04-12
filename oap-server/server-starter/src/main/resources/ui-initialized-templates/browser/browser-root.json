@@ -1,5 +1,4 @@
-
- [
+[
   {
     "id": "Browser-Root",
     "configuration": {
@@ -11,9 +10,6 @@
           "h": 51,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "Browser-App",
@@ -26,7 +22,6 @@
             "avg(browser_app_pv)",
             "avg(browser_app_error_rate)/100"
           ],
-          "metricMode": "Expression",
           "typesOfMQE": [
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
@@ -39,7 +34,6 @@
             "TIME_SERIES_VALUES",
             "TIME_SERIES_VALUES"
           ],
-          "moved": false,
           "metricConfig": [
             {
               "label": "PV",
@@ -58,12 +52,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
@@ -71,8 +59,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/service-agent/browser-agent/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "Browser-Root",

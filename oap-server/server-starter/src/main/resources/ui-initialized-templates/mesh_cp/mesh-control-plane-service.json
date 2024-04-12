@@ -19,7 +19,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_cpu"
           ],
@@ -43,7 +42,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_go_goroutines"
           ],
@@ -67,7 +65,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_pilot_version"
           ],
@@ -108,7 +105,6 @@
               "label": "Go Heap In Use"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_go_stack_inuse/1024/1024",
             "meter_istio_virtual_memory/1024/1024",
@@ -140,7 +136,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_pilot_xds_cds_reject",
             "meter_istio_pilot_xds_eds_reject",
@@ -172,7 +167,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_pilot_proxy_push_percentile"
           ],
@@ -194,7 +188,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_pilot_xds_pushes"
           ],
@@ -218,7 +211,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_sidecar_injection_success_total"
           ],
@@ -242,7 +234,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
@@ -272,7 +263,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_galley_validation_passed",
             "meter_istio_galley_validation_failed"
@@ -296,7 +286,6 @@
             "type": "Bar",
             "showBackground": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_istio_pilot_conflict_ol_tcp_tcp",
             "meter_istio_pilot_conflict_il",

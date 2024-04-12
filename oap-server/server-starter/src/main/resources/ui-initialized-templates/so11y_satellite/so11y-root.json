@@ -21,7 +21,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_grpc_connect_count"
           ],
@@ -47,7 +46,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_server_cpu_utilization"
           ],
@@ -74,7 +72,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_queue_used_count"
           ],
@@ -101,7 +98,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_receive_event_count"
           ],
@@ -128,7 +124,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_fetch_event_count"
           ],
@@ -155,7 +150,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_queue_input_count"
           ],
@@ -182,7 +176,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "satellite_service_send_event_count"
           ],

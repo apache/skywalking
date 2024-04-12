@@ -1,7 +1,6 @@
-
 [
   {
-    "id": "82162975-3a75-4cc8-b89c-be1d1dc2ff82",
+    "id": "Mesh-Process-Relation-Metrics",
     "configuration": {
       "children": [
         {
@@ -69,7 +68,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_write_cpm"
                   ],
@@ -131,7 +129,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_write_cpm"
                   ],
@@ -181,7 +178,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_read_cpm"
                   ],
@@ -230,7 +226,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_read_cpm"
                   ],
@@ -257,10 +252,7 @@
                     "title": "Write Package Size (Client) (KB)",
                     "name": "write_package_size_client"
                   },
-                  "associate": [
-
-                  ],
-                  "metricMode": "Expression",
+                  "associate": [],
                   "expressions": [
                     "process_relation_client_write_total_bytes/1024"
                   ],
@@ -310,7 +302,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_read_total_bytes/1024"
                   ],
@@ -372,7 +363,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_write_total_bytes/1024"
                   ],
@@ -422,7 +412,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_read_total_bytes/1024"
                   ],
@@ -484,7 +473,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_write_avg_exe_time/1000000"
                   ],
@@ -534,7 +522,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_read_avg_exe_time/1000000"
                   ],
@@ -561,10 +548,7 @@
                     "title": "Write OP Avg Time (Server) (ms)",
                     "name": "write_avg_time_server"
                   },
-                  "associate": [
-
-                  ],
-                  "metricMode": "Expression",
+                  "associate": [],
                   "expressions": [
                     "process_relation_server_write_avg_exe_time/1000000"
                   ],
@@ -614,7 +598,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_read_avg_exe_time/1000000"
                   ],
@@ -652,7 +635,6 @@
                       "widgetId": "15"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_connect_cpm"
                   ],
@@ -690,7 +672,6 @@
                       "widgetId": "15"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_connect_exe_time/1000000"
                   ],
@@ -728,7 +709,6 @@
                       "widgetId": "15"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_connect_cpm"
                   ],
@@ -766,7 +746,6 @@
                       "widgetId": "12"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_connect_avg_exe_time/1000000"
                   ],
@@ -804,7 +783,6 @@
                       "widgetId": "19"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_close_cpm"
                   ],
@@ -842,7 +820,6 @@
                       "widgetId": "19"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_close_avg_exe_time/1000000"
                   ],
@@ -880,7 +857,6 @@
                       "widgetId": "19"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_close_cpm"
                   ],
@@ -918,7 +894,6 @@
                       "widgetId": "16"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_close_avg_exe_time/1000000"
                   ],
@@ -980,7 +955,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_write_rtt_time_percentile"
                   ],
@@ -1042,7 +1016,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_write_rtt_time_percentile"
                   ],
@@ -1104,7 +1077,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_write_exe_time_percentile/1000000"
                   ],
@@ -1166,7 +1138,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_write_exe_time_percentile/1000000"
                   ],
@@ -1216,7 +1187,6 @@
                       "widgetId": "25"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_read_exe_time_percentile/1000000"
                   ],
@@ -1266,7 +1236,6 @@
                       "widgetId": "3"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_read_exe_time_percentile/1000000"
                   ],
@@ -1328,7 +1297,6 @@
                       "widgetId": "29"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_client_write_avg_rtt_time"
                   ],
@@ -1390,7 +1358,6 @@
                       "widgetId": "0"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_server_write_avg_rtt_time"
                   ],
@@ -1451,7 +1418,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_request_cpm"
                   ],
@@ -1507,7 +1473,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_response_status_cpm"
                   ],
@@ -1563,7 +1528,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_request_package_size/1024"
                   ],
@@ -1619,7 +1583,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_response_package_size/1024"
                   ],
@@ -1675,7 +1638,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_request_package_size_percentile/1024"
                   ],
@@ -1731,7 +1693,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_response_package_size_percentile/1024"
                   ],
@@ -1787,7 +1748,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_client_duration"
                   ],
@@ -1843,7 +1803,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_client_duration_percentile"
                   ],
@@ -1899,7 +1858,6 @@
                       "widgetId": "30-1-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_server_duration"
                   ],
@@ -1955,7 +1913,6 @@
                       "widgetId": "30-1-0"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "process_relation_http1_server_duration_percentile"
                   ],
@@ -1982,7 +1939,6 @@
                   "widget": {
                     "title": "Sampled Slow Traces(ms)"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(sampled_slow_trace_record,50,DES)"
                   ],
@@ -2004,7 +1960,6 @@
                   "widget": {
                     "title": "Traces from HTTP Code in [400, 500) (ms)"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(sampled_status_4xx_trace_record,50,DES)"
                   ],
@@ -2026,7 +1981,6 @@
                   "widget": {
                     "title": "Traces from HTTP Code in [500, 600) (ms)"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(sampled_status_5xx_trace_record,50,DES)"
                   ],
@@ -2058,7 +2012,7 @@
       "layer": "MESH",
       "entity": "ProcessRelation",
       "isRoot": false,
-      "id": "82162975-3a75-4cc8-b89c-be1d1dc2ff82"
+      "id": "Mesh-Process-Relation-Metrics"
     }
   }
 ]

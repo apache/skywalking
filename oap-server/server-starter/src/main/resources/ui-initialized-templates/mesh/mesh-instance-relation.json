@@ -60,7 +60,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "relabels(service_instance_relation_client_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
           ],
@@ -133,7 +132,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_client_call_sla/100",
             "service_instance_relation_server_call_sla/100"
@@ -200,7 +198,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Client"
@@ -275,7 +272,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "relabels(service_instance_relation_server_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
           ],
@@ -340,7 +336,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Server"
@@ -416,7 +411,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Client"
@@ -492,7 +486,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Client"
@@ -529,7 +522,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_client_received",
             "service_instance_relation_client_sent"
@@ -597,7 +589,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_server_received",
             "service_instance_relation_server_sent"

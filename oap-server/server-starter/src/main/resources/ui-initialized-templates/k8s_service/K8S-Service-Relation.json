@@ -1,7 +1,6 @@
-
 [
   {
-    "id": "bff864ef-f868-44b5-b5f0-ba0e4d6e75e1",
+    "id": "K8S-Service-Relation",
     "configuration": {
       "children": [
         {
@@ -22,7 +21,6 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_connect_cpm",
                     "kubernetes_service_relation_connect_success_cpm"
@@ -144,7 +142,6 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_connect_duration/1000000"
                   ],
@@ -260,7 +257,6 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_accept_cpm"
                   ],
@@ -370,7 +366,6 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_accept_duration/1000000"
                   ],
@@ -485,7 +480,6 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_package_cpm",
                     "kubernetes_service_relation_server_write_retrains_package_cpm"
@@ -605,7 +599,6 @@
                   "h": 12,
                   "i": "5",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_package_size/1024",
                     "kubernetes_service_relation_server_write_package_size/kubernetes_service_relation_server_write_package_cpm/1024"
@@ -727,7 +720,6 @@
                   "h": 12,
                   "i": "6",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_package_cpm",
                     "kubernetes_service_relation_client_write_retrains_package_cpm"
@@ -847,7 +839,6 @@
                   "h": 12,
                   "i": "7",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_package_size/1024",
                     "kubernetes_service_relation_client_write_package_size/kubernetes_service_relation_client_write_package_cpm/1024"
@@ -967,7 +958,6 @@
                   "h": 12,
                   "i": "8",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_read_package_cpm"
                   ],
@@ -1077,7 +1067,6 @@
                   "h": 12,
                   "i": "9",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_read_package_size/1024",
                     "kubernetes_service_relation_server_read_package_size/kubernetes_service_relation_server_read_package_cpm/1024"
@@ -1197,7 +1186,6 @@
                   "h": 12,
                   "i": "10",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_read_package_cpm"
                   ],
@@ -1307,7 +1295,6 @@
                   "h": 12,
                   "i": "11",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_read_package_size/1024",
                     "kubernetes_service_relation_client_read_package_size/kubernetes_service_relation_client_read_package_cpm/1024"
@@ -1427,7 +1414,6 @@
                   "h": 12,
                   "i": "12",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_package_duration/kubernetes_service_relation_server_write_package_cpm/1000000"
                   ],
@@ -1542,7 +1528,6 @@
                   "h": 12,
                   "i": "13",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_read_package_duration/kubernetes_service_relation_server_read_package_cpm/1000000"
                   ],
@@ -1657,7 +1642,6 @@
                   "h": 12,
                   "i": "14",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_package_duration/kubernetes_service_relation_client_write_cpm/1000000"
                   ],
@@ -1772,7 +1756,6 @@
                   "h": 12,
                   "i": "15",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_read_package_duration/kubernetes_service_relation_client_read_package_cpm/1000000"
                   ],
@@ -1887,7 +1870,6 @@
                   "h": 12,
                   "i": "16",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_l4_duration/kubernetes_service_relation_client_write_cpm",
                     "kubernetes_service_relation_client_write_l3_duration/kubernetes_service_relation_client_write_cpm",
@@ -2032,7 +2014,6 @@
                   "h": 12,
                   "i": "17",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_read_l4_duration/kubernetes_service_relation_client_read_cpm",
                     "kubernetes_service_relation_client_read_l3_duration/kubernetes_service_relation_client_read_cpm",
@@ -2167,7 +2148,6 @@
                   "h": 12,
                   "i": "18",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_l4_duration/kubernetes_service_relation_server_write_cpm",
                     "kubernetes_service_relation_server_write_l3_duration/kubernetes_service_relation_server_write_cpm",
@@ -2312,7 +2292,6 @@
                   "h": 12,
                   "i": "19",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_read_l4_duration/kubernetes_service_relation_server_read_cpm",
                     "kubernetes_service_relation_server_read_l3_duration/kubernetes_service_relation_server_read_cpm",
@@ -2447,7 +2426,6 @@
                   "h": 12,
                   "i": "20",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_netfilter_cpm/kubernetes_service_relation_client_write_cpm",
                     "kubernetes_service_relation_client_read_netfilter_cpm/kubernetes_service_relation_client_read_cpm"
@@ -2567,7 +2545,6 @@
                   "h": 12,
                   "i": "21",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_netfilter_duration/kubernetes_service_relation_client_write_cpm",
                     "kubernetes_service_relation_client_read_netfilter_duration/kubernetes_service_relation_client_write_cpm"
@@ -2687,7 +2664,6 @@
                   "h": 12,
                   "i": "22",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_netfilter_cpm/kubernetes_service_relation_client_write_cpm",
                     "kubernetes_service_relation_server_read_netfilter_cpm/kubernetes_service_relation_client_read_cpm"
@@ -2807,7 +2783,6 @@
                   "h": 12,
                   "i": "23",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_netfilter_duration/kubernetes_service_relation_server_write_cpm",
                     "kubernetes_service_relation_server_read_netfilter_duration/kubernetes_service_relation_server_read_cpm"
@@ -2927,7 +2902,6 @@
                   "h": 12,
                   "i": "24",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_resolve_mac_cpm"
                   ],
@@ -3037,7 +3011,6 @@
                   "h": 12,
                   "i": "25",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_write_resolve_mac_duration/kubernetes_service_relation_client_write_resolve_mac_cpm"
                   ],
@@ -3147,7 +3120,6 @@
                   "h": 12,
                   "i": "26",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_resolve_mac_cpm"
                   ],
@@ -3257,7 +3229,6 @@
                   "h": 12,
                   "i": "27",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_write_resolve_mac_duration/kubernetes_service_relation_server_write_resolve_mac_cpm"
                   ],
@@ -3372,7 +3343,6 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_http_call_cpm"
                   ],
@@ -3433,7 +3403,6 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_http_call_duration/kubernetes_service_relation_client_http_call_cpm/1000000"
                   ],
@@ -3494,7 +3463,6 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_http_call_cpm"
                   ],
@@ -3555,7 +3523,6 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_http_call_duration/kubernetes_service_relation_server_http_call_cpm/1000000"
                   ],
@@ -3616,7 +3583,6 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_http_req_header_size/kubernetes_service_relation_server_http_call_cpm/1024",
                     "kubernetes_service_relation_server_http_req_body_size/kubernetes_service_relation_server_http_call_cpm/1024"
@@ -3682,7 +3648,6 @@
                   "h": 12,
                   "i": "5",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_http_resp_header_size/kubernetes_service_relation_server_http_call_cpm/1024",
                     "kubernetes_service_relation_server_http_resp_body_size/kubernetes_service_relation_server_http_call_cpm/1024"
@@ -3748,7 +3713,6 @@
                   "h": 12,
                   "i": "6",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_http_req_header_size/kubernetes_service_relation_client_http_call_cpm/1024",
                     "kubernetes_service_relation_client_http_req_body_size/kubernetes_service_relation_client_http_call_cpm/1024"
@@ -3814,7 +3778,6 @@
                   "h": 12,
                   "i": "7",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_http_resp_header_size/kubernetes_service_relation_server_http_call_cpm/1024",
                     "kubernetes_service_relation_server_http_resp_body_size/kubernetes_service_relation_server_http_call_cpm/1024"
@@ -3880,7 +3843,6 @@
                   "h": 12,
                   "i": "8",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_client_http_status_1xx_cpm",
                     "kubernetes_service_relation_client_http_status_2xx_cpm",
@@ -3961,7 +3923,6 @@
                   "h": 12,
                   "i": "9",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_relation_server_http_status_1xx_cpm",
                     "kubernetes_service_relation_server_http_status_2xx_cpm",
@@ -4050,20 +4011,9 @@
                   "graph": {
                     "showDepth": true
                   },
-                  "metricMode": "Expression",
                   "linkDashboard": "K8S-Service-Instance-Relation",
-                  "nodeDashboard": [
-
-                  ],
-                  "linkServerMetrics": [
-
-                  ],
-                  "linkClientMetrics": [
-
-                  ],
-                  "nodeMetrics": [
-
-                  ],
+                  "nodeDashboard": [],
+                  "nodeMetrics": [],
                   "linkServerExpressions": [
                     "avg(kubernetes_service_instance_relation_server_write_package_size)/60",
                     "avg(kubernetes_service_instance_relation_server_read_package_size)/60"
@@ -4072,18 +4022,11 @@
                     "avg(kubernetes_service_instance_relation_client_write_package_size)/60",
                     "avg(kubernetes_service_instance_relation_client_read_package_size)/60"
                   ],
-                  "nodeExpressions": [
-
-                  ],
-                  "legend": [
-
-                  ],
+                  "nodeExpressions": [],
                   "legendMQE": {
                     "expression": ""
                   },
-                  "description": {
-
-                  },
+                  "description": {},
                   "linkServerMetricConfig": [
                     {
                       "unit": "bytes",
@@ -4113,7 +4056,7 @@
       "layer": "K8S_SERVICE",
       "entity": "ServiceRelation",
       "name": "K8S-Service-Relation",
-      "id": "bff864ef-f868-44b5-b5f0-ba0e4d6e75e1",
+      "id": "K8S-Service-Relation",
       "isRoot": false
     }
   }

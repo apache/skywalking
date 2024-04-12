@@ -1,4 +1,3 @@
-
 [
   {
     "id": "General-Service-Relation",
@@ -57,7 +56,6 @@
                       "widgetId": "0-0-7"
                     }
                   ],
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "load"
@@ -121,7 +119,6 @@
                     "enableRelate": true,
                     "status": "ERROR"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_relation_server_call_sla/100"
                   ],
@@ -175,7 +172,6 @@
                     "enableRelate": true,
                     "latency": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(service_relation_server_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ]
@@ -226,7 +222,6 @@
                     "enableRelate": true,
                     "latency": true
                   },
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "latency"
@@ -285,7 +280,6 @@
                     "enableRelate": true,
                     "latency": true
                   },
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "latency"
@@ -344,7 +338,6 @@
                     "enableRelate": true,
                     "latency": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(service_relation_client_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
                   ],
@@ -403,7 +396,6 @@
                     "enableRelate": true,
                     "status": "ERROR"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_relation_client_call_sla/100"
                   ],
@@ -459,7 +451,6 @@
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "load"
@@ -483,21 +474,8 @@
                   },
                   "linkDashboard": "General-Instance-Relation",
                   "nodeDashboard": "General-Instance",
-                  "linkServerMetrics": [
-
-                  ],
-                  "linkClientMetrics": [
-
-                  ],
-                  "nodeMetrics": [
-
-                  ],
-                  "legend": [
-
-                  ],
-                  "description": {
-
-                  },
+                  "nodeMetrics": [],
+                  "description": {},
                   "nodeMetricConfig": [
                     {
                       "label": "Success Rate",
@@ -545,7 +523,6 @@
                     "avg(service_instance_cpm)",
                     "avg(service_instance_resp_time)"
                   ],
-                  "metricMode": "Expression",
                   "legendMQE": {
                     "expression": ""
                   }

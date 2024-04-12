@@ -35,7 +35,6 @@
                   "expressions": [
                     "meter_nginx_service_http_requests"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ]
@@ -61,7 +60,6 @@
                   "expressions": [
                     "meter_nginx_service_http_latency"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ]
@@ -87,7 +85,6 @@
                   "expressions": [
                     "meter_nginx_service_http_bandwidth/1024"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ]
@@ -102,7 +99,6 @@
                   "expressions": [
                     "meter_nginx_service_http_connections"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ],
@@ -139,7 +135,6 @@
                   "expressions": [
                     "meter_nginx_service_http_status"
                   ],
-                  "metricMode": "Expression",
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
                   ]
@@ -151,7 +146,6 @@
                   "h": 13,
                   "i": "6",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "(meter_nginx_service_http_4xx_requests_increment/meter_nginx_service_http_requests_increment)*100"
                   ],
@@ -175,7 +169,6 @@
                   "h": 13,
                   "i": "7",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "(meter_nginx_service_http_5xx_requests_increment/meter_nginx_service_http_requests_increment)*100"
                   ],
@@ -199,7 +192,6 @@
                   "h": 13,
                   "i": "8",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_nginx_service_error_log_count"
                   ],
@@ -226,7 +218,6 @@
                   "h": 35,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     ""
                   ],
@@ -251,7 +242,6 @@
                   "h": 35,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     ""
                   ],

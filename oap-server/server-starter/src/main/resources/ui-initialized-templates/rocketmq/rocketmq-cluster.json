@@ -21,10 +21,6 @@
                   "h": 6,
                   "i": "8",
                   "type": "Widget",
-                  "id": "0-0-8",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Card",
                     "fontSize": 26,
@@ -36,8 +32,6 @@
                     "tips": "The number of the cluster messages produced today",
                     "name": "messages produced today"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "latest(meter_rocketmq_cluster_messages_produced_today)"
                   ],
@@ -52,10 +46,6 @@
                   "h": 6,
                   "i": "9",
                   "type": "Widget",
-                  "id": "0-0-9",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Card",
                     "fontSize": 26,
@@ -67,8 +57,6 @@
                     "tips": "The number of the cluster messages consumed today",
                     "name": "messages consumed today"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "latest(meter_rocketmq_cluster_messages_consumed_today)"
                   ],
@@ -101,13 +89,7 @@
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "0-0-10",
-                  "moved": false,
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -134,13 +116,7 @@
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "0-0-11",
-                  "moved": false,
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -149,11 +125,6 @@
                   "h": 14,
                   "i": "12",
                   "type": "Widget",
-                  "id": "0-0-12",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_rocketmq_cluster_producer_message_size/1024/1024"
                   ],
@@ -177,11 +148,6 @@
                   "h": 14,
                   "i": "13",
                   "type": "Widget",
-                  "id": "0-0-13",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_rocketmq_cluster_consumer_message_size/1024/1024"
                   ],
@@ -205,11 +171,6 @@
                   "h": 6,
                   "i": "16",
                   "type": "Widget",
-                  "id": "0-0-16",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "graph": {
                     "type": "Card",
                     "fontSize": 26,
@@ -235,11 +196,6 @@
                   "h": 6,
                   "i": "17",
                   "type": "Widget",
-                  "id": "0-0-17",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "graph": {
                     "type": "Card",
                     "fontSize": 26,
@@ -265,16 +221,11 @@
                   "h": 7,
                   "i": "18",
                   "type": "Widget",
-                  "id": "0-0-18",
-                  "metricTypes": [],
-                  "metrics": [],
                   "metricConfig": [
                     {
                       "unit": "ms"
                     }
                   ],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "latest(meter_rocketmq_cluster_max_consumer_latency)"
                   ],
@@ -300,16 +251,11 @@
                   "h": 7,
                   "i": "19",
                   "type": "Widget",
-                  "id": "0-0-19",
-                  "metricTypes": [],
-                  "metrics": [],
                   "metricConfig": [
                     {
                       "unit": "%"
                     }
                   ],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "latest(meter_rocketmq_cluster_max_commitLog_disk_ratio)"
                   ],
@@ -335,11 +281,6 @@
                   "h": 14,
                   "i": "21",
                   "type": "Widget",
-                  "id": "0-0-21",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "graph": {
                     "type": "Area",
                     "opacity": 0.4,
@@ -365,11 +306,6 @@
                   "h": 14,
                   "i": "22",
                   "type": "Widget",
-                  "id": "0-0-22",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time"
                   ],
@@ -397,11 +333,6 @@
                   "h": 14,
                   "i": "23",
                   "type": "Widget",
-                  "id": "0-0-23",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_rocketmq_cluster_send_threadPool_queue_head_wait_time"
                   ],
@@ -429,11 +360,6 @@
                   "h": 7,
                   "i": "24",
                   "type": "Widget",
-                  "id": "0-0-24",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "latest(meter_rocketmq_cluster_topic_count)"
                   ],
@@ -459,11 +385,6 @@
                   "h": 7,
                   "i": "25",
                   "type": "Widget",
-                  "id": "0-0-25",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "latest(meter_rocketmq_cluster_broker_count)"
                   ],
@@ -498,11 +419,7 @@
                     "type": "InstanceList",
                     "dashboardName": "RocketMQ-Broker",
                     "fontSize": 12
-                  },
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": [],
-                  "id": "0-1-0"
+                  }
                 }
               ]
             },
@@ -520,18 +437,11 @@
                     "type": "EndpointList",
                     "dashboardName": "RocketMQ-Topic",
                     "fontSize": 12
-                  },
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": [],
-                  "id": "0-2-0"
+                  }
                 }
               ]
             }
-          ],
-          "id": "0",
-          "activedTabIndex": 0,
-          "moved": false
+          ]
         }
       ],
       "layer": "ROCKETMQ",

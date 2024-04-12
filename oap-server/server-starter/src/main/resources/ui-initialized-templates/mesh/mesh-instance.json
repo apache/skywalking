@@ -44,7 +44,6 @@
                       "widgetId": "1-0-3"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_instance_resp_time"
                   ],
@@ -82,7 +81,6 @@
                       "widgetId": "1-0-3"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_instance_sla/100"
                   ],
@@ -121,7 +119,6 @@
                       "widgetId": "1-0-3"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_instance_throughput_received",
                     "service_instance_throughput_sent"
@@ -161,7 +158,6 @@
                       "widgetId": "1-0-2"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_instance_cpm"
                   ],
@@ -192,7 +188,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_rq_active"
                   ],
@@ -226,7 +221,6 @@
                       "label": "parent"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_total_connections_used",
                     "envoy_parent_connections_used"
@@ -254,7 +248,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_membership_healthy"
                   ],
@@ -280,7 +273,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_cx_incr"
                   ],
@@ -306,7 +298,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_rq_pending_active"
                   ],
@@ -358,7 +349,6 @@
                       "unit": "MB"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_memory_allocated_max/1024/1024",
                     "envoy_heap_memory_used/1024/1024",
@@ -394,7 +384,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_bug_failures"
                   ],
@@ -420,7 +409,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
@@ -448,7 +436,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_cx_active"
                   ],
@@ -474,7 +461,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "envoy_cluster_up_rq_incr"
                   ],
@@ -501,7 +487,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_instance_sidecar_internal_req_latency_nanos"
                   ],
@@ -528,7 +513,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_instance_sidecar_internal_resp_latency_nanos"
                   ],

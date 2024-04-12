@@ -10,11 +10,6 @@
           "h": 11,
           "i": "28",
           "type": "Widget",
-          "id": "28",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_memory_pool_used/1024/1024"
           ],
@@ -39,11 +34,6 @@
           "h": 11,
           "i": "29",
           "type": "Widget",
-          "id": "29",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_memory_used/1024/1024",
             "meter_bookkeeper_node_jvm_memory_committed/1024/1024",
@@ -86,11 +76,6 @@
           "h": 11,
           "i": "30",
           "type": "Widget",
-          "id": "30",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_threads_current",
             "meter_bookkeeper_node_jvm_threads_daemon",
@@ -137,11 +122,6 @@
           "h": 11,
           "i": "31",
           "type": "Widget",
-          "id": "31",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_gc_collection_seconds_sum"
           ],
@@ -168,11 +148,6 @@
           "h": 11,
           "i": "32",
           "type": "Widget",
-          "id": "32",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_gc_collection_seconds_count"
           ],
@@ -199,11 +174,6 @@
           "h": 11,
           "i": "33",
           "type": "Widget",
-          "id": "33",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_thread_executor_completed.sum(['cluster','node'])"
           ],
@@ -235,11 +205,6 @@
           "h": 11,
           "i": "34",
           "type": "Widget",
-          "id": "34",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_thread_executor_tasks_completed",
             "meter_bookkeeper_node_thread_executor_tasks_rejected",
@@ -281,11 +246,6 @@
           "h": 11,
           "i": "35",
           "type": "Widget",
-          "id": "35",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_high_priority_threads",
             "meter_bookkeeper_node_read_thread_pool_threads"
@@ -322,11 +282,6 @@
           "h": 11,
           "i": "36",
           "type": "Widget",
-          "id": "36",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_high_priority_thread_max_queue_size",
             "meter_bookkeeper_node_read_thread_pool_max_queue_size"
