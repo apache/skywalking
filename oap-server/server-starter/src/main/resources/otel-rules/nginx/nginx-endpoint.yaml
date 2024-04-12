@@ -36,7 +36,7 @@ metricsRules:
   - name: http_requests
     exp: nginx_http_requests_total.sum(['service','route']).rate('PT1M')
   - name: http_latency
-    exp: nginx_http_latency.sum(['type','le','service','route']).histogram().histogram_percentile([50,70,90,99])
+    exp: nginx_http_latency.sum(['le','service','route']).histogram().histogram_percentile([50,70,90,99])
   - name: http_bandwidth
     exp: nginx_http_size_bytes.sum(['type','service','route']).rate('PT1M')
   - name: http_status
