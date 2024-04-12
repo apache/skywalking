@@ -33,7 +33,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "meter_nginx_service_http_requests"
+                    "aggregate_labels(meter_nginx_service_http_requests, sum)"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -85,7 +85,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "meter_nginx_service_http_bandwidth/1024"
+                    "aggregate_labels(meter_nginx_service_http_bandwidth, sum(type))/1024"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -100,7 +100,7 @@
                   "i": "4",
                   "type": "Widget",
                   "expressions": [
-                    "meter_nginx_service_http_connections"
+                    "aggregate_labels(meter_nginx_service_http_connections, sum(state))"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -137,7 +137,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "meter_nginx_service_http_status"
+                    "aggregate_labels(meter_nginx_service_http_status, sum(status))"
                   ],
                   "metricMode": "Expression",
                   "typesOfMQE": [
@@ -153,7 +153,7 @@
                   "type": "Widget",
                   "metricMode": "Expression",
                   "expressions": [
-                    "(meter_nginx_service_http_4xx_requests_increment/meter_nginx_service_http_requests_increment)*100"
+                    "aggregate_labels(meter_nginx_service_http_4xx_requests_increment, sum)/aggregate_labels(meter_nginx_service_http_requests_increment, sum)*100"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -177,7 +177,7 @@
                   "type": "Widget",
                   "metricMode": "Expression",
                   "expressions": [
-                    "(meter_nginx_service_http_5xx_requests_increment/meter_nginx_service_http_requests_increment)*100"
+                    "aggregate_labels(meter_nginx_service_http_5xx_requests_increment, sum)/aggregate_labels(meter_nginx_service_http_requests_increment, sum)*100"
                   ],
                   "typesOfMQE": [
                     "TIME_SERIES_VALUES"
@@ -201,7 +201,7 @@
                   "type": "Widget",
                   "metricMode": "Expression",
                   "expressions": [
-                    "meter_nginx_service_error_log_count"
+                    "aggregate_labels(meter_nginx_service_error_log_count, sum(level))"
                   ],
                   "graph": {
                     "type": "Bar",
@@ -290,9 +290,9 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_nginx_service_http_status{status='200'})",
-        "avg(meter_nginx_service_http_status{status='404'})",
-        "avg(meter_nginx_service_http_status{status='500'})"
+        "avg(aggregate_labels(meter_nginx_service_http_status{status='200'}, sum))",
+        "avg(aggregate_labels(meter_nginx_service_http_status{status='404'}, sum))",
+        "avg(aggregate_labels(meter_nginx_service_http_status{status='500'}, sum))"
       ],
       "expressionsConfig": [
         {
