@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
-import com.google.common.base.Strings;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Comparator;
@@ -53,6 +52,7 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.P
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 /**
  * AvgPercentile intends to calculate percentile based on the average of raw values over the interval(minute, hour or day).
@@ -68,7 +68,6 @@ import lombok.extern.slf4j.Slf4j;
 @MeterFunction(functionName = "avgHistogramPercentile")
 @Slf4j
 public abstract class AvgHistogramPercentileFunction extends Meter implements AcceptableValue<PercentileArgument>, LabeledValueHolder {
-    private static final String DEFAULT_GROUP = "pD";
     public static final String DATASET = "dataset";
     public static final String RANKS = "ranks";
     public static final String VALUE = "datatable_value";
@@ -150,8 +149,8 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
         this.entityId = entity.id();
 
         String template = "%s";
-        if (!Strings.isNullOrEmpty(value.getBucketedValues().getGroup())) {
-            template  = value.getBucketedValues().getGroup() + ":%s";
+        if (CollectionUtils.isNotEmpty(value.getBucketedValues().getLabels())) {
+            template  = value.getBucketedValues().getLabels() + ":%s";
         }
         final long[] values = value.getBucketedValues().getValues();
         for (int i = 0; i < values.length; i++) {
@@ -207,11 +206,13 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
             }
             dataset.keys().stream()
                    .map(key -> {
+                       DataLabel dataLabel = new DataLabel();
                        if (key.contains(":")) {
                            int index = key.lastIndexOf(":");
-                           return Tuple.of(key.substring(0, index), key);
+                           dataLabel.put(key.substring(0, index));
+                           return Tuple.of(dataLabel, key);
                        } else {
-                           return Tuple.of(DEFAULT_GROUP, key);
+                           return Tuple.of(dataLabel, key);
                        }
                    })
                    .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, Collector.of(
@@ -228,7 +229,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                        },
                        DataTable::append
                    ))))
-                   .forEach((group, subDataset) -> {
+                   .forEach((labels, subDataset) -> {
                        long total;
                        total = subDataset.sumOfValues();
 
@@ -250,13 +251,12 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                             int roof = roofs[rankIdx];
 
                             if (count >= roof) {
-                                DataLabel label = new DataLabel();
-                                if (group.equals(DEFAULT_GROUP)) {
-                                    label.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
-                                    percentileValues.put(label, Long.parseLong(key));
+                                if (labels.isEmpty()) {
+                                    labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
+                                    percentileValues.put(labels, Long.parseLong(key));
                                 } else {
-                                    label.put(PERCENTILE_LABEL_NAME, String.format("%s:%s", group, ranks.get(rankIdx)));
-                                    percentileValues.put(label, Long.parseLong(key));
+                                    labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
+                                    percentileValues.put(labels, Long.parseLong(key));
                                 }
                                 loopIndex++;
                             } else {
