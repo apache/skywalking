@@ -134,6 +134,9 @@
 * Add workflow icon.
 * Metrics support multiple labels.
 * Support the `SINGLE_VALUE` for table widgets.
+* Remove the General metric mode and related logical code.
+* Remove metrics for unreal nodes in the topology.
+* Enhance the Trace widget for batch consuming spans.
 
 #### Documentation
 
