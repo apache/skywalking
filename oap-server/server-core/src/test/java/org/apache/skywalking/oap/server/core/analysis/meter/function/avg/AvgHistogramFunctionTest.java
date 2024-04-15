@@ -222,7 +222,6 @@ public class AvgHistogramFunctionTest {
             10,
             10
         });
-        bv1.setGroup("g1");
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
             bv1
@@ -235,7 +234,6 @@ public class AvgHistogramFunctionTest {
             3,
             4
         });
-        bv2.setGroup("g1");
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
             bv2
@@ -247,7 +245,6 @@ public class AvgHistogramFunctionTest {
             6,
             8
         });
-        bv3.setGroup("g2");
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
             bv3

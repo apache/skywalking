@@ -105,7 +105,7 @@ public class SumHistogramPercentileFunctionTest {
          * <pre>
          *     0  , 20
          *     50 , 40
-         *     100, 50 <- P50
+         *     100, 60 <- P50
          *     250, 80 <- P90
          * </pre>
          */
@@ -188,7 +188,7 @@ public class SumHistogramPercentileFunctionTest {
     }
 
     @Test
-    public void testFunctionWhenGroupContainsColon() {
+    public void testFunctionWithLabel() {
         BucketedValues valuesA = new BucketedValues(
             BUCKETS,
             new long[] {
@@ -198,8 +198,8 @@ public class SumHistogramPercentileFunctionTest {
                 40
             }
         );
-        valuesA.setGroup("localhost:3306/swtestA");
-
+        valuesA.getLabels().put("url", "localhost:3306/swtestA");
+        valuesA.getLabels().put("instance", "instance1");
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
@@ -217,8 +217,8 @@ public class SumHistogramPercentileFunctionTest {
                 10
             }
         );
-        valuesB.setGroup("localhost:3306/swtestB");
-
+        valuesB.getLabels().put("url", "localhost:3306/swtestB");
+        valuesB.getLabels().put("instance", "instance2");
         inst.accept(
             MeterEntity.newService("service-test", Layer.GENERAL),
             new PercentileArgument(
@@ -240,7 +240,7 @@ public class SumHistogramPercentileFunctionTest {
          */
         assertEquals(
             new DataTable(
-                "{p=localhost:3306/swtestB:50},50|{p=localhost:3306/swtestA:50},100|{p=localhost:3306/swtestB:90},100|{p=localhost:3306/swtestA:90},250"),
+                "{url=localhost:3306/swtestB,instance=instance2,p=50},50|{url=localhost:3306/swtestA,instance=instance1,p=50},100|{url=localhost:3306/swtestB,instance=instance2,p=90},100|{url=localhost:3306/swtestA,instance=instance1,p=90},250"),
             values
         );
     }

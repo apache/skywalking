@@ -24,6 +24,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
@@ -34,9 +35,8 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 @ToString
 @Getter
 public class BucketedValues {
-
     @Setter
-    private String group;
+    private DataLabel labels = new DataLabel();
     /**
      * The element in the buckets represent the minimal value of this bucket, the max is defined by the next element.
      * Such as 0, 10, 50, 100 means buckets are [0, 10), [10, 50), [50, 100), [100, infinite+).
@@ -76,7 +76,7 @@ public class BucketedValues {
             if (key.equals(Bucket.INFINITE_NEGATIVE)) {
                 existedBuckets[i] = Long.MIN_VALUE;
             } else {
-                // remove the group name
+                // remove the label name
                 if (key.contains(":")) {
                     key = StringUtils.substringAfterLast(key, ":");
                 }
