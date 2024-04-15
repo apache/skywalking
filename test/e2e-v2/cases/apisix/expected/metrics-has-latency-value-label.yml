@@ -18,8 +18,10 @@ results:
   {{- contains .results }}
 - metric:
     labels:
+      - key: type
+        value: "apisix"
       - key: p
-        value: "apisix:50"
+        value: "50"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -31,8 +33,10 @@ results:
     {{- end}}
 - metric:
     labels:
+      - key: type
+        value: "apisix"
       - key: p
-        value: "apisix:99"
+        value: "70"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
@@ -44,8 +48,145 @@ results:
     {{- end}}
 - metric:
     labels:
+      - key: type
+        value: "apisix"
       - key: p
-        value: "request:99"
+        value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "apisix"
+      - key: p
+        value: "99"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "request"
+      - key: p
+        value: "50"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "request"
+      - key: p
+        value: "70"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "request"
+      - key: p
+        value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "request"
+      - key: p
+        value: "99"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "upstream"
+      - key: p
+        value: "50"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "upstream"
+      - key: p
+        value: "70"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "upstream"
+      - key: p
+        value: "90"
+  values:
+    {{- contains .values }}
+    - id: {{ notEmpty .id }}
+      value: {{ .value }}
+      traceid: null
+    - id: {{ notEmpty .id }}
+      value: null
+      traceid: null
+    {{- end}}
+- metric:
+    labels:
+      - key: type
+        value: "upstream"
+      - key: p
+        value: "99"
   values:
     {{- contains .values }}
     - id: {{ notEmpty .id }}
