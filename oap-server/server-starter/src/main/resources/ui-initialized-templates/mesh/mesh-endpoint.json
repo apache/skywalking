@@ -52,9 +52,6 @@
                   ],
                   "expressions": [
                     "relabels(endpoint_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -175,9 +172,6 @@
                   ],
                   "expressions": [
                     "endpoint_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -230,10 +224,6 @@
                   "expressions": [
                     "endpoint_sidecar_internal_req_latency_nanos",
                     "endpoint_sidecar_internal_resp_latency_nanos"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

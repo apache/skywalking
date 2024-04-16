@@ -30,9 +30,6 @@
                   },
                   "expressions": [
                     "top_n(browser_app_single_version_error_rate,10,des)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -51,9 +48,6 @@
                   },
                   "expressions": [
                     "top_n(browser_app_single_version_pv,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -73,9 +67,6 @@
                   },
                   "expressions": [
                     "browser_app_error_sum"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -108,9 +99,6 @@
                   "expressions": [
                     "browser_app_pv"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "12-0-5"
@@ -136,9 +124,6 @@
                   },
                   "expressions": [
                     "top_n(browser_app_page_error_sum,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -163,9 +148,6 @@
                   "expressions": [
                     "browser_app_error_rate/100"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "12-0-7"
@@ -185,9 +167,6 @@
                   "expressions": [
                     "top_n(browser_app_page_pv,10,des)"
                   ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
-                  ],
                   "widget": {
                     "title": "Top Hot Pages  (calls / min)"
                   },
@@ -206,9 +185,6 @@
                   "expressions": [
                     "top_n(browser_app_page_error_rate,10,des)/100"
                   ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
-                  ],
                   "widget": {
                     "title": "Top Unstable Pages / Error Rate (%)"
                   },
@@ -226,9 +202,6 @@
                   "type": "Widget",
                   "expressions": [
                     "top_n(browser_app_single_version_error_sum,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ],
                   "widget": {
                     "title": "Error Count of Versions In The Selected App"
@@ -258,17 +231,9 @@
                     "dashboardName": "Browser-Version",
                     "fontSize": 12
                   },
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "subExpressions": [
                     "browser_app_single_version_pv",
                     "browser_app_single_version_error_rage/100"
-                  ],
-                  "subTypesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -307,17 +272,9 @@
                     "avg(browser_app_page_pv)",
                     "avg(browser_app_page_error_rate)/100"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "subExpressions": [
                     "browser_app_page_pv",
                     "browser_app_page_error_rate/100"
-                  ],
-                  "subTypesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {

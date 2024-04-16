@@ -56,23 +56,11 @@
                     "avg(service_resp_time)",
                     "avg(service_apdex)/10000"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE",
-                    "SINGLE_VALUE",
-                    "SINGLE_VALUE",
-                    "SINGLE_VALUE"
-                  ],
                   "subExpressions": [
                     "service_cpm",
                     "service_sla/100",
                     "service_resp_time",
                     "service_apdex/10000"
-                  ],
-                  "subTypesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

@@ -23,9 +23,6 @@
           },
           "expressions": [
             "meter_apisix_sv_http_requests"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -48,9 +45,6 @@
           },
           "expressions": [
             "meter_apisix_sv_http_status_matched"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -97,9 +91,6 @@
           "expressions": [
             "meter_apisix_sv_http_latency_matched"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -145,9 +136,6 @@
           "expressions": [
             "meter_apisix_sv_bandwidth_matched/1024"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -181,9 +169,6 @@
           "type": "Widget",
           "expressions": [
             "meter_apisix_sv_http_connections"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -241,9 +226,6 @@
           "expressions": [
             "meter_apisix_sv_http_status_unmatched"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -289,9 +271,6 @@
           "expressions": [
             "meter_apisix_sv_http_latency_unmatched"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -336,9 +315,6 @@
           },
           "expressions": [
             "meter_apisix_sv_bandwidth_unmatched/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {

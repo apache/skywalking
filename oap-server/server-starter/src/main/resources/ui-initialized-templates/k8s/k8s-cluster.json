@@ -36,12 +36,6 @@
                     "k8s_cluster_cpu_cores_limits",
                     "k8s_cluster_cpu_cores_allocatable"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "metricConfig": [
                     {
                       "label": "cores"
@@ -79,12 +73,6 @@
                     "k8s_cluster_memory_limits/1024/1024/1024",
                     "k8s_cluster_memory_total/1024/1024/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "metricConfig": [
                     {
                       "label": "request"
@@ -120,10 +108,6 @@
                     "k8s_cluster_storage_total/1024/1024/1024",
                     "k8s_cluster_storage_allocatable/1024/1024/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "metricConfig": [
                     {
                       "label": "total"
@@ -151,9 +135,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_pod_status_waiting)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -174,9 +155,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_service_pod_status)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -197,9 +175,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_pod_status_not_running)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -220,9 +195,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_node_status)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -243,9 +215,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_deployment_spec_replicas)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -266,9 +235,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_deployment_status)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -289,9 +255,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_container_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -312,9 +275,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_pod_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -335,9 +295,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_service_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -358,9 +315,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_node_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -381,9 +335,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_namespace_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -404,9 +355,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_deployment_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -427,9 +375,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_statefulset_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -450,9 +395,6 @@
                   },
                   "expressions": [
                     "latest(k8s_cluster_daemonset_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 }
               ]
@@ -475,10 +417,6 @@
                   "expressions": [
                     "avg(k8s_node_cpu_usage)",
                     "avg(k8s_node_pod_total)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {

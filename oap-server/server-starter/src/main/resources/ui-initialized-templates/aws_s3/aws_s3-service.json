@@ -21,9 +21,6 @@
           },
           "expressions": [
             "latest(aws_s3_4xx)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -44,9 +41,6 @@
           },
           "expressions": [
             "latest(aws_s3_5xx)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -67,9 +61,6 @@
           },
           "expressions": [
             "latest(aws_s3_all_requests)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -90,9 +81,6 @@
           },
           "expressions": [
             "avg(aws_s3_request_latency)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -115,9 +103,6 @@
           },
           "expressions": [
             "aws_s3_4xx"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -140,9 +125,6 @@
           },
           "expressions": [
             "aws_s3_5xx"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -165,9 +147,6 @@
           },
           "expressions": [
             "aws_s3_request_latency"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -190,9 +169,6 @@
           },
           "expressions": [
             "aws_s3_first_latency_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -215,9 +191,6 @@
           },
           "expressions": [
             "aws_s3_all_requests"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -240,9 +213,6 @@
           },
           "expressions": [
             "aws_s3_get_requests"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -265,9 +235,6 @@
           },
           "expressions": [
             "aws_s3_put_requests"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -290,9 +257,6 @@
           },
           "expressions": [
             "aws_s3_delete_requests"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -323,9 +287,6 @@
           },
           "expressions": [
             "aws_s3_downloaded_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -361,9 +322,6 @@
           },
           "expressions": [
             "aws_s3_uploaded_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {

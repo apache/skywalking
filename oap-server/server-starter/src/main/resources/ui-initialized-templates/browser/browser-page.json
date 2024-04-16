@@ -36,9 +36,6 @@
                   "expressions": [
                     "relabels(browser_app_page_fmp_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "metricConfig": [
                     {
                       "unit": "ms",
@@ -90,9 +87,6 @@
                   },
                   "expressions": [
                     "relabels(browser_app_page_first_pack_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
@@ -146,9 +140,6 @@
                   "expressions": [
                     "relabels(browser_app_page_fpt_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "metricConfig": [
                     {
                       "unit": "ms",
@@ -200,9 +191,6 @@
                   },
                   "expressions": [
                     "relabels(browser_app_page_dom_ready_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
@@ -256,9 +244,6 @@
                   "expressions": [
                     "relabels(browser_app_page_ttl_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "metricConfig": [
                     {
                       "unit": "ms",
@@ -310,9 +295,6 @@
                   },
                   "expressions": [
                     "relabels(browser_app_page_load_page_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "metricConfig": [
                     {
@@ -374,18 +356,6 @@
                     "browser_app_page_redirect_avg",
                     "browser_app_page_tcp_avg",
                     "browser_app_page_ttfb_avg"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -463,12 +433,6 @@
                     "browser_app_page_js_error_sum",
                     "browser_app_page_unknown_error_sum",
                     "browser_app_page_ajax_error_sum"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {

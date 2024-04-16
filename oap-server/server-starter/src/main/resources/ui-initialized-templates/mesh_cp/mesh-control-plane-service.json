@@ -21,9 +21,6 @@
           },
           "expressions": [
             "meter_istio_cpu"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -44,9 +41,6 @@
           },
           "expressions": [
             "meter_istio_go_goroutines"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -67,9 +61,6 @@
           },
           "expressions": [
             "meter_istio_pilot_version"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -111,13 +102,6 @@
             "meter_istio_go_alloc/1024/1024",
             "meter_istio_resident_memory/1024/1024",
             "meter_istio_go_heap_inuse/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -142,13 +126,6 @@
             "meter_istio_pilot_xds_rds_reject",
             "meter_istio_pilot_xds_lds_reject",
             "meter_istio_pilot_xds_write_timeout"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -169,9 +146,6 @@
           },
           "expressions": [
             "meter_istio_pilot_proxy_push_percentile"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -190,9 +164,6 @@
           },
           "expressions": [
             "meter_istio_pilot_xds_pushes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -213,9 +184,6 @@
           },
           "expressions": [
             "meter_istio_sidecar_injection_success_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -238,11 +206,6 @@
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
             "meter_istio_pilot_virt_services"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -266,10 +229,6 @@
           "expressions": [
             "meter_istio_galley_validation_passed",
             "meter_istio_galley_validation_failed"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -291,12 +250,6 @@
             "meter_istio_pilot_conflict_il",
             "meter_istio_pilot_conflict_ol_tcp_http",
             "meter_istio_pilot_conflict_ol_http_tcp"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

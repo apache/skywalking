@@ -10,7 +10,6 @@
           "h": 2,
           "i": "100",
           "type": "Text",
-          "typesOfMQE": [],
           "expressions": [
             ""
           ],
@@ -41,13 +40,6 @@
                   "h": 50,
                   "i": "0",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "latest(k8s_service_pod_total)",
                     "latest(k8s_service_cpu_cores_requests)",

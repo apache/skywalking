@@ -31,9 +31,6 @@
                   },
                   "expressions": [
                     "avg(service_apdex)/10000"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -59,9 +56,6 @@
                   ],
                   "expressions": [
                     "avg(service_sla)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -88,9 +82,6 @@
                   ],
                   "expressions": [
                     "avg(service_cpm)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -144,9 +135,6 @@
                   ],
                   "expressions": [
                     "service_resp_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -200,9 +188,6 @@
                   },
                   "expressions": [
                     "service_apdex/10000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -250,9 +235,6 @@
                   },
                   "expressions": [
                     "relabels(service_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -305,9 +287,6 @@
                   },
                   "expressions": [
                     "service_sla/100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -357,9 +336,6 @@
                   ],
                   "expressions": [
                     "service_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -408,9 +384,6 @@
                   ],
                   "expressions": [
                     "service_mq_consume_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -460,9 +433,6 @@
                   ],
                   "expressions": [
                     "service_mq_consume_latency"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -481,9 +451,6 @@
                   },
                   "expressions": [
                     "top_n(service_instance_cpm,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -502,9 +469,6 @@
                   },
                   "expressions": [
                     "top_n(service_instance_resp_time,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -523,9 +487,6 @@
                   },
                   "expressions": [
                     "top_n(service_instance_sla,10,asc)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -544,9 +505,6 @@
                   },
                   "expressions": [
                     "top_n(endpoint_sla,10,asc)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -565,9 +523,6 @@
                   },
                   "expressions": [
                     "top_n(endpoint_resp_time,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -587,9 +542,6 @@
                   },
                   "expressions": [
                     "top_n(endpoint_cpm,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 }
               ]
@@ -635,11 +587,6 @@
                     "service_instance_cpm",
                     "service_instance_sla/100",
                     "service_instance_resp_time"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]
@@ -687,16 +634,6 @@
                     "endpoint_cpm",
                     "endpoint_sla/100",
                     "endpoint_resp_time"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
-                  ],
-                  "typesOfMQE": [
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]

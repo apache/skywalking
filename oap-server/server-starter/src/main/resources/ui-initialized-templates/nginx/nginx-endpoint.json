@@ -23,9 +23,6 @@
           },
           "expressions": [
             "meter_nginx_endpoint_http_requests"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -48,9 +45,6 @@
           },
           "expressions": [
             "meter_nginx_endpoint_http_latency"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -62,9 +56,6 @@
           "type": "Widget",
           "expressions": [
             "meter_nginx_endpoint_http_bandwidth/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "title": "HTTP Bandwidth (KB)"
@@ -98,9 +89,6 @@
           },
           "expressions": [
             "meter_nginx_endpoint_http_status"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -112,9 +100,6 @@
           "type": "Widget",
           "expressions": [
             "(meter_nginx_endpoint_http_4xx_requests_increment/meter_nginx_endpoint_http_requests_increment)*100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -135,9 +120,6 @@
           "type": "Widget",
           "expressions": [
             "(meter_nginx_endpoint_http_5xx_requests_increment/meter_nginx_endpoint_http_requests_increment)*100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",

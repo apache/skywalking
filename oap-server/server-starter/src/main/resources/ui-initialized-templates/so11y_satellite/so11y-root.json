@@ -23,9 +23,6 @@
           },
           "expressions": [
             "satellite_service_grpc_connect_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -48,9 +45,6 @@
           },
           "expressions": [
             "satellite_service_server_cpu_utilization"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -74,9 +68,6 @@
           },
           "expressions": [
             "satellite_service_queue_used_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -100,9 +91,6 @@
           },
           "expressions": [
             "satellite_service_receive_event_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -126,9 +114,6 @@
           },
           "expressions": [
             "satellite_service_fetch_event_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -152,9 +137,6 @@
           },
           "expressions": [
             "satellite_service_queue_input_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -178,9 +160,6 @@
           },
           "expressions": [
             "satellite_service_send_event_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {

@@ -57,12 +57,6 @@
                     "service_sla/100",
                     "service_resp_time",
                     "service_apdex/10000"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]

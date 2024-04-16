@@ -46,11 +46,6 @@
                     "envoy_total_connections_used",
                     "envoy_worker_threads",
                     "envoy_bug_failures"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]

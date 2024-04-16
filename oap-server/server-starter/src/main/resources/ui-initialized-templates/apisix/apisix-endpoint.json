@@ -24,9 +24,6 @@
           "expressions": [
             "meter_apisix_endpoint_http_status"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -60,9 +57,6 @@
           "expressions": [
             "meter_apisix_endpoint_http_latency"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -95,9 +89,6 @@
           },
           "expressions": [
             "meter_apisix_endpoint_bandwidth/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {

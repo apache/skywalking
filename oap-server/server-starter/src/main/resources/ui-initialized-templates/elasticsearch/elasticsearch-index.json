@@ -33,10 +33,6 @@
           "expressions": [
             "meter_elasticsearch_index_stats_indexing_index_total_req_rate",
             "meter_elasticsearch_index_stats_indexing_index_total_proc_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -69,10 +65,6 @@
           "expressions": [
             "meter_elasticsearch_index_stats_search_query_total_req_rate",
             "meter_elasticsearch_index_stats_search_query_total_proc_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -140,19 +132,6 @@
             "meter_elasticsearch_index_stats_search_suggest_total_req_rate",
             "meter_elasticsearch_index_stats_indexing_index_total_req_rate",
             "meter_elasticsearch_index_stats_get_total_req_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -232,22 +211,6 @@
             "meter_elasticsearch_index_stats_merge_stopped_time_seconds_total",
             "meter_elasticsearch_index_stats_merge_throttle_time_seconds_total",
             "meter_elasticsearch_index_stats_indexing_throttle_time_seconds_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -287,12 +250,6 @@
             "meter_elasticsearch_index_search_query_avg_time",
             "meter_elasticsearch_index_search_scroll_avg_time",
             "meter_elasticsearch_index_search_suggest_avg_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -332,12 +289,6 @@
             "meter_elasticsearch_index_stats_search_query_total_req_rate",
             "meter_elasticsearch_index_stats_search_scroll_total_req_rate",
             "meter_elasticsearch_index_stats_search_suggest_total_req_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -365,9 +316,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_index_indices_store_size_bytes_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -395,9 +343,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_index_indices_docs_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -425,9 +370,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_index_indices_docs_total_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -488,9 +430,6 @@
           },
           "expressions": [
             "meter_elasticsearch_index_indices_store_size_bytes_primary"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -561,9 +500,6 @@
           ],
           "expressions": [
             "latest(meter_elasticsearch_index_indices_store_size_bytes_primary)/1024/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -629,9 +565,6 @@
           ],
           "expressions": [
             "latest(meter_elasticsearch_index_indices_segment_memory_bytes_primary)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {

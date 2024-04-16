@@ -28,26 +28,12 @@
             "avg(mq_service_produce_sla)/100",
             "avg(mq_service_produce_cpm)"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "subExpressions": [
             "mq_service_consume_latency",
             "mq_service_consume_sla/100",
             "mq_service_consume_cpm",
             "mq_service_produce_sla/100",
             "mq_service_produce_cpm"
-          ],
-          "subTypesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {

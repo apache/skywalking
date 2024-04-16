@@ -47,11 +47,6 @@
             "database_access_resp_time",
             "database_access_sla/100",
             "database_access_cpm"
-          ],
-          "subTypesOfMQE": [
-            "",
-            "",
-            ""
           ]
         },
         {

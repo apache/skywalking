@@ -34,9 +34,6 @@
                   },
                   "expressions": [
                     "latest(meter_rocketmq_cluster_messages_produced_today)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -59,9 +56,6 @@
                   },
                   "expressions": [
                     "latest(meter_rocketmq_cluster_messages_consumed_today)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -86,9 +80,6 @@
                   },
                   "expressions": [
                     "meter_rocketmq_cluster_total_producer_tps"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -113,9 +104,6 @@
                   },
                   "expressions": [
                     "meter_rocketmq_cluster_total_consumer_tps"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -127,9 +115,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_rocketmq_cluster_producer_message_size/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Bar",
@@ -150,9 +135,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_rocketmq_cluster_consumer_message_size/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Bar",
@@ -180,9 +162,6 @@
                   "expressions": [
                     "latest(meter_rocketmq_cluster_messages_produced_until_yesterday)"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "widget": {
                     "name": "messages produced until yesterday",
                     "title": "Messages Produced Until Yesterday",
@@ -205,9 +184,6 @@
                   "expressions": [
                     "latest(meter_rocketmq_cluster_messages_consumed_until_yesterday)"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "widget": {
                     "name": "messages consumed until yesterday",
                     "title": "Messages Consumed Until Yesterday",
@@ -228,9 +204,6 @@
                   ],
                   "expressions": [
                     "latest(meter_rocketmq_cluster_max_consumer_latency)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "graph": {
                     "type": "Card",
@@ -269,10 +242,7 @@
                     "name": "max commitLog disk ratio",
                     "title": "Max CommitLog Disk Ratio",
                     "tips": "The max utilization ratio of the commit log disk"
-                  },
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ]
+                  }
                 },
                 {
                   "x": 12,
@@ -290,9 +260,6 @@
                   "expressions": [
                     "meter_rocketmq_cluster_commitLog_disk_ratio"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "widget": {
                     "name": "commitLog disk ratio",
                     "title": "CommitLog Disk Ratio(%)",
@@ -308,9 +275,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_rocketmq_cluster_pull_threadPool_queue_head_wait_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -336,9 +300,6 @@
                   "expressions": [
                     "meter_rocketmq_cluster_send_threadPool_queue_head_wait_time"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "widget": {
                     "name": "send threadPool queue head wait time",
                     "title": "Send ThreadPool Queue Head Wait Time(ms)",
@@ -363,9 +324,6 @@
                   "expressions": [
                     "latest(meter_rocketmq_cluster_topic_count)"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "widget": {
                     "name": "topic count",
                     "title": "Topic Count",
@@ -387,9 +345,6 @@
                   "type": "Widget",
                   "expressions": [
                     "latest(meter_rocketmq_cluster_broker_count)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "widget": {
                     "name": "broker count",

@@ -51,9 +51,6 @@
           },
           "expressions": [
             "relabels(service_instance_relation_client_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -109,9 +106,6 @@
           },
           "expressions": [
             "service_instance_relation_client_call_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -163,9 +157,6 @@
           ],
           "expressions": [
             "service_instance_relation_client_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -221,9 +212,6 @@
           ],
           "expressions": [
             "service_instance_relation_client_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -274,9 +262,6 @@
           },
           "expressions": [
             "relabels(service_instance_relation_server_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -332,9 +317,6 @@
           },
           "expressions": [
             "service_instance_relation_server_call_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -386,9 +368,6 @@
           ],
           "expressions": [
             "service_instance_relation_server_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -444,9 +423,6 @@
           ],
           "expressions": [
             "service_instance_relation_server_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

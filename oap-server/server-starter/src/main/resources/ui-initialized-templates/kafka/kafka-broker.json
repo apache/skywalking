@@ -25,9 +25,6 @@
           },
           "expressions": [
             "meter_kafka_broker_cpu_time_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -52,9 +49,6 @@
           },
           "expressions": [
             "meter_kafka_broker_messages_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -79,9 +73,6 @@
           },
           "expressions": [
             "meter_kafka_broker_bytes_in_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -106,9 +97,6 @@
           },
           "expressions": [
             "meter_kafka_broker_bytes_out_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -131,9 +119,6 @@
           },
           "expressions": [
             "latest(meter_kafka_broker_under_replicated_partitions)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -156,9 +141,6 @@
           },
           "expressions": [
             "latest(meter_kafka_broker_under_min_isr_partition_count)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -183,9 +165,6 @@
           },
           "expressions": [
             "meter_kafka_broker_partition_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -210,9 +189,6 @@
           },
           "expressions": [
             "meter_kafka_broker_replication_bytes_out_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -237,9 +213,6 @@
           },
           "expressions": [
             "meter_kafka_broker_replication_bytes_in_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -264,9 +237,6 @@
           },
           "expressions": [
             "meter_kafka_broker_leader_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -289,9 +259,6 @@
           },
           "expressions": [
             "sum(meter_kafka_broker_max_lag)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -314,9 +281,6 @@
           },
           "expressions": [
             "latest(meter_kafka_broker_isr_shrinks_per_second)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -339,9 +303,6 @@
           },
           "expressions": [
             "latest(meter_kafka_broker_isr_expands_per_second)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -366,9 +327,6 @@
           },
           "expressions": [
             "meter_kafka_broker_purgatory_size"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -393,9 +351,6 @@
           },
           "expressions": [
             "meter_kafka_broker_garbage_collector_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -420,9 +375,6 @@
           },
           "expressions": [
             "meter_kafka_broker_request_queue_time_ms"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -447,9 +399,6 @@
           },
           "expressions": [
             "meter_kafka_broker_remote_time_ms"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -474,9 +423,6 @@
           },
           "expressions": [
             "meter_kafka_broker_response_queue_time_ms"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -501,9 +447,6 @@
           },
           "expressions": [
             "meter_kafka_broker_response_send_time_ms"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -528,9 +471,6 @@
           },
           "expressions": [
             "meter_kafka_broker_requests_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -555,10 +495,7 @@
             "name": "memory_usage_percentage",
             "title": "memory_usage_percentage (%)",
             "tips": "JVM heap memory usage in percentage"
-          },
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
+          }
         },
         {
           "x": 19,
@@ -582,9 +519,6 @@
           },
           "expressions": [
             "meter_kafka_broker_topic_produce_requests_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -609,9 +543,6 @@
           },
           "expressions": [
             "meter_kafka_broker_topic_fetch_requests_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -636,9 +567,6 @@
           },
           "expressions": [
             "meter_kafka_broker_topic_bytesin_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -663,9 +591,6 @@
           },
           "expressions": [
             "meter_kafka_broker_topic_bytesout_per_second"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -690,9 +615,6 @@
           },
           "expressions": [
             "meter_kafka_broker_topic_messages_in_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

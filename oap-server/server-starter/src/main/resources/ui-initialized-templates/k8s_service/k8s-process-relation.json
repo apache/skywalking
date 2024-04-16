@@ -21,9 +21,6 @@
                   "h": 11,
                   "i": "0",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_write_cpm"
                   ],
@@ -82,9 +79,6 @@
                   "h": 11,
                   "i": "1",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_write_cpm"
                   ],
@@ -143,9 +137,6 @@
                   "h": 11,
                   "i": "2",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_read_cpm"
                   ],
@@ -192,9 +183,6 @@
                   "h": 11,
                   "i": "3",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_read_cpm"
                   ],
@@ -240,9 +228,6 @@
                   "h": 11,
                   "i": "4",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_write_total_bytes/1024"
                   ],
@@ -272,9 +257,6 @@
                   "h": 11,
                   "i": "5",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_read_total_bytes/1024"
                   ],
@@ -326,9 +308,6 @@
                   "h": 11,
                   "i": "6",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_write_total_bytes/1024"
                   ],
@@ -392,9 +371,6 @@
                   "h": 11,
                   "i": "7",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_read_total_bytes/1024"
                   ],
@@ -446,9 +422,6 @@
                   "h": 11,
                   "i": "8",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_write_avg_exe_time/1000000"
                   ],
@@ -512,9 +485,6 @@
                   "h": 11,
                   "i": "9",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_read_avg_exe_time/1000000"
                   ],
@@ -566,9 +536,6 @@
                   "h": 11,
                   "i": "10",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_write_avg_exe_time/1000000"
                   ],
@@ -598,9 +565,6 @@
                   "h": 11,
                   "i": "11",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_read_avg_exe_time/1000000"
                   ],
@@ -652,9 +616,6 @@
                   "h": 11,
                   "i": "12",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_connect_cpm"
                   ],
@@ -689,9 +650,6 @@
                   "h": 11,
                   "i": "13",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_connect_exe_time/1000000"
                   ],
@@ -731,9 +689,6 @@
                   "h": 11,
                   "i": "14",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_connect_cpm"
                   ],
@@ -768,9 +723,6 @@
                   "h": 11,
                   "i": "15",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_connect_avg_exe_time/1000000"
                   ],
@@ -810,9 +762,6 @@
                   "h": 11,
                   "i": "16",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_close_cpm"
                   ],
@@ -847,9 +796,6 @@
                   "h": 11,
                   "i": "17",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_close_avg_exe_time/1000000"
                   ],
@@ -889,9 +835,6 @@
                   "h": 11,
                   "i": "18",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_close_cpm"
                   ],
@@ -926,9 +869,6 @@
                   "h": 11,
                   "i": "19",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_close_avg_exe_time/1000000"
                   ],
@@ -968,9 +908,6 @@
                   "h": 11,
                   "i": "20",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_write_rtt_time_percentile"
                   ],
@@ -1034,9 +971,6 @@
                   "h": 11,
                   "i": "21",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_write_rtt_time_percentile"
                   ],
@@ -1095,9 +1029,6 @@
                   "h": 11,
                   "i": "22",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_write_exe_time_percentile/1000000"
                   ],
@@ -1156,9 +1087,6 @@
                   "h": 11,
                   "i": "23",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_write_exe_time_percentile/1000000"
                   ],
@@ -1217,9 +1145,6 @@
                   "h": 11,
                   "i": "24",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_read_exe_time_percentile/1000000"
                   ],
@@ -1266,9 +1191,6 @@
                   "h": 11,
                   "i": "25",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_read_exe_time_percentile/1000000"
                   ],
@@ -1315,9 +1237,6 @@
                   "h": 11,
                   "i": "28",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_client_write_avg_rtt_time"
                   ],
@@ -1376,9 +1295,6 @@
                   "h": 11,
                   "i": "29",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_server_write_avg_rtt_time"
                   ],
@@ -1442,9 +1358,6 @@
                   "h": 11,
                   "i": "0",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_request_cpm"
                   ],
@@ -1497,9 +1410,6 @@
                   "h": 11,
                   "i": "1",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_response_status_cpm"
                   ],
@@ -1552,9 +1462,6 @@
                   "h": 11,
                   "i": "2",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_request_package_size/1024"
                   ],
@@ -1607,9 +1514,6 @@
                   "h": 11,
                   "i": "3",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_response_package_size/1024"
                   ],
@@ -1662,9 +1566,6 @@
                   "h": 11,
                   "i": "4",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_request_package_size_percentile/1024"
                   ],
@@ -1717,9 +1618,6 @@
                   "h": 11,
                   "i": "5",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_response_package_size_percentile/1024"
                   ],
@@ -1772,9 +1670,6 @@
                   "h": 11,
                   "i": "6",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_client_duration"
                   ],
@@ -1827,9 +1722,6 @@
                   "h": 11,
                   "i": "7",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_client_duration_percentile"
                   ],
@@ -1882,9 +1774,6 @@
                   "h": 11,
                   "i": "8",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_server_duration"
                   ],
@@ -1937,9 +1826,6 @@
                   "h": 11,
                   "i": "9",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "process_relation_http1_server_duration_percentile"
                   ],
@@ -1997,9 +1883,6 @@
                   "h": 37,
                   "i": "0",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "RECORD_LIST"
-                  ],
                   "expressions": [
                     "sampled_slow_trace_record"
                   ],
@@ -2023,9 +1906,6 @@
                   "h": 37,
                   "i": "1",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "RECORD_LIST"
-                  ],
                   "expressions": [
                     "sampled_status_4xx_trace_record"
                   ],
@@ -2049,9 +1929,6 @@
                   "h": 37,
                   "i": "2",
                   "type": "Widget",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "expressions": [
                     "sampled_status_5xx_trace_record"
                   ],

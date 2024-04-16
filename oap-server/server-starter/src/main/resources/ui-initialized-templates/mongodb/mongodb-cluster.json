@@ -24,9 +24,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_mongodb_cluster_uptime,max))/3600/24"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "graph": {
                     "type": "Card",
                     "fontSize": 30,
@@ -51,9 +48,6 @@
                   "type": "Widget",
                   "expressions": [
                     "latest(aggregate_labels(meter_mongodb_cluster_data_size,sum))/1024/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "graph": {
                     "type": "Card",
@@ -80,9 +74,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_mongodb_cluster_collection_count,sum))"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "graph": {
                     "type": "Card",
                     "fontSize": 30,
@@ -103,9 +94,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_mongodb_cluster_object_count,sum))"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "graph": {
                     "type": "Card",
                     "fontSize": 30,
@@ -125,9 +113,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_mongodb_cluster_document_avg_qps"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -161,10 +146,7 @@
                   },
                   "widget": {
                     "title": "Operation Avg QPS"
-                  },
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ]
+                  }
                 },
                 {
                   "x": 0,
@@ -175,9 +157,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_mongodb_cluster_connections,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -200,9 +179,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_mongodb_cluster_cursor_avg"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -236,9 +212,6 @@
                   },
                   "expressions": [
                     "meter_mongodb_cluster_repl_lag"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -259,9 +232,6 @@
                   },
                   "expressions": [
                     "meter_mongodb_cluster_db_data_size/1024/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -282,9 +252,6 @@
                   },
                   "expressions": [
                     "meter_mongodb_cluster_db_index_size/1024/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -305,9 +272,6 @@
                   },
                   "expressions": [
                     "meter_mongodb_cluster_db_collection_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -328,9 +292,6 @@
                   },
                   "expressions": [
                     "meter_mongodb_cluster_db_index_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -346,9 +307,6 @@
                   "i": "0",
                   "type": "Widget",
                   "expressions": [
-                    ""
-                  ],
-                  "typesOfMQE": [
                     ""
                   ],
                   "graph": {

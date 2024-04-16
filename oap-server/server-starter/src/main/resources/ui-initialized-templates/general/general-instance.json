@@ -58,9 +58,6 @@
                   ],
                   "expressions": [
                     "service_instance_resp_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -107,9 +104,6 @@
                   },
                   "expressions": [
                     "service_instance_sla/100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -152,9 +146,6 @@
                   ],
                   "expressions": [
                     "service_instance_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -192,9 +183,6 @@
                   ],
                   "expressions": [
                     "meter_datasource"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -237,9 +225,6 @@
                   ],
                   "expressions": [
                     "meter_thread_pool"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -310,12 +295,6 @@
                     "instance_jvm_memory_noheap/1048576",
                     "instance_jvm_memory_heap/1048576",
                     "instance_jvm_memory_heap_max/1048576"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -383,19 +362,6 @@
                     "instance_jvm_memory_pool_codeheap_non_nmethods/1048576",
                     "instance_jvm_memory_pool_codeheap_profiled_nmethods/1048576",
                     "instance_jvm_memory_pool_codeheap_non_profiled_nmethods/1048576"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -431,11 +397,6 @@
                     "instance_jvm_thread_live_count",
                     "instance_jvm_thread_daemon_count",
                     "instance_jvm_thread_peak_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -471,12 +432,6 @@
                     "instance_jvm_thread_blocked_state_thread_count",
                     "instance_jvm_thread_waiting_state_thread_count",
                     "instance_jvm_thread_runnable_state_thread_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -504,9 +459,6 @@
                   ],
                   "expressions": [
                     "instance_jvm_cpu"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -540,11 +492,6 @@
                     "instance_jvm_class_loaded_class_count",
                     "instance_jvm_class_total_loaded_class_count",
                     "instance_jvm_class_total_unloaded_class_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -580,11 +527,6 @@
                     "instance_jvm_young_gc_time",
                     "instance_jvm_old_gc_time",
                     "instance_jvm_normal_gc_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -616,11 +558,6 @@
                     "instance_jvm_young_gc_count",
                     "instance_jvm_old_gc_count",
                     "instance_jvm_normal_gc_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -661,11 +598,6 @@
                     "instance_clr_available_worker_threads",
                     "instance_clr_available_completion_port_threads",
                     "instance_clr_max_completion_port_threads"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -688,9 +620,6 @@
                   },
                   "expressions": [
                     "instance_clr_heap_memory/1048576"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -722,11 +651,6 @@
                     "instance_clr_gen0_collect_count",
                     "instance_clr_gen1_collect_count",
                     "instance_clr_gen2_collect_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -754,9 +678,6 @@
                   ],
                   "expressions": [
                     "instance_clr_cpu"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -789,9 +710,6 @@
                   ],
                   "expressions": [
                     "meter_http_server_requests_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -820,9 +738,6 @@
                   ],
                   "expressions": [
                     "meter_http_server_requests_duration"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -845,9 +760,6 @@
                   },
                   "expressions": [
                     "meter_process_cpu_usage"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -875,9 +787,6 @@
                   ],
                   "expressions": [
                     "meter_system_cpu_usage"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -913,11 +822,6 @@
                     "meter_jdbc_connections_max",
                     "meter_jdbc_connections_active",
                     "meter_jdbc_connections_idle"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -953,11 +857,6 @@
                     "meter_tomcat_sessions_active_max",
                     "meter_tomcat_sessions_active_current",
                     "meter_tomcat_sessions_rejected"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -986,9 +885,6 @@
                   ],
                   "expressions": [
                     "meter_system_load_average_1m"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1021,10 +917,6 @@
                   "expressions": [
                     "meter_process_files_max",
                     "meter_process_files_open"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1052,9 +944,6 @@
                   ],
                   "expressions": [
                     "meter_jvm_gc_pause_duration"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1084,10 +973,6 @@
                   "expressions": [
                     "meter_jvm_memory_max/1048576",
                     "meter_jvm_memory_used/1048576"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1123,11 +1008,6 @@
                     "meter_jvm_threads_peak",
                     "meter_jvm_threads_live",
                     "meter_jvm_threads_daemon"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1159,10 +1039,6 @@
                   "expressions": [
                     "meter_jvm_classes_loaded",
                     "meter_jvm_classes_unloaded"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -1195,9 +1071,6 @@
                   ],
                   "expressions": [
                     "meter_instance_golang_gc_pauses/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1229,10 +1102,6 @@
                   "expressions": [
                     "meter_instance_golang_live_goroutines_num",
                     "meter_instance_golang_os_threads_num"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1257,9 +1126,6 @@
                   ],
                   "expressions": [
                     "meter_instance_golang_metadata_mspan_labeled"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1282,9 +1148,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_gc_count_labeled"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1307,9 +1170,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_heap_alloc_rate/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1337,9 +1197,6 @@
                   ],
                   "expressions": [
                     "meter_instance_golang_sched_latencies/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1362,9 +1219,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_heap_frees/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1387,9 +1241,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_gc_heap_allocs_by_size/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1412,9 +1263,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_gc_heap_frees_by_size/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1437,9 +1285,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_gc_heap_objects"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1458,9 +1303,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_metadata_mcache_labeled"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1488,9 +1330,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_memory_heap_labeled/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1513,9 +1352,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_cgo_calls"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1538,9 +1374,6 @@
                   },
                   "expressions": [
                     "meter_instance_golang_gc_heap_goal/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -1575,10 +1408,6 @@
                   "expressions": [
                     "meter_instance_pvm_total_cpu_utilization",
                     "meter_instance_pvm_process_cpu_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1606,9 +1435,6 @@
                   ],
                   "expressions": [
                     "meter_instance_pvm_thread_active_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1640,11 +1466,6 @@
                     "meter_instance_pvm_gc_g0",
                     "meter_instance_pvm_gc_g1",
                     "meter_instance_pvm_gc_g2"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1674,10 +1495,6 @@
                   "expressions": [
                     "meter_instance_pvm_total_mem_utilization",
                     "meter_instance_pvm_process_mem_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1700,9 +1517,6 @@
                   },
                   "expressions": [
                     "meter_instance_pvm_gc_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

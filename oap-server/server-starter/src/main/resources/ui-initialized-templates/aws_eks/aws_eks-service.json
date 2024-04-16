@@ -35,9 +35,6 @@
                   "expressions": [
                     "eks_cluster_service_pod_cpu_utilization"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -79,9 +76,6 @@
                   },
                   "expressions": [
                     "eks_cluster_service_pod_memory_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -125,9 +119,6 @@
                   "expressions": [
                     "eks_cluster_service_pod_net_rx_bytes/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -169,9 +160,6 @@
                   },
                   "expressions": [
                     "eks_cluster_service_pod_net_rx_error"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -215,9 +203,6 @@
                   "expressions": [
                     "eks_cluster_service_pod_net_tx_bytes/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -259,9 +244,6 @@
                   },
                   "expressions": [
                     "eks_cluster_service_pod_net_tx_error"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {

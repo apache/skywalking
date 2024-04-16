@@ -36,8 +36,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_topics"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 6,
@@ -61,8 +60,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_subscriptions"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -86,8 +84,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_producers"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 18,
@@ -111,8 +108,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_consumers"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -136,8 +132,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_message_rate_in"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -161,8 +156,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_message_rate_in"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -186,8 +180,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_throughput_in"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -211,8 +204,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_throughput_in"
-                  ],
-                  "typesOfMQE": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -223,9 +215,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_pulsar_storage_read_rate.sum(['cluster','node'])"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -250,9 +239,6 @@
                   "expressions": [
                     "meter_pulsar_storage_logical_size.sum(['cluster','node'])/1024/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -275,9 +261,6 @@
                   "type": "Widget",
                   "expressions": [
                     "meter_pulsar_storage_write_rate.sum(['cluster','node'])"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -316,8 +299,7 @@
                   "widget": {
                     "name": "storage_size",
                     "title": "Storage Size (MB)"
-                  },
-                  "typesOfMQE": []
+                  }
                 }
               ]
             },

@@ -26,20 +26,10 @@
             "avg(cache_access_sla)/100",
             "avg(cache_access_cpm)"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE",
-            "SINGLE_VALUE",
-            "SINGLE_VALUE"
-          ],
           "subExpressions": [
             "cache_access_resp_time",
             "cache_access_sla/100",
             "cache_access_cpm"
-          ],
-          "subTypesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {

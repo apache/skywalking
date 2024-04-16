@@ -25,9 +25,6 @@
           },
           "expressions": [
             "meter_rocketmq_broker_produce_tps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -39,9 +36,6 @@
           "type": "Widget",
           "expressions": [
             "meter_rocketmq_broker_consume_qps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -67,9 +61,6 @@
           "expressions": [
             "meter_rocketmq_broker_producer_message_size/1024/1024"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "widget": {
             "name": "producer_message_size_per_second",
             "title": "Producer Message Size(MB)",
@@ -93,9 +84,6 @@
           "type": "Widget",
           "expressions": [
             "meter_rocketmq_broker_consumer_message_size/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "name": "consumer message size",

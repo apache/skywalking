@@ -26,9 +26,6 @@
           },
           "expressions": [
             "latest(meter_mongodb_node_uptime)/3600/24"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -49,9 +46,6 @@
           },
           "expressions": [
             "avg(meter_mongodb_node_qps)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -72,9 +66,6 @@
           },
           "expressions": [
             "avg(meter_mongodb_node_latency)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
@@ -105,9 +96,6 @@
           },
           "expressions": [
             "avg(meter_mongodb_node_memory_usage)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -128,9 +116,6 @@
           },
           "expressions": [
             "meter_mongodb_node_version"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -151,9 +136,6 @@
           },
           "expressions": [
             "meter_mongodb_node_rs_state"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -174,9 +156,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "widget": {
             "title": "CPU Usage (%)"
           }
@@ -210,10 +189,6 @@
           "expressions": [
             "meter_mongodb_node_network_bytes_in/1024",
             "meter_mongodb_node_network_bytes_out/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -241,10 +216,6 @@
           "expressions": [
             "meter_mongodb_node_memory_free_kb/1024/1024",
             "meter_mongodb_node_swap_memory_free_kb/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -257,10 +228,6 @@
           "expressions": [
             "meter_mongodb_node_fs_used_size/1024/1024/1024",
             "meter_mongodb_node_fs_total_size/1024/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -304,9 +271,6 @@
           },
           "expressions": [
             "meter_mongodb_node_connections"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -342,11 +306,6 @@
             "meter_mongodb_node_active_total_num",
             "meter_mongodb_node_active_writer_num",
             "meter_mongodb_node_active_reader_num"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -378,11 +337,7 @@
           },
           "widget": {
             "title": "Transactions"
-          },
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
+          }
         },
         {
           "x": 0,
@@ -404,9 +359,6 @@
           },
           "expressions": [
             "meter_mongodb_node_document_qps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -433,9 +385,6 @@
           "associate": [],
           "expressions": [
             "meter_mongodb_node_operation_qps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -447,9 +396,6 @@
           "type": "Widget",
           "expressions": [
             "meter_mongodb_node_repl_operation_qps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -486,9 +432,6 @@
           },
           "expressions": [
             "meter_mongodb_node_operation_latency"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -515,9 +458,6 @@
           },
           "expressions": [
             "meter_mongodb_node_cursor"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -530,10 +470,6 @@
           "expressions": [
             "meter_mongodb_node_mem_virtual",
             "meter_mongodb_node_mem_resident"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -575,9 +511,6 @@
           },
           "expressions": [
             "meter_mongodb_node_asserts"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -600,10 +533,7 @@
           },
           "widget": {
             "title": "Repl Buffer Count"
-          },
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
+          }
         },
         {
           "x": 8,
@@ -624,10 +554,6 @@
           "expressions": [
             "meter_mongodb_node_repl_buffer_size/1024/1024",
             "meter_mongodb_node_repl_buffer_size_max/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -658,9 +584,6 @@
           },
           "expressions": [
             "meter_mongodb_node_queued_operation"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -673,10 +596,6 @@
           "expressions": [
             "meter_mongodb_node_write_wait_num",
             "meter_mongodb_node_write_wait_timeout_num"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -713,9 +632,6 @@
           },
           "expressions": [
             "meter_mongodb_node_write_wait_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "title": "getLastError Write Time (ms)"

@@ -22,17 +22,9 @@
             "avg(browser_app_pv)",
             "avg(browser_app_error_rate)/100"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "subExpressions": [
             "browser_app_pv",
             "browser_app_error_rate/100"
-          ],
-          "subTypesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {

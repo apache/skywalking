@@ -35,9 +35,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_number"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -91,9 +88,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_cpu_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -149,9 +143,6 @@
                   "expressions": [
                     "eks_cluster_node_memory_utilization"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -205,9 +196,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_net_rx_bytes/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -263,9 +251,6 @@
                   "expressions": [
                     "eks_cluster_node_net_rx_error"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -319,9 +304,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_net_tx_bytes/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -377,9 +359,6 @@
                   "expressions": [
                     "eks_cluster_node_net_tx_error"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -433,9 +412,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_disk_io_write"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -491,9 +467,6 @@
                   "expressions": [
                     "eks_cluster_node_disk_io_read"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -547,9 +520,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_fs_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -610,9 +580,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_cpu_utilization"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "11"
@@ -654,9 +621,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_pod_memory_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -700,9 +664,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_net_rx_bytes/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "11"
@@ -744,9 +705,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_pod_net_rx_error"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -790,9 +748,6 @@
                   "expressions": [
                     "eks_cluster_node_pod_net_tx_bytes/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "11"
@@ -834,9 +789,6 @@
                   },
                   "expressions": [
                     "eks_cluster_node_pod_net_tx_error"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {

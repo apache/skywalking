@@ -32,9 +32,6 @@
                   },
                   "expressions": [
                     "meter_pg_fetched_rows_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -55,9 +52,6 @@
                   },
                   "expressions": [
                     "meter_pg_inserted_rows_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -101,13 +95,6 @@
                     "meter_pg_buffers_backend_fsync",
                     "meter_pg_buffers_alloc",
                     "meter_pg_buffers_backend"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -214,9 +201,6 @@
                   },
                   "expressions": [
                     "meter_pg_committed_transactions_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -300,12 +284,6 @@
                     "meter_pg_checkpoints_timed_rate",
                     "meter_pg_checkpoint_req_rate",
                     "meter_pg_checkpoint_write_time_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -350,9 +328,6 @@
                   },
                   "expressions": [
                     "meter_pg_deadlocks_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -397,9 +372,6 @@
                   },
                   "expressions": [
                     "meter_pg_locks_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -445,9 +417,6 @@
                   },
                   "expressions": [
                     "top_n(top_n_database_statement,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "RECORD_LIST"
                   ]
                 }
               ]

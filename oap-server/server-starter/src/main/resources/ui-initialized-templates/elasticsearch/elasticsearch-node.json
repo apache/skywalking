@@ -31,9 +31,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_process_cpu_percent"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -69,11 +66,6 @@
             "meter_elasticsearch_node_os_load1",
             "meter_elasticsearch_node_os_load5",
             "meter_elasticsearch_node_os_load15"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -107,11 +99,6 @@
             "meter_elasticsearch_node_jvm_memory_heap_used/1024/1024",
             "meter_elasticsearch_node_jvm_memory_heap_max/1024/1024",
             "meter_elasticsearch_node_jvm_memory_nonheap_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -135,9 +122,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_jvm_memory_pool_peak_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -156,9 +140,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_jvm_gc_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -252,20 +233,6 @@
             "meter_elasticsearch_node_indices_indexing_delete_total_req_rate",
             "meter_elasticsearch_node_indices_search_scroll_total_req_rate",
             "meter_elasticsearch_node_indices_search_suggest_total_req_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -298,10 +265,6 @@
           "expressions": [
             "meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate",
             "meter_elasticsearch_node_indices_search_query_total_req_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -329,9 +292,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_translog_operations"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -359,9 +319,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_translog_size/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -384,9 +341,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_breakers_tripped"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -409,9 +363,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_breakers_estimated_size/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -439,9 +390,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_segment_memory"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -472,9 +420,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_disk_usage_percent"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -502,9 +447,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_indices_docs"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -528,9 +470,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_segment_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -551,9 +490,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_rules"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -604,9 +540,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_os_cpu_percent"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -637,9 +570,6 @@
           },
           "expressions": [
             "meter_elasticsearch_node_disk_usage/1024/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -674,10 +604,6 @@
           "expressions": [
             "meter_elasticsearch_node_network_send_bytes",
             "meter_elasticsearch_node_network_receive_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -705,9 +631,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_disk_io_read_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -778,9 +701,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_disk_io_write_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -806,9 +726,6 @@
           ],
           "expressions": [
             "avg(meter_elasticsearch_node_jvm_memory_used)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -859,9 +776,6 @@
           ],
           "expressions": [
             "latest(meter_elasticsearch_node_all_disk_free_space)/1024/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -894,10 +808,6 @@
           "expressions": [
             "meter_elasticsearch_node_indices_indexing_index_total_proc_rate",
             "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -928,9 +838,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -958,9 +865,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_merges_docs_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -988,9 +892,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_docs_deleted_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -1018,9 +919,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_docs_deleted"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -1048,9 +946,6 @@
           ],
           "expressions": [
             "meter_elasticsearch_node_indices_merges_total_size_bytes_total/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

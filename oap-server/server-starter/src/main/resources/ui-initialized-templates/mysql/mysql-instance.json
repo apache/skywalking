@@ -26,9 +26,6 @@
           ],
           "expressions": [
             "latest(meter_mysql_instance_uptime)/3600/24"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -56,9 +53,6 @@
           ],
           "expressions": [
             "avg(meter_mysql_instance_qps)"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -84,9 +78,6 @@
           ],
           "expressions": [
             "latest(meter_mysql_instance_innodb_buffer_pool_size)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -107,9 +98,6 @@
           },
           "expressions": [
             "latest(meter_mysql_instance_max_connections)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -130,9 +118,6 @@
           },
           "expressions": [
             "latest(meter_mysql_instance_thread_cache_size)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -160,9 +145,6 @@
           ],
           "expressions": [
             "meter_mysql_instance_tps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -200,12 +182,6 @@
             "meter_mysql_instance_commands_select_rate",
             "meter_mysql_instance_commands_delete_rate",
             "meter_mysql_instance_commands_update_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -243,12 +219,6 @@
             "meter_mysql_instance_threads_running",
             "meter_mysql_instance_threads_created",
             "meter_mysql_instance_threads_connected"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -280,10 +250,6 @@
           "expressions": [
             "meter_mysql_instance_connects_available",
             "meter_mysql_instance_connects_aborted"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -311,9 +277,6 @@
           ],
           "expressions": [
             "meter_mysql_slow_queries_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -345,10 +308,6 @@
           "expressions": [
             "meter_mysql_instance_connection_errors_internal",
             "meter_mysql_instance_connection_errors_max_connections"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

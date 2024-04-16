@@ -34,10 +34,6 @@
           "subExpressions": [
             "meter_oap_instance_cpu_percentage",
             "meter_oap_instance_persistence_execute_count"
-          ],
-          "subTypesOfMQE": [
-            "",
-            ""
           ]
         },
         {

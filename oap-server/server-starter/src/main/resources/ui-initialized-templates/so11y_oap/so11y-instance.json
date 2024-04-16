@@ -34,9 +34,6 @@
                   },
                   "expressions": [
                     "meter_oap_instance_cpu_percentage"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -59,9 +56,6 @@
                   },
                   "expressions": [
                     "meter_oap_instance_jvm_memory_bytes_used/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -80,9 +74,6 @@
                   },
                   "expressions": [
                     "meter_oap_instance_jvm_gc_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -105,9 +96,6 @@
                   },
                   "expressions": [
                     "meter_oap_instance_jvm_gc_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -130,9 +118,6 @@
                   },
                   "expressions": [
                     "meter_oap_instance_metrics_aggregation"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -160,10 +145,6 @@
                   "expressions": [
                     "meter_oap_instance_persistence_prepare_count",
                     "meter_oap_instance_persistence_execute_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -186,9 +167,6 @@
                   },
                   "expressions": [
                     "relabels(meter_oap_instance_persistence_prepare_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -211,9 +189,6 @@
                   },
                   "expressions": [
                     "relabels(meter_oap_instance_persistence_execute_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -236,9 +211,6 @@
                   },
                   "expressions": [
                     "meter_oap_instance_metrics_persistent_cache"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -274,11 +246,6 @@
                     "meter_oap_jvm_thread_live_count",
                     "meter_oap_jvm_thread_peak_count",
                     "meter_oap_jvm_thread_daemon_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -314,12 +281,6 @@
                     "meter_oap_jvm_thread_timed_waiting_count",
                     "meter_oap_jvm_thread_blocked_count",
                     "meter_oap_jvm_thread_waiting_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -353,11 +314,6 @@
                     "meter_oap_jvm_class_loaded_count",
                     "meter_oap_jvm_class_total_unloaded_count",
                     "meter_oap_jvm_class_total_loaded_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -390,10 +346,6 @@
                   "expressions": [
                     "meter_oap_instance_trace_count",
                     "meter_oap_instance_trace_analysis_error_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -416,9 +368,6 @@
                   },
                   "expressions": [
                     "relabels(meter_oap_instance_trace_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -446,10 +395,6 @@
                   "expressions": [
                     "meter_oap_instance_mesh_count",
                     "meter_oap_instance_mesh_analysis_error_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -472,9 +417,6 @@
                   },
                   "expressions": [
                     "relabels(meter_oap_instance_mesh_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -502,10 +444,6 @@
                   "expressions": [
                     "meter_oap_instance_k8s_als_count",
                     "meter_oap_instance_k8s_als_drop"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -528,9 +466,6 @@
                   },
                   "expressions": [
                     "relabels(meter_oap_instance_k8s_als_latency_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

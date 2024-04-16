@@ -32,9 +32,6 @@
                   },
                   "expressions": [
                     "meter_elasticsearch_cluster_health_status"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -135,9 +132,6 @@
                   },
                   "expressions": [
                     "latest(meter_elasticsearch_cluster_shards_total)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -238,9 +232,6 @@
                   },
                   "expressions": [
                     "latest(meter_elasticsearch_cluster_breakers_tripped)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -266,9 +257,6 @@
                   ],
                   "expressions": [
                     "avg(meter_elasticsearch_cluster_cpu_usage_avg)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -294,9 +282,6 @@
                   ],
                   "expressions": [
                     "avg(meter_elasticsearch_cluster_jvm_memory_used_avg)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {

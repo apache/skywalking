@@ -70,9 +70,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_write_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -131,9 +128,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_write_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -180,9 +174,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -228,9 +219,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -255,9 +243,6 @@
                   "associate": [],
                   "expressions": [
                     "process_relation_client_write_total_bytes/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -304,9 +289,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_read_total_bytes/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -365,9 +347,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_write_total_bytes/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -414,9 +393,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_read_total_bytes/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -475,9 +451,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_write_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -524,9 +497,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_read_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -551,9 +521,6 @@
                   "associate": [],
                   "expressions": [
                     "process_relation_server_write_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -600,9 +567,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_read_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -637,9 +601,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_connect_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -674,9 +635,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_connect_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -711,9 +669,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_connect_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -748,9 +703,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_connect_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -785,9 +737,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_close_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -822,9 +771,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_close_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -859,9 +805,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_close_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -896,9 +839,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_close_avg_exe_time/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -957,9 +897,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_write_rtt_time_percentile"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1018,9 +955,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_write_rtt_time_percentile"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1079,9 +1013,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_write_exe_time_percentile/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1140,9 +1071,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_write_exe_time_percentile/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1189,9 +1117,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_read_exe_time_percentile/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1238,9 +1163,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_read_exe_time_percentile/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1299,9 +1221,6 @@
                   ],
                   "expressions": [
                     "process_relation_client_write_avg_rtt_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1360,9 +1279,6 @@
                   ],
                   "expressions": [
                     "process_relation_server_write_avg_rtt_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -1420,9 +1336,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_request_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1475,9 +1388,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_response_status_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1530,9 +1440,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_request_package_size/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1585,9 +1492,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_response_package_size/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1640,9 +1544,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_request_package_size_percentile/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1695,9 +1596,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_response_package_size_percentile/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1750,9 +1648,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_client_duration"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1805,9 +1700,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_client_duration_percentile"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1860,9 +1752,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_server_duration"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -1915,9 +1804,6 @@
                   ],
                   "expressions": [
                     "process_relation_http1_server_duration_percentile"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -1941,9 +1827,6 @@
                   },
                   "expressions": [
                     "top_n(sampled_slow_trace_record,50,DES)"
-                  ],
-                  "typesOfMQE": [
-                    "RECORD_LIST"
                   ]
                 },
                 {
@@ -1962,9 +1845,6 @@
                   },
                   "expressions": [
                     "top_n(sampled_status_4xx_trace_record,50,DES)"
-                  ],
-                  "typesOfMQE": [
-                    "RECORD_LIST"
                   ]
                 },
                 {
@@ -1983,9 +1863,6 @@
                   },
                   "expressions": [
                     "top_n(sampled_status_5xx_trace_record,50,DES)"
-                  ],
-                  "typesOfMQE": [
-                    "RECORD_LIST"
                   ]
                 },
                 {

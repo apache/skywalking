@@ -23,9 +23,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -48,9 +45,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_4xx"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -73,9 +67,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_5xx"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -98,9 +89,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_latency"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -123,9 +111,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_integration_latency"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -148,9 +133,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_data_processed/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -173,9 +155,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_cache_hit_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -198,9 +177,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_cache_miss_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

@@ -26,9 +26,6 @@
           "expressions": [
             "meter_pulsar_broker_active_connections"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [],
           "metricConfig": [
             {
@@ -59,9 +56,6 @@
           "expressions": [
             "meter_pulsar_broker_total_connections"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "total_connections"
@@ -89,9 +83,6 @@
           },
           "expressions": [
             "meter_pulsar_broker_connection_create_fail_count.sum(['cluster','broker'])"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -126,9 +117,6 @@
           "expressions": [
             "meter_pulsar_broker_connection_create_success_count"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [],
           "metricConfig": [
             {
@@ -159,9 +147,6 @@
           "expressions": [
             "meter_pulsar_broker_connection_closed_total_count"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "connection_closed"
@@ -177,9 +162,6 @@
           "type": "Widget",
           "expressions": [
             "meter_pulsar_broker_jvm_buffer_pool_used_bytes/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -201,9 +183,6 @@
           "type": "Widget",
           "expressions": [
             "meter_pulsar_broker_jvm_memory_pool_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -227,11 +206,6 @@
             "meter_pulsar_broker_jvm_memory_used/1024/1024",
             "meter_pulsar_broker_jvm_memory_committed/1024/1024",
             "meter_pulsar_broker_jvm_memory_init/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -271,12 +245,6 @@
             "meter_pulsar_broker_jvm_threads_peak",
             "meter_pulsar_broker_jvm_threads_deadlocked"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -314,9 +282,6 @@
           "expressions": [
             "meter_pulsar_broker_jvm_gc_collection_seconds_sum"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -339,9 +304,6 @@
           "type": "Widget",
           "expressions": [
             "meter_pulsar_broker_jvm_gc_collection_seconds_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",

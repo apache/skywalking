@@ -21,9 +21,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_queue_messages_ready)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -44,9 +41,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_incoming_messages)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -67,9 +61,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_unacknowledged_messages)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -90,9 +81,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_outgoing_messages_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -113,9 +101,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_connections_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -136,9 +121,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_publisher_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -159,9 +141,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_consumer_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -182,9 +161,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_channel_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -205,9 +181,6 @@
           },
           "expressions": [
             "latest(meter_rabbitmq_node_queue_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -233,9 +206,6 @@
           ],
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_used_percent)/100"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -261,9 +231,6 @@
           ],
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_used_bytes)/1024/1204"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -289,9 +256,6 @@
           ],
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_unused_bytes)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -317,9 +281,6 @@
           ],
           "expressions": [
             "latest(meter_rabbitmq_node_process_resident_memory_bytes)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -345,9 +306,6 @@
           ],
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_unused_percent)/100"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -373,9 +331,6 @@
           ],
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_total_bytes)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -411,11 +366,6 @@
             "meter_rabbitmq_node_allocated_used_bytes/1024/1024",
             "meter_rabbitmq_node_allocated_unused_bytes/1024/1024",
             "meter_rabbitmq_node_process_resident_memory_bytes/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -438,9 +388,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_by_type/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -463,9 +410,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -488,9 +432,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_unused/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -513,9 +454,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_pool_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -538,9 +476,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_pool_unused/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -563,9 +498,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_singleblock_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -588,9 +520,6 @@
           },
           "expressions": [
             "meter_rabbitmq_node_allocated_singleblock_unused/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

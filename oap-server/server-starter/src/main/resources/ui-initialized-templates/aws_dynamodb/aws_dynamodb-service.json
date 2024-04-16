@@ -43,10 +43,6 @@
                   "expressions": [
                     "aws_dynamodb_read_throttled_requests",
                     "aws_dynamodb_write_throttled_requests"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -78,10 +74,6 @@
                   "expressions": [
                     "aws_dynamodb_read_throttle_events",
                     "aws_dynamodb_write_throttle_events"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -113,10 +105,6 @@
                   "expressions": [
                     "aws_dynamodb_read_system_errors",
                     "aws_dynamodb_write_system_errors"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -144,9 +132,6 @@
                   ],
                   "expressions": [
                     "aws_dynamodb_user_errors"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -174,9 +159,6 @@
                   ],
                   "expressions": [
                     "aws_dynamodb_conditional_check_failed_requests"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -204,9 +186,6 @@
                   ],
                   "expressions": [
                     "aws_dynamodb_transaction_conflict"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -234,10 +213,6 @@
                   "expressions": [
                     "aws_dynamodb_provisioned_read_capacity_units",
                     "aws_dynamodb_provisioned_write_capacity_units"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -265,10 +240,6 @@
                   "expressions": [
                     "aws_dynamodb_consumed_write_capacity_units",
                     "aws_dynamodb_provisioned_write_capacity_units"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -308,12 +279,6 @@
                     "aws_dynamodb_put_successful_request_latency",
                     "aws_dynamodb_query_successful_request_latency",
                     "aws_dynamodb_scan_successful_request_latency"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -341,9 +306,6 @@
                   ],
                   "expressions": [
                     "aws_dynamodb_time_to_live_deleted_item_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -371,9 +333,6 @@
                   ],
                   "expressions": [
                     "aws_dynamodb_scan_returned_item_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -401,9 +360,6 @@
                   ],
                   "expressions": [
                     "aws_dynamodb_query_returned_item_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -431,10 +387,6 @@
                   "expressions": [
                     "aws_dynamodb_account_max_table_level_writes",
                     "aws_dynamodb_account_max_table_level_reads"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -462,10 +414,6 @@
                   "expressions": [
                     "aws_dynamodb_account_provisioned_read_capacity_utilization",
                     "aws_dynamodb_account_provisioned_write_capacity_utilization"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -493,10 +441,6 @@
                   "expressions": [
                     "aws_dynamodb_account_max_writes",
                     "aws_dynamodb_account_max_reads"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

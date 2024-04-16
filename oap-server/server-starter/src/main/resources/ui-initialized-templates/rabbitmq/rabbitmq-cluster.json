@@ -34,9 +34,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_memory_available_before_publisher_blocked/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -59,9 +56,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_disk_space_available_before_publisher_blocked/1024/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -84,9 +78,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_message_ready_delivered_consumers"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -109,9 +100,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_message_unacknowledged_delivered_consumers"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -135,9 +123,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_file_descriptors_available"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -161,9 +146,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_tcp_socket_available"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -186,9 +168,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_messages_published"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -211,9 +190,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_messages_confirmed"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -236,9 +212,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_messages_routed"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -261,9 +234,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_messages_unconfirmed"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -286,9 +256,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_messages_unroutable_dropped"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -311,9 +278,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_messages_unroutable_returned"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -336,9 +300,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_queues"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -361,9 +322,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_queues_deleted_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -386,9 +344,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_queues_declared_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -411,9 +366,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_queues_created_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -436,9 +388,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_channels"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -461,9 +410,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_channels_opened_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -486,9 +432,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_channels_closed_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -511,9 +454,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_connections_closed_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -536,9 +476,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_connections"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -561,9 +498,6 @@
                   },
                   "expressions": [
                     "meter_rabbitmq_connections_opened_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

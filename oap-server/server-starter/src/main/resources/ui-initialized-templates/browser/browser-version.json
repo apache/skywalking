@@ -32,9 +32,6 @@
                   "expressions": [
                     "browser_app_single_version_error_sum/100"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "12-0-1"
@@ -66,9 +63,6 @@
                   "expressions": [
                     "browser_app_single_version_error_rate/100"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "12-0-0"
@@ -99,9 +93,6 @@
                   },
                   "expressions": [
                     "browser_app_single_version_pv"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {

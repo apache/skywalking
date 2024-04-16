@@ -21,9 +21,6 @@
           },
           "expressions": [
             "latest(meter_redis_instance_uptime)/3600/24"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -44,9 +41,6 @@
           },
           "expressions": [
             "latest(meter_redis_instance_connected_clients)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -72,9 +66,6 @@
           ],
           "expressions": [
             "meter_redis_instance_memory_usage"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -97,9 +88,6 @@
           },
           "expressions": [
             "meter_redis_instance_total_commands_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -127,9 +115,6 @@
           ],
           "expressions": [
             "meter_redis_instance_hit_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -150,9 +135,6 @@
           },
           "expressions": [
             "latest(meter_redis_instance_memory_max_bytes)/1000/1000"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -184,10 +166,6 @@
           "expressions": [
             "meter_redis_instance_net_input_bytes_total/1024",
             "meter_redis_instance_net_output_bytes_total/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -223,11 +201,6 @@
             "meter_redis_instance_db_keys",
             "meter_redis_instance_evicted_keys_total",
             "meter_redis_instance_expired_keys_total"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -248,9 +221,6 @@
           },
           "expressions": [
             "latest(meter_redis_instance_redis_blocked_clients)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -273,9 +243,6 @@
           },
           "expressions": [
             "meter_redis_instance_commands_duration_seconds_total_rate"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -298,9 +265,6 @@
           },
           "expressions": [
             "meter_redis_instance_average_time_spent_by_command"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

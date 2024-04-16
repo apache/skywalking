@@ -24,9 +24,6 @@
           "expressions": [
             "eks_cluster_node_count"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -74,9 +71,6 @@
           },
           "expressions": [
             "eks_cluster_failed_node_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -126,9 +120,6 @@
           "expressions": [
             "eks_cluster_namespace_count"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -176,9 +167,6 @@
           },
           "expressions": [
             "eks_cluster_service_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -228,9 +216,6 @@
           "expressions": [
             "eks_cluster_net_rx_dropped"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -278,9 +263,6 @@
           },
           "expressions": [
             "eks_cluster_net_rx_error"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -330,9 +312,6 @@
           "expressions": [
             "eks_cluster_net_tx_dropped"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -380,9 +359,6 @@
           },
           "expressions": [
             "eks_cluster_net_tx_error"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -432,12 +408,6 @@
             "avg(eks_cluster_node_network_tx_errors)",
             "avg(eks_cluster_node_network_rx_errors)"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE",
-            "SINGLE_VALUE",
-            "SINGLE_VALUE",
-            "SINGLE_VALUE"
-          ],
           "metricConfig": [
             {
               "label": "CPU Usage",
@@ -480,12 +450,6 @@
             "avg(eks_cluster_service_pod_memory_utilization)",
             "avg(eks_cluster_service_pod_net_tx_error)",
             "avg(eks_cluster_service_pod_net_rx_error)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE",
-            "SINGLE_VALUE",
-            "SINGLE_VALUE",
-            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {

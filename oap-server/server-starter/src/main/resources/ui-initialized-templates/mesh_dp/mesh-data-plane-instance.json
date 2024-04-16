@@ -34,9 +34,6 @@
                   },
                   "expressions": [
                     "envoy_cluster_up_rq_active"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -60,10 +57,6 @@
                   "expressions": [
                     "envoy_total_connections_used",
                     "envoy_parent_connections_used"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -86,9 +79,6 @@
                   },
                   "expressions": [
                     "envoy_cluster_membership_healthy"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -111,9 +101,6 @@
                   },
                   "expressions": [
                     "envoy_cluster_up_cx_incr"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -136,9 +123,6 @@
                   },
                   "expressions": [
                     "envoy_cluster_up_rq_pending_active"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -166,14 +150,6 @@
                     "envoy_memory_physical_size",
                     "envoy_memory_physical_size_max",
                     "envoy_heap_memory_max_used"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -196,9 +172,6 @@
                   },
                   "expressions": [
                     "envoy_bug_failures"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -222,10 +195,6 @@
                   "expressions": [
                     "envoy_worker_threads_max",
                     "envoy_worker_threads"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -248,9 +217,6 @@
                   },
                   "expressions": [
                     "envoy_cluster_up_cx_active"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -273,9 +239,6 @@
                   },
                   "expressions": [
                     "envoy_cluster_up_rq_incr"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

@@ -48,13 +48,6 @@
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
             "meter_istio_pilot_virt_services"
-          ],
-          "subTypesOfMQE": [
-            "",
-            "",
-            "",
-            "",
-            ""
           ]
         },
         {

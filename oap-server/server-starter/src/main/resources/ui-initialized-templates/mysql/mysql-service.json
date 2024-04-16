@@ -39,9 +39,6 @@
                   ],
                   "expressions": [
                     "meter_mysql_qps"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -69,9 +66,6 @@
                   ],
                   "expressions": [
                     "meter_mysql_tps"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -109,12 +103,6 @@
                     "meter_mysql_commands_delete_rate",
                     "meter_mysql_commands_select_rate",
                     "meter_mysql_commands_update_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -152,12 +140,6 @@
                     "meter_mysql_threads_running",
                     "meter_mysql_threads_created",
                     "meter_mysql_threads_connected"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -189,10 +171,6 @@
                   "expressions": [
                     "meter_mysql_connects_available",
                     "meter_mysql_connects_aborted"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -220,9 +198,6 @@
                   ],
                   "expressions": [
                     "meter_mysql_slow_queries_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -254,10 +229,6 @@
                   "expressions": [
                     "meter_mysql_connection_errors_internal",
                     "meter_mysql_connection_errors_max_connections"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -281,9 +252,6 @@
                   },
                   "expressions": [
                     "top_n(top_n_database_statement,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "RECORD_LIST"
                   ]
                 }
               ]
@@ -314,11 +282,7 @@
                   ],
                   "subExpressions": [
                     ""
-                  ],
-                  "subTypesOfMQE": [
-                    ""
-                  ],
-                  "typesOfMQE": []
+                  ]
                 }
               ]
             }

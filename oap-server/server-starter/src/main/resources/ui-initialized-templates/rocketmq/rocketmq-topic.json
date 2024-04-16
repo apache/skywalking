@@ -17,9 +17,6 @@
           "expressions": [
             "meter_rocketmq_topic_producer_message_size/1024/1024"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "widget": {
             "title": "Producer Message Size(MB)",
             "tips": "The size of messages produced per second",
@@ -39,9 +36,6 @@
           },
           "expressions": [
             "meter_rocketmq_topic_consumer_message_size/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "name": "consumer_message_size",
@@ -63,9 +57,6 @@
           ],
           "expressions": [
             "latest(meter_rocketmq_topic_max_consumer_message_size)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "widget": {
             "name": "max_consumer_message_size",
@@ -94,9 +85,6 @@
           "expressions": [
             "latest(meter_rocketmq_topic_max_producer_message_size)/1024/1024"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "widget": {
             "name": "max_producer_message_size",
             "title": "Max Producer Message Size",
@@ -118,9 +106,6 @@
           "type": "Widget",
           "expressions": [
             "meter_rocketmq_topic_consumer_latency/1000"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "name": "consumer_latency",
@@ -146,9 +131,6 @@
           "expressions": [
             "meter_rocketmq_topic_producer_offset"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -172,9 +154,6 @@
           "type": "Widget",
           "expressions": [
             "meter_rocketmq_topic_consumer_group_offset"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "title": "Consumer Group Offset",
@@ -200,9 +179,6 @@
           "expressions": [
             "meter_rocketmq_topic_consumer_group_tps"
           ],
-          "typesOfMQE": [
-            "UNKNOWN"
-          ],
           "widget": {
             "title": "Consumer Group Tps",
             "name": "consumer_group_tps",
@@ -226,9 +202,6 @@
           "type": "Widget",
           "expressions": [
             "meter_rocketmq_topic_producer_tps"
-          ],
-          "typesOfMQE": [
-            "UNKNOWN"
           ],
           "widget": {
             "title": "Producer Tps",
@@ -260,9 +233,6 @@
             "textAlign": "center",
             "showUnit": true
           },
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "widget": {
             "name": "consumer group count",
             "title": "Consumer Group Count",
@@ -284,9 +254,6 @@
           },
           "expressions": [
             "latest(meter_rocketmq_topic_broker_count)"
-          ],
-          "typesOfMQE": [
-            "UNKNOWN"
           ],
           "widget": {
             "name": "broker count",
@@ -311,9 +278,6 @@
           },
           "expressions": [
             "meter_rocketmq_topic_producer_offset-meter_rocketmq_topic_consumer_group_offset"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "name": "backlogged messages",

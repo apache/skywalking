@@ -34,9 +34,6 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_requests, sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -59,9 +56,6 @@
                   },
                   "expressions": [
                     "meter_nginx_service_http_latency"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -84,9 +78,6 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_bandwidth, sum(type))/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -98,9 +89,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_connections, sum(state))"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -134,9 +122,6 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_status, sum(status))"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -148,9 +133,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_4xx_requests_increment, sum)/aggregate_labels(meter_nginx_service_http_requests_increment, sum)*100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Area",
@@ -171,9 +153,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_5xx_requests_increment, sum)/aggregate_labels(meter_nginx_service_http_requests_increment, sum)*100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Area",
@@ -201,10 +180,7 @@
                   },
                   "widget": {
                     "title": "Error Log Count (Per Minute)"
-                  },
-                  "typesOfMQE": [
-                    "UNKNOWN"
-                  ]
+                  }
                 }
               ]
             },
@@ -219,9 +195,6 @@
                   "i": "0",
                   "type": "Widget",
                   "expressions": [
-                    ""
-                  ],
-                  "typesOfMQE": [
                     ""
                   ],
                   "graph": {
@@ -243,9 +216,6 @@
                   "i": "0",
                   "type": "Widget",
                   "expressions": [
-                    ""
-                  ],
-                  "typesOfMQE": [
                     ""
                   ],
                   "graph": {

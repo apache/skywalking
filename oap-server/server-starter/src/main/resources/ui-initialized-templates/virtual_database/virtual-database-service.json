@@ -19,8 +19,7 @@
           },
           "expressions": [
             "top_n(top_n_database_statement,10,des)"
-          ],
-          "typesOfMQE": []
+          ]
         },
         {
           "x": 6,
@@ -59,9 +58,6 @@
           ],
           "expressions": [
             "database_access_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -101,9 +97,6 @@
           ],
           "expressions": [
             "database_access_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -138,9 +131,6 @@
           ],
           "expressions": [
             "relabels(database_access_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -180,9 +170,6 @@
           ],
           "expressions": [
             "database_access_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

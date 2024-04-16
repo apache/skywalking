@@ -46,9 +46,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "widget": {
                     "title": "Process CPU Usage (%)"
                   },
@@ -67,9 +64,6 @@
                   "type": "Widget",
                   "expressions": [
                     "continuous_profiling_process_thread_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -93,9 +87,6 @@
                   "expressions": [
                     "continuous_profiling_system_load"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -117,9 +108,6 @@
                   "type": "Widget",
                   "expressions": [
                     "continuous_profiling_http_error_rate/100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -147,9 +135,6 @@
                   "type": "Widget",
                   "expressions": [
                     "continuous_profiling_http_avg_response_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",

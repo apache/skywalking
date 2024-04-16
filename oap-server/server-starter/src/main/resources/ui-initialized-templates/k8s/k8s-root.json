@@ -25,26 +25,12 @@
             "avg(k8s_cluster_service_total)",
             "avg(k8s_cluster_pod_total)"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "subExpressions": [
             "k8s_cluster_node_total",
             "k8s_cluster_namespace_total",
             "k8s_cluster_deployment_total",
             "k8s_cluster_service_total",
             "k8s_cluster_pod_total"
-          ],
-          "subTypesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {

@@ -24,9 +24,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_clickhouse_file_open,sum))"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "graph": {
                     "type": "Card",
                     "fontSize": 24,
@@ -56,11 +53,6 @@
                     "aggregate_labels(meter_clickhouse_query,sum)",
                     "aggregate_labels(meter_clickhouse_query_select,sum)",
                     "aggregate_labels(meter_clickhouse_query_insert,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Area",
@@ -98,11 +90,6 @@
                     "aggregate_labels(meter_clickhouse_querytime_microseconds,sum)/aggregate_labels(meter_clickhouse_query,sum)/1000",
                     "aggregate_labels(meter_clickhouse_querytime_select_microseconds,sum)/aggregate_labels(meter_clickhouse_query_select,sum)/1000",
                     "aggregate_labels(meter_clickhouse_querytime_insert_microseconds,sum)/aggregate_labels(meter_clickhouse_query_insert,sum)/1000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Area",
@@ -143,10 +130,6 @@
                     "aggregate_labels(meter_clickhouse_tcp_connections,sum)",
                     "aggregate_labels(meter_clickhouse_http_connections,sum)"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -180,10 +163,6 @@
                     "aggregate_labels(meter_clickhouse_query_select_rate,sum)",
                     "aggregate_labels(meter_clickhouse_query_insert_rate,sum)"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -216,9 +195,6 @@
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_query_slow,sum)"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -247,9 +223,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_background_merge,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -280,9 +253,6 @@
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_mutations,sum)"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -311,9 +281,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_query_insert,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -344,9 +311,6 @@
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_inserted_bytes,sum)"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -375,9 +339,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_inserted_rows,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "widget": {
                     "title": "Inserted rows(s)",
@@ -416,9 +377,6 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "widget": {
                     "title": "Delayed Inserts(s)",
                     "name": "DelayedInserts",
@@ -439,9 +397,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_replicated_checks,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -472,10 +427,6 @@
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_replicated_fetch,sum)",
                     "aggregate_labels(meter_clickhouse_replicated_send,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -509,9 +460,6 @@
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_parts_active,sum)"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "widget": {
                     "title": "Data Parts Active",
                     "name": "DataPartsActive",
@@ -541,9 +489,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_clickhouse_zookeeper_session,sum))"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "metricConfig": [
                     {
                       "label": "Zookeeper Sessions"
@@ -571,9 +516,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_clickhouse_zookeeper_watch,sum))"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "widget": {
                     "name": "ZookeeperWatches",
                     "title": "Zookeeper Watches",
@@ -596,10 +538,6 @@
                   "expressions": [
                     "aggregate_labels(meter_clickhouse_zookeeper_bytes_sent,sum)",
                     "aggregate_labels(meter_clickhouse_zookeeper_bytes_received,sum)"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -635,9 +573,6 @@
                   "expressions": [
                     "latest(aggregate_labels(meter_clickhouse_keeper_connections_alive,sum))"
                   ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
-                  ],
                   "graph": {
                     "type": "Card",
                     "fontSize": 24,
@@ -663,9 +598,6 @@
                   "type": "Widget",
                   "expressions": [
                     "latest(aggregate_labels(meter_clickhouse_keeper_outstanding_requests,sum))"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ],
                   "graph": {
                     "type": "Card",
@@ -695,9 +627,6 @@
                   "h": 17,
                   "type": "Widget",
                   "expressions": [
-                    ""
-                  ],
-                  "typesOfMQE": [
                     ""
                   ],
                   "graph": {

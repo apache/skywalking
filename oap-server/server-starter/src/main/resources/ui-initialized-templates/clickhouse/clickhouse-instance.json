@@ -24,9 +24,6 @@
           "expressions": [
             "latest(meter_clickhouse_instance_uptime)/3600/24"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "metricConfig": [
             {
               "unit": "day",
@@ -43,9 +40,6 @@
           "type": "Widget",
           "expressions": [
             "latest(meter_clickhouse_instance_file_open)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "graph": {
             "type": "Card",
@@ -74,9 +68,6 @@
           "type": "Widget",
           "expressions": [
             "meter_clickhouse_instance_cpu_usage/1000000"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -119,10 +110,6 @@
             "meter_clickhouse_instance_memory_usage",
             "meter_clickhouse_instance_memory_available"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "%",
@@ -143,9 +130,6 @@
           "type": "Widget",
           "expressions": [
             "latest(meter_clickhouse_instance_version)"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Card",
@@ -169,10 +153,6 @@
           "expressions": [
             "meter_clickhouse_instance_network_receive_bytes",
             "meter_clickhouse_instance_network_send_bytes"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -209,10 +189,6 @@
             "meter_clickhouse_instance_tcp_connections",
             "meter_clickhouse_instance_http_connections"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -246,11 +222,6 @@
             "meter_clickhouse_instance_query",
             "meter_clickhouse_instance_query_select",
             "meter_clickhouse_instance_query_insert"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -288,10 +259,6 @@
             "meter_clickhouse_instance_query_select_rate",
             "meter_clickhouse_instance_query_insert_rate"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -325,11 +292,6 @@
             "meter_clickhouse_instance_querytime_microseconds/meter_clickhouse_instance_query/1000",
             "meter_clickhouse_instance_querytime_select_microseconds/meter_clickhouse_instance_query_select/1000",
             "meter_clickhouse_instance_querytime_insert_microseconds/meter_clickhouse_instance_query_insert/1000"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -369,9 +331,6 @@
           "expressions": [
             "meter_clickhouse_instance_query_slow"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -400,9 +359,6 @@
           "type": "Widget",
           "expressions": [
             "meter_clickhouse_instance_background_merge"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -433,9 +389,6 @@
           "expressions": [
             "meter_clickhouse_instance_mutations"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -465,9 +418,6 @@
           "expressions": [
             "meter_clickhouse_instance_inserted_bytes"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -496,9 +446,6 @@
           "type": "Widget",
           "expressions": [
             "meter_clickhouse_instance_inserted_rows"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "title": "Inserted rows",
@@ -537,9 +484,6 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "widget": {
             "title": "Delayed Inserts(s)",
             "name": "DelayedInserts",
@@ -560,9 +504,6 @@
           "type": "Widget",
           "expressions": [
             "meter_clickhouse_instance_replicated_checks"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -593,10 +534,6 @@
           "expressions": [
             "meter_clickhouse_instance_replicated_fetch",
             "meter_clickhouse_instance_replicated_send"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -630,9 +567,6 @@
           "expressions": [
             "meter_clickhouse_instance_parts_active"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "widget": {
             "title": "Data Parts Active",
             "name": "DataPartsActive",
@@ -662,9 +596,6 @@
           "expressions": [
             "latest(meter_clickhouse_instance_zookeeper_session)"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "graph": {
             "type": "Card",
             "fontSize": 24,
@@ -691,9 +622,6 @@
           "type": "Widget",
           "expressions": [
             "latest(meter_clickhouse_instance_zookeeper_watch)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "graph": {
             "type": "Card",
@@ -722,10 +650,6 @@
           "expressions": [
             "meter_clickhouse_instance_zookeeper_bytes_sent",
             "meter_clickhouse_instance_zookeeper_bytes_received"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -761,9 +685,6 @@
           "expressions": [
             "latest(meter_clickhouse_instance_keeper_connections_alive)"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "graph": {
             "type": "Card",
             "fontSize": 24,
@@ -790,9 +711,6 @@
           "type": "Widget",
           "expressions": [
             "latest(meter_clickhouse_instance_keeper_outstanding_requests)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "graph": {
             "type": "Card",

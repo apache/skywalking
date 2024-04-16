@@ -39,9 +39,6 @@
           },
           "expressions": [
             "relabels(endpoint_relation_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -85,9 +82,6 @@
           },
           "expressions": [
             "endpoint_relation_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -127,9 +121,6 @@
           ],
           "expressions": [
             "endpoint_relation_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -173,9 +164,6 @@
           ],
           "expressions": [
             "endpoint_relation_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

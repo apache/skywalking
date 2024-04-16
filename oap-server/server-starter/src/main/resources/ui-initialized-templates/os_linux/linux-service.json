@@ -24,9 +24,6 @@
           "expressions": [
             "meter_vm_filefd_allocated"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "filefd_allocated"
@@ -55,13 +52,6 @@
             "meter_vm_tcp_alloc",
             "meter_vm_sockets_used",
             "meter_vm_udp_inuse"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -101,10 +91,6 @@
             "meter_vm_network_receive/1024",
             "meter_vm_network_transmit/1024"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "receive"
@@ -134,10 +120,6 @@
             "meter_vm_disk_read/1024",
             "meter_vm_disk_written/1024"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "read"
@@ -166,9 +148,6 @@
           },
           "expressions": [
             "meter_vm_filesystem_percentage"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -191,9 +170,6 @@
           },
           "expressions": [
             "meter_vm_cpu_average_used"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -217,12 +193,6 @@
             "meter_vm_memory_total/1024/1024",
             "meter_vm_memory_available/1024/1024",
             "meter_vm_memory_buff_cache/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -262,11 +232,6 @@
             "meter_vm_cpu_load1/100",
             "meter_vm_cpu_load15/100"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "load5"
@@ -299,10 +264,6 @@
             "meter_vm_memory_swap_free/1024/1024",
             "meter_vm_memory_swap_total/1024/1024"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "free"
@@ -331,9 +292,6 @@
           "expressions": [
             "avg(meter_vm_memory_swap_percentage)"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "metricConfig": [
             {
               "unit": "%"
@@ -359,9 +317,6 @@
           "expressions": [
             "avg(meter_vm_memory_used)/1024/1024"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "metricConfig": [
             {
               "unit": "MB"
@@ -386,9 +341,6 @@
           },
           "expressions": [
             "avg(meter_vm_cpu_total_percentage)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {

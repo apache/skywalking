@@ -56,9 +56,6 @@
                   },
                   "expressions": [
                     "relabels(endpoint_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -108,9 +105,6 @@
                   ],
                   "expressions": [
                     "endpoint_resp_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -157,9 +151,6 @@
                   ],
                   "expressions": [
                     "endpoint_mq_consume_latency"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -209,9 +200,6 @@
                   ],
                   "expressions": [
                     "endpoint_sla/100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -258,9 +246,6 @@
                   ],
                   "expressions": [
                     "endpoint_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

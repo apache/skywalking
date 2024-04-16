@@ -25,9 +25,6 @@
           "expressions": [
             "cache_access_resp_time"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "ms",
@@ -67,9 +64,6 @@
           },
           "expressions": [
             "cache_access_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -111,9 +105,6 @@
           "expressions": [
             "cache_access_cpm"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "calls / min",
@@ -153,9 +144,6 @@
           },
           "expressions": [
             "relabels(cache_access_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
@@ -197,9 +185,6 @@
           "expressions": [
             "cache_read_resp_time"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "ms",
@@ -239,9 +224,6 @@
           },
           "expressions": [
             "cache_read_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -283,9 +265,6 @@
           "expressions": [
             "cache_write_resp_time"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "ms",
@@ -325,9 +304,6 @@
           },
           "expressions": [
             "cache_write_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -369,9 +345,6 @@
           "expressions": [
             "cache_read_cpm"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "calls / min",
@@ -411,9 +384,6 @@
           },
           "expressions": [
             "relabels(cache_read_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
@@ -455,9 +425,6 @@
           "expressions": [
             "cache_write_cpm"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "calls / min",
@@ -498,9 +465,6 @@
           "expressions": [
             "relabels(cache_write_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
           ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
           "metricConfig": [
             {
               "unit": "ms",
@@ -535,9 +499,6 @@
           },
           "expressions": [
             "top_n(top_n_cache_read_command,10,des)"
-          ],
-          "typesOfMQE": [
-            "RECORD_LIST"
           ]
         },
         {
@@ -556,9 +517,6 @@
           },
           "expressions": [
             "top_n(top_n_cache_write_command,10,des)"
-          ],
-          "typesOfMQE": [
-            "RECORD_LIST"
           ]
         }
       ],
