@@ -15,10 +15,11 @@ Collector to transfer the metrics to
 
 ## Setup
 
-1. Setup [jmx prometheus exporter](https://github.com/prometheus/jmx_exporter) which runs as a Java Agent(recommended) of ActiveMQ classic.If you work with docker, [refer here](https://github.com/bitnami/containers/tree/main/bitnami/jmx-exporter) for docker deployment.
-2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#docker). The example for OpenTelemetry Collector configuration, refer
+1. [Enable JMX](https://activemq.apache.org/components/classic/documentation/jmx) in `activemq.xml`, the JMX remote port defaults to `1616`, you can change it through `ACTIVEMQ_SUNJMX_START`.
+2. Setup [jmx prometheus exporter](https://github.com/prometheus/jmx_exporter) which runs as a Java Agent(recommended) of ActiveMQ classic.If you work with docker, [refer here](https://github.com/bitnami/containers/tree/main/bitnami/jmx-exporter) for docker deployment.
+3. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#docker). The example for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/activemq/otel-collector-config.yaml).
-3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
+4. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
 ## ActiveMQ classic Monitoring
 
