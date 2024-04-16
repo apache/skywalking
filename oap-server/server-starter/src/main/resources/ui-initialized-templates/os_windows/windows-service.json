@@ -135,7 +135,7 @@
         "i": "8",
         "type": "Widget",
         "widget": {
-          "title": "Memory Swap (MB)"
+          "title": "Virtual Memory (MB)"
         },
         "graph": {
           "type": "Area",
@@ -144,8 +144,8 @@
           "showYAxis": true
         },
         "expressions": [
-          "meter_win_memory_swap_free/1024/1024",
-          "meter_win_memory_swap_total/1024/1024"
+          "meter_win_memory_virtual_memory_free/1024/1024",
+          "meter_win_memory_virtual_memory_total/1024/1024"
         ],
         "metricMode": "Expression",
         "typesOfMQE": [
@@ -169,7 +169,7 @@
         "i": "9",
         "type": "Widget",
         "widget": {
-          "title": "Memory Swap Usage"
+          "title": "Virtual Memory Usage"
         },
         "graph": {
           "type": "Card",
@@ -178,7 +178,7 @@
           "showUnit": true
         },
         "expressions": [
-          "avg(meter_win_memory_swap_percentage/100)"
+          "avg(meter_win_memory_virtual_memory_percentage)"
         ],
         "metricMode": "Expression",
         "typesOfMQE": [
