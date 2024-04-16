@@ -10,14 +10,6 @@
           "h": 29,
           "i": "0",
           "type": "Widget",
-          "id": "0",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
-          "moved": false,
           "graph": {
             "type": "ServiceList",
             "dashboardName": "RabbitMQ-Cluster",
@@ -34,13 +26,6 @@
           "h": 3,
           "i": "1",
           "type": "Text",
-          "id": "1",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "fontColor": "theme",
             "backgroundColor": "theme",
@@ -48,8 +33,7 @@
             "fontSize": 14,
             "textAlign": "left",
             "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-rabbitmq-monitoring/"
-          },
-          "moved": false
+          }
         }
       ],
       "id": "RabbitMQ-Root",

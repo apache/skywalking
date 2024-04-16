@@ -10,10 +10,6 @@
           "h": 6,
           "i": "8",
           "type": "Widget",
-          "id": "8",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -23,13 +19,8 @@
           "widget": {
             "title": "Ready Messages"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_queue_messages_ready)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -39,10 +30,6 @@
           "h": 6,
           "i": "10",
           "type": "Widget",
-          "id": "10",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -52,13 +39,8 @@
           "widget": {
             "title": "Incoming Messages"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_incoming_messages)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -68,10 +50,6 @@
           "h": 6,
           "i": "11",
           "type": "Widget",
-          "id": "11",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -81,13 +59,8 @@
           "widget": {
             "title": "Unacknowledged Messages"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_unacknowledged_messages)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -97,10 +70,6 @@
           "h": 6,
           "i": "12",
           "type": "Widget",
-          "id": "12",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -110,13 +79,8 @@
           "widget": {
             "title": "Outgoing Messages"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_outgoing_messages_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -126,10 +90,6 @@
           "h": 6,
           "i": "13",
           "type": "Widget",
-          "id": "13",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -139,13 +99,8 @@
           "widget": {
             "title": "Collections"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_connections_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -155,10 +110,6 @@
           "h": 6,
           "i": "14",
           "type": "Widget",
-          "id": "14",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -168,13 +119,8 @@
           "widget": {
             "title": "Publishers"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_publisher_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -184,10 +130,6 @@
           "h": 6,
           "i": "15",
           "type": "Widget",
-          "id": "15",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -197,13 +139,8 @@
           "widget": {
             "title": "Consumers"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_consumer_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -213,10 +150,6 @@
           "h": 6,
           "i": "16",
           "type": "Widget",
-          "id": "16",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -226,13 +159,8 @@
           "widget": {
             "title": "Channels"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_channel_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -242,10 +170,6 @@
           "h": 6,
           "i": "17",
           "type": "Widget",
-          "id": "17",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -255,13 +179,8 @@
           "widget": {
             "title": "Queues"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "latest(meter_rabbitmq_node_queue_total)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -271,10 +190,6 @@
           "h": 5,
           "i": "0",
           "type": "Widget",
-          "id": "0",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -289,12 +204,8 @@
               "unit": "%"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_used_percent)/100"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -304,10 +215,6 @@
           "h": 5,
           "i": "1",
           "type": "Widget",
-          "id": "1",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -322,12 +229,8 @@
               "unit": "MB"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_used_bytes)/1024/1204"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -337,10 +240,6 @@
           "h": 5,
           "i": "2",
           "type": "Widget",
-          "id": "2",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -355,12 +254,8 @@
               "unit": "MB"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_unused_bytes)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -370,10 +265,6 @@
           "h": 5,
           "i": "3",
           "type": "Widget",
-          "id": "3",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -388,12 +279,8 @@
               "unit": "MB"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "latest(meter_rabbitmq_node_process_resident_memory_bytes)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -403,10 +290,6 @@
           "h": 5,
           "i": "4",
           "type": "Widget",
-          "id": "4",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -421,12 +304,8 @@
               "unit": "%"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_unused_percent)/100"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -436,10 +315,6 @@
           "h": 5,
           "i": "5",
           "type": "Widget",
-          "id": "5",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Card",
             "fontSize": 14,
@@ -454,12 +329,8 @@
               "unit": "MB"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "latest(meter_rabbitmq_node_allocated_total_bytes)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -469,10 +340,6 @@
           "h": 14,
           "i": "6",
           "type": "Widget",
-          "id": "6",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -495,16 +362,10 @@
               "label": "resident_set_size"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_used_bytes/1024/1024",
             "meter_rabbitmq_node_allocated_unused_bytes/1024/1024",
             "meter_rabbitmq_node_process_resident_memory_bytes/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -514,10 +375,6 @@
           "h": 14,
           "i": "7",
           "type": "Widget",
-          "id": "7",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -526,16 +383,11 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricConfig": [],
           "widget": {
             "title": "Allocated By Type (MB)"
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_by_type/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -545,10 +397,6 @@
           "h": 14,
           "i": "18",
           "type": "Widget",
-          "id": "18",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -557,16 +405,11 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricConfig": [],
           "widget": {
             "title": "Multiblock Used （MB）"
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -576,10 +419,6 @@
           "h": 14,
           "i": "19",
           "type": "Widget",
-          "id": "19",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -588,16 +427,11 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricConfig": [],
           "widget": {
             "title": "Multiblock Unused (MB)"
           },
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_unused/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -607,10 +441,6 @@
           "h": 14,
           "i": "20",
           "type": "Widget",
-          "id": "20",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -622,13 +452,8 @@
           "widget": {
             "title": "Multiblock Pool Used (MB)"
           },
-          "metricConfig": [],
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_pool_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -638,10 +463,6 @@
           "h": 14,
           "i": "21",
           "type": "Widget",
-          "id": "21",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -653,13 +474,8 @@
           "widget": {
             "title": "Multiblock Pool Unused (MB)"
           },
-          "metricConfig": [],
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_multiblock_pool_unused/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -669,10 +485,6 @@
           "h": 14,
           "i": "22",
           "type": "Widget",
-          "id": "22",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -684,13 +496,8 @@
           "widget": {
             "title": "Singleblock Used (MB)"
           },
-          "metricConfig": [],
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_singleblock_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -700,10 +507,6 @@
           "h": 14,
           "i": "23",
           "type": "Widget",
-          "id": "23",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -715,13 +518,8 @@
           "widget": {
             "title": "Singleblock Unused (MB)"
           },
-          "metricConfig": [],
-          "metricMode": "Expression",
           "expressions": [
             "meter_rabbitmq_node_allocated_singleblock_unused/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

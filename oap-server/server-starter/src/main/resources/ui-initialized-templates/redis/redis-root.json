@@ -1,48 +1,46 @@
-
 [
   {
-    "id":"redis-root",
-    "configuration":{
-      "children":[
+    "id": "redis-root",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":2,
-          "w":24,
-          "h":31,
-          "i":"0",
-          "type":"Widget",
-          "graph":{
-            "type":"ServiceList",
-            "dashboardName":"Redis-Service",
-            "fontSize":12,
-            "showXAxis":false,
-            "showYAxis":false,
-            "showGroup":true
-          },
-          "metricMode":"Expression"
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 31,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "Redis-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          }
         },
         {
-          "x":0,
-          "y":0,
-          "w":24,
-          "h":2,
-          "i":"1",
-          "type":"Text",
-          "graph":{
-            "fontColor":"theme",
-            "backgroundColor":"theme",
-            "content":"Provide Redis monitoring through OpenTelemetry's Prometheus Receiver",
-            "fontSize":14,
-            "textAlign":"left",
-            "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-redis-monitoring/"
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "1",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Provide Redis monitoring through OpenTelemetry's Prometheus Receiver",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-redis-monitoring/"
           }
         }
       ],
-      "layer":"REDIS",
-      "entity":"All",
-      "name":"Redis-Root",
-      "id":"redis-root",
-      "isRoot":true
+      "layer": "REDIS",
+      "entity": "All",
+      "name": "Redis-Root",
+      "id": "redis-root",
+      "isRoot": true
     }
   }
 ]

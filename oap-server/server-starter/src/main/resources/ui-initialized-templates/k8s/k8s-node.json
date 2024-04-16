@@ -1,4 +1,3 @@
-
 [
   {
     "id": "K8S-Node",
@@ -24,10 +23,6 @@
           },
           "expressions": [
             "k8s_node_cpu_usage"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -51,11 +46,6 @@
           "expressions": [
             "k8s_node_network_receive/1024",
             "k8s_node_network_transmit/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -84,10 +74,6 @@
           },
           "expressions": [
             "latest(k8s_node_node_status)"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ]
         },
         {
@@ -109,11 +95,6 @@
           "expressions": [
             "k8s_node_storage_total/1024/1024/1024",
             "k8s_node_storage_allocatable/1024/1024/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -145,13 +126,6 @@
             "k8s_node_cpu_cores_requests",
             "k8s_node_cpu_cores",
             "k8s_node_cpu_cores_allocatable"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -190,13 +164,6 @@
             "k8s_node_memory_allocatable/1024/1024/1024",
             "k8s_node_memory_requests/1024/1024/1024"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "label": "total"
@@ -232,14 +199,6 @@
           },
           "expressions": [
             "k8s_node_memory_usage/1024/1024/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
-          "metricConfig": [
-            {
-            }
           ]
         },
         {
@@ -262,10 +221,6 @@
           },
           "expressions": [
             "k8s_node_pod_total"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

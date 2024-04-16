@@ -1,4 +1,3 @@
-
 [
   {
     "id": "General-Instance-Relation",
@@ -50,12 +49,8 @@
             "enableRelate": true,
             "latency": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "relabels(service_instance_relation_client_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -109,12 +104,8 @@
             "enableRelate": true,
             "status": "ERROR"
           },
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_client_call_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -159,7 +150,6 @@
               "widgetId": "7"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "load"
@@ -167,9 +157,6 @@
           ],
           "expressions": [
             "service_instance_relation_client_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -218,7 +205,6 @@
             "enableRelate": true,
             "latency": true
           },
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "latency"
@@ -226,9 +212,6 @@
           ],
           "expressions": [
             "service_instance_relation_client_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -277,12 +260,8 @@
             "enableRelate": true,
             "latency": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "relabels(service_instance_relation_server_percentile,p='50,75,90,95,99',p='P50,P75,P90,P95,P99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -336,12 +315,8 @@
             "enableRelate": true,
             "status": "ERROR"
           },
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_server_call_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -386,7 +361,6 @@
               "widgetId": "8"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "load"
@@ -394,9 +368,6 @@
           ],
           "expressions": [
             "service_instance_relation_server_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -445,7 +416,6 @@
             "enableRelate": true,
             "latency": true
           },
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "latency"
@@ -453,9 +423,6 @@
           ],
           "expressions": [
             "service_instance_relation_server_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

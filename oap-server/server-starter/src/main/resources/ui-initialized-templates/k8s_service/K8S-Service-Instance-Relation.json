@@ -1,7 +1,6 @@
-
 [
   {
-    "id": "85cd65bc-3e66-40f2-b4ee-f850ceceb139",
+    "id": "K8S-Service-Instance-Relation",
     "configuration": {
       "children": [
         {
@@ -22,14 +21,9 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_connect_cpm",
                     "kubernetes_service_instance_relation_connect_success_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -144,12 +138,8 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_connect_duration/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -260,12 +250,8 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_accept_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -370,12 +356,8 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_accept_duration/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -485,14 +467,9 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_package_cpm",
                     "kubernetes_service_instance_relation_server_write_retrains_package_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -605,14 +582,9 @@
                   "h": 12,
                   "i": "5",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_package_size/1024",
                     "kubernetes_service_instance_relation_server_write_package_size/kubernetes_service_instance_relation_server_write_package_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -727,14 +699,9 @@
                   "h": 12,
                   "i": "6",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_package_cpm",
                     "kubernetes_service_instance_relation_client_write_retrains_package_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -847,14 +814,9 @@
                   "h": 12,
                   "i": "7",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_package_size/1024",
                     "kubernetes_service_instance_relation_client_write_package_size/kubernetes_service_instance_relation_client_write_package_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -967,12 +929,8 @@
                   "h": 12,
                   "i": "8",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_read_package_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1077,14 +1035,9 @@
                   "h": 12,
                   "i": "9",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_read_package_size/1024",
                     "kubernetes_service_instance_relation_server_read_package_size/kubernetes_service_instance_relation_server_read_package_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1197,12 +1150,8 @@
                   "h": 12,
                   "i": "10",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_read_package_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1307,14 +1256,9 @@
                   "h": 12,
                   "i": "11",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_read_package_size/1024",
                     "kubernetes_service_instance_relation_client_read_package_size/kubernetes_service_instance_relation_client_read_package_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1427,12 +1371,8 @@
                   "h": 12,
                   "i": "12",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_package_duration/kubernetes_service_instance_relation_server_write_package_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1542,12 +1482,8 @@
                   "h": 12,
                   "i": "13",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_read_package_duration/kubernetes_service_instance_relation_server_read_package_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1657,12 +1593,8 @@
                   "h": 12,
                   "i": "14",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_package_duration/kubernetes_service_instance_relation_client_write_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1772,12 +1704,8 @@
                   "h": 12,
                   "i": "15",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_read_package_duration/kubernetes_service_instance_relation_client_read_package_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -1887,7 +1815,6 @@
                   "h": 12,
                   "i": "16",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_l4_duration/kubernetes_service_instance_relation_client_write_cpm",
                     "kubernetes_service_instance_relation_client_write_l3_duration/kubernetes_service_instance_relation_client_write_cpm",
@@ -1896,15 +1823,6 @@
                     "kubernetes_service_instance_relation_client_write_l2_duration/kubernetes_service_instance_relation_client_write_cpm",
                     "kubernetes_service_instance_relation_client_write_l2_ready_send_duration/kubernetes_service_instance_relation_client_write_cpm",
                     "kubernetes_service_instance_relation_client_write_l2_net_dev_send_duration/kubernetes_service_instance_relation_client_write_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2032,20 +1950,12 @@
                   "h": 12,
                   "i": "17",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_read_l4_duration/kubernetes_service_instance_relation_client_read_cpm",
                     "kubernetes_service_instance_relation_client_read_l3_duration/kubernetes_service_instance_relation_client_read_cpm",
                     "kubernetes_service_instance_relation_client_read_l3_rcv_duration/kubernetes_service_instance_relation_client_read_cpm",
                     "kubernetes_service_instance_relation_client_read_l3_local_duration/kubernetes_service_instance_relation_client_read_cpm",
                     "kubernetes_service_instance_relation_client_read_l2_package_to_queue_duration/kubernetes_service_instance_relation_client_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -2167,7 +2077,6 @@
                   "h": 12,
                   "i": "18",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_l4_duration/kubernetes_service_instance_relation_server_write_cpm",
                     "kubernetes_service_instance_relation_server_write_l3_duration/kubernetes_service_instance_relation_server_write_cpm",
@@ -2176,15 +2085,6 @@
                     "kubernetes_service_instance_relation_server_write_l2_duration/kubernetes_service_instance_relation_server_write_cpm",
                     "kubernetes_service_instance_relation_server_write_l2_ready_send_duration/kubernetes_service_instance_relation_server_write_cpm",
                     "kubernetes_service_instance_relation_server_write_l2_net_dev_send_duration/kubernetes_service_instance_relation_server_write_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2312,20 +2212,12 @@
                   "h": 12,
                   "i": "19",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_read_l4_duration/kubernetes_service_instance_relation_server_read_cpm",
                     "kubernetes_service_instance_relation_server_read_l3_duration/kubernetes_service_instance_relation_server_read_cpm",
                     "kubernetes_service_instance_relation_server_read_l3_rcv_duration/kubernetes_service_instance_relation_server_read_cpm",
                     "kubernetes_service_instance_relation_server_read_l3_local_duration/kubernetes_service_instance_relation_server_read_cpm",
                     "kubernetes_service_instance_relation_server_read_l2_package_to_queue_duration/kubernetes_service_instance_relation_server_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2447,14 +2339,9 @@
                   "h": 12,
                   "i": "20",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_netfilter_cpm/kubernetes_service_instance_relation_client_write_cpm",
                     "kubernetes_service_instance_relation_client_read_netfilter_cpm/kubernetes_service_instance_relation_client_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2567,14 +2454,9 @@
                   "h": 12,
                   "i": "21",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_netfilter_duration/kubernetes_service_instance_relation_client_write_cpm",
                     "kubernetes_service_instance_relation_client_read_netfilter_duration/kubernetes_service_instance_relation_client_write_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2687,14 +2569,9 @@
                   "h": 12,
                   "i": "22",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_netfilter_cpm/kubernetes_service_instance_relation_client_write_cpm",
                     "kubernetes_service_instance_relation_server_read_netfilter_cpm/kubernetes_service_instance_relation_client_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2807,14 +2684,9 @@
                   "h": 12,
                   "i": "23",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_netfilter_duration/kubernetes_service_instance_relation_server_write_cpm",
                     "kubernetes_service_instance_relation_server_read_netfilter_duration/kubernetes_service_instance_relation_server_read_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -2927,12 +2799,8 @@
                   "h": 12,
                   "i": "24",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_resolve_mac_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3037,12 +2905,8 @@
                   "h": 12,
                   "i": "25",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_write_resolve_mac_duration/kubernetes_service_instance_relation_client_write_resolve_mac_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3147,12 +3011,8 @@
                   "h": 12,
                   "i": "26",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_resolve_mac_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3257,12 +3117,8 @@
                   "h": 12,
                   "i": "27",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_write_resolve_mac_duration/kubernetes_service_instance_relation_server_write_resolve_mac_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3372,12 +3228,8 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_http_call_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3433,12 +3285,8 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_http_call_duration/kubernetes_service_instance_relation_client_http_call_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3494,12 +3342,8 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_http_call_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3555,12 +3399,8 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_http_call_duration/kubernetes_service_instance_relation_server_http_call_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3616,14 +3456,9 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_http_req_header_size/kubernetes_service_instance_relation_server_http_call_cpm/1024",
                     "kubernetes_service_instance_relation_server_http_req_body_size/kubernetes_service_instance_relation_server_http_call_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3682,14 +3517,9 @@
                   "h": 12,
                   "i": "5",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_http_resp_header_size/kubernetes_service_instance_relation_server_http_call_cpm/1024",
                     "kubernetes_service_instance_relation_server_http_resp_body_size/kubernetes_service_instance_relation_server_http_call_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3748,14 +3578,9 @@
                   "h": 12,
                   "i": "6",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_http_req_header_size/kubernetes_service_instance_relation_client_http_call_cpm/1024",
                     "kubernetes_service_instance_relation_client_http_req_body_size/kubernetes_service_instance_relation_client_http_call_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3814,14 +3639,9 @@
                   "h": 12,
                   "i": "7",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_http_resp_header_size/kubernetes_service_instance_relation_server_http_call_cpm/1024",
                     "kubernetes_service_instance_relation_server_http_resp_body_size/kubernetes_service_instance_relation_server_http_call_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3880,20 +3700,12 @@
                   "h": 12,
                   "i": "8",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_client_http_status_1xx_cpm",
                     "kubernetes_service_instance_relation_client_http_status_2xx_cpm",
                     "kubernetes_service_instance_relation_client_http_status_3xx_cpm",
                     "kubernetes_service_instance_relation_client_http_status_4xx_cpm",
                     "kubernetes_service_instance_relation_client_http_status_5xx_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -3961,20 +3773,12 @@
                   "h": 12,
                   "i": "9",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_instance_relation_server_http_status_1xx_cpm",
                     "kubernetes_service_instance_relation_server_http_status_2xx_cpm",
                     "kubernetes_service_instance_relation_server_http_status_3xx_cpm",
                     "kubernetes_service_instance_relation_server_http_status_4xx_cpm",
                     "kubernetes_service_instance_relation_server_http_status_5xx_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -4043,7 +3847,7 @@
       "layer": "K8S_SERVICE",
       "entity": "ServiceInstanceRelation",
       "name": "K8S-Service-Instance-Relation",
-      "id": "85cd65bc-3e66-40f2-b4ee-f850ceceb139",
+      "id": "K8S-Service-Instance-Relation",
       "isRoot": false
     }
   }

@@ -1,385 +1,353 @@
-
 [
   {
-    "id":"Elasticsearch-Cluster",
-    "configuration":{
-      "children":[
+    "id": "Elasticsearch-Cluster",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":0,
-          "w":24,
-          "h":56,
-          "i":"0",
-          "type":"Tab",
-          "children":[
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 56,
+          "i": "0",
+          "type": "Tab",
+          "children": [
             {
-              "name":"Overview",
-              "children":[
+              "name": "Overview",
+              "children": [
                 {
-                  "x":0,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"0",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Table",
-                    "showTableValues":false,
-                    "tableHeaderCol1":"status",
-                    "tableHeaderCol2":""
+                  "x": 0,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "0",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Table",
+                    "showTableValues": false,
+                    "tableHeaderCol1": "status",
+                    "tableHeaderCol2": ""
                   },
-                  "widget":{
-                    "title":"Cluster Health"
+                  "widget": {
+                    "title": "Cluster Health"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "meter_elasticsearch_cluster_health_status"
-                  ],
-                  "typesOfMQE":[
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
-                  "x":15,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"1",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 15,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "1",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"Data Nodes"
+                  "widget": {
+                    "title": "Data Nodes"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_nodes)"
                   ]
                 },
                 {
-                  "x":12,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"2",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 12,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "2",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"Nodes"
+                  "widget": {
+                    "title": "Nodes"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_nodes)"
                   ]
                 },
                 {
-                  "x":18,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"3",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 18,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "3",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"Pending Tasks"
+                  "widget": {
+                    "title": "Pending Tasks"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "avg(meter_elasticsearch_cluster_pending_tasks_total)"
                   ]
                 },
                 {
-                  "x":0,
-                  "y":6,
-                  "w":4,
-                  "h":5,
-                  "i":"4",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":false
+                  "x": 0,
+                  "y": 6,
+                  "w": 4,
+                  "h": 5,
+                  "i": "4",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": false
                   },
-                  "widget":{
-                    "title":"Active Primary Shards"
+                  "widget": {
+                    "title": "Active Primary Shards"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_primary_shards_total)"
                   ]
                 },
                 {
-                  "x":4,
-                  "y":6,
-                  "w":4,
-                  "h":5,
-                  "i":"5",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":false
+                  "x": 4,
+                  "y": 6,
+                  "w": 4,
+                  "h": 5,
+                  "i": "5",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": false
                   },
-                  "widget":{
-                    "title":"Active Shards"
+                  "widget": {
+                    "title": "Active Shards"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_shards_total)"
-                  ],
-                  "typesOfMQE":[
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
-                  "x":8,
-                  "y":6,
-                  "w":4,
-                  "h":5,
-                  "i":"6",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":false
+                  "x": 8,
+                  "y": 6,
+                  "w": 4,
+                  "h": 5,
+                  "i": "6",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": false
                   },
-                  "widget":{
-                    "title":"Initializing Shards"
+                  "widget": {
+                    "title": "Initializing Shards"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_initializing_shards_total)"
                   ]
                 },
                 {
-                  "x":16,
-                  "y":6,
-                  "w":4,
-                  "h":5,
-                  "i":"7",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":false
+                  "x": 16,
+                  "y": 6,
+                  "w": 4,
+                  "h": 5,
+                  "i": "7",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": false
                   },
-                  "widget":{
-                    "title":"Delayed Unassigned Shards"
+                  "widget": {
+                    "title": "Delayed Unassigned Shards"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_delayed_unassigned_shards_total)"
                   ]
                 },
                 {
-                  "x":20,
-                  "y":6,
-                  "w":4,
-                  "h":5,
-                  "i":"8",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":false
+                  "x": 20,
+                  "y": 6,
+                  "w": 4,
+                  "h": 5,
+                  "i": "8",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": false
                   },
-                  "widget":{
-                    "title":"Relocating Shards"
+                  "widget": {
+                    "title": "Relocating Shards"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_relocating_shards_total)"
                   ]
                 },
                 {
-                  "x":12,
-                  "y":6,
-                  "w":4,
-                  "h":5,
-                  "i":"9",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":false
+                  "x": 12,
+                  "y": 6,
+                  "w": 4,
+                  "h": 5,
+                  "i": "9",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": false
                   },
-                  "widget":{
-                    "title":"Unassigned Shards"
+                  "widget": {
+                    "title": "Unassigned Shards"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_unassigned_shards_total)"
                   ]
                 },
                 {
-                  "x":3,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"12",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 3,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "12",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"Tripped Of Breakers"
+                  "widget": {
+                    "title": "Tripped Of Breakers"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "latest(meter_elasticsearch_cluster_breakers_tripped)"
-                  ],
-                  "typesOfMQE":[
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
-                  "x":6,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"13",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 6,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "13",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"CPU Usage Avg"
+                  "widget": {
+                    "title": "CPU Usage Avg"
                   },
                   "metricConfig": [
                     {
                       "unit": "%"
                     }
                   ],
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "avg(meter_elasticsearch_cluster_cpu_usage_avg)"
-                  ],
-                  "typesOfMQE":[
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
-                  "x":9,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"14",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 9,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "14",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"JVM Memory Used Avg"
+                  "widget": {
+                    "title": "JVM Memory Used Avg"
                   },
                   "metricConfig": [
                     {
                       "unit": "%"
                     }
                   ],
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "avg(meter_elasticsearch_cluster_jvm_memory_used_avg)"
-                  ],
-                  "typesOfMQE":[
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
-                  "x":21,
-                  "y":0,
-                  "w":3,
-                  "h":6,
-                  "i":"15",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"Card",
-                    "fontSize":14,
-                    "textAlign":"center",
-                    "showUnit":true
+                  "x": 21,
+                  "y": 0,
+                  "w": 3,
+                  "h": 6,
+                  "i": "15",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
-                  "widget":{
-                    "title":"Open Files"
+                  "widget": {
+                    "title": "Open Files"
                   },
-                  "metricMode":"Expression",
-                  "expressions":[
+                  "expressions": [
                     "avg(meter_elasticsearch_cluster_open_file_count)"
                   ]
                 },
                 {
-                  "x":0,
-                  "y":11,
-                  "w":24,
-                  "h":16,
-                  "i":"16",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"InstanceList",
-                    "dashboardName":"Elasticsearch-Node",
-                    "fontSize":12
+                  "x": 0,
+                  "y": 11,
+                  "w": 24,
+                  "h": 16,
+                  "i": "16",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "Elasticsearch-Node",
+                    "fontSize": 12
                   },
-                  "widget":{
-                    "title":"Nodes"
-                  },
-                  "metricMode":"Expression"
+                  "widget": {
+                    "title": "Nodes"
+                  }
                 },
                 {
-                  "x":0,
-                  "y":27,
-                  "w":24,
-                  "h":20,
-                  "i":"17",
-                  "type":"Widget",
-                  "graph":{
-                    "type":"EndpointList",
-                    "dashboardName":"Elasticsearch-Index",
-                    "fontSize":12,
-                    "showXAxis":false,
-                    "showYAxis":false
+                  "x": 0,
+                  "y": 27,
+                  "w": 24,
+                  "h": 20,
+                  "i": "17",
+                  "type": "Widget",
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "Elasticsearch-Index",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false
                   },
-                  "widget":{
-                    "title":"Indices"
-                  },
-                  "metricMode":"Expression"
+                  "widget": {
+                    "title": "Indices"
+                  }
                 }
               ]
             }
           ]
         }
       ],
-      "layer":"ELASTICSEARCH",
-      "entity":"Service",
-      "name":"Elasticsearch-Cluster",
-      "id":"Elasticsearch-Cluster",
-      "isRoot":false
+      "layer": "ELASTICSEARCH",
+      "entity": "Service",
+      "name": "Elasticsearch-Cluster",
+      "id": "Elasticsearch-Cluster",
+      "isRoot": false
     }
   }
 ]

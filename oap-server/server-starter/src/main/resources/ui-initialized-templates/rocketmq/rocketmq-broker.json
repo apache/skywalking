@@ -10,10 +10,6 @@
           "h": 14,
           "i": "8",
           "type": "Widget",
-          "id": "8",
-          "metricTypes": [],
-          "metrics": [],
-          "moved": false,
           "graph": {
             "type": "Line",
             "step": false,
@@ -27,13 +23,8 @@
             "tips": "The number of broker produces messages per second",
             "name": "produce qps"
           },
-          "metricMode": "Expression",
-          "metricConfig": [],
           "expressions": [
             "meter_rocketmq_broker_produce_tps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -43,16 +34,8 @@
           "h": 14,
           "i": "9",
           "type": "Widget",
-          "id": "9",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_broker_consume_qps"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -75,16 +58,8 @@
           "h": 13,
           "i": "13",
           "type": "Widget",
-          "id": "13",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_broker_producer_message_size/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "name": "producer_message_size_per_second",
@@ -107,16 +82,8 @@
           "h": 13,
           "i": "14",
           "type": "Widget",
-          "id": "14",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_rocketmq_broker_consumer_message_size/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "name": "consumer message size",

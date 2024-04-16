@@ -35,7 +35,6 @@
               "label": "Pilot Virt Services"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "avg(meter_istio_cpu)",
             "avg(meter_istio_go_goroutines)",
@@ -49,13 +48,6 @@
             "meter_istio_pilot_xds",
             "meter_istio_pilot_services",
             "meter_istio_pilot_virt_services"
-          ],
-          "subTypesOfMQE": [
-            "",
-            "",
-            "",
-            "",
-            ""
           ]
         },
         {

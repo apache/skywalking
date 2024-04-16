@@ -34,10 +34,6 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_requests, sum)"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -60,10 +56,6 @@
                   },
                   "expressions": [
                     "meter_nginx_service_http_latency"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -86,10 +78,6 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_bandwidth, sum(type))/1024"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -101,10 +89,6 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_connections, sum(state))"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -138,10 +122,6 @@
                   },
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_status, sum(status))"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -151,12 +131,8 @@
                   "h": 13,
                   "i": "6",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_4xx_requests_increment, sum)/aggregate_labels(meter_nginx_service_http_requests_increment, sum)*100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Area",
@@ -175,12 +151,8 @@
                   "h": 13,
                   "i": "7",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_http_5xx_requests_increment, sum)/aggregate_labels(meter_nginx_service_http_requests_increment, sum)*100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Area",
@@ -199,7 +171,6 @@
                   "h": 13,
                   "i": "8",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "aggregate_labels(meter_nginx_service_error_log_count, sum(level))"
                   ],
@@ -209,10 +180,7 @@
                   },
                   "widget": {
                     "title": "Error Log Count (Per Minute)"
-                  },
-                  "typesOfMQE": [
-                    "UNKNOWN"
-                  ]
+                  }
                 }
               ]
             },
@@ -226,11 +194,7 @@
                   "h": 35,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
-                    ""
-                  ],
-                  "typesOfMQE": [
                     ""
                   ],
                   "graph": {
@@ -251,11 +215,7 @@
                   "h": 35,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
-                    ""
-                  ],
-                  "typesOfMQE": [
                     ""
                   ],
                   "graph": {

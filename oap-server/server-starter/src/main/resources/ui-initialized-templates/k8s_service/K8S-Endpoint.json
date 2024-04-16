@@ -1,7 +1,6 @@
-
 [
   {
-    "id": "d533b98c-cecc-40c8-89cb-40df3e47c323",
+    "id": "K8S-Endpoint",
     "configuration": {
       "children": [
         {
@@ -22,12 +21,8 @@
                   "h": 12,
                   "i": "0",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_endpoint_http_call_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -68,12 +63,8 @@
                   "h": 12,
                   "i": "1",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_endpoint_http_call_duration/kubernetes_service_endpoint_http_call_cpm/1000000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "metricConfig": [
                     {
@@ -114,14 +105,9 @@
                   "h": 12,
                   "i": "2",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_endpoint_http_req_header_size/kubernetes_service_endpoint_http_call_cpm/1024",
                     "kubernetes_service_endpoint_http_req_body_size/kubernetes_service_endpoint_http_call_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -165,14 +151,9 @@
                   "h": 12,
                   "i": "3",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_endpoint_http_resp_header_size/kubernetes_service_endpoint_http_call_cpm/1024",
                     "kubernetes_service_endpoint_http_resp_body_size/kubernetes_service_endpoint_http_call_cpm/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -216,20 +197,12 @@
                   "h": 12,
                   "i": "4",
                   "type": "Widget",
-                  "metricMode": "Expression",
                   "expressions": [
                     "kubernetes_service_endpoint_http_status_1xx_cpm",
                     "kubernetes_service_endpoint_http_status_2xx_cpm",
                     "kubernetes_service_endpoint_http_status_3xx_cpm",
                     "kubernetes_service_endpoint_http_status_4xx_cpm",
                     "kubernetes_service_endpoint_http_status_5xx_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",

@@ -1,766 +1,648 @@
-
 [
   {
-    "id":"MongoDB-Node",
-    "configuration":{
-      "children":[
+    "id": "MongoDB-Node",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":0,
-          "w":4,
-          "h":7,
-          "i":"0",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":30,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 0,
+          "y": 0,
+          "w": 4,
+          "h": 7,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 30,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "unit":"day"
+              "unit": "day"
             }
-          ],          
-          "widget":{
-            "title":"Uptime"
-          },
-          "metricMode":"Expression",
-          "expressions":[
-            "latest(meter_mongodb_node_uptime)/3600/24"
           ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
+          "widget": {
+            "title": "Uptime"
+          },
+          "expressions": [
+            "latest(meter_mongodb_node_uptime)/3600/24"
           ]
         },
         {
-          "x":4,
-          "y":0,
-          "w":4,
-          "h":7,
-          "i":"1",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":30,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 4,
+          "y": 0,
+          "w": 4,
+          "h": 7,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 30,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"QPS"
+          "widget": {
+            "title": "QPS"
           },
-          "expressions":[
+          "expressions": [
             "avg(meter_mongodb_node_qps)"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
-          ],
-          "metricMode":"Expression"
+          ]
         },
         {
-          "x":8,
-          "y":0,
-          "w":4,
-          "h":7,
-          "i":"2",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":30,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 8,
+          "y": 0,
+          "w": 4,
+          "h": 7,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 30,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Latency"
+          "widget": {
+            "title": "Latency"
           },
-          "expressions":[
+          "expressions": [
             "avg(meter_mongodb_node_latency)"
           ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
-          ],
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "unit":"µs"
+              "unit": "µs"
             }
           ]
         },
         {
-          "x":12,
-          "y":0,
-          "w":4,
-          "h":7,
-          "i":"3",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "metricConfig":[
+          "x": 12,
+          "y": 0,
+          "w": 4,
+          "h": 7,
+          "i": "3",
+          "type": "Widget",
+          "metricConfig": [
             {
-              "unit":"%"
+              "unit": "%"
             }
           ],
-          "graph":{
-            "type":"Card",
-            "fontSize":30,
-            "textAlign":"center",
-            "showUnit":true
+          "graph": {
+            "type": "Card",
+            "fontSize": 30,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Memory Usage"
+          "widget": {
+            "title": "Memory Usage"
           },
-          "expressions":[
+          "expressions": [
             "avg(meter_mongodb_node_memory_usage)"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":16,
-          "y":0,
-          "w":4,
-          "h":7,
-          "i":"4",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "graph":{
-            "type":"Table",
-            "showTableValues":false,
-            "tableHeaderCol1":"Version",
-            "tableHeaderCol2":""
+          "x": 16,
+          "y": 0,
+          "w": 4,
+          "h": 7,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Table",
+            "showTableValues": false,
+            "tableHeaderCol1": "Version",
+            "tableHeaderCol2": ""
           },
-          "widget":{
-            "title":"Version"
+          "widget": {
+            "title": "Version"
           },
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_version"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":20,
-          "y":0,
-          "w":4,
-          "h":7,
-          "i":"5",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "graph":{
-            "type":"Table",
-            "showTableValues":false,
-            "tableHeaderCol1":"ReplSet State",
-            "tableHeaderCol2":""
+          "x": 20,
+          "y": 0,
+          "w": 4,
+          "h": 7,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Table",
+            "showTableValues": false,
+            "tableHeaderCol1": "ReplSet State",
+            "tableHeaderCol2": ""
           },
-          "widget":{
-            "title":"ReplSet State"
+          "widget": {
+            "title": "ReplSet State"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_rs_state"
-          ],
-          "metricTypes":[
-            "readLabeledMetricsValues"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":7,
-          "w":6,
-          "h":12,
-          "i":"6",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
+          "x": 0,
+          "y": 7,
+          "w": 6,
+          "h": 12,
+          "i": "6",
+          "type": "Widget",
+          "expressions": [
             "meter_mongodb_node_cpu_total_percentage"
           ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "widget":{
-            "title":"CPU Usage (%)"
+          "widget": {
+            "title": "CPU Usage (%)"
           }
         },
         {
-          "x":6,
-          "y":7,
-          "w":6,
-          "h":12,
-          "i":"7",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "metricConfig":[
+          "x": 6,
+          "y": 7,
+          "w": 6,
+          "h": 12,
+          "i": "7",
+          "type": "Widget",
+          "metricConfig": [
             {
-              "label":"in"
+              "label": "in"
             },
             {
-              "label":"out"
+              "label": "out"
             }
           ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Network (KB/s)"
+          "widget": {
+            "title": "Network (KB/s)"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_network_bytes_in/1024",
             "meter_mongodb_node_network_bytes_out/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":7,
-          "w":6,
-          "h":12,
-          "i":"8",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "metricConfig":[
+          "x": 12,
+          "y": 7,
+          "w": 6,
+          "h": 12,
+          "i": "8",
+          "type": "Widget",
+          "metricConfig": [
             {
-              "label":"Mem"
+              "label": "Mem"
             },
             {
-              "label":"Swap"
+              "label": "Swap"
             }
           ],
-          "graph":{
-            "type":"Bar",
-            "showBackground":true
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
           },
-          "widget":{
-            "title":"Memory Free (GB)"
+          "widget": {
+            "title": "Memory Free (GB)"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_memory_free_kb/1024/1024",
             "meter_mongodb_node_swap_memory_free_kb/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":18,
-          "y":7,
-          "w":6,
-          "h":12,
-          "i":"9",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
+          "x": 18,
+          "y": 7,
+          "w": 6,
+          "h": 12,
+          "i": "9",
+          "type": "Widget",
+          "expressions": [
             "meter_mongodb_node_fs_used_size/1024/1024/1024",
             "meter_mongodb_node_fs_total_size/1024/1024/1024"
           ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"used"
+              "label": "used"
             },
             {
-              "label":"total"
+              "label": "total"
             }
           ],
-          "widget":{
-            "title":"Disk (GB)"
+          "widget": {
+            "title": "Disk (GB)"
           }
         },
         {
-          "x":0,
-          "y":19,
-          "w":8,
-          "h":12,
-          "i":"10",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":false,
-              "asTable":false
+          "x": 0,
+          "y": 19,
+          "w": 8,
+          "h": 12,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": false,
+              "asTable": false
             }
           },
-          "widget":{
-            "title":"Connections"
+          "widget": {
+            "title": "Connections"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_connections"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "metricMode":"Expression"
+          ]
         },
         {
-          "x":8,
-          "y":19,
-          "w":8,
-          "h":12,
-          "i":"11",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "metricConfig":[
+          "x": 8,
+          "y": 19,
+          "w": 8,
+          "h": 12,
+          "i": "11",
+          "type": "Widget",
+          "metricConfig": [
             {
-              "label":"total"
+              "label": "total"
             },
             {
-              "label":"writer"
+              "label": "writer"
             },
             {
-              "label":"reader"
+              "label": "reader"
             }
           ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Active Client"
+          "widget": {
+            "title": "Active Client"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_active_total_num",
             "meter_mongodb_node_active_writer_num",
             "meter_mongodb_node_active_reader_num"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":16,
-          "y":19,
-          "w":8,
-          "h":12,
-          "i":"12",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
+          "x": 16,
+          "y": 19,
+          "w": 8,
+          "h": 12,
+          "i": "12",
+          "type": "Widget",
+          "expressions": [
             "meter_mongodb_node_transactions_active",
             "meter_mongodb_node_transactions_inactive"
           ],
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"active"
+              "label": "active"
             },
             {
-              "label":"inactive"
+              "label": "inactive"
             }
           ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Transactions"
-          },
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
-        },
-        {
-          "x":0,
-          "y":31,
-          "w":8,
-          "h":12,
-          "i":"13",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Document QPS"
-          },
-          "expressions":[
-            "meter_mongodb_node_document_qps"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "metricMode":"Expression"
-        },
-        {
-          "x":8,
-          "y":31,
-          "w":8,
-          "h":12,
-          "i":"14",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "asTable":false
-            }
-          },
-          "widget":{
-            "title":"Operation QPS"
-          },
-          "associate":[
-
-          ],
-          "expressions":[
-            "meter_mongodb_node_operation_qps"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "metricMode":"Expression"
-        },
-        {
-          "x":16,
-          "y":31,
-          "w":8,
-          "h":12,
-          "i":"15",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
-            "meter_mongodb_node_repl_operation_qps"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
-          },
-          "widget":{
-            "title":"Repl Operation QPS"
+          "widget": {
+            "title": "Transactions"
           }
         },
         {
-          "x":0,
-          "y":43,
-          "w":6,
-          "h":12,
-          "i":"16",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "asTable":false
+          "x": 0,
+          "y": 31,
+          "w": 8,
+          "h": 12,
+          "i": "13",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Document QPS"
+          },
+          "expressions": [
+            "meter_mongodb_node_document_qps"
+          ]
+        },
+        {
+          "x": 8,
+          "y": 31,
+          "w": 8,
+          "h": 12,
+          "i": "14",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "asTable": false
             }
           },
-          "widget":{
-            "title":"Operation Latency (µs)"
+          "widget": {
+            "title": "Operation QPS"
           },
-          "expressions":[
+          "associate": [],
+          "expressions": [
+            "meter_mongodb_node_operation_qps"
+          ]
+        },
+        {
+          "x": 16,
+          "y": 31,
+          "w": 8,
+          "h": 12,
+          "i": "15",
+          "type": "Widget",
+          "expressions": [
+            "meter_mongodb_node_repl_operation_qps"
+          ],
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
+          },
+          "widget": {
+            "title": "Repl Operation QPS"
+          }
+        },
+        {
+          "x": 0,
+          "y": 43,
+          "w": 6,
+          "h": 12,
+          "i": "16",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "asTable": false
+            }
+          },
+          "widget": {
+            "title": "Operation Latency (µs)"
+          },
+          "expressions": [
             "meter_mongodb_node_operation_latency"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "metricMode":"Expression"
+          ]
         },
         {
-          "x":6,
-          "y":43,
-          "w":6,
-          "h":12,
-          "i":"17",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":true,
-              "asTable":false
+          "x": 6,
+          "y": 43,
+          "w": 6,
+          "h": 12,
+          "i": "17",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": true,
+              "asTable": false
             }
           },
-          "widget":{
-            "title":"Cursor"
+          "widget": {
+            "title": "Cursor"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_cursor"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "metricMode":"Expression"
+          ]
         },
         {
-          "x":12,
-          "y":43,
-          "w":6,
-          "h":12,
-          "i":"18",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
+          "x": 12,
+          "y": 43,
+          "w": 6,
+          "h": 12,
+          "i": "18",
+          "type": "Widget",
+          "expressions": [
             "meter_mongodb_node_mem_virtual",
             "meter_mongodb_node_mem_resident"
           ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Server Status Memory (MB)"
+          "widget": {
+            "title": "Server Status Memory (MB)"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"virtual"
+              "label": "virtual"
             },
             {
-              "label":"resident"
+              "label": "resident"
             }
           ]
         },
         {
-          "x":18,
-          "y":43,
-          "w":6,
-          "h":12,
-          "i":"19",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 43,
+          "w": 6,
+          "h": 12,
+          "i": "19",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Asserts"
+          "widget": {
+            "title": "Asserts"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_asserts"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":55,
-          "w":8,
-          "h":12,
-          "i":"20",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
+          "x": 0,
+          "y": 55,
+          "w": 8,
+          "h": 12,
+          "i": "20",
+          "type": "Widget",
+          "expressions": [
             "meter_mongodb_node_repl_buffer_count"
           ],
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Repl Buffer Count"
-          },
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ]
+          "widget": {
+            "title": "Repl Buffer Count"
+          }
         },
         {
-          "x":8,
-          "y":55,
-          "w":8,
-          "h":12,
-          "i":"21",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 8,
+          "y": 55,
+          "w": 8,
+          "h": 12,
+          "i": "21",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Repl Buffer Size (MB)"
+          "widget": {
+            "title": "Repl Buffer Size (MB)"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_repl_buffer_size/1024/1024",
             "meter_mongodb_node_repl_buffer_size_max/1024/1024"
           ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"current"
+              "label": "current"
             },
             {
-              "label":"max"
+              "label": "max"
             }
           ]
         },
         {
-          "x":16,
-          "y":55,
-          "w":8,
-          "h":12,
-          "i":"22",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 16,
+          "y": 55,
+          "w": 8,
+          "h": 12,
+          "i": "22",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Queued Operation"
+          "widget": {
+            "title": "Queued Operation"
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_queued_operation"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "metricMode":"Expression"
+          ]
         },
         {
-          "x":0,
-          "y":67,
-          "w":12,
-          "h":12,
-          "i":"23",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "expressions":[
+          "x": 0,
+          "y": 67,
+          "w": 12,
+          "h": 12,
+          "i": "23",
+          "type": "Widget",
+          "expressions": [
             "meter_mongodb_node_write_wait_num",
             "meter_mongodb_node_write_wait_timeout_num"
           ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"getLastError Write Num"
+          "widget": {
+            "title": "getLastError Write Num"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"total"
+              "label": "total"
             },
             {
-              "label":"timeout"
+              "label": "timeout"
             }
           ]
         },
         {
-          "x":12,
-          "y":67,
-          "w":12,
-          "h":12,
-          "i":"24",
-          "type":"Widget",
-          "metricMode":"Expression",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 67,
+          "w": 12,
+          "h": 12,
+          "i": "24",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "expressions":[
+          "expressions": [
             "meter_mongodb_node_write_wait_time"
           ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
-          ],
-          "widget":{
-            "title":"getLastError Write Time (ms)"
+          "widget": {
+            "title": "getLastError Write Time (ms)"
           }
         }
       ],
-      "layer":"MONGODB",
-      "entity":"ServiceInstance",
-      "name":"MongoDB-Node",
-      "id":"MongoDB-Node",
-      "isRoot":false
+      "layer": "MONGODB",
+      "entity": "ServiceInstance",
+      "name": "MongoDB-Node",
+      "id": "MongoDB-Node",
+      "isRoot": false
     }
   }
 ]
