@@ -252,9 +252,6 @@ For example:
 If we want to query the `service_percentile` metric with the label values `50,75,90,95,99`, and rename the label name to `percentile` and the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
 
 ```text
-and rename the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
-
-```text
 relabel(service_percentile{p='50,75,90,95,99'}, p='50,75,90,95,99', percentile='P50,P75,P90,P95,P99')
 ```
 
