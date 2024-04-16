@@ -387,23 +387,23 @@
       ],
       "expressionsConfig": [
         {
-          "unit": "req / s",
+          "unit": "req / s (per node)",
           "label": "HTTP Status 200"
         },
         {
-          "unit": "req / s",
+          "unit": "req / s (per node)",
           "label": "HTTP Status 304"
         },
         {
-          "unit": "req / s",
+          "unit": "req / s (per node)",
           "label": "HTTP Status 404"
         },
         {
-          "unit": "req / s",
+          "unit": "req / s (per node)",
           "label": "HTTP Status 499"
         },
         {
-          "unit": "req / s",
+          "unit": "req / s (per node)",
           "label": "HTTP Status 503"
         }
       ]
