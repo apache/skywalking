@@ -105,6 +105,7 @@
   - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
 * Fix/Change UI init setting for Windows Swap -> Virtual Memory
 * Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
+* Fix inaccurate APISIX metrics
 
 #### UI
 
