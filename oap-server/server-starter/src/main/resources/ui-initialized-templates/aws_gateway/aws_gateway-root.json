@@ -1,4 +1,3 @@
-
 [
   {
     "id": "AWS_GATEWAY-Root",
@@ -11,9 +10,6 @@
           "h": 51,
           "i": "0",
           "type": "Widget",
-          "widget": {
-            "title": ""
-          },
           "graph": {
             "type": "ServiceList",
             "dashboardName": "AWS_GATEWAY-service",
@@ -21,8 +17,7 @@
             "showXAxis": false,
             "showYAxis": false,
             "showGroup": true
-          },
-          "moved": false
+          }
         },
         {
           "x": 0,
@@ -32,14 +27,13 @@
           "i": "100",
           "type": "Text",
           "graph": {
-            "fontColor":"theme",
-            "backgroundColor":"theme",
-            "content":"Provide AWS Cloud API Gateway monitoring through AWS FireHose Receiver",
-            "fontSize":14,
-            "textAlign":"left",
-            "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-api-gateway-monitoring/"
-          },
-          "moved": false
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Provide AWS Cloud API Gateway monitoring through AWS FireHose Receiver",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-api-gateway-monitoring/"
+          }
         }
       ],
       "id": "AWS_GATEWAY-Root",

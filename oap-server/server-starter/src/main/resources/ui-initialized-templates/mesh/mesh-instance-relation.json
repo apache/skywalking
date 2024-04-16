@@ -60,12 +60,8 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "relabels(service_instance_relation_client_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -133,14 +129,9 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_client_call_sla/100",
             "service_instance_relation_server_call_sla/100"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -200,7 +191,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Client"
@@ -212,10 +202,6 @@
           "expressions": [
             "service_instance_relation_client_resp_time",
             "service_instance_relation_server_resp_time"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -275,12 +261,8 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "expressions": [
             "relabels(service_instance_relation_server_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -340,7 +322,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Server"
@@ -352,10 +333,6 @@
           "expressions": [
             "service_instance_relation_server_cpm",
             "service_instance_relation_client_cpm"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -416,7 +393,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Client"
@@ -428,10 +404,6 @@
           "expressions": [
             "instance_client_sidecar_internal_resp_latency_nanos",
             "instance_server_sidecar_internal_resp_latency_nanos"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -492,7 +464,6 @@
               "widgetId": "14"
             }
           ],
-          "metricMode": "Expression",
           "metricConfig": [
             {
               "label": "Client"
@@ -504,10 +475,6 @@
           "expressions": [
             "instance_client_sidecar_internal_req_latency_nanos",
             "instance_server_sidecar_internal_req_latency_nanos"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -529,14 +496,9 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_client_received",
             "service_instance_relation_client_sent"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -597,14 +559,9 @@
             "showXAxis": true,
             "showYAxis": true
           },
-          "metricMode": "Expression",
           "expressions": [
             "service_instance_relation_server_received",
             "service_instance_relation_server_sent"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

@@ -133,8 +133,6 @@ public class MQEVisitor extends MQEVisitorBase {
                     queryMetrics(metricName, this.duration, result);
                 }
             } else if (Column.ValueDataType.LABELED_VALUE == dataType) {
-
-               // DataLabel dataLabel = new DataLabel();
                 if (ctx.parent instanceof MQEParser.TopNOPContext) {
                     throw new IllegalExpressionException(
                         "Metric: [" + metricName + "] is labeled value, dose not support top_n query.");

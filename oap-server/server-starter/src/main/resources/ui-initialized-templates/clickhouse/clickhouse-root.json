@@ -17,8 +17,7 @@
             "showXAxis": false,
             "showYAxis": false,
             "showGroup": true
-          },
-          "metricMode": "Expression"
+          }
         },
         {
           "x": 0,

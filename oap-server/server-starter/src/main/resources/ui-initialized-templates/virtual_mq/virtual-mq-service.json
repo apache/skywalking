@@ -1,5 +1,4 @@
-
- [
+[
   {
     "id": "Virtual-MQ-Service",
     "configuration": {
@@ -24,10 +23,6 @@
           },
           "expressions": [
             "mq_service_consume_cpm"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -78,10 +73,6 @@
           "expressions": [
             "mq_service_consume_sla/100"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "%",
@@ -129,10 +120,6 @@
           },
           "expressions": [
             "relabels(mq_service_consume_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "metricConfig": [
             {
@@ -182,10 +169,6 @@
           "expressions": [
             "mq_service_consume_latency"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "ms",
@@ -233,10 +216,6 @@
           },
           "expressions": [
             "mq_service_produce_cpm"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "metricConfig": [
             {
@@ -287,10 +266,6 @@
           "expressions": [
             "mq_service_produce_sla/100"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "metricConfig": [
             {
               "unit": "%",
@@ -340,15 +315,6 @@
             "avg(mq_endpoint_produce_sla)/100",
             "avg(mq_endpoint_produce_cpm)"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "moved": false,
           "metricConfig": [
             {
               "unit": "ms",

@@ -36,14 +36,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_topics"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-7",
-                  "moved": false,
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": []
+                  ]
                 },
                 {
                   "x": 6,
@@ -67,14 +60,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_subscriptions"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-8",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -98,14 +84,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_producers"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-9",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 18,
@@ -129,14 +108,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_total_consumers"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-10",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -159,17 +131,6 @@
                     "name": "message_rate_in"
                   },
                   "expressions": [
-                    "meter_pulsar_message_rate_in"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-11",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [
                     "meter_pulsar_message_rate_in"
                   ]
                 },
@@ -195,14 +156,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_message_rate_in"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-12",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -226,14 +180,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_throughput_in"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-13",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -257,14 +204,7 @@
                   },
                   "expressions": [
                     "meter_pulsar_throughput_in"
-                  ],
-                  "typesOfMQE": [],
-                  "metricMode": "Expression",
-                  "id": "16-0-14",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -273,16 +213,8 @@
                   "h": 10,
                   "i": "15",
                   "type": "Widget",
-                  "id": "16-0-15",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_pulsar_storage_read_rate.sum(['cluster','node'])"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -304,16 +236,8 @@
                   "h": 10,
                   "i": "16",
                   "type": "Widget",
-                  "id": "16-0-16",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_pulsar_storage_logical_size.sum(['cluster','node'])/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -335,16 +259,8 @@
                   "h": 10,
                   "i": "17",
                   "type": "Widget",
-                  "id": "16-0-17",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_pulsar_storage_write_rate.sum(['cluster','node'])"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -366,17 +282,9 @@
                   "h": 10,
                   "i": "18",
                   "type": "Widget",
-                  "id": "16-0-18",
-                  "metricTypes": [
-                    "readLabeledMetricsValues"
-                  ],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_pulsar_storage_size/1024/1024"
                   ],
-                  "metricConfig": [],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -391,8 +299,7 @@
                   "widget": {
                     "name": "storage_size",
                     "title": "Storage Size (MB)"
-                  },
-                  "typesOfMQE": []
+                  }
                 }
               ]
             },
@@ -410,19 +317,11 @@
                     "type": "InstanceList",
                     "dashboardName": "Pulsar-Broker",
                     "fontSize": 12
-                  },
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": [],
-                  "id": "16-1-0",
-                  "moved": false
+                  }
                 }
               ]
             }
-          ],
-          "id": "16",
-          "activedTabIndex": 0,
-          "moved": false
+          ]
         }
       ],
       "layer": "PULSAR",

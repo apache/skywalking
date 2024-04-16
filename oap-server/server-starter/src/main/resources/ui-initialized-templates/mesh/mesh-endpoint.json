@@ -50,12 +50,8 @@
                       "widgetId": "1-0-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "relabels(endpoint_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -94,7 +90,6 @@
                       "widgetId": "1-0-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "endpoint_resp_time"
                   ]
@@ -135,7 +130,6 @@
                       "widgetId": "1-0-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "endpoint_sla/100"
                   ]
@@ -176,12 +170,8 @@
                       "widgetId": "1-0-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "endpoint_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -221,7 +211,6 @@
                       "widgetId": "1-0-10"
                     }
                   ],
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "Request",
@@ -235,10 +224,6 @@
                   "expressions": [
                     "endpoint_sidecar_internal_req_latency_nanos",
                     "endpoint_sidecar_internal_resp_latency_nanos"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES",
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]

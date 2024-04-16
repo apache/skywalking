@@ -1,47 +1,45 @@
-
 [
-   {
-      "id":"PostgreSQL-Root",
-      "configuration":{
-         "children":[
-            {
-               "x":0,
-               "y":0,
-               "w":24,
-               "h":2,
-               "i":"0",
-               "type":"Text",
-               "graph":{
-                  "fontColor":"theme",
-                  "backgroundColor":"theme",
-                  "content":"Provide PostgreSQL monitoring through OpenTelemetry's Prometheus Receiver",
-                  "fontSize":14,
-                  "textAlign":"left",
-                  "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-postgresql-monitoring/"
-               }
-            },
-            {
-               "x":0,
-               "y":2,
-               "w":24,
-               "h":36,
-               "i":"1",
-               "type":"Widget",
-               "graph":{
-                  "type":"ServiceList",
-                  "dashboardName":"PostgreSQL-Service",
-                  "fontSize":12,
-                  "showXAxis":false,
-                  "showYAxis":false,
-                  "showGroup":true
-               },
-               "metricMode":"Expression"
-            }
-         ],
-         "layer":"POSTGRESQL",
-         "entity":"All",
-         "name":"PostgreSQL-Root",
-         "isRoot":true
-      }
-   }
+  {
+    "id": "PostgreSQL-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 2,
+          "i": "0",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Provide PostgreSQL monitoring through OpenTelemetry's Prometheus Receiver",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-postgresql-monitoring/"
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "w": 24,
+          "h": 36,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "PostgreSQL-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          }
+        }
+      ],
+      "layer": "POSTGRESQL",
+      "entity": "All",
+      "name": "PostgreSQL-Root",
+      "isRoot": true
+    }
+  }
 ]

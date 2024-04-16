@@ -31,21 +31,11 @@
                   },
                   "widget": {
                     "title": "Bookie Ledgers Count",
-                    "tips": "",
                     "name": "bookie_ledgers_count"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_ledgers_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-7",
-                  "moved": false,
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -64,21 +54,11 @@
                   },
                   "widget": {
                     "title": "Bookie Ledger Writable Dirs",
-                    "tips": "",
                     "name": "bookie_ledger_writable_dirs"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_ledger_writable_dirs"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-8",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -97,21 +77,11 @@
                   },
                   "widget": {
                     "title": "Bookie Ledger Dir Usage",
-                    "tips": "",
                     "name": "bookie_ledger_dir_data_bookkeeper_ledgers_usage"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_ledger_dir_data_bookkeeper_ledgers_usage"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-9",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -130,21 +100,11 @@
                   },
                   "widget": {
                     "title": "Bookie Entries Count",
-                    "tips": "",
                     "name": "bookie_entries_count"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_entries_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-10",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 0,
@@ -163,25 +123,16 @@
                   },
                   "widget": {
                     "title": "Bookie Write Cache Size (MB)",
-                    "tips": "",
                     "name": "bookie_write_cache_size"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_write_cache_size/1024/1024"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-11",
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "read cache size"
                     }
-                  ],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -200,25 +151,16 @@
                   },
                   "widget": {
                     "title": "Bookie Write Cache Entry Count",
-                    "tips": "",
                     "name": "bookie_write_cache_count"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_write_cache_count"
                   ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-12",
-                  "moved": false,
                   "metricConfig": [
                     {
                       "label": "read cache count"
                     }
-                  ],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 6,
@@ -237,21 +179,11 @@
                   },
                   "widget": {
                     "title": "Bookie Read Cache  (MB)",
-                    "tips": "",
                     "name": "_bookie_read_cache_size"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_read_cache_size/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-13",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 18,
@@ -270,21 +202,11 @@
                   },
                   "widget": {
                     "title": "Bookie Read Cache Entry Count",
-                    "tips": "",
                     "name": "throughput_out"
                   },
                   "expressions": [
                     "meter_bookkeeper_bookie_read_cache_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
-                  "metricMode": "Expression",
-                  "id": "16-0-14",
-                  "moved": false,
-                  "metricConfig": [],
-                  "metricTypes": [],
-                  "metrics": []
+                  ]
                 },
                 {
                   "x": 12,
@@ -293,16 +215,8 @@
                   "h": 10,
                   "i": "16",
                   "type": "Widget",
-                  "id": "16-0-16",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_bookkeeper_bookie_read_rate"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "graph": {
                     "type": "Line",
@@ -324,15 +238,9 @@
                   "h": 10,
                   "i": "18",
                   "type": "Widget",
-                  "id": "16-0-18",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "metricMode": "Expression",
-                  "moved": false,
                   "expressions": [
                     "meter_bookkeeper_bookie_write_rate"
                   ],
-                  "metricConfig": [],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -347,10 +255,7 @@
                   "widget": {
                     "name": "bookie_write_rate",
                     "title": "Bookie Write Rate(bytes/s)"
-                  },
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ]
+                  }
                 }
               ]
             },
@@ -368,19 +273,11 @@
                     "type": "InstanceList",
                     "dashboardName": "BookKeeper-Node",
                     "fontSize": 12
-                  },
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": [],
-                  "id": "16-1-0",
-                  "moved": false
+                  }
                 }
               ]
             }
-          ],
-          "id": "16",
-          "activedTabIndex": 0,
-          "moved": false
+          ]
         }
       ],
       "layer": "BOOKKEEPER",

@@ -1,253 +1,226 @@
-
 [
   {
-    "id":"Elasticsearch-Node",
-    "configuration":{
-      "children":[
+    "id": "Elasticsearch-Node",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":7,
-          "w":8,
-          "h":13,
-          "i":"0",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":false
+          "x": 0,
+          "y": 7,
+          "w": 8,
+          "h": 13,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": false
             }
           },
-          "widget":{
-            "title":"Process CPU Usage Percent (%)"
+          "widget": {
+            "title": "Process CPU Usage Percent (%)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Process CPU Percent"
+              "label": "Process CPU Percent"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_process_cpu_percent"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":16,
-          "y":7,
-          "w":8,
-          "h":13,
-          "i":"1",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 16,
+          "y": 7,
+          "w": 8,
+          "h": 13,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Load Average"
+          "widget": {
+            "title": "Load Average"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"OS Load1"
+              "label": "OS Load1"
             },
             {
-              "label":"OS Load5"
+              "label": "OS Load5"
             },
             {
-              "label":"OS Load15"
+              "label": "OS Load15"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_os_load1",
             "meter_elasticsearch_node_os_load5",
             "meter_elasticsearch_node_os_load15"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":20,
-          "w":6,
-          "h":13,
-          "i":"2",
-          "type":"Widget",
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 20,
+          "w": 6,
+          "h": 13,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Heap Used"
+              "label": "Heap Used"
             },
             {
-              "label":"Heap Max"
+              "label": "Heap Max"
             },
             {
-              "label":"Nonheap Used"
+              "label": "Nonheap Used"
             }
           ],
-          "widget":{
-            "title":"JVM Memory Usage (MB)"
+          "widget": {
+            "title": "JVM Memory Usage (MB)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_jvm_memory_heap_used/1024/1024",
             "meter_elasticsearch_node_jvm_memory_heap_max/1024/1024",
             "meter_elasticsearch_node_jvm_memory_nonheap_used/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":20,
-          "w":6,
-          "h":13,
-          "i":"3",
-          "type":"Widget",
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 6,
+          "y": 20,
+          "w": 6,
+          "h": 13,
+          "i": "3",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"JVM Pool Peak Used (MB)"
+          "widget": {
+            "title": "JVM Pool Peak Used (MB)"
           },
-          "relatedTrace":{
-            "refIdType":"none"
+          "relatedTrace": {
+            "refIdType": "none"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_jvm_memory_pool_peak_used/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":20,
-          "w":6,
-          "h":13,
-          "i":"4",
-          "type":"Widget",
-          "graph":{
-            "type":"Bar",
-            "showBackground":true
+          "x": 12,
+          "y": 20,
+          "w": 6,
+          "h": 13,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
           },
-          "widget":{
-            "title":"GC Count"
+          "widget": {
+            "title": "GC Count"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_jvm_gc_count"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":18,
-          "y":20,
-          "w":6,
-          "h":13,
-          "i":"5",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 20,
+          "w": 6,
+          "h": 13,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"GC Time (ms/min)"
+          "widget": {
+            "title": "GC Time (ms/min)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_jvm_gc_time"
           ]
         },
         {
-          "x":0,
-          "y":33,
-          "w":8,
-          "h":13,
-          "i":"6",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 33,
+          "w": 8,
+          "h": 13,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"All Operations ReqRate"
+          "widget": {
+            "title": "All Operations ReqRate"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indexing Index"
+              "label": "Indexing Index"
             },
             {
-              "label":"Search Query"
+              "label": "Search Query"
             },
             {
-              "label":"Search Fetch"
+              "label": "Search Fetch"
             },
             {
-              "label":"Merges"
+              "label": "Merges"
             },
             {
-              "label":"Refresh"
+              "label": "Refresh"
             },
             {
-              "label":"Flush"
+              "label": "Flush"
             },
             {
-              "label":"Get Exists"
+              "label": "Get Exists"
             },
             {
-              "label":"Get"
+              "label": "Get"
             },
             {
-              "label":"Get Missing"
+              "label": "Get Missing"
             },
             {
-              "label":"Indexing Delete"
+              "label": "Indexing Delete"
             },
             {
-              "label":"Search Scroll"
+              "label": "Search Scroll"
             },
             {
-              "label":"Search Suggest"
+              "label": "Search Suggest"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_indexing_index_total_req_rate",
             "meter_elasticsearch_node_indices_search_query_total_req_rate",
             "meter_elasticsearch_node_indices_search_fetch_total_req_rate",
@@ -260,850 +233,727 @@
             "meter_elasticsearch_node_indices_indexing_delete_total_req_rate",
             "meter_elasticsearch_node_indices_search_scroll_total_req_rate",
             "meter_elasticsearch_node_indices_search_suggest_total_req_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":16,
-          "y":33,
-          "w":8,
-          "h":13,
-          "i":"7",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 16,
+          "y": 33,
+          "w": 8,
+          "h": 13,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Searching Rate",
-            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          "widget": {
+            "title": "Searching Rate",
+            "tips": "`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Proc Rate"
+              "label": "Proc Rate"
             },
             {
-              "label":"Total Rate"
+              "label": "Total Rate"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_search_query_time_seconds_proc_rate",
             "meter_elasticsearch_node_indices_search_query_total_req_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":46,
-          "w":6,
-          "h":13,
-          "i":"9",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 46,
+          "w": 6,
+          "h": 13,
+          "i": "9",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Total Translog Operations"
+          "widget": {
+            "title": "Total Translog Operations"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indices Translog Operations"
+              "label": "Indices Translog Operations"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_translog_operations"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":46,
-          "w":6,
-          "h":13,
-          "i":"10",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 6,
+          "y": 46,
+          "w": 6,
+          "h": 13,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Total Translog Size (MB)"
+          "widget": {
+            "title": "Total Translog Size (MB)"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Node Indices Translog Size"
+              "label": "Node Indices Translog Size"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_translog_size/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":46,
-          "w":6,
-          "h":13,
-          "i":"11",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 46,
+          "w": 6,
+          "h": 13,
+          "i": "11",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Tripped For Breakers"
+          "widget": {
+            "title": "Tripped For Breakers"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_breakers_tripped"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":18,
-          "y":46,
-          "w":6,
-          "h":13,
-          "i":"12",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 46,
+          "w": 6,
+          "h": 13,
+          "i": "12",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Estimated Size Of Breaker (MB)"
+          "widget": {
+            "title": "Estimated Size Of Breaker (MB)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_breakers_estimated_size/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":8,
-          "y":86,
-          "w":8,
-          "h":13,
-          "i":"13",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 8,
+          "y": 86,
+          "w": 8,
+          "h": 13,
+          "i": "13",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Segment Memory"
+              "label": "Segment Memory"
             }
           ],
-          "widget":{
-            "title":"Current Memory Size Of Segments (MB)"
+          "widget": {
+            "title": "Current Memory Size Of Segments (MB)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_segment_memory"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":99,
-          "w":6,
-          "h":14,
-          "i":"14",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":true
+          "x": 0,
+          "y": 99,
+          "w": 6,
+          "h": 14,
+          "i": "14",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": true
             }
           },
-          "widget":{
-            "title":"Disk Usage Percent (%)"
+          "widget": {
+            "title": "Disk Usage Percent (%)"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Disk Usage Percent"
+              "label": "Disk Usage Percent"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_disk_usage_percent"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":59,
-          "w":8,
-          "h":13,
-          "i":"15",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 59,
+          "w": 8,
+          "h": 13,
+          "i": "15",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indices Docs"
+              "label": "Indices Docs"
             }
           ],
-          "widget":{
-            "title":"Documents Count"
+          "widget": {
+            "title": "Documents Count"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_docs"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":86,
-          "w":8,
-          "h":13,
-          "i":"16",
-          "type":"Widget",
-          "graph":{
-            "type":"Bar",
-            "showBackground":true
+          "x": 0,
+          "y": 86,
+          "w": 8,
+          "h": 13,
+          "i": "16",
+          "type": "Widget",
+          "graph": {
+            "type": "Bar",
+            "showBackground": true
           },
-          "widget":{
-            "title":"Count Of Index Segments"
+          "widget": {
+            "title": "Count Of Index Segments"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Segment Count"
+              "label": "Segment Count"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_segment_count"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":0,
-          "w":6,
-          "h":7,
-          "i":"17",
-          "type":"Widget",
-          "graph":{
-            "type":"Table",
-            "showTableValues":false,
-            "tableHeaderCol1":"Client-Data-Ingest-Master",
-            "tableHeaderCol2":""
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 7,
+          "i": "17",
+          "type": "Widget",
+          "graph": {
+            "type": "Table",
+            "showTableValues": false,
+            "tableHeaderCol1": "Client-Data-Ingest-Master",
+            "tableHeaderCol2": ""
           },
-          "widget":{
-            "title":"Node Rules"
+          "widget": {
+            "title": "Node Rules"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_rules"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":0,
-          "w":3,
-          "h":7,
-          "i":"18",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 12,
+          "y": 0,
+          "w": 3,
+          "h": 7,
+          "i": "18",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Documents"
+          "widget": {
+            "title": "Documents"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_elasticsearch_node_indices_docs)"
           ]
         },
         {
-          "x":8,
-          "y":7,
-          "w":8,
-          "h":13,
-          "i":"26",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":false
+          "x": 8,
+          "y": 7,
+          "w": 8,
+          "h": 13,
+          "i": "26",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": false
             }
           },
-          "widget":{
-            "title":"OS CPU Usage Percent"
+          "widget": {
+            "title": "OS CPU Usage Percent"
           },
           "metricConfig": [
             {
-              "unit": "%"
+              "label": "OS CPU Percent"
             }
           ],
-          "metricMode":"Expression",
-          "metricConfig":[
-            {
-              "label":"OS CPU Percent"
-            }
-          ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_os_cpu_percent"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":99,
-          "w":6,
-          "h":14,
-          "i":"27",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":true
+          "x": 6,
+          "y": 99,
+          "w": 6,
+          "h": 14,
+          "i": "27",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": true
             }
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Disk Usage"
+              "label": "Disk Usage"
             }
           ],
-          "widget":{
-            "title":"Disk Usage (GB)"
+          "widget": {
+            "title": "Disk Usage (GB)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_disk_usage/1024/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":16,
-          "y":86,
-          "w":8,
-          "h":13,
-          "i":"28",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":true
+          "x": 16,
+          "y": 86,
+          "w": 8,
+          "h": 13,
+          "i": "28",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": true
             }
           },
-          "widget":{
-            "title":"Network (bytes/sec)"
+          "widget": {
+            "title": "Network (bytes/sec)"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Network Sent Bytes"
+              "label": "Network Sent Bytes"
             },
             {
-              "label":"Network Receive Bytes"
+              "label": "Network Receive Bytes"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_network_send_bytes",
             "meter_elasticsearch_node_network_receive_bytes"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":99,
-          "w":6,
-          "h":14,
-          "i":"29",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 99,
+          "w": 6,
+          "h": 14,
+          "i": "29",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Disk Read (KBs)"
+          "widget": {
+            "title": "Disk Read (KBs)"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Disk IO Read"
+              "label": "Disk IO Read"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_disk_io_read_bytes"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":15,
-          "y":0,
-          "w":3,
-          "h":7,
-          "i":"30",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 15,
+          "y": 0,
+          "w": 3,
+          "h": 7,
+          "i": "30",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Segments"
+          "widget": {
+            "title": "Segments"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_elasticsearch_node_segment_count)"
           ]
         },
         {
-          "x":21,
-          "y":0,
-          "w":3,
-          "h":7,
-          "i":"31",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 21,
+          "y": 0,
+          "w": 3,
+          "h": 7,
+          "i": "31",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Open Files"
+          "widget": {
+            "title": "Open Files"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "avg(meter_elasticsearch_node_open_file_count)"
           ]
         },
         {
-          "x":18,
-          "y":99,
-          "w":6,
-          "h":14,
-          "i":"32",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":true
+          "x": 18,
+          "y": 99,
+          "w": 6,
+          "h": 14,
+          "i": "32",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": true
             }
           },
-          "widget":{
-            "title":"Disk Write"
+          "widget": {
+            "title": "Disk Write"
           },
           "metricConfig": [
             {
-              "unit": "KB/s"
+              "label": "Disk IO Write"
             }
           ],
-          "metricMode":"Expression",
-          "metricConfig":[
-            {
-              "label":"Disk IO Write"
-            }
-          ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_disk_io_write_bytes"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":0,
-          "w":3,
-          "h":7,
-          "i":"33",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 6,
+          "y": 0,
+          "w": 3,
+          "h": 7,
+          "i": "33",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"JVM Memory Used (MB)"
+          "widget": {
+            "title": "JVM Memory Used (MB)"
           },
           "metricConfig": [
             {
               "unit": "MB"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "avg(meter_elasticsearch_node_jvm_memory_used)/1024/1024"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":9,
-          "y":0,
-          "w":3,
-          "h":7,
-          "i":"34",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 9,
+          "y": 0,
+          "w": 3,
+          "h": 7,
+          "i": "34",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"CPU Usage"
+          "widget": {
+            "title": "CPU Usage"
           },
           "metricConfig": [
             {
               "unit": "%"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "avg(meter_elasticsearch_node_process_cpu_percent)"
           ]
         },
         {
-          "x":18,
-          "y":0,
-          "w":3,
-          "h":7,
-          "i":"35",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 18,
+          "y": 0,
+          "w": 3,
+          "h": 7,
+          "i": "35",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Disk Free Space"
+          "widget": {
+            "title": "Disk Free Space"
           },
           "metricConfig": [
             {
               "unit": "GB"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_elasticsearch_node_all_disk_free_space)/1024/1024/1024"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":8,
-          "y":33,
-          "w":8,
-          "h":13,
-          "i":"36",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 8,
+          "y": 33,
+          "w": 8,
+          "h": 13,
+          "i": "36",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Indexing Rate",
-            "tips":"`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
+          "widget": {
+            "title": "Indexing Rate",
+            "tips": "`proc_rate`: processing ability, which is the number of requests that Elasticsearch can handle. Estimation is based on the processed requests and processed time for these requests."
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Proc Rate"
+              "label": "Proc Rate"
             },
             {
-              "label":"Req Rate"
+              "label": "Req Rate"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_indexing_index_total_proc_rate",
             "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":72,
-          "w":8,
-          "h":14,
-          "i":"37",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true,
-            "legend":{
-              "show":false
+          "x": 0,
+          "y": 72,
+          "w": 8,
+          "h": 14,
+          "i": "37",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true,
+            "legend": {
+              "show": false
             }
           },
-          "widget":{
-            "title":"Documents Index Rate (calls/s)"
+          "widget": {
+            "title": "Documents Index Rate (calls/s)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indexing Index"
+              "label": "Indexing Index"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_indexing_index_total_req_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":8,
-          "y":59,
-          "w":8,
-          "h":13,
-          "i":"38",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 8,
+          "y": 59,
+          "w": 8,
+          "h": 13,
+          "i": "38",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Merged Documents Count"
+          "widget": {
+            "title": "Merged Documents Count"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indices Merges Docs"
+              "label": "Indices Merges Docs"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_merges_docs_total"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":16,
-          "y":59,
-          "w":8,
-          "h":13,
-          "i":"39",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 16,
+          "y": 59,
+          "w": 8,
+          "h": 13,
+          "i": "39",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Deleted Documents"
+          "widget": {
+            "title": "Deleted Documents"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indices Docs Deleted"
+              "label": "Indices Docs Deleted"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_docs_deleted_total"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":16,
-          "y":72,
-          "w":8,
-          "h":14,
-          "i":"40",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 16,
+          "y": 72,
+          "w": 8,
+          "h": 14,
+          "i": "40",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Documents Deleted Rate (docs/s)"
+          "widget": {
+            "title": "Documents Deleted Rate (docs/s)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indices Docs Deleted"
+              "label": "Indices Docs Deleted"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_docs_deleted"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":8,
-          "y":72,
-          "w":8,
-          "h":14,
-          "i":"41",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":true,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 8,
+          "y": 72,
+          "w": 8,
+          "h": 14,
+          "i": "41",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": true,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Merged Documents Rate (MB / s)"
+          "widget": {
+            "title": "Merged Documents Rate (MB / s)"
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Indices Merged Size"
+              "label": "Indices Merged Size"
             }
           ],
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_elasticsearch_node_indices_merges_total_size_bytes_total/1024/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         }
       ],
-      "layer":"ELASTICSEARCH",
-      "entity":"ServiceInstance",
-      "name":"Elasticsearch-Node",
-      "id":"Elasticsearch-Node",
-      "isRoot":false
+      "layer": "ELASTICSEARCH",
+      "entity": "ServiceInstance",
+      "name": "Elasticsearch-Node",
+      "id": "Elasticsearch-Node",
+      "isRoot": false
     }
   }
 ]

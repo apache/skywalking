@@ -1,4 +1,3 @@
-
 [
   {
     "id": "AWS_EKS-service",
@@ -35,10 +34,6 @@
                   },
                   "expressions": [
                     "eks_cluster_service_pod_cpu_utilization"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -82,10 +77,6 @@
                   "expressions": [
                     "eks_cluster_service_pod_memory_utilization"
                   ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -127,10 +118,6 @@
                   },
                   "expressions": [
                     "eks_cluster_service_pod_net_rx_bytes/1024"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -174,10 +161,6 @@
                   "expressions": [
                     "eks_cluster_service_pod_net_rx_error"
                   ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -219,10 +202,6 @@
                   },
                   "expressions": [
                     "eks_cluster_service_pod_net_tx_bytes/1024"
-                  ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ],
                   "associate": [
                     {
@@ -266,10 +245,6 @@
                   "expressions": [
                     "eks_cluster_service_pod_net_tx_error"
                   ],
-                  "metricMode": "Expression",
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
-                  ],
                   "associate": [
                     {
                       "widgetId": "1"
@@ -295,9 +270,7 @@
             }
           ]
         }
-
       ],
-
       "layer": "AWS_EKS",
       "entity": "Endpoint",
       "name": "AWS_EKS-service",

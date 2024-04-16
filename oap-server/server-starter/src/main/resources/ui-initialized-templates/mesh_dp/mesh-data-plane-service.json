@@ -37,21 +37,15 @@
                       "label": "Bug Failures"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
+                    "avg(envoy_total_connections_used)",
+                    "avg(envoy_worker_threads)",
+                    "avg(envoy_bug_failures)"
+                  ],
+                  "subExpressions": [
                     "envoy_total_connections_used",
                     "envoy_worker_threads",
                     "envoy_bug_failures"
-                  ],
-                  "subExpressions": [
-                    "",
-                    "",
-                    ""
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]

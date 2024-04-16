@@ -48,8 +48,13 @@ public class UITemplateCheckerTest {
             File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
                 Locale.ROOT));
             for (File template : templateFiles) {
-                JsonNode jsonNode = mapper.readTree(template);
-                if (jsonNode == null || jsonNode.size() == 0) {
+                JsonNode jsonNode;
+                try {
+                    jsonNode = mapper.readTree(template);
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("File: " + template.getName() + " is not a legal json file.", e);
+                }
+                if (jsonNode == null || jsonNode.isEmpty()) {
                     continue;
                 }
                 if (jsonNode.size() > 1) {

@@ -10,13 +10,6 @@
           "h": 29,
           "i": "0",
           "type": "Widget",
-          "id": "0",
-          "metricTypes": [
-            ""
-          ],
-          "metrics": [
-            ""
-          ],
           "graph": {
             "type": "ServiceList",
             "dashboardName": "Pulsar-Cluster",
@@ -25,7 +18,8 @@
             "showYAxis": false,
             "showGroup": true
           }
-        }, {
+        },
+        {
           "x": 0,
           "y": 0,
           "w": 24,

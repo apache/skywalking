@@ -1,48 +1,46 @@
-
 [
   {
-    "id":"AWS-DynamoDB-Root",
-    "configuration":{
-      "children":[
+    "id": "AWS-DynamoDB-Root",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":0,
-          "w":24,
-          "h":3,
-          "i":"1",
-          "type":"Text",
-          "graph":{
-            "fontColor":"theme",
-            "backgroundColor":"theme",
-            "content":"Provide DynamoDB monitoring through Amazon CloudWatch",
-            "fontSize":14,
-            "textAlign":"left",
-            "url":"https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-dynamodb-monitoring/"
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 3,
+          "i": "1",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Provide DynamoDB monitoring through Amazon CloudWatch",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-aws-dynamodb-monitoring/"
           }
         },
         {
-          "x":0,
-          "y":3,
-          "w":24,
-          "h":43,
-          "i":"0",
-          "type":"Widget",
-          "graph":{
-            "type":"ServiceList",
-            "dashboardName":"AWS-DynamoDB-Service",
-            "fontSize":12,
-            "showXAxis":false,
-            "showYAxis":false,
-            "showGroup":true
-          },
-          "metricMode":"Expression"
+          "x": 0,
+          "y": 3,
+          "w": 24,
+          "h": 43,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "AWS-DynamoDB-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          }
         }
       ],
-      "layer":"AWS_DYNAMODB",
-      "entity":"All",
-      "name":"AWS-DynamoDB-Root",
-      "id":"AWS-DynamoDB-Root",
-      "isRoot":true
+      "layer": "AWS_DYNAMODB",
+      "entity": "All",
+      "name": "AWS-DynamoDB-Root",
+      "id": "AWS-DynamoDB-Root",
+      "isRoot": true
     }
   }
 ]
