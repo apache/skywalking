@@ -105,6 +105,7 @@
   - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
 * Fix/Change UI init setting for Windows Swap -> Virtual Memory
 * Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
+* Support Apache ActiveMQ server monitoring. 
 
 #### UI
 
@@ -163,5 +164,6 @@
 * Remove `OpenTelemetry Exporter` support from meter doc, as this has been flagged as unmaintained on OTEL upstream.
 * Add doc of one-line quick start script for different storage types.
 * Add FAQ for `Why is Clickhouse or Loki or xxx not supported as a storage option?`.
+* Add `SWIP-6 Support ActiveMQ Monitoring`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)

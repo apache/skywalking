@@ -1,0 +1,100 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+version: "2.1"
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - "12800:12800"
+    networks:
+      - e2e
+
+  amq:
+    image: apache/activemq-classic:6.0.1
+    hostname: amq
+    ports:
+      - "61616:61616"
+      - "8161:8161"
+    expose:
+      - 1616
+    volumes:
+      - ./config/amq/activemq.xml:/opt/apache-activemq/conf/activemq.xml
+    environment:
+      ACTIVEMQ_SUNJMX_START: "-Dcom.sun.management.jmxremote.port=1616 -Dcom.sun.management.jmxremote.rmi.port=1616 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
+      ACTIVEMQ_BROKER_NAME: activemq-broker
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --silent --fail localhost:8161 || exit 1" ]
+      interval: 15s
+      timeout: 10s
+      retries: 120
+    networks:
+      - e2e
+
+  amqexporter:
+    image: bitnami/jmx-exporter:0.20.0
+    hostname: amqexporter
+    volumes:
+      - ./config/amq/config.yaml:/opt/bitnami/jmx-exporter/example_configs/httpserver_sample_config.yml
+    expose:
+      - 5556
+    depends_on:
+      - amq
+    networks:
+      - e2e
+
+  amq-consumer-mock:
+    image: apache/activemq-classic:6.0.1
+    hostname: amq-consumer-mock
+    entrypoint: bash
+    command:
+      - -c
+      - "/opt/apache-activemq/bin/activemq consumer --brokerUrl tcp://amq:61616 --destination queue://testQueue --messageCount 10 --parallelThreads 2 && /opt/apache-activemq/bin/activemq consumer --brokerUrl tcp://amq:61616 --destination topic://testTopic --messageCount 10 --parallelThreads 2"
+    depends_on:
+      amq:
+        condition: service_healthy
+    networks:
+      - e2e
+
+  amq-producer-mock:
+    image: apache/activemq-classic:6.0.1
+    hostname: amq-producer-mock
+    entrypoint: bash
+    command:
+      - -c
+      - "/opt/apache-activemq/bin/activemq producer --brokerUrl tcp://amq:61616 --destination queue://testQueue --messageCount 50 --persistent true --message hello && /opt/apache-activemq/bin/activemq producer --brokerUrl tcp://amq:61616 --destination topic://testTopic --messageCount 50 --persistent true --message world"
+    depends_on:
+      - amq-consumer-mock
+    networks:
+      - e2e
+
+  otel-collector:
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

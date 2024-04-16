@@ -72,6 +72,7 @@ Next SWIP Number: 6
 
 ### Accepted SWIPs
 
+- [SWIP-6 Support ActiveMQ Monitoring](SWIP-6.md)
 - [SWIP-5 Support ClickHouse Monitoring](SWIP-5.md)
 - [SWIP-4 Support available layers of service in the topology](SWIP-4.md)
 - [SWIP-3 Support RocketMQ Monitoring](SWIP-3.md)

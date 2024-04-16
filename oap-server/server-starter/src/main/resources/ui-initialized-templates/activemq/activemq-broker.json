@@ -1,0 +1,355 @@
+[
+    {
+        "id": "ActiveMQ-Broker",
+        "configuration": {
+            "children": [
+                {
+                    "x": 6,
+                    "y": 0,
+                    "w": 6,
+                    "h": 9,
+                    "i": "0",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_broker_state"
+                    ],
+                    "graph": {
+                        "type": "Table",
+                        "showTableValues": true,
+                        "tableHeaderCol1": "",
+                        "tableHeaderCol2": ""
+                    },
+                    "widget": {
+                        "name": "SlaveBroker",
+                        "title": "Slave Broker",
+                        "tips": "If slave broker then 1 else 0"
+                    }
+                },
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 6,
+                    "h": 9,
+                    "i": "1",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_broker_uptime/1000/60/60"
+                    ],
+                    "graph": {
+                        "type": "Table",
+                        "showTableValues": true,
+                        "tableHeaderCol2": ""
+                    },
+                    "metricConfig": [
+                        {
+                            "unit": "day",
+                            "label": "Uptime"
+                        }
+                    ],
+                    "widget": {
+                        "name": "BrokerUptime",
+                        "title": "Uptime",
+                        "tips": "Uptime of the broker in day."
+                    }
+                },
+                {
+                    "x": 12,
+                    "y": 0,
+                    "w": 12,
+                    "h": 9,
+                    "i": "2",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_broker_current_connentions"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Connections"
+                        }
+                    ],
+                    "widget": {
+                        "name": "Connections",
+                        "title": "Connections",
+                        "tips": "The number of clients connected to the broker currently."
+                    }
+                },
+                {
+                    "x": 12,
+                    "y": 9,
+                    "w": 6,
+                    "h": 9,
+                    "i": "3",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_producer_count,sum)"
+                    ],
+                    "graph": {
+                        "type": "Bar",
+                        "showBackground": true
+                    },
+                    "widget": {
+                        "name": "ProducerCount",
+                        "title": "Increased Producer Count",
+                        "tips": "The number of producers currently attached to the broker."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Producer"
+                        }
+                    ]
+                },
+                {
+                    "x": 18,
+                    "y": 9,
+                    "w": 6,
+                    "h": 9,
+                    "i": "4",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_consumer_count,sum)"
+                    ],
+                    "graph": {
+                        "type": "Bar",
+                        "showBackground": true
+                    },
+                    "widget": {
+                        "name": "ConsumerCount",
+                        "title": "Increased Consumer Count",
+                        "tips": "The number of consumers consuming messages from the broker."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Consumer"
+                        }
+                    ]
+                },
+                {
+                    "x": 0,
+                    "y": 18,
+                    "w": 12,
+                    "h": 10,
+                    "i": "5",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_enqueue_count,sum)",
+                        "aggregate_labels(meter_activemq_broker_dequeue_count,sum)"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Enqueue"
+                        },
+                        {
+                            "label": "Dequeue"
+                        }
+                    ],
+                    "widget": {
+                        "name": "EnqueueDequeueCount",
+                        "title": "Enqueue/Dequeue Count",
+                        "tips": "The total number of messages sent to the broker & The total number of messages the broker has delivered to consumers."
+                    }
+                },
+                {
+                    "x": 0,
+                    "y": 28,
+                    "w": 8,
+                    "h": 11,
+                    "i": "6",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_memory_usage,sum)/1024/1024"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Memory Usage",
+                            "unit": "MB"
+                        }
+                    ],
+                    "widget": {
+                        "name": "MemoryUsage",
+                        "title": "Memory Usage(MB)",
+                        "tips": "Memory used by undelivered messages in the broker."
+                    }
+                },
+                {
+                    "x": 8,
+                    "y": 28,
+                    "w": 8,
+                    "h": 11,
+                    "i": "7",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_memory_limit,sum)/1024/1024/1024",
+                        "aggregate_labels(meter_activemq_broker_store_limit,sum)/1024/1024/1024",
+                        "aggregate_labels(meter_activemq_broker_temp_limit,sum)/1024/1024/1024"
+                    ],
+                    "metricConfig": [
+                        {
+                            "unit": "GB",
+                            "label": "Memory Usage Limit"
+                        },
+                        {
+                            "label": "Store Usage Limit",
+                            "unit": "GB"
+                        },
+                        {
+                            "unit": "GB",
+                            "label": "Temp Usage Limit"
+                        }
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "widget": {
+                        "name": "UsageLimit",
+                        "title": "Usage Limit(GB)",
+                        "tips": "Disk limit for messages."
+                    }
+                },
+                {
+                    "x": 16,
+                    "y": 28,
+                    "w": 8,
+                    "h": 11,
+                    "i": "8",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_average_message_size,avg)",
+                        "aggregate_labels(meter_activemq_broker_max_message_size,max)"
+                    ],
+                    "metricConfig": [
+                        {
+                            "unit": "bytes",
+                            "label": "Average Message Size"
+                        },
+                        {
+                            "label": "Max Message Size",
+                            "unit": "bytes"
+                        }
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "widget": {
+                        "name": "MessageSize",
+                        "title": "Message Size",
+                        "tips": "Average/Max message size on this broker."
+                    }
+                },
+                {
+                    "x": 0,
+                    "y": 9,
+                    "w": 6,
+                    "h": 9,
+                    "i": "9",
+                    "type": "Widget",
+                    "expressions": [
+                        "latest(aggregate_labels(meter_activemq_broker_current_producer_count,sum))"
+                    ],
+                    "graph": {
+                        "type": "Card",
+                        "fontSize": 24,
+                        "textAlign": "center",
+                        "showUnit": true
+                    },
+                    "widget": {
+                        "name": "CurrentProducerCount",
+                        "title": "Current Producer Count",
+                        "tips": "The number of producers currently attached to the broker."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Current Producers"
+                        }
+                    ]
+                },
+                {
+                    "x": 6,
+                    "y": 9,
+                    "w": 6,
+                    "h": 9,
+                    "i": "10",
+                    "type": "Widget",
+                    "expressions": [
+                        "latest(aggregate_labels(meter_activemq_broker_current_consumer_count,sum))"
+                    ],
+                    "graph": {
+                        "type": "Card",
+                        "fontSize": 24,
+                        "textAlign": "center",
+                        "showUnit": true
+                    },
+                    "widget": {
+                        "name": "CurrentConsumerCount",
+                        "title": "Current Consumer Count",
+                        "tips": "The number of consumers consuming messages from the broker."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Current Consumers"
+                        }
+                    ]
+                },
+                {
+                    "x": 12,
+                    "y": 18,
+                    "w": 12,
+                    "h": 10,
+                    "i": "11",
+                    "type": "Widget",
+                    "expressions": [
+                        "aggregate_labels(meter_activemq_broker_enqueue_rate,avg)",
+                        "aggregate_labels(meter_activemq_broker_dequeue_rate,avg)"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "widget": {
+                        "name": "EnqueueDequeueRate",
+                        "title": "Enqueue/Dequeue Rate",
+                        "tips": "Enqueue/Dequeue Rate per second."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Enqueue"
+                        },
+                        {
+                            "label": "Dequeue"
+                        }
+                    ]
+                }
+            ],
+            "layer": "ACTIVEMQ",
+            "entity": "ServiceInstance",
+            "name": "ActiveMQ-Broker",
+            "id": "ActiveMQ-Broker",
+            "isRoot": false
+        }
+    }
+]
