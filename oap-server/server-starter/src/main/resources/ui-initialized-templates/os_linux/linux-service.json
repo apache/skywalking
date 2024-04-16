@@ -329,7 +329,7 @@
             "showUnit": true
           },
           "expressions": [
-            "avg(meter_vm_memory_swap_percentage)/100"
+            "avg(meter_vm_memory_swap_percentage)"
           ],
           "typesOfMQE": [
             "SINGLE_VALUE"

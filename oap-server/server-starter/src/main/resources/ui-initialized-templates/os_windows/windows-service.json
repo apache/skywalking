@@ -1,247 +1,252 @@
-[
-  {
-    "id": "Windows-Service",
-    "configuration": {
-      "children": [
-        {
-          "x": 8,
-          "y": 19,
-          "w": 8,
-          "h": 13,
-          "i": "2",
-          "type": "Widget",
-          "widget": {
-            "title": "Network Bandwidth Usage (KB/s)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": [
-            "meter_win_network_receive",
-            "meter_win_network_transmit"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ]
+
+[{
+  "id": "Windows-Service",
+  "configuration": {
+    "children": [
+      {
+        "x": 8,
+        "y": 19,
+        "w": 8,
+        "h": 13,
+        "i": "2",
+        "type": "Widget",
+        "widget": {
+          "title": "Network Bandwidth Usage (KB/s)"
         },
-        {
-          "x": 8,
-          "y": 6,
-          "w": 8,
-          "h": 13,
-          "i": "3",
-          "type": "Widget",
-          "widget": {
-            "title": "Disk R/W (KB/s - OTEL, ops - Zabbix)"
-          },
-          "graph": {
-            "type": "Line",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": [
-            "meter_win_disk_read/1024",
-            "meter_win_disk_written/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "metricConfig": [
-            {
-              "label": "read"
-            },
-            {
-              "calculation": "written"
-            }
-          ]
+        "graph": {
+          "type": "Area",
+          "opacity": 0.4,
+          "showXAxis": true,
+          "showYAxis": true
         },
-        {
-          "x": 0,
-          "y": 6,
-          "w": 8,
-          "h": 13,
-          "i": "5",
-          "type": "Widget",
-          "widget": {
-            "title": "CPU Average Used (%)"
-          },
-          "graph": {
-            "type": "Line",
-            "step": false,
-            "smooth": false,
-            "showSymbol": true,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": [
-            "meter_win_cpu_average_used"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ]
+        "expressions": [
+          "meter_win_network_receive",
+          "meter_win_network_transmit"
+        ],
+        "metricMode": "Expression",
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ]
+      },
+      {
+        "x": 8,
+        "y": 6,
+        "w": 8,
+        "h": 13,
+        "i": "3",
+        "type": "Widget",
+        "widget": {
+          "title": "Disk R/W (KB/s - OTEL, ops - Zabbix)"
         },
-        {
-          "x": 16,
-          "y": 6,
-          "w": 8,
-          "h": 13,
-          "i": "6",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory RAM (MB)"
-          },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": [
-            "meter_win_memory_used/1024/1024",
-            "meter_win_memory_total/1024/1024",
-            "meter_win_memory_available/1024/1024"
-          ],
-          "metricConfig": [
-            {
-              "label": "used"
-            },
-            {
-              "label": "total"
-            },
-            {
-              "label": "available"
-            }
-          ]
+        "graph": {
+          "type": "Line",
+          "opacity": 0.4,
+          "showXAxis": true,
+          "showYAxis": true
         },
-        {
-          "x": 0,
-          "y": 19,
-          "w": 8,
-          "h": 13,
-          "i": "8",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory Swap (MB)"
+        "expressions": [
+          "meter_win_disk_read/1024",
+          "meter_win_disk_written/1024"
+        ],
+        "metricMode": "Expression",
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "metricConfig": [
+          {
+            "label": "read"
           },
-          "graph": {
-            "type": "Area",
-            "opacity": 0.4,
-            "showXAxis": true,
-            "showYAxis": true
-          },
-          "expressions": [
-            "meter_win_memory_swap_free/1024/1024",
-            "meter_win_memory_swap_total/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
-          ],
-          "metricConfig": [
-            {
-              "label": "free"
-            },
-            {
-              "label": "total"
-            }
-          ]
+          {
+            "calculation": "written"
+          }
+        ]
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "w": 8,
+        "h": 13,
+        "i": "5",
+        "type": "Widget",
+        "widget": {
+          "title": "CPU Average Used (%)"
         },
-        {
-          "x": 16,
-          "y": 0,
-          "w": 8,
-          "h": 6,
-          "i": "9",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory Swap Usage"
-          },
-          "graph": {
-            "type": "Card",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showUnit": true
-          },
-          "expressions": [
-            "avg(meter_win_memory_swap_percentage/100)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
-          "metricConfig": [
-            {
-              "unit": "%"
-            }
-          ]
+        "graph": {
+          "type": "Line",
+          "step": false,
+          "smooth": false,
+          "showSymbol": true,
+          "showXAxis": true,
+          "showYAxis": true
         },
-        {
-          "x": 8,
-          "y": 0,
-          "w": 8,
-          "h": 6,
-          "i": "10",
-          "type": "Widget",
-          "widget": {
-            "title": "Memory RAM Usage"
-          },
-          "graph": {
-            "type": "Card",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showUnit": true
-          },
-          "expressions": [
-            "avg(meter_win_memory_used)/1024/1024"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
-          "metricConfig": [
-            {
-              "unit": "MB"
-            }
-          ]
+        "expressions": [
+          "meter_win_cpu_average_used"
+        ],
+        "metricMode": "Expression",
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES"
+        ]
+      },
+      {
+        "x": 16,
+        "y": 6,
+        "w": 8,
+        "h": 13,
+        "i": "6",
+        "type": "Widget",
+        "widget": {
+          "title": "Memory RAM (MB)"
         },
-        {
-          "x": 0,
-          "y": 0,
-          "w": 8,
-          "h": 6,
-          "i": "11",
-          "type": "Widget",
-          "widget": {
-            "title": "CPU Usage"
+        "graph": {
+          "type": "Area",
+          "opacity": 0.4,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "expressions": [
+          "meter_win_memory_used/1024/1024",
+          "meter_win_memory_total/1024/1024",
+          "meter_win_memory_available/1024/1024"
+        ],
+        "metricTypes": [
+          "readMetricsValues",
+          "readMetricsValues",
+          "readMetricsValues"
+        ],
+        "metricConfig": [
+          {
+            "label": "used"
           },
-          "graph": {
-            "type": "Card",
-            "fontSize": 14,
-            "textAlign": "center",
-            "showUnit": true
+          {
+            "label": "total"
           },
-          "expressions": [
-            "avg(meter_win_cpu_total_percentage)"
-          ],
-          "typesOfMQE": [
-            "SINGLE_VALUE"
-          ],
-          "metricConfig": [
-            {
-              "unit": "%"
-            }
-          ]
-        }
+          {
+            "label": "available"
+          }
+        ]
+      },
+      {
+        "x": 0,
+        "y": 19,
+        "w": 8,
+        "h": 13,
+        "i": "8",
+        "type": "Widget",
+        "widget": {
+          "title": "Virtual Memory (MB)"
+        },
+        "graph": {
+          "type": "Area",
+          "opacity": 0.4,
+          "showXAxis": true,
+          "showYAxis": true
+        },
+        "expressions": [
+          "meter_win_memory_virtual_memory_free/1024/1024",
+          "meter_win_memory_virtual_memory_total/1024/1024"
+        ],
+        "metricMode": "Expression",
+        "typesOfMQE": [
+          "TIME_SERIES_VALUES",
+          "TIME_SERIES_VALUES"
+        ],
+        "metricConfig": [
+          {
+            "label": "free"
+          },
+          {
+            "label": "total"
+          }
+        ]
+      },
+      {
+        "x": 16,
+        "y": 0,
+        "w": 8,
+        "h": 6,
+        "i": "9",
+        "type": "Widget",
+        "widget": {
+          "title": "Virtual Memory Usage"
+        },
+        "graph": {
+          "type": "Card",
+          "fontSize": 14,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "expressions": [
+          "avg(meter_win_memory_virtual_memory_percentage)"
+        ],
+        "metricMode": "Expression",
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "metricConfig": [{
+          "unit": "%"
+        }]
+      },
+      {
+        "x": 8,
+        "y": 0,
+        "w": 8,
+        "h": 6,
+        "i": "10",
+        "type": "Widget",
+        "widget": {
+          "title": "Memory RAM Usage"
+        },
+        "graph": {
+          "type": "Card",
+          "fontSize": 14,
+          "textAlign": "center",
+          "showUnit": true
+        },
+        "expressions": [
+          "avg(meter_win_memory_used)/1024/1024"
+        ],
+        "metricMode": "Expression",
+        "typesOfMQE": [
+          "SINGLE_VALUE"
+        ],
+        "metricConfig": [{
+          "unit": "MB"
+        }]
+      },
+      {
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 6,
+      "i": "11",
+      "type": "Widget",
+      "widget": {
+        "title": "CPU Usage"
+      },
+      "graph": {
+        "type": "Card",
+        "fontSize": 14,
+        "textAlign": "center",
+        "showUnit": true
+      },
+      "expressions": [
+        "avg(meter_win_cpu_total_percentage)"
       ],
-      "layer": "OS_WINDOWS",
-      "entity": "Service",
-      "name": "Windows-Service",
-      "id": "Windows-Service",
-      "isRoot": false
+      "metricMode": "Expression",
+      "typesOfMQE": [
+        "SINGLE_VALUE"
+      ],
+      "metricConfig": [{
+        "unit": "%"
+      }]
     }
+    ],
+    "layer": "OS_WINDOWS",
+    "entity": "Service",
+    "name": "Windows-Service",
+    "id": "Windows-Service",
+    "isRoot": false
   }
-]
+}]

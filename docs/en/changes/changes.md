@@ -99,6 +99,12 @@
 * Fix not throw error when part of expression not matched any expression node in the `MQE` and `PromQL.
 * Remove `kafka-fetcher/default/createTopicIfNotExist` as the creation is automatically since [#7326](https://github.com/apache/skywalking/issues/7326) (v8.7.0).
 * Fix inaccuracy nginx service metrics.
+* Fix/Change Windows metrics name(Swap -> Virtual Memory)
+  - `memory_swap_free` -> `memory_virtual_memory_free`
+  - `memory_swap_total` -> `memory_virtual_memory_total`
+  - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
+* Fix/Change UI init setting for Windows Swap -> Virtual Memory
+* Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
 
 #### UI
 
@@ -128,8 +134,9 @@
 * Add workflow icon.
 * Metrics support multiple labels.
 * Support the `SINGLE_VALUE` for table widgets.
-* Remove the `General ` metric mode and related logical code.
-* Fix topology: remove metrics for unreal nodes.
+* Remove the General metric mode and related logical code.
+* Remove metrics for unreal nodes in the topology.
+* Enhance the Trace widget for batch consuming spans.
 
 #### Documentation
 
