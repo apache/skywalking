@@ -379,31 +379,31 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_apisix_sv_http_status_matched{code='200'})",
-        "avg(meter_apisix_sv_http_status_matched{code='304'})",
-        "avg(meter_apisix_sv_http_status_matched{code='404'})",
-        "avg(meter_apisix_sv_http_status_matched{code='499'})",
-        "avg(meter_apisix_sv_http_status_matched{code='503'})"
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='200'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='304'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='404'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='499'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='503'},sum(code)))"
       ],
       "expressionsConfig": [
         {
-          "unit": "req / s (per node)",
+          "unit": "req / s",
           "label": "HTTP Status 200"
         },
         {
-          "unit": "req / s (per node)",
+          "unit": "req / s",
           "label": "HTTP Status 304"
         },
         {
-          "unit": "req / s (per node)",
+          "unit": "req / s",
           "label": "HTTP Status 404"
         },
         {
-          "unit": "req / s (per node)",
+          "unit": "req / s",
           "label": "HTTP Status 499"
         },
         {
-          "unit": "req / s (per node)",
+          "unit": "req / s",
           "label": "HTTP Status 503"
         }
       ]
