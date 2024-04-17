@@ -136,6 +136,9 @@ core:
     trainingPeriodHttpUriRecognitionPattern: ${SW_CORE_TRAINING_PERIOD_HTTP_URI_RECOGNITION_PATTERN:60}
     # The max number of HTTP URIs per service for further URI pattern recognition.
     maxHttpUrisNumberPerService: ${SW_CORE_MAX_HTTP_URIS_NUMBER_PER_SVR:3000}
+    # If disable the hierarchy, the service and instance hierarchy relation will not be built. And the query of hierarchy will return empty result.
+    # All the hierarchy relations are defined in the `hierarchy-definition.yml`.
+    enableHierarchy: ${SW_CORE_ENABLE_HIERARCHY:true}
 storage:
   selector: ${SW_STORAGE:h2}
   elasticsearch:
