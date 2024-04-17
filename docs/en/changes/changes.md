@@ -167,6 +167,6 @@
 * Remove `OpenTelemetry Exporter` support from meter doc, as this has been flagged as unmaintained on OTEL upstream.
 * Add doc of one-line quick start script for different storage types.
 * Add FAQ for `Why is Clickhouse or Loki or xxx not supported as a storage option?`.
-* Add `SWIP-6 Support ActiveMQ Monitoring`.
+* Add `SWIP-8 Support ActiveMQ Monitoring`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)
