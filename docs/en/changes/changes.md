@@ -141,6 +141,7 @@
 * Remove the General metric mode and related logical code.
 * Remove metrics for unreal nodes in the topology.
 * Enhance the Trace widget for batch consuming spans.
+* Clean the unused elements in the UI-templates.
 
 #### Documentation
 
