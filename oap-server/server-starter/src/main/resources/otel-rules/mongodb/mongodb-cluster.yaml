@@ -42,22 +42,22 @@ metricsRules:
     exp: mongodb_dbstats_objects.tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'rs_nm'])
 
   - name: document_avg_qps
-    exp: mongodb_ss_metrics_document.max(['cluster','doc_op_type']).rate('PT1M')
+    exp: mongodb_ss_metrics_document.max(['cluster','doc_op_type','service_instance_id']).rate('PT1M')
   - name: operation_avg_qps
-    exp: mongodb_ss_opcounters.max(['cluster','legacy_op_type']).rate('PT1M')
+    exp: mongodb_ss_opcounters.max(['cluster','legacy_op_type','service_instance_id']).rate('PT1M')
 
   - name: connections
     exp: mongodb_ss_connections.tagEqual('conn_type','current').max(['cluster','service_instance_id'])
   - name: cursor_avg
-    exp: mongodb_ss_metrics_cursor_open.max(['cluster',"csr_type"])
+    exp: mongodb_ss_metrics_cursor_open.max(['cluster','csr_type','service_instance_id'])
   - name: repl_lag
-    exp: mongodb_mongod_replset_member_replication_lag.tag({tags -> tags.rs_nm = tags.set}).avg(['cluster','rs_nm'])
+    exp: mongodb_mongod_replset_member_replication_lag.tag({tags -> tags.rs_nm = tags.set}).tagNotEqual('state','ARBITER').avg(['cluster','rs_nm'])
 
   - name: db_data_size
-    exp: mongodb_dbstats_dataSize.tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'database'])
+    exp: mongodb_dbstats_dataSize.tagEqual('rs_state', '1').tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'database','service_instance_id'])
   - name: db_index_size
-    exp: mongodb_dbstats_indexSize.tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'database'])
+    exp: mongodb_dbstats_indexSize.tagEqual('rs_state', '1').tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'database','service_instance_id'])
   - name: db_collection_count
-    exp: mongodb_dbstats_collections.tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'database'])
+    exp: mongodb_dbstats_collections.tagEqual('rs_state', '1').tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster', 'database','service_instance_id'])
   - name: db_index_count
-    exp: mongodb_dbstats_indexes.tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster' , 'database'])
+    exp: mongodb_dbstats_indexes.tagEqual('rs_state', '1').tagNotEqual('cl_role','mongos').tagNotEqual('database','local').sum(['cluster' , 'database','service_instance_id'])
