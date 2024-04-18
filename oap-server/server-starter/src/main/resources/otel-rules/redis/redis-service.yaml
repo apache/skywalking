@@ -62,7 +62,7 @@ metricsRules:
   - name: commands_duration
     exp: redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id'])
   - name: commands_total
-    exp: redis_commands_total.sum(['host_name','cmd','service_instance_id']))
+    exp: redis_commands_total.sum(['host_name','cmd','service_instance_id'])
   - name: commands_duration_seconds_total_rate
     exp: redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id']).rate('PT1M')
 

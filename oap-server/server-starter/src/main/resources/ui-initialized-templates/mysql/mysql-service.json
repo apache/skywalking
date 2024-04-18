@@ -65,7 +65,7 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_tps"
+                    "aggregate_labels(meter_mysql_tps,sum)"
                   ]
                 },
                 {
@@ -169,7 +169,7 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_connects_available",
+                    "aggregate_labels(meter_mysql_max_connections,sum)-aggregate_labels(meter_mysql_status_thread_connected,sum)",
                     "meter_mysql_connects_aborted"
                   ]
                 },
@@ -292,32 +292,8 @@
       "layer": "MYSQL",
       "entity": "Service",
       "name": "MySQL-Service",
-      "isRoot": false,
-      "isDefault": true,
-      "expressions": [
-        "avg(meter_mysql_commands_select_rate)",
-        "avg(meter_mysql_commands_insert_rate)",
-        "avg(meter_mysql_commands_update_rate)",
-        "avg(meter_mysql_commands_delete_rate)"
-      ],
-      "expressionsConfig": [
-        {
-          "unit": "rows / s",
-          "label": "Fetch"
-        },
-        {
-          "unit": "rows / s",
-          "label": "Insert"
-        },
-        {
-          "unit": "rows / s",
-          "label": "Update"
-        },
-        {
-          "unit": "rows / s",
-          "label": "Delete"
-        }
-      ]
+      "id": "MySQL-Service",
+      "isRoot": false
     }
   }
 ]
