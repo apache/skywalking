@@ -28,23 +28,23 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_object_count --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_document_avg_qps --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-doc.yml
+    expected: expected/metrics-has-value-label-doc-service_instance_id.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_operation_avg_qps --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-legacy.yml
+    expected: expected/metrics-has-value-label-legacy-service_instance_id.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_connections --service-name=mongodb::replset
     expected: expected/metrics-has-value-label-ins.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_cursor_avg --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-csr.yml
+    expected: expected/metrics-has-value-label-csr-service_instance_id.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_repl_lag --service-name=mongodb::replset
     expected: expected/metrics-has-value-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_data_size --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-database.yml
+    expected: expected/metrics-has-value-label-database-service_instance_id.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_index_size --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-database.yml
+    expected: expected/metrics-has-value-label-database-service_instance_id.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_collection_count --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-database.yml
+    expected: expected/metrics-has-value-label-database-service_instance_id.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_cluster_db_index_count --service-name=mongodb::replset
-    expected: expected/metrics-has-value-label-database.yml
+    expected: expected/metrics-has-value-label-database-service_instance_id.yml
 
   # instance cases
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=mongodb::replset
@@ -53,8 +53,10 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_latency --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
-    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_op_rate --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
+    expected: expected/metrics-has-value-label-op.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_latency_rate --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
+    expected: expected/metrics-has-value-label-op.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_memory_usage --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_version --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
@@ -93,8 +95,6 @@ cases:
     expected: expected/metrics-has-value-label-legacy.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_repl_operation_qps --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label-legacy.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_operation_latency --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
-    expected: expected/metrics-has-value-label-op.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_cursor --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216
     expected: expected/metrics-has-value-label-csr.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mongodb_node_mem_virtual --service-name=mongodb::replset --instance-name=mongodb-exporter-1:9216

@@ -1,0 +1,226 @@
+[
+    {
+        "id": "ActiveMQ-Destination",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 6,
+                    "h": 11,
+                    "i": "0",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_producer_count"
+                    ],
+                    "graph": {
+                        "type": "Line",
+                        "step": false,
+                        "smooth": false,
+                        "showSymbol": true,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "widget": {
+                        "name": "ProducerCount",
+                        "title": "Producer Count",
+                        "tips": "Number of producers attached to this destination."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Producer"
+                        }
+                    ]
+                },
+                {
+                    "x": 6,
+                    "y": 0,
+                    "w": 6,
+                    "h": 11,
+                    "i": "1",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_consumer_count"
+                    ],
+                    "graph": {
+                        "type": "Line",
+                        "step": false,
+                        "smooth": false,
+                        "showSymbol": true,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "widget": {
+                        "name": "ConsumerCount",
+                        "title": "Consumer Count",
+                        "tips": "Number of consumers subscribed to this destination."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Consumer"
+                        }
+                    ]
+                },
+                {
+                    "x": 0,
+                    "y": 11,
+                    "w": 12,
+                    "h": 11,
+                    "i": "3",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_queue_size"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Queue Size"
+                        }
+                    ],
+                    "widget": {
+                        "name": "QueueSize",
+                        "title": "Queue Size",
+                        "tips": "The number of messages that have not been acknowledged by a consumer."
+                    }
+                },
+                {
+                    "x": 12,
+                    "y": 0,
+                    "w": 12,
+                    "h": 11,
+                    "i": "4",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_memory_usage/1024/1024"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Memory Usage",
+                            "unit": "MB"
+                        }
+                    ],
+                    "widget": {
+                        "name": "MemoyUsage",
+                        "title": "Memoy Usage",
+                        "tips": "Memory used by undelivered messages in bytes."
+                    }
+                },
+                {
+                    "x": 12,
+                    "y": 11,
+                    "w": 12,
+                    "h": 11,
+                    "i": "5",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_enqueue_count",
+                        "meter_activemq_destination_dequeue_count",
+                        "meter_activemq_destination_dispatch_count",
+                        "meter_activemq_destination_expired_count",
+                        "meter_activemq_destination_inflight_count"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "widget": {
+                        "name": "MessageCount",
+                        "title": "Message Count",
+                        "tips": "The count of enqueue/dequeue/dispatch/expired/inflignt messages."
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Enqueue"
+                        },
+                        {
+                            "label": "Dequeue"
+                        },
+                        {
+                            "label": "Dispatch"
+                        },
+                        {
+                            "label": "Expired"
+                        },
+                        {
+                            "label": "Inflight"
+                        }
+                    ]
+                },
+                {
+                    "x": 0,
+                    "y": 22,
+                    "w": 12,
+                    "h": 11,
+                    "i": "7",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_average_enqueue_time/1000"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "label": "Max Enqueue Time",
+                            "unit": "s"
+                        }
+                    ],
+                    "widget": {
+                        "name": "AverageEnqueueTime",
+                        "title": "Average Enqueue Time(s)",
+                        "tips": "The average time a message was held on this destination."
+                    }
+                },
+                {
+                    "x": 12,
+                    "y": 22,
+                    "w": 12,
+                    "h": 11,
+                    "i": "8",
+                    "type": "Widget",
+                    "expressions": [
+                        "meter_activemq_destination_max_enqueue_time/1000"
+                    ],
+                    "graph": {
+                        "type": "Area",
+                        "opacity": 0.4,
+                        "showXAxis": true,
+                        "showYAxis": true
+                    },
+                    "metricConfig": [
+                        {
+                            "unit": "s",
+                            "label": "Max Enqueue Time"
+                        }
+                    ],
+                    "widget": {
+                        "name": "MaxEnqueueTime",
+                        "title": "Max Enqueue Time(s)",
+                        "tips": "The max time a message was held on this destination."
+                    }
+                }
+            ],
+            "layer": "ACTIVEMQ",
+            "entity": "Endpoint",
+            "name": "ActiveMQ-Destination",
+            "id": "ActiveMQ-Destination",
+            "isRoot": false
+        }
+    }
+]

@@ -112,7 +112,7 @@
                   "i": "4",
                   "type": "Widget",
                   "expressions": [
-                    "meter_mongodb_cluster_document_avg_qps"
+                    "aggregate_labels(meter_mongodb_cluster_document_avg_qps, sum(doc_op_type))"
                   ],
                   "graph": {
                     "type": "Line",
@@ -123,7 +123,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Document Avg QPS"
+                    "title": "Document Total QPS"
                   }
                 },
                 {
@@ -134,7 +134,7 @@
                   "i": "5",
                   "type": "Widget",
                   "expressions": [
-                    "meter_mongodb_cluster_operation_avg_qps"
+                    "aggregate_labels(meter_mongodb_cluster_operation_avg_qps, sum(legacy_op_type))"
                   ],
                   "graph": {
                     "type": "Line",
@@ -145,7 +145,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Operation Avg QPS"
+                    "title": "Operation Total QPS"
                   }
                 },
                 {
@@ -157,6 +157,11 @@
                   "type": "Widget",
                   "expressions": [
                     "aggregate_labels(meter_mongodb_cluster_connections,sum)"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "connections"
+                    }
                   ],
                   "graph": {
                     "type": "Line",
@@ -178,7 +183,7 @@
                   "i": "7",
                   "type": "Widget",
                   "expressions": [
-                    "meter_mongodb_cluster_cursor_avg"
+                    "aggregate_labels(meter_mongodb_cluster_cursor_avg, sum(csr_type))"
                   ],
                   "graph": {
                     "type": "Line",
@@ -189,7 +194,7 @@
                     "showYAxis": true
                   },
                   "widget": {
-                    "title": "Cursor Avg"
+                    "title": "Cursor Total"
                   }
                 },
                 {
@@ -222,7 +227,8 @@
                   "i": "9",
                   "type": "Widget",
                   "widget": {
-                    "title": "DB Avg Data Size Per Shard (GB)"
+                    "title": "DB Total Data Size (GB)",
+                    "tips": "Summation according to database primary node"
                   },
                   "graph": {
                     "type": "Table",
@@ -231,7 +237,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "meter_mongodb_cluster_db_data_size/1024/1024/1024"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_data_size, sum(database)))/1024/1024/1024"
                   ]
                 },
                 {
@@ -242,7 +248,8 @@
                   "i": "10",
                   "type": "Widget",
                   "widget": {
-                    "title": "DB Avg Index Size Per Shard (GB)"
+                    "title": "DB Total Index Size (GB)",
+                    "tips": "Summation according to database primary node"
                   },
                   "graph": {
                     "type": "Table",
@@ -251,7 +258,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "meter_mongodb_cluster_db_index_size/1024/1024/1024"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_index_size, sum(database)))/1024/1024/1024"
                   ]
                 },
                 {
@@ -262,7 +269,8 @@
                   "i": "11",
                   "type": "Widget",
                   "widget": {
-                    "title": "DB Avg Collection Count Per Shard"
+                    "title": "DB Total Collection Count",
+                    "tips": "Summation according to database primary node"
                   },
                   "graph": {
                     "type": "Table",
@@ -271,7 +279,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "meter_mongodb_cluster_db_collection_count"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_collection_count, sum(database)))"
                   ]
                 },
                 {
@@ -282,7 +290,8 @@
                   "i": "12",
                   "type": "Widget",
                   "widget": {
-                    "title": "DB Avg Index Count Per Shard"
+                    "title": "DB Total Index Count",
+                    "tips": "Summation according to database primary node"
                   },
                   "graph": {
                     "type": "Table",
@@ -291,7 +300,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "meter_mongodb_cluster_db_index_count"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_index_count, sum(database)))"
                   ]
                 }
               ]
