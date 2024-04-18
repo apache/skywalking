@@ -122,7 +122,7 @@ jobs:
         with:
           files_ignore: |
             **/*.{md,txt}
-            skywalking-ui
+            skywalking-ui/**
             .asf.yaml
             .dlc.json
             .gitignore
@@ -148,7 +148,7 @@ jobs:
         uses: tj-actions/changed-files@v43.0.0
         with:
           files: |
-            skywalking-ui
+            skywalking-ui/**
       - name: List all modified files
         if: steps.filter-oap.outputs.any_modified == 'true' || steps.filter-ui.outputs.any_modified == 'true' || steps.filter-pom.outputs.any_modified == 'true'
         run: |
