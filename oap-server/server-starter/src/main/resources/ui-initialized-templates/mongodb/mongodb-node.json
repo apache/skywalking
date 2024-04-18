@@ -148,6 +148,11 @@
           "expressions": [
             "meter_mongodb_node_cpu_total_percentage"
           ],
+          "metricConfig": [
+            {
+              "label": "CPU usage"
+            }
+          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -271,6 +276,11 @@
           },
           "expressions": [
             "meter_mongodb_node_connections"
+          ],
+          "metricConfig": [
+            {
+              "label": "connections"
+            }
           ]
         },
         {
@@ -523,6 +533,11 @@
           "expressions": [
             "meter_mongodb_node_repl_buffer_count"
           ],
+          "metricConfig": [
+            {
+              "label": "repl buffer count"
+            }
+          ],
           "graph": {
             "type": "Line",
             "step": false,
@@ -632,6 +647,11 @@
           },
           "expressions": [
             "meter_mongodb_node_write_wait_time"
+          ],
+          "metricConfig": [
+            {
+              "label": "write wait time"
+            }
           ],
           "widget": {
             "title": "getLastError Write Time (ms)"

@@ -158,6 +158,11 @@
                   "expressions": [
                     "aggregate_labels(meter_mongodb_cluster_connections,sum)"
                   ],
+                  "metricConfig": [
+                    {
+                      "label": "connections"
+                    }
+                  ],
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -232,7 +237,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "aggregate_labels(meter_mongodb_cluster_db_data_size, sum(database))/1024/1024/1024"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_data_size, sum(database)))/1024/1024/1024"
                   ]
                 },
                 {
@@ -253,7 +258,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "aggregate_labels(meter_mongodb_cluster_db_index_size, sum(database))/1024/1024/1024"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_index_size, sum(database)))/1024/1024/1024"
                   ]
                 },
                 {
@@ -274,7 +279,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "aggregate_labels(meter_mongodb_cluster_db_collection_count, sum(database))"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_collection_count, sum(database)))"
                   ]
                 },
                 {
@@ -295,7 +300,7 @@
                     "tableHeaderCol2": ""
                   },
                   "expressions": [
-                    "aggregate_labels(meter_mongodb_cluster_db_index_count, sum(database))"
+                    "latest(aggregate_labels(meter_mongodb_cluster_db_index_count, sum(database)))"
                   ]
                 }
               ]
