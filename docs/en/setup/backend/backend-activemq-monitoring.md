@@ -17,7 +17,7 @@ Collector to transfer the metrics to
 
 1. [Enable JMX](https://activemq.apache.org/components/classic/documentation/jmx) in `activemq.xml`, the JMX remote port defaults to `1616`, you can change it through `ACTIVEMQ_SUNJMX_START`. The example for ActiveMQ configuration, refer
    to [here](../../../../test/e2e-v2/cases/activemq/config/amq/activemq.xml).
-2. Setup [jmx prometheus exporter](https://github.com/prometheus/jmx_exporter) which runs as a Java Agent(recommended) of ActiveMQ classic. If you work with docker, you also can setup [a single server](https://github.com/bitnami/containers/tree/main/bitnami/jmx-exporter) for exporter, refer
+2. Set up [jmx prometheus exporter](https://github.com/prometheus/jmx_exporter) which runs as a Java Agent(recommended) of ActiveMQ classic. If you work with docker, you also can set up [a single server](https://github.com/bitnami/containers/tree/main/bitnami/jmx-exporter) for exporter, refer
    to [here](../../../../test/e2e-v2/cases/activemq/config/amq/config.yaml)(note the configuration of `includeObjectNames`).
 3. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#docker). The example for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/activemq/otel-collector-config.yaml).
