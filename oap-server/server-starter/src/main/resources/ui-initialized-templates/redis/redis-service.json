@@ -31,7 +31,7 @@
                     "title": "Uptime (day)"
                   },
                   "expressions": [
-                    "latest(meter_redis_uptime)/3600/24"
+                    "latest(aggregate_labels(meter_redis_uptime,max))/3600/24"
                   ]
                 },
                 {
@@ -51,7 +51,7 @@
                     "title": "Connected Clients"
                   },
                   "expressions": [
-                    "latest(meter_redis_connected_clients)"
+                    "latest(aggregate_labels(meter_redis_connected_clients,sum))"
                   ]
                 },
                 {
@@ -62,10 +62,10 @@
                   "i": "2",
                   "type": "Widget",
                   "graph": {
-                    "type": "Area",
-                    "opacity": 0.4,
-                    "showXAxis": true,
-                    "showYAxis": true
+                    "type": "Card",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "showUnit": true
                   },
                   "widget": {
                     "title": "Memory Usage (%)"
@@ -76,7 +76,7 @@
                     }
                   ],
                   "expressions": [
-                    "meter_redis_memory_usage"
+                    "latest(aggregate_labels(meter_redis_memory_used_bytes,sum)/aggregate_labels(meter_redis_memory_max_bytes,sum))*100"
                   ]
                 },
                 {
@@ -98,7 +98,7 @@
                     "title": "Total Commands Trend"
                   },
                   "expressions": [
-                    "meter_redis_total_commands_rate"
+                    "aggregate_labels(meter_redis_total_commands_rate,sum(cmd))"
                   ]
                 },
                 {
@@ -189,9 +189,9 @@
                     }
                   ],
                   "expressions": [
-                    "meter_redis_db_keys",
-                    "meter_redis_evicted_keys_total",
-                    "meter_redis_expired_keys_total"
+                    "aggregate_labels(meter_redis_db_keys,sum)",
+                    "aggregate_labels(meter_redis_evicted_keys_total,sum)",
+                    "aggregate_labels(meter_redis_expired_keys_total,sum)"
                   ]
                 },
                 {
@@ -211,7 +211,7 @@
                     "title": "Blocked Clients"
                   },
                   "expressions": [
-                    "latest(meter_redis_blocked_clients)"
+                    "latest(aggregate_labels(meter_redis_blocked_clients,sum))"
                   ]
                 },
                 {
@@ -233,7 +233,7 @@
                     "title": "Total Time Spent by Command Trend (sec)"
                   },
                   "expressions": [
-                    "meter_redis_commands_duration_seconds_total_rate"
+                    "aggregate_labels(meter_redis_commands_duration_seconds_total_rate,sum(cmd))"
                   ]
                 },
                 {
@@ -255,7 +255,7 @@
                     "title": "Average Time Spent by Command / sec"
                   },
                   "expressions": [
-                    "meter_redis_average_time_spent_by_command"
+                    "aggregate_labels(meter_redis_commands_duration,sum(cmd))/aggregate_labels(meter_redis_commands_total,sum(cmd))"
                   ]
                 }
               ]
