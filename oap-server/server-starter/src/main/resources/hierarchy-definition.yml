@@ -60,6 +60,9 @@ hierarchy:
   PULSAR:
     K8S_SERVICE: short-name
 
+  ACTIVEMQ:
+    K8S_SERVICE: short-name
+
   VIRTUAL_DATABASE:
     MYSQL: lower-short-name-with-fqdn
     POSTGRESQL: lower-short-name-with-fqdn
@@ -103,6 +106,7 @@ layer-levels:
   RABBITMQ: 2
   KAFKA: 2
   PULSAR: 2
+  ACTIVEMQ: 2
 
   MESH_DP: 1
 

@@ -107,6 +107,9 @@
 * Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
 * Fix inaccurate APISIX metrics
 * Fix inaccurate MongoDB Metrics.
+* Support Apache ActiveMQ server monitoring. 
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - ACTIVEMQ -> K8S_SERVICE
 
 #### UI
 
@@ -166,5 +169,6 @@
 * Remove `OpenTelemetry Exporter` support from meter doc, as this has been flagged as unmaintained on OTEL upstream.
 * Add doc of one-line quick start script for different storage types.
 * Add FAQ for `Why is Clickhouse or Loki or xxx not supported as a storage option?`.
+* Add `SWIP-8 Support ActiveMQ Monitoring`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)

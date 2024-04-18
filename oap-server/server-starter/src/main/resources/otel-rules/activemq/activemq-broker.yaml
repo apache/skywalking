@@ -1,0 +1,97 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This will parse a textual representation of a duration. The formats
+# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
+# with days considered to be exactly 24 hours.
+# <p>
+# Examples:
+# <pre>
+#    "PT20.345S" -- parses as "20.345 seconds"
+#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
+#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
+#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
+#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
+#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
+#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
+#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
+# </pre>
+filter: "{ tags -> tags.job_name == 'activemq-monitoring' }" # The OpenTelemetry job name
+expSuffix: tag({tags -> tags.cluster = 'activemq::' + tags.cluster}).instance(['cluster'], ['brokerName'], Layer.ACTIVEMQ)
+metricPrefix: meter_activemq_broker
+metricsRules:
+  # Uptime of the broker in day.
+  - name: uptime
+    exp: org_apache_activemq_Broker_UptimeMillis.max(['cluster','brokerName','service_instance_id'])
+  # If slave broker 1 else 0.
+  - name: state
+    exp: org_apache_activemq_Broker_Slave.sum(['cluster','brokerName','service_instance_id'])
+  # The number of clients connected to the broker currently.
+  - name: current_connentions
+    exp: org_apache_activemq_Broker_CurrentConnectionsCount.sum(['cluster','brokerName','service_instance_id'])
+  # The number of producers currently attached to the broker.
+  - name: current_producer_count
+    exp: org_apache_activemq_Broker_ProducerCount.sum(['cluster','brokerName','service_instance_id'])
+  # The number of consumers consuming messages from the broker.
+  - name: current_consumer_count
+    exp: org_apache_activemq_Broker_ConsumerCount.sum(['cluster','brokerName','service_instance_id'])
+  # Number of message producers active on destinations.
+  - name: producer_count
+    exp: org_apache_activemq_Broker_TotalProducerCount.sum(['cluster','brokerName','service_instance_id']).increase("PT1M")
+  # Number of message consumers subscribed to destinations.
+  - name: consumer_count
+    exp: org_apache_activemq_Broker_TotalConsumerCount.sum(['cluster','brokerName','service_instance_id']).increase("PT1M")
+  # The total number of messages sent to the broker.
+  - name: enqueue_count
+    exp: org_apache_activemq_Broker_TotalEnqueueCount.sum(['cluster','brokerName','service_instance_id']).increase("PT1M")
+  # The total number of messages the broker has delivered to consumers.
+  - name: dequeue_count
+    exp: org_apache_activemq_Broker_TotalDequeueCount.sum(['cluster','brokerName','service_instance_id']).increase("PT1M")
+  # The total number of messages sent to the broker per second.
+  - name: enqueue_rate
+    exp: org_apache_activemq_Broker_TotalEnqueueCount.sum(['cluster','brokerName','service_instance_id']).rate("PT1M")
+  # The total number of messages the broker has delivered to consumers per second.
+  - name: dequeue_rate
+    exp: org_apache_activemq_Broker_TotalDequeueCount.sum(['cluster','brokerName','service_instance_id']).rate("PT1M")
+  # Percentage of configured memory used by the broker.
+  - name: memory_percent_usage
+    exp: org_apache_activemq_Broker_MemoryPercentUsage.sum(['cluster','brokerName','service_instance_id'])
+  # Memory used by undelivered messages in bytes.
+  - name: memory_usage
+    exp: org_apache_activemq_Broker_MemoryUsageByteCount.sum(['cluster','brokerName','service_instance_id'])
+  # Memory limited used for holding undelivered messages before paging to temporary storage.
+  - name: memory_limit
+    exp: org_apache_activemq_Broker_MemoryLimit.sum(['cluster','brokerName','service_instance_id'])
+  # Percentage of available disk space used for persistent message storage.
+  - name: store_percent_usage
+    exp: org_apache_activemq_Broker_StorePercentUsage.sum(['cluster','brokerName','service_instance_id'])
+  # Disk limited  used for persistent messages before producers are blocked.
+  - name: store_limit
+    exp: org_apache_activemq_Broker_StoreLimit.sum(['cluster','brokerName','service_instance_id'])
+  # Percentage of available disk space used for non-persistent message storage.
+  - name: temp_percent_usage
+    exp: org_apache_activemq_Broker_TempPercentUsage.sum(['cluster','brokerName','service_instance_id'])
+  # Disk limited used for non-persistent messages and temporary data before producers are blocked.
+  - name: temp_limit
+    exp: org_apache_activemq_Broker_TempLimit.sum(['cluster','brokerName','service_instance_id'])
+  # Average message size on this broker.
+  - name: average_message_size
+    exp: org_apache_activemq_Broker_AverageMessageSize.avg(['cluster','brokerName','service_instance_id'])
+  # Max message size on this broker.
+  - name: max_message_size
+    exp: org_apache_activemq_Broker_MaxMessageSize.max(['cluster','brokerName','service_instance_id'])
+  # Number of messages on this broker that have been dispatched but not acknowledged.
+  - name: queue_size
+    exp: org_apache_activemq_Broker_QueueSize.sum(['cluster','brokerName','destinationName'])
