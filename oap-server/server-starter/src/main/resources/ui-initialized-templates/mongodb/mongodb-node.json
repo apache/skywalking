@@ -65,7 +65,7 @@
             "title": "Latency"
           },
           "expressions": [
-            "avg(meter_mongodb_node_latency)"
+            "avg(aggregate_labels(meter_mongodb_node_latency_rate,sum)/aggregate_labels(meter_mongodb_node_op_rate,sum))"
           ],
           "metricConfig": [
             {
@@ -147,6 +147,11 @@
           "type": "Widget",
           "expressions": [
             "meter_mongodb_node_cpu_total_percentage"
+          ],
+          "metricConfig": [
+            {
+              "label": "CPU usage"
+            }
           ],
           "graph": {
             "type": "Line",
@@ -271,6 +276,11 @@
           },
           "expressions": [
             "meter_mongodb_node_connections"
+          ],
+          "metricConfig": [
+            {
+              "label": "connections"
+            }
           ]
         },
         {
@@ -431,7 +441,7 @@
             "title": "Operation Latency (µs)"
           },
           "expressions": [
-            "meter_mongodb_node_operation_latency"
+            "aggregate_labels(meter_mongodb_node_latency_rate,sum(op_type))/aggregate_labels(meter_mongodb_node_op_rate,sum(op_type))"
           ]
         },
         {
@@ -522,6 +532,11 @@
           "type": "Widget",
           "expressions": [
             "meter_mongodb_node_repl_buffer_count"
+          ],
+          "metricConfig": [
+            {
+              "label": "repl buffer count"
+            }
           ],
           "graph": {
             "type": "Line",
@@ -632,6 +647,11 @@
           },
           "expressions": [
             "meter_mongodb_node_write_wait_time"
+          ],
+          "metricConfig": [
+            {
+              "label": "write wait time"
+            }
           ],
           "widget": {
             "title": "getLastError Write Time (ms)"

@@ -25,21 +25,21 @@ MongoDB monitoring provides multidimensional metrics monitoring of MongoDB clust
 
 ### MongoDB Cluster Supported Metrics
 
-| Monitoring Panel                  | Unit | Metric Name                               | Description                                                         | Data Source      |
-|-----------------------------------|------|-------------------------------------------|---------------------------------------------------------------------|------------------|
-| Uptime (day)                      | day  | meter_mongodb_cluster_uptime              | Maximum uptime of nodes in the cluster                              | mongodb-exporter |
-| Data Size (GB)                    | GB   | meter_mongodb_cluster_data_size           | Total data size of the cluster                                      | mongodb-exporter |
-| Collection Count                  |      | meter_mongodb_cluster_collection_count    | Number of collection of the cluster                                 | mongodb-exporter |
-| Object Count                      |      | meter_mongodb_cluster_object_count        | Number of object of the cluster                                     | mongodb-exporter |
-| Document Avg QPS                  |      | meter_mongodb_cluster_document_avg_qps    | Avg document operations rate of nodes                               | mongodb-exporter |
-| Operation Avg QPS                 |      | meter_mongodb_cluster_operation_avg_qps   | Avg operations rate of nodes                                        | mongodb-exporter |
-| Total Connections                 |      | meter_mongodb_cluster_connections         | Cluster total connections of nodes                                  | mongodb-exporter |
-| Cursor Avg                        |      | meter_mongodb_cluster_cursor_avg          | Avg Opened cursor of nodes                                          | mongodb-exporter |
-| Replication Lag (ms)              | ms   | meter_mongodb_cluster_repl_lag            | Repl set member avg replication lag, this metric works in repl mode | mongodb-exporter |
-| DB Avg Data Size Per Shard (GB)   | GB   | meter_mongodb_cluster_db_data_size        | Avg data size per shard (replSet) of every database                 | mongodb-exporter |
-| DB Avg Index Size Per Shard (GB)  | GB   | meter_mongodb_cluster_db_index_size       | Avg index size per shard (replSet) of every database                | mongodb-exporter |
-| DB Avg Collection Count Per Shard |      | meter_mongodb_cluster_db_collection_count | Avg collection count per shard (replSet) of every database          | mongodb-exporter |
-| DB Avg Index Count Per Shard      |      | meter_mongodb_cluster_db_index_count      | Avg index count per shard (replSet) of every database               | mongodb-exporter |
+| Monitoring Panel          | Unit | Metric Name                               | Description                                                         | Data Source      |
+|---------------------------|------|-------------------------------------------|---------------------------------------------------------------------|------------------|
+| Uptime (day)              | day  | meter_mongodb_cluster_uptime              | Maximum uptime of nodes in the cluster                              | mongodb-exporter |
+| Data Size (GB)            | GB   | meter_mongodb_cluster_data_size           | Total data size of the cluster                                      | mongodb-exporter |
+| Collection Count          |      | meter_mongodb_cluster_collection_count    | Number of collection of the cluster                                 | mongodb-exporter |
+| Object Count              |      | meter_mongodb_cluster_object_count        | Number of object of the cluster                                     | mongodb-exporter |
+| Document Total QPS        |      | meter_mongodb_cluster_document_avg_qps    | Total document operations rate of nodes                             | mongodb-exporter |
+| Operation Total QPS       |      | meter_mongodb_cluster_operation_avg_qps   | Total operations rate of nodes                                      | mongodb-exporter |
+| Total Connections         |      | meter_mongodb_cluster_connections         | Cluster total connections of nodes                                  | mongodb-exporter |
+| Cursor Total              |      | meter_mongodb_cluster_cursor_avg          | Total Opened cursor of nodes                                        | mongodb-exporter |
+| Replication Lag (ms)      | ms   | meter_mongodb_cluster_repl_lag            | Repl set member avg replication lag, this metric works in repl mode | mongodb-exporter |
+| DB Total Data Size (GB)   | GB   | meter_mongodb_cluster_db_data_size        | Total data size  of every database                                  | mongodb-exporter |
+| DB Total Index Size (GB)  | GB   | meter_mongodb_cluster_db_index_size       | Total index size per of every database                              | mongodb-exporter |
+| DB Total Collection Count |      | meter_mongodb_cluster_db_collection_count | Total collection count of every database                            | mongodb-exporter |
+| DB Total Index Count      |      | meter_mongodb_cluster_db_index_count      | Total index count of every database                                 | mongodb-exporter |
 
 ### MongoDB Node Supported Metrics
 
@@ -47,7 +47,7 @@ MongoDB monitoring provides multidimensional metrics monitoring of MongoDB clust
 |------------------------------|------|-----------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|------------------|
 | Uptime (day)                 | day  | meter_mongodb_node_uptime                                                                                             | Uptime of the node                                         | mongodb-exporter |
 | QPS                          |      | meter_mongodb_node_qps                                                                                                | Operations per second of the node                          | mongodb-exporter | 
-| Latency                      | µs   | meter_mongodb_node_latency                                                                                            | Latency of operations                                      | mongodb-exporter |
+| Latency                      | µs   | meter_mongodb_node_op_rate<br/>meter_mongodb_node_latency_rate                                                        | Latency of operations                                      | mongodb-exporter |
 | Memory Usage                 | %    | meter_mongodb_node_memory_usage                                                                                       | Memory usage percent of RAM                                | mongodb-exporter |
 | Version                      |      | meter_mongodb_node_version                                                                                            | MongoDB edition and version                                | mongodb-exporter |
 | ReplSet State                |      | meter_mongodb_node_rs_state                                                                                           | Repl set state of the node, this metric works in repl mode | mongodb-exporter |
@@ -61,7 +61,7 @@ MongoDB monitoring provides multidimensional metrics monitoring of MongoDB clust
 | Document QPS                 |      | meter_mongodb_node_document_qps                                                                                       | Document operations per second                             | mongodb-exporter |
 | Operation QPS                |      | meter_mongodb_node_operation_qps                                                                                      | Operations per second                                      | mongodb-exporter |
 | Repl Operation QPS           |      | meter_mongodb_node_repl_operation_qps                                                                                 | Repl operations per second                                 | mongodb-exporter |
-| Operation Latency (µs)       | µs   | meter_mongodb_node_operation_latency                                                                                  | Latencies for different operation type                     | mongodb-exporter |
+| Operation Latency (µs)       | µs   | meter_mongodb_node_op_rate<br/>meter_mongodb_node_latency_rate                                                        | Latencies for different operation type                     | mongodb-exporter |
 | Cursor                       |      | meter_mongodb_node_cursor                                                                                             | Opened cursor of the node                                  | mongodb-exporter |
 | Server Status Memory (MB)    | MB   | meter_mongodb_node_mem_virtual<br/>meter_mongodb_node_mem_resident                                                    | Virtual and resident memory of the node                    | mongodb-exporter |
 | Asserts                      |      | meter_mongodb_node_asserts                                                                                            | The rate of raised assertions                              | mongodb-exporter |
