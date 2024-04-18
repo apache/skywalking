@@ -36,8 +36,10 @@ metricsRules:
     exp: mongodb_ss_uptime
   - name: qps
     exp: mongodb_ss_opcounters.sum(['cluster','service_instance_id']).rate('PT1M')
-  - name: latency
-    exp: mongodb_ss_opLatencies_latency.sum(['cluster','service_instance_id']).rate('PT1M') / mongodb_ss_opLatencies_ops.sum(['cluster','service_instance_id']).rate('PT1M')
+  - name: op_rate
+    exp: mongodb_ss_opLatencies_ops.sum(['cluster','service_instance_id', 'op_type']).rate('PT1M')
+  - name: latency_rate
+    exp: mongodb_ss_opLatencies_latency.sum(['cluster','service_instance_id', 'op_type']).rate('PT1M')
   - name: memory_usage
     exp: (mongodb_sys_memory_MemTotal_kb - mongodb_sys_memory_MemAvailable_kb) / mongodb_sys_memory_MemTotal_kb * 100
   - name: version
@@ -80,8 +82,6 @@ metricsRules:
   - name: repl_operation_qps
     exp: mongodb_ss_opcountersRepl.sum(['cluster','service_instance_id','legacy_op_type']).rate('PT1M')
 
-  - name: operation_latency
-    exp: mongodb_ss_opLatencies_latency.max(['cluster','service_instance_id',"op_type"]).rate('PT1M') / mongodb_ss_opLatencies_ops.max(['cluster','service_instance_id',"op_type"]).rate('PT1M')
   - name: cursor
     exp: mongodb_ss_metrics_cursor_open.max(['cluster','service_instance_id',"csr_type"])
   - name: mem_virtual

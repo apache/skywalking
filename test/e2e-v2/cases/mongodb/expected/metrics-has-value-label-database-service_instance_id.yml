@@ -21,6 +21,8 @@ results:
         {{- contains .metric.labels }}
         - key: database
           value: {{ .value }}
+        - key: service_instance_id
+          value: {{ .value }}
         {{- end}}
     values:
       {{- contains .values }}

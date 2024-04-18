@@ -223,7 +223,12 @@ public enum Layer {
     /**
      * A high-performance, column-oriented SQL database management system (DBMS) for online analytical processing (OLAP).
      */
-    CLICKHOUSE(36, true);
+    CLICKHOUSE(36, true),
+
+    /**
+     *  ActiveMQ is a popular open source, multi-protocol, Java-based message broker.
+     */
+    ACTIVEMQ(37, true);
 
     private final int value;
     /**

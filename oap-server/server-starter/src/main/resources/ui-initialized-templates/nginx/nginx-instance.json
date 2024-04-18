@@ -23,6 +23,11 @@
           },
           "expressions": [
             "meter_nginx_instance_http_requests"
+          ],
+          "metricConfig": [
+            {
+              "label": "HTTP request trend"
+            }
           ]
         },
         {
@@ -123,6 +128,11 @@
           "expressions": [
             "(meter_nginx_instance_http_4xx_requests_increment/meter_nginx_instance_http_requests_increment)*100"
           ],
+          "metricConfig": [
+            {
+              "label": "HTTP 4xx percent"
+            }
+          ],
           "graph": {
             "type": "Area",
             "opacity": 0.4,
@@ -142,6 +152,11 @@
           "type": "Widget",
           "expressions": [
             "(meter_nginx_instance_http_5xx_requests_increment/meter_nginx_instance_http_requests_increment)*100"
+          ],
+          "metricConfig": [
+            {
+              "label": "HTTP 5xx percent"
+            }
           ],
           "graph": {
             "type": "Area",
