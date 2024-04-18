@@ -104,8 +104,9 @@
   - `memory_swap_total` -> `memory_virtual_memory_total`
   - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
 * Fix/Change UI init setting for Windows Swap -> Virtual Memory
-* Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows).
-* Fix inaccurate APISIX metrics.
+* Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
+* Fix inaccurate APISIX metrics
+* Fix inaccurate MongoDB Metrics.
 * Support Apache ActiveMQ server monitoring. 
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - ACTIVEMQ -> K8S_SERVICE
