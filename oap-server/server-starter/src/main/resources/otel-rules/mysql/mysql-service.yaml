@@ -59,8 +59,10 @@ metricsRules:
   ## connect
   - name: connects_aborted
     exp: mysql_global_status_aborted_connects
-  - name: connects_available
-    exp: mysql_global_variables_max_connections.sum(['host_name','service_instance_id']) - mysql_global_status_threads_connected.sum(['host_name','service_instance_id'])
+  - name: max_connections
+    exp: mysql_global_variables_max_connections.sum(['host_name','service_instance_id'])
+  - name: status_thread_connected
+    exp: mysql_global_status_threads_connected.sum(['host_name','service_instance_id'])
   - name: connection_errors_max_connections
     exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection')
   - name: connection_errors_internal
