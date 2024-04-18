@@ -31,7 +31,7 @@
                     "title": "Fetched Rows Trend (rows per second)"
                   },
                   "expressions": [
-                    "meter_pg_fetched_rows_rate"
+                    "aggregate_labels(meter_pg_fetched_rows_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -51,7 +51,7 @@
                     "title": "Inserted Rows Trend (rows per second)"
                   },
                   "expressions": [
-                    "meter_pg_inserted_rows_rate"
+                    "aggregate_labels(meter_pg_inserted_rows_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -116,7 +116,7 @@
                     "title": "Updated Rows Trend (rows per second)"
                   },
                   "expressions": [
-                    "meter_pg_updated_rows_rate"
+                    "aggregate_labels(meter_pg_updated_rows_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -136,7 +136,7 @@
                     "title": "Deleted Rows Trend (rows per second)"
                   },
                   "expressions": [
-                    "meter_pg_deleted_rows_rate"
+                    "aggregate_labels(meter_pg_deleted_rows_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -156,7 +156,7 @@
                     "title": "Returned Rows Trend (rows per second)"
                   },
                   "expressions": [
-                    "meter_pg_returned_rows_rate"
+                    "aggregate_labels(meter_pg_returned_rows_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -178,7 +178,7 @@
                     "title": "Temporary Files Trend (per second)"
                   },
                   "expressions": [
-                    "meter_pg_temporary_files_rate"
+                    "aggregate_labels(meter_pg_temporary_files_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -200,7 +200,7 @@
                     "title": "Committed Transactions Trend (per second)"
                   },
                   "expressions": [
-                    "meter_pg_committed_transactions_rate"
+                    "aggregate_labels(meter_pg_committed_transactions_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -222,7 +222,7 @@
                     "title": "Rolled Back Transactions Trend (per second)"
                   },
                   "expressions": [
-                    "meter_pg_rolled_back_transactions_rate"
+                    "aggregate_labels(meter_pg_rolled_back_transactions_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -244,7 +244,7 @@
                     "title": "Cache Hit Rate (%)"
                   },
                   "expressions": [
-                    "meter_pg_cache_hit_rate"
+                    "aggregate_labels(meter_pg_cache_hit_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -305,7 +305,7 @@
                     "title": "Conflicts Trend (per second)"
                   },
                   "expressions": [
-                    "meter_pg_conflicts_rate"
+                    "aggregate_labels(meter_pg_conflicts_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -327,7 +327,7 @@
                     "title": "Deadlocks Trend (per second)"
                   },
                   "expressions": [
-                    "meter_pg_deadlocks_rate"
+                    "aggregate_labels(meter_pg_deadlocks_rate,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -371,7 +371,7 @@
                     "title": "Locks"
                   },
                   "expressions": [
-                    "meter_pg_locks_count"
+                    "aggregate_labels(meter_pg_locks_count,sum(service_instance_id))"
                   ]
                 },
                 {
@@ -448,31 +448,7 @@
       "layer": "POSTGRESQL",
       "entity": "Service",
       "name": "PostgreSQL-Service",
-      "isDefault": true,
-      "expressions": [
-        "avg(meter_pg_fetched_rows_rate)",
-        "avg(meter_pg_inserted_rows_rate)",
-        "avg(meter_pg_updated_rows_rate)",
-        "avg(meter_pg_deleted_rows_rate)"
-      ],
-      "expressionsConfig": [
-        {
-          "unit": "rows / s",
-          "label": "Fetch"
-        },
-        {
-          "unit": "rows / s",
-          "label": "Insert"
-        },
-        {
-          "unit": "rows / s",
-          "label": "Update"
-        },
-        {
-          "unit": "rows / s",
-          "label": "Delete"
-        }
-      ]
+      "id": "PostgreSQL-Service"
     }
   }
 ]

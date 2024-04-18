@@ -106,7 +106,7 @@
 * Fix/Change UI init setting for Windows Swap -> Virtual Memory
 * Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
 * Fix inaccurate APISIX metrics
-* Fix inaccurate MySQL/MariaDB, Redis metrics
+* Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics
 
 #### UI
 
