@@ -44,7 +44,7 @@ metricsRules:
   - name: qps
     exp: mysql_global_status_queries.rate('PT1M')
   - name: tps
-    exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').sum(['host_name']).rate('PT1M')
+    exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').sum(['host_name', 'service_instance_id']).rate('PT1M')
 
   # connections
   ## threads
@@ -60,7 +60,7 @@ metricsRules:
   - name: connects_aborted
     exp: mysql_global_status_aborted_connects
   - name: connects_available
-    exp: mysql_global_variables_max_connections.sum(['host_name']) - mysql_global_status_threads_connected.sum(['host_name'])
+    exp: mysql_global_variables_max_connections.sum(['host_name','service_instance_id']) - mysql_global_status_threads_connected.sum(['host_name','service_instance_id'])
   - name: connection_errors_max_connections
     exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection')
   - name: connection_errors_internal
