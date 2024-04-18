@@ -11,7 +11,7 @@
                     "i": "0",
                     "type": "Widget",
                     "expressions": [
-                        "meter_activemq_broker_state"
+                        "latest(meter_activemq_broker_state)"
                     ],
                     "graph": {
                         "type": "Table",
@@ -33,7 +33,7 @@
                     "i": "1",
                     "type": "Widget",
                     "expressions": [
-                        "meter_activemq_broker_uptime/1000/60/60"
+                        "latest(meter_activemq_broker_uptime)/1000/60/60"
                     ],
                     "graph": {
                         "type": "Table",
