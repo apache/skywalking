@@ -111,7 +111,8 @@
 * Support Apache ActiveMQ server monitoring. 
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - ACTIVEMQ -> K8S_SERVICE
-* Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics
+* Calculate Nginx service HTTP Latency by MQE.
+* Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics.
 
 #### UI
 

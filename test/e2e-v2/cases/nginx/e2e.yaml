@@ -49,7 +49,7 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_requests --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_latency --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value-label-percentile.yml
+      expected: expected/metrics-has-value-label-percentile-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_bandwidth --service-name=nginx::e2e-test
       expected: expected/metrics-has-value-label-type-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_connections --service-name=nginx::e2e-test

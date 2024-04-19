@@ -60,7 +60,7 @@
                     "showYAxis": true
                   },
                   "expressions": [
-                    "meter_nginx_service_http_latency"
+                    "aggregate_labels(meter_nginx_service_http_latency, avg(p))"
                   ]
                 },
                 {
