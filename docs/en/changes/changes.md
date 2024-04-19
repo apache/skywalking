@@ -110,6 +110,7 @@
 * Support Apache ActiveMQ server monitoring. 
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - ACTIVEMQ -> K8S_SERVICE
+* Calculate Nginx service HTTP Latency by MQE.
 
 #### UI
 
