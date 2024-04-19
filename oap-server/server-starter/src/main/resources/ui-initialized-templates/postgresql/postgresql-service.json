@@ -448,6 +448,31 @@
       "layer": "POSTGRESQL",
       "entity": "Service",
       "name": "PostgreSQL-Service",
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_pg_fetched_rows_rate)",
+        "avg(meter_pg_inserted_rows_rate)",
+        "avg(meter_pg_updated_rows_rate)",
+        "avg(meter_pg_deleted_rows_rate)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Fetch"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Update"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Delete"
+        }
+      ],
       "id": "PostgreSQL-Service"
     }
   }

@@ -289,11 +289,36 @@
           ]
         }
       ],
+      "name": "MySQL-Service",
       "layer": "MYSQL",
       "entity": "Service",
-      "name": "MySQL-Service",
-      "id": "MySQL-Service",
-      "isRoot": false
+      "isRoot": false,
+      "isDefault": true,
+      "expressions": [
+        "avg(meter_mysql_commands_select_rate)",
+        "avg(meter_mysql_commands_insert_rate)",
+        "avg(meter_mysql_commands_update_rate)",
+        "avg(meter_mysql_commands_delete_rate)"
+      ],
+      "expressionsConfig": [
+        {
+          "unit": "rows / s",
+          "label": "Fetch"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Insert"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Update"
+        },
+        {
+          "unit": "rows / s",
+          "label": "Delete"
+        }
+      ],
+      "id": "MySQL-Service"
     }
   }
 ]
