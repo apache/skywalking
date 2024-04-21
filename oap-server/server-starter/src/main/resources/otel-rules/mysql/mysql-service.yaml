@@ -34,41 +34,41 @@ metricPrefix: meter_mysql
 metricsRules:
   # database throughput
   - name: commands_insert_rate
-    exp: mysql_global_status_commands_total.tagEqual('command','insert').rate('PT1M')
+    exp: mysql_global_status_commands_total.tagEqual('command','insert').sum(['service_instance_id','host_name']).rate('PT1M')
   - name: commands_select_rate
-    exp: mysql_global_status_commands_total.tagEqual('command','select').rate('PT1M')
+    exp: mysql_global_status_commands_total.tagEqual('command','select').sum(['service_instance_id','host_name']).rate('PT1M')
   - name: commands_delete_rate
-    exp: mysql_global_status_commands_total.tagEqual('command','delete').rate('PT1M')
+    exp: mysql_global_status_commands_total.tagEqual('command','delete').sum(['service_instance_id','host_name']).rate('PT1M')
   - name: commands_update_rate
-    exp: mysql_global_status_commands_total.tagEqual('command','update').rate('PT1M')
+    exp: mysql_global_status_commands_total.tagEqual('command','update').sum(['service_instance_id','host_name']).rate('PT1M')
   - name: qps
-    exp: mysql_global_status_queries.rate('PT1M')
+    exp: mysql_global_status_queries.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: tps
     exp: mysql_global_status_commands_total.tagMatch('command','rollback|commit').sum(['host_name', 'service_instance_id']).rate('PT1M')
 
   # connections
   ## threads
   - name: threads_connected
-    exp: mysql_global_status_threads_connected
+    exp: mysql_global_status_threads_connected.sum(['service_instance_id','host_name'])
   - name: threads_created
-    exp: mysql_global_status_threads_created
+    exp: mysql_global_status_threads_created.sum(['service_instance_id','host_name'])
   - name: threads_running
-    exp: mysql_global_status_threads_running
+    exp: mysql_global_status_threads_running.sum(['service_instance_id','host_name'])
   - name: threads_cached
-    exp: mysql_global_status_threads_cached
+    exp: mysql_global_status_threads_cached.sum(['service_instance_id','host_name'])
   ## connect
   - name: connects_aborted
-    exp: mysql_global_status_aborted_connects
+    exp: mysql_global_status_aborted_connects.sum(['service_instance_id','host_name'])
   - name: max_connections
     exp: mysql_global_variables_max_connections.sum(['host_name','service_instance_id'])
   - name: status_thread_connected
     exp: mysql_global_status_threads_connected.sum(['host_name','service_instance_id'])
   - name: connection_errors_max_connections
-    exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection')
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection').sum(['service_instance_id','host_name'])
   - name: connection_errors_internal
-    exp: mysql_global_status_connection_errors_total.tagEqual('error','internal')
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','internal').sum(['service_instance_id','host_name'])
 
   # slow queries
   - name: slow_queries_rate
-    exp: mysql_global_status_slow_queries.rate('PT1M')
+    exp: mysql_global_status_slow_queries.sum(['service_instance_id','host_name']).rate('PT1M')
     

@@ -45,12 +45,12 @@ metricsRules:
   - name: total_commands_rate
     exp: redis_commands_total.sum(['cmd','host_name','service_instance_id']).rate('PT1M')
   - name: hit_rate
-    exp: redis_keyspace_hits_total * 100 / (redis_keyspace_misses_total + redis_keyspace_hits_total)
+    exp: (redis_keyspace_hits_total * 100 / (redis_keyspace_misses_total + redis_keyspace_hits_total)).sum(['service_instance_id','host_name'])
 
   - name: net_input_bytes_total
-    exp: redis_net_input_bytes_total.sum(['host_name']).rate('PT5M')
+    exp: redis_net_input_bytes_total.sum(['host_name','service_instance_id']).rate('PT5M')
   - name: net_output_bytes_total
-    exp: redis_net_output_bytes_total.sum(['host_name']).rate('PT5M')
+    exp: redis_net_output_bytes_total.sum(['host_name','service_instance_id']).rate('PT5M')
 
   - name: db_keys
     exp: redis_db_keys.sum(['host_name','service_instance_id'])
