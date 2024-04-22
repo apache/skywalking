@@ -25,7 +25,6 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
-import org.apache.skywalking.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.Objects;
@@ -85,7 +84,6 @@ public class LogicalFunctionOp {
 
         MQEValue mqeValue = new MQEValue();
         MQEValues mqeValues = new MQEValues();
-        mqeValues.setMetric(new Metadata());
         mqeValues.getValues().add(mqeValue);
         result.getResults().add(mqeValues);
         mqeValue.setDoubleValue(present ? 1 : 0);

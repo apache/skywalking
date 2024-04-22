@@ -111,6 +111,8 @@
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
   - ACTIVEMQ -> K8S_SERVICE
 * Calculate Nginx service HTTP Latency by MQE.
+* MQE query: make metadata not return `null`.
+* MQE labeled metrics Binary Operation: return empty value if the labels not match rather than report error.
 
 #### UI
 

@@ -107,7 +107,6 @@ public interface LROp {
         } else {
             double value = calculate.apply(left.getDoubleValue(), right.getDoubleValue(), opType);
             mqeValue.setDoubleValue(value);
-            mqeValue.setEmptyValue(false);
         }
         return result;
     }
@@ -115,31 +114,24 @@ public interface LROp {
     private static ExpressionResult single2SingleLabeled(ExpressionResult singleLeft,
                                                            ExpressionResult singleRight,
                                                            int opType, LROp calculate) throws IllegalExpressionException {
-        Map<KeyValue, List<MQEValue>> labelMapR = new HashMap<>();
-        if (singleLeft.getResults().size() != singleRight.getResults().size()) {
-            throw new IllegalExpressionException(
-                "Operation between labeled metrics should have the same label.");
-        }
+        Map<Set<KeyValue>, List<MQEValue>> labelMapR = new HashMap<>();
         singleRight.getResults().forEach(mqeValuesR -> {
-            // For now, we only have a single anonymous label named `_`
-            labelMapR.put(mqeValuesR.getMetric().getLabels().get(0), mqeValuesR.getValues());
+            labelMapR.put(new HashSet<>(mqeValuesR.getMetric().getLabels()), mqeValuesR.getValues());
         });
         for (MQEValues mqeValuesL : singleLeft.getResults()) {
             //reserve left metric info
             MQEValue valueL = mqeValuesL.getValues().get(0);
-            List<MQEValue> mqeValuesR = labelMapR.get(mqeValuesL.getMetric().getLabels().get(0));
+            List<MQEValue> mqeValuesR = labelMapR.get(new HashSet<>(mqeValuesL.getMetric().getLabels()));
             if (mqeValuesR == null) {
-                throw new IllegalExpressionException(
-                    "Operation between labeled metrics should have the same label.");
-            }
-            MQEValue valueR = mqeValuesR.get(0);
-            if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
                 valueL.setEmptyValue(true);
-                valueL.setDoubleValue(0);
             } else {
+                MQEValue valueR = mqeValuesR.get(0);
+                if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                    valueL.setEmptyValue(true);
+                    continue;
+                }
                 double value = calculate.apply(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
                 valueL.setDoubleValue(value);
-                valueL.setEmptyValue(false);
             }
         }
 
@@ -193,14 +185,12 @@ public interface LROp {
                                                     int opType, LROp calculate) {
         MQEValues mqeValuesL = seriesLeft.getResults().get(0);
         MQEValues mqeValuesR = seriesRight.getResults().get(0);
-        mqeValuesL.setMetric(null);
         for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
             //clean metric info
             MQEValue valueL = mqeValuesL.getValues().get(i);
             MQEValue valueR = mqeValuesR.getValues().get(i);
             if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
                 valueL.setEmptyValue(true);
-                valueL.setDoubleValue(0);
                 continue;
             }
             //time should be mapped
@@ -222,7 +212,6 @@ public interface LROp {
                 MQEValue valueR = mqeValuesR.getValues().get(i);
                 if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
                     valueL.setEmptyValue(true);
-                    valueL.setDoubleValue(0);
                     continue;
                 }
                 double newValue = calculate.apply(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
@@ -244,7 +233,6 @@ public interface LROp {
                 MQEValue valueR = mqeValuesR.getValues().get(i);
                 if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
                     valueL.setEmptyValue(true);
-                    valueL.setDoubleValue(0);
                     continue;
                 }
                 double newValue = calculate.apply(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
@@ -259,30 +247,25 @@ public interface LROp {
                                                              ExpressionResult seriesRight,
                                                              int opType, LROp calculate) throws IllegalExpressionException {
         Map<Set<KeyValue>, List<MQEValue>> labelMapR = new HashMap<>();
-        if (seriesLeft.getResults().size() != seriesRight.getResults().size()) {
-            throw new IllegalExpressionException(
-                "Operation between labeled metrics should have the same label.");
-        }
         seriesRight.getResults().forEach(mqeValuesR -> {
             labelMapR.put(new HashSet<>(mqeValuesR.getMetric().getLabels()), mqeValuesR.getValues());
         });
         for (MQEValues mqeValuesL : seriesLeft.getResults()) {
             for (int i = 0; i < mqeValuesL.getValues().size(); i++) {
-                //reserve left metric info
+                //reserve left metric info, if right metric not exist, set empty value
                 MQEValue valueL = mqeValuesL.getValues().get(i);
                 List<MQEValue> mqeValuesR = labelMapR.get(new HashSet<>(mqeValuesL.getMetric().getLabels()));
                 if (mqeValuesR == null) {
-                    throw new IllegalExpressionException(
-                        "Operation between labeled metrics should have the same label.");
-                }
-                MQEValue valueR = mqeValuesR.get(i);
-                if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
                     valueL.setEmptyValue(true);
-                    valueL.setDoubleValue(0);
-                    continue;
+                } else {
+                    MQEValue valueR = mqeValuesR.get(i);
+                    if (valueL.isEmptyValue() || valueR.isEmptyValue()) {
+                        valueL.setEmptyValue(true);
+                        continue;
+                    }
+                    double newValue = calculate.apply(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
+                    mqeValuesL.getValues().get(i).setDoubleValue(newValue);
                 }
-                double newValue = calculate.apply(valueL.getDoubleValue(), valueR.getDoubleValue(), opType);
-                mqeValuesL.getValues().get(i).setDoubleValue(newValue);
             }
         }
 
