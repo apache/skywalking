@@ -38,7 +38,7 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_qps"
+                    "aggregate_labels(meter_mysql_qps,sum)"
                   ]
                 },
                 {
@@ -99,10 +99,10 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_commands_insert_rate",
-                    "meter_mysql_commands_delete_rate",
-                    "meter_mysql_commands_select_rate",
-                    "meter_mysql_commands_update_rate"
+                    "aggregate_labels(meter_mysql_commands_insert_rate,sum)",
+                    "aggregate_labels(meter_mysql_commands_delete_rate,sum)",
+                    "aggregate_labels(meter_mysql_commands_select_rate,sum)",
+                    "aggregate_labels(meter_mysql_commands_update_rate,sum)"
                   ]
                 },
                 {
@@ -136,10 +136,10 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_threads_cached",
-                    "meter_mysql_threads_running",
-                    "meter_mysql_threads_created",
-                    "meter_mysql_threads_connected"
+                    "aggregate_labels(meter_mysql_threads_cached,sum)",
+                    "aggregate_labels(meter_mysql_threads_running,sum)",
+                    "aggregate_labels(meter_mysql_threads_created,sum)",
+                    "aggregate_labels(meter_mysql_threads_connected,sum)"
                   ]
                 },
                 {
@@ -170,7 +170,7 @@
                   ],
                   "expressions": [
                     "aggregate_labels(meter_mysql_max_connections,sum)-aggregate_labels(meter_mysql_status_thread_connected,sum)",
-                    "meter_mysql_connects_aborted"
+                    "aggregate_labels(meter_mysql_connects_aborted,sum)"
                   ]
                 },
                 {
@@ -197,7 +197,7 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_slow_queries_rate"
+                    "aggregate_labels(meter_mysql_slow_queries_rate,sum)"
                   ]
                 },
                 {
@@ -227,8 +227,8 @@
                     }
                   ],
                   "expressions": [
-                    "meter_mysql_connection_errors_internal",
-                    "meter_mysql_connection_errors_max_connections"
+                    "aggregate_labels(meter_mysql_connection_errors_internal,sum)",
+                    "aggregate_labels(meter_mysql_connection_errors_max_connections,sum)"
                   ]
                 }
               ]
@@ -289,16 +289,16 @@
           ]
         }
       ],
-      "name": "MySQL-Service",
       "layer": "MYSQL",
       "entity": "Service",
+      "name": "MySQL-Service",
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_mysql_commands_select_rate)",
-        "avg(meter_mysql_commands_insert_rate)",
-        "avg(meter_mysql_commands_update_rate)",
-        "avg(meter_mysql_commands_delete_rate)"
+        "avg(aggregate_labels(meter_mysql_commands_select_rate,sum))",
+        "avg(aggregate_labels(meter_mysql_commands_insert_rate,sum))",
+        "avg(aggregate_labels(meter_mysql_commands_update_rate,sum))",
+        "avg(aggregate_labels(meter_mysql_commands_delete_rate,sum))"
       ],
       "expressionsConfig": [
         {

@@ -125,7 +125,7 @@
                     }
                   ],
                   "expressions": [
-                    "meter_redis_hit_rate"
+                    "aggregate_labels(meter_redis_hit_rate,sum)"
                   ]
                 },
                 {
@@ -155,8 +155,8 @@
                     "title": "Net Input / Output Bytes (KB)"
                   },
                   "expressions": [
-                    "meter_redis_net_input_bytes_total/1024",
-                    "meter_redis_net_output_bytes_total/1024"
+                    "aggregate_labels(meter_redis_net_input_bytes_total,sum)/1024",
+                    "aggregate_labels(meter_redis_net_output_bytes_total,sum)/1024"
                   ]
                 },
                 {

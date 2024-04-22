@@ -20,21 +20,21 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected:  expected/service.yml
   # service metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_cache_hit_rate --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_fetched_rows_rate --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_inserted_rows_rate --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_updated_rows_rate --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_returned_rows_rate --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_deleted_rows_rate --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_cache_hit_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_fetched_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_inserted_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_updated_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_returned_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_deleted_rows_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_active_sessions --service-name=postgresql::postgres:5432
-    expected: expected/metrics-has-value-label.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_active_sessions,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
   # instance metrics
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_shared_buffers --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
     expected:  expected/metrics-has-value.yml

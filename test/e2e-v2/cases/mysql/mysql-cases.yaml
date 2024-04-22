@@ -20,27 +20,27 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected:  expected/service.yml
   # service metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_commands_select_rate --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_commands_select_rate,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_commands_insert_rate --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_commands_insert_rate,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_commands_update_rate --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_commands_update_rate,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_commands_delete_rate --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_commands_delete_rate,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_qps --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_qps,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_tps,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_threads_connected --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_threads_connected,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_threads_created --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_threads_created,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_threads_running --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_threads_running,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
 
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_connects_aborted --service-name=mysql::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_connects_aborted,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_max_connections,sum)-aggregate_labels(meter_mysql_status_thread_connected,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value-metric-null.yml

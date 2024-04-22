@@ -26,11 +26,11 @@ cases:
     expected: expected/metrics-single-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='latest(aggregate_labels(meter_redis_memory_used_bytes,sum)/aggregate_labels(meter_redis_memory_max_bytes,sum))' --service-name=redis::root[root]
     expected: expected/metrics-single-value-metric-null.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_redis_hit_rate --service-name=redis::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_redis_hit_rate,sum)' --service-name=redis::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_redis_net_input_bytes_total --service-name=redis::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_redis_net_input_bytes_total,sum)' --service-name=redis::root[root]
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_redis_net_output_bytes_total --service-name=redis::root[root]
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_redis_net_output_bytes_total,sum)' --service-name=redis::root[root]
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_redis_db_keys,sum)' --service-name=redis::root[root]
     expected: expected/metrics-has-value.yml
