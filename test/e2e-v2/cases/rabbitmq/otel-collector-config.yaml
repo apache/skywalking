@@ -68,6 +68,8 @@ exporters:
     endpoint: oap:11800
     tls:
       insecure: true
+  logging:
+    loglevel: debug
 
 service:
   pipelines:
@@ -78,3 +80,4 @@ service:
         - batch
       exporters:
         - otlp
+        - logging

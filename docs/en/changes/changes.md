@@ -114,6 +114,7 @@
 * Calculate Nginx service HTTP Latency by MQE.
 * MQE query: make metadata not return `null`.
 * MQE labeled metrics Binary Operation: return empty value if the labels not match rather than report error.
+* Fix inaccurate Hierarchy of RabbitMQ Server monitoring metrics.
 * Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics.
 
 #### UI
