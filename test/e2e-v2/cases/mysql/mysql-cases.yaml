@@ -43,7 +43,7 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_connects_aborted,sum)' --service-name=mysql::root[root]
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='aggregate_labels(meter_mysql_max_connections,sum)-aggregate_labels(meter_mysql_status_thread_connected,sum)' --service-name=mysql::root[root]
-    expected: expected/metrics-has-value-metric-null.yml
+    expected: expected/metrics-has-value.yml
   # instance metrics
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_mysql_instance_uptime --service-name=mysql::root[root] --instance-name=mysql-service:9104
     expected:  expected/metrics-has-value.yml
