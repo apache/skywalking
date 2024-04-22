@@ -530,11 +530,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_rabbitmq_messages_published)",
-        "avg(meter_rabbitmq_messages_unconfirmed)",
-        "avg(meter_rabbitmq_queues)",
-        "avg(meter_rabbitmq_channels)",
-        "avg(meter_rabbitmq_connections)"
+        "aggregate_labels(meter_rabbitmq_messages_published,sum)",
+        "aggregate_labels(meter_rabbitmq_messages_unconfirmed,sum)",
+        "aggregate_labels(meter_rabbitmq_queues,sum)",
+        "aggregate_labels(meter_rabbitmq_channels,sum)",
+        "aggregate_labels(meter_rabbitmq_connections,sum)"
       ],
       "expressionsConfig": [
         {
