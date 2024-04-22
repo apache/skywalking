@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.graphql.mqe.rt;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +29,6 @@ import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
-import org.apache.skywalking.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
@@ -195,10 +195,8 @@ public class MQEVisitor extends MQEVisitorBase {
             mqeValue.setDoubleValue(Double.parseDouble(selectedRecord.getValue()));
             mqeValueList.add(mqeValue);
         });
-        Metadata metadata = new Metadata();
         MQEValues mqeValues = new MQEValues();
         mqeValues.setValues(mqeValueList);
-        mqeValues.setMetric(metadata);
         result.getResults().add(mqeValues);
         result.setType(ExpressionResultType.SORTED_LIST);
     }
@@ -220,10 +218,8 @@ public class MQEVisitor extends MQEVisitorBase {
             mqeValue.setTraceID(record.getRefId());
             mqeValueList.add(mqeValue);
         });
-        Metadata metadata = new Metadata();
         MQEValues mqeValues = new MQEValues();
         mqeValues.setValues(mqeValueList);
-        mqeValues.setMetric(metadata);
         result.getResults().add(mqeValues);
         result.setType(ExpressionResultType.RECORD_LIST);
     }
@@ -250,10 +246,8 @@ public class MQEVisitor extends MQEVisitorBase {
             mqeValue.setDoubleValue(kvInt.getValue());
             mqeValueList.add(mqeValue);
         }
-        Metadata metadata = new Metadata();
         MQEValues mqeValues = new MQEValues();
         mqeValues.setValues(mqeValueList);
-        mqeValues.setMetric(metadata);
         result.getResults().add(mqeValues);
         result.setType(ExpressionResultType.TIME_SERIES_VALUES);
     }
@@ -288,15 +282,15 @@ public class MQEVisitor extends MQEVisitorBase {
                 }
             }
 
-            Metadata metadata = new Metadata();
+            MQEValues mqeValues = new MQEValues();
             DataLabel dataLabel = new DataLabel();
             dataLabel.put(metricsValues.getLabel());
             for (Map.Entry<String, String> label : dataLabel.entrySet()) {
-                metadata.getLabels().add(new KeyValue(label.getKey(), label.getValue()));
+                mqeValues.getMetric().getLabels().add(new KeyValue(label.getKey(), label.getValue()));
             }
-            MQEValues mqeValues = new MQEValues();
+            //Sort labels by key in natural order by default
+            mqeValues.getMetric().sortLabelsByKey(Comparator.naturalOrder());
             mqeValues.setValues(mqeValueList);
-            mqeValues.setMetric(metadata);
             result.getResults().add(mqeValues);
         });
         result.setType(ExpressionResultType.TIME_SERIES_VALUES);

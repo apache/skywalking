@@ -149,6 +149,7 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
             MQEParser.LabelNameListContext labelNameListContext = ctx.aggregateLabelsFunc().labelNameList();
             if (null != labelNameListContext) {
                 for (MQEParser.LabelNameContext labelNameContext : labelNameListContext.labelName()) {
+                    // ignore the label name that does not exist in the result
                     if (expResult.getResults()
                                  .get(0)
                                  .getMetric()
@@ -156,10 +157,6 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
                                  .stream()
                                  .anyMatch(label -> label.getKey().equals(labelNameContext.getText()))) {
                         labelNames.add(labelNameContext.getText());
-                    } else {
-                        expResult.setError(
-                            "The label [" + labelNameContext.getText() + "] does not exist in the result.");
-                        return expResult;
                     }
                 }
             }
@@ -221,11 +218,6 @@ public abstract class MQEVisitorBase extends MQEParserBaseVisitor<ExpressionResu
         }
         KeyValue targetLabel = buildLabel(ctx.label());
         KeyValue replaceLabel = buildLabel(ctx.replaceLabel().label());
-
-//        if (!targetLabel.getKey().equals(replaceLabel.getKey())) {
-//            result.setError("The target label name and replace label name must be the same.");
-//            return result;
-//        }
         List<KeyValue> targetLabels = parseLabelValue(targetLabel, Const.COMMA);
         List<KeyValue> replaceLabels = parseLabelValue(replaceLabel, Const.COMMA);
 

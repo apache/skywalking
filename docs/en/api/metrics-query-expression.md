@@ -82,7 +82,8 @@ For the result type of the expression, please refer to the following table.
 ### Binary Operation Rules
 The following table lists if the different result types of the input expressions could do this operation and the result type after the operation.
 The expression could be on the left or right side of the operator. 
-**Note**: If the expressions on both sides of the operator are the `TIME_SERIES_VALUES with labels`, they should have the same labels for calculation.
+**Note**: If the expressions result on both sides of the operator are `with labels`, they should have the same labels for calculation.
+If the labels match, will reserve left expression result labels and the calculated value. Otherwise, will return empty value.
 
 | Expression              | Expression                | Yes/No | ExpressionResultType     |
 |-------------------------|---------------------------|--------|--------------------------|
