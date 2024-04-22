@@ -31,7 +31,6 @@ import org.apache.skywalking.mqe.rt.operation.aggregatelabels.AvgAggregateLabels
 import org.apache.skywalking.mqe.rt.operation.aggregatelabels.MaxAggregateLabelsFunc;
 import org.apache.skywalking.mqe.rt.operation.aggregatelabels.MinAggregateLabelsFunc;
 import org.apache.skywalking.mqe.rt.operation.aggregatelabels.SumAggregateLabelsFunc;
-import org.apache.skywalking.mqe.rt.type.Metadata;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
@@ -98,9 +97,7 @@ public class AggregateLabelsOp {
                 }
             }
             MQEValues mqeValues = new MQEValues();
-            Metadata metadata = new Metadata();
-            metadata.setLabels(labels);
-            mqeValues.setMetric(metadata);
+            mqeValues.getMetric().setLabels(labels);
             mqeValues.setValues(combineTo);
             expResult.getResults().add(mqeValues);
         });
@@ -108,10 +105,8 @@ public class AggregateLabelsOp {
     }
 
     private static List<KeyValue> getLabels(final List<String> labelNames, final MQEValues mqeValues) {
-        List<KeyValue> a =
-         labelNames.stream().map(labelName -> mqeValues.getMetric().getLabels().stream().filter(label -> labelName.equals(label.getKey()))
+         return labelNames.stream().map(labelName -> mqeValues.getMetric().getLabels().stream().filter(label -> labelName.equals(label.getKey()))
                                                            .findAny().orElseGet(() -> new KeyValue(labelName, ""))).collect(toList());
-        return a;
     }
 
 }

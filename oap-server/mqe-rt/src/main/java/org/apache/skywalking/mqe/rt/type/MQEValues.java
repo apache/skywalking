@@ -25,7 +25,7 @@ import lombok.Data;
 
 @Data
 public class MQEValues {
-    private Metadata metric;
+    private Metadata metric = new Metadata();
 
     private List<MQEValue> values = new ArrayList<>();
 }
