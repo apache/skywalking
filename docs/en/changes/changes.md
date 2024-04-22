@@ -105,7 +105,8 @@
   - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
 * Fix/Change UI init setting for Windows Swap -> Virtual Memory
 * Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
-* Fix inaccurate APISIX metrics
+
+* Fix inaccurate APISIX metrics.
 * Fix inaccurate MongoDB Metrics.
 * Support Apache ActiveMQ server monitoring. 
 * Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
@@ -114,6 +115,7 @@
 * MQE query: make metadata not return `null`.
 * MQE labeled metrics Binary Operation: return empty value if the labels not match rather than report error.
 * Fix inaccurate Hierarchy of RabbitMQ Server monitoring metrics.
+* Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics.
 
 #### UI
 

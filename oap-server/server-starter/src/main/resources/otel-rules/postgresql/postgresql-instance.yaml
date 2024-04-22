@@ -104,12 +104,12 @@ metricsRules:
 
   ## buffers
   - name: instance_buffers_checkpoint
-    exp: pg_stat_bgwriter_buffers_checkpoint.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_checkpoint_total.rate('PT1M')
   - name: instance_buffers_clean
-    exp: pg_stat_bgwriter_buffers_clean.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_clean_total.rate('PT1M')
   - name: instance_buffers_backend_fsync
-    exp: pg_stat_bgwriter_buffers_backend_fsync.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_backend_fsync_total.rate('PT1M')
   - name: instance_buffers_alloc
-    exp: pg_stat_bgwriter_buffers_alloc.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_alloc_total.rate('PT1M')
   - name: instance_buffers_backend
-    exp: pg_stat_bgwriter_buffers_backend.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_backend_total.rate('PT1M')
