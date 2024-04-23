@@ -46,12 +46,10 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA;
@@ -341,57 +339,15 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
     }
 
     public static String anyValueToString(AnyValue value) {
-        if (value.hasStringValue()) {
-            return value.getStringValue();
-        } else if (value.hasBoolValue()) {
+        if (value.hasBoolValue()) {
             return Boolean.toString(value.getBoolValue());
         } else if (value.hasIntValue()) {
             return Long.toString(value.getIntValue());
         } else if (value.hasDoubleValue()) {
             return Double.toString(value.getDoubleValue());
-        } else if (value.hasArrayValue()) {
-            return arrayValueToString(value.getArrayValue());
-        } else if (value.hasKvlistValue()) {
-            return keyValueListToString(value.getKvlistValue());
-        } else if (value.hasBytesValue()) {
-            return Base64.getEncoder().encodeToString(value.getBytesValue().toByteArray());
         } else {
-            return "";
+            return value.getStringValue();
         }
-    }
-
-    public static String arrayValueToString(ArrayValue arrayValue) {
-        StringBuilder result = new StringBuilder();
-        result.append("[");
-        for (AnyValue value : arrayValue.getValuesList()) {
-            result.append(anyValueToString(value));
-            result.append(", ");
-        }
-
-        if (!arrayValue.getValuesList().isEmpty()) {
-            result.setLength(result.length() - 2);
-        }
-
-        result.append("]");
-        return result.toString();
-    }
-
-    public static String keyValueListToString(KeyValueList kvList) {
-        StringBuilder result = new StringBuilder();
-        result.append("{");
-
-        for (KeyValue kv : kvList.getValuesList()) {
-            String key = kv.getKey();
-            String value = anyValueToString(kv.getValue());
-            result.append(key).append(": ").append(value).append(", ");
-        }
-
-        if (!kvList.getValuesList().isEmpty()) {
-            result.setLength(result.length() - 2);
-        }
-
-        result.append("}");
-        return result.toString();
     }
 
 }
