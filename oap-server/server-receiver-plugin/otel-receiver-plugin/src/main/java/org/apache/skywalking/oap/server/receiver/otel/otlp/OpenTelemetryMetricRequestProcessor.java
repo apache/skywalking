@@ -135,7 +135,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return kvs
             .stream()
             .collect(toMap(
-                KeyValue::getKey,
+                it -> it.getKey().replaceAll("\\.", "_"),
                 it -> it.getValue().getStringValue()
             ));
     }
