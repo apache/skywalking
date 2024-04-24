@@ -18,11 +18,17 @@
 
 package org.apache.skywalking.oap.server.exporter.provider.grpc;
 
-import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 
-public class MockDoubleValueMetrics extends MockMetrics implements DoubleValueHolder {
+public class MockLabeledValueMetrics extends MockMetrics implements LabeledValueHolder {
     @Override
-    public double getValue() {
-        return 2.3;
+    public DataTable getValue() {
+        DataTable dataTable = new DataTable();
+        DataLabel label = new DataLabel();
+        label.put("labelName", "labelValue");
+        dataTable.put(label, 1000L);
+        return dataTable;
     }
 }

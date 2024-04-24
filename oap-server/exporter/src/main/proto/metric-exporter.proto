@@ -34,12 +34,9 @@ message ExportMetricValue {
     string metricName = 1;
     string entityName = 2;
     string entityId = 3;
-    ValueType type = 4;
-    int64 timeBucket = 5;
-    int64 longValue = 6;
-    double doubleValue = 7;
-    repeated int64 longValues = 8;
-    EventType eventType = 9;
+    int64 timeBucket = 4;
+    EventType eventType = 5;
+    repeated MetricValue metricValues = 6;
 }
 
 message SubscriptionsResp {
@@ -49,12 +46,6 @@ message SubscriptionsResp {
 message SubscriptionMetric {
     string metricName = 1;
     EventType eventType = 2;
-}
-
-enum ValueType {
-    LONG = 0;
-    DOUBLE = 1;
-    MULTI_LONG = 2;
 }
 
 enum EventType {
@@ -69,4 +60,15 @@ message SubscriptionReq {
 }
 
 message ExportResponse {
+}
+
+message MetricValue {
+    // Could be empty, if it is not a labeled metric.
+    repeated KeyValue labels = 1;
+    int64 longValue = 2;
+}
+
+message KeyValue {
+    string key = 1;
+    string value = 2;
 }
