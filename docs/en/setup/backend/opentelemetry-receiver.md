@@ -26,6 +26,8 @@ The receiver adds label with key `node_identifier_host_name` to the collected da
 and its value is from `net.host.name` (or `host.name` for some OTLP versions) resource attributes defined in OpenTelemetry proto,
 for identification of the metric data.
 
+**Notice:** In the resource scope, dots (.) in the attributes' key names are converted to underscores (_), whereas in the metrics scope, they are not converted.
+
 | Description                             | Configuration File                                  | Data Source                                                                                                           |
 |-----------------------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
 | Metrics of Istio Control Plane          | otel-rules/istio-controlplane.yaml                  | Istio Control Plane -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                             |

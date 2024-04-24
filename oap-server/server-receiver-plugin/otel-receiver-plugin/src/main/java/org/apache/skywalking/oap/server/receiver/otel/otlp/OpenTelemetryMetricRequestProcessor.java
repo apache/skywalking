@@ -88,7 +88,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                         it -> LABEL_MAPPINGS
                             .getOrDefault(it.getKey(), it.getKey())
                             .replaceAll("\\.", "_"),
-                        it -> it.getValue().getStringValue(),
+                        it -> anyValueToString(it.getValue()),
                         (v1, v2) -> v1
                     ));
 
@@ -136,7 +136,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         return kvs
             .stream()
             .collect(toMap(
-                it -> it.getKey().replaceAll("\\.", "_"),
+                KeyValue::getKey,
                 it -> anyValueToString(it.getValue())
             ));
     }
