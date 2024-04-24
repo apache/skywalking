@@ -105,7 +105,6 @@
   - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
 * Fix/Change UI init setting for Windows Swap -> Virtual Memory
 * Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
-
 * Fix inaccurate APISIX metrics.
 * Fix inaccurate MongoDB Metrics.
 * Support Apache ActiveMQ server monitoring. 
@@ -117,6 +116,7 @@
 * Fix inaccurate Hierarchy of RabbitMQ Server monitoring metrics.
 * Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics.
 * Support DoubleValue,IntValue,BoolValue in OTEL metrics attributes.
+* [Break Change] gGRPC metrics exporter unified the metric value type and support labeled metrics.
 
 #### UI
 
