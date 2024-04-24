@@ -116,7 +116,7 @@
 * MQE labeled metrics Binary Operation: return empty value if the labels not match rather than report error.
 * Fix inaccurate Hierarchy of RabbitMQ Server monitoring metrics.
 * Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics.
-* Replace '.' to '_' at OTEL metrics attributes.
+* Support DoubleValue,IntValue,BoolValue in OTEL metrics attributes.
 
 #### UI
 
