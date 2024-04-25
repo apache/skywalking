@@ -505,7 +505,9 @@ Nacos:
 Netty-http:
   id: 151
   languages: Java
-
+c3p0:
+  id: 152
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
