@@ -47,19 +47,19 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
       expected: expected/service.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_requests --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value.yml
+      expected: expected/metrics-has-value-label-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_latency --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-percentile-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_bandwidth --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-type-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_connections --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-state-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_status --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-status-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_http_requests_increment --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value.yml
+      expected: expected/metrics-has-value-label-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_service_error_log_count --service-name=nginx::e2e-test
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-level-service_instance_id.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=nginx::e2e-test
       expected: expected/logs.yml
 
@@ -69,15 +69,15 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_requests --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_latency --service-name=nginx::e2e-test --instance-name=e2e-test-instance
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-percentile.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_bandwidth --service-name=nginx::e2e-test --instance-name=e2e-test-instance
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-type.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_status --service-name=nginx::e2e-test --instance-name=e2e-test-instance
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-status.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_http_requests_increment --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_instance_error_log_count --service-name=nginx::e2e-test --instance-name=e2e-test-instance
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-level.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=nginx::e2e-test --instance-name=e2e-test-instance
       expected: expected/logs.yml
 
@@ -87,10 +87,10 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_requests --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_latency --service-name=nginx::e2e-test --endpoint-name=/test/**
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-percentile.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_bandwidth --service-name=nginx::e2e-test --endpoint-name=/test/**
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-type.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_status --service-name=nginx::e2e-test --endpoint-name=/test/**
-      expected: expected/metrics-has-value-label.yml
+      expected: expected/metrics-has-value-label-status.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_nginx_endpoint_http_requests_increment --service-name=nginx::e2e-test --endpoint-name=/test/**
       expected: expected/metrics-has-value.yml

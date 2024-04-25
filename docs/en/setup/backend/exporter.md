@@ -48,7 +48,7 @@ Return empty list, if you want to export all metrics in the incremental event ty
 
 2. Export implementation.
 Stream service. All subscribed metrics will be sent here based on the OAP core schedule. Also, if the OAP is deployed as a cluster,
-this method will be called concurrently. For metrics value, you need to follow `#type` to choose `#longValue` or `#doubleValue`.
+this method will be called concurrently.
 
 ## Kafka Exporter
 ### Trace Kafka Exporter

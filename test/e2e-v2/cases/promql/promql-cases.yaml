@@ -34,8 +34,12 @@ cases:
   # labels query
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_cpm'
     expected: expected/service-metric-label.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_percentile'
-    expected: expected/service-labeled-metric-label.yml
+  - query: |
+      sleep 30;
+      curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_percentile'
+    expected: expected/service-labeled-metric-label-p.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_percentile_old'
+    expected: expected/service-labeled-metric-label-old.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=service_instance_cpm'
     expected: expected/instance-metric-label.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/labels -d 'match[]=endpoint_cpm'
@@ -50,9 +54,11 @@ cases:
     expected: expected/service-metric-vector.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}[30m]'
     expected: expected/service-metric-matrix.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", labels="0,1,2", relabels="P50,P75,P90"}'
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"}'
     expected: expected/service-metric-labeled-vector.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", labels="0,1,2", relabels="P50,P75,P90"}[30m]'
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile_old{service="e2e-service-consumer", layer="GENERAL", labels="0,1,2", relabels="P50,P75,P90"}'
+    expected: expected/service-metric-labeled-vector-old.yml
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"}[30m]'
     expected: expected/service-metric-labeled-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_cpm{layer="GENERAL",top_n="10", order="DES"}'
     expected: expected/service-metric-sort-vector.yml
@@ -61,12 +67,12 @@ cases:
   ## multiple metrics operation query
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"} + service_cpm{service="e2e-service-consumer", layer="GENERAL"}'
     expected: expected/service-metric-vector.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", labels="4", relabels="p_value"} - service_percentile{service="e2e-service-consumer", layer="GENERAL", labels="3", relabels="p_value"}'
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="99"} - service_percentile{service="e2e-service-consumer", layer="GENERAL", p="99"}'
     expected: expected/service-metric-labeled-compare-matrix.yml
   ## query_range
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_sla{service="e2e-service-consumer", layer="GENERAL"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-matrix.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", labels="0,1,2", relabels="P50,P75,P90"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-labeled-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=service_cpm{layer="GENERAL",top_n="10", order="DES"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/service-metric-sort-matrix.yml
@@ -82,7 +88,7 @@ cases:
     expected: expected/endpoint-metric-vector.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=endpoint_sla{service="e2e-service-consumer", layer="GENERAL", endpoint="POST:/users"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-metric-matrix.yml
-  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=endpoint_percentile{service="e2e-service-consumer", layer="GENERAL", labels="0,1,2", relabels="P50,P75,P90", endpoint="POST:/users"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
+  - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=endpoint_percentile{service="e2e-service-consumer", layer="GENERAL", p="50,75,90", endpoint="POST:/users"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-metric-labeled-matrix.yml
   - query: curl -X GET http://${oap_host}:${oap_9090}/api/v1/query_range -d 'query=endpoint_cpm{parent_service="e2e-service-consumer", layer="GENERAL",top_n="10", order="DES"}&start='$(($(date +%s)-1800))'&end='$(date +%s)
     expected: expected/endpoint-metric-sort-matrix.yml

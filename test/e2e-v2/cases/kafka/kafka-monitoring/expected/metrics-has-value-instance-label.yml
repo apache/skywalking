@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: delayedOperation
           value: "Produce"
     values:
       {{- contains .values }}
@@ -31,7 +31,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: delayedOperation
           value: "Fetch"
     values:
       {{- contains .values }}

@@ -19,7 +19,7 @@ results:
   - metric:
       labels:
         {{- contains .metric.labels }}
-        - key: _
+        - key: mount
           value: {{ .value }}
         {{- end}}
     values:

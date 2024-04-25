@@ -24,9 +24,10 @@
           "expressions": [
             "meter_nginx_instance_http_requests"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "metricConfig": [
+            {
+              "label": "HTTP request trend"
+            }
           ]
         },
         {
@@ -49,10 +50,6 @@
           },
           "expressions": [
             "meter_nginx_instance_http_latency"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -75,10 +72,6 @@
           },
           "expressions": [
             "meter_nginx_instance_http_bandwidth/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -90,10 +83,6 @@
           "type": "Widget",
           "expressions": [
             "meter_nginx_instance_http_connections"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -127,10 +116,6 @@
           },
           "expressions": [
             "meter_nginx_instance_http_status"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -140,12 +125,13 @@
           "h": 13,
           "i": "6",
           "type": "Widget",
-          "metricMode": "Expression",
           "expressions": [
             "(meter_nginx_instance_http_4xx_requests_increment/meter_nginx_instance_http_requests_increment)*100"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "metricConfig": [
+            {
+              "label": "HTTP 4xx percent"
+            }
           ],
           "graph": {
             "type": "Area",
@@ -164,12 +150,13 @@
           "h": 13,
           "i": "7",
           "type": "Widget",
-          "metricMode": "Expression",
           "expressions": [
             "(meter_nginx_instance_http_5xx_requests_increment/meter_nginx_instance_http_requests_increment)*100"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "metricConfig": [
+            {
+              "label": "HTTP 5xx percent"
+            }
           ],
           "graph": {
             "type": "Area",
@@ -188,7 +175,6 @@
           "h": 13,
           "i": "8",
           "type": "Widget",
-          "metricMode": "Expression",
           "expressions": [
             "meter_nginx_instance_error_log_count"
           ],
@@ -198,10 +184,7 @@
           },
           "widget": {
             "title": "Error Log Count (Per Minute)"
-          },
-          "typesOfMQE": [
-            "UNKNOWN"
-          ]
+          }
         }
       ],
       "layer": "NGINX",
@@ -210,9 +193,9 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_nginx_instance_http_status{_='200'})",
-        "avg(meter_nginx_instance_http_status{_='404'})",
-        "avg(meter_nginx_instance_http_status{_='500'})"
+        "avg(meter_nginx_instance_http_status{status='200'})",
+        "avg(meter_nginx_instance_http_status{status='404'})",
+        "avg(meter_nginx_instance_http_status{status='500'})"
       ],
       "expressionsConfig": [
         {

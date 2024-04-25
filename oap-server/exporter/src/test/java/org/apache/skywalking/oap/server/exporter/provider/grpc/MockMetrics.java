@@ -26,7 +26,7 @@ public class MockMetrics extends Metrics {
 
     @Override
     protected StorageID id0() {
-        return new StorageID().append("", "mock-metrics");
+        return new StorageID().append("mock-service", "mock-metrics");
     }
 
     @Override

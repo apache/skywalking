@@ -1,4 +1,3 @@
-
 [
   {
     "id": "APISIX-Endpoint",
@@ -23,11 +22,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_endpoint_http_status"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_endpoint_http_status,sum(code))"
           ],
           "associate": [
             {
@@ -60,11 +55,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_endpoint_http_latency"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_endpoint_http_latency,avg(type,p))"
           ],
           "associate": [
             {
@@ -78,7 +69,6 @@
             }
           ]
         },
-
         {
           "x": 12,
           "y": 0,
@@ -98,11 +88,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_endpoint_bandwidth/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_endpoint_bandwidth/1024,sum(type))"
           ],
           "associate": [
             {

@@ -60,6 +60,9 @@ hierarchy:
   PULSAR:
     K8S_SERVICE: short-name
 
+  ACTIVEMQ:
+    K8S_SERVICE: short-name
+
   VIRTUAL_DATABASE:
     MYSQL: lower-short-name-with-fqdn
     POSTGRESQL: lower-short-name-with-fqdn
@@ -80,10 +83,10 @@ auto-matching-rules:
   short-name: "{ (u, l) -> u.shortName == l.shortName }"
   # remove the k8s namespace from the lower service short name
   # this rule is only works on k8s env.
-  lower-short-name-remove-ns: "{ (u, l) -> u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')) }"
+  lower-short-name-remove-ns: "{ (u, l) -> { if(l.shortName.lastIndexOf('.') > 0) return u.shortName == l.shortName.substring(0, l.shortName.lastIndexOf('.')); return false; } }"
   # the short name of the upper remove port is equal to the short name of the lower service with fqdn suffix
   # this rule is only works on k8s env.
-  lower-short-name-with-fqdn: "{ (u, l) -> u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local') }"
+  lower-short-name-with-fqdn: "{ (u, l) -> { if(u.shortName.lastIndexOf(':') > 0) return u.shortName.substring(0, u.shortName.lastIndexOf(':')) == l.shortName.concat('.svc.cluster.local'); return false; } }"
 
 # The hierarchy level of the service layer, the level is used to define the order of the service layer for UI presentation.
 # The level of the upper service should greater than the level of the lower service in `hierarchy` section.
@@ -103,6 +106,7 @@ layer-levels:
   RABBITMQ: 2
   KAFKA: 2
   PULSAR: 2
+  ACTIVEMQ: 2
 
   MESH_DP: 1
 

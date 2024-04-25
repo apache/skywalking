@@ -21,10 +21,6 @@
                   "h": 12,
                   "i": "13",
                   "type": "Widget",
-                  "id": "16-0-13",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -33,16 +29,11 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricConfig": [],
                   "widget": {
                     "title": "Memory Available Before Publishers Blocked (MB)"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_rabbitmq_memory_available_before_publisher_blocked/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -52,10 +43,6 @@
                   "h": 12,
                   "i": "14",
                   "type": "Widget",
-                  "id": "16-0-14",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -64,16 +51,11 @@
                     "showXAxis": true,
                     "showYAxis": true
                   },
-                  "metricConfig": [],
                   "widget": {
                     "title": "Disk Space Available Before Publishers Blocked (GB)"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "meter_rabbitmq_disk_space_available_before_publisher_blocked/1024/1024/1024"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -83,10 +65,6 @@
                   "h": 12,
                   "i": "15",
                   "type": "Widget",
-                  "id": "16-0-15",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -98,13 +76,8 @@
                   "widget": {
                     "title": "Messages Ready To Be Delivered To Consumers"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_message_ready_delivered_consumers"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -114,10 +87,6 @@
                   "h": 12,
                   "i": "16",
                   "type": "Widget",
-                  "id": "16-0-16",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -129,13 +98,8 @@
                   "widget": {
                     "title": "Messages Pending Consumer Acknowledgement"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_message_unacknowledged_delivered_consumers"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -145,10 +109,6 @@
                   "h": 12,
                   "i": "17",
                   "type": "Widget",
-                  "id": "16-0-17",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -161,13 +121,8 @@
                     "title": "File Descriptors Available",
                     "tips": "File descriptor count and limit, as reported by the operating system. The count includes network sockets and file handles."
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_file_descriptors_available"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -177,10 +132,6 @@
                   "h": 12,
                   "i": "18",
                   "type": "Widget",
-                  "id": "16-0-18",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -193,13 +144,8 @@
                     "title": "TCP Sockets Available",
                     "tips": "The network sockets count and limit managed by RabbitMQ. When the limit is exhausted RabbitMQ will stop accepting new network connections."
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_tcp_socket_available"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -209,10 +155,6 @@
                   "h": 12,
                   "i": "19",
                   "type": "Widget",
-                  "id": "16-0-19",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -224,13 +166,8 @@
                   "widget": {
                     "title": "Messages Published"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_messages_published"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -240,10 +177,6 @@
                   "h": 12,
                   "i": "20",
                   "type": "Widget",
-                  "id": "16-0-20",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -255,13 +188,8 @@
                   "widget": {
                     "title": "Messages Confirmed To Publishers"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_messages_confirmed"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -271,10 +199,6 @@
                   "h": 12,
                   "i": "21",
                   "type": "Widget",
-                  "id": "16-0-21",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -286,13 +210,8 @@
                   "widget": {
                     "title": "Messages Routed To Queues"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_messages_routed"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -302,10 +221,6 @@
                   "h": 12,
                   "i": "22",
                   "type": "Widget",
-                  "id": "16-0-22",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -317,13 +232,8 @@
                   "widget": {
                     "title": "Messages Unconfirmed To Publishers"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_messages_unconfirmed"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -333,10 +243,6 @@
                   "h": 12,
                   "i": "23",
                   "type": "Widget",
-                  "id": "16-0-23",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -348,13 +254,8 @@
                   "widget": {
                     "title": "Unroutable Messages Dropped"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_messages_unroutable_dropped"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -364,10 +265,6 @@
                   "h": 12,
                   "i": "24",
                   "type": "Widget",
-                  "id": "16-0-24",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -379,13 +276,8 @@
                   "widget": {
                     "title": "Unroutable Messages Returned To Publishers"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_messages_unroutable_returned"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -395,10 +287,6 @@
                   "h": 12,
                   "i": "25",
                   "type": "Widget",
-                  "id": "16-0-25",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -410,13 +298,8 @@
                   "widget": {
                     "title": "Queues Total"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_queues"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -426,10 +309,6 @@
                   "h": 12,
                   "i": "26",
                   "type": "Widget",
-                  "id": "16-0-26",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -441,13 +320,8 @@
                   "widget": {
                     "title": "Queues Deleted"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_queues_deleted_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -457,10 +331,6 @@
                   "h": 12,
                   "i": "27",
                   "type": "Widget",
-                  "id": "16-0-27",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -472,13 +342,8 @@
                   "widget": {
                     "title": "Queues Declared"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_queues_declared_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -488,10 +353,6 @@
                   "h": 12,
                   "i": "28",
                   "type": "Widget",
-                  "id": "16-0-28",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -503,13 +364,8 @@
                   "widget": {
                     "title": "Queues Created"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_queues_created_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -519,10 +375,6 @@
                   "h": 12,
                   "i": "29",
                   "type": "Widget",
-                  "id": "16-0-29",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -534,13 +386,8 @@
                   "widget": {
                     "title": "Channels Total"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_channels"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -550,10 +397,6 @@
                   "h": 12,
                   "i": "30",
                   "type": "Widget",
-                  "id": "16-0-30",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -565,13 +408,8 @@
                   "widget": {
                     "title": "Channels Opened"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_channels_opened_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -581,10 +419,6 @@
                   "h": 12,
                   "i": "31",
                   "type": "Widget",
-                  "id": "16-0-31",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -596,13 +430,8 @@
                   "widget": {
                     "title": "Channels Closed"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_channels_closed_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -612,10 +441,6 @@
                   "h": 12,
                   "i": "32",
                   "type": "Widget",
-                  "id": "16-0-32",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -627,13 +452,8 @@
                   "widget": {
                     "title": "Connections Closed"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_connections_closed_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -643,10 +463,6 @@
                   "h": 12,
                   "i": "33",
                   "type": "Widget",
-                  "id": "16-0-33",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -658,13 +474,8 @@
                   "widget": {
                     "title": "Connections Total"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_connections"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -674,10 +485,6 @@
                   "h": 12,
                   "i": "34",
                   "type": "Widget",
-                  "id": "16-0-34",
-                  "metricTypes": [],
-                  "metrics": [],
-                  "moved": false,
                   "graph": {
                     "type": "Line",
                     "step": false,
@@ -689,13 +496,8 @@
                   "widget": {
                     "title": "Connections Opened"
                   },
-                  "metricMode": "Expression",
-                  "metricConfig": [],
                   "expressions": [
                     "meter_rabbitmq_connections_opened_total"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 }
               ]
@@ -714,18 +516,11 @@
                     "type": "InstanceList",
                     "dashboardName": "RabbitMQ-Node",
                     "fontSize": 12
-                  },
-                  "metrics": [],
-                  "metricTypes": [],
-                  "metricConfig": [],
-                  "id": "16-1-0"
+                  }
                 }
               ]
             }
-          ],
-          "id": "16",
-          "activedTabIndex": 0,
-          "moved": false
+          ]
         }
       ],
       "layer": "RABBITMQ",
@@ -735,11 +530,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_rabbitmq_messages_published)",
-        "avg(meter_rabbitmq_messages_unconfirmed)",
-        "avg(meter_rabbitmq_queues)",
-        "avg(meter_rabbitmq_channels)",
-        "avg(meter_rabbitmq_connections)"
+        "aggregate_labels(meter_rabbitmq_messages_published,sum)",
+        "aggregate_labels(meter_rabbitmq_messages_unconfirmed,sum)",
+        "aggregate_labels(meter_rabbitmq_queues,sum)",
+        "aggregate_labels(meter_rabbitmq_channels,sum)",
+        "aggregate_labels(meter_rabbitmq_connections,sum)"
       ],
       "expressionsConfig": [
         {

@@ -61,7 +61,6 @@ public class ServiceRelationServerSideMetrics extends Metrics {
     @Getter
     @Column(name = COMPONENT_IDS, storageOnly = true)
     @ElasticSearch.Keyword
-    @BanyanDB.SeriesID(index = 1)
     private IntList componentIds = new IntList(3);
     @Setter
     @Getter

@@ -10,16 +10,8 @@
           "h": 11,
           "i": "28",
           "type": "Widget",
-          "id": "28",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_memory_pool_used/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -39,20 +31,10 @@
           "h": 11,
           "i": "29",
           "type": "Widget",
-          "id": "29",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_memory_used/1024/1024",
             "meter_bookkeeper_node_jvm_memory_committed/1024/1024",
             "meter_bookkeeper_node_jvm_memory_init/1024/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Area",
@@ -86,22 +68,11 @@
           "h": 11,
           "i": "30",
           "type": "Widget",
-          "id": "30",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_threads_current",
             "meter_bookkeeper_node_jvm_threads_daemon",
             "meter_bookkeeper_node_jvm_threads_peak",
             "meter_bookkeeper_node_jvm_threads_deadlocked"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -137,16 +108,8 @@
           "h": 11,
           "i": "31",
           "type": "Widget",
-          "id": "31",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_gc_collection_seconds_sum"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -168,16 +131,8 @@
           "h": 11,
           "i": "32",
           "type": "Widget",
-          "id": "32",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_jvm_gc_collection_seconds_count"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -199,16 +154,8 @@
           "h": 11,
           "i": "33",
           "type": "Widget",
-          "id": "33",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_thread_executor_completed.sum(['cluster','node'])"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -235,20 +182,10 @@
           "h": 11,
           "i": "34",
           "type": "Widget",
-          "id": "34",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_thread_executor_tasks_completed",
             "meter_bookkeeper_node_thread_executor_tasks_rejected",
             "meter_bookkeeper_node_thread_executor_tasks_failed"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -281,18 +218,9 @@
           "h": 11,
           "i": "35",
           "type": "Widget",
-          "id": "35",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_high_priority_threads",
             "meter_bookkeeper_node_read_thread_pool_threads"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",
@@ -322,18 +250,9 @@
           "h": 11,
           "i": "36",
           "type": "Widget",
-          "id": "36",
-          "metricTypes": [],
-          "metrics": [],
-          "metricMode": "Expression",
-          "moved": false,
           "expressions": [
             "meter_bookkeeper_node_high_priority_thread_max_queue_size",
             "meter_bookkeeper_node_read_thread_pool_max_queue_size"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ],
           "graph": {
             "type": "Line",

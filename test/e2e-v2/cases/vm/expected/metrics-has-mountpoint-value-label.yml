@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: mountpoint
           value: "/etc/hosts"
     values:
       {{- contains .values }}
@@ -31,7 +31,7 @@ results:
       {{- end}}
   - metric:
       labels:
-        - key: _
+        - key: mountpoint
           value: "/etc/hostname"
     values:
       {{- contains .values }}

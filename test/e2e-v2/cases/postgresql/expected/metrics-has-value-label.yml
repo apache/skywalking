@@ -19,7 +19,7 @@ results:
   - metric:
       labels:
         {{- contains .metric.labels }}
-        - key: _
+        - key: service_instance_id
           value: {{ .value }}
         {{- end}}
     values:

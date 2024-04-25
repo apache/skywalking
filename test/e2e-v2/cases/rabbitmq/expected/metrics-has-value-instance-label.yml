@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-      - key: _
+      - key: alloc
         value: std_alloc
     values:
       {{- contains .values }}

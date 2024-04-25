@@ -18,11 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.expr.rt;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
@@ -33,14 +29,9 @@ import org.apache.skywalking.mqe.rt.type.ExpressionResult;
 import org.apache.skywalking.mqe.rt.type.ExpressionResultType;
 import org.apache.skywalking.mqe.rt.type.MQEValue;
 import org.apache.skywalking.mqe.rt.type.MQEValues;
-import org.apache.skywalking.mqe.rt.type.Metadata;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
-import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Used for verify the alarm expression and get the metrics name when read the alarm rules.
@@ -80,37 +71,11 @@ public class AlarmMQEVerifyVisitor extends MQEVisitorBase {
         MQEValue mqeValue = new MQEValue();
         mqeValue.setEmptyValue(true);
         mockMqeValues.getValues().add(mqeValue);
+        result.getResults().add(mockMqeValues);
+        result.setType(ExpressionResultType.TIME_SERIES_VALUES);
         if (dataType == Column.ValueDataType.COMMON_VALUE) {
-            result.getResults().add(mockMqeValues);
-            result.setType(ExpressionResultType.TIME_SERIES_VALUES);
             return result;
         } else if (dataType == Column.ValueDataType.LABELED_VALUE) {
-            List<String> labelValues = Collections.emptyList();
-            if (ctx.label() != null) {
-                String labelValue = ctx.label().labelValue().getText();
-                String labelValueTrim = labelValue.substring(1, labelValue.length() - 1);
-                if (StringUtil.isNotBlank(labelValueTrim)) {
-                    labelValues = Arrays.asList(labelValueTrim.split(Const.COMMA));
-                }
-            }
-            ArrayList<MQEValues> mqeValuesList = new ArrayList<>();
-            if (CollectionUtils.isEmpty(labelValues)) {
-                KeyValue label = new KeyValue(GENERAL_LABEL_NAME, GENERAL_LABEL_NAME);
-                Metadata metadata = new Metadata();
-                metadata.getLabels().add(label);
-                mockMqeValues.setMetric(metadata);
-                mqeValuesList.add(mockMqeValues);
-            } else {
-                for (String value : labelValues) {
-                    Metadata metadata = new Metadata();
-                    KeyValue label = new KeyValue(GENERAL_LABEL_NAME, value);
-                    metadata.getLabels().add(label);
-                    mockMqeValues.setMetric(metadata);
-                    mqeValuesList.add(mockMqeValues);
-                }
-            }
-            result.setType(ExpressionResultType.TIME_SERIES_VALUES);
-            result.setResults(mqeValuesList);
             result.setLabeledResult(true);
             return result;
         } else {

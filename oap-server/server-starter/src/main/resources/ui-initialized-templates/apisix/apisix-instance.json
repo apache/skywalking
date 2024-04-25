@@ -1,4 +1,3 @@
-
 [
   {
     "id": "APISIX-Instance",
@@ -24,13 +23,8 @@
           },
           "expressions": [
             "meter_apisix_instance_http_requests"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
-
         {
           "x": 6,
           "y": 0,
@@ -51,10 +45,6 @@
           },
           "expressions": [
             "meter_apisix_instance_http_status_matched"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -101,10 +91,6 @@
           "expressions": [
             "meter_apisix_instance_http_latency_matched"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -129,7 +115,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 0,
@@ -150,10 +135,6 @@
           },
           "expressions": [
             "meter_apisix_instance_bandwidth_matched/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -186,10 +167,6 @@
           "h": 13,
           "i": "5",
           "type": "Widget",
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "expressions": [
             "meter_apisix_instance_http_connections"
           ],
@@ -228,7 +205,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 13,
@@ -249,10 +225,6 @@
           },
           "expressions": [
             "meter_apisix_instance_http_status_unmatched"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -299,10 +271,6 @@
           "expressions": [
             "meter_apisix_instance_http_latency_unmatched"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -327,7 +295,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 13,
@@ -349,10 +316,6 @@
           "expressions": [
             "meter_apisix_instance_bandwidth_unmatched/1024"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "1"
@@ -377,7 +340,6 @@
             }
           ]
         },
-
         {
           "x": 0,
           "y": 26,
@@ -399,10 +361,6 @@
           "expressions": [
             "meter_apisix_instance_shared_dict_capacity_bytes/1024/1024"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
           "associate": [
             {
               "widgetId": "9"
@@ -412,7 +370,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 26,
@@ -433,10 +390,6 @@
           },
           "expressions": [
             "meter_apisix_instance_shared_dict_free_space_bytes/1024/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "associate": [
             {
@@ -468,14 +421,8 @@
           "expressions": [
             "meter_apisix_instance_etcd_indexes"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
-          ],
-          "associate": [
-          ]
+          "associate": []
         },
-
         {
           "x": 18,
           "y": 26,
@@ -495,10 +442,6 @@
           },
           "expressions": [
             "latest(meter_apisix_instance_etcd_reachable)"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "SINGLE_VALUE"
           ],
           "associate": [
             {
@@ -531,11 +474,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_apisix_instance_http_status_matched{_='200'})",
-        "avg(meter_apisix_instance_http_status_matched{_='304'})",
-        "avg(meter_apisix_instance_http_status_matched{_='404'})",
-        "avg(meter_apisix_instance_http_status_matched{_='499'})",
-        "avg(meter_apisix_instance_http_status_matched{_='503'})"
+        "avg(meter_apisix_instance_http_status_matched{code='200'})",
+        "avg(meter_apisix_instance_http_status_matched{code='304'})",
+        "avg(meter_apisix_instance_http_status_matched{code='404'})",
+        "avg(meter_apisix_instance_http_status_matched{code='499'})",
+        "avg(meter_apisix_instance_http_status_matched{code='503'})"
       ],
       "expressionsConfig": [
         {

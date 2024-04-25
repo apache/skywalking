@@ -19,7 +19,9 @@ results:
   - metric:
       labels:
         {{- contains .metric.labels }}
-        - key: _
+        - key: type
+          value: {{ .value }}
+        - key: service_instance_id
           value: {{ .value }}
         {{- end}}
     values:

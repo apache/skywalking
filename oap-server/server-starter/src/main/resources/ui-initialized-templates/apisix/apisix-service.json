@@ -1,4 +1,3 @@
-
 [
   {
     "id": "APISIX-Service",
@@ -23,14 +22,9 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_requests"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_http_requests,sum(service_instance_id))"
           ]
         },
-
         {
           "x": 6,
           "y": 0,
@@ -50,11 +44,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_status_matched"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_http_status_matched,sum(code))"
           ],
           "associate": [
             {
@@ -99,11 +89,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_latency_matched"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_http_latency_matched,avg(type,p))"
           ],
           "associate": [
             {
@@ -129,7 +115,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 0,
@@ -149,11 +134,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_bandwidth_matched/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_bandwidth_matched/1024,sum(type))"
           ],
           "associate": [
             {
@@ -187,11 +168,7 @@
           "i": "5",
           "type": "Widget",
           "expressions": [
-            "meter_apisix_sv_http_connections"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_http_connections,sum(state))"
           ],
           "graph": {
             "type": "Line",
@@ -228,7 +205,6 @@
             }
           ]
         },
-
         {
           "x": 6,
           "y": 13,
@@ -248,11 +224,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_status_unmatched"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_http_status_unmatched,sum(code))"
           ],
           "associate": [
             {
@@ -297,11 +269,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_http_latency_unmatched"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_http_latency_unmatched,avg(type,p))"
           ],
           "associate": [
             {
@@ -327,7 +295,6 @@
             }
           ]
         },
-
         {
           "x": 18,
           "y": 13,
@@ -347,11 +314,7 @@
             "showYAxis": true
           },
           "expressions": [
-            "meter_apisix_sv_bandwidth_unmatched/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+            "aggregate_labels(meter_apisix_sv_bandwidth_unmatched/1024,sum(type))"
           ],
           "associate": [
             {
@@ -416,11 +379,11 @@
       "isRoot": false,
       "isDefault": true,
       "expressions": [
-        "avg(meter_apisix_sv_http_status_matched{_='200'})",
-        "avg(meter_apisix_sv_http_status_matched{_='304'})",
-        "avg(meter_apisix_sv_http_status_matched{_='404'})",
-        "avg(meter_apisix_sv_http_status_matched{_='499'})",
-        "avg(meter_apisix_sv_http_status_matched{_='503'})"
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='200'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='304'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='404'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='499'},sum(code)))",
+        "avg(aggregate_labels(meter_apisix_sv_http_status_matched{code='503'},sum(code)))"
       ],
       "expressionsConfig": [
         {

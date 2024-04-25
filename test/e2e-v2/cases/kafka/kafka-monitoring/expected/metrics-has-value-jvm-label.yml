@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: area
           value: "heap"
     values:
       {{- contains .values }}

@@ -18,7 +18,7 @@ results:
   {{- contains .results }}
   - metric:
       labels:
-        - key: _
+        - key: group
           value: please_rename_unique_group_name_4
     values:
       {{- contains .values }}

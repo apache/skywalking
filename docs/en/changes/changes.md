@@ -9,6 +9,7 @@
 * Remove CLI(`swctl`) from the image.
 * Remove CLI_VERSION variable from Makefile build.
 * Add BanyanDB to docker-compose quickstart.
+* Bump up Armeria, jackson, netty, jetcd and grpc to fix CVEs.
 
 #### OAP Server
 
@@ -80,6 +81,42 @@
 * Support displaying the port services listen to from OAP and UI during server start.
 * Refactor data-generator to support generating metrics.
 * Fix `AvgHistogramPercentileFunction` legacy name.
+* [Break Change] Labeled Metrics support multiple labels.
+  - Storage: store all label names and values instead of only the values.
+  - MQE: 
+    - Support querying by multiple labels(name and value) instead using `_` as the anonymous label name.
+    - `aggregate_labels` function support aggregate by specific labels.
+    - `relabels` function require target label and rename label name and value.
+  - PromQL:
+    - Support querying by multiple labels(name and value) instead using `lables` as the anonymous label name.
+    - Remove general labels `labels/relabels/label` function.
+    - API `/api/v1/labels` and `/api/v1/label/<label_name>/values` support return matched metrics labels.
+  - OAL:
+    - Deprecate `percentile` function and introduce `percentile2` function instead.
+* Bump up Kafka to fix CVE.
+* Fix `NullPointerException` in Istio ServiceEntry registry.
+* Remove unnecessary `componentIds` as series ID in the `ServiceRelationClientSideMetrics` and `ServiceRelationServerSideMetrics` entities.
+* Fix not throw error when part of expression not matched any expression node in the `MQE` and `PromQL.
+* Remove `kafka-fetcher/default/createTopicIfNotExist` as the creation is automatically since [#7326](https://github.com/apache/skywalking/issues/7326) (v8.7.0).
+* Fix inaccuracy nginx service metrics.
+* Fix/Change Windows metrics name(Swap -> Virtual Memory)
+  - `memory_swap_free` -> `memory_virtual_memory_free`
+  - `memory_swap_total` -> `memory_virtual_memory_total`
+  - `memory_swap_percentage` -> `memory_virtual_memory_percentage`
+* Fix/Change UI init setting for Windows Swap -> Virtual Memory
+* Fix `Memory Swap Usage`/`Virtual Memory Usage` display with UI init.(Linux/Windows)
+* Fix inaccurate APISIX metrics.
+* Fix inaccurate MongoDB Metrics.
+* Support Apache ActiveMQ server monitoring. 
+* Add Service Hierarchy auto matching layer relationships (upper -> lower) as following:
+  - ACTIVEMQ -> K8S_SERVICE
+* Calculate Nginx service HTTP Latency by MQE.
+* MQE query: make metadata not return `null`.
+* MQE labeled metrics Binary Operation: return empty value if the labels not match rather than report error.
+* Fix inaccurate Hierarchy of RabbitMQ Server monitoring metrics.
+* Fix inaccurate MySQL/MariaDB, Redis, PostgreSQL metrics.
+* Support DoubleValue,IntValue,BoolValue in OTEL metrics attributes.
+* [Break Change] gGRPC metrics exporter unified the metric value type and support labeled metrics.
 
 #### UI
 
@@ -107,6 +144,12 @@
 * Add Airflow menu i18n.
 * Add Support for dragging in the trace panel.
 * Add workflow icon.
+* Metrics support multiple labels.
+* Support the `SINGLE_VALUE` for table widgets.
+* Remove the General metric mode and related logical code.
+* Remove metrics for unreal nodes in the topology.
+* Enhance the Trace widget for batch consuming spans.
+* Clean the unused elements in the UI-templates.
 
 #### Documentation
 
@@ -133,5 +176,6 @@
 * Remove `OpenTelemetry Exporter` support from meter doc, as this has been flagged as unmaintained on OTEL upstream.
 * Add doc of one-line quick start script for different storage types.
 * Add FAQ for `Why is Clickhouse or Loki or xxx not supported as a storage option?`.
+* Add `SWIP-8 Support ActiveMQ Monitoring`.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/milestone/202?closed=1)

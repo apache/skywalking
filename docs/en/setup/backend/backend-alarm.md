@@ -53,7 +53,7 @@ the calculation is `((1001 + 10001 + ... + 1001) / 7) > 1000` and the result wou
 * In every minute, the window would shift automatically. At T8, Value8 would be cached, and T1/Value1 would be removed from the window.
 
 **NOTE**: 
-* If the expression include labeled metrics and result has multiple labeled value(e.g. `sum(service_percentile{_='0,1'} > 1000) >= 3`), the alarm will be triggered if any of the labeled value result matches 3 times of the condition(P50 > 1000 or P75 > 1000).
+* If the expression include labeled metrics and result has multiple labeled value(e.g. `sum(service_percentile{p='50,75'} > 1000) >= 3`), the alarm will be triggered if any of the labeled value result matches 3 times of the condition(P50 > 1000 or P75 > 1000).
 * One alarm rule is targeting the same entity level, such as service-level expression (`avg(service_resp_time) > 1000`).
   Set entity names(Include/Exclude names...) according to metrics entity levels,
   do not include different entity levels metrics in the same expression, such as service metrics and endpoint metrics.
@@ -82,7 +82,7 @@ rules:
     period: 10
     message: Service {name} successful rate is less than 85%
   service_resp_time_percentile_rule:
-    expression: sum(service_percentile{_='0,1,2,3,4'} > 1000) >= 3
+    expression: sum(service_percentile{p='50,75,90,95,99'} > 1000) >= 3
     period: 10
     silence-period: 5
     message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000

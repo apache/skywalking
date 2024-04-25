@@ -27,21 +27,27 @@ service_sla
 The `ExpressionResultType` of the expression is `TIME_SERIES_VALUES`.
 
 ### Labeled Value Metrics
-For now, we only have a single anonymous label with multi label values in a labeled metric. 
-To be able to use it in expressions, define `_` as the anonymous label name (key).
+Since v10.0.0, SkyWalking supports multiple labels metrics.
+We could query the specific labels of the metric by the following expression.
 
 Expression:
 ```text
-<metric_name>{_='<label_value_1>,...'}
+<metric_name>{<label1_name>='<label1_value_1>,...', <label2_name>='<label2_value_1>,...',<label2...}
 ```
-`{_='<label_value_1>,...'}` is the selected label value of the metric. If is not specified, all label values of the metric will be selected. 
+`{<label1_name>='<label_value_1>,...'}` is the selected label name/value of the metric. If is not specified, all label values of the metric will be selected. 
 
 For example:
-If we want to query the `service_percentile` metric with the label values `0,1,2,3,4`, we can use the following expression:
+The `k8s_cluster_deployment_status` metric has labels `namespace`, `deployment` and `status`.
+If we want to query all deployment metric value with `namespace=skywalking-showcase` and `status=true`, we can use the following expression:
 ```text
-service_percentile{_='0,1,2,3,4'}
+k8s_cluster_deployment_status{namespace='skywalking-showcase', status='true'}
 ```
 
+We also could query the label with multiple values by separating the values with `,`:
+If we want to query the `service_percentile` metric with the label name `p` and values `50,75,90,95,99`, we can use the following expression:
+```text
+service_percentile{p='50,75,90,95,99'}
+```
 If we want to rename the label values to `P50,P75,P90,P95,P99`, see [Relabel Operation](#relabel-operation).
 
 #### Result Type
@@ -76,7 +82,8 @@ For the result type of the expression, please refer to the following table.
 ### Binary Operation Rules
 The following table lists if the different result types of the input expressions could do this operation and the result type after the operation.
 The expression could be on the left or right side of the operator. 
-**Note**: If the expressions on both sides of the operator are the `TIME_SERIES_VALUES with labels`, they should have the same labels for calculation.
+**Note**: If the expressions result on both sides of the operator are `with labels`, they should have the same labels for calculation.
+If the labels match, will reserve left expression result labels and the calculated value. Otherwise, will return empty value.
 
 | Expression              | Expression                | Yes/No | ExpressionResultType     |
 |-------------------------|---------------------------|--------|--------------------------|
@@ -233,19 +240,20 @@ According to the type of the metric, the `ExpressionResultType` of the expressio
 
 ## Relabel Operation
 Relabel Operation takes an expression and replaces the label values with new label values on its results.
+Since v10.0.0, SkyWalking supports relabel multiple labels.
 
 Expression:
 ```text
-relabel(Expression, _='<new_label_value_1>,...')
+relabel(Expression, <target_label_name>='<origin_label_value_1>,...', <new_label_name>='<new_label_value_1>,...')
 ```
 
-`_` is the new label of the metric after the label is relabeled, the order of the new label values should be the same as the order of the label values in the input expression result.
+The order of the new label values should be the same as the order of the label values in the input expression result.
 
 For example:
-If we want to query the `service_percentile` metric with the label values `0,1,2,3,4`, and rename the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
+If we want to query the `service_percentile` metric with the label values `50,75,90,95,99`, and rename the label name to `percentile` and the label values to `P50,P75,P90,P95,P99`, we can use the following expression:
 
 ```text
-relabel(service_percentile{_='0,1,2,3,4'}, _='P50,P75,P90,P95,P99')
+relabel(service_percentile{p='50,75,90,95,99'}, p='50,75,90,95,99', percentile='P50,P75,P90,P95,P99')
 ```
 
 ### Result Type
@@ -256,21 +264,29 @@ AggregateLabels Operation takes an expression and performs an aggregate calculat
 
 Expression:
 ```text
-aggregate_labels(Expression, parameter)
+aggregate_labels(Expression, AggregateType<Optional>(<label1_name>,<label2_name>...))
 ```
 
-| parameter | Definition                                          | ExpressionResultType |
-|-----------|-----------------------------------------------------|----------------------|
-| avg       | calculate avg value of a `Labeled Value Metrics`    | TIME_SERIES_VALUES   |
-| sum       | calculate sum value of a `Labeled Value Metrics`    | TIME_SERIES_VALUES   |
-| max       | select the maximum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
-| min       | select the minimum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
+- `AggregateType` is the type of the aggregation operation.
+- `<label1_name>,<label2_name>...` is the label names that need to be aggregated. If not specified, all labels will be aggregated.
+
+| AggregateType | Definition                                         | ExpressionResultType |
+|---------------|----------------------------------------------------|----------------------|
+| avg           | calculate avg value of a `Labeled Value Metrics`   | TIME_SERIES_VALUES   |
+| sum           | calculate sum value of a `Labeled Value Metrics`   | TIME_SERIES_VALUES   |
+| max           | select the maximum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
+| min           | select the minimum value from a `Labeled Value Metrics` | TIME_SERIES_VALUES   |
 
 For example:
 If we want to query all Redis command total rates, we can use the following expression(`total_commands_rate` is a metric which recorded every command rate in labeled value):
-
+Aggregating all the labels:
 ```text
 aggregate_labels(total_commands_rate, sum)
+```
+Also, we can aggregate by the `cmd` label:
+
+```text
+aggregate_labels(total_commands_rate, sum(cmd))
 ```
 
 ### Result Type
@@ -357,7 +373,7 @@ TIME_SERIES_VALUES.
 ## Expression Query Example
 ### Labeled Value Metrics
 ```text
-service_percentile{_='0,1'}
+service_percentile{p='50,95'}
 ```
 The example result is:
 ```json
@@ -369,13 +385,13 @@ The example result is:
       "results": [
         {
           "metric": {
-            "labels": [{"key": "_", "value": "0"}]
+            "labels": [{"key": "p", "value": "50"}]
           },
           "values": [{"id": "1691658000000", "value": "1000", "traceID": null}, {"id": "1691661600000", "value": 2000, "traceID": null}]
         },
         {
           "metric": {
-            "labels": [{"key": "_", "value": "1"}]
+            "labels": [{"key": "p", "value": "75"}]
           },
           "values": [{"id": "1691658000000", "value": "2000", "traceID": null}, {"id": "1691661600000", "value": 3000, "traceID": null}]
         }
@@ -386,7 +402,7 @@ The example result is:
 ```
 If we want to transform the percentile value unit from `ms` to `s` the expression is:
 ```text
-service_percentile{_='0,1'} / 1000
+service_percentile{p='50,75'} / 1000
 ```
 ```json
 {
@@ -397,13 +413,13 @@ service_percentile{_='0,1'} / 1000
       "results": [
         {
           "metric": {
-            "labels": [{"key": "_", "value": "0"}]
+            "labels": [{"key": "p", "value": "50"}]
           },
           "values": [{"id": "1691658000000", "value": "1", "traceID": null}, {"id": "1691661600000", "value": 2, "traceID": null}]
         },
         {
           "metric": {
-            "labels": [{"key": "_", "value": "1"}]
+            "labels": [{"key": "p", "value": "75"}]
           },
           "values": [{"id": "1691658000000", "value": "2", "traceID": null}, {"id": "1691661600000", "value": 3, "traceID": null}]
         }
@@ -414,7 +430,7 @@ service_percentile{_='0,1'} / 1000
 ```
 Get the average value of each percentile, the expression is:
 ```text
-avg(service_percentile{_='0,1'})
+avg(service_percentile{p='50,75'})
 ```
 ```json
 {
@@ -425,13 +441,13 @@ avg(service_percentile{_='0,1'})
       "results": [
         {
           "metric": {
-            "labels": [{"key": "_", "value": "0"}]
+            "labels": [{"key": "p", "value": "50"}]
           },
           "values": [{"id": null, "value": "1500", "traceID": null}]
         },
         {
           "metric": {
-            "labels": [{"key": "_", "value": "1"}]
+            "labels": [{"key": "p", "value": "75"}]
           },
           "values": [{"id": null, "value": "2500", "traceID": null}]
         }
@@ -442,7 +458,7 @@ avg(service_percentile{_='0,1'})
 ```
 Calculate the difference between the percentile and the average value, the expression is:
 ```text
-service_percentile{_='0,1'} - avg(service_percentile{_='0,1'})
+service_percentile{p='50,75'} - avg(service_percentile{p='50,75'})
 ```
 ```json
 {
@@ -453,13 +469,13 @@ service_percentile{_='0,1'} - avg(service_percentile{_='0,1'})
       "results": [
         {
           "metric": {
-            "labels": [{"key": "_", "value": "0"}]
+            "labels": [{"key": "p", "value": "50"}]
           },
           "values": [{"id": "1691658000000", "value": "-500", "traceID": null}, {"id": "1691661600000", "value": 500, "traceID": null}]
         },
         {
           "metric": {
-            "labels": [{"key": "_", "value": "1"}]
+            "labels": [{"key": "p", "value": "75"}]
           },
           "values": [{"id": "1691658000000", "value": "-500", "traceID": null}, {"id": "1691661600000", "value": 500, "traceID": null}]
         }
@@ -489,7 +505,7 @@ Calculate the difference between the `service_resp_time` and the `service_percen
 ```
 The expression is:
 ```text
-service_resp_time - service_percentile{_='0,1'}
+service_resp_time - service_percentile{p='50,75'}
 ```
 ```json
 {
@@ -500,13 +516,13 @@ service_resp_time - service_percentile{_='0,1'}
       "results": [
         {
           "metric": {
-            "labels": [{"key": "_", "value": "0"}]
+            "labels": [{"key": "p", "value": "50"}]
           },
           "values": [{"id": "1691658000000", "value": "1500", "traceID": null}, {"id": "1691661600000", "value": "1500", "traceID": null}]
         },
         {
           "metric": {
-            "labels": [{"key": "_", "value": "1"}]
+            "labels": [{"key": "p", "value": "75"}]
           },
           "values": [{"id": "1691658000000", "value": "500", "traceID": null}, {"id": "1691661600000", "value": "500", "traceID": null}]
         }

@@ -46,7 +46,7 @@ metricsRules:
     exp: pg_stat_database_tup_returned.sum(['service_instance_id','host_name']).rate('PT1M')
   ## locks
   - name: locks_count
-    exp: pg_locks_count.tag({tags -> tags.mode = tags.datname + ":" + tags.mode}).sum(['service_instance_id','host_name'])
+    exp: pg_locks_count.sum(['service_instance_id','host_name'])
 
   ## sessions
   - name: active_sessions
@@ -68,13 +68,13 @@ metricsRules:
 
   ## checkpoint
   - name: checkpoint_write_time_rate
-    exp: pg_stat_bgwriter_checkpoint_write_time_total.rate('PT1M')
+    exp: pg_stat_bgwriter_checkpoint_write_time_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: checkpoint_sync_time_rate
-    exp: pg_stat_bgwriter_checkpoint_sync_time_total.rate('PT1M')
+    exp: pg_stat_bgwriter_checkpoint_sync_time_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: checkpoint_req_rate
-    exp: pg_stat_bgwriter_checkpoints_req_total.rate('PT1M')
+    exp: pg_stat_bgwriter_checkpoints_req_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: checkpoints_timed_rate
-    exp: pg_stat_bgwriter_checkpoints_timed_total.rate('PT1M')
+    exp: pg_stat_bgwriter_checkpoints_timed_total.rate('PT1M').sum(['service_instance_id','host_name'])
 
   ## conflicts and deadlocks
   - name: conflicts_rate
@@ -84,12 +84,12 @@ metricsRules:
 
   ## buffers
   - name: buffers_checkpoint
-    exp: pg_stat_bgwriter_buffers_checkpoint.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_checkpoint_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: buffers_clean
-    exp: pg_stat_bgwriter_buffers_clean.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_clean_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: buffers_backend_fsync
-    exp: pg_stat_bgwriter_buffers_backend_fsync.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_backend_fsync_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: buffers_alloc
-    exp: pg_stat_bgwriter_buffers_alloc.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_alloc_total.rate('PT1M').sum(['service_instance_id','host_name'])
   - name: buffers_backend
-    exp: pg_stat_bgwriter_buffers_backend.rate('PT1M')
+    exp: pg_stat_bgwriter_buffers_backend_total.rate('PT1M').sum(['service_instance_id','host_name'])

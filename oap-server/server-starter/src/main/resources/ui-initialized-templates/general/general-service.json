@@ -29,12 +29,8 @@
                     "fontSize": 14,
                     "textAlign": "center"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "avg(service_apdex)/10000"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -58,12 +54,8 @@
                       "unit": "%"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "avg(service_sla)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -88,12 +80,8 @@
                       "unit": "calls / min"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "avg(service_cpm)"
-                  ],
-                  "typesOfMQE": [
-                    "SINGLE_VALUE"
                   ]
                 },
                 {
@@ -139,7 +127,6 @@
                     "enableRelate": true,
                     "latency": true
                   },
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "unit": "ms",
@@ -148,9 +135,6 @@
                   ],
                   "expressions": [
                     "service_resp_time"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -202,12 +186,8 @@
                     "queryOrder": "BY_DURATION",
                     "status": "ERROR"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_apdex/10000"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -253,12 +233,8 @@
                     "enableRelate": true,
                     "latency": true
                   },
-                  "metricMode": "Expression",
                   "expressions": [
-                    "relabels(service_percentile{_=\"0,1,2,3,4\"},_=\"P50,P75,P90,P95,P99\")"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
+                    "relabels(service_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='50,75,90,95,99')"
                   ]
                 },
                 {
@@ -309,12 +285,8 @@
                     "enableRelate": true,
                     "status": "ERROR"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "service_sla/100"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -357,7 +329,6 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "load"
@@ -365,9 +336,6 @@
                   ],
                   "expressions": [
                     "service_cpm"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -409,7 +377,6 @@
                       "widgetId": "4-0-10"
                     }
                   ],
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "consuming_count"
@@ -417,9 +384,6 @@
                   ],
                   "expressions": [
                     "service_mq_consume_count"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -462,7 +426,6 @@
                       "widgetId": "4-0-9"
                     }
                   ],
-                  "metricMode": "Expression",
                   "metricConfig": [
                     {
                       "label": "avg_consuming_latency"
@@ -470,9 +433,6 @@
                   ],
                   "expressions": [
                     "service_mq_consume_latency"
-                  ],
-                  "typesOfMQE": [
-                    "TIME_SERIES_VALUES"
                   ]
                 },
                 {
@@ -489,12 +449,8 @@
                   "graph": {
                     "type": "TopList"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(service_instance_cpm,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -511,12 +467,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(service_instance_resp_time,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -533,12 +485,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(service_instance_sla,10,asc)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -555,12 +503,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(endpoint_sla,10,asc)/100"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -577,12 +521,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(endpoint_resp_time,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 },
                 {
@@ -600,12 +540,8 @@
                     "type": "TopList",
                     "topN": "10"
                   },
-                  "metricMode": "Expression",
                   "expressions": [
                     "top_n(endpoint_cpm,10,des)"
-                  ],
-                  "typesOfMQE": [
-                    "SORTED_LIST"
                   ]
                 }
               ]
@@ -642,7 +578,6 @@
                       "unit": "ms"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "avg(service_instance_cpm)",
                     "avg(service_instance_sla)/100",
@@ -652,11 +587,6 @@
                     "service_instance_cpm",
                     "service_instance_sla/100",
                     "service_instance_resp_time"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]
@@ -695,7 +625,6 @@
                       "unit": "ms"
                     }
                   ],
-                  "metricMode": "Expression",
                   "expressions": [
                     "avg(endpoint_cpm)",
                     "avg(endpoint_sla)/100",
@@ -705,16 +634,6 @@
                     "endpoint_cpm",
                     "endpoint_sla/100",
                     "endpoint_resp_time"
-                  ],
-                  "subTypesOfMQE": [
-                    "",
-                    "",
-                    ""
-                  ],
-                  "typesOfMQE": [
-                    "",
-                    "",
-                    ""
                   ]
                 }
               ]
@@ -747,31 +666,22 @@
                       "dashboard": "General-Endpoint"
                     }
                   ],
-                  "linkServerMetrics": [
-                    "service_relation_server_resp_time",
-                    "service_relation_server_cpm"
+                  "linkServerExpressions": [
+                    "avg(service_relation_server_resp_time)",
+                    "avg(service_relation_server_cpm)"
                   ],
-                  "linkClientMetrics": [
-                    "service_relation_client_cpm",
-                    "service_relation_client_resp_time"
+                  "linkClientExpressions": [
+                    "avg(service_relation_client_resp_time)",
+                    "avg(service_relation_client_cpm)"
                   ],
-                  "nodeMetrics": [
-                    "service_cpm",
-                    "service_sla",
-                    "service_resp_time"
+                  "nodeExpressions": [
+                    "avg(service_cpm)",
+                    "avg(service_sla/100)",
+                    "avg(service_resp_time)"
                   ],
-                  "legend": [
-                    {
-                      "name": "service_sla",
-                      "condition": "<",
-                      "value": "9500"
-                    },
-                    {
-                      "name": "service_cpm",
-                      "condition": ">",
-                      "value": "1"
-                    }
-                  ],
+                  "legendMQE": {
+                    "expression": "(avg(service_sla) < 9500) * (avg(service_cpm) > 1)  == 1"
+                  },
                   "description": {
                     "healthy": "Healthy",
                     "unhealthy": "Success Rate < 95% and Traffic > 1 call/min"

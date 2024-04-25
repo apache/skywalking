@@ -1,4 +1,3 @@
-
 [
   {
     "id": "AWS_GATEWAY-endpoint",
@@ -24,10 +23,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_count"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -50,10 +45,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_4xx"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -76,10 +67,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_5xx"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -102,10 +89,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_latency"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -128,10 +111,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_integration_latency"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -154,13 +133,8 @@
           },
           "expressions": [
             "aws_gateway_endpoint_data_processed/1024"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
-
         {
           "x": 12,
           "y": 13,
@@ -181,10 +155,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_cache_hit_rate"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -207,10 +177,6 @@
           },
           "expressions": [
             "aws_gateway_endpoint_cache_miss_rate"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         }
       ],

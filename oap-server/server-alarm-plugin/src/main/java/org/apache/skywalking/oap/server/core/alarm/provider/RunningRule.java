@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -54,7 +53,6 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.analysis.metrics.MultiIntValuesHolder;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Minutes;
@@ -367,14 +365,14 @@ public class RunningRule {
                 }
             } else {
                 // if the result has multiple labels, when there is one label match, then the result is match
-                // for example in 5 minutes, the sum(percentile{_='P50,P75'} > 1000) >= 3
-                // percentile{_='P50,P75'} result is:
+                // for example in 5 minutes, the sum(percentile{p='50,75'} > 1000) >= 3
+                // percentile{p='50,75'} result is:
                 // P50(1000,1100,1200,1000,500), > 1000 2 times
                 // P75(2000,1500,1200,1000,500), > 1000 3 times
-                // percentile{_='P50,P75'} > 1000 result is:
+                // percentile{p='50,75'} > 1000 result is:
                 // P50(0,1,1,0,0)
                 // P75(1,1,1,0,0)
-                // sum(percentile{_='P50,P75'} > 1000) >= 3 result is:
+                // sum(percentile{p='50,75'} > 1000) >= 3 result is:
                 // P50(0)
                 // P75(1)
                 // then the isMatch is 1
@@ -430,9 +428,6 @@ public class RunningRule {
                     r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[] {((IntValueHolder) m).getValue()}));
                 } else if (m instanceof DoubleValueHolder) {
                     r.put(name, new TraceLogMetric(m.getTimeBucket(), new Number[] {((DoubleValueHolder) m).getValue()}));
-                } else if (m instanceof MultiIntValuesHolder) {
-                    int[] iArr = ((MultiIntValuesHolder) m).getValues();
-                    r.put(name, new TraceLogMetric(m.getTimeBucket(), Arrays.stream(iArr).boxed().toArray(Number[]::new)));
                 } else if (m instanceof LabeledValueHolder) {
                     DataTable dt = ((LabeledValueHolder) m).getValue();
                     TraceLogMetric l = new TraceLogMetric(

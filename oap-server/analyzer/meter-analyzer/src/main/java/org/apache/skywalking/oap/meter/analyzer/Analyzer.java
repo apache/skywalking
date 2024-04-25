@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +57,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 
@@ -147,17 +147,20 @@ public class Analyzer {
                 case labeled:
                     AcceptableValue<DataTable> lv = meterSystem.buildMetrics(metricName, DataTable.class);
                     DataTable dt = new DataTable();
+                    // put all labels into the data table.
                     for (Sample each : ss) {
-                        dt.put(composeGroup(each.getLabels()), getValue(each));
+                        DataLabel dataLabel = new DataLabel();
+                        dataLabel.putAll(each.getLabels());
+                        dt.put(dataLabel, getValue(each));
                     }
                     lv.accept(meterEntity, dt);
                     send(lv, ss[0].getTimestamp());
                     break;
                 case histogram:
                 case histogramPercentile:
-                    Stream.of(ss).map(s -> Tuple.of(composeGroup(s.getLabels(), k -> !Objects.equals("le", k)), s))
+                    Stream.of(ss).map(s -> Tuple.of(getDataLabels(s.getLabels(), k -> !Objects.equals("le", k)), s))
                           .collect(groupingBy(Tuple2::_1, mapping(Tuple2::_2, toList())))
-                          .forEach((group, subSs) -> {
+                          .forEach((dataLabel, subSs) -> {
                               if (subSs.size() < 1) {
                                   return;
                               }
@@ -174,7 +177,7 @@ public class Analyzer {
                                   vv[i] = getValue(s);
                               }
                               BucketedValues bv = new BucketedValues(bb, vv);
-                              bv.setGroup(group);
+                              bv.setLabels(dataLabel);
                               long time = subSs.get(0).getTimestamp();
                               if (metricType == MetricType.histogram) {
                                   AcceptableValue<BucketedValues> v = meterSystem.buildMetrics(
@@ -203,13 +206,10 @@ public class Analyzer {
         return Math.round(sample.getValue());
     }
 
-    private String composeGroup(ImmutableMap<String, String> labels) {
-        return composeGroup(labels, k -> true);
-    }
-
-    private String composeGroup(ImmutableMap<String, String> labels, Predicate<String> filter) {
-        return labels.keySet().stream().filter(filter).sorted().map(labels::get)
-                     .collect(Collectors.joining("-"));
+    private DataLabel getDataLabels(ImmutableMap<String, String> labels, Predicate<String> filter) {
+        DataLabel dataLabel = new DataLabel();
+        labels.keySet().stream().filter(filter).forEach(k -> dataLabel.put(k, labels.get(k)));
+        return dataLabel;
     }
 
     @RequiredArgsConstructor

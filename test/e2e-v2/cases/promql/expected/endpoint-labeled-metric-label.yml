@@ -20,10 +20,9 @@
     "service",
     "top_n",
     "order",
-    "labels",
-    "relabels",
     "endpoint",
-    "parent_service"
+    "parent_service",
+    "p"
   ]
 }
 

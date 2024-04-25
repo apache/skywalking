@@ -264,8 +264,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
                 if (column.dataType().isValue()) {
                     ValueColumnMetadata.INSTANCE.putIfAbsent(
                         modelName, column.name(),
-                        column.dataType(), column.defaultValue(), scopeId
-                    );
+                        column.dataType(), column.defaultValue(), scopeId, column.multiIntValues());
                 }
             }
         }

@@ -13,17 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- key: 0
-  value:
-  {{- contains .value }}
-  - key: name
-    value: {{ notEmpty .value}}
-  - key: id
-    value: {{ notEmpty .value}}
-  - key: value
-    value: {{ notEmpty .value}}
-  - key: refid
-    value: {{ notEmpty .value}}
-  {{- end }}
-{{- end }}
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        {{- contains .metric.labels }}
+        - key: database
+          value: {{ .value }}
+        - key: service_instance_id
+          value: {{ .value }}
+        {{- end}}
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ .value }}
+        traceid: null
+      - id: {{ notEmpty .id }}
+        value: null
+        traceid: null
+      {{- end}}
+  {{- end}}
+error: null

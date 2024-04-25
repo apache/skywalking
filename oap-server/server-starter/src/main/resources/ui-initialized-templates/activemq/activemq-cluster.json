@@ -1,0 +1,509 @@
+[
+    {
+        "id": "ActiveMQ-Cluster",
+        "configuration": {
+            "children": [
+                {
+                    "x": 0,
+                    "y": 0,
+                    "w": 24,
+                    "h": 42,
+                    "i": "0",
+                    "type": "Tab",
+                    "children": [
+                        {
+                            "name": "Overview",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 12,
+                                    "h": 11,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_system_load_average/10000"
+                                    ],
+                                    "graph": {
+                                        "type": "Bar",
+                                        "showBackground": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "System Load Average"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "SystemLoadAverage",
+                                        "title": "System Load Average",
+                                        "tips": "The average system load, range:[0, 100]."
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 0,
+                                    "w": 12,
+                                    "h": 11,
+                                    "i": "1",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_thread_count"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "ThreadCount",
+                                        "title": "Thread Count",
+                                        "tips": "Threads currently used by the JVM."
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Thread Count"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 11,
+                                    "w": 4,
+                                    "h": 9,
+                                    "i": "2",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "latest(aggregate_labels(meter_activemq_cluster_heap_memory_usage_init,sum))/1024/1024"
+                                    ],
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 24,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "unit": "MB",
+                                            "label": "Heap Memory(INIT)"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "HeapMemoryInit",
+                                        "title": "Heap Memory(INIT)",
+                                        "tips": "The initial amount of heap memory available."
+                                    }
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 11,
+                                    "w": 4,
+                                    "h": 9,
+                                    "i": "3",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "latest(aggregate_labels(meter_activemq_cluster_heap_memory_usage_max,sum))/1024/1024"
+                                    ],
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 24,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "unit": "MB",
+                                            "label": "Heap Memory(MAX)"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "HeapMemoryMax",
+                                        "title": "Heap Memory(MAX)",
+                                        "tips": "The maximum possible size of the heap memory."
+                                    }
+                                },
+                                {
+                                    "x": 4,
+                                    "y": 11,
+                                    "w": 4,
+                                    "h": 9,
+                                    "i": "4",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "latest(aggregate_labels(meter_activemq_cluster_heap_memory_usage_committed,sum))/1024/1024"
+                                    ],
+                                    "graph": {
+                                        "type": "Card",
+                                        "fontSize": 24,
+                                        "textAlign": "center",
+                                        "showUnit": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "unit": "MB",
+                                            "label": "Heap Memory(COMMITTED)"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "HeapMemoryCommitted",
+                                        "title": "Heap Memory(COMMITTED)",
+                                        "tips": "The memory is guaranteed to be available for the JVM to use."
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 11,
+                                    "w": 12,
+                                    "h": 9,
+                                    "i": "5",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_heap_memory_usage_used/1024/1024"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "unit": "MB",
+                                            "label": "Heap Memory(USED)"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "HeapMemoryUsed",
+                                        "title": "Heap Memory(USED)",
+                                        "tips": "The amount of JVM heap memory currently in use."
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 31,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "8",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_enqueue_rate"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "EnqueueRate",
+                                        "title": "Enqueue Count/s",
+                                        "tips": "Number of messages that have been sent to the cluster per second."
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Enqueue Rate"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 31,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "9",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_dequeue_rate"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "DequeueRate",
+                                        "title": "Dequeue Count/s",
+                                        "tips": "Number of messages that have been acknowledged or discarded on the cluster per second."
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Dequeue Rate"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 31,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "10",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_dispatch_rate"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "DispatchRate",
+                                        "title": "Dispatch Count/s",
+                                        "tips": "Number of messages that has been delivered to consumers per second."
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Dispatch Rate"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 18,
+                                    "y": 31,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "11",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_expired_rate"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "ExpiredRate",
+                                        "title": "Expired Count/s",
+                                        "tips": "Number of messages that have been expired per second."
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Expired Rate"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 42,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "12",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "meter_activemq_cluster_average_enqueue_time/1000"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "AverageEnqueueTime",
+                                        "title": "Average Enqueue Time(s)",
+                                        "tips": "The average time a message was held on this cluster."
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Max Enqueue Time",
+                                            "unit": "s"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 20,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "13",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "view_as_seq(meter_activemq_cluster_gc_g1_old_collection_count,meter_activemq_cluster_gc_parallel_old_collection_count)"
+                                    ],
+                                    "graph": {
+                                        "type": "Bar",
+                                        "showBackground": true
+                                    },
+                                    "widget": {
+                                        "name": "GCOldCollectionCount",
+                                        "title": "GC Old Collection Count",
+                                        "tips": "The GC count of Old Generation."
+                                    }
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 20,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "14",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "view_as_seq(meter_activemq_cluster_gc_g1_young_collection_count,meter_activemq_cluster_gc_parallel_young_collection_count)"
+                                    ],
+                                    "graph": {
+                                        "type": "Bar",
+                                        "showBackground": true
+                                    },
+                                    "widget": {
+                                        "name": "GCYoungCollectionCount",
+                                        "title": "GC Young Collection Count",
+                                        "tips": "The GC count of Young Generation."
+                                    }
+                                },
+                                {
+                                    "x": 18,
+                                    "y": 20,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "15",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "view_as_seq(meter_activemq_cluster_gc_g1_old_collection_time,meter_activemq_cluster_gc_parallel_old_collection_time)"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "GCOldCollectionTime",
+                                        "title": "GC Old Collection Time(ms)",
+                                        "tips": "The GC time spent in Old Generation in milliseconds."
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 20,
+                                    "w": 6,
+                                    "h": 11,
+                                    "i": "16",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "view_as_seq(meter_activemq_cluster_gc_g1_young_collection_time,meter_activemq_cluster_gc_parallel_young_collection_time)"
+                                    ],
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "widget": {
+                                        "name": "GCYoungCollectionTime",
+                                        "title": "GC Young Collection Time(ms)",
+                                        "tips": "The GC time spent in Young Generation in milliseconds."
+                                    }
+                                },
+                                {
+                                    "x": 12,
+                                    "y": 42,
+                                    "w": 12,
+                                    "h": 12,
+                                    "i": "17",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "Area",
+                                        "opacity": 0.4,
+                                        "showXAxis": true,
+                                        "showYAxis": true
+                                    },
+                                    "expressions": [
+                                        "meter_activemq_cluster_max_enqueue_time/1000"
+                                    ],
+                                    "metricConfig": [
+                                        {
+                                            "label": "Max Enqueue Time",
+                                            "unit": "s"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "MaxEnqueueTime",
+                                        "title": "Max Enqueue Time(s)",
+                                        "tips": "The max time a message was held on this cluster."
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Broker",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 24,
+                                    "h": 30,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "InstanceList",
+                                        "dashboardName": "ActiveMQ-Broker",
+                                        "fontSize": 12
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Destination",
+                            "children": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 15,
+                                    "h": 32,
+                                    "i": "0",
+                                    "type": "Widget",
+                                    "graph": {
+                                        "type": "EndpointList",
+                                        "dashboardName": "ActiveMQ-Destination",
+                                        "fontSize": 12
+                                    },
+                                    "metricConfig": [
+                                        {
+                                            "label": "Enqueue"
+                                        },
+                                        {
+                                            "label": "Dequeue"
+                                        }
+                                    ],
+                                    "widget": {
+                                        "name": "DestinationList",
+                                        "title": "Destination List"
+                                    },
+                                    "expressions": []
+                                },
+                                {
+                                    "x": 15,
+                                    "y": 0,
+                                    "w": 9,
+                                    "h": 32,
+                                    "i": "1",
+                                    "type": "Widget",
+                                    "expressions": [
+                                        "top_n(meter_activemq_destination_topic_consumer_count,10,des)"
+                                    ],
+                                    "graph": {
+                                        "type": "TopList",
+                                        "color": "purple"
+                                    },
+                                    "widget": {
+                                        "title": "Top10 Topic Consumer",
+                                        "tips": "Top10 Topic Consumer"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "layer": "ACTIVEMQ",
+            "entity": "Service",
+            "name": "ActiveMQ-Cluster",
+            "id": "ActiveMQ-Cluster",
+            "isRoot": false
+        }
+    }
+]

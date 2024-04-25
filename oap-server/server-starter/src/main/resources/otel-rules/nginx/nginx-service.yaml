@@ -34,18 +34,18 @@ expSuffix: service(['service'] , Layer.NGINX)
 metricPrefix: meter_nginx_service
 metricsRules:
   - name: http_requests
-    exp: nginx_http_requests_total.sum(['service']).rate('PT1M')
+    exp: nginx_http_requests_total.sum(['service','service_instance_id']).rate('PT1M')
   - name: http_latency
-    exp: nginx_http_latency.sum(['type','le','service']).histogram().histogram_percentile([50,70,90,99])
+    exp: nginx_http_latency.sum(['le','service','service_instance_id']).histogram().histogram_percentile([50,70,90,99])
   - name: http_bandwidth
-    exp: nginx_http_size_bytes.sum(['type','service']).rate('PT1M')
+    exp: nginx_http_size_bytes.sum(['type','service','service_instance_id']).rate('PT1M')
   - name: http_connections
-    exp: nginx_http_connections.sum(['state','service'])
+    exp: nginx_http_connections.sum(['state','service','service_instance_id'])
   - name: http_status
-    exp: nginx_http_requests_total.sum(['status','service']).rate('PT1M')
+    exp: nginx_http_requests_total.sum(['status','service','service_instance_id']).rate('PT1M')
   - name: http_requests_increment
-    exp: nginx_http_requests_total.sum(['service']).increase('PT1M')
+    exp: nginx_http_requests_total.sum(['service','service_instance_id']).increase('PT1M')
   - name: http_4xx_requests_increment
-    exp: nginx_http_requests_total.tagMatch("status", "400|401|403|404|405").sum(['service']).increase('PT1M')
+    exp: nginx_http_requests_total.tagMatch("status", "400|401|403|404|405").sum(['service','service_instance_id']).increase('PT1M')
   - name: http_5xx_requests_increment
-    exp: nginx_http_requests_total.tagMatch("status", "500|502|503|504").sum(['service']).increase('PT1M')
+    exp: nginx_http_requests_total.tagMatch("status", "500|502|503|504").sum(['service','service_instance_id']).increase('PT1M')

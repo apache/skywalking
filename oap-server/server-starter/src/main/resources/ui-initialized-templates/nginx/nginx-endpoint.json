@@ -24,9 +24,10 @@
           "expressions": [
             "meter_nginx_endpoint_http_requests"
           ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "metricConfig": [
+            {
+              "label": "HTTP request trend"
+            }
           ]
         },
         {
@@ -49,10 +50,6 @@
           },
           "expressions": [
             "meter_nginx_endpoint_http_latency"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -62,12 +59,8 @@
           "h": 13,
           "i": "2",
           "type": "Widget",
-          "metricMode": "Expression",
           "expressions": [
             "meter_nginx_endpoint_http_bandwidth/1024"
-          ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ],
           "widget": {
             "title": "HTTP Bandwidth (KB)"
@@ -101,10 +94,6 @@
           },
           "expressions": [
             "meter_nginx_endpoint_http_status"
-          ],
-          "metricMode": "Expression",
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
           ]
         },
         {
@@ -114,12 +103,13 @@
           "h": 13,
           "i": "4",
           "type": "Widget",
-          "metricMode": "Expression",
           "expressions": [
             "(meter_nginx_endpoint_http_4xx_requests_increment/meter_nginx_endpoint_http_requests_increment)*100"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "metricConfig": [
+            {
+              "label": "HTTP 4xx percent"
+            }
           ],
           "graph": {
             "type": "Area",
@@ -138,12 +128,13 @@
           "h": 13,
           "i": "5",
           "type": "Widget",
-          "metricMode": "Expression",
           "expressions": [
             "(meter_nginx_endpoint_http_5xx_requests_increment/meter_nginx_endpoint_http_requests_increment)*100"
           ],
-          "typesOfMQE": [
-            "TIME_SERIES_VALUES"
+          "metricConfig": [
+            {
+              "label": "HTTP 5xx percent"
+            }
           ],
           "graph": {
             "type": "Area",

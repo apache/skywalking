@@ -1,326 +1,278 @@
-
 [
   {
-    "id":"redis-instance",
-    "configuration":{
-      "children":[
+    "id": "redis-instance",
+    "configuration": {
+      "children": [
         {
-          "x":0,
-          "y":0,
-          "w":6,
-          "h":6,
-          "i":"0",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 6,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Uptime (day)"
+          "widget": {
+            "title": "Uptime (day)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_redis_instance_uptime)/3600/24"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":6,
-          "y":0,
-          "w":6,
-          "h":6,
-          "i":"1",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 6,
+          "y": 0,
+          "w": 6,
+          "h": 6,
+          "i": "1",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Connected Clients"
+          "widget": {
+            "title": "Connected Clients"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_redis_instance_connected_clients)"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":0,
-          "y":6,
-          "w":6,
-          "h":12,
-          "i":"2",
-          "type":"Widget",
-          "graph":{
-            "type":"Area",
-            "opacity":0.4,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 6,
+          "w": 6,
+          "h": 12,
+          "i": "2",
+          "type": "Widget",
+          "graph": {
+            "type": "Area",
+            "opacity": 0.4,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Memory Usage (%)"
+          "widget": {
+            "title": "Memory Usage (%)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Memory Usage"
+              "label": "Memory Usage"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_memory_usage"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":6,
-          "w":6,
-          "h":12,
-          "i":"3",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 6,
+          "w": 6,
+          "h": 12,
+          "i": "3",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Total Commands Trend"
+          "widget": {
+            "title": "Total Commands Trend"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_total_commands_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":0,
-          "y":18,
-          "w":6,
-          "h":12,
-          "i":"4",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 0,
+          "y": 18,
+          "w": 6,
+          "h": 12,
+          "i": "4",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Hits Rate (%)"
+          "widget": {
+            "title": "Hits Rate (%)"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Hit Rate"
+              "label": "Hit Rate"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_hit_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":18,
-          "y":0,
-          "w":6,
-          "h":6,
-          "i":"5",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 6,
+          "i": "5",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Memory Max Bytes (MB)"
+          "widget": {
+            "title": "Memory Max Bytes (MB)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_redis_instance_memory_max_bytes)/1000/1000"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":6,
-          "y":18,
-          "w":6,
-          "h":12,
-          "i":"6",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 6,
+          "y": 18,
+          "w": 6,
+          "h": 12,
+          "i": "6",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"Input Bytes"
+              "label": "Input Bytes"
             },
             {
-              "label":"Output Bytes"
+              "label": "Output Bytes"
             }
           ],
-          "widget":{
-            "title":"Net Input / Output Bytes (KB)"
+          "widget": {
+            "title": "Net Input / Output Bytes (KB)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_net_input_bytes_total/1024",
             "meter_redis_instance_net_output_bytes_total/1024"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":18,
-          "y":6,
-          "w":6,
-          "h":12,
-          "i":"7",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 18,
+          "y": 6,
+          "w": 6,
+          "h": 12,
+          "i": "7",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"DB Keys"
+          "widget": {
+            "title": "DB Keys"
           },
-          "metricMode":"Expression",
-          "metricConfig":[
+          "metricConfig": [
             {
-              "label":"DB Keys"
+              "label": "DB Keys"
             },
             {
-              "label":"Evicted Keys"
+              "label": "Evicted Keys"
             },
             {
-              "label":"Expired Keys"
+              "label": "Expired Keys"
             }
           ],
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_db_keys",
             "meter_redis_instance_evicted_keys_total",
             "meter_redis_instance_expired_keys_total"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES",
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":12,
-          "y":0,
-          "w":6,
-          "h":6,
-          "i":"8",
-          "type":"Widget",
-          "graph":{
-            "type":"Card",
-            "fontSize":14,
-            "textAlign":"center",
-            "showUnit":true
+          "x": 12,
+          "y": 0,
+          "w": 6,
+          "h": 6,
+          "i": "8",
+          "type": "Widget",
+          "graph": {
+            "type": "Card",
+            "fontSize": 14,
+            "textAlign": "center",
+            "showUnit": true
           },
-          "widget":{
-            "title":"Blocked Clients"
+          "widget": {
+            "title": "Blocked Clients"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "latest(meter_redis_instance_redis_blocked_clients)"
-          ],
-          "typesOfMQE":[
-            "SINGLE_VALUE"
           ]
         },
         {
-          "x":12,
-          "y":18,
-          "w":6,
-          "h":12,
-          "i":"9",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 12,
+          "y": 18,
+          "w": 6,
+          "h": 12,
+          "i": "9",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Total Time Spent by Command Trend (sec)"
+          "widget": {
+            "title": "Total Time Spent by Command Trend (sec)"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_commands_duration_seconds_total_rate"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         },
         {
-          "x":6,
-          "y":6,
-          "w":6,
-          "h":12,
-          "i":"10",
-          "type":"Widget",
-          "graph":{
-            "type":"Line",
-            "step":false,
-            "smooth":false,
-            "showSymbol":false,
-            "showXAxis":true,
-            "showYAxis":true
+          "x": 6,
+          "y": 6,
+          "w": 6,
+          "h": 12,
+          "i": "10",
+          "type": "Widget",
+          "graph": {
+            "type": "Line",
+            "step": false,
+            "smooth": false,
+            "showSymbol": false,
+            "showXAxis": true,
+            "showYAxis": true
           },
-          "widget":{
-            "title":"Average Time Spent by Command / sec"
+          "widget": {
+            "title": "Average Time Spent by Command / sec"
           },
-          "metricMode":"Expression",
-          "expressions":[
+          "expressions": [
             "meter_redis_instance_average_time_spent_by_command"
-          ],
-          "typesOfMQE":[
-            "TIME_SERIES_VALUES"
           ]
         }
       ],
-      "layer":"REDIS",
-      "entity":"ServiceInstance",
-      "name":"Redis-Instance",
-      "id":"redis-instance",
-      "isRoot":false
+      "layer": "REDIS",
+      "entity": "ServiceInstance",
+      "name": "Redis-Instance",
+      "id": "redis-instance",
+      "isRoot": false
     }
   }
 ]

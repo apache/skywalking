@@ -31,6 +31,6 @@
 metricPrefix: meter_nginx
 metricsRules:
   - name: service_error_log_count
-    exp: nginx_error_log_count.sum(['level','service']).downsampling(SUM).service(['service'], Layer.NGINX)
+    exp: nginx_error_log_count.sum(['level','service','service_instance_id']).downsampling(SUM).service(['service'], Layer.NGINX)
   - name: instance_error_log_count
     exp: nginx_error_log_count.sum(['level','service','service_instance_id']).downsampling(SUM).instance(['service'],['service_instance_id'], Layer.NGINX)

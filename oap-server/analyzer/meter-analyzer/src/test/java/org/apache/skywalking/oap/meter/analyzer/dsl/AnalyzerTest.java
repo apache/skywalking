@@ -163,18 +163,18 @@ public class AnalyzerTest {
         AvgLabeledFunction t3Cn = actValues.get(IDManager.ServiceInstanceID.buildId(
             IDManager.ServiceID.buildId("t3", true), "cn"));
 
-        assertEquals(50L, t1.getSummation().get(""), 0.0);
-        assertEquals(1L, t1.getCount().get(""), 0.0);
+        assertEquals(50L, t1.getSummation().get("{instance=}"), 0.0);
+        assertEquals(1L, t1.getCount().get("{instance=}"), 0.0);
 
-        assertEquals(50L, t1Us.getSummation().get(""), 0.0);
-        assertEquals(100L, t1Us.getSummation().get("10.0.0.1"), 0.0);
-        assertEquals(1L, t1Us.getCount().get(""), 0.0);
-        assertEquals(1L, t1Us.getCount().get("10.0.0.1"), 0.0);
+        assertEquals(50L, t1Us.getSummation().get("{instance=}"), 0.0);
+        assertEquals(100L, t1Us.getSummation().get("{instance=10.0.0.1}"), 0.0);
+        assertEquals(1L, t1Us.getCount().get("{instance=}"), 0.0);
+        assertEquals(1L, t1Us.getCount().get("{instance=10.0.0.1}"), 0.0);
 
-        assertEquals(51L, t3Cn.getSummation().get(""), 0.0);
-        assertEquals(3L, t3Cn.getSummation().get("10.0.0.1"), 0.0);
-        assertEquals(1L, t3Cn.getCount().get(""), 0.0);
-        assertEquals(1L, t3Cn.getCount().get("10.0.0.1"), 0.0);
+        assertEquals(51L, t3Cn.getSummation().get("{instance=}"), 0.0);
+        assertEquals(3L, t3Cn.getSummation().get("{instance=10.0.0.1}"), 0.0);
+        assertEquals(1L, t3Cn.getCount().get("{instance=}"), 0.0);
+        assertEquals(1L, t3Cn.getCount().get("{instance=10.0.0.1}"), 0.0);
     }
 
     @Test
@@ -209,7 +209,7 @@ public class AnalyzerTest {
         doAnswer(invocationOnMock -> {
             AvgHistogramPercentileFunction actValue = (AvgHistogramPercentileFunction) invocationOnMock.getArgument(
                 0, AcceptableValue.class);
-            if (actValue.getSummation().hasKey("instance1:25")) {
+            if (actValue.getSummation().hasKey("{instance=instance1}:25")) {
                 actValues.put("instance1", actValue);
             } else {
                 actValues.put("instance2", actValue);
@@ -233,12 +233,12 @@ public class AnalyzerTest {
         });
         AvgHistogramPercentileFunction instance1 = actValues.get("instance1");
         AvgHistogramPercentileFunction instance2 = actValues.get("instance2");
-        assertEquals(100L, instance1.getSummation().get("instance1:25"), 0.0);
-        assertEquals(300L, instance1.getSummation().get("instance1:1250"), 0.0);
-        assertEquals(1L, instance1.getCount().get("instance1:25"), 0.0);
-        assertEquals(1L, instance1.getCount().get("instance1:1250"), 0.0);
+        assertEquals(100L, instance1.getSummation().get("{instance=instance1}:25"), 0.0);
+        assertEquals(300L, instance1.getSummation().get("{instance=instance1}:1250"), 0.0);
+        assertEquals(1L, instance1.getCount().get("{instance=instance1}:25"), 0.0);
+        assertEquals(1L, instance1.getCount().get("{instance=instance1}:1250"), 0.0);
 
-        assertEquals(122L, instance2.getSummation().get("instance2:750"), 0.0);
-        assertEquals(1L, instance2.getCount().get("instance2:750"), 0.0);
+        assertEquals(122L, instance2.getSummation().get("{instance=instance2}:750"), 0.0);
+        assertEquals(1L, instance2.getCount().get("{instance=instance2}:750"), 0.0);
     }
 }
