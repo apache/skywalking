@@ -118,6 +118,7 @@
 * Support DoubleValue,IntValue,BoolValue in OTEL metrics attributes.
 * [Break Change] gGRPC metrics exporter unified the metric value type and support labeled metrics.
 * Add component definition(ID=152) for `c3p0`(JDBC3 Connection and Statement Pooling).
+* Fix MQE `top_n` global query. 
 
 #### UI
 

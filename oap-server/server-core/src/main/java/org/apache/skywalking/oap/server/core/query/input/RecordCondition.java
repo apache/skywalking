@@ -55,7 +55,7 @@ public class RecordCondition {
             final Entity entity = new Entity();
             entity.setScope(condition.getScope() == null ? Scope.Service : condition.getScope());
             entity.setServiceName(condition.getParentService());
-            entity.setNormal(condition.isNormal());
+            entity.setNormal(condition.getNormal());
             this.parentEntity = entity;
         }
         this.topN = condition.getTopN();

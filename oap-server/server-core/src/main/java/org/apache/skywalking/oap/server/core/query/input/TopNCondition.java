@@ -46,7 +46,7 @@ public class TopNCondition {
      * Normal service is the service having installed agent or metrics reported directly. Unnormal service is
      * conjectural service, usually detected by the agent.
      */
-    private boolean normal;
+    private Boolean normal;
     /**
      * Indicate the metrics entity scope. Because this is a top list, don't need to set the Entity like the
      * MetricsCondition. Only accept scope = {@link Scope#Service} {@link Scope#ServiceInstance} and {@link
